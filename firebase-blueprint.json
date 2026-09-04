@@ -1,0 +1,434 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account details and subscription plan",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "photoURL": {
+          "type": "string"
+        },
+        "plan": {
+          "type": "string",
+          "enum": [
+            "Free Trial",
+            "Standard",
+            "Professional",
+            "Business"
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "subscriptionStatus": {
+          "type": "string",
+          "enum": [
+            "trial",
+            "active",
+            "past_due",
+            "canceled"
+          ]
+        },
+        "trialEndsAt": {
+          "type": "string"
+        },
+        "trialDays": {
+          "type": "number"
+        },
+        "isExpired": {
+          "type": "boolean"
+        },
+        "stripeCustomerId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "uid",
+        "email"
+      ]
+    },
+    "Webinar": {
+      "title": "Webinar / Event",
+      "description": "Scheduled webinars and live broadcasts",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "desc": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "time": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "live",
+            "webinar",
+            "pre-recorded"
+          ]
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "videoName": {
+          "type": "string"
+        },
+        "ownerId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "ownerId"
+      ]
+    },
+    "Banner": {
+      "title": "Studio Banner",
+      "description": "Lower third or overlay banners",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "folder": {
+          "type": "string"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "style": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ]
+    },
+    "Snapshot": {
+      "title": "Studio Snapshot",
+      "description": "Captured frames from live stream",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "url"
+      ]
+    },
+    "StudioSettings": {
+      "title": "Transmission and Scene Settings",
+      "description": "Stream key, delay, rtmp, and scene layouts",
+      "type": "object",
+      "properties": {
+        "rtmpServer": {
+          "type": "string"
+        },
+        "streamKey": {
+          "type": "string"
+        },
+        "streamDelay": {
+          "type": "number"
+        },
+        "recordingFormat": {
+          "type": "string"
+        },
+        "recordingQuality": {
+          "type": "string"
+        },
+        "scenes": {
+          "type": "object"
+        },
+        "sceneTransitions": {
+          "type": "object"
+        },
+        "destinations": {
+          "type": "array"
+        }
+      }
+    },
+    "WebhookConfig": {
+      "title": "Webhook Settings",
+      "description": "Webhook configuration for platforms",
+      "type": "object",
+      "properties": {
+        "youtube": {
+          "type": "object"
+        },
+        "facebook": {
+          "type": "object"
+        },
+        "twitch": {
+          "type": "object"
+        }
+      }
+    },
+    "WebhookLog": {
+      "title": "Webhook Event Log",
+      "description": "Logged webhook event",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "time": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "status": {
+          "type": "number"
+        },
+        "payload": {
+          "type": "string"
+        },
+        "platform": {
+          "type": "string"
+        }
+      }
+    },
+    "AuditLog": {
+      "title": "Audit Log Item",
+      "description": "Critical security and management events logged for Super Admin",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "actorEmail": {
+          "type": "string"
+        },
+        "targetEmail": {
+          "type": "string"
+        },
+        "details": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "timestamp",
+        "action",
+        "actorEmail",
+        "details"
+      ]
+    },
+    "RtmpKey": {
+      "title": "Client RTMP Stream Key",
+      "description": "Ingestion keys allocated per client for OBS or external encoders",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "clientEmail": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "server": {
+          "type": "string"
+        },
+        "maxBitrate": {
+          "type": "string"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "clientEmail",
+        "key"
+      ]
+    },
+    "AudienceMember": {
+      "title": "Audience Member",
+      "description": "End users (audience) engaging with the stream",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "isNewUser": {
+          "type": "boolean"
+        },
+        "engagementScore": {
+          "type": "number"
+        },
+        "firstSeen": {
+          "type": "string"
+        },
+        "lastSeen": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Transaction": {
+      "title": "Payment Transaction",
+      "description": "User payment history",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "succeeded",
+            "pending",
+            "failed"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "card",
+            "pix",
+            "paypal"
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "amount",
+        "status",
+        "method"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "User profile"
+    },
+    "/auditLogs/{logId}": {
+      "schema": {
+        "$ref": "#/entities/AuditLog"
+      },
+      "description": "Audit logs collection for Super Admin"
+    },
+    "/rtmpKeys/{keyId}": {
+      "schema": {
+        "$ref": "#/entities/RtmpKey"
+      },
+      "description": "Isolated client RTMP stream keys collection"
+    },
+    "/users/{userId}/banners/{bannerId}": {
+      "schema": {
+        "$ref": "#/entities/Banner"
+      },
+      "description": "User banners"
+    },
+    "/users/{userId}/snapshots/{snapshotId}": {
+      "schema": {
+        "$ref": "#/entities/Snapshot"
+      },
+      "description": "User studio snapshots"
+    },
+    "/users/{userId}/studioSettings/{docId}": {
+      "schema": {
+        "$ref": "#/entities/StudioSettings"
+      },
+      "description": "Transmission and Scene Layout settings"
+    },
+    "/users/{userId}/webhookLogs/{logId}": {
+      "schema": {
+        "$ref": "#/entities/WebhookLog"
+      },
+      "description": "Webhook event logs"
+    },
+    "/users/{userId}/audience/{memberId}": {
+      "schema": {
+        "$ref": "#/entities/AudienceMember"
+      },
+      "description": "Audience members / CRM for the studio user"
+    },
+    "/users/{userId}/webinars/{webinarId}": {
+      "schema": {
+        "$ref": "#/entities/Webinar"
+      },
+      "description": "User webinars collection"
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": {
+        "$ref": "#/entities/Transaction"
+      },
+      "description": "User payment transactions"
+    }
+  }
+}

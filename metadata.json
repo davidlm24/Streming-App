@@ -1,0 +1,6 @@
+{
+  "name": "Studio",
+  "description": "Estúdio profissional PwStream para lives, agendamento de webinars, páginas públicas de inscrição com sala de espectador, enquetes, chat, temas claro/escuro de alta legibilidade e painel técnico de monitoramento de servidores.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
