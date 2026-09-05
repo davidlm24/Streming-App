@@ -74,7 +74,7 @@ export function Header({
   }, []);
 
   return (
-    <header className="border-b border-slate-800 bg-[#16191E] sticky top-0 z-50">
+    <header className="border-b border-slate-800 bg-[var(--surface)] sticky top-0 z-50">
       {/* 30-day Free Trial Active simulated notification bar */}
       {user && user.plan === 'Free Trial' && !user.isExpired && (
         <div className="bg-gradient-to-r from-blue-900/60 via-slate-900 to-indigo-950/60 px-4 py-2 border-b border-blue-500/20 flex flex-col sm:flex-row items-center justify-between text-xs gap-2 select-none">
@@ -111,7 +111,7 @@ export function Header({
             {onOpenPricing && (
               <button 
                 onClick={onOpenPricing}
-                className="px-3 py-1 bg-[#4683E0] hover:bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md"
+                className="px-3 py-1 bg-[var(--color-brand)] hover:bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md"
               >
                 Escolher Plano
               </button>
@@ -188,7 +188,7 @@ export function Header({
                 type="button"
                 onClick={() => setStreamMenuOpen(!streamMenuOpen)}
                 id="btn-stream-recording-dropdown"
-                className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#0F1115] hover:bg-slate-800/90 border border-slate-800 hover:border-slate-700 transition-all cursor-pointer text-left select-none group shrink-0"
+                className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[var(--bg)] hover:bg-slate-800/90 border border-slate-800 hover:border-slate-700 transition-all cursor-pointer text-left select-none group shrink-0"
                 title="Configurações de Transmissão e Gravação"
               >
                 <div className="flex flex-col justify-center leading-tight">
@@ -211,7 +211,7 @@ export function Header({
               </button>
 
               {streamMenuOpen && (
-                <div className="absolute right-0 mt-2 w-64 rounded-xl bg-[#16191E] border border-slate-800 shadow-2xl p-3 z-50 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-2 w-64 rounded-xl bg-[var(--surface)] border border-slate-800 shadow-2xl p-3 z-50 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="pb-2 mb-2 border-b border-slate-800 flex items-center justify-between">
                     <span className="font-extrabold text-white uppercase text-[10px] tracking-wider">Configurações de Stream</span>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${isLive ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-blue-500/10 text-blue-400'}`}>
@@ -337,7 +337,7 @@ export function Header({
             {/* Theme Toggle Button (Light/Dark Mode) */}
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-800 hover:border-slate-700 bg-[#0F1115] hover:bg-slate-800 text-slate-300 hover:text-white transition-all cursor-pointer shadow-sm text-xs font-bold shrink-0"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-800 hover:border-slate-700 bg-[var(--bg)] hover:bg-slate-800 text-slate-300 hover:text-white transition-all cursor-pointer shadow-sm text-xs font-bold shrink-0"
               title={theme === 'dark' ? 'Alternar para Tema Claro' : 'Alternar para Tema Escuro'}
               aria-label="Alternar Tema Claro/Escuro"
             >
@@ -367,7 +367,7 @@ export function Header({
                   referrerPolicy="no-referrer"
                 />
                 <div className="hidden sm:block">
-                  <p className="text-xs text-[#a59ebf] leading-tight font-medium">Conta de</p>
+                  <p className="text-xs text-[var(--text-lo)] leading-tight font-medium">Conta de</p>
                   <p className="text-sm font-semibold text-white leading-tight flex items-center gap-1">
                     {user ? user.name : 'Visitante'} <ChevronDown size={14} className="text-gray-400" />
                   </p>
@@ -375,10 +375,10 @@ export function Header({
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-[#16191E] border border-slate-800 shadow-2xl py-2 z-50 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-[var(--surface)] border border-slate-800 shadow-2xl py-2 z-50 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-4 py-2 border-b border-slate-800 mb-1">
                     <p className="font-semibold text-white">{user ? user.name : 'Visitante'}</p>
-                    <p className="text-xs text-[#a59ebf]">{user ? user.email : 'visitante@pwstreamer.com'}</p>
+                    <p className="text-xs text-[var(--text-lo)]">{user ? user.email : 'visitante@pwstreamer.com'}</p>
                   </div>
                   <button 
                     onClick={() => { onViewChange?.('profile'); setDropdownOpen(false); }}
@@ -433,7 +433,7 @@ export function Header({
 
       {/* Mobile Nav Links dropdown */}
       {menuOpen && (
-        <div className="md:hidden border-t border-slate-800 bg-[#16191E] px-4 pt-2 pb-4 space-y-1">
+        <div className="md:hidden border-t border-slate-800 bg-[var(--surface)] px-4 pt-2 pb-4 space-y-1">
           <button onClick={() => { onViewChange?.('dashboard'); setMenuOpen(false); }} className="block w-full text-left text-gray-300 hover:text-white px-3 py-2 rounded text-base font-medium cursor-pointer">
             Dashboard
           </button>
@@ -448,7 +448,7 @@ export function Header({
           </button>
           <button 
             onClick={() => { toggleTheme(); setMenuOpen(false); }} 
-            className="flex items-center justify-between w-full text-left text-gray-300 hover:text-white px-3 py-2 rounded text-base font-medium cursor-pointer border border-slate-800 my-1 bg-[#0F1115]"
+            className="flex items-center justify-between w-full text-left text-gray-300 hover:text-white px-3 py-2 rounded text-base font-medium cursor-pointer border border-slate-800 my-1 bg-[var(--bg)]"
           >
             <span className="flex items-center gap-2">
               {theme === 'dark' ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-blue-500" />}

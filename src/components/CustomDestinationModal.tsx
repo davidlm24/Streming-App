@@ -501,10 +501,10 @@ export function CustomDestinationModal({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200" id="custom-destination-modal">
-      <div className="bg-[#12141A] border border-slate-700/80 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col overflow-hidden max-h-[92vh]">
+      <div className="bg-[var(--bg)] border border-slate-700/80 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col overflow-hidden max-h-[92vh]">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#161922]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[var(--surface)]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shadow-inner">
               <Server size={22} />
@@ -547,10 +547,10 @@ export function CustomDestinationModal({
         </div>
 
         {/* Modal Main Body (2 Columns Layout) */}
-        <div className="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-12 min-h-0 bg-[#0E1015]">
+        <div className="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-12 min-h-0 bg-[var(--bg)]">
           
           {/* Left Column: List of Configured RTMP Destinations (5 Cols) */}
-          <div className="md:col-span-5 p-4 sm:p-5 border-b md:border-b-0 md:border-r border-slate-800 space-y-4 overflow-y-auto bg-[#12141C]">
+          <div className="md:col-span-5 p-4 sm:p-5 border-b md:border-b-0 md:border-r border-slate-800 space-y-4 overflow-y-auto bg-[var(--bg)]">
             {/* Section Header */}
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
@@ -601,7 +601,7 @@ export function CustomDestinationModal({
                     onClick={() => {
                       startNewDestination(preset.platform);
                     }}
-                    className="px-2 py-1 bg-[#1A1D27] hover:bg-blue-600/20 text-gray-300 hover:text-blue-400 hover:border-blue-500/40 border border-slate-800 rounded-md text-[9px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                    className="px-2 py-1 bg-[var(--surface)] hover:bg-blue-600/20 text-gray-300 hover:text-blue-400 hover:border-blue-500/40 border border-slate-800 rounded-md text-[9px] font-bold transition-all flex items-center gap-1 cursor-pointer"
                   >
                     {getPlatformIcon(preset.platform)}
                     <span>{preset.name.split(' ')[0]}</span>
@@ -613,7 +613,7 @@ export function CustomDestinationModal({
             {/* Configured Destinations Cards List */}
             <div className="space-y-2 pt-1">
               {customDestinations.length === 0 ? (
-                <div className="p-6 text-center border border-dashed border-slate-800 rounded-xl space-y-2 bg-[#161922]/40">
+                <div className="p-6 text-center border border-dashed border-slate-800 rounded-xl space-y-2 bg-[var(--surface)]/40">
                   <Server size={28} className="mx-auto text-gray-600" />
                   <p className="text-xs font-semibold text-gray-300">Nenhum destino RTMP adicional cadastrado</p>
                   <p className="text-[10px] text-gray-500">Clique no botão "Novo Destino" ou escolha um modelo acima para conectar seu NGINX RTMP ou outros servidores.</p>
@@ -637,7 +637,7 @@ export function CustomDestinationModal({
                       className={`p-3 rounded-xl border transition-all cursor-pointer relative group flex items-center justify-between ${
                         isCurrent
                           ? 'bg-blue-600/15 border-blue-500 ring-1 ring-blue-500/40 text-white shadow-md'
-                          : 'bg-[#161924] border-slate-800 text-gray-300 hover:border-slate-700 hover:bg-[#1A1D2C]'
+                          : 'bg-[var(--surface)] border-slate-800 text-gray-300 hover:border-slate-700 hover:bg-[var(--surface)]'
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0 pr-2">
@@ -718,7 +718,7 @@ export function CustomDestinationModal({
             </div>
 
             {/* Presets Bar */}
-            <div className="space-y-1.5 bg-[#141720] border border-slate-800 p-3 rounded-xl">
+            <div className="space-y-1.5 bg-[var(--surface)] border border-slate-800 p-3 rounded-xl">
               <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
                 <span>Aplicar Configuração Predefinida:</span>
                 <span className="text-[9px] text-blue-400 font-normal">Preenche URL e padrões</span>
@@ -732,7 +732,7 @@ export function CustomDestinationModal({
                     className={`p-1.5 rounded-lg border text-left transition-all text-[10px] flex items-center gap-1.5 cursor-pointer ${
                       platform === preset.platform
                         ? 'bg-blue-600/20 border-blue-500 text-white font-bold'
-                        : 'bg-[#181B26] border-slate-800 text-gray-400 hover:text-white hover:border-slate-700'
+                        : 'bg-[var(--surface)] border-slate-800 text-gray-400 hover:text-white hover:border-slate-700'
                     }`}
                   >
                     {getPlatformIcon(preset.platform)}
@@ -756,7 +756,7 @@ export function CustomDestinationModal({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Ex: Servidor NGINX Matriz"
-                    className="w-full bg-[#161922] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition-colors"
                   />
                 </div>
 
@@ -775,7 +775,7 @@ export function CustomDestinationModal({
                         setPort(matchingPreset.defaultPort || 1935);
                       }
                     }}
-                    className="w-full bg-[#161922] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                    className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
                   >
                     <option value="nginx">NGINX RTMP Module</option>
                     <option value="srs">SRS (Simple Realtime Server)</option>
@@ -809,7 +809,7 @@ export function CustomDestinationModal({
                         setTestResult({ status: 'idle' });
                       }}
                       placeholder="rtmp://seu-servidor-nginx:1935/live"
-                      className="flex-1 bg-[#161922] border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono transition-colors"
+                      className="flex-1 bg-[var(--surface)] border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono transition-colors"
                     />
                     <button
                       type="button"
@@ -819,7 +819,7 @@ export function CustomDestinationModal({
                         setTimeout(() => setCopiedUrl(false), 2000);
                       }}
                       disabled={!streamUrl}
-                      className="px-3 py-2 bg-[#1A1D27] hover:bg-slate-800 border border-slate-800 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-40"
+                      className="px-3 py-2 bg-[var(--surface)] hover:bg-slate-800 border border-slate-800 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-40"
                       title="Copiar URL Primária"
                     >
                       {copiedUrl ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
@@ -845,7 +845,7 @@ export function CustomDestinationModal({
                         setTestResult({ status: 'idle' });
                       }}
                       placeholder="rtmp://backup-ingest.servidor.com:1935/live ou rtmps://..."
-                      className="flex-1 bg-[#161922] border border-purple-500/20 focus:border-purple-500 rounded-lg px-3.5 py-2 text-xs text-purple-200 placeholder-gray-600 focus:outline-none font-mono transition-colors"
+                      className="flex-1 bg-[var(--surface)] border border-purple-500/20 focus:border-purple-500 rounded-lg px-3.5 py-2 text-xs text-purple-200 placeholder-gray-600 focus:outline-none font-mono transition-colors"
                     />
                     <button
                       type="button"
@@ -855,7 +855,7 @@ export function CustomDestinationModal({
                         setTimeout(() => setCopiedAltUrl(false), 2000);
                       }}
                       disabled={!alternativeIngestUrl}
-                      className="px-3 py-2 bg-[#1A1D27] hover:bg-slate-800 border border-slate-800 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-40"
+                      className="px-3 py-2 bg-[var(--surface)] hover:bg-slate-800 border border-slate-800 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-40"
                       title="Copiar URL Alternativa"
                     >
                       {copiedAltUrl ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
@@ -865,7 +865,7 @@ export function CustomDestinationModal({
               </div>
 
               {/* Latency & Quality Diagnostic Benchmark Card */}
-              <div className="bg-[#12141F] border border-slate-800/90 rounded-2xl p-3.5 space-y-3">
+              <div className="bg-[var(--bg)] border border-slate-800/90 rounded-2xl p-3.5 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Activity size={14} className="text-blue-400" />
@@ -916,7 +916,7 @@ export function CustomDestinationModal({
                 {/* Benchmark Meters Display */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {/* Primary latency meter */}
-                  <div className="p-2.5 bg-[#171926] rounded-xl border border-white/5 space-y-1.5">
+                  <div className="p-2.5 bg-[var(--surface)] rounded-xl border border-white/5 space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-[9px] font-bold text-gray-400 uppercase">Servidor Primário</span>
                       {testResult.latencyPrimary !== undefined ? (
@@ -945,7 +945,7 @@ export function CustomDestinationModal({
                   </div>
 
                   {/* Alternative latency meter */}
-                  <div className="p-2.5 bg-[#171926] rounded-xl border border-white/5 space-y-1.5">
+                  <div className="p-2.5 bg-[var(--surface)] rounded-xl border border-white/5 space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="text-[9px] font-bold text-purple-300 uppercase">Servidor Alternativo</span>
                       {testResult.latencyAlternative !== undefined ? (
@@ -1005,7 +1005,7 @@ export function CustomDestinationModal({
                       value={streamKey}
                       onChange={(e) => setStreamKey(e.target.value)}
                       placeholder="Chave secreta de transmissão..."
-                      className="w-full bg-[#161922] border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-amber-300 placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono transition-colors pr-9"
+                      className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-amber-300 placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono transition-colors pr-9"
                     />
                     <button
                       type="button"
@@ -1023,7 +1023,7 @@ export function CustomDestinationModal({
                       setTimeout(() => setCopiedKey(false), 2000);
                     }}
                     disabled={!streamKey}
-                    className="px-3 py-2 bg-[#1A1D27] hover:bg-slate-800 border border-slate-800 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-40"
+                    className="px-3 py-2 bg-[var(--surface)] hover:bg-slate-800 border border-slate-800 rounded-lg text-xs font-semibold text-gray-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-40"
                     title="Copiar Stream Key"
                   >
                     {copiedKey ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
@@ -1032,7 +1032,7 @@ export function CustomDestinationModal({
               </div>
 
               {/* Row 4: Optional Basic Auth for NGINX/SRS with Auth Hooks */}
-              <div className="bg-[#141720] border border-slate-800/80 p-3.5 rounded-xl space-y-3">
+              <div className="bg-[var(--surface)] border border-slate-800/80 p-3.5 rounded-xl space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Lock size={12} className="text-blue-400" />
@@ -1049,7 +1049,7 @@ export function CustomDestinationModal({
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="admin ou stream_user"
-                      className="w-full bg-[#181B26] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-gray-300 placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono"
+                      className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-gray-300 placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono"
                     />
                   </div>
 
@@ -1061,7 +1061,7 @@ export function CustomDestinationModal({
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••••••"
-                        className="w-full bg-[#181B26] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-gray-300 placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono pr-8"
+                        className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-gray-300 placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono pr-8"
                       />
                       <button
                         type="button"
@@ -1086,11 +1086,11 @@ export function CustomDestinationModal({
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Ex: Retransmissão interna no auditório 2"
-                    className="w-full bg-[#161922] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-[#141720] border border-slate-800 rounded-xl">
+                <div className="flex items-center justify-between p-3 bg-[var(--surface)] border border-slate-800 rounded-xl">
                   <div className="text-left">
                     <p className="text-xs font-bold text-white">Transmitir para este destino</p>
                     <p className="text-[9px] text-gray-500">Enviar feed de vídeo no Go Live</p>
@@ -1110,7 +1110,7 @@ export function CustomDestinationModal({
               </div>
 
               {/* Test Connection Row */}
-              <div className="p-3 bg-[#141720] border border-slate-800 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="p-3 bg-[var(--surface)] border border-slate-800 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
                   <button
                     type="button"
@@ -1150,7 +1150,7 @@ export function CustomDestinationModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-slate-800 bg-[#161922] flex items-center justify-between gap-3">
+        <div className="px-6 py-4 border-t border-slate-800 bg-[var(--surface)] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs text-gray-400">
             <ShieldCheck size={14} className="text-emerald-400" />
             <span className="hidden sm:inline">Suas preferências e credenciais são sincronizadas com segurança no Firebase Firestore.</span>

@@ -14,10 +14,10 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
-      <div className="bg-[#16191E] border border-slate-800 w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
+      <div className="bg-[var(--surface)] border border-slate-800 w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F1115]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[var(--bg)]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
               {isPrivacy ? <Shield size={20} /> : <FileText size={20} />}
@@ -383,7 +383,7 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-[#0F1115] border-t border-slate-800 flex justify-end">
+        <div className="px-6 py-4 bg-[var(--bg)] border-t border-slate-800 flex justify-end">
           <button 
             onClick={onClose}
             className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"

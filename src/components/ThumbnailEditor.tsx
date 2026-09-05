@@ -215,13 +215,13 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
   };
 
   return (
-    <div className="bg-[#16191E] border border-slate-800 rounded-2xl p-5 space-y-6" id="thumbnail-editor-container">
+    <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl p-5 space-y-6" id="thumbnail-editor-container">
       <div className="flex items-center justify-between">
         <div className="text-left">
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
             <Sparkles size={16} className="text-blue-500" /> Editor de Miniaturas (Capas)
           </h3>
-          <p className="text-[11px] text-[#a59ebf]">Crie a capa perfeita e de alto impacto para engajar seus espectadores.</p>
+          <p className="text-[11px] text-[var(--text-lo)]">Crie a capa perfeita e de alto impacto para engajar seus espectadores.</p>
         </div>
         <div className="flex items-center gap-2">
           {isGenerated && (
@@ -250,7 +250,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 setIsGenerated(false);
               }}
               placeholder="Ex: Como Alavancar suas Vendas..."
-              className="w-full bg-[#0F1115] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>
 
@@ -267,7 +267,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 setIsGenerated(false);
               }}
               placeholder="Ex: WEBINAR AO VIVO"
-              className="w-full bg-[#0F1115] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
             />
           </div>
 
@@ -318,7 +318,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 value={customImageUrl}
                 onChange={(e) => setCustomImageUrl(e.target.value)}
                 placeholder="https://images.unsplash.com/photo-..." 
-                className="flex-1 bg-[#0F1115] border border-slate-800 rounded-lg px-2.5 py-1.5 text-[10px] text-white focus:outline-none focus:border-blue-500"
+                className="flex-1 bg-[var(--bg)] border border-slate-800 rounded-lg px-2.5 py-1.5 text-[10px] text-white focus:outline-none focus:border-blue-500"
               />
               <button 
                 type="submit"
@@ -330,7 +330,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
           </form>
 
           {/* 5. Sliders & Switches */}
-          <div className="bg-[#0F1115] border border-slate-800/60 p-3 rounded-xl space-y-3 text-xs">
+          <div className="bg-[var(--bg)] border border-slate-800/60 p-3 rounded-xl space-y-3 text-xs">
             {/* Opacity slider */}
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] text-gray-400 font-bold">
@@ -398,7 +398,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
           <button
             type="button"
             onClick={handleGenerateAndDownload}
-            className="w-full py-3 bg-gradient-to-r from-[#4683E0] to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold text-xs rounded-xl shadow-xl transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 bg-gradient-to-r from-[var(--color-brand)] to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold text-xs rounded-xl shadow-xl transition-all flex items-center justify-center gap-2"
           >
             <Download size={14} /> Gerar Capa da Live (Download JPG)
           </button>
@@ -462,7 +462,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
 
               {/* Bottom Row: Footer credentials */}
               <div className="relative z-10 border-t border-white/10 pt-2 flex items-center justify-between text-left">
-                <span className="text-[9px] text-[#a59ebf] font-semibold">Capa oficial do Webinar agendado</span>
+                <span className="text-[9px] text-[var(--text-lo)] font-semibold">Capa oficial do Webinar agendado</span>
                 <span className="text-[9px] font-mono font-bold text-gray-500">1280 x 720 px</span>
               </div>
             </div>

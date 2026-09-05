@@ -94,10 +94,10 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#0c0f18] rounded-3xl w-full max-w-4xl border border-slate-700/80 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-[var(--bg)] rounded-3xl w-full max-w-4xl border border-slate-700/80 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-800 shrink-0 bg-[#0a0d14]">
+        <div className="flex items-center justify-between p-5 border-b border-slate-800 shrink-0 bg-[var(--well)]">
           <div className="flex items-center gap-2.5">
             <Activity className="text-blue-500" size={20} />
             <div>
@@ -157,7 +157,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
                   className={`relative rounded-2xl border transition-all p-5 cursor-pointer flex flex-col justify-between ${
                     isSelected 
                       ? 'border-blue-500 bg-blue-500/10 shadow-xl ring-1 ring-blue-500' 
-                      : 'border-slate-800 bg-[#16191E] hover:border-slate-700'
+                      : 'border-slate-800 bg-[var(--surface)] hover:border-slate-700'
                   }`}
                 >
                   {isSelected && (
@@ -201,23 +201,23 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
             })}
           </div>
 
-          <div className="bg-[#16191E] border border-slate-800 rounded-2xl p-4 space-y-3">
+          <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl p-4 space-y-3">
             <h4 className="text-xs font-bold text-white flex items-center gap-2">
               <CreditCard size={15} className="text-blue-400" />
               Forma de Pagamento
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'card' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-slate-800 bg-[#0F1115] text-slate-400 hover:text-white'}`}>
+              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'card' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-slate-800 bg-[var(--bg)] text-slate-400 hover:text-white'}`}>
                 <input type="radio" name="paymethod" value="card" checked={method === 'card'} onChange={() => setMethod('card')} className="hidden" />
                 <CreditCard size={16} className="text-blue-400" />
                 <span className="text-xs font-semibold">Cartão de Crédito</span>
               </label>
-              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'pix' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-slate-800 bg-[#0F1115] text-slate-400 hover:text-white'}`}>
+              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'pix' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-slate-800 bg-[var(--bg)] text-slate-400 hover:text-white'}`}>
                 <input type="radio" name="paymethod" value="pix" checked={method === 'pix'} onChange={() => setMethod('pix')} className="hidden" />
                 <Sparkles size={16} className="text-emerald-400" />
                 <span className="text-xs font-semibold">PIX Instantâneo</span>
               </label>
-              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'paypal' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-slate-800 bg-[#0F1115] text-slate-400 hover:text-white'}`}>
+              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'paypal' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-slate-800 bg-[var(--bg)] text-slate-400 hover:text-white'}`}>
                 <input type="radio" name="paymethod" value="paypal" checked={method === 'paypal'} onChange={() => setMethod('paypal')} className="hidden" />
                 <Activity size={16} className="text-indigo-400" />
                 <span className="text-xs font-semibold">PayPal</span>
@@ -227,7 +227,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-800 bg-[#0F1115] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+        <div className="p-4 border-t border-slate-800 bg-[var(--bg)] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <button 
             onClick={onClose}
             className="w-full sm:w-auto px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
@@ -250,7 +250,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
             <button 
               onClick={handleSubscribe}
               disabled={loading}
-              className="w-full sm:w-auto px-6 py-2.5 bg-[#4683E0] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-2.5 bg-[var(--color-brand)] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
             >
               {loading ? 'Processando...' : `Pagar e Ativar ${selectedPlan}`}
             </button>

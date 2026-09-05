@@ -149,7 +149,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
     <div className="space-y-8 text-left animate-in fade-in duration-200" id="super-admin-analytics-component">
       
       {/* Header Summary */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#16191E] border border-slate-800 p-6 rounded-2xl shadow-xl">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl shadow-xl">
         <div>
           <div className="flex items-center gap-2">
             <span className="bg-blue-500/10 text-blue-400 text-[10px] font-black uppercase px-2.5 py-1 rounded-md border border-blue-500/20">
@@ -167,7 +167,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
 
         <button
           onClick={handleRefresh}
-          className={`px-4 py-2 bg-[#0F1115] hover:bg-slate-800 border border-slate-800 text-gray-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md shrink-0 ${isRefreshing ? 'animate-spin' : ''}`}
+          className={`px-4 py-2 bg-[var(--bg)] hover:bg-slate-800 border border-slate-800 text-gray-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md shrink-0 ${isRefreshing ? 'animate-spin' : ''}`}
         >
           <RefreshCw size={14} /> Atualizar Métricas
         </button>
@@ -201,7 +201,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
       {/* KPI Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        <div className="bg-[#16191E] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
+        <div className="bg-[var(--surface)] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Webinars Ativos no Servidor</span>
             <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
@@ -214,7 +214,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
           </p>
         </div>
 
-        <div className="bg-[#16191E] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
+        <div className="bg-[var(--surface)] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Armazenamento Ocupado Total</span>
             <div className="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
@@ -222,7 +222,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
             </div>
           </div>
           <p className="text-3xl font-black text-amber-400">{totalStorageUsed.toFixed(1)} <span className="text-sm font-semibold text-gray-400">/ {totalStorageAllocated} GB</span></p>
-          <div className="w-full bg-[#0F1115] h-1.5 rounded-full overflow-hidden border border-slate-800">
+          <div className="w-full bg-[var(--bg)] h-1.5 rounded-full overflow-hidden border border-slate-800">
             <div 
               className="bg-gradient-to-r from-amber-500 to-emerald-400 h-full rounded-full transition-all"
               style={{ width: `${Math.min(100, (totalStorageUsed / totalStorageAllocated) * 100)}%` }}
@@ -230,7 +230,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
           </div>
         </div>
 
-        <div className="bg-[#16191E] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
+        <div className="bg-[var(--surface)] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Gravações em Nuvem</span>
             <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
@@ -241,7 +241,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
           <p className="text-[11px] text-gray-400">Arquivos MP4/HLS gerados</p>
         </div>
 
-        <div className="bg-[#16191E] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
+        <div className="bg-[var(--surface)] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tráfego Egress (Bandwidth)</span>
             <div className="p-2 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20">
@@ -258,7 +258,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Bar Chart: Storage by Client */}
-        <div className="lg:col-span-2 bg-[#16191E] border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl">
+        <div className="lg:col-span-2 bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
@@ -284,7 +284,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
         </div>
 
         {/* Pie Chart: Storage Asset Type Distribution */}
-        <div className="bg-[#16191E] border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl flex flex-col justify-between">
+        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl flex flex-col justify-between">
           <div className="border-b border-slate-800 pb-3">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Layers size={16} className="text-amber-400" /> Distribuição por Tipo de Mídia
@@ -331,7 +331,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
       </div>
 
       {/* Client Storage Breakdown Table */}
-      <div className="bg-[#16191E] border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+      <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
@@ -342,7 +342,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#0F1115] border border-slate-800 p-1 rounded-xl text-xs font-bold">
+          <div className="flex items-center gap-1.5 bg-[var(--bg)] border border-slate-800 p-1 rounded-xl text-xs font-bold">
             {(['all', 'high-usage', 'active-only'] as const).map(filter => (
               <button
                 key={filter}
@@ -420,7 +420,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
                             <span className="text-red-400 text-[9px] uppercase font-black">Quota Limite</span>
                           )}
                         </div>
-                        <div className="w-full bg-[#0F1115] h-2 rounded-full overflow-hidden border border-slate-800">
+                        <div className="w-full bg-[var(--bg)] h-2 rounded-full overflow-hidden border border-slate-800">
                           <div 
                             className={`h-full rounded-full ${statusColor}`}
                             style={{ width: `${Math.min(100, percentUsed)}%` }}

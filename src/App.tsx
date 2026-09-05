@@ -1889,7 +1889,7 @@ export default function App() {
   }
 
   return (
-    <div className={`bg-[#0F1115] font-sans text-gray-100 flex flex-col selection:bg-blue-500 selection:text-white ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
+    <div className={`bg-[var(--bg)] font-sans text-gray-100 flex flex-col selection:bg-blue-500 selection:text-white ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
       
       {/* Dynamic Header */}
       <Header 
@@ -1970,14 +1970,14 @@ export default function App() {
             <>
               <button
                 onClick={() => setIsImmersiveMode(false)}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-50 bg-[#16191E]/95 hover:bg-blue-600 hover:text-white text-slate-400 p-2 rounded-r-xl border-y border-r border-slate-800/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-50 bg-[var(--surface)]/95 hover:bg-blue-600 hover:text-white text-slate-400 p-2 rounded-r-xl border-y border-r border-slate-800/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
                 title="Expandir Painel de Participantes"
               >
                 <ChevronRight size={16} className="transition-transform group-hover:scale-110" />
               </button>
               <button
                 onClick={() => setIsImmersiveMode(false)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-50 bg-[#16191E]/95 hover:bg-blue-600 hover:text-white text-slate-400 p-2 rounded-l-xl border-y border-l border-slate-800/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-50 bg-[var(--surface)]/95 hover:bg-blue-600 hover:text-white text-slate-400 p-2 rounded-l-xl border-y border-l border-slate-800/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
                 title="Expandir Painel de Configurações"
               >
                 <ChevronLeft size={16} className="transition-transform group-hover:scale-110" />
@@ -2017,7 +2017,7 @@ export default function App() {
                 onClick={() => setIsMobileScenesOpen(false)}
                 className="absolute inset-0 bg-black/60 z-[98] backdrop-blur-sm transition-all"
               />
-              <div className="absolute inset-y-0 left-0 w-[280px] z-[99] bg-[#16191E] shadow-2xl border-r border-slate-800 flex flex-col h-full animate-in slide-in-from-left duration-300">
+              <div className="absolute inset-y-0 left-0 w-[280px] z-[99] bg-[var(--surface)] shadow-2xl border-r border-slate-800 flex flex-col h-full animate-in slide-in-from-left duration-300">
                 <ScenesPanel
                   participants={participants}
                   onToggleParticipantActive={handleToggleParticipantActive}
@@ -2041,8 +2041,8 @@ export default function App() {
                 onClick={() => setIsMobileSidebarOpen(false)}
                 className="absolute inset-0 bg-black/60 z-[98] backdrop-blur-sm transition-all"
               />
-              <div className="absolute inset-y-0 right-0 w-[330px] z-[99] bg-[#16191E] shadow-2xl border-l border-slate-800 flex flex-col h-full animate-in slide-in-from-right duration-300">
-                <div className="flex w-full bg-[#16191E] h-full shrink-0">
+              <div className="absolute inset-y-0 right-0 w-[330px] z-[99] bg-[var(--surface)] shadow-2xl border-l border-slate-800 flex flex-col h-full animate-in slide-in-from-right duration-300">
+                <div className="flex w-full bg-[var(--surface)] h-full shrink-0">
                   
                   {/* LeftSidebar Content container */}
                   <div className="flex-1 h-full min-h-0 border-r border-slate-800/60 overflow-y-auto">
@@ -2202,14 +2202,14 @@ export default function App() {
                   </div>
 
                   {/* Vertical Tabs Bar on the far right of the overlay */}
-                  <div className="w-[60px] bg-[#0F1115] flex flex-col items-center py-4 border-l border-slate-800/60 gap-2 h-full shrink-0 justify-between">
+                  <div className="w-[60px] bg-[var(--bg)] flex flex-col items-center py-4 border-l border-slate-800/60 gap-2 h-full shrink-0 justify-between">
                     <div className="flex flex-col gap-2 items-center w-full overflow-y-auto flex-1 no-scrollbar">
                       {/* Smart Sidebar Toggle */}
                       <button
                         onClick={() => setIsSmartSidebarEnabled(!isSmartSidebarEnabled)}
                         className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 border relative ${
                           isSmartSidebarEnabled 
-                            ? 'bg-[#4683E0]/15 border-[#4683E0]/35 text-[#4683E0]' 
+                            ? 'bg-[var(--color-brand)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
                             : 'bg-slate-900/40 border-slate-800 text-slate-500 hover:text-slate-300'
                         }`}
                         title="Smart Sidebar: Durante a Live, recolhe abas inativas mantendo o foco no Chat para economizar processamento e espaço visual."
@@ -2247,8 +2247,8 @@ export default function App() {
                             onClick={() => setActiveTab(tab.id)}
                             className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 ${
                               isActive 
-                                ? 'bg-[#4683E0] text-white shadow-lg ring-1 ring-blue-400/20' 
-                                : 'text-gray-400 hover:bg-[#16191E] hover:text-white'
+                                ? 'bg-[var(--color-brand)] text-white shadow-lg ring-1 ring-blue-400/20' 
+                                : 'text-gray-400 hover:bg-[var(--surface)] hover:text-white'
                             }`}
                             title={`${tab.label}: ${tab.desc}`}
                           >
@@ -2263,7 +2263,7 @@ export default function App() {
                     <div className="pt-2 border-t border-slate-800/60 w-full flex justify-center shrink-0">
                       <button
                         onClick={() => setIsMobileSidebarOpen(false)}
-                        className="w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 text-slate-500 hover:bg-[#16191E] hover:text-white cursor-pointer"
+                        className="w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 text-slate-500 hover:bg-[var(--surface)] hover:text-white cursor-pointer"
                         title="Fechar Painel"
                       >
                         <X size={14} />
@@ -2294,7 +2294,7 @@ export default function App() {
                   className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all border shadow-lg cursor-pointer touch-action-btn ${
                     isMobileScenesOpen
                       ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-[#16191E] text-slate-300 border-slate-800 hover:text-white'
+                      : 'bg-[var(--surface)] text-slate-300 border-slate-800 hover:text-white'
                   }`}
                 >
                   <Users size={16} className={isMobileScenesOpen ? 'text-white' : 'text-blue-400'} />
@@ -2308,7 +2308,7 @@ export default function App() {
                   className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all border shadow-lg cursor-pointer touch-action-btn ${
                     isMobileSidebarOpen
                       ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-[#16191E] text-slate-300 border-slate-800 hover:text-white'
+                      : 'bg-[var(--surface)] text-slate-300 border-slate-800 hover:text-white'
                   }`}
                 >
                   <Sliders size={16} className={isMobileSidebarOpen ? 'text-white' : 'text-emerald-400'} />
@@ -2452,7 +2452,7 @@ export default function App() {
             >
               <div 
                 style={{ width: sidebarWidth }}
-                className="flex bg-[#16191E] h-full shrink-0"
+                className="flex bg-[var(--surface)] h-full shrink-0"
               >
                 
                 {/* 1. Subpanel container (takes full width of sidebar, minus tab bar width) */}
@@ -2620,14 +2620,14 @@ export default function App() {
                 </div>
 
                 {/* 2. Vertical Tabs Bar on the far right (styled like Restream vertical menu) */}
-                <div className="w-[75px] bg-[#0F1115] flex flex-col items-center py-4 border-l border-slate-800/60 gap-2.5 h-full shrink-0 justify-between">
+                <div className="w-[75px] bg-[var(--bg)] flex flex-col items-center py-4 border-l border-slate-800/60 gap-2.5 h-full shrink-0 justify-between">
                   <div className="flex flex-col gap-2.5 items-center w-full overflow-y-auto flex-1 no-scrollbar">
                     {/* Smart Sidebar Toggle */}
                     <button
                       onClick={() => setIsSmartSidebarEnabled(!isSmartSidebarEnabled)}
                       className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 border relative cursor-pointer ${
                         isSmartSidebarEnabled 
-                          ? 'bg-[#4683E0]/15 border-[#4683E0]/35 text-[#4683E0]' 
+                          ? 'bg-[var(--color-brand)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
                           : 'bg-slate-900/40 border-slate-800 text-slate-500 hover:text-slate-300'
                       }`}
                       title="Smart Sidebar: Durante a Live, recolhe abas inativas mantendo o foco no Chat para economizar processamento e espaço visual."
@@ -2665,8 +2665,8 @@ export default function App() {
                           onClick={() => setActiveTab(tab.id)}
                           className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 cursor-pointer ${
                             isActive 
-                              ? 'bg-[#4683E0] text-white shadow-lg ring-1 ring-blue-400/20' 
-                              : 'text-gray-400 hover:bg-[#16191E] hover:text-white'
+                              ? 'bg-[var(--color-brand)] text-white shadow-lg ring-1 ring-blue-400/20' 
+                              : 'text-gray-400 hover:bg-[var(--surface)] hover:text-white'
                           }`}
                           title={`${tab.label}: ${tab.desc}`}
                         >
@@ -2681,7 +2681,7 @@ export default function App() {
                   <div className="pt-2 border-t border-slate-800/60 w-full flex justify-center shrink-0">
                     <button
                       onClick={() => setIsImmersiveMode(true)}
-                      className="w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 text-slate-500 hover:bg-[#16191E] hover:text-white cursor-pointer"
+                      className="w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 text-slate-500 hover:bg-[var(--surface)] hover:text-white cursor-pointer"
                       title="Recuar Painel Lateral"
                     >
                       <ChevronRight size={18} className="transition-transform group-hover:translate-x-0.5" />
@@ -2714,7 +2714,7 @@ export default function App() {
                 <div className={`w-[2px] h-full transition-colors duration-200 ${isResizingScenes ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-slate-800/80 group-hover:bg-blue-500/80 group-hover:shadow-[0_0_4px_#3b82f6]'}`} />
                 
                 {/* Visual grab dot accent indicator */}
-                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-full bg-[#1e2330] border border-slate-700 flex flex-col gap-0.5 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl pointer-events-none">
+                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-full bg-[var(--panel)] border border-slate-700 flex flex-col gap-0.5 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl pointer-events-none">
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
@@ -2731,7 +2731,7 @@ export default function App() {
                 <div className={`w-[2px] h-full transition-colors duration-200 ${isResizingSidebar ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-slate-800/80 group-hover:bg-blue-500/80 group-hover:shadow-[0_0_4px_#3b82f6]'}`} />
                 
                 {/* Visual grab dot accent indicator */}
-                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-full bg-[#1e2330] border border-slate-700 flex flex-col gap-0.5 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl pointer-events-none">
+                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-full bg-[var(--panel)] border border-slate-700 flex flex-col gap-0.5 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl pointer-events-none">
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
@@ -2793,19 +2793,19 @@ export default function App() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Olá, Marcos Gonçalves</h1>
-              <p className="text-sm text-[#a59ebf] mt-1">Gerencie, agende e configure seus webinares e transmissões ao vivo.</p>
+              <p className="text-sm text-[var(--text-lo)] mt-1">Gerencie, agende e configure seus webinares e transmissões ao vivo.</p>
             </div>
             
             <div className="flex items-center gap-2.5">
               <button
                 onClick={() => setCurrentView('admin')}
-                className="flex items-center gap-2 px-5 py-3 border border-slate-800 hover:bg-[#16191E] text-gray-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
+                className="flex items-center gap-2 px-5 py-3 border border-slate-800 hover:bg-[var(--surface)] text-gray-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
               >
                 <Server size={14} className="text-blue-500 animate-pulse" /> Painel de Administração
               </button>
               <button
                 onClick={() => setIsCreateWebinarOpen(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-[#4683E0] hover:bg-blue-600 text-white font-bold text-sm rounded-xl shadow-xl transition-all cursor-pointer"
+                className="flex items-center gap-2 px-6 py-3 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold text-sm rounded-xl shadow-xl transition-all cursor-pointer"
               >
                 <Plus size={16} /> Agendar Webinar
               </button>
@@ -2820,13 +2820,13 @@ export default function App() {
               { label: 'Minutos Transmitidos', value: '1.240m', change: 'Média 90m por live', icon: Tv },
               { label: 'Engajamento Médio', value: '87%', change: 'Altamente positivo', icon: BarChart3 }
             ].map((metric, i) => (
-              <div key={i} className="bg-[#16191E] border border-slate-800 p-5 rounded-2xl flex items-center justify-between">
+              <div key={i} className="bg-[var(--surface)] border border-slate-800 p-5 rounded-2xl flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-[#a59ebf] font-semibold">{metric.label}</p>
+                  <p className="text-xs text-[var(--text-lo)] font-semibold">{metric.label}</p>
                   <p className="text-2xl font-bold text-white mt-1.5">{metric.value}</p>
                   <p className="text-[10px] text-blue-400 mt-1">{metric.change}</p>
                 </div>
-                <div className="w-11 h-11 bg-[#0F1115] border border-slate-800 rounded-xl flex items-center justify-center text-[#4683E0]">
+                <div className="w-11 h-11 bg-[var(--bg)] border border-slate-800 rounded-xl flex items-center justify-center text-[var(--color-brand)]">
                   <metric.icon size={20} />
                 </div>
               </div>
@@ -2837,10 +2837,10 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             {/* Stream room launcher trigger */}
-            <div className="lg:col-span-2 bg-[#16191E] border border-slate-800 rounded-2xl overflow-hidden flex flex-col">
+            <div className="lg:col-span-2 bg-[var(--surface)] border border-slate-800 rounded-2xl overflow-hidden flex flex-col">
               <div className="p-6 border-b border-slate-800 flex items-center justify-between">
                 <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <Calendar size={18} className="text-[#4683E0]" /> Próximos Webinares Agendados
+                  <Calendar size={18} className="text-[var(--color-brand)]" /> Próximos Webinares Agendados
                 </h2>
                 <span className="text-xs text-blue-400 hover:underline cursor-pointer">Ver todos</span>
               </div>
@@ -2850,7 +2850,7 @@ export default function App() {
                   <div key={webinar.id || i} className={`pt-4 first:pt-0 flex flex-col xl:flex-row justify-between items-start gap-4`}>
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-bold text-white hover:text-[#4683E0] transition-colors cursor-pointer text-left">
+                        <p className="text-sm font-bold text-white hover:text-[var(--color-brand)] transition-colors cursor-pointer text-left">
                           {webinar.title}
                         </p>
                         <span className={`text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
@@ -2859,7 +2859,7 @@ export default function App() {
                           {webinar.type === 'pre-recorded' ? 'Vídeo Gravado' : 'Transmissão Ao Vivo'}
                         </span>
                       </div>
-                      <p className="text-xs text-[#a59ebf] text-left">{webinar.desc}</p>
+                      <p className="text-xs text-[var(--text-lo)] text-left">{webinar.desc}</p>
                       <div className="flex flex-wrap items-center gap-2 text-[10px] text-gray-400 pt-1">
                         <span className="font-semibold text-blue-400">{webinar.time}</span>
                         <span>•</span>
@@ -2879,7 +2879,7 @@ export default function App() {
                           setSelectedWebinarId(webinar.id);
                           setCurrentView('public-webinar');
                         }}
-                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#0F1115] hover:bg-slate-800 text-xs font-semibold rounded-lg text-emerald-400 border border-slate-800 transition-all cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[var(--bg)] hover:bg-slate-800 text-xs font-semibold rounded-lg text-emerald-400 border border-slate-800 transition-all cursor-pointer"
                         title="Ver landing page pública de inscrição do webinar"
                       >
                         <ExternalLink size={12} /> Inscrições
@@ -2890,7 +2890,7 @@ export default function App() {
                           setDashboardEditorTitle(webinar.title);
                           setIsDashboardEditorOpen(true);
                         }}
-                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#0F1115] hover:bg-slate-800 text-xs font-semibold rounded-lg text-blue-400 border border-slate-800 transition-all cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[var(--bg)] hover:bg-slate-800 text-xs font-semibold rounded-lg text-blue-400 border border-slate-800 transition-all cursor-pointer"
                         title="Criar ou personalizar a thumbnail da live"
                       >
                         <Palette size={12} /> Criar Capa
@@ -2901,7 +2901,7 @@ export default function App() {
                           setTitle(webinar.title);
                           setCurrentView('studio');
                         }}
-                        className="flex items-center justify-center gap-1.5 px-4 py-2 bg-[#4683E0] hover:bg-blue-600 text-xs font-semibold rounded-lg text-white transition-all cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-brand)] hover:bg-blue-600 text-xs font-semibold rounded-lg text-white transition-all cursor-pointer"
                       >
                         Acessar Estúdio <ArrowRight size={12} />
                       </button>
@@ -2912,10 +2912,10 @@ export default function App() {
             </div>
 
             {/* Quick settings & support */}
-            <div className="bg-[#16191E] border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+            <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
               <div className="space-y-4">
                 <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <Settings size={18} className="text-[#4683E0]" /> Configurações & Chaves
+                  <Settings size={18} className="text-[var(--color-brand)]" /> Configurações & Chaves
                 </h2>
                 
                 <div className="space-y-2">
@@ -2924,7 +2924,7 @@ export default function App() {
                       setIntegrationsModalTab('rtmp');
                       setIsIntegrationsModalOpen(true);
                     }}
-                    className="flex items-center justify-between p-3 bg-[#0F1115] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-slate-800/40 cursor-pointer transition-all text-xs text-left"
+                    className="flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-slate-800/40 cursor-pointer transition-all text-xs text-left"
                   >
                     <div>
                       <p className="text-gray-200 font-semibold">Integração com OBS / RTMP Externo</p>
@@ -2938,7 +2938,7 @@ export default function App() {
                       setIntegrationsModalTab('social');
                       setIsIntegrationsModalOpen(true);
                     }}
-                    className="flex items-center justify-between p-3 bg-[#0F1115] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-slate-800/40 cursor-pointer transition-all text-xs text-left"
+                    className="flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-slate-800/40 cursor-pointer transition-all text-xs text-left"
                   >
                     <div>
                       <p className="text-gray-200 font-semibold">Gerenciar Redes Sociais & OAuth</p>
@@ -2952,7 +2952,7 @@ export default function App() {
                       setIntegrationsModalTab('analysis');
                       setIsIntegrationsModalOpen(true);
                     }}
-                    className="flex items-center justify-between p-3 bg-[#0F1115] hover:bg-emerald-500/10 hover:border-emerald-500/20 rounded-xl border border-slate-800/40 cursor-pointer transition-all text-xs text-left"
+                    className="flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-emerald-500/10 hover:border-emerald-500/20 rounded-xl border border-slate-800/40 cursor-pointer transition-all text-xs text-left"
                   >
                     <div>
                       <p className="text-emerald-400 font-semibold flex items-center gap-1">
@@ -2985,9 +2985,9 @@ export default function App() {
           {/* Dashboard Capas Creator Modal */}
           {isDashboardEditorOpen && (
             <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[9999] flex items-center justify-center p-4 overflow-y-auto">
-              <div className="bg-[#16191E] border border-slate-800 w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+              <div className="bg-[var(--surface)] border border-slate-800 w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F1115]">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[var(--bg)]">
                   <div className="text-left">
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
                       <Palette size={16} className="text-blue-500 animate-pulse" /> Gerador de Capas & Miniaturas (Thumbnail Editor)
@@ -3028,7 +3028,7 @@ export default function App() {
 
       {/* Styled Footer - Visible only on main page / dashboard */}
       {currentView !== 'studio' && (
-        <footer className="bg-[#0F1115] border-t border-slate-800 py-6 text-xs text-gray-400">
+        <footer className="bg-[var(--bg)] border-t border-slate-800 py-6 text-xs text-gray-400">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex gap-6">
               <button 
@@ -3060,7 +3060,7 @@ export default function App() {
       {/* 4. CREATION WEBINAR / LIVE EVENT MODAL */}
       {isCreateWebinarOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200" id="create-webinar-modal">
-          <div className="relative w-full max-w-xl bg-[#11141a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-left">
+          <div className="relative w-full max-w-xl bg-[var(--bg)] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-left">
             
             {/* Modal Header */}
             <div className="p-5 border-b border-slate-800 flex items-center justify-between">
@@ -3168,7 +3168,7 @@ export default function App() {
                   <label className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Upload do Vídeo Pré-gravado</label>
                   <p className="text-[10px] text-gray-400 leading-relaxed">Arraste e solte o arquivo de vídeo (.mp4, .mov) para que nossos servidores façam o transcoding automático e iniciem o fluxo RTMP no horário programado.</p>
                   
-                  <div className="border border-dashed border-slate-700 hover:border-blue-500/50 rounded-lg p-5 text-center transition-all cursor-pointer bg-[#0F1115]">
+                  <div className="border border-dashed border-slate-700 hover:border-blue-500/50 rounded-lg p-5 text-center transition-all cursor-pointer bg-[var(--bg)]">
                     {newWebinarVideoName ? (
                       <div className="text-xs text-emerald-400 font-semibold flex items-center justify-center gap-1.5">
                         <CheckCircle2 size={16} /> {newWebinarVideoName}
@@ -3220,7 +3220,7 @@ export default function App() {
               {/* Form submit button */}
               <button
                 type="submit"
-                className="w-full py-3 bg-[#4683E0] hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-lg mt-4 cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full py-3 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-lg mt-4 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Plus size={14} /> Salvar e Agendar Webinar
               </button>
@@ -3241,9 +3241,9 @@ export default function App() {
       {/* 5. INTERACTIVE INTEGRATIONS, API KEYS & REQUIREMENTS ANALYSIS MODAL */}
       {isIntegrationsModalOpen && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[9999] flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#16191E] border border-slate-800 w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-left">
+          <div className="bg-[var(--surface)] border border-slate-800 w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-left">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800 bg-[#0F1115]">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800 bg-[var(--bg)]">
               <div className="text-left">
                 <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                   <Sparkles size={18} className="text-emerald-400 animate-pulse" />
@@ -3260,7 +3260,7 @@ export default function App() {
             </div>
 
             {/* Tab Switched Header */}
-            <div className="flex border-b border-slate-800 bg-[#0F1115]/50 px-6 py-2 gap-2">
+            <div className="flex border-b border-slate-800 bg-[var(--bg)]/50 px-6 py-2 gap-2">
               {[
                 { id: 'analysis', label: 'Análise de Requisitos (SaaS)', icon: CheckCircle2 },
                 { id: 'rtmp', label: 'Ingestão OBS & RTMP', icon: Server },
@@ -3305,7 +3305,7 @@ export default function App() {
                       { title: 'Servidores de Ingestão RTMP/SRT', state: 'Requer Produção', desc: 'Substituir as chaves simuladas por ingestão real de sinal rodando MediaMTX ou OvenMediaEngine sob Docker.', done: false },
                       { title: 'Email Marketing & transactional SMTP', state: 'Requer Produção', desc: 'Disparo real de convites e certificados pós-transmissão utilizando chaves de API da Brevo, SendGrid ou Mailchimp.', done: false },
                     ].map((item, idx) => (
-                      <div key={idx} className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-1.5 flex flex-col justify-between">
+                      <div key={idx} className="bg-[var(--bg)] border border-slate-800 p-4 rounded-xl space-y-1.5 flex flex-col justify-between">
                         <div>
                           <div className="flex items-center justify-between gap-2">
                             <span className="font-bold text-white text-xs">{item.title}</span>
@@ -3341,7 +3341,7 @@ export default function App() {
                     <p className="text-[11px] text-gray-300 leading-relaxed">Você pode conectar encoders físicos ou softwares externos (como OBS Studio, vMix ou Streamlabs) ao PwStreamer. O servidor de ingestão recebe seu sinal em alta definição e faz o multicast simultâneo.</p>
                   </div>
 
-                  <div className="space-y-3 bg-[#0F1115] border border-slate-800 p-5 rounded-2xl">
+                  <div className="space-y-3 bg-[var(--bg)] border border-slate-800 p-5 rounded-2xl">
                     <p className="text-xs font-bold text-white uppercase tracking-wider">Parâmetros de Conexão Ativos</p>
                     
                     <div className="space-y-2.5">
@@ -3425,7 +3425,7 @@ export default function App() {
                         desc: 'Habilita o envio de chaves de transmissão e monitoramento dinâmico de status técnico do canal do streamer, bem como integração direta com chats IRC.'
                       }
                     ].map((platform, idx) => (
-                      <div key={idx} className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-2 text-left">
+                      <div key={idx} className="bg-[var(--bg)] border border-slate-800 p-4 rounded-xl space-y-2 text-left">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
                           <p className="text-xs font-bold text-white">{platform.name}</p>
                           <span className="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-mono font-bold">{platform.developer}</span>
@@ -3456,7 +3456,7 @@ export default function App() {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-slate-800 bg-[#0F1115] flex items-center justify-between">
+            <div className="px-6 py-4 border-t border-slate-800 bg-[var(--bg)] flex items-center justify-between">
               <span className="text-[10px] text-gray-500">Desenvolvido por PWstreamer Solutions - PwStreamer Cloud Integration Manual</span>
               <button
                 type="button"

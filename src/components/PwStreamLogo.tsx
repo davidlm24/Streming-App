@@ -72,7 +72,7 @@ export function PwStreamLogo({
         <div className="flex flex-col text-left">
           <div className={`${textSizes[textSize]} font-black tracking-tight leading-none text-white flex items-center`}>
             <span>Pw</span>
-            <span className="bg-gradient-to-r from-[#4683E0] via-[#8B5CF6] to-[#EC407A] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[var(--color-brand)] via-[#8B5CF6] to-[#EC407A] bg-clip-text text-transparent">
               Streamer
             </span>
           </div>

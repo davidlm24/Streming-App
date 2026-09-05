@@ -298,7 +298,7 @@ export function WebinarPublicPage({
 
                   <button
                     type="submit"
-                    className="w-full py-3 bg-[#4683E0] hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-xl hover:shadow-blue-500/10 cursor-pointer text-xs mt-2 flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-xl hover:shadow-blue-500/10 cursor-pointer text-xs mt-2 flex items-center justify-center gap-2"
                   >
                     Confirmar Minha Inscrição <ArrowRight size={14} />
                   </button>
@@ -345,7 +345,7 @@ export function WebinarPublicPage({
                   /* Offline state placeholder */
                   <div className="p-8 text-center space-y-4 max-w-md">
                     <div className="w-16 h-16 bg-slate-900 border border-slate-800 rounded-full flex items-center justify-center mx-auto">
-                      <Lock size={24} className="text-[#a59ebf]" />
+                      <Lock size={24} className="text-[var(--text-lo)]" />
                     </div>
                     <div className="space-y-1.5">
                       <h3 className="text-lg font-bold text-white">Transmissão Offline</h3>
@@ -364,7 +364,7 @@ export function WebinarPublicPage({
               <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl text-left space-y-3">
                 <div className="flex items-center justify-between gap-4">
                   <h2 className="text-xl font-bold text-white leading-tight">{webinarTitle}</h2>
-                  <button className="px-3 py-1.5 bg-slate-850 hover:bg-slate-800 text-xs font-semibold text-gray-300 border border-slate-800/60 rounded-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
+                  <button className="px-3 py-1.5 bg-[var(--panel)] hover:bg-slate-800 text-xs font-semibold text-gray-300 border border-slate-800/60 rounded-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
                     <Share2 size={12} /> Compartilhar
                   </button>
                 </div>
@@ -375,12 +375,12 @@ export function WebinarPublicPage({
                   <div className="space-y-1 text-left">
                     <span className="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">Oferta Especial</span>
                     <p className="text-xs font-bold text-white">Adquira o PwStreamer Completo com 30% Off</p>
-                    <p className="text-[10px] text-[#a59ebf]">Oferta válida exclusivamente para os participantes do webinar de hoje.</p>
+                    <p className="text-[10px] text-[var(--text-lo)]">Oferta válida exclusivamente para os participantes do webinar de hoje.</p>
                   </div>
                   <a 
                     href="#pricing-checkout" 
                     onClick={(e) => { e.preventDefault(); onBackToDashboard(); }}
-                    className="px-4 py-2 bg-[#4683E0] hover:bg-blue-600 text-white font-bold text-xs rounded-lg transition-all shadow-md shrink-0 flex items-center gap-1.5"
+                    className="px-4 py-2 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold text-xs rounded-lg transition-all shadow-md shrink-0 flex items-center gap-1.5"
                   >
                     Garantir Desconto <ExternalLink size={12} />
                   </a>
@@ -389,10 +389,10 @@ export function WebinarPublicPage({
             </div>
 
             {/* Right Column: Dynamic Sidebar tabs (Chat, Polls, Q&A) (4 cols on desktop) */}
-            <div className="lg:col-span-4 flex flex-col bg-[#11141a] border border-slate-800/80 rounded-2xl overflow-hidden shadow-2xl h-[480px] sm:h-auto">
+            <div className="lg:col-span-4 flex flex-col bg-[var(--bg)] border border-slate-800/80 rounded-2xl overflow-hidden shadow-2xl h-[480px] sm:h-auto">
               
               {/* Tab Header Selector */}
-              <div className="grid grid-cols-3 border-b border-slate-800 bg-[#0F1115] text-xs font-semibold text-gray-400">
+              <div className="grid grid-cols-3 border-b border-slate-800 bg-[var(--bg)] text-xs font-semibold text-gray-400">
                 <button className="py-3.5 border-b-2 border-blue-500 text-white flex items-center justify-center gap-1.5">
                   <MessageSquare size={13} /> Chat
                 </button>
@@ -427,7 +427,7 @@ export function WebinarPublicPage({
                           <span className="font-semibold text-white truncate">{comm.authorName}</span>
                           <span className="text-[10px] text-gray-500 font-mono">{comm.timestamp}</span>
                         </div>
-                        <p className="text-[#d0cbdc] mt-0.5 break-words leading-relaxed">{comm.text}</p>
+                        <p className="text-[var(--text)] mt-0.5 break-words leading-relaxed">{comm.text}</p>
                       </div>
                     </div>
                   ))}
@@ -436,7 +436,7 @@ export function WebinarPublicPage({
                 {/* Question form/poll integration in sidebar drawer */}
                 <div className="border-t border-slate-800/60 pt-3 space-y-2">
                   {/* Interactive Quick Poll inside Chat Sidebar */}
-                  <div className="bg-[#16191E] border border-slate-800 p-3 rounded-xl space-y-2 text-left">
+                  <div className="bg-[var(--surface)] border border-slate-800 p-3 rounded-xl space-y-2 text-left">
                     <p className="text-[10px] text-blue-400 font-black tracking-wider uppercase">Votação Rápida</p>
                     <p className="text-xs font-semibold text-white">Qual rede social você mais utiliza para live streams?</p>
                     <div className="space-y-1.5">
@@ -455,7 +455,7 @@ export function WebinarPublicPage({
                             className={`w-full relative overflow-hidden rounded-lg p-2.5 border text-xs text-left transition-all ${
                               isVoted 
                                 ? 'bg-blue-500/10 border-blue-500 font-semibold' 
-                                : 'bg-[#0F1115] border-slate-800 hover:border-slate-700'
+                                : 'bg-[var(--bg)] border-slate-800 hover:border-slate-700'
                             }`}
                           >
                             <div 
@@ -480,7 +480,7 @@ export function WebinarPublicPage({
                       placeholder="Envie uma mensagem..."
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
-                      className="flex-1 bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                      className="flex-1 bg-slate-950 border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                     />
                     <button
                       type="submit"

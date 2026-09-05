@@ -8,8 +8,8 @@ import {
 // High fidelity mockup for Adobe Photoshop
 function PhotoshopMock() {
   return (
-    <div className="w-full aspect-video bg-[#1C1F2B] rounded-lg border border-slate-800 overflow-hidden flex flex-col select-none pointer-events-none">
-      <div className="bg-[#12141C] px-2 py-1 flex items-center justify-between border-b border-slate-850">
+    <div className="w-full aspect-video bg-[var(--surface)] rounded-lg border border-slate-800 overflow-hidden flex flex-col select-none pointer-events-none">
+      <div className="bg-[var(--bg)] px-2 py-1 flex items-center justify-between border-b border-[var(--line)]">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
@@ -18,14 +18,14 @@ function PhotoshopMock() {
         </div>
         <span className="text-[7px] text-gray-600 font-bold uppercase tracking-wider">PS 2026</span>
       </div>
-      <div className="flex-1 flex bg-[#1E212D]">
-        <div className="w-4 bg-[#14161F] border-r border-slate-800/60 flex flex-col gap-1 items-center pt-1.5 text-gray-500">
+      <div className="flex-1 flex bg-[var(--panel)]">
+        <div className="w-4 bg-[var(--bg)] border-r border-slate-800/60 flex flex-col gap-1 items-center pt-1.5 text-gray-500">
           <div className="w-2.5 h-2.5 bg-blue-500 rounded-sm"></div>
           <div className="w-2 h-2 bg-slate-800 rounded-sm"></div>
           <div className="w-2 h-2 bg-slate-800 rounded-sm"></div>
         </div>
         <div className="flex-1 flex items-center justify-center p-2 relative">
-          <div className="w-full h-full bg-[#10121A] rounded border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="w-full h-full bg-[var(--bg)] rounded border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/30 via-purple-900/20 to-transparent flex items-center justify-center">
               <span className="text-[9px] font-black tracking-widest text-blue-400 font-mono animate-pulse">VEGA6 CORPNET</span>
             </div>
@@ -33,12 +33,12 @@ function PhotoshopMock() {
             <div className="absolute left-0 right-0 top-1/2 h-[0.5px] bg-cyan-500/20"></div>
           </div>
         </div>
-        <div className="w-14 bg-[#14161F] border-l border-slate-800/60 p-1.5 flex flex-col gap-1 text-[6px] text-gray-500">
-          <div className="border-b border-slate-850 pb-1 text-gray-400 font-bold">Camadas</div>
+        <div className="w-14 bg-[var(--bg)] border-l border-slate-800/60 p-1.5 flex flex-col gap-1 text-[6px] text-gray-500">
+          <div className="border-b border-[var(--line)] pb-1 text-gray-400 font-bold">Camadas</div>
           <div className="bg-blue-600/25 text-blue-400 p-0.5 rounded text-[5px] flex items-center justify-between">
             <span>Texto Principal</span>
           </div>
-          <div className="bg-slate-850 p-0.5 rounded text-[5px] flex items-center justify-between">
+          <div className="bg-[var(--panel)] p-0.5 rounded text-[5px] flex items-center justify-between">
             <span>Gradiente BG</span>
           </div>
         </div>
@@ -50,8 +50,8 @@ function PhotoshopMock() {
 // High fidelity mockup for OBS Studio
 function OBSMock() {
   return (
-    <div className="w-full aspect-video bg-[#1C1F2B] rounded-lg border border-slate-800 overflow-hidden flex flex-col select-none pointer-events-none">
-      <div className="bg-[#12141C] px-2 py-1 flex items-center justify-between border-b border-slate-850">
+    <div className="w-full aspect-video bg-[var(--surface)] rounded-lg border border-slate-800 overflow-hidden flex flex-col select-none pointer-events-none">
+      <div className="bg-[var(--bg)] px-2 py-1 flex items-center justify-between border-b border-[var(--line)]">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
@@ -59,10 +59,10 @@ function OBSMock() {
           <span className="text-[8px] font-bold text-gray-400 ml-1">OBS Studio 30.2 - Transmissão Ativa</span>
         </div>
       </div>
-      <div className="flex-1 bg-[#10121A] flex flex-col p-1.5 gap-1.5">
-        <div className="flex-1 bg-slate-950 border border-slate-850 flex items-center justify-center relative overflow-hidden">
+      <div className="flex-1 bg-[var(--bg)] flex flex-col p-1.5 gap-1.5">
+        <div className="flex-1 bg-slate-950 border border-[var(--line)] flex items-center justify-center relative overflow-hidden">
           <div className="border border-slate-800 w-4/5 h-4/5 bg-slate-900 flex items-center justify-center">
-            <div className="border border-slate-700 w-3/4 h-3/4 bg-slate-850 flex items-center justify-center">
+            <div className="border border-slate-700 w-3/4 h-3/4 bg-[var(--panel)] flex items-center justify-center">
               <span className="text-[5px] font-mono text-gray-600">Loop Infinito</span>
             </div>
           </div>
@@ -71,7 +71,7 @@ function OBSMock() {
             LIVE
           </div>
         </div>
-        <div className="h-10 bg-[#161822] border border-slate-850 rounded p-1 flex justify-between items-center text-[6px]">
+        <div className="h-10 bg-[var(--surface)] border border-[var(--line)] rounded p-1 flex justify-between items-center text-[6px]">
           <div className="space-y-0.5">
             <span className="text-gray-400 block font-bold">Cenas</span>
             <div className="bg-blue-600/20 text-blue-400 px-1 py-0.2 rounded font-bold">Cena Principal</div>
@@ -98,8 +98,8 @@ function OBSMock() {
 // High fidelity mockup for VS Code
 function VSCodeMock() {
   return (
-    <div className="w-full aspect-video bg-[#1C1F2B] rounded-lg border border-slate-800 overflow-hidden flex flex-col select-none pointer-events-none">
-      <div className="bg-[#12141C] px-2 py-1 flex items-center justify-between border-b border-slate-850">
+    <div className="w-full aspect-video bg-[var(--surface)] rounded-lg border border-slate-800 overflow-hidden flex flex-col select-none pointer-events-none">
+      <div className="bg-[var(--bg)] px-2 py-1 flex items-center justify-between border-b border-[var(--line)]">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
@@ -107,18 +107,18 @@ function VSCodeMock() {
           <span className="text-[8px] font-bold text-gray-400 ml-1">App.tsx - workspace-podcasting - VS Code</span>
         </div>
       </div>
-      <div className="flex-1 flex bg-[#1E1E24]">
-        <div className="w-3 bg-[#18181F] flex flex-col items-center pt-1.5 gap-1.5 text-gray-600 border-r border-slate-850">
+      <div className="flex-1 flex bg-[var(--surface)]">
+        <div className="w-3 bg-[var(--surface)] flex flex-col items-center pt-1.5 gap-1.5 text-gray-600 border-r border-[var(--line)]">
           <div className="w-1.5 h-1.5 bg-blue-500 rounded-sm"></div>
           <div className="w-1.5 h-1.5 bg-slate-700 rounded-sm"></div>
         </div>
-        <div className="w-14 bg-[#18181F] border-r border-slate-850 p-1 flex flex-col gap-0.5 text-[5px] text-gray-500">
+        <div className="w-14 bg-[var(--surface)] border-r border-[var(--line)] p-1 flex flex-col gap-0.5 text-[5px] text-gray-500">
           <span className="font-bold text-gray-400 text-[5px] tracking-wide block truncate uppercase">WORKSPACE</span>
           <span className="text-blue-400 pl-1 font-bold">src/</span>
           <span className="text-amber-500 pl-2">App.tsx</span>
           <span className="text-slate-400 pl-2">index.css</span>
         </div>
-        <div className="flex-1 bg-[#15151D] p-1.5 font-mono text-[5px] text-gray-400 leading-normal overflow-hidden">
+        <div className="flex-1 bg-[var(--bg)] p-1.5 font-mono text-[5px] text-gray-400 leading-normal overflow-hidden">
           <div className="text-blue-400">import <span className="text-purple-400">{"{ React }"}</span> from <span className="text-orange-400">'react'</span>;</div>
           <div className="text-purple-400">function <span className="text-yellow-400">WebinarApp</span>() {"{"}</div>
           <div className="pl-2 text-slate-400">const <span className="text-blue-300">{"[live, setLive]"}</span> = useState(true);</div>
@@ -138,8 +138,8 @@ function VSCodeMock() {
 // High fidelity mockup for PowerPoint
 function PowerPointMock() {
   return (
-    <div className="w-full aspect-video bg-[#1C1F2B] rounded-lg border border-slate-800 overflow-hidden flex flex-col select-none pointer-events-none">
-      <div className="bg-[#12141C] px-2 py-1 flex items-center justify-between border-b border-slate-850">
+    <div className="w-full aspect-video bg-[var(--surface)] rounded-lg border border-slate-800 overflow-hidden flex flex-col select-none pointer-events-none">
+      <div className="bg-[var(--bg)] px-2 py-1 flex items-center justify-between border-b border-[var(--line)]">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
@@ -147,13 +147,13 @@ function PowerPointMock() {
           <span className="text-[8px] font-bold text-gray-400 ml-1">Apresentação de Vendas.pptx - PowerPoint</span>
         </div>
       </div>
-      <div className="flex-1 flex bg-[#282725]">
-        <div className="w-10 bg-[#1D1D1C] border-r border-slate-850 p-1 flex flex-col gap-1 items-center">
-          <div className="w-8 h-4 rounded border border-orange-500 bg-[#353331] text-[4px] text-orange-400 flex items-center justify-center font-bold">Slide 1</div>
-          <div className="w-8 h-4 rounded border border-slate-800 bg-[#1D1D1C] text-[4px] text-gray-600 flex items-center justify-center">Slide 2</div>
-          <div className="w-8 h-4 rounded border border-slate-800 bg-[#1D1D1C] text-[4px] text-gray-600 flex items-center justify-center">Slide 3</div>
+      <div className="flex-1 flex bg-[var(--panel)]">
+        <div className="w-10 bg-[var(--surface)] border-r border-[var(--line)] p-1 flex flex-col gap-1 items-center">
+          <div className="w-8 h-4 rounded border border-orange-500 bg-[var(--raise)] text-[4px] text-orange-400 flex items-center justify-center font-bold">Slide 1</div>
+          <div className="w-8 h-4 rounded border border-slate-800 bg-[var(--surface)] text-[4px] text-gray-600 flex items-center justify-center">Slide 2</div>
+          <div className="w-8 h-4 rounded border border-slate-800 bg-[var(--surface)] text-[4px] text-gray-600 flex items-center justify-center">Slide 3</div>
         </div>
-        <div className="flex-1 bg-[#1F1E1D] p-2 flex flex-col justify-between">
+        <div className="flex-1 bg-[var(--surface)] p-2 flex flex-col justify-between">
           <div className="text-center mt-1">
             <span className="text-[4px] text-orange-400 tracking-widest block font-black uppercase">VEGA6 CORPNET</span>
             <h2 className="text-[9px] font-black text-white mt-0.5">Estratégias de Vendas 2026</h2>
@@ -405,10 +405,10 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none font-sans" id="screen-share-picker-modal">
       
       {/* Chrome Dialog Styled Window */}
-      <div className={`w-full ${isExpanded ? 'max-w-5xl h-[600px]' : 'max-w-3xl'} bg-[#1F222B] border border-slate-800 rounded-2xl shadow-2xl text-slate-100 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 transition-all duration-300`}>
+      <div className={`w-full ${isExpanded ? 'max-w-5xl h-[600px]' : 'max-w-3xl'} bg-[var(--panel)] border border-slate-800 rounded-2xl shadow-2xl text-slate-100 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 transition-all duration-300`}>
         
         {/* Windows Header Tabbar */}
-        <div className="bg-[#13161E] px-5 py-4 border-b border-slate-800/80 flex items-center justify-between">
+        <div className="bg-[var(--bg)] px-5 py-4 border-b border-slate-800/80 flex items-center justify-between">
           <div className="flex flex-col">
             <h3 className="text-sm font-black text-white flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
@@ -448,7 +448,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
         )}
 
         {/* Tabs Row */}
-        <div className="flex bg-[#13161E]/40 border-b border-slate-800/80 px-4 scrollbar-none overflow-x-auto">
+        <div className="flex bg-[var(--bg)]/40 border-b border-slate-800/80 px-4 scrollbar-none overflow-x-auto">
           {[
             { id: 'pdf', label: 'Apresentar PDF / Slides', isNew: true },
             { id: 'video', label: 'Vídeo Local / MP4', isNew: true }
@@ -486,7 +486,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
         </div>
 
         {/* Picker Workspace (Grid Left/Right) */}
-        <div className={`flex ${isExpanded ? 'flex-1' : 'h-[340px]'} bg-[#161821]/40 overflow-hidden transition-all duration-300`}>
+        <div className={`flex ${isExpanded ? 'flex-1' : 'h-[340px]'} bg-[var(--surface)]/40 overflow-hidden transition-all duration-300`}>
           
           {/* Left Panel: Content / Picker List */}
           <div className={`${isExpanded ? 'w-full' : 'w-[320px]'} border-r border-slate-800 p-4 overflow-y-auto custom-scrollbar flex flex-col min-h-0 transition-all duration-300`}>
@@ -501,7 +501,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                   placeholder="Pesquisar fontes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#13151E] border border-slate-800 text-xs text-white placeholder-gray-500 rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:border-blue-500 transition-all"
+                  className="w-full bg-[var(--bg)] border border-slate-800 text-xs text-white placeholder-gray-500 rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:border-blue-500 transition-all"
                   id="search-sharing-sources"
                 />
                 {searchQuery && (
@@ -523,7 +523,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                   className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all cursor-pointer ${
                     isExpanded 
                       ? 'bg-blue-500/15 border-blue-500/40 text-blue-400 shadow-sm' 
-                      : 'bg-[#13151E] border-slate-800 text-gray-400 hover:text-slate-200 hover:border-slate-700'
+                      : 'bg-[var(--bg)] border-slate-800 text-gray-400 hover:text-slate-200 hover:border-slate-700'
                   }`}
                   id="btn-toggle-expanded-mode"
                 >
@@ -556,7 +556,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           className={`w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${
                             isSelected 
                               ? 'bg-blue-500/10 border-blue-500 text-white font-bold ring-1 ring-blue-500/20' 
-                              : 'bg-[#13151E] hover:bg-[#1C1F2B] border-slate-800 text-gray-300 hover:border-slate-700'
+                              : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-slate-800 text-gray-300 hover:border-slate-700'
                           }`}
                           id={`item-tab-${item.id}`}
                         >
@@ -592,7 +592,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             className={`w-full text-left rounded-xl border transition-all cursor-pointer p-2 flex flex-col gap-2 relative group/card ${
                               isSelected 
                                 ? 'bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/25 text-white' 
-                                : 'bg-[#13151E] hover:bg-[#1C1F2B] border-slate-800 hover:border-slate-700 text-gray-300'
+                                : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-slate-800 hover:border-slate-700 text-gray-300'
                             }`}
                             id={`item-win-expanded-${item.id}`}
                           >
@@ -630,7 +630,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           className={`w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${
                             isSelected 
                               ? 'bg-blue-500/10 border-blue-500 text-white font-bold ring-1 ring-blue-500/20' 
-                              : 'bg-[#13151E] hover:bg-[#1C1F2B] border-slate-800 text-gray-300 hover:border-slate-700'
+                              : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-slate-800 text-gray-300 hover:border-slate-700'
                           }`}
                           id={`item-win-${item.id}`}
                         >
@@ -670,7 +670,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
                               isSelected 
                                 ? 'bg-blue-500/10 border-blue-500 text-white font-bold ring-1 ring-blue-500/20' 
-                                : 'bg-[#13151E] hover:bg-[#1C1F2B] border-slate-800 text-gray-300 hover:border-slate-700'
+                                : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-slate-800 text-gray-300 hover:border-slate-700'
                             }`}
                             id={`item-scr-${item.id}`}
                           >
@@ -700,7 +700,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                       onDragOver={handleDragOver}
                       onDrop={handleDrop}
                       onClick={triggerFileInput}
-                      className="border-2 border-dashed border-slate-700 hover:border-blue-500/80 bg-[#13151E] rounded-xl p-5 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group"
+                      className="border-2 border-dashed border-slate-700 hover:border-blue-500/80 bg-[var(--bg)] rounded-xl p-5 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group"
                       id="dropzone-pdf"
                     >
                       <input 
@@ -741,7 +741,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                         </div>
 
                         {/* Visualizador de Miniaturas com Setas Laterais */}
-                        <div className="space-y-3 bg-[#13151E] p-3 rounded-xl border border-slate-800">
+                        <div className="space-y-3 bg-[var(--bg)] p-3 rounded-xl border border-slate-800">
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Visualizador de Slides</span>
                             <span className="text-[9px] font-mono text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/10">
@@ -876,7 +876,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           setUploadedFileName('Plano_de_Marketing_2026.pdf');
                           setSelectedItemId('uploaded-file');
                         }}
-                        className="w-full bg-[#13151E] border border-slate-800 rounded-xl p-3 text-left hover:border-slate-700 transition-all cursor-pointer flex items-center gap-2.5"
+                        className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl p-3 text-left hover:border-slate-700 transition-all cursor-pointer flex items-center gap-2.5"
                         id="btn-use-mock-pdf"
                       >
                         <FileText size={15} className="text-amber-500 shrink-0" />
@@ -903,7 +903,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                       onDragOver={handleDragOver}
                       onDrop={handleDrop}
                       onClick={triggerFileInput}
-                      className="border-2 border-dashed border-slate-700 hover:border-emerald-500/80 bg-[#13151E] rounded-xl p-5 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group"
+                      className="border-2 border-dashed border-slate-700 hover:border-emerald-500/80 bg-[var(--bg)] rounded-xl p-5 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group"
                       id="dropzone-video"
                     >
                       <input 
@@ -954,7 +954,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           setUploadedFileUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4');
                           setSelectedItemId('uploaded-file');
                         }}
-                        className="w-full bg-[#13151E] border border-slate-800 rounded-xl p-3 text-left hover:border-slate-700 transition-all cursor-pointer flex items-center gap-2.5"
+                        className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl p-3 text-left hover:border-slate-700 transition-all cursor-pointer flex items-center gap-2.5"
                         id="btn-use-mock-video"
                       >
                         <Play size={15} className="text-emerald-400 shrink-0" fill="currentColor" />
@@ -977,12 +977,12 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
           </div>
 
           {/* Right Panel: Live Frame Preview */}
-          <div className="flex-1 p-4 flex flex-col bg-[#11131A] relative justify-center items-center">
+          <div className="flex-1 p-4 flex flex-col bg-[var(--bg)] relative justify-center items-center">
             {selectedItemId ? (
-              <div className="w-full h-full flex flex-col border border-slate-800 bg-[#0F1115] rounded-xl overflow-hidden shadow-inner relative">
+              <div className="w-full h-full flex flex-col border border-slate-800 bg-[var(--bg)] rounded-xl overflow-hidden shadow-inner relative">
                 
                 {/* Search Bar / Top Ribbon */}
-                <div className="bg-[#13151E] px-3 py-2 border-b border-slate-800/80 flex items-center justify-between gap-2 shrink-0">
+                <div className="bg-[var(--bg)] px-3 py-2 border-b border-slate-800/80 flex items-center justify-between gap-2 shrink-0">
                   <div className="flex items-center gap-1.5 overflow-hidden">
                     <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
                     <span className="text-[9px] font-bold text-slate-400 truncate max-w-[180px]">
@@ -1029,10 +1029,10 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                         <span className="flex items-center gap-1">📥 Caixa de Entrada</span>
                         <span className="text-red-400">237 Novas</span>
                       </div>
-                      <div className="bg-[#1C1E26] p-1.5 rounded border border-slate-800 truncate text-slate-300">
+                      <div className="bg-[var(--surface)] p-1.5 rounded border border-slate-800 truncate text-slate-300">
                         <strong className="text-white">Marcos:</strong> Confirmado o webinar hoje às 20h.
                       </div>
-                      <div className="bg-[#1C1E26] p-1.5 rounded border border-slate-800 truncate text-slate-300">
+                      <div className="bg-[var(--surface)] p-1.5 rounded border border-slate-800 truncate text-slate-300">
                         <strong className="text-white">Felipe:</strong> Adorei o layout do estúdio.
                       </div>
                     </div>
@@ -1043,9 +1043,9 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                     <div className="space-y-2.5 w-full max-w-[220px] text-center">
                       <p className="text-[11px] font-black text-white">Powerpoint - Apresentação de Vendas.pptx</p>
                       <div className="grid grid-cols-3 gap-1 px-1">
-                        <div className="h-7 bg-[#1C1E26] border border-slate-800 rounded text-[7px] flex items-center justify-center text-gray-500">Slide 1</div>
+                        <div className="h-7 bg-[var(--surface)] border border-slate-800 rounded text-[7px] flex items-center justify-center text-gray-500">Slide 1</div>
                         <div className="h-7 bg-blue-500/10 border border-blue-500 rounded text-[7px] flex items-center justify-center text-blue-400 font-bold">Slide 2</div>
-                        <div className="h-7 bg-[#1C1E26] border border-slate-800 rounded text-[7px] flex items-center justify-center text-gray-500">Slide 3</div>
+                        <div className="h-7 bg-[var(--surface)] border border-slate-800 rounded text-[7px] flex items-center justify-center text-gray-500">Slide 3</div>
                       </div>
                     </div>
                   )}
@@ -1071,7 +1071,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
 
                   {/* Custom PDF Slide preview */}
                   {activeTab === 'pdf' && (
-                    <div className="w-full h-full flex flex-col justify-between p-4 bg-gradient-to-br from-[#1c1212] to-[#0d0707] rounded-xl text-left border border-orange-500/10 overflow-hidden min-h-0">
+                    <div className="w-full h-full flex flex-col justify-between p-4 bg-gradient-to-br from-[var(--bg)] to-[var(--well)] rounded-xl text-left border border-orange-500/10 overflow-hidden min-h-0">
                       <div className="flex justify-between items-center border-b border-orange-500/20 pb-2 mb-2 shrink-0">
                         <div className="flex items-center gap-1.5 overflow-hidden">
                           <span className="p-0.5 px-1.5 rounded bg-orange-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">PDF</span>
@@ -1159,7 +1159,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
 
                   {/* Custom Video file preview */}
                   {activeTab === 'video' && (
-                    <div className="w-full h-full flex flex-col justify-between p-4 bg-gradient-to-br from-[#0c1410] to-[#050806] rounded-xl text-left border border-emerald-500/10 overflow-hidden min-h-0">
+                    <div className="w-full h-full flex flex-col justify-between p-4 bg-gradient-to-br from-[var(--bg)] to-[var(--well)] rounded-xl text-left border border-emerald-500/10 overflow-hidden min-h-0">
                       <div className="flex justify-between items-center border-b border-emerald-500/20 pb-2 mb-2 shrink-0">
                         <div className="flex items-center gap-1.5 overflow-hidden">
                           <span className="p-0.5 px-1.5 rounded bg-emerald-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">VÍDEO</span>
@@ -1274,13 +1274,13 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                 </div>
 
                 {/* Simulated Bottom strip */}
-                <div className="bg-[#13151E] px-3 py-1.5 border-t border-slate-800/80 text-[8px] text-gray-500 text-center uppercase tracking-wider font-bold">
+                <div className="bg-[var(--bg)] px-3 py-1.5 border-t border-slate-800/80 text-[8px] text-gray-500 text-center uppercase tracking-wider font-bold">
                   Clique em Compartilhar para transmitir para o Estúdio
                 </div>
 
               </div>
             ) : (
-              <div className="w-full h-full border border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center text-center p-6 bg-[#0F1115]/30">
+              <div className="w-full h-full border border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center text-center p-6 bg-[var(--bg)]/30">
                 <div className="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center text-slate-600 border border-slate-800 mb-3">
                   <Monitor size={20} />
                 </div>
@@ -1295,7 +1295,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
         </div>
 
         {/* Footer controls */}
-        <div className="bg-[#13161E] px-6 py-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-[var(--bg)] px-6 py-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
           
           <div className="flex flex-wrap items-center gap-5">
             {/* Audio toggle */}
@@ -1317,7 +1317,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex flex-col gap-0.5">
                 <span className="text-[8px] text-gray-500 font-extrabold uppercase tracking-wider">Resolução</span>
-                <div className="flex bg-[#13151E]/80 rounded-lg p-0.5 border border-slate-800/80">
+                <div className="flex bg-[var(--bg)]/80 rounded-lg p-0.5 border border-slate-800/80">
                   <button
                     type="button"
                     onClick={() => setResolution('720p')}
@@ -1347,7 +1347,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
 
               <div className="flex flex-col gap-0.5">
                 <span className="text-[8px] text-gray-500 font-extrabold uppercase tracking-wider">Taxa de Quadros</span>
-                <div className="flex bg-[#13151E]/80 rounded-lg p-0.5 border border-slate-800/80">
+                <div className="flex bg-[var(--bg)]/80 rounded-lg p-0.5 border border-slate-800/80">
                   <button
                     type="button"
                     onClick={() => setFrameRate('30fps')}

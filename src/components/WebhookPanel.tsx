@@ -815,7 +815,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5" id="webhook-trigger-workspace">
           
           {/* Left Column: Platform & Trigger Configuration */}
-          <div className="lg:col-span-5 bg-[#0F1115] border border-slate-800 p-5 rounded-2xl space-y-4 shadow-md">
+          <div className="lg:col-span-5 bg-[var(--bg)] border border-slate-800 p-5 rounded-2xl space-y-4 shadow-md">
             
             {/* Step 1: Select Platform */}
             <div className="space-y-2">
@@ -835,7 +835,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                       className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                         isSelected 
                           ? 'bg-blue-600/15 border-blue-500 shadow-md ring-1 ring-blue-500/50' 
-                          : 'bg-[#16191E] border-slate-800 hover:border-slate-700 text-gray-300'
+                          : 'bg-[var(--surface)] border-slate-800 hover:border-slate-700 text-gray-300'
                       }`}
                     >
                       <span className={`text-xs font-black capitalize ${isSelected ? 'text-white' : 'text-gray-300'}`}>
@@ -858,7 +858,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
               <select
                 value={selectedEventTypeId}
                 onChange={(e) => setSelectedEventTypeId(e.target.value)}
-                className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-semibold transition-all cursor-pointer"
+                className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-semibold transition-all cursor-pointer"
               >
                 {currentPlatformInfo.eventTypes.map(ev => (
                   <option key={ev.id} value={ev.id}>
@@ -909,7 +909,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                 onChange={(e) => setTargetEndpointUrl(e.target.value)}
                 readOnly={targetEndpointUrl === 'internal'}
                 placeholder="https://sua-api.com/webhooks/listener"
-                className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
               />
               <p className="text-[9px] text-gray-500 leading-tight">
                 {targetEndpointUrl === 'internal' 
@@ -935,7 +935,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                   value={secretKey}
                   onChange={(e) => setSecretKey(e.target.value)}
                   placeholder="whsec_..."
-                  className="flex-1 bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-all"
+                  className="flex-1 bg-[var(--surface)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-all"
                 />
                 <button
                   type="button"
@@ -958,7 +958,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                 rows={2}
                 value={customHeadersJson}
                 onChange={(e) => setCustomHeadersJson(e.target.value)}
-                className="w-full bg-[#16191E] border border-slate-800 rounded-xl p-2.5 text-[10px] text-gray-300 font-mono focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl p-2.5 text-[10px] text-gray-300 font-mono focus:outline-none focus:border-blue-500 resize-none"
               />
             </div>
 
@@ -991,7 +991,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
           <div className="lg:col-span-7 flex flex-col space-y-4">
             
             {/* Payload Editor Card */}
-            <div className="bg-[#0F1115] border border-slate-800 p-5 rounded-2xl flex-1 flex flex-col space-y-3">
+            <div className="bg-[var(--bg)] border border-slate-800 p-5 rounded-2xl flex-1 flex flex-col space-y-3">
               <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
                 <div className="flex items-center gap-2">
                   <Code size={16} className="text-blue-400" />
@@ -1085,7 +1085,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
 
       {/* SUB-TAB 2: HISTÓRICO DETALHADO */}
       {activeSubTab === 'history' && (
-        <div className="bg-[#0F1115] border border-slate-800 p-5 rounded-2xl space-y-4 shadow-md" id="webhook-history-view">
+        <div className="bg-[var(--bg)] border border-slate-800 p-5 rounded-2xl space-y-4 shadow-md" id="webhook-history-view">
           
           {/* Header & Filter Controls */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
@@ -1132,7 +1132,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
                 placeholder="Buscar por evento, payload, URL..."
-                className="w-full bg-[#16191E] border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
               />
             </div>
 
@@ -1140,7 +1140,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             <select
               value={platformFilter}
               onChange={(e) => setPlatformFilter(e.target.value)}
-              className="bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer"
+              className="bg-[var(--surface)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               <option value="all">Todas as Plataformas</option>
               <option value="twitch">Twitch (EventSub)</option>
@@ -1155,7 +1155,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer"
+              className="bg-[var(--surface)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               <option value="all">Todos os Status HTTP</option>
               <option value="success">Apenas Sucesso (2xx)</option>
@@ -1166,7 +1166,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             <select
               value={modeFilter}
               onChange={(e) => setModeFilter(e.target.value)}
-              className="bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer"
+              className="bg-[var(--surface)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               <option value="all">Todos os Modos</option>
               <option value="manual_test">Disparos de Teste Manual</option>
@@ -1265,7 +1265,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
 
       {/* SUB-TAB 3: ENDPOINTS & DOCUMENTAÇÃO DE ASSINATURA */}
       {activeSubTab === 'endpoints' && (
-        <div className="bg-[#0F1115] border border-slate-800 p-5 rounded-2xl space-y-6 shadow-md" id="webhook-endpoints-guide">
+        <div className="bg-[var(--bg)] border border-slate-800 p-5 rounded-2xl space-y-6 shadow-md" id="webhook-endpoints-guide">
           <div>
             <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
               <ShieldCheck size={18} className="text-emerald-400" />
@@ -1279,7 +1279,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             {/* Twitch EventSub Guide */}
-            <div className="bg-[#16191E] border border-purple-500/20 p-4 rounded-xl space-y-3">
+            <div className="bg-[var(--surface)] border border-purple-500/20 p-4 rounded-xl space-y-3">
               <div className="flex items-center gap-2">
                 <span className="p-1.5 bg-purple-500/20 text-purple-300 rounded-lg">
                   <Radio size={16} />
@@ -1298,7 +1298,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             </div>
 
             {/* Facebook Graph API Guide */}
-            <div className="bg-[#16191E] border border-blue-500/20 p-4 rounded-xl space-y-3">
+            <div className="bg-[var(--surface)] border border-blue-500/20 p-4 rounded-xl space-y-3">
               <div className="flex items-center gap-2">
                 <span className="p-1.5 bg-blue-500/20 text-blue-300 rounded-lg">
                   <ShieldCheck size={16} />
@@ -1323,10 +1323,10 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
       {/* DEEP INSPECTOR MODAL */}
       {inspectingLog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#0F1115] border border-slate-800 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-left">
+          <div className="bg-[var(--bg)] border border-slate-800 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-left">
             
             {/* Modal Header */}
-            <div className="px-6 py-4 bg-[#16191E] border-b border-slate-800 flex items-center justify-between">
+            <div className="px-6 py-4 bg-[var(--surface)] border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-xl border ${
                   inspectingLog.isSuccess 
@@ -1391,28 +1391,28 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
               {inspectTab === 'overview' && (
                 <div className="space-y-3 font-sans">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <div className="p-3 bg-[#16191E] border border-slate-800 rounded-xl">
+                    <div className="p-3 bg-[var(--surface)] border border-slate-800 rounded-xl">
                       <span className="text-[10px] text-gray-400 font-bold uppercase block">Plataforma</span>
                       <span className="text-white font-bold text-sm capitalize">{inspectingLog.platform}</span>
                     </div>
-                    <div className="p-3 bg-[#16191E] border border-slate-800 rounded-xl">
+                    <div className="p-3 bg-[var(--surface)] border border-slate-800 rounded-xl">
                       <span className="text-[10px] text-gray-400 font-bold uppercase block">Status Code</span>
                       <span className={`font-bold text-sm ${inspectingLog.isSuccess ? 'text-emerald-400' : 'text-red-400'}`}>
                         {inspectingLog.status} {inspectingLog.statusText}
                       </span>
                     </div>
-                    <div className="p-3 bg-[#16191E] border border-slate-800 rounded-xl">
+                    <div className="p-3 bg-[var(--surface)] border border-slate-800 rounded-xl">
                       <span className="text-[10px] text-gray-400 font-bold uppercase block">Latência de Ida e Volta</span>
                       <span className="text-blue-400 font-bold text-sm">{inspectingLog.latencyMs} ms</span>
                     </div>
                   </div>
 
-                  <div className="p-3.5 bg-[#16191E] border border-slate-800 rounded-xl space-y-1">
+                  <div className="p-3.5 bg-[var(--surface)] border border-slate-800 rounded-xl space-y-1">
                     <span className="text-[10px] text-gray-400 font-bold uppercase block">URL do Endpoint</span>
                     <span className="text-gray-200 font-mono text-xs break-all select-all">{inspectingLog.endpointUrl}</span>
                   </div>
 
-                  <div className="p-3.5 bg-[#16191E] border border-slate-800 rounded-xl space-y-1">
+                  <div className="p-3.5 bg-[var(--surface)] border border-slate-800 rounded-xl space-y-1">
                     <span className="text-[10px] text-gray-400 font-bold uppercase block">Data e Hora do Disparo</span>
                     <span className="text-gray-200 text-xs">{inspectingLog.timestamp}</span>
                   </div>
@@ -1492,7 +1492,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-3.5 bg-[#16191E] border-t border-slate-800 flex items-center justify-between">
+            <div className="px-6 py-3.5 bg-[var(--surface)] border-t border-slate-800 flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => {

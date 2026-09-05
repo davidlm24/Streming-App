@@ -110,13 +110,13 @@ export function AudiencePanel() {
             placeholder="Buscar espectadores..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#0F1115] border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+            className="w-full bg-[var(--bg)] border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
           />
         </div>
         <select 
           value={filter}
           onChange={(e) => setFilter(e.target.value as any)}
-          className="bg-[#0F1115] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-blue-500 cursor-pointer"
+          className="bg-[var(--bg)] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-blue-500 cursor-pointer"
         >
           <option value="all">Todos</option>
           <option value="new">Novos</option>
@@ -131,7 +131,7 @@ export function AudiencePanel() {
           </div>
         ) : (
           filteredAudience.map(user => (
-            <div key={user.id} className="bg-[#0F1115] border border-slate-800/80 hover:border-slate-700 p-3 rounded-xl flex items-center gap-3 transition-colors">
+            <div key={user.id} className="bg-[var(--bg)] border border-slate-800/80 hover:border-slate-700 p-3 rounded-xl flex items-center gap-3 transition-colors">
               <img 
                 src={user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80'} 
                 alt={user.name} 

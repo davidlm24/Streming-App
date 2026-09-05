@@ -116,7 +116,7 @@ export function ScenesPanel({
       case 'screen-share':
         return (
           <div className="w-full h-full bg-slate-900 rounded p-1 flex gap-1">
-            <div className="flex-1 bg-[#4683E0]/30 border border-blue-400/50 rounded flex items-center justify-center">
+            <div className="flex-1 bg-[var(--color-brand)]/30 border border-blue-400/50 rounded flex items-center justify-center">
               <span className="text-[6px] font-bold text-blue-300">TELA</span>
             </div>
             <div className="w-1/3 bg-slate-800 border border-slate-700 rounded flex items-center justify-center">
@@ -144,9 +144,9 @@ export function ScenesPanel({
   };
 
   return (
-    <div className="w-full bg-[#16191E] border-r border-slate-800 flex flex-col h-full select-none" id="scenes-sidebar">
+    <div className="w-full bg-[var(--surface)] border-r border-slate-800 flex flex-col h-full select-none" id="scenes-sidebar">
       {/* Header */}
-      <div className="p-3.5 border-b border-slate-800 bg-[#0F1115] shrink-0 flex items-center justify-between">
+      <div className="p-3.5 border-b border-slate-800 bg-[var(--bg)] shrink-0 flex items-center justify-between">
         <div>
           <h3 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
             <Users size={14} className="text-blue-400" />
@@ -168,7 +168,7 @@ export function ScenesPanel({
       {/* Content Viewport */}
       <div className="flex-1 overflow-y-auto p-3.5 space-y-4 custom-scrollbar">
         {/* SECTION 1: Invite Guest */}
-        <div className="bg-[#0F1115] border border-slate-800/80 p-3.5 rounded-xl space-y-2.5 shadow-inner">
+        <div className="bg-[var(--bg)] border border-slate-800/80 p-3.5 rounded-xl space-y-2.5 shadow-inner">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0">
               <Users size={13} />
@@ -179,12 +179,12 @@ export function ScenesPanel({
             </div>
           </div>
 
-          <p className="text-[9px] text-[#a59ebf] leading-relaxed">
+          <p className="text-[9px] text-[var(--text-lo)] leading-relaxed">
             Link para convidados entrarem no estúdio diretamente pelo navegador:
           </p>
 
           <div className="flex gap-1.5 items-stretch">
-            <div className="flex-1 bg-[#16191E] border border-slate-800/80 rounded-lg px-2 flex items-center overflow-hidden min-w-0">
+            <div className="flex-1 bg-[var(--surface)] border border-slate-800/80 rounded-lg px-2 flex items-center overflow-hidden min-w-0">
               <span className="text-[8.5px] font-mono text-gray-400 truncate select-all">
                 https://stream.pwstreamer.com/guest-studio?id=5427
               </span>
@@ -220,7 +220,7 @@ export function ScenesPanel({
                 className={`w-full text-left rounded-xl p-2.5 border transition-all relative flex flex-col gap-2 cursor-pointer ${
                   p.isActive 
                     ? 'bg-blue-500/10 border-blue-500 ring-1 ring-blue-500/30 text-white' 
-                    : 'bg-[#0F1115]/40 border-slate-800 text-gray-400 hover:border-slate-700 hover:bg-slate-800/20'
+                    : 'bg-[var(--bg)]/40 border-slate-800 text-gray-400 hover:border-slate-700 hover:bg-slate-800/20'
                 }`}
               >
                 <div className="w-full flex items-center justify-between gap-2">
@@ -261,7 +261,7 @@ export function ScenesPanel({
                         No Palco
                       </span>
                     ) : (
-                      <span className="text-[8px] font-black uppercase text-gray-400 hover:text-white border border-slate-700 bg-[#0F1115] px-1.5 py-0.5 rounded">
+                      <span className="text-[8px] font-black uppercase text-gray-400 hover:text-white border border-slate-700 bg-[var(--bg)] px-1.5 py-0.5 rounded">
                         + Add
                       </span>
                     )}

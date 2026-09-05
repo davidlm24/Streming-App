@@ -226,9 +226,9 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#1a1625] border border-slate-700/50 rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+      <div className="bg-[var(--surface)] border border-slate-700/50 rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#14101d]">
+        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[var(--bg)]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
               <Server className="text-purple-400" size={20} />
@@ -274,7 +274,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                     className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between group relative ${
                       isSelected
                         ? 'bg-purple-950/40 border-purple-500 text-white shadow-lg shadow-purple-500/10 ring-1 ring-purple-500/50'
-                        : 'bg-[#0f0c16] border-white/5 text-slate-300 hover:border-white/20 hover:bg-white/5'
+                        : 'bg-[var(--well)] border-white/5 text-slate-300 hover:border-white/20 hover:bg-white/5'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0 pr-2">
@@ -317,7 +317,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
           </div>
 
           {/* Edit Selected Profile Form */}
-          <div className="bg-[#0f0c16] border border-white/10 rounded-2xl p-5 space-y-4">
+          <div className="bg-[var(--well)] border border-white/10 rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
               <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
                 <Edit3 size={14} className="text-purple-400" /> Configurações do Perfil Selecionado
@@ -336,7 +336,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                     handleSaveCurrentProfile();
                   }}
                   placeholder="Ex: Transmissão Principal YouTube"
-                  className="w-full bg-[#161222] px-3 py-2 rounded-lg text-xs text-white border border-white/10 focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--bg)] px-3 py-2 rounded-lg text-xs text-white border border-white/10 focus:outline-none focus:border-purple-500"
                 />
               </div>
 
@@ -355,7 +355,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                     if (newPlat === 'Twitch TV' && !url) setUrl('rtmp://live.twitch.tv/app');
                     if (newPlat === 'Facebook Live' && !url) setUrl('rtmps://live-api-s.facebook.com:443/rtmp/');
                   }}
-                  className="w-full bg-[#161222] px-3 py-2 rounded-lg text-xs text-white border border-white/10 focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--bg)] px-3 py-2 rounded-lg text-xs text-white border border-white/10 focus:outline-none focus:border-purple-500"
                 >
                   <option value="Cloudflare Stream">Cloudflare Stream (RTMPS)</option>
                   <option value="YouTube Live">YouTube Live</option>
@@ -379,7 +379,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                       setTestResult('idle');
                     }}
                     placeholder="rtmp://a.rtmp.youtube.com/live2"
-                    className="flex-1 bg-[#161222] px-3.5 py-2.5 rounded-lg text-xs text-white border border-white/10 focus:outline-none focus:border-purple-500 font-mono transition-colors"
+                    className="flex-1 bg-[var(--bg)] px-3.5 py-2.5 rounded-lg text-xs text-white border border-white/10 focus:outline-none focus:border-purple-500 font-mono transition-colors"
                   />
                   <button 
                     type="button"
@@ -400,7 +400,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                     value={streamKey}
                     onChange={(e) => setStreamKey(e.target.value)}
                     placeholder="••••••••••••••••••••"
-                    className="flex-1 bg-[#161222] px-3.5 py-2.5 rounded-lg text-xs text-amber-300 border border-white/10 focus:outline-none focus:border-purple-500 font-mono transition-colors"
+                    className="flex-1 bg-[var(--bg)] px-3.5 py-2.5 rounded-lg text-xs text-amber-300 border border-white/10 focus:outline-none focus:border-purple-500 font-mono transition-colors"
                   />
                   <button 
                     type="button"
@@ -452,7 +452,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
         </div>
 
         {/* Footer */}
-        <div className="p-5 border-t border-white/5 bg-[#14101d] flex items-center justify-between gap-3">
+        <div className="p-5 border-t border-white/5 bg-[var(--bg)] flex items-center justify-between gap-3">
           <span className="text-xs text-slate-400 hidden sm:inline">
             Perfil ativo: <strong className="text-white">{profileName || activeProfile.name}</strong>
           </span>

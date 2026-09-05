@@ -349,7 +349,7 @@ export function VirtualizedChat({
                 {comments.length.toLocaleString()} msgs
               </span>
             </h2>
-            <p className="text-[11px] text-[#a59ebf]">Acompanhe comentários em tempo real com virtualização 60 FPS.</p>
+            <p className="text-[11px] text-[var(--text-lo)]">Acompanhe comentários em tempo real com virtualização 60 FPS.</p>
           </div>
 
           {/* Quick HUD / Tools Toggle */}
@@ -360,7 +360,7 @@ export function VirtualizedChat({
               className={`p-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
                 isSearchOpen || searchQuery 
                   ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' 
-                  : 'bg-[#0F1115] border-slate-800 text-gray-400 hover:text-white'
+                  : 'bg-[var(--bg)] border-slate-800 text-gray-400 hover:text-white'
               }`}
               title="Buscar mensagens no chat"
             >
@@ -373,7 +373,7 @@ export function VirtualizedChat({
               className={`p-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
                 isPerformanceHUDOpen 
                   ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' 
-                  : 'bg-[#0F1115] border-slate-800 text-gray-400 hover:text-white'
+                  : 'bg-[var(--bg)] border-slate-800 text-gray-400 hover:text-white'
               }`}
               title="Painel de Desempenho e Virtualização"
             >
@@ -390,7 +390,7 @@ export function VirtualizedChat({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por usuário ou mensagem..."
-              className="w-full bg-[#0F1115] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 pr-8"
+              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 pr-8"
               autoFocus
             />
             {searchQuery && (
@@ -407,7 +407,7 @@ export function VirtualizedChat({
 
         {/* Performance & Virtualization HUD Banner */}
         {isPerformanceHUDOpen && (
-          <div className="p-3 bg-[#0F1115] border border-emerald-500/30 rounded-xl space-y-2 text-left animate-in fade-in duration-200">
+          <div className="p-3 bg-[var(--bg)] border border-emerald-500/30 rounded-xl space-y-2 text-left animate-in fade-in duration-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold">
                 <Zap size={13} className="animate-pulse" />
@@ -419,15 +419,15 @@ export function VirtualizedChat({
             </div>
 
             <div className="grid grid-cols-3 gap-2 text-[10px]">
-              <div className="bg-[#16191E] p-1.5 rounded-lg border border-slate-800">
+              <div className="bg-[var(--surface)] p-1.5 rounded-lg border border-slate-800">
                 <p className="text-gray-400">Total no Histórico</p>
                 <p className="font-mono font-bold text-white text-xs">{comments.length.toLocaleString()}</p>
               </div>
-              <div className="bg-[#16191E] p-1.5 rounded-lg border border-slate-800">
+              <div className="bg-[var(--surface)] p-1.5 rounded-lg border border-slate-800">
                 <p className="text-gray-400">Nós no DOM</p>
                 <p className="font-mono font-bold text-emerald-400 text-xs">{renderedNodesCount} nós</p>
               </div>
-              <div className="bg-[#16191E] p-1.5 rounded-lg border border-slate-800">
+              <div className="bg-[var(--surface)] p-1.5 rounded-lg border border-slate-800">
                 <p className="text-gray-400">Uso de Memória</p>
                 <p className="font-mono font-bold text-blue-400 text-xs">Leve (&lt; 2MB)</p>
               </div>
@@ -483,7 +483,7 @@ export function VirtualizedChat({
         )}
 
         {/* Filter chips bar */}
-        <div className="flex bg-[#0F1115] border border-slate-800 rounded-xl p-1 gap-1 overflow-x-auto custom-scrollbar">
+        <div className="flex bg-[var(--bg)] border border-slate-800 rounded-xl p-1 gap-1 overflow-x-auto custom-scrollbar">
           {[
             { key: 'all', label: 'Todos' },
             { key: 'youtube', label: 'YouTube' },
@@ -496,7 +496,7 @@ export function VirtualizedChat({
               key={f.key}
               onClick={() => setCommentFilter(f.key as any)}
               className={`flex-1 min-w-[50px] text-center py-1 text-[11px] font-semibold rounded-lg capitalize transition-all cursor-pointer truncate ${
-                commentFilter === f.key ? 'bg-[#4683E0] text-white shadow-sm' : 'text-gray-400 hover:text-white'
+                commentFilter === f.key ? 'bg-[var(--color-brand)] text-white shadow-sm' : 'text-gray-400 hover:text-white'
               }`}
             >
               {f.label}
@@ -506,7 +506,7 @@ export function VirtualizedChat({
       </div>
 
       {/* 2. Virtualized Comments Container */}
-      <div className="relative flex-1 min-h-0 bg-[#0F1115] border border-slate-800 rounded-xl overflow-hidden flex flex-col">
+      <div className="relative flex-1 min-h-0 bg-[var(--bg)] border border-slate-800 rounded-xl overflow-hidden flex flex-col">
         {filteredComments.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 py-8 px-4">
             <MessageSquare size={26} className="mb-2 text-gray-600 opacity-60" />
@@ -549,7 +549,7 @@ export function VirtualizedChat({
                           ? 'bg-blue-950/30 border-blue-500 ring-1 ring-blue-500/30'
                           : shouldShowWarning
                             ? 'bg-red-950/25 border-red-900/50 hover:border-red-500/30'
-                            : 'bg-[#16191E] border-slate-800/90 hover:border-blue-500/30'
+                            : 'bg-[var(--surface)] border-slate-800/90 hover:border-blue-500/30'
                       }`}
                     >
                       <img
@@ -612,13 +612,13 @@ export function VirtualizedChat({
                             <button
                               type="button"
                               onClick={() => onApproveComment(comment.id)}
-                              className="px-2 py-0.5 bg-[#16191E] hover:bg-slate-800 border border-slate-700 hover:border-slate-600 text-gray-300 rounded text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                              className="px-2 py-0.5 bg-[var(--surface)] hover:bg-slate-800 border border-slate-700 hover:border-slate-600 text-gray-300 rounded text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer"
                             >
                               Mostrar mesmo assim
                             </button>
                           </div>
                         ) : (
-                          <p className="text-[#d8d4ec] mt-1 break-words text-[11px] leading-relaxed select-text">{comment.text}</p>
+                          <p className="text-[var(--text)] mt-1 break-words text-[11px] leading-relaxed select-text">{comment.text}</p>
                         )}
                       </div>
                     </div>
@@ -650,7 +650,7 @@ export function VirtualizedChat({
             value={typedComment}
             onChange={(e) => setTypedComment(e.target.value)}
             placeholder="Responda como Marcos..."
-            className="flex-1 bg-[#0F1115] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
+            className="flex-1 bg-[var(--bg)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
           />
           <button
             type="submit"
@@ -662,8 +662,8 @@ export function VirtualizedChat({
           </button>
         </div>
 
-        <div className="bg-[#0F1115] border border-slate-800 p-2 text-[9px] text-gray-400 flex items-start gap-1.5 rounded-lg">
-          <AlertCircle size={12} className="text-[#4683E0] mt-0.5 shrink-0" />
+        <div className="bg-[var(--bg)] border border-slate-800 p-2 text-[9px] text-gray-400 flex items-start gap-1.5 rounded-lg">
+          <AlertCircle size={12} className="text-[var(--color-brand)] mt-0.5 shrink-0" />
           <p className="leading-relaxed">
             {isLive
               ? "A transmissão está AO VIVO! Suas respostas serão enviadas para as mídias sociais ativas."

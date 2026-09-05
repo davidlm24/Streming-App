@@ -57,7 +57,7 @@ export function StudioScenePreviewControls({
   };
 
   return (
-    <div className="w-full bg-[#0F1115] border-b border-slate-800/80 px-2 sm:px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-inner select-none transition-all" id="studio-scene-preview-controls">
+    <div className="w-full bg-[var(--bg)] border-b border-slate-800/80 px-2 sm:px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-inner select-none transition-all" id="studio-scene-preview-controls">
       
       {/* Left: Mode Toggle & View Switcher */}
       <div className="flex items-center gap-2 flex-wrap">
@@ -173,7 +173,7 @@ export function StudioScenePreviewControls({
                   className="fixed inset-0 z-40" 
                   onClick={() => setIsTransitionsMenuOpen(false)} 
                 />
-                <div className="absolute right-0 top-full mt-1 w-56 bg-[#16191E] border border-slate-700 rounded-xl p-2 z-50 shadow-2xl space-y-2">
+                <div className="absolute right-0 top-full mt-1 w-56 bg-[var(--surface)] border border-slate-700 rounded-xl p-2 z-50 shadow-2xl space-y-2">
                   <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-1 border-b border-slate-800 pb-1">
                     Efeito de Transição
                   </div>

@@ -164,9 +164,9 @@ export function VideoQualityPanel({
   const requiredUploadMbps = ((config.bitrateKbps + parseInt(config.audioBitrateKbps)) * 1.3 / 1000).toFixed(1);
 
   return (
-    <div className="bg-[#16191E] border border-slate-800 rounded-2xl overflow-hidden shadow-xl text-left">
+    <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl overflow-hidden shadow-xl text-left">
       {/* Header */}
-      <div className="p-5 border-b border-slate-800 bg-[#121419] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-5 border-b border-slate-800 bg-[var(--bg)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
             <Gauge size={20} />
@@ -181,7 +181,7 @@ export function VideoQualityPanel({
 
         {/* Current Plan Badge & Optimization CTA */}
         <div className="flex items-center gap-2">
-          <div className="px-3 py-1.5 rounded-lg bg-[#0F1115] border border-slate-800 text-xs flex items-center gap-2">
+          <div className="px-3 py-1.5 rounded-lg bg-[var(--bg)] border border-slate-800 text-xs flex items-center gap-2">
             <Crown size={14} className="text-amber-400" />
             <span className="text-gray-300 font-semibold">{userPlan}</span>
             <span className="text-[10px] text-gray-500 font-mono">({planInfo.maxRes.toUpperCase()} Max)</span>
@@ -243,7 +243,7 @@ export function VideoQualityPanel({
               className={`p-4 rounded-xl border text-left transition-all relative cursor-pointer ${
                 config.resolution === '720p'
                   ? 'bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/20'
-                  : 'bg-[#0F1115] border-slate-800 hover:border-slate-700'
+                  : 'bg-[var(--bg)] border-slate-800 hover:border-slate-700'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -268,7 +268,7 @@ export function VideoQualityPanel({
               className={`p-4 rounded-xl border text-left transition-all relative cursor-pointer ${
                 config.resolution === '1080p'
                   ? 'bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/20'
-                  : 'bg-[#0F1115] border-slate-800 hover:border-slate-700'
+                  : 'bg-[var(--bg)] border-slate-800 hover:border-slate-700'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -297,7 +297,7 @@ export function VideoQualityPanel({
               className={`p-4 rounded-xl border text-left transition-all relative cursor-pointer ${
                 config.resolution === '4k'
                   ? 'bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/20'
-                  : 'bg-[#0F1115] border-slate-800 hover:border-slate-700'
+                  : 'bg-[var(--bg)] border-slate-800 hover:border-slate-700'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -325,7 +325,7 @@ export function VideoQualityPanel({
         </div>
 
         {/* 2. Bitrate Control Slider & Presets */}
-        <div className="p-4 bg-[#0F1115] border border-slate-800 rounded-xl space-y-4">
+        <div className="p-4 bg-[var(--bg)] border border-slate-800 rounded-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
@@ -416,7 +416,7 @@ export function VideoQualityPanel({
             <select
               value={config.fps}
               onChange={(e) => setConfig(prev => ({ ...prev, fps: parseInt(e.target.value) as 30 | 60 }))}
-              className="w-full bg-[#0F1115] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
+              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
             >
               <option value={30}>30 FPS (Padrão Suave)</option>
               <option value={60}>60 FPS (Ultra Fluidez / Games)</option>
@@ -431,7 +431,7 @@ export function VideoQualityPanel({
             <select
               value={config.encoder}
               onChange={(e) => setConfig(prev => ({ ...prev, encoder: e.target.value as EncoderOption }))}
-              className="w-full bg-[#0F1115] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
+              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
             >
               <option value="h264">H.264 (AVC - Maior Compatibilidade)</option>
               <option value="hevc">HEVC (H.265 - Alta Eficiência)</option>
@@ -447,7 +447,7 @@ export function VideoQualityPanel({
             <select
               value={config.audioBitrateKbps}
               onChange={(e) => setConfig(prev => ({ ...prev, audioBitrateKbps: e.target.value as AudioBitrateOption }))}
-              className="w-full bg-[#0F1115] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
+              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
             >
               <option value="128">128 kbps (AAC Padrão)</option>
               <option value="192">192 kbps (AAC Alta Fidelidade)</option>
@@ -463,7 +463,7 @@ export function VideoQualityPanel({
             <select
               value={config.keyframeInterval}
               onChange={(e) => setConfig(prev => ({ ...prev, keyframeInterval: parseInt(e.target.value) }))}
-              className="w-full bg-[#0F1115] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
+              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
             >
               <option value={1}>1 segundo (Baixíssima latência)</option>
               <option value={2}>2 segundos (Recomendado YouTube/Twitch)</option>
@@ -496,7 +496,7 @@ export function VideoQualityPanel({
             <button
               type="button"
               onClick={triggerSavedFeedback}
-              className="px-6 py-2.5 bg-[#4683E0] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+              className="px-6 py-2.5 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
             >
               <Save size={14} />
               <span>Salvar e Aplicar no Estúdio</span>

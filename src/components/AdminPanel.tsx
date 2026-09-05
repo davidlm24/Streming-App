@@ -156,7 +156,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
           </button>
           <button
             onClick={onBack}
-            className="px-5 py-2.5 bg-[#4683E0] hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-md cursor-pointer"
+            className="px-5 py-2.5 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-md cursor-pointer"
           >
             Voltar ao Estúdio
           </button>
@@ -188,7 +188,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
       {/* CLIENT TAB 1: MY INGESTION STREAM KEY */}
       {clientTab === 'my-rtmp' && (
-        <div className="bg-[#16191E] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
+        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <div className="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2">
@@ -203,7 +203,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
             </span>
           </div>
 
-          <div className="bg-[#0F1115] border border-slate-800 p-5 rounded-xl space-y-4">
+          <div className="bg-[var(--bg)] border border-slate-800 p-5 rounded-xl space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-white uppercase tracking-wider">{primaryKey.label}</span>
               <div className="flex items-center gap-2">
@@ -224,7 +224,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                     type="text"
                     readOnly
                     value={primaryKey.server}
-                    className="flex-1 bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-blue-400 font-bold focus:outline-none"
+                    className="flex-1 bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-blue-400 font-bold focus:outline-none"
                   />
                   <button
                     onClick={() => {
@@ -248,7 +248,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                     type="text"
                     readOnly
                     value={primaryKey.key}
-                    className="flex-1 bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-amber-400 font-bold focus:outline-none"
+                    className="flex-1 bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-amber-400 font-bold focus:outline-none"
                   />
                   <button
                     onClick={() => {
@@ -296,7 +296,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
       {/* CLIENT TAB 2: OUTBOUND DESTINATIONS */}
       {clientTab === 'destinations' && (
-        <div className="bg-[#16191E] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
+        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <Share2 size={18} className="text-blue-500" /> Chaves RTMP dos Seus Canais (Redes Sociais)
@@ -305,7 +305,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
           </div>
 
           {/* Add destination form */}
-          <form onSubmit={handleAddClientDestination} className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-3">
+          <form onSubmit={handleAddClientDestination} className="bg-[var(--bg)] border border-slate-800 p-4 rounded-xl space-y-3">
             <span className="text-xs font-bold text-white uppercase tracking-wider block">Conectar Novo Canal de Transmissão</span>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -315,7 +315,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                   value={newDestPlatform}
                   onChange={(e) => setNewDestPlatform(e.target.value)}
                   required
-                  className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                  className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Selecione...</option>
                   <option value="YouTube Live">YouTube Live</option>
@@ -333,7 +333,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                   value={newDestKey}
                   onChange={(e) => setNewDestKey(e.target.value)}
                   placeholder="Chave do YouTube/Facebook"
-                  className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                  className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                 />
               </div>
 
@@ -344,7 +344,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                   value={newDestUrl}
                   onChange={(e) => setNewDestUrl(e.target.value)}
                   placeholder="rtmp://a.rtmp.youtube.com/live2"
-                  className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 font-mono"
+                  className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 font-mono"
                 />
               </div>
             </div>
@@ -370,7 +370,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
           <div className="space-y-3">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Canais Ativos para Suas Transmissões ({clientDestinations.length})</span>
             {clientDestinations.map(dest => (
-              <div key={dest.id} className="p-4 bg-[#0F1115] border border-slate-800/80 rounded-xl flex items-center justify-between gap-4">
+              <div key={dest.id} className="p-4 bg-[var(--bg)] border border-slate-800/80 rounded-xl flex items-center justify-between gap-4">
                 <div className="text-left space-y-1">
                   <p className="text-xs font-bold text-white">{dest.platform}</p>
                   <p className="text-[11px] text-gray-400 font-mono">Server: {dest.rtmpUrl} • Chave: {dest.streamKey.substring(0, 10)}***</p>
@@ -408,7 +408,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               { label: 'Comentários Recebidos', value: '482', desc: 'Interações no Chat Unificado', color: 'text-emerald-400' },
               { label: 'Qualidade da Ingestão', value: '1080p 60fps', desc: 'Bitrate estável em 8 Mbps', color: 'text-amber-400' }
             ].map((stat, idx) => (
-              <div key={idx} className="bg-[#16191E] border border-slate-800 p-6 rounded-2xl text-left shadow-lg">
+              <div key={idx} className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left shadow-lg">
                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{stat.label}</p>
                 <p className={`text-3xl font-black mt-2 ${stat.color}`}>{stat.value}</p>
                 <p className="text-xs text-gray-400 mt-1">{stat.desc}</p>
@@ -422,7 +422,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
       {/* CLIENT TAB 4: WEBHOOKS VALIDATOR & DISPATCHER */}
       {clientTab === 'webhooks' && (
-        <div className="bg-[#16191E] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
+        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <WebhookPanel 
             userId={user?.email || 'mgdlms@gmail.com'}
             isLive={false}

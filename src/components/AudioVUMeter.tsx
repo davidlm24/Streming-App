@@ -106,7 +106,7 @@ export function AudioVUMeter({ stream, isMuted = false, isActive = true, simulat
 
   return (
     <div className="w-full" id="vu-meter-bars">
-      <div className="flex items-center gap-[2px] h-2 bg-[#090b0e] border border-slate-950 p-[1px] rounded-md overflow-hidden w-full">
+      <div className="flex items-center gap-[2px] h-2 bg-[var(--well)] border border-slate-950 p-[1px] rounded-md overflow-hidden w-full">
         {Array.from({ length: segmentsCount }).map((_, idx) => {
           const isLit = idx < activeSegments;
           // Segment colors: green for idx < 10, yellow for 10-12, red for >= 13

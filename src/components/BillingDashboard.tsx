@@ -377,7 +377,7 @@ Suporte Técnico: suporte@pwstreamer.com
             <Settings size={26} className="text-blue-500" /> 
             Configurações da Conta
           </h1>
-          <p className="text-sm text-[#a59ebf] mt-1">Gerencie suas informações cadastrais, consulte faturamento e mude seu plano de assinatura.</p>
+          <p className="text-sm text-[var(--text-lo)] mt-1">Gerencie suas informações cadastrais, consulte faturamento e mude seu plano de assinatura.</p>
         </div>
 
         <button
@@ -433,16 +433,16 @@ Suporte Técnico: suporte@pwstreamer.com
             </p>
 
             {/* Billing interval switcher */}
-            <div className="inline-flex items-center gap-2 p-1 bg-[#16191E] border border-slate-800 rounded-xl mt-4">
+            <div className="inline-flex items-center gap-2 p-1 bg-[var(--surface)] border border-slate-800 rounded-xl mt-4">
               <button 
                 onClick={() => setIsAnnual(false)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[#4683E0] text-white' : 'text-gray-400 hover:text-white'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'}`}
               >
                 Mensal
               </button>
               <button 
                 onClick={() => setIsAnnual(true)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${isAnnual ? 'bg-[#4683E0] text-white' : 'text-gray-400 hover:text-white'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${isAnnual ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'}`}
               >
                 Anual <span className="text-[9px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/10 font-bold">Economize 20%</span>
               </button>
@@ -458,7 +458,7 @@ Suporte Técnico: suporte@pwstreamer.com
               return (
                 <div 
                   key={plan.id}
-                  className={`bg-[#16191E] border rounded-2xl p-6 flex flex-col justify-between relative transition-all ${
+                  className={`bg-[var(--surface)] border rounded-2xl p-6 flex flex-col justify-between relative transition-all ${
                     plan.popular 
                       ? 'border-blue-500 shadow-xl shadow-blue-500/5 ring-1 ring-blue-500/20' 
                       : 'border-slate-800/80 hover:border-slate-700'
@@ -493,8 +493,8 @@ Suporte Técnico: suporte@pwstreamer.com
                         isCurrentActivePlan
                           ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 cursor-default'
                           : plan.popular
-                            ? 'bg-[#4683E0] hover:bg-blue-600 text-white shadow-lg shadow-blue-950/20'
-                            : 'bg-[#0F1115] hover:bg-slate-800 border border-slate-800 text-white'
+                            ? 'bg-[var(--color-brand)] hover:bg-blue-600 text-white shadow-lg shadow-blue-950/20'
+                            : 'bg-[var(--bg)] hover:bg-slate-800 border border-slate-800 text-white'
                       }`}
                     >
                       {isCurrentActivePlan ? 'Plano Atual Ativo' : 'Assinar Plano'}
@@ -516,7 +516,7 @@ Suporte Técnico: suporte@pwstreamer.com
             })}
           </div>
 
-          <div className="bg-[#0F1115] border border-slate-800/60 rounded-2xl p-5 text-left flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="bg-[var(--bg)] border border-slate-800/60 rounded-2xl p-5 text-left flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="space-y-1">
               <span className="px-2 py-0.5 bg-slate-800 text-gray-400 rounded text-[9px] uppercase font-bold">Seu plano atual</span>
               <p className="text-sm font-bold text-white">
@@ -542,10 +542,10 @@ Suporte Técnico: suporte@pwstreamer.com
 
       {/* RENDER VIEW 1.2: REAL TIME INTERACTIVE INTEGRATED CHECKOUT WITH GATEWAYS (Stripe, Paypal, Mercado Pago) */}
       {activeSubTab === 'plans' && checkoutStep !== 'none' && (
-        <div className="max-w-xl mx-auto bg-[#16191E] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl text-left animate-in zoom-in-95 duration-150">
+        <div className="max-w-xl mx-auto bg-[var(--surface)] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl text-left animate-in zoom-in-95 duration-150">
           
           {/* Checkout Steps Indicator */}
-          <div className="grid grid-cols-3 bg-[#0F1115] border-b border-slate-800 text-center text-[10px] font-bold uppercase tracking-wider text-gray-500">
+          <div className="grid grid-cols-3 bg-[var(--bg)] border-b border-slate-800 text-center text-[10px] font-bold uppercase tracking-wider text-gray-500">
             <div className={`py-3 ${checkoutStep === 'gateway' ? 'text-blue-400 border-b-2 border-blue-500 bg-blue-500/5' : ''}`}>
               1. Meio de Pagamento
             </div>
@@ -575,7 +575,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   className={`w-full p-4 flex items-center justify-between rounded-xl border transition-all text-left ${
                     selectedGateway === 'stripe' 
                       ? 'bg-blue-500/5 border-blue-500 ring-1 ring-blue-500/25' 
-                      : 'bg-[#0F1115] border-slate-800 hover:border-slate-700'
+                      : 'bg-[var(--bg)] border-slate-800 hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -599,7 +599,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   className={`w-full p-4 flex items-center justify-between rounded-xl border transition-all text-left ${
                     selectedGateway === 'paypal' 
                       ? 'bg-blue-500/5 border-blue-500 ring-1 ring-blue-500/25' 
-                      : 'bg-[#0F1115] border-slate-800 hover:border-slate-700'
+                      : 'bg-[var(--bg)] border-slate-800 hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -623,7 +623,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   className={`w-full p-4 flex items-center justify-between rounded-xl border transition-all text-left ${
                     selectedGateway === 'mercadopago' 
                       ? 'bg-blue-500/5 border-blue-500 ring-1 ring-blue-500/25' 
-                      : 'bg-[#0F1115] border-slate-800 hover:border-slate-700'
+                      : 'bg-[var(--bg)] border-slate-800 hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -642,7 +642,7 @@ Suporte Técnico: suporte@pwstreamer.com
               </div>
 
               {/* Order summary detail card */}
-              <div className="bg-[#0F1115] p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="bg-[var(--bg)] p-4 rounded-xl border border-slate-800 space-y-2">
                 <div className="flex items-center justify-between text-xs font-semibold text-gray-400">
                   <span>Plano selecionado:</span>
                   <span className="text-white font-bold">{selectedUpgradePlan} ({isAnnual ? 'Anual' : 'Mensal'})</span>
@@ -662,14 +662,14 @@ Suporte Técnico: suporte@pwstreamer.com
                 <button
                   type="button"
                   onClick={() => setCheckoutStep('none')}
-                  className="py-3 bg-[#0F1115] hover:bg-slate-800 border border-slate-800 text-xs font-bold text-white rounded-xl transition-all text-center"
+                  className="py-3 bg-[var(--bg)] hover:bg-slate-800 border border-slate-800 text-xs font-bold text-white rounded-xl transition-all text-center"
                 >
                   Voltar para Planos
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmGateway}
-                  className="py-3 bg-[#4683E0] hover:bg-blue-600 text-xs font-bold text-white rounded-xl transition-all text-center flex items-center justify-center gap-1.5"
+                  className="py-3 bg-[var(--color-brand)] hover:bg-blue-600 text-xs font-bold text-white rounded-xl transition-all text-center flex items-center justify-center gap-1.5"
                 >
                   Prosseguir <ArrowRight size={14} />
                 </button>
@@ -730,7 +730,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         required
                         value={stripeCardNumber}
                         onChange={(e) => setStripeCardNumber(e.target.value)}
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-blue-500 transition-all"
+                        className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-blue-500 transition-all"
                       />
                     </div>
 
@@ -743,7 +743,7 @@ Suporte Técnico: suporte@pwstreamer.com
                           value={stripeExpiry}
                           onChange={(e) => setStripeExpiry(e.target.value)}
                           placeholder="MM/AA"
-                          className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-blue-500 transition-all"
+                          className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-blue-500 transition-all"
                         />
                       </div>
                       <div className="space-y-1">
@@ -755,7 +755,7 @@ Suporte Técnico: suporte@pwstreamer.com
                           onChange={(e) => setStripeCvc(e.target.value)}
                           placeholder="424"
                           maxLength={4}
-                          className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-blue-500 transition-all"
+                          className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none focus:border-blue-500 transition-all"
                         />
                       </div>
                     </div>
@@ -767,7 +767,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         required
                         value={stripeCardName}
                         onChange={(e) => setStripeCardName(e.target.value.toUpperCase())}
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white uppercase focus:outline-none focus:border-blue-500 transition-all"
+                        className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white uppercase focus:outline-none focus:border-blue-500 transition-all"
                       />
                     </div>
                   </div>
@@ -795,7 +795,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         required
                         value={paypalEmail}
                         onChange={(e) => setPaypalEmail(e.target.value)}
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
+                        className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
                       />
                     </div>
                     <div className="space-y-1">
@@ -805,7 +805,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         required
                         value={paypalPassword}
                         onChange={(e) => setPaypalPassword(e.target.value)}
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
+                        className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
                       />
                     </div>
 
@@ -834,12 +834,12 @@ Suporte Técnico: suporte@pwstreamer.com
                 <div className="space-y-4">
                   
                   {/* Subtabs to choose Card or PIX */}
-                  <div className="flex bg-[#0F1115] border border-slate-800 rounded-xl p-1">
+                  <div className="flex bg-[var(--bg)] border border-slate-800 rounded-xl p-1">
                     <button
                       type="button"
                       onClick={() => setMpMethod('pix')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'pix' ? 'bg-[#4683E0] text-white' : 'text-gray-400 hover:text-white'
+                        mpMethod === 'pix' ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'
                       }`}
                     >
                       PIX Instantâneo
@@ -848,7 +848,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       type="button"
                       onClick={() => setMpMethod('card')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'card' ? 'bg-[#4683E0] text-white' : 'text-gray-400 hover:text-white'
+                        mpMethod === 'card' ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'
                       }`}
                     >
                       Cartão Mercado Pago
@@ -869,7 +869,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2 bg-[#16191E] p-2.5 rounded-xl border border-slate-800/80">
+                      <div className="flex items-center gap-2 bg-[var(--surface)] p-2.5 rounded-xl border border-slate-800/80">
                         <input 
                           type="text" 
                           readOnly 
@@ -883,7 +883,7 @@ Suporte Técnico: suporte@pwstreamer.com
                             navigator.clipboard.writeText("00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98");
                             setTimeout(() => setPixCopied(false), 2000);
                           }}
-                          className="px-2.5 py-1 bg-[#4683E0] hover:bg-blue-600 text-white rounded text-[10px] font-bold shrink-0"
+                          className="px-2.5 py-1 bg-[var(--color-brand)] hover:bg-blue-600 text-white rounded text-[10px] font-bold shrink-0"
                         >
                           {pixCopied ? 'Copiado!' : 'Copiar Chave'}
                         </button>
@@ -916,7 +916,7 @@ Suporte Técnico: suporte@pwstreamer.com
                             required
                             value={mpCardNumber}
                             onChange={(e) => setMpCardNumber(e.target.value)}
-                            className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
+                            className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
                           />
                         </div>
 
@@ -928,7 +928,7 @@ Suporte Técnico: suporte@pwstreamer.com
                               required
                               value={mpExpiry}
                               onChange={(e) => setMpExpiry(e.target.value)}
-                              className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
+                              className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
                             />
                           </div>
                           <div className="space-y-1">
@@ -938,7 +938,7 @@ Suporte Técnico: suporte@pwstreamer.com
                               required
                               value={mpCvc}
                               onChange={(e) => setMpCvc(e.target.value)}
-                              className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
+                              className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-white focus:outline-none"
                             />
                           </div>
                         </div>
@@ -950,7 +950,7 @@ Suporte Técnico: suporte@pwstreamer.com
                             required
                             value={mpCardName}
                             onChange={(e) => setMpCardName(e.target.value.toUpperCase())}
-                            className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white uppercase focus:outline-none"
+                            className="w-full bg-[var(--surface)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white uppercase focus:outline-none"
                           />
                         </div>
                       </div>
@@ -996,7 +996,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 <button
                   type="button"
                   onClick={() => setCheckoutStep('gateway')}
-                  className="py-3 bg-[#0F1115] hover:bg-slate-800 border border-slate-800 text-xs font-bold text-white rounded-xl transition-all text-center"
+                  className="py-3 bg-[var(--bg)] hover:bg-slate-800 border border-slate-800 text-xs font-bold text-white rounded-xl transition-all text-center"
                 >
                   Voltar
                 </button>
@@ -1034,7 +1034,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 </p>
               </div>
 
-              <div className="bg-[#0F1115] p-4 rounded-xl border border-slate-800/80 text-left space-y-2 text-xs">
+              <div className="bg-[var(--bg)] p-4 rounded-xl border border-slate-800/80 text-left space-y-2 text-xs">
                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Resumo do Faturamento</p>
                 <div className="flex justify-between text-gray-300">
                   <span>Plano Ativo:</span>
@@ -1062,7 +1062,7 @@ Suporte Técnico: suporte@pwstreamer.com
                     setCheckoutStep('none');
                     setActiveSubTab('plans');
                   }}
-                  className="w-full py-3 bg-[#4683E0] hover:bg-blue-600 text-xs font-bold text-white rounded-xl transition-all text-center"
+                  className="w-full py-3 bg-[var(--color-brand)] hover:bg-blue-600 text-xs font-bold text-white rounded-xl transition-all text-center"
                 >
                   Concluir e Voltar
                 </button>
@@ -1075,7 +1075,7 @@ Suporte Técnico: suporte@pwstreamer.com
 
       {/* RENDER VIEW 2: CADASTRE PROFILE AND INVOICE ADDRESS TAB */}
       {activeSubTab === 'profile' && (
-        <div className="max-w-2xl mx-auto bg-[#16191E] border border-slate-800 rounded-2xl p-6 text-left space-y-6">
+        <div className="max-w-2xl mx-auto bg-[var(--surface)] border border-slate-800 rounded-2xl p-6 text-left space-y-6">
           <div className="border-b border-slate-800 pb-4">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <User size={18} className="text-blue-500" /> Informações Cadastrais & Fiscais
@@ -1168,7 +1168,7 @@ Suporte Técnico: suporte@pwstreamer.com
             <button
               type="submit"
               disabled={isSavingProfile}
-              className="px-6 py-3 bg-[#4683E0] hover:bg-blue-600 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-1.5"
+              className="px-6 py-3 bg-[var(--color-brand)] hover:bg-blue-600 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-1.5"
             >
               {isSavingProfile ? (
                 <>
@@ -1187,7 +1187,7 @@ Suporte Técnico: suporte@pwstreamer.com
 
       {/* RENDER VIEW 3: BILLING HISTORY AND SIMULATED RECEIPTS TAB */}
       {activeSubTab === 'billing-history' && (
-        <div className="bg-[#16191E] border border-slate-800 rounded-2xl p-6 text-left space-y-6">
+        <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl p-6 text-left space-y-6">
           <div className="border-b border-slate-800 pb-4">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <FileText size={18} className="text-blue-500" /> Histórico de Transações & Faturas
@@ -1252,8 +1252,8 @@ Suporte Técnico: suporte@pwstreamer.com
           {/* Render Invoice details overlay modal */}
           {selectedInvoiceForModal && (
             <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
-              <div className="bg-[#16191E] border border-slate-800 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl text-left">
-                <div className="bg-[#0F1115] px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+              <div className="bg-[var(--surface)] border border-slate-800 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl text-left">
+                <div className="bg-[var(--bg)] px-6 py-4 border-b border-slate-800 flex items-center justify-between">
                   <span className="text-xs font-bold text-blue-400 font-mono">Detalhes da Fatura {selectedInvoiceForModal.id}</span>
                   <button 
                     onClick={() => setSelectedInvoiceForModal(null)}
@@ -1303,7 +1303,7 @@ Suporte Técnico: suporte@pwstreamer.com
 
                   <div className="space-y-1.5 border-t border-slate-800/40 pt-3">
                     <p className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Descrição dos Itens</p>
-                    <div className="flex justify-between text-white font-semibold bg-[#0F1115] p-2.5 rounded-xl border border-slate-800">
+                    <div className="flex justify-between text-white font-semibold bg-[var(--bg)] p-2.5 rounded-xl border border-slate-800">
                       <span>Assinatura {selectedInvoiceForModal.plan}</span>
                       <span>${selectedInvoiceForModal.amount.toFixed(2)} USD</span>
                     </div>
@@ -1416,7 +1416,7 @@ Suporte Técnico: suporte@pwstreamer.com
           <div className="space-y-6">
             
             {/* Main stats card header comparing limits */}
-            <div className="bg-[#16191E] border border-slate-800 rounded-2xl p-6 text-left space-y-6">
+            <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl p-6 text-left space-y-6">
               
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
                 <div className="space-y-1">
@@ -1434,7 +1434,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   </span>
                   <button
                     onClick={handleResetSimulations}
-                    className="p-2 bg-[#0F1115] border border-slate-800 hover:bg-slate-900 rounded-lg text-gray-400 hover:text-white transition-all text-xs flex items-center gap-1 cursor-pointer font-bold"
+                    className="p-2 bg-[var(--bg)] border border-slate-800 hover:bg-slate-900 rounded-lg text-gray-400 hover:text-white transition-all text-xs flex items-center gap-1 cursor-pointer font-bold"
                     title="Restaurar consumos iniciais"
                   >
                     <Trash2 size={13} />
@@ -1447,7 +1447,7 @@ Suporte Técnico: suporte@pwstreamer.com
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Meter 1: Streaming Minutes */}
-                <div className="bg-[#0F1115] border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                <div className="bg-[var(--bg)] border border-slate-800/80 rounded-2xl p-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400">
                       <Clock size={15} className="text-blue-400" />
@@ -1477,7 +1477,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 </div>
 
                 {/* Meter 2: Video Cloud Storage */}
-                <div className="bg-[#0F1115] border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                <div className="bg-[var(--bg)] border border-slate-800/80 rounded-2xl p-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400">
                       <Database size={15} className="text-emerald-400" />
@@ -1507,7 +1507,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 </div>
 
                 {/* Meter 3: Active seats inside limit */}
-                <div className="bg-[#0F1115] border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                <div className="bg-[var(--bg)] border border-slate-800/80 rounded-2xl p-5 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400">
                       <Users size={15} className="text-purple-400" />
@@ -1568,7 +1568,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   <span className="text-[10px] text-gray-500">Assentos Ativos: {seatsUsed} de {activeLimits.seats} permitidos</span>
                 </div>
 
-                <div className="bg-[#0F1115] border border-slate-800 rounded-2xl overflow-hidden divide-y divide-slate-800/60">
+                <div className="bg-[var(--bg)] border border-slate-800 rounded-2xl overflow-hidden divide-y divide-slate-800/60">
                   
                   {/* User 1: Marcos Gonçalves (Owner) */}
                   <div className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-slate-900/40 transition-colors">
@@ -1603,14 +1603,14 @@ Suporte Técnico: suporte@pwstreamer.com
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => handleSimulateMinutes('marcos', 15)}
-                          className="px-2 py-1 bg-[#16191E] hover:bg-slate-800 border border-slate-850 hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                          className="px-2 py-1 bg-[var(--surface)] hover:bg-slate-800 border border-[var(--line)] hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           title="Simular transmissão de +15m"
                         >
                           <Plus size={10} /> 15m
                         </button>
                         <button
                           onClick={() => handleSimulateStorage('marcos', 0.5)}
-                          className="px-2 py-1 bg-[#16191E] hover:bg-slate-800 border border-slate-850 hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                          className="px-2 py-1 bg-[var(--surface)] hover:bg-slate-800 border border-[var(--line)] hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           title="Simular gravação de +0.5GB"
                         >
                           <Plus size={10} /> 0.5GB
@@ -1654,13 +1654,13 @@ Suporte Técnico: suporte@pwstreamer.com
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleSimulateMinutes('ana', 15)}
-                            className="px-2 py-1 bg-[#16191E] hover:bg-slate-800 border border-slate-850 hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                            className="px-2 py-1 bg-[var(--surface)] hover:bg-slate-800 border border-[var(--line)] hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           >
                             <Plus size={10} /> 15m
                           </button>
                           <button
                             onClick={() => handleSimulateStorage('ana', 0.5)}
-                            className="px-2 py-1 bg-[#16191E] hover:bg-slate-800 border border-slate-850 hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                            className="px-2 py-1 bg-[var(--surface)] hover:bg-slate-800 border border-[var(--line)] hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           >
                             <Plus size={10} /> 0.5GB
                           </button>
@@ -1671,7 +1671,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         <span className="hidden sm:inline">Requer upgrade para plano com mais assentos</span>
                         <button
                           onClick={() => setActiveSubTab('plans')}
-                          className="px-3 py-1.5 bg-[#4683E0] hover:bg-blue-600 text-white rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 bg-[var(--color-brand)] hover:bg-blue-600 text-white rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer"
                         >
                           <Zap size={11} /> Desbloquear Assento (Professional)
                         </button>
@@ -1714,13 +1714,13 @@ Suporte Técnico: suporte@pwstreamer.com
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleSimulateMinutes('lucas', 15)}
-                            className="px-2 py-1 bg-[#16191E] hover:bg-slate-800 border border-slate-850 hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                            className="px-2 py-1 bg-[var(--surface)] hover:bg-slate-800 border border-[var(--line)] hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           >
                             <Plus size={10} /> 15m
                           </button>
                           <button
                             onClick={() => handleSimulateStorage('lucas', 0.5)}
-                            className="px-2 py-1 bg-[#16191E] hover:bg-slate-800 border border-slate-850 hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                            className="px-2 py-1 bg-[var(--surface)] hover:bg-slate-800 border border-[var(--line)] hover:border-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           >
                             <Plus size={10} /> 0.5GB
                           </button>
@@ -1731,7 +1731,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         <span className="hidden sm:inline">Excede os assentos permitidos no seu plano atual</span>
                         <button
                           onClick={() => setActiveSubTab('plans')}
-                          className="px-3 py-1.5 bg-[#4683E0] hover:bg-blue-600 text-white rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 bg-[var(--color-brand)] hover:bg-blue-600 text-white rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer"
                         >
                           <Zap size={11} /> Desbloquear com Plano Business
                         </button>
@@ -1743,22 +1743,22 @@ Suporte Técnico: suporte@pwstreamer.com
               </div>
 
               {/* Informational tech parameters specs list card */}
-              <div className="bg-[#0F1115] border border-slate-800 p-5 rounded-2xl text-left space-y-3">
+              <div className="bg-[var(--bg)] border border-slate-800 p-5 rounded-2xl text-left space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Qualidade Técnica e Limites Estruturais ({currentPlan})</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-gray-300">
-                  <div className="flex items-center gap-2 bg-[#16191E] p-3 rounded-xl border border-slate-800/60">
+                  <div className="flex items-center gap-2 bg-[var(--surface)] p-3 rounded-xl border border-slate-800/60">
                     <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
                     <span>Transmissão simultânea: Até {activeLimits.destinations} destinos de canais</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-[#16191E] p-3 rounded-xl border border-slate-800/60">
+                  <div className="flex items-center gap-2 bg-[var(--surface)] p-3 rounded-xl border border-slate-800/60">
                     <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
                     <span>Resolução de Transmissão: {currentPlan === 'Free Trial' ? 'HD 720p Max' : 'Full HD 1080p Ultra'}</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-[#16191E] p-3 rounded-xl border border-slate-800/60">
+                  <div className="flex items-center gap-2 bg-[var(--surface)] p-3 rounded-xl border border-slate-800/60">
                     <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
                     <span>Backup RTMP profissional: {currentPlan === 'Business' ? 'Incluso com reconexão' : 'Indisponível neste plano'}</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-[#16191E] p-3 rounded-xl border border-slate-800/60">
+                  <div className="flex items-center gap-2 bg-[var(--surface)] p-3 rounded-xl border border-slate-800/60">
                     <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
                     <span>Suporte técnico prioritário: {currentPlan === 'Business' ? '24/7 via Chat Ativo' : 'Apenas por E-mail regular'}</span>
                   </div>

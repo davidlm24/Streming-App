@@ -279,7 +279,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
           <button onClick={() => setView('landing')} className="hover:text-white transition-colors">Início</button>
           <button onClick={() => setView('pricing')} className="hover:text-white transition-colors">Planos</button>
           <button onClick={() => setView('login')} className="px-3.5 py-1.5 border border-slate-800 rounded-lg hover:bg-slate-900 transition-colors text-white">Log In</button>
-          <button onClick={() => setView('register')} className="px-3.5 py-1.5 bg-[#4683E0] rounded-lg hover:bg-blue-600 transition-all text-white">Sign Up</button>
+          <button onClick={() => setView('register')} className="px-3.5 py-1.5 bg-[var(--color-brand)] rounded-lg hover:bg-blue-600 transition-all text-white">Sign Up</button>
         </div>
       </header>
 
@@ -355,7 +355,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <button 
                   onClick={handleGoogleLogin}
-                  className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#4683E0] to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold text-sm rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[var(--color-brand)] to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold text-sm rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   Entrar com Google <ArrowRight size={16} />
                 </button>
@@ -384,7 +384,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   <div key={i} className="bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl space-y-3 relative group hover:border-blue-500/50 transition-colors">
                     <div className="flex items-center justify-between">
                       <h3 className="font-bold text-white text-base">{p.name}</h3>
-                      <span className="text-xs text-[#4683E0] font-black">{p.label}</span>
+                      <span className="text-xs text-[var(--color-brand)] font-black">{p.label}</span>
                     </div>
                     <div>
                       <span className="text-2xl font-black text-white">{p.price}</span>
@@ -396,7 +396,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                         setSelectedPlan(p.name as any);
                         setView('register');
                       }} 
-                      className="w-full py-2 bg-slate-950 hover:bg-[#4683E0] text-xs font-bold rounded-lg border border-slate-800 group-hover:border-transparent transition-colors text-center"
+                      className="w-full py-2 bg-slate-950 hover:bg-[var(--color-brand)] text-xs font-bold rounded-lg border border-slate-800 group-hover:border-transparent transition-colors text-center"
                     >
                       Assinar Plano
                     </button>
@@ -519,7 +519,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
               <button 
                 type="submit"
-                className="w-full py-3 bg-[#4683E0] hover:bg-blue-600 rounded-xl text-sm font-bold transition-all text-white flex items-center justify-center gap-2"
+                className="w-full py-3 bg-[var(--color-brand)] hover:bg-blue-600 rounded-xl text-sm font-bold transition-all text-white flex items-center justify-center gap-2"
               >
                 Entrar no Estúdio <LogIn size={16} />
               </button>
@@ -631,13 +631,13 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               <div className="inline-flex items-center gap-2 p-1 bg-slate-900 border border-slate-800 rounded-xl mt-4">
                 <button 
                   onClick={() => setIsAnnual(false)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[#4683E0] text-white' : 'text-gray-400 hover:text-white'}`}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'}`}
                 >
                   Mensal
                 </button>
                 <button 
                   onClick={() => setIsAnnual(true)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${isAnnual ? 'bg-[#4683E0] text-white' : 'text-gray-400 hover:text-white'}`}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${isAnnual ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'}`}
                 >
                   Anual <span className="text-[9px] bg-green-500/20 text-green-400 px-1 py-0.5 rounded border border-green-500/10">2 meses grátis</span>
                 </button>
@@ -690,7 +690,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                           plan.id === 'Free Trial'
                             ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/20'
                             : plan.popular
-                              ? 'bg-[#4683E0] hover:bg-blue-600 text-white shadow-lg shadow-blue-950/20'
+                              ? 'bg-[var(--color-brand)] hover:bg-blue-600 text-white shadow-lg shadow-blue-950/20'
                               : 'bg-slate-950 hover:bg-slate-800 border border-slate-800 text-white'
                         }`}
                       >
@@ -923,7 +923,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       type="button"
                       onClick={() => setMpMethod('pix')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'pix' ? 'bg-[#4683E0] text-white' : 'text-gray-400 hover:text-white'
+                        mpMethod === 'pix' ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'
                       }`}
                     >
                       PIX Nacional
@@ -932,7 +932,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       type="button"
                       onClick={() => setMpMethod('card')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'card' ? 'bg-[#4683E0] text-white' : 'text-gray-400 hover:text-white'
+                        mpMethod === 'card' ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'
                       }`}
                     >
                       Cartão de Crédito
@@ -951,7 +951,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                         <p className="text-[10px] text-gray-500">Escaneie ou copie a chave de testes abaixo.</p>
                       </div>
 
-                      <div className="flex items-center gap-2 bg-[#16191E] p-2 rounded-xl border border-slate-800">
+                      <div className="flex items-center gap-2 bg-[var(--surface)] p-2 rounded-xl border border-slate-800">
                         <input 
                           type="text" 
                           readOnly 
@@ -965,7 +965,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                             navigator.clipboard.writeText("00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98");
                             setTimeout(() => setPixCopied(false), 2000);
                           }}
-                          className="px-2.5 py-1 bg-[#4683E0] hover:bg-blue-600 text-white rounded text-[9px] font-bold shrink-0"
+                          className="px-2.5 py-1 bg-[var(--color-brand)] hover:bg-blue-600 text-white rounded text-[9px] font-bold shrink-0"
                         >
                           {pixCopied ? 'Copiado!' : 'Copiar'}
                         </button>
@@ -1077,7 +1077,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 <button 
                   type="submit"
                   disabled={isProcessingCheckout || (selectedGateway === 'paypal' && !isPaypalAuthorized)}
-                  className="py-3 bg-[#4683E0] hover:bg-blue-600 disabled:opacity-50 rounded-xl text-xs font-bold transition-all text-white flex items-center justify-center gap-2"
+                  className="py-3 bg-[var(--color-brand)] hover:bg-blue-600 disabled:opacity-50 rounded-xl text-xs font-bold transition-all text-white flex items-center justify-center gap-2"
                 >
                   {isProcessingCheckout ? (
                     <span className="flex items-center gap-1.5">

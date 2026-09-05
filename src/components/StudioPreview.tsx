@@ -1792,7 +1792,7 @@ export function StudioPreview({
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-center p-4">
-              <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-[#4683E0] mb-3 animate-pulse">
+              <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-[var(--color-brand)] mb-3 animate-pulse">
                 <User size={32} />
               </div>
               <p className="text-sm font-semibold text-white">Marcos (Você)</p>
@@ -1847,7 +1847,7 @@ export function StudioPreview({
 
     if ((p as any).isSlides && activeSlide) {
       return (
-        <div key={p.id} className={`relative w-full h-full bg-[#0F1115] overflow-hidden rounded-xl flex flex-col justify-between border border-slate-800/80 ${customClass}`}>
+        <div key={p.id} className={`relative w-full h-full bg-[var(--bg)] overflow-hidden rounded-xl flex flex-col justify-between border border-slate-800/80 ${customClass}`}>
           {/* Slide Header */}
           <div className="bg-slate-900/90 px-4 py-2 flex items-center justify-between border-b border-slate-800 z-10">
             <div className="flex items-center gap-2">
@@ -1860,7 +1860,7 @@ export function StudioPreview({
           </div>
 
           {/* Dynamic Content */}
-          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4 bg-gradient-to-br from-[#12141a] to-[#0a0b0e] relative overflow-hidden">
+          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4 bg-gradient-to-br from-[var(--bg)] to-[var(--well)] relative overflow-hidden">
             {/* Ambient visual background glow */}
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
@@ -1907,7 +1907,7 @@ export function StudioPreview({
       );
 
       return (
-        <div key={p.id} className={`relative w-full h-full bg-[#16191E] overflow-hidden rounded-xl flex items-center justify-center ${customClass}`}>
+        <div key={p.id} className={`relative w-full h-full bg-[var(--surface)] overflow-hidden rounded-xl flex items-center justify-center ${customClass}`}>
           {screenStream && !hasMockUI ? (
             <video
               ref={(el) => {
@@ -1921,10 +1921,10 @@ export function StudioPreview({
               className="w-full h-full object-contain"
             />
           ) : selectedSharedSource ? (
-            <div className="w-full h-full bg-[#0F1115] text-slate-100 flex flex-col overflow-hidden select-none font-sans">
+            <div className="w-full h-full bg-[var(--bg)] text-slate-100 flex flex-col overflow-hidden select-none font-sans">
               
               {/* Simulated browser search bar / top window header */}
-              <div className="bg-[#1e1f29] border-b border-slate-800 px-3.5 py-1.5 flex items-center gap-3 shrink-0">
+              <div className="bg-[var(--surface)] border-b border-slate-800 px-3.5 py-1.5 flex items-center gap-3 shrink-0">
                 <div className="flex gap-1.5 shrink-0">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
@@ -1940,13 +1940,13 @@ export function StudioPreview({
               </div>
 
               {/* Mock content rendering according to selection */}
-              <div className="flex-1 flex overflow-hidden bg-[#13141c]">
+              <div className="flex-1 flex overflow-hidden bg-[var(--bg)]">
                 
                 {/* 1. PWSTREAMER MOCK */}
                 {selectedSharedSource.name.includes('PwStreamer') && (
                   <div className="flex-1 flex overflow-hidden">
                     {/* Main content */}
-                    <div className="flex-[3] p-4 flex flex-col justify-between border-r border-slate-800 bg-gradient-to-b from-[#181a25] to-[#0F1115]">
+                    <div className="flex-[3] p-4 flex flex-col justify-between border-r border-slate-800 bg-gradient-to-b from-[var(--surface)] to-[var(--bg)]">
                       <div className="flex justify-between items-center mb-2">
                         <div className="flex items-center gap-2">
                           <div className="p-1 rounded bg-rose-600/15 text-rose-500">
@@ -1991,7 +1991,7 @@ export function StudioPreview({
                     </div>
 
                     {/* Chat Sidebar */}
-                    <div className="flex-1 bg-[#151620] p-3 flex flex-col justify-between text-[9px] text-slate-400">
+                    <div className="flex-1 bg-[var(--bg)] p-3 flex flex-col justify-between text-[9px] text-slate-400">
                       <div className="border-b border-slate-800 pb-2 mb-2 flex items-center justify-between">
                         <span className="font-extrabold text-slate-200 flex items-center gap-1.5 uppercase tracking-wide">
                           <MessageSquare size={10} className="text-rose-500" /> Bate-papo (Guia)
@@ -2022,7 +2022,7 @@ export function StudioPreview({
                 {selectedSharedSource.name.includes('Caixa') && (
                   <div className="flex-1 flex overflow-hidden">
                     {/* Gmail Sidebar */}
-                    <div className="w-1/4 bg-[#1a1b24] p-3 border-r border-slate-800/80 flex flex-col justify-between">
+                    <div className="w-1/4 bg-[var(--surface)] p-3 border-r border-slate-800/80 flex flex-col justify-between">
                       <div className="space-y-1 text-[10px]">
                         <div className="bg-rose-500/15 text-rose-400 px-3 py-1.5 rounded-lg font-black tracking-wide text-center uppercase mb-3 border border-rose-500/10">
                           ✉️ Escrever
@@ -2039,7 +2039,7 @@ export function StudioPreview({
                     </div>
 
                     {/* Gmail List */}
-                    <div className="flex-1 p-3 bg-[#13141c] flex flex-col">
+                    <div className="flex-1 p-3 bg-[var(--bg)] flex flex-col">
                       <div className="border-b border-slate-800/60 pb-2 mb-2 flex items-center justify-between">
                         <span className="text-[10px] font-bold text-slate-300">Caixa de Entrada (mgdlms@gmail.com)</span>
                         <span className="text-[8px] text-slate-500">Filtrado por: Mais Recentes</span>
@@ -2071,7 +2071,7 @@ export function StudioPreview({
 
                 {/* 3. POWERPOINT MOCK */}
                 {selectedSharedSource.name.includes('Powerpoint') && (
-                  <div className="flex-1 flex flex-col bg-[#2e1915]/20 p-4 justify-between font-sans">
+                  <div className="flex-1 flex flex-col bg-[var(--surface)]/20 p-4 justify-between font-sans">
                     {/* PowerPoint top menu simulation */}
                     <div className="flex justify-between items-center border-b border-orange-500/20 pb-2 mb-3">
                       <div className="flex items-center gap-2">
@@ -2176,7 +2176,7 @@ export function StudioPreview({
 
                 {/* 4. YOUTUBE MOCK */}
                 {selectedSharedSource.name.includes('Como funciona') && (
-                  <div className="flex-1 flex flex-col bg-[#141010] p-4 justify-between">
+                  <div className="flex-1 flex flex-col bg-[var(--bg)] p-4 justify-between">
                     <div className="flex justify-between items-center border-b border-red-500/10 pb-1.5 mb-2">
                       <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5"><Youtube size={14} className="text-red-500" /> YouTube Premium Player</span>
                       <span className="text-[8px] bg-red-600 text-white font-bold px-1.5 rounded uppercase">Reproduzindo</span>
@@ -2208,7 +2208,7 @@ export function StudioPreview({
 
                 {/* 5. PDF SLIDESHOW TEMPLATE */}
                 {selectedSharedSource.type === 'pdf' && (
-                  <div className="flex-1 flex flex-col justify-between p-4 bg-gradient-to-br from-[#1c1212] to-[#0d0707] min-h-0">
+                  <div className="flex-1 flex flex-col justify-between p-4 bg-gradient-to-br from-[var(--bg)] to-[var(--well)] min-h-0">
                     <div className="flex justify-between items-center border-b border-orange-500/20 pb-2 mb-2">
                       <div className="flex items-center gap-2 overflow-hidden">
                         <span className="p-1 px-1.5 rounded bg-orange-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">PDF</span>
@@ -2339,7 +2339,7 @@ export function StudioPreview({
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <div className="flex-1 flex flex-col justify-between p-4 bg-[#080d0d] text-slate-100 font-sans min-h-0">
+                      <div className="flex-1 flex flex-col justify-between p-4 bg-[var(--well)] text-slate-100 font-sans min-h-0">
                         <div className="flex justify-between items-center border-b border-emerald-500/20 pb-1.5 mb-2 shrink-0">
                           <div className="flex items-center gap-1.5 overflow-hidden">
                             <span className="p-0.5 px-1.5 rounded bg-emerald-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">VIDEO</span>
@@ -2374,7 +2374,7 @@ export function StudioPreview({
 
                 {/* 7. GENERAL / FALLBACK TEMPLATE */}
                 {selectedSharedSource.type !== 'pdf' && selectedSharedSource.type !== 'video' && !['PwStreamer', 'Caixa', 'Powerpoint', 'Como funciona'].some(key => selectedSharedSource.name.includes(key)) && (
-                  <div className="flex-1 flex flex-col justify-between p-4 bg-gradient-to-br from-[#12141c] to-[#0d0e13] min-h-0">
+                  <div className="flex-1 flex flex-col justify-between p-4 bg-gradient-to-br from-[var(--bg)] to-[var(--well)] min-h-0">
                     <div className="flex justify-between items-center border-b border-slate-800 pb-2 shrink-0">
                       <div className="flex items-center gap-1.5 overflow-hidden">
                         <Monitor size={12} className="text-blue-400 shrink-0" />
@@ -2402,15 +2402,15 @@ export function StudioPreview({
               </div>
             </div>
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-center bg-gradient-to-br from-[#0F1115] to-[#16191E] p-6">
-              <Monitor size={48} className="text-[#4683E0] mb-3 animate-pulse" />
+            <div className="w-full h-full flex flex-col items-center justify-center text-center bg-gradient-to-br from-[var(--bg)] to-[var(--surface)] p-6">
+              <Monitor size={48} className="text-[var(--color-brand)] mb-3 animate-pulse" />
               <p className="text-sm font-semibold text-white">Compartilhamento de Tela Ativo</p>
-              <p className="text-[11px] text-[#a59ebf] max-w-xs mt-1">Exibindo slides ou janelas do apresentador para os participantes.</p>
+              <p className="text-[11px] text-[var(--text-lo)] max-w-xs mt-1">Exibindo slides ou janelas do apresentador para os participantes.</p>
             </div>
           )}
           {/* Label Tag */}
           <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/60 text-white tracking-wide flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-[#4683E0] rounded-full animate-ping"></span>
+            <span className="w-1.5 h-1.5 bg-[var(--color-brand)] rounded-full animate-ping"></span>
             <span>Tela Compartilhada</span>
             {selectedSharedSource && (
               <span className="text-gray-400 font-mono text-[9px] border-l border-slate-700 pl-1.5 ml-0.5">
@@ -2424,7 +2424,7 @@ export function StudioPreview({
 
     // Guest participant
     return (
-      <div key={p.id} className={`relative w-full h-full bg-[#0F1115] overflow-hidden rounded-xl flex items-center justify-center ${customClass}`}>
+      <div key={p.id} className={`relative w-full h-full bg-[var(--bg)] overflow-hidden rounded-xl flex items-center justify-center ${customClass}`}>
         <div className="flex flex-col items-center justify-center text-center p-4">
           <img 
             src={p.avatarUrl} 
@@ -2632,8 +2632,8 @@ export function StudioPreview({
   const renderLayoutContent = () => {
     if (activeFeeds.length === 0) {
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center bg-[#0F1115]/95 text-center p-6">
-          <ShieldAlert size={48} className="text-[#4683E0] mb-3" />
+        <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--bg)]/95 text-center p-6">
+          <ShieldAlert size={48} className="text-[var(--color-brand)] mb-3" />
           <p className="text-base font-semibold text-white">Transmissão Vazia</p>
           <p className="text-xs text-gray-400 max-w-sm mt-1">Adicione o seu vídeo ou compartilhamento de tela ao palco para começar.</p>
           <button 
@@ -2786,7 +2786,7 @@ export function StudioPreview({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8 }}
-              className="absolute inset-0 bg-gradient-to-br from-[#0F1115] to-[#16191E]"
+              className="absolute inset-0 bg-gradient-to-br from-[var(--bg)] to-[var(--surface)]"
             ></motion.div>
           )}
         </AnimatePresence>
@@ -3108,7 +3108,7 @@ export function StudioPreview({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 16, scale: 0.94 }}
                 transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-                className="bg-[#0F1115]/95 border border-slate-800 p-8 rounded-2xl text-center max-w-sm w-full space-y-4 shadow-2xl"
+                className="bg-[var(--bg)]/95 border border-slate-800 p-8 rounded-2xl text-center max-w-sm w-full space-y-4 shadow-2xl"
               >
                 <div className="flex items-center justify-center gap-2 text-blue-400">
                   <Clock size={20} className="animate-spin duration-1000" style={{ animationDuration: '4s' }} />
@@ -3144,7 +3144,7 @@ export function StudioPreview({
                   />
                 </div>
 
-                <p className="text-[9px] text-[#a59ebf] font-medium leading-relaxed">
+                <p className="text-[9px] text-[var(--text-lo)] font-medium leading-relaxed">
                   {isCountdownActive ? 'Contagem regressiva ao vivo' : 'Temporizador pausado pelo produtor'}
                 </p>
               </motion.div>
@@ -3161,7 +3161,7 @@ export function StudioPreview({
               animate={{ opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' }}
               exit={{ opacity: 0, x: 28, scale: 0.94, filter: 'blur(4px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', damping: 25, stiffness: 280, mass: 0.85 }}
-              className="absolute top-16 right-4 z-40 w-[240px] bg-[#0F1115]/95 backdrop-blur-md border border-blue-500/30 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5 text-left"
+              className="absolute top-16 right-4 z-40 w-[240px] bg-[var(--bg)]/95 backdrop-blur-md border border-blue-500/30 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5 text-left"
             >
               {/* Status indicator */}
               <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
@@ -3218,7 +3218,7 @@ export function StudioPreview({
                   type="button"
                   onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={pdfCurrentPage === 1}
-                  className="flex-1 py-1.5 rounded-xl bg-[#1C2029] border border-slate-800 text-gray-300 hover:bg-slate-800 hover:text-white transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
+                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-slate-800 text-gray-300 hover:bg-slate-800 hover:text-white transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
                 >
                   <ChevronLeft size={10} />
                   Anterior
@@ -3228,7 +3228,7 @@ export function StudioPreview({
                   type="button"
                   onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
                   disabled={pdfCurrentPage === 12}
-                  className="flex-1 py-1.5 rounded-xl bg-[#1C2029] border border-slate-800 text-gray-300 hover:bg-slate-800 hover:text-white transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
+                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-slate-800 text-gray-300 hover:bg-slate-800 hover:text-white transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
                 >
                   Próximo
                   <ChevronRight size={10} />
@@ -3273,7 +3273,7 @@ export function StudioPreview({
               <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="font-bold text-white text-[10px] truncate leading-none">{pinnedComment.authorName}</span>
-                  <span className="text-[7px] text-[#4683E0] uppercase px-1.5 py-0.5 rounded bg-blue-500/20 font-bold tracking-wider leading-none shadow-xs">
+                  <span className="text-[7px] text-[var(--color-brand)] uppercase px-1.5 py-0.5 rounded bg-blue-500/20 font-bold tracking-wider leading-none shadow-xs">
                     {pinnedComment.platform}
                   </span>
                 </div>
@@ -3432,7 +3432,7 @@ export function StudioPreview({
               {(isHoveringBanner || isDraggingBanner || isResizingBanner) && (
                 <>
                   {/* Top toolbar */}
-                  <div className="absolute -top-8 left-0 flex items-center gap-1.5 bg-[#0F1115]/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-slate-700 shadow-xl text-[10px] text-white pointer-events-auto">
+                  <div className="absolute -top-8 left-0 flex items-center gap-1.5 bg-[var(--bg)]/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-slate-700 shadow-xl text-[10px] text-white pointer-events-auto">
                     <span className="text-gray-400 font-bold text-[9px] uppercase tracking-wider flex items-center gap-1">
                       <Move size={10} className="text-indigo-400" /> Arrastar Banner
                     </span>
@@ -3488,7 +3488,7 @@ export function StudioPreview({
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: 28, filter: 'blur(6px)', transition: { duration: 0.26, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', damping: 28, stiffness: 280, mass: 0.9 }}
-              className="absolute bottom-0 left-0 right-0 z-20 h-10 sm:h-12 bg-[#0c1018]/95 backdrop-blur-md border-t border-slate-800/80 flex items-center overflow-hidden shadow-2xl group select-none"
+              className="absolute bottom-0 left-0 right-0 z-20 h-10 sm:h-12 bg-[var(--bg)]/95 backdrop-blur-md border-t border-slate-800/80 flex items-center overflow-hidden shadow-2xl group select-none"
             >
               {/* Badge Indicator */}
               <div 
@@ -3534,7 +3534,7 @@ export function StudioPreview({
               className="absolute inset-0 z-30 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-8 overflow-hidden select-none"
             >
               {/* Floating Top Control Toolbar */}
-              <div className="absolute top-3 right-3 z-40 bg-[#090b10]/90 backdrop-blur-xl border border-slate-800 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-xl">
+              <div className="absolute top-3 right-3 z-40 bg-[var(--well)]/90 backdrop-blur-xl border border-slate-800 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-xl">
                 <div className="flex items-center gap-1.5 pr-2 border-r border-slate-800">
                   <span className={`w-2 h-2 rounded-full ${isTeleprompterPlaying ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 hidden sm:inline flex items-center gap-1">
@@ -3745,7 +3745,7 @@ export function StudioPreview({
 
                 // Card Theme classes
                 let themeClasses = {
-                  bg: 'bg-[#0F1115]/95 text-white border-slate-800 shadow-2xl',
+                  bg: 'bg-[var(--bg)]/95 text-white border-slate-800 shadow-2xl',
                   subtext: 'text-gray-400',
                   priceColor: 'text-emerald-400',
                   border: 'border-slate-800'
@@ -3760,21 +3760,21 @@ export function StudioPreview({
                   };
                 } else if (effectiveConfig.cardTheme === 'brand') {
                   themeClasses = {
-                    bg: 'bg-[#121622]/95 text-white border-blue-500/40 shadow-[0_10px_30px_rgba(70,131,224,0.3)]',
+                    bg: 'bg-[var(--bg)]/95 text-white border-blue-500/40 shadow-[0_10px_30px_rgba(70,131,224,0.3)]',
                     subtext: 'text-blue-200/70',
                     priceColor: 'text-blue-400',
                     border: 'border-blue-500/30'
                   };
                 } else if (effectiveConfig.cardTheme === 'neon') {
                   themeClasses = {
-                    bg: 'bg-[#08090d]/95 text-white border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
+                    bg: 'bg-[var(--well)]/95 text-white border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
                     subtext: 'text-cyan-200/80',
                     priceColor: 'text-cyan-400',
                     border: 'border-cyan-500/40'
                   };
                 } else if (effectiveConfig.cardTheme === 'gold') {
                   themeClasses = {
-                    bg: 'bg-[#15120c]/95 text-white border-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.25)]',
+                    bg: 'bg-[var(--bg)]/95 text-white border-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.25)]',
                     subtext: 'text-amber-200/80',
                     priceColor: 'text-amber-400',
                     border: 'border-amber-500/40'
@@ -4116,7 +4116,7 @@ export function StudioPreview({
 
       {/* Rounded Layout Selector Bar (Matches the User's Screenshot Exactly!) */}
       <div className="flex justify-center shrink-0 py-1 px-1 w-full overflow-hidden" id="minimalist-layout-selector-bar">
-        <div className="bg-[#0F1115]/95 border border-slate-800/80 px-2 sm:px-3.5 py-1.5 rounded-xl flex flex-wrap xl:flex-nowrap items-center justify-center gap-2 md:gap-3 shadow-2xl max-w-full overflow-x-auto custom-scrollbar">
+        <div className="bg-[var(--bg)]/95 border border-slate-800/80 px-2 sm:px-3.5 py-1.5 rounded-xl flex flex-wrap xl:flex-nowrap items-center justify-center gap-2 md:gap-3 shadow-2xl max-w-full overflow-x-auto custom-scrollbar">
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto max-w-full pb-0.5 custom-scrollbar shrink-0">
             {[
               { id: '1-cam', label: 'Solo', name: 'Solo' },
@@ -4135,8 +4135,8 @@ export function StudioPreview({
                   onClick={() => onLayoutChange(l.id as any)}
                   className={`w-14 h-10 rounded-xl relative transition-all duration-200 cursor-pointer flex items-center justify-center p-1 hover:scale-105 active:scale-95 ${
                     isSelected 
-                      ? 'bg-blue-600/10 border-[#4683E0] border-2 shadow-[0_0_12px_rgba(70,131,224,0.35)]' 
-                      : 'bg-[#1C2029] border border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
+                      ? 'bg-blue-600/10 border-[var(--color-brand)] border-2 shadow-[0_0_12px_rgba(70,131,224,0.35)]' 
+                      : 'bg-[var(--surface)] border border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
                   }`}
                   title={`Mudar layout para: ${l.name}`}
                 >

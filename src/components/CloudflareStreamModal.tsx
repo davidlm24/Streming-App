@@ -52,10 +52,10 @@ export function CloudflareStreamModal({
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#0e121b] border border-blue-500/30 rounded-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden shadow-2xl flex flex-col">
+      <div className="bg-[var(--bg)] border border-blue-500/30 rounded-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden shadow-2xl flex flex-col">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800/80 bg-gradient-to-r from-blue-950/40 via-[#0e121b] to-slate-900/60">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800/80 bg-gradient-to-r from-blue-950/40 via-[var(--bg)] to-slate-900/60">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center shadow-lg shadow-orange-500/10">
               <Radio className="text-orange-400" size={20} />
@@ -94,7 +94,7 @@ export function CloudflareStreamModal({
         )}
 
         {/* Tab Navigation */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-slate-800/80 bg-[#0A0D14] px-4 pt-2 gap-1 text-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-slate-800/80 bg-[var(--well)] px-4 pt-2 gap-1 text-xs">
           {[
             { id: 'ingest', label: '1. Ingestão (Transmissão)', icon: Server },
             { id: 'player', label: '2. Player & Iframe Embed', icon: Video },
@@ -109,7 +109,7 @@ export function CloudflareStreamModal({
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`py-3 px-3 rounded-t-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   active 
-                    ? 'bg-[#0e121b] text-blue-400 border-t-2 border-x border-blue-500 border-slate-800' 
+                    ? 'bg-[var(--bg)] text-blue-400 border-t-2 border-x border-blue-500 border-slate-800' 
                     : 'text-gray-400 hover:text-gray-200 hover:bg-slate-900/40'
                 }`}
               >
@@ -142,7 +142,7 @@ export function CloudflareStreamModal({
               </div>
 
               {/* RTMPS Configuration */}
-              <div className="bg-[#121622] border border-slate-800 rounded-xl p-4 space-y-3">
+              <div className="bg-[var(--bg)] border border-slate-800 rounded-xl p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Radio size={14} /> RTMPS (Criptografia SSL Segura - Porta 443)
@@ -192,7 +192,7 @@ export function CloudflareStreamModal({
               </div>
 
               {/* SRT Ingest */}
-              <div className="bg-[#121622] border border-slate-800 rounded-xl p-4 space-y-3">
+              <div className="bg-[var(--bg)] border border-slate-800 rounded-xl p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Zap size={14} /> SRT Ingest (Secure Reliable Transport)
@@ -221,7 +221,7 @@ export function CloudflareStreamModal({
               </div>
 
               {/* WebRTC (WHIP) Publish */}
-              <div className="bg-[#121622] border border-slate-800 rounded-xl p-4 space-y-3">
+              <div className="bg-[var(--bg)] border border-slate-800 rounded-xl p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
                     <Globe size={14} /> WebRTC (WHIP Publish Endpoint)
@@ -394,7 +394,7 @@ export function CloudflareStreamModal({
               </div>
 
               {/* HLS Manifest */}
-              <div className="bg-[#121622] border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+              <div className="bg-[var(--bg)] border border-slate-800 rounded-xl p-3.5 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-emerald-400">URL do Manifesto HLS (.m3u8 LL-HLS Beta)</span>
                   <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-mono font-bold">iOS / Safari / HLS.js</span>
@@ -416,7 +416,7 @@ export function CloudflareStreamModal({
               </div>
 
               {/* DASH Manifest */}
-              <div className="bg-[#121622] border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+              <div className="bg-[var(--bg)] border border-slate-800 rounded-xl p-3.5 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-blue-400">URL do Manifesto DASH (.mpd)</span>
                   <span className="text-[9px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-mono font-bold">Android / Chrome / Dash.js</span>
@@ -438,7 +438,7 @@ export function CloudflareStreamModal({
               </div>
 
               {/* WHEP Playback */}
-              <div className="bg-[#121622] border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+              <div className="bg-[var(--bg)] border border-slate-800 rounded-xl p-3.5 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-purple-400">URL de Reprodução WebRTC (WHEP)</span>
                   <span className="text-[9px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded font-mono font-bold">WebRTC Player</span>
@@ -460,7 +460,7 @@ export function CloudflareStreamModal({
               </div>
 
               {/* SRT Playback */}
-              <div className="bg-[#121622] border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+              <div className="bg-[var(--bg)] border border-slate-800 rounded-xl p-3.5 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-indigo-400">URL de Reprodução do SRT</span>
                   <span className="text-[9px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded font-mono font-bold">SRT Receiver / vMix</span>
@@ -482,7 +482,7 @@ export function CloudflareStreamModal({
               </div>
 
               {/* RTMPS Playback & Key */}
-              <div className="bg-[#121622] border border-slate-800 rounded-xl p-3.5 space-y-2">
+              <div className="bg-[var(--bg)] border border-slate-800 rounded-xl p-3.5 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-amber-400">RTMPS Playback (URL & Chave de Reprodução)</span>
                   <span className="text-[9px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-mono font-bold">Restream Receiver</span>
@@ -571,7 +571,7 @@ export function CloudflareStreamModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 border-t border-slate-800 bg-[#0A0D14] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div className="p-4 border-t border-slate-800 bg-[var(--well)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-gray-400">
             <ShieldCheck size={16} className="text-emerald-400" />
             <span>Infraestrutura Cloudflare Edge Global (99.99% SLA)</span>

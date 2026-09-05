@@ -95,7 +95,7 @@ export function ProgramMonitorView({
       return (
         <div 
           key={p.id} 
-          className={`relative w-full h-full overflow-hidden rounded-lg flex items-center justify-center bg-[#0F1115] ${customClass}`}
+          className={`relative w-full h-full overflow-hidden rounded-lg flex items-center justify-center bg-[var(--bg)] ${customClass}`}
         >
           {!isCamStopped && localStream ? (
             <video
@@ -115,7 +115,7 @@ export function ProgramMonitorView({
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-center p-2">
-              <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-[#4683E0] mb-1">
+              <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-[var(--color-brand)] mb-1">
                 <User size={20} />
               </div>
               <p className="text-[11px] font-semibold text-white">Marcos (Você)</p>
@@ -133,14 +133,14 @@ export function ProgramMonitorView({
 
     if (p.isSlides && activeSlide) {
       return (
-        <div key={p.id} className={`relative w-full h-full bg-[#0F1115] overflow-hidden rounded-lg flex flex-col justify-between border border-slate-800 ${customClass}`}>
+        <div key={p.id} className={`relative w-full h-full bg-[var(--bg)] overflow-hidden rounded-lg flex flex-col justify-between border border-slate-800 ${customClass}`}>
           <div className="bg-slate-900/90 px-2 py-1 flex items-center justify-between border-b border-slate-800">
             <span className="text-[9px] font-bold text-slate-300 truncate">{activeSlide.name}</span>
             <span className="text-[8px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.2 rounded">
               PÁG {activeSlide.currentPage}/{activeSlide.totalPages}
             </span>
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center p-2 text-center bg-gradient-to-br from-[#12141a] to-[#0a0b0e]">
+          <div className="flex-1 flex flex-col items-center justify-center p-2 text-center bg-gradient-to-br from-[var(--bg)] to-[var(--well)]">
             <Sparkles size={20} className="text-emerald-400 mb-1 animate-pulse" />
             <p className="text-[11px] font-black text-white">Planejamento Estratégico</p>
             <p className="text-[8px] text-slate-400">Transmissão de Slides Ativa</p>
@@ -150,7 +150,7 @@ export function ProgramMonitorView({
     }
 
     return (
-      <div key={p.id} className={`relative w-full h-full bg-[#16191E] overflow-hidden rounded-lg flex items-center justify-center ${customClass}`}>
+      <div key={p.id} className={`relative w-full h-full bg-[var(--surface)] overflow-hidden rounded-lg flex items-center justify-center ${customClass}`}>
         <div className="flex flex-col items-center justify-center text-center p-2">
           <div className="w-10 h-10 rounded-full bg-slate-700/50 flex items-center justify-center text-slate-300 mb-1">
             <User size={18} />
@@ -230,7 +230,7 @@ export function ProgramMonitorView({
           referrerPolicy="no-referrer"
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0B0D11] to-[#14171E]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--well)] to-[var(--surface)]" />
       )}
 
       {/* Program Header Tag */}

@@ -264,11 +264,11 @@ export function ControlTray({
   }, []);
 
   return (
-    <div className="bg-[#13151b] sm:bg-[#16191E] border border-slate-800/90 rounded-xl sm:rounded-2xl px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 flex items-center justify-between gap-1 sm:gap-2 md:gap-3 select-none relative shadow-xl">
+    <div className="bg-[var(--bg)] sm:bg-[var(--surface)] border border-slate-800/90 rounded-xl sm:rounded-2xl px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 flex items-center justify-between gap-1 sm:gap-2 md:gap-3 select-none relative shadow-xl">
       
       {/* 1. Left side: Studio Status Indicator (Hidden on small mobile screens) */}
       <div className="hidden sm:flex items-center gap-1.5 md:gap-2 shrink-0">
-        <span className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full animate-pulse ${isLive ? 'bg-red-500' : 'bg-[#4683E0]'}`}></span>
+        <span className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full animate-pulse ${isLive ? 'bg-red-500' : 'bg-[var(--color-brand)]'}`}></span>
         <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider text-slate-400">
           {isLive ? 'LIVE' : 'PRONTO'}
         </span>
@@ -279,7 +279,7 @@ export function ControlTray({
         
         {/* 1. STOP VIDEO BUTTON GROUP (Camera) */}
         <div className="relative shrink-0" ref={camDropdownRef}>
-          <div className={`flex items-center rounded-full p-0.5 bg-[#0B0D11] border ${
+          <div className={`flex items-center rounded-full p-0.5 bg-[var(--well)] border ${
             isCamStopped ? 'border-red-500/70 bg-red-500/10' : 'border-slate-800 hover:border-slate-700'
           } transition-all`}>
             {/* Main Toggle Button */}
@@ -307,13 +307,13 @@ export function ControlTray({
 
           {/* Cam Dropdown list floating above */}
           {isCamDropdownOpen && (
-            <div className="absolute bottom-12 sm:bottom-14 left-0 z-50 w-72 sm:w-80 bg-[#1E222B] border border-slate-700/80 rounded-xl shadow-2xl p-2 text-left mb-1">
+            <div className="absolute bottom-12 sm:bottom-14 left-0 z-50 w-72 sm:w-80 bg-[var(--panel)] border border-slate-700/80 rounded-xl shadow-2xl p-2 text-left mb-1">
               <div className="flex items-center justify-between px-2 py-1 border-b border-slate-800/80 mb-1">
                 <span className="text-[10px] uppercase font-bold text-gray-400">Câmera</span>
                 {!permissionsGranted && (
                   <button 
                     onClick={requestBrowserAccess}
-                    className="text-[9px] text-[#4683E0] hover:text-blue-400 font-extrabold flex items-center gap-0.5"
+                    className="text-[9px] text-[var(--color-brand)] hover:text-blue-400 font-extrabold flex items-center gap-0.5"
                   >
                     ⚡ Ativar Dispositivos Reais
                   </button>
@@ -357,7 +357,7 @@ export function ControlTray({
 
         {/* 2. CENTRALIZED MUTE BUTTON GROUP */}
         <div className="relative shrink-0" ref={micDropdownRef}>
-          <div className={`flex items-center rounded-full p-0.5 bg-[#0B0D11] border ${
+          <div className={`flex items-center rounded-full p-0.5 bg-[var(--well)] border ${
             isMuted 
               ? 'border-red-500/70 bg-red-500/10' 
               : 'border-slate-800 hover:border-slate-700'
@@ -387,13 +387,13 @@ export function ControlTray({
 
           {/* Mic Dropdown list floating above */}
           {isMicDropdownOpen && (
-            <div className="absolute bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-50 w-72 sm:w-80 bg-[#1E222B] border border-slate-700/80 rounded-xl shadow-2xl p-2 text-left mb-1">
+            <div className="absolute bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-50 w-72 sm:w-80 bg-[var(--panel)] border border-slate-700/80 rounded-xl shadow-2xl p-2 text-left mb-1">
               <div className="flex items-center justify-between px-2 py-1 border-b border-slate-800/80 mb-1">
                 <span className="text-[10px] uppercase font-bold text-gray-400">Microfone</span>
                 {!permissionsGranted && (
                   <button 
                     onClick={requestBrowserAccess}
-                    className="text-[9px] text-[#4683E0] hover:text-blue-400 font-extrabold flex items-center gap-0.5"
+                    className="text-[9px] text-[var(--color-brand)] hover:text-blue-400 font-extrabold flex items-center gap-0.5"
                   >
                     ⚡ Ativar Dispositivos Reais
                   </button>
@@ -401,9 +401,9 @@ export function ControlTray({
               </div>
 
               {/* VU Meter */}
-              <div className="p-2 bg-[#0F1115] border border-slate-800 rounded-lg mb-2 mx-1 select-none">
+              <div className="p-2 bg-[var(--bg)] border border-slate-800 rounded-lg mb-2 mx-1 select-none">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[8px] font-black tracking-wider text-[#a59ebf] flex items-center gap-1.5">
+                  <span className="text-[8px] font-black tracking-wider text-[var(--text-lo)] flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                     VU METER
                   </span>
@@ -452,7 +452,7 @@ export function ControlTray({
 
         {/* 3. CENTRALIZED SHARE BUTTON GROUP */}
         <div className="relative shrink-0" ref={shareMenuRef}>
-          <div className={`flex items-center rounded-full p-0.5 bg-[#0B0D11] border ${
+          <div className={`flex items-center rounded-full p-0.5 bg-[var(--well)] border ${
             isScreenSharing 
               ? 'border-blue-500 bg-blue-500/10' 
               : 'border-slate-800 hover:border-slate-700'
@@ -462,7 +462,7 @@ export function ControlTray({
               onClick={() => onToggleScreenShare()}
               className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                 isScreenSharing 
-                  ? 'bg-[#4683E0] text-white shadow-md' 
+                  ? 'bg-[var(--color-brand)] text-white shadow-md' 
                   : 'bg-blue-500/10 text-white hover:bg-blue-500/20'
               }`}
               title={isScreenSharing ? "Parar Compartilhamento" : "Escolher o que compartilhar"}
@@ -482,7 +482,7 @@ export function ControlTray({
 
           {/* Custom Share Menu Dropdown */}
           {isShareMenuOpen && (
-            <div className="absolute bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-50 w-64 sm:w-72 bg-[#1E222B] border border-slate-700/80 rounded-xl shadow-2xl p-1.5 text-left mb-1">
+            <div className="absolute bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-50 w-64 sm:w-72 bg-[var(--panel)] border border-slate-700/80 rounded-xl shadow-2xl p-1.5 text-left mb-1">
               
               {/* Screen option */}
               <button
@@ -550,7 +550,7 @@ export function ControlTray({
         <div className="relative shrink-0">
           <button
             onClick={onInviteOpen}
-            className="w-8.5 h-8.5 sm:w-9 sm:h-9 md:w-9.5 md:h-9.5 rounded-full bg-[#0B0D11] hover:bg-[#1C2028] border border-slate-800 text-gray-300 hover:text-white flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-md"
+            className="w-8.5 h-8.5 sm:w-9 sm:h-9 md:w-9.5 md:h-9.5 rounded-full bg-[var(--well)] hover:bg-[var(--surface)] border border-slate-800 text-gray-300 hover:text-white flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-md"
             title="Convidar Participante para o Estúdio"
           >
             <UserPlus size={14} className="sm:w-4 sm:h-4 text-gray-300" />
@@ -558,7 +558,7 @@ export function ControlTray({
         </div>
 
         {/* 5. RECORD BUTTON */}
-        <div className={`relative flex items-center gap-1.5 bg-[#0B0D11] border rounded-full px-2 sm:px-3 py-0.5 sm:py-1 shadow-md h-8.5 sm:h-9 shrink-0 ${isTrialExpired ? 'border-amber-500/30' : 'border-slate-800'}`}>
+        <div className={`relative flex items-center gap-1.5 bg-[var(--well)] border rounded-full px-2 sm:px-3 py-0.5 sm:py-1 shadow-md h-8.5 sm:h-9 shrink-0 ${isTrialExpired ? 'border-amber-500/30' : 'border-slate-800'}`}>
           <button
             onClick={handleToggleRecording}
             className={`w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-full border flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${

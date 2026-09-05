@@ -243,10 +243,10 @@ export function AddChannelsModal({
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
       id="add-channels-modal-overlay"
     >
-      <div className="bg-[#0F1218] text-slate-100 rounded-3xl w-full max-w-5xl border border-slate-700/80 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-[var(--bg)] text-slate-100 rounded-3xl w-full max-w-5xl border border-slate-700/80 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Modal Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 shrink-0 bg-[#141822]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 shrink-0 bg-[var(--surface)]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
               <Radio size={18} className="animate-pulse" />
@@ -298,7 +298,7 @@ export function AddChannelsModal({
         </div>
 
         {/* Modal Main Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-[#0B0E14]">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-[var(--well)]">
           
           {/* Active Banner for Limit Warning */}
           {activeCount >= currentLimit.maxChannels && currentLimit.maxChannels < 99 && (
@@ -403,7 +403,7 @@ export function AddChannelsModal({
                   className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
                     dest.selected 
                       ? 'bg-blue-500/10 border-blue-500/40 text-white' 
-                      : 'bg-[#141822] border-slate-800 text-slate-400'
+                      : 'bg-[var(--surface)] border-slate-800 text-slate-400'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 pr-2">
@@ -437,7 +437,7 @@ export function AddChannelsModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-3.5 border-t border-slate-800 bg-[#141822] flex items-center justify-between text-xs text-slate-400">
+        <div className="px-6 py-3.5 border-t border-slate-800 bg-[var(--surface)] flex items-center justify-between text-xs text-slate-400">
           <div className="flex items-center gap-2">
             <Info size={14} className="text-blue-400" />
             <span>Transmita simultaneamente para todas as suas redes sem usar mais banda do seu computador.</span>
@@ -462,7 +462,7 @@ export function AddChannelsModal({
             exit={{ opacity: 0, scale: 0.95 }}
             className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
           >
-            <div className="bg-[#121620] text-slate-100 rounded-3xl w-full max-w-lg border border-slate-700 shadow-2xl overflow-hidden p-6 space-y-5">
+            <div className="bg-[var(--bg)] text-slate-100 rounded-3xl w-full max-w-lg border border-slate-700 shadow-2xl overflow-hidden p-6 space-y-5">
               
               {/* Header */}
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -513,7 +513,7 @@ export function AddChannelsModal({
                     value={channelName}
                     onChange={(e) => setChannelName(e.target.value)}
                     placeholder="Ex: Meu Canal Oficial"
-                    className="w-full px-3.5 py-2.5 bg-[#0B0E14] border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3.5 py-2.5 bg-[var(--well)] border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
@@ -526,7 +526,7 @@ export function AddChannelsModal({
                     value={streamUrl}
                     onChange={(e) => setStreamUrl(e.target.value)}
                     placeholder="rtmp://..."
-                    className="w-full px-3.5 py-2.5 bg-[#0B0E14] border border-slate-700 rounded-xl text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3.5 py-2.5 bg-[var(--well)] border border-slate-700 rounded-xl text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
@@ -548,7 +548,7 @@ export function AddChannelsModal({
                     value={streamKey}
                     onChange={(e) => setStreamKey(e.target.value)}
                     placeholder={selectedPlatform.defaultRtmpKeyPlaceholder}
-                    className="w-full px-3.5 py-2.5 bg-[#0B0E14] border border-slate-700 rounded-xl text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3.5 py-2.5 bg-[var(--well)] border border-slate-700 rounded-xl text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>

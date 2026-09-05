@@ -193,9 +193,9 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200" id="obs-integration-modal">
-      <div className="bg-[#14121E] border border-slate-700/60 rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col custom-scrollbar">
+      <div className="bg-[var(--bg)] border border-slate-700/60 rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col custom-scrollbar">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#171422] sticky top-0 z-10">
+        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[var(--bg)] sticky top-0 z-10">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center shadow-inner">
               <Video className="text-blue-400" size={22} />
@@ -277,7 +277,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
                     className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
                       isSelected
                         ? 'bg-blue-600/15 border-blue-500 ring-1 ring-blue-500/50 shadow-lg text-white'
-                        : 'bg-[#0e0c14] border-white/5 text-gray-300 hover:border-white/20 hover:bg-white/5'
+                        : 'bg-[var(--well)] border-white/5 text-gray-300 hover:border-white/20 hover:bg-white/5'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -316,7 +316,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
             </div>
 
             {/* Custom Ingest URL Option */}
-            <div className="bg-[#0e0c14] rounded-2xl p-4 border border-white/5 space-y-2.5">
+            <div className="bg-[var(--well)] rounded-2xl p-4 border border-white/5 space-y-2.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-gray-300 flex items-center gap-1.5 cursor-pointer">
                   <input
@@ -337,7 +337,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
                     value={customIngestUrl}
                     onChange={(e) => setCustomIngestUrl(e.target.value)}
                     placeholder="rtmp://ingest.meudominio.com:1935/live"
-                    className="flex-1 bg-[#1a1625] border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 font-mono focus:outline-none focus:border-blue-500"
+                    className="flex-1 bg-[var(--surface)] border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 font-mono focus:outline-none focus:border-blue-500"
                   />
                   <button
                     type="button"
@@ -361,7 +361,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
               <h3 className="text-base font-bold text-white">Copie as credenciais prontas para o OBS</h3>
             </div>
             
-            <div className="bg-[#0e0c14] rounded-2xl p-5 border border-white/5 space-y-4">
+            <div className="bg-[var(--well)] rounded-2xl p-5 border border-white/5 space-y-4">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
@@ -372,7 +372,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-[#1a1625] px-4 py-3 rounded-xl text-xs sm:text-sm text-blue-300 border border-white/5 font-mono truncate">
+                  <code className="flex-1 bg-[var(--surface)] px-4 py-3 rounded-xl text-xs sm:text-sm text-blue-300 border border-white/5 font-mono truncate">
                     {activeIngestUrl}
                   </code>
                   <button 
@@ -390,7 +390,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
                   Chave de Transmissão Única (Stream Key)
                 </label>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-[#1a1625] px-4 py-3 rounded-xl text-xs sm:text-sm text-amber-300 border border-white/5 font-mono truncate">
+                  <code className="flex-1 bg-[var(--surface)] px-4 py-3 rounded-xl text-xs sm:text-sm text-amber-300 border border-white/5 font-mono truncate">
                     {streamKey}
                   </code>
                   <button 
@@ -413,7 +413,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
             </div>
 
             <div className="grid md:grid-cols-2 gap-5">
-              <div className="bg-[#0e0c14] rounded-2xl p-5 border border-white/5 space-y-3.5">
+              <div className="bg-[var(--well)] rounded-2xl p-5 border border-white/5 space-y-3.5">
                 <div className="flex items-center gap-2.5 text-gray-300">
                   <Settings size={17} className="text-blue-400 shrink-0" />
                   <p className="text-xs">1. No OBS Studio, abra <strong>Configurações</strong> &gt; <strong>Transmissão</strong></p>
@@ -424,11 +424,11 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
                 </div>
                 
                 <div className="space-y-2 pt-1 text-left">
-                  <div className="bg-[#1a1625] p-2.5 rounded-xl border border-white/5">
+                  <div className="bg-[var(--surface)] p-2.5 rounded-xl border border-white/5">
                     <p className="text-[10px] text-gray-400 uppercase font-bold">Servidor:</p>
                     <p className="text-xs font-mono text-blue-300 break-all">{activeIngestUrl}</p>
                   </div>
-                  <div className="bg-[#1a1625] p-2.5 rounded-xl border border-white/5">
+                  <div className="bg-[var(--surface)] p-2.5 rounded-xl border border-white/5">
                     <p className="text-[10px] text-gray-400 uppercase font-bold">Chave de Transmissão:</p>
                     <p className="text-xs font-mono text-amber-300 break-all">{streamKey}</p>
                   </div>
@@ -475,7 +475,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
         </div>
 
         {/* Footer */}
-        <div className="p-5 border-t border-white/5 bg-[#171422] flex flex-col sm:flex-row items-center justify-between gap-3 sticky bottom-0 z-10">
+        <div className="p-5 border-t border-white/5 bg-[var(--bg)] flex flex-col sm:flex-row items-center justify-between gap-3 sticky bottom-0 z-10">
           <div className="flex items-center gap-3">
             <button
               type="button"

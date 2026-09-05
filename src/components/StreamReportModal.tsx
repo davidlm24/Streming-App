@@ -56,7 +56,7 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-[#16191E] border border-slate-800 rounded-2xl max-w-2xl w-full p-6 text-left shadow-2xl space-y-6 relative overflow-hidden">
+      <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl max-w-2xl w-full p-6 text-left shadow-2xl space-y-6 relative overflow-hidden">
         
         {/* Glow Header Accent */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-amber-500" />
@@ -82,7 +82,7 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
 
           <button 
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-white bg-[#0F1115] hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+            className="p-1.5 text-gray-400 hover:text-white bg-[var(--bg)] hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -90,7 +90,7 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
 
         {/* Live Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-[#0F1115] p-3.5 border border-slate-800/80 rounded-xl space-y-1">
+          <div className="bg-[var(--bg)] p-3.5 border border-slate-800/80 rounded-xl space-y-1">
             <div className="flex items-center justify-between text-gray-400 text-[10px] font-bold uppercase">
               <span>Duração Live</span>
               <Clock size={13} className="text-blue-400" />
@@ -98,7 +98,7 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
             <p className="text-lg font-black text-white font-mono">{reportData.formattedDuration}</p>
           </div>
 
-          <div className="bg-[#0F1115] p-3.5 border border-slate-800/80 rounded-xl space-y-1">
+          <div className="bg-[var(--bg)] p-3.5 border border-slate-800/80 rounded-xl space-y-1">
             <div className="flex items-center justify-between text-gray-400 text-[10px] font-bold uppercase">
               <span>Pico Espectadores</span>
               <Users size={13} className="text-amber-400" />
@@ -106,7 +106,7 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
             <p className="text-lg font-black text-amber-400">{reportData.peakViewers}</p>
           </div>
 
-          <div className="bg-[#0F1115] p-3.5 border border-slate-800/80 rounded-xl space-y-1">
+          <div className="bg-[var(--bg)] p-3.5 border border-slate-800/80 rounded-xl space-y-1">
             <div className="flex items-center justify-between text-gray-400 text-[10px] font-bold uppercase">
               <span>Comentários</span>
               <MessageSquare size={13} className="text-emerald-400" />
@@ -114,7 +114,7 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
             <p className="text-lg font-black text-emerald-400">{reportData.totalCommentsReceived}</p>
           </div>
 
-          <div className="bg-[#0F1115] p-3.5 border border-slate-800/80 rounded-xl space-y-1">
+          <div className="bg-[var(--bg)] p-3.5 border border-slate-800/80 rounded-xl space-y-1">
             <div className="flex items-center justify-between text-gray-400 text-[10px] font-bold uppercase">
               <span>Quadros (FPS)</span>
               <ShieldCheck size={13} className="text-indigo-400" />
@@ -124,7 +124,7 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
         </div>
 
         {/* Detailed Info Breakdown */}
-        <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3 text-xs">
+        <div className="bg-[var(--bg)] border border-slate-800/80 p-4 rounded-xl space-y-3 text-xs">
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-slate-800/60 pb-2">
             <span className="text-gray-400 font-bold uppercase text-[10px]">Título da Transmissão:</span>
             <span className="text-white font-semibold truncate">{reportData.streamTitle}</span>
@@ -159,7 +159,7 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={onClose}
-              className="flex-1 sm:flex-none px-4 py-2.5 bg-[#0F1115] hover:bg-slate-800 border border-slate-800 text-gray-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
+              className="flex-1 sm:flex-none px-4 py-2.5 bg-[var(--bg)] hover:bg-slate-800 border border-slate-800 text-gray-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
             >
               Fechar
             </button>
