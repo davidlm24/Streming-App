@@ -5,10 +5,9 @@ import {
 } from 'lucide-react';
 import { 
   subscribeClientRtmpKeys, 
-  saveRtmpKeyToFirestore, 
-  regenerateRtmpKeyInFirestore, 
   RtmpKeyEntry 
 } from '../lib/firestoreService';
+import { authenticatedFetch } from '../lib/api.ts';
 import { OBSIntegrationModal } from "./OBSIntegrationModal";
 import { RTMPConfigModal } from "./RTMPConfigModal";
 import { StudioPerformanceMonitor } from './StudioPerformanceMonitor';
@@ -33,24 +32,13 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
   const [clientRtmpKeys, setClientRtmpKeys] = useState<RtmpKeyEntry[]>([]);
 
   useEffect(() => {
-    const email = user?.email || 'mgdlms@gmail.com';
+    const email = user?.email;
+    if (!email) {
+      setClientRtmpKeys([]);
+      return;
+    }
     const unsubscribe = subscribeClientRtmpKeys(email, (keys) => {
-      if (keys.length === 0) {
-        // Automatically create initial key in Firestore if none exists for this client
-        const initialKey: RtmpKeyEntry = {
-          id: `key_${email.replace(/[^a-zA-Z0-9]/g, '_')}`,
-          label: `Chave de Ingestão Exclusiva - ${user?.name || 'Cliente PwStreamer'}`,
-          clientEmail: email,
-          key: `pw_live_${email.replace(/[^a-zA-Z0-9]/g, '')}_${Date.now().toString(36)}`,
-          server: 'rtmp://stream.pwstreamer.com/live',
-          maxBitrate: '8000 kbps',
-          active: true,
-          createdAt: new Date().toISOString().split('T')[0]
-        };
-        saveRtmpKeyToFirestore(initialKey, email);
-      } else {
-        setClientRtmpKeys(keys);
-      }
+      setClientRtmpKeys(keys);
     });
 
     return () => unsubscribe();
@@ -58,14 +46,14 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
   // Fallback assigned key if Firestore loading
   const primaryKey = clientRtmpKeys[0] || {
-    id: `key_${(user?.email || 'mgdlms').replace(/[^a-zA-Z0-0]/g, '_')}`,
-    label: `Chave de Ingestão - ${user?.name || 'Cliente PwStreamer'}`,
+    id: '',
+    label: 'Nenhuma chave de ingestão provisionada',
     server: 'rtmp://stream.pwstreamer.com/live',
-    key: `pw_live_${(user?.email || 'mgdlms').replace(/[^a-zA-Z0-0]/g, '')}_881023a`,
+    key: '',
     maxBitrate: '8000 kbps',
     clientEmail: user?.email || '',
-    active: true,
-    createdAt: new Date().toISOString().split('T')[0]
+    active: false,
+    createdAt: ''
   };
 
   const handleRegenerateKey = async (keyId: string) => {
@@ -73,33 +61,26 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
       return;
     }
     setIsRegenerating(true);
-    await regenerateRtmpKeyInFirestore(
-      keyId, 
-      user?.email || 'mgdlms@gmail.com', 
-      user?.email || 'mgdlms@gmail.com', 
-      primaryKey.label
-    );
-    setTimeout(() => setIsRegenerating(false), 600);
+    try {
+      const response = await authenticatedFetch(`/api/rtmp/keys/${encodeURIComponent(keyId)}/regenerate`, { method: 'POST' });
+      const result = await response.json();
+      if (!response.ok || !result.key) throw new Error(result.error || 'Não foi possível regenerar a chave.');
+      setClientRtmpKeys((keys) => keys.map((key) => key.id === keyId ? { ...key, key: result.key, createdAt: result.createdAt } : key));
+    } finally {
+      setIsRegenerating(false);
+    }
   };
 
   // Client Outbound Destinations (YouTube, Facebook, Twitch, custom RTMP)
   const [clientDestinations, setClientDestinations] = useState([
-    { id: 'dest-yt', platform: 'YouTube Live', streamKey: 'yt_live_key_998127384', rtmpUrl: 'rtmp://a.rtmp.youtube.com/live2', active: true },
-    { id: 'dest-fb', platform: 'Facebook Live', streamKey: 'fb_stream_772100491', rtmpUrl: 'rtmps://live-api-s.facebook.com:443/rtmp/', active: true },
-    { id: 'dest-tw', platform: 'Twitch TV', streamKey: 'live_user_tw_4001923', rtmpUrl: 'rtmp://live.twitch.tv/app', active: false }
+    { id: 'dest-yt', platform: 'YouTube Live', streamKey: '', rtmpUrl: 'rtmp://a.rtmp.youtube.com/live2', active: true },
+    { id: 'dest-fb', platform: 'Facebook Live', streamKey: '', rtmpUrl: 'rtmps://live-api-s.facebook.com:443/rtmp/', active: true },
+    { id: 'dest-tw', platform: 'Twitch TV', streamKey: '', rtmpUrl: 'rtmp://live.twitch.tv/app', active: false }
   ]);
 
   const [newDestPlatform, setNewDestPlatform] = useState('');
   const [newDestKey, setNewDestKey] = useState('');
   const [newDestUrl, setNewDestUrl] = useState('');
-
-  // Assigned Ingestion Key for this client
-  const myAssignedKey = {
-    label: `Chave de Ingestão - ${user?.name || 'Cliente PwStreamer'}`,
-    server: 'rtmp://stream.pwstreamer.com/live',
-    key: `pw_live_${(user?.email || 'mgdlms').replace(/[^a-zA-Z0-0]/g, '')}_881023a`,
-    maxBitrate: '8000 kbps'
-  };
 
   const handleAddClientDestination = (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,7 +180,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </p>
             </div>
             <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black px-2.5 py-1 rounded-lg shrink-0">
-              Isolado para: {user?.email || 'mgdlms@gmail.com'}
+              Isolado para: {user?.email || 'conta não identificada'}
             </span>
           </div>
 
@@ -269,7 +250,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
               <div className="flex items-center gap-2 text-[11px] text-gray-400">
                 <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
-                <span>Chave isolada com criptografia de ponta e vinculada ao e-mail <strong>{user?.email}</strong></span>
+                <span>Chave com acesso restrito e vinculada ao e-mail <strong>{user?.email}</strong></span>
               </div>
               <div className="flex gap-2">
                 <button
@@ -282,7 +263,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
                 <button
                   onClick={() => handleRegenerateKey(primaryKey.id)}
-                  disabled={isRegenerating}
+                  disabled={isRegenerating || !primaryKey.id}
                   className="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
                 >
                   <RotateCw size={14} className={isRegenerating ? 'animate-spin' : ''} />
@@ -424,7 +405,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
       {clientTab === 'webhooks' && (
         <div className="bg-[#16191E] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <WebhookPanel 
-            userId={user?.email || 'mgdlms@gmail.com'}
+            userId={user?.email || ''}
             isLive={false}
           />
         </div>

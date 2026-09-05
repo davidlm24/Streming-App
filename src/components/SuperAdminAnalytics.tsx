@@ -43,7 +43,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
     {
       id: 'usr-1',
       clientName: 'Miguel Ramos (PwStreamer Owner)',
-      clientEmail: 'mgdlms@gmail.com',
+      clientEmail: 'admin@pwstreamer.example',
       plan: 'Business',
       activeWebinars: 6,
       totalRecordingsCount: 14,

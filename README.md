@@ -10,11 +10,15 @@ View your app in AI Studio: https://ai.studio/apps/d116304c-f3fc-41ee-8b60-b6de3
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+**Prerequisites:** Node.js 20 or newer and npm.
 
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+   `npm ci`
+2. Copy `.env.example` to `.env` and configure at least `FIREBASE_SERVICE_ACCOUNT_JSON`. Add Stripe, Cloudflare, and Gemini credentials for the corresponding integrations.
 3. Run the app:
    `npm run dev`
+
+The Firebase service-account JSON belongs only in the server environment. Never prefix it with `VITE_` or expose it to browser code.
+
+Before production use, deploy the checked-in Firestore and Storage rules with the Firebase CLI, then configure `APP_URL`, Stripe price IDs, the Stripe webhook secret, and `SUPER_ADMIN_EMAILS` in the deployment environment.

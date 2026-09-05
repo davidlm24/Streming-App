@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Check, CreditCard, ShieldAlert, Activity, Radio, Disc, Sparkles, CheckCircle2 } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api.ts';
 
 interface PlansModalProps {
   onClose: () => void;
@@ -19,52 +20,26 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
   const handleSubscribe = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/checkout', {
+      const res = await authenticatedFetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           planId: selectedPlan,
-          userId,
-          userEmail,
           method: method === 'paypal' ? 'card' : method
         })
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Falha ao iniciar o checkout.');
       if (data.url) {
         window.location.href = data.url;
         return;
       }
-      // If no external URL or demo environment, complete upgrade directly
-      if (onPlanUpgraded) {
-        setSuccessMessage(`Plano ${selectedPlan} ativado com sucesso!`);
-        setTimeout(() => {
-          onPlanUpgraded(selectedPlan);
-          onClose();
-        }, 1200);
-      }
+      throw new Error('O provedor de pagamento não retornou uma URL de checkout.');
     } catch (err) {
-      console.warn('Checkout fallback to direct activation:', err);
-      if (onPlanUpgraded) {
-        setSuccessMessage(`Plano ${selectedPlan} ativado com sucesso!`);
-        setTimeout(() => {
-          onPlanUpgraded(selectedPlan);
-          onClose();
-        }, 1200);
-      } else {
-        alert('Erro ao processar pagamento');
-      }
+      console.error('Checkout error:', err);
+      setSuccessMessage(err instanceof Error ? err.message : 'Erro ao processar pagamento');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSimulateInstantActivation = () => {
-    if (onPlanUpgraded) {
-      setSuccessMessage(`Pagamento confirmado! Plano ${selectedPlan} ativado com sucesso.`);
-      setTimeout(() => {
-        onPlanUpgraded(selectedPlan);
-        onClose();
-      }, 1000);
     }
   };
 
@@ -236,16 +211,6 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
           </button>
           
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
-            {onPlanUpgraded && (
-              <button 
-                type="button"
-                onClick={handleSimulateInstantActivation}
-                className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                title="Simular aprovação imediata do plano pago"
-              >
-                <Sparkles size={14} /> Ativar Plano {selectedPlan} (Demo)
-              </button>
-            )}
             
             <button 
               onClick={handleSubscribe}

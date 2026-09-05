@@ -21,6 +21,7 @@ import { WebhookPanel } from './components/WebhookPanel';
 import { QrCodeModal } from './components/QrCodeModal';
 import { StudioScenePreviewControls } from './components/StudioScenePreviewControls';
 import { CLOUDFLARE_STREAM_CONFIG } from './lib/cloudflareStreamConfig';
+import { authenticatedFetch } from './lib/api.ts';
 
 import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, QrCodeConfig } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_BANNERS, INITIAL_TICKERS, INITIAL_COMMENTS, AUDIO_LIBRARY } from './data';
@@ -74,19 +75,10 @@ export default function App() {
     plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial';
     isExpired: boolean;
     trialDays: number;
+    role?: 'super-admin' | 'client';
     subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'canceled';
     trialEndsAt?: string;
-  } | null>(() => {
-    const saved = localStorage.getItem('pwstream_user');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
+  } | null>(null);
 
   const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
   const [isAddChannelsModalOpen, setIsAddChannelsModalOpen] = useState(false);
@@ -95,9 +87,7 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribe = subscribeAuth((userProfile) => {
-      if (userProfile) {
-        setUser(userProfile);
-      }
+      setUser(userProfile);
     });
     return () => unsubscribe();
   }, []);
@@ -105,32 +95,6 @@ export default function App() {
   const handleLogout = async () => {
     await logoutFirebase();
     setUser(null);
-  };
-
-  const handleSimulateExpiration = () => {
-    if (user) {
-      const updated = { ...user, isExpired: true, trialDays: 0 };
-      setUser(updated);
-      localStorage.setItem('pwstream_user', JSON.stringify(updated));
-    }
-  };
-
-  const handleRestoreTrial = () => {
-    if (user) {
-      const updated = { ...user, plan: 'Free Trial' as const, isExpired: false, trialDays: 30 };
-      setUser(updated);
-      localStorage.setItem('pwstream_user', JSON.stringify(updated));
-    }
-  };
-
-  const handlePlanUpgraded = (newPlan: 'Standard' | 'Professional' | 'Business') => {
-    if (user) {
-      const updated = { ...user, plan: newPlan, isExpired: false, trialDays: 30 };
-      setUser(updated);
-      localStorage.setItem('pwstream_user', JSON.stringify(updated));
-      setIsPlansModalOpen(false);
-      setPlansModalReason(null);
-    }
   };
 
   const handleRequirePlan = (feature: 'live' | 'record') => {
@@ -142,9 +106,8 @@ export default function App() {
     user && user.plan === 'Free Trial' && (user.isExpired || (user.trialDays !== undefined && user.trialDays <= 0))
   );
 
-  const handleAuthSuccess = (newUser: { email: string; name: string; plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial'; isExpired: boolean; trialDays: number }) => {
+  const handleAuthSuccess = (newUser: { uid?: string; email: string; name: string; plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial'; isExpired: boolean; trialDays: number; role?: 'super-admin' | 'client' }) => {
     setUser(newUser);
-    localStorage.setItem('pwstream_user', JSON.stringify(newUser));
   };
 
   // App views: 'dashboard' | 'studio' | 'admin' | 'super-admin' | 'public-webinar' | 'profile' | 'billing'
@@ -387,9 +350,9 @@ export default function App() {
   // Webhooks Manager states
   const [selectedWebhookPlatform, setSelectedWebhookPlatform] = useState<'youtube' | 'facebook' | 'twitch'>('youtube');
   const [webhooksConfig, setWebhooksConfig] = useState({
-    youtube: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/youtube', secret: 'whsec_yt_99b1a0f83', events: ['stream_state', 'chat_message'] },
-    facebook: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/facebook', secret: 'whsec_fb_55c3a2f11', events: ['stream_state', 'chat_message', 'new_follower'] },
-    twitch: { active: false, url: 'https://api.pwstreamer.com/v1/webhooks/twitch', secret: 'whsec_tw_77e4c1d22', events: ['stream_state'] }
+    youtube: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/youtube', secret: '', events: ['stream_state', 'chat_message'] },
+    facebook: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/facebook', secret: '', events: ['stream_state', 'chat_message', 'new_follower'] },
+    twitch: { active: false, url: 'https://api.pwstreamer.com/v1/webhooks/twitch', secret: '', events: ['stream_state'] }
   });
   const [webhookLogs, setWebhookLogs] = useState<Array<{ id: string; time: string; method: string; path: string; status: number; payload: string; platform: string }>>([
     { id: 'log-1', time: '12:01:05', method: 'POST', path: '/v1/webhooks/youtube', status: 200, payload: '{"event": "ping", "message": "Connection verification successful"}', platform: 'youtube' },
@@ -428,18 +391,15 @@ export default function App() {
               subscriptionStatus: 'expired' as const
             };
             setUser(updated);
-            localStorage.setItem('pwstream_user', JSON.stringify(updated));
             setPlansModalReason('live');
             setIsPlansModalOpen(true);
             return;
           }
         } catch (err) {
           console.warn('Erro ao validar período de testes:', err);
-          if (isTrialExpired) {
-            setPlansModalReason('live');
-            setIsPlansModalOpen(true);
-            return;
-          }
+          setPlansModalReason('live');
+          setIsPlansModalOpen(true);
+          return;
         }
       } else if (isTrialExpired) {
         setPlansModalReason('live');
@@ -1212,7 +1172,7 @@ export default function App() {
   // AI Moderation fetcher and logic
   const moderateComment = async (text: string) => {
     try {
-      const res = await fetch('/api/moderate', {
+      const res = await authenticatedFetch('/api/moderate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
@@ -1896,8 +1856,6 @@ export default function App() {
         onExit={() => setCurrentView('dashboard')} 
         user={user}
         onLogout={handleLogout}
-        onSimulateExpiration={handleSimulateExpiration}
-        onRestoreTrial={handleRestoreTrial}
         onOpenPricing={() => {
           setPlansModalReason('upgrade');
           setIsPlansModalOpen(true);
@@ -3546,7 +3504,6 @@ export default function App() {
           userId={user.uid || ''}
           currentPlan={user.plan}
           reason={plansModalReason}
-          onPlanUpgraded={handlePlanUpgraded}
         />
       )}
     </div>

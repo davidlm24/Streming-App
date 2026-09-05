@@ -9,49 +9,77 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return isSignedIn() && (request.auth.token.admin == true || request.auth.token.role == 'super-admin');
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
 
     match /users/{userId} {
-      allow read: if isSignedIn();
-      allow create, update, delete: if isOwner(userId);
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if false; // Created by the authenticated server profile service.
+      allow update: if isAdmin() || (isOwner(userId)
+        && request.resource.data.uid == resource.data.uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'role', 'plan', 'subscriptionStatus', 'stripeCustomerId',
+          'subscriptionSource', 'entitlementsVersion', 'trialStartedAt',
+          'trialEndsAt', 'trialDays', 'isExpired', 'uid', 'email'
+        ]));
+      allow delete: if isAdmin();
 
       match /{allSubcollections=**} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isOwner(userId) || isAdmin();
       }
     }
 
 
     match /auditLogs/{logId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
+      allow read, create: if isAdmin();
       allow update, delete: if false;
     }
 
     match /rtmpKeys/{keyId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
+      allow read: if isAdmin() || (isSignedIn() && resource.data.clientEmail == request.auth.token.email);
+      allow write: if isAdmin();
     }
 
     match /media_assets/{assetId} {
-      allow read: if isSignedIn() && (resource == null || resource.data.ownerId == request.auth.uid || resource.data.userId == request.auth.uid || resource.data.isPublic == true);
+      allow read: if isAdmin() || (isSignedIn() && (resource.data.ownerId == request.auth.uid || resource.data.userId == request.auth.uid || resource.data.isPublic == true));
       allow create: if isSignedIn() && (request.resource.data.ownerId == request.auth.uid || request.resource.data.userId == request.auth.uid);
-      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || resource.data.userId == request.auth.uid);
+      allow update: if isAdmin() || (isSignedIn()
+        && (resource.data.ownerId == request.auth.uid || resource.data.userId == request.auth.uid)
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.userId == resource.data.userId);
+      allow delete: if isAdmin() || (isSignedIn() && (resource.data.ownerId == request.auth.uid || resource.data.userId == request.auth.uid));
     }
 
     match /webinars/{webinarId} {
       allow read: if true; // Visitantes podem consultar detalhes da live pública
-      allow create, update, delete: if isSignedIn() && (resource == null || resource.data.hostId == request.auth.uid || request.resource.data.hostId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.hostId == request.auth.uid;
+      allow update: if isAdmin() || (isSignedIn() && resource.data.hostId == request.auth.uid && request.resource.data.hostId == resource.data.hostId);
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.hostId == request.auth.uid);
     }
 
     match /webinarRegistrations/{regId} {
-      allow create: if true; // Visitantes podem registrar presença/inscrição
-      allow read: if isSignedIn();
-      allow update, delete: if isSignedIn();
+      allow create: if request.resource.data.keys().hasOnly(['id', 'name', 'email', 'company', 'registeredAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 120
+        && request.resource.data.email is string && request.resource.data.email.size() <= 254
+        && request.resource.data.company is string && request.resource.data.company.size() <= 120;
+      allow read: if isAdmin();
+      allow update, delete: if false;
     }
 
     match /streamSessions/{sessionId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == resource.data.userId);
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    match /stripeEvents/{eventId} {
+      allow read, write: if false;
     }
   }
 }

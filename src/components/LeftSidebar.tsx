@@ -503,7 +503,7 @@ export function LeftSidebar({
   onToggleMute,
   rtmpServer = 'rtmp://stream.pwstreamer.com/live',
   setRtmpServer,
-  streamKey = 'pw_live_68e29a10bc39e1a',
+  streamKey = '',
   setStreamKey,
   countdownDuration = 300,
   setCountdownDuration,

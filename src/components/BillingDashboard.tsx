@@ -6,6 +6,7 @@ import {
   Tv, HardDrive, Eye, Settings, Briefcase, Mail, Key,
   Clock, Database, Plus, Zap, Trash2, ArrowUpRight
 } from 'lucide-react';
+import { authenticatedFetch } from '../lib/api.ts';
 
 interface BillingDashboardProps {
   user: {
@@ -246,7 +247,7 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
       onUpdateUser({
         ...user,
         name: profileName,
-        email: profileEmail
+        email: user?.email || profileEmail
       });
       setProfileMessage('Perfil e dados corporativos atualizados com sucesso!');
     }, 1200);
@@ -254,13 +255,7 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
 
   const handleInitCheckout = (planId: 'Free Trial' | 'Standard' | 'Professional' | 'Business') => {
     if (planId === 'Free Trial') {
-      onUpdateUser({
-        ...user,
-        plan: 'Free Trial',
-        trialDays: 30,
-        isExpired: false
-      });
-      alert('Seu plano foi alterado para o Plano Gratuito (30 dias de teste)!');
+      alert('O período gratuito é criado uma única vez quando a conta é registrada.');
       return;
     }
     setSelectedUpgradePlan(planId);
@@ -271,43 +266,40 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
     setCheckoutStep('details');
   };
 
-  const handleProcessPayment = (e: React.FormEvent) => {
+  const handleProcessPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUpgradePlan) return;
 
     setIsProcessingPayment(true);
     setPaymentError('');
-
-    // Simulate standard payment authorization latency
-    setTimeout(() => {
+    try {
+      const response = await authenticatedFetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId: selectedUpgradePlan,
+          method: selectedGateway === 'mercadopago' && mpMethod === 'pix' ? 'pix' : 'card',
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.url) throw new Error(result.error || 'Falha ao iniciar o checkout.');
+      window.location.assign(result.url);
+    } catch (error: any) {
+      setPaymentError(error?.message || 'Não foi possível abrir o checkout seguro.');
+    } finally {
       setIsProcessingPayment(false);
-      
-      const newPlanName = selectedUpgradePlan;
-      const price = isAnnual 
-        ? plansData.find(p => p.id === selectedUpgradePlan)?.priceAnnual || 0
-        : plansData.find(p => p.id === selectedUpgradePlan)?.priceMonthly || 0;
+    }
+  };
 
-      const updatedUser = {
-        ...user,
-        plan: newPlanName,
-        isExpired: false,
-        trialDays: 30 // reset trial if any, but now they are premium
-      };
-
-      // Register invoice log
-      const newInvoice: Invoice = {
-        id: `FAT-${Math.floor(1000 + Math.random() * 9000)}`,
-        date: new Date().toLocaleDateString('pt-BR'),
-        plan: `${newPlanName} (${isAnnual ? 'Anual' : 'Mensal'})`,
-        amount: price,
-        gateway: selectedGateway === 'stripe' ? 'Stripe' : selectedGateway === 'paypal' ? 'PayPal' : 'Mercado Pago',
-        status: 'Pago'
-      };
-
-      setInvoices(prev => [newInvoice, ...prev]);
-      onUpdateUser(updatedUser);
-      setCheckoutStep('success');
-    }, 2000);
+  const handleOpenBillingPortal = async () => {
+    try {
+      const response = await authenticatedFetch('/api/billing/portal', { method: 'POST' });
+      const result = await response.json();
+      if (!response.ok || !result.url) throw new Error(result.error || 'Portal de cobrança indisponível.');
+      window.location.assign(result.url);
+    } catch (error: any) {
+      alert(error?.message || 'Não foi possível abrir o portal de cobrança.');
+    }
   };
 
   const handleDownloadInvoice = (invoice: Invoice) => {
@@ -527,13 +519,10 @@ Suporte Técnico: suporte@pwstreamer.com
             </div>
             {user?.plan !== 'Free Trial' && (
               <button 
-                onClick={() => {
-                  onUpdateUser({ ...user, plan: 'Free Trial', trialDays: 30 });
-                  alert('Sua assinatura foi alterada de volta para o Plano Gratuito.');
-                }}
+                onClick={handleOpenBillingPortal}
                 className="px-4 py-2 border border-red-500/20 hover:border-red-500/40 text-red-400 hover:bg-red-500/5 text-xs font-bold rounded-xl transition-all"
               >
-                Cancelar Assinatura
+                Gerenciar Assinatura
               </button>
             )}
           </div>
@@ -1583,7 +1572,7 @@ Suporte Técnico: suporte@pwstreamer.com
                             Proprietário (Você)
                           </span>
                         </p>
-                        <p className="text-[10px] text-gray-500">{profileEmail || 'mgdlms@gmail.com'}</p>
+                        <p className="text-[10px] text-gray-500">{profileEmail || 'conta@exemplo.com'}</p>
                       </div>
                     </div>
 

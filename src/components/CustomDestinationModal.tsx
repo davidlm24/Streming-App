@@ -33,6 +33,7 @@ import {
   updateCustomDestinationInFirestore, 
   deleteCustomDestinationFromFirestore 
 } from '../lib/firestoreService';
+import { authenticatedFetch } from '../lib/api.ts';
 
 interface CustomDestinationModalProps {
   isOpen: boolean;
@@ -242,7 +243,7 @@ export function CustomDestinationModal({
 
   const startNewDestination = (presetPlatform: string = 'nginx') => {
     const preset = PLATFORM_PRESETS.find(p => p.platform === presetPlatform) || PLATFORM_PRESETS[0];
-    const generatedKey = `stream_${Math.random().toString(36).substring(2, 10)}`;
+    const generatedKey = `stream_${crypto.randomUUID().replaceAll('-', '')}`;
     setSelectedDestId('');
     setIsCreating(true);
     setName(`Meu Destino ${preset.name}`);
@@ -270,7 +271,7 @@ export function CustomDestinationModal({
   };
 
   const handleGenerateKey = () => {
-    const randomHex = Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+    const randomHex = crypto.randomUUID().replaceAll('-', '').slice(0, 24);
     setStreamKey(`live_${platform}_${randomHex}`);
   };
 
@@ -285,7 +286,7 @@ export function CustomDestinationModal({
       let altRes: any = null;
 
       if ((target === 'primary' || target === 'both') && streamUrl.trim()) {
-        const res = await fetch('/api/rtmp/test', {
+        const res = await authenticatedFetch('/api/rtmp/test', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: streamUrl.trim(), streamKey })
@@ -294,7 +295,7 @@ export function CustomDestinationModal({
       }
 
       if ((target === 'alternative' || target === 'both') && alternativeIngestUrl.trim()) {
-        const res = await fetch('/api/rtmp/test', {
+        const res = await authenticatedFetch('/api/rtmp/test', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: alternativeIngestUrl.trim(), streamKey })
@@ -340,7 +341,7 @@ export function CustomDestinationModal({
     await Promise.all(customDestinations.map(async (dest) => {
       if (!dest.streamUrl) return;
       try {
-        const res = await fetch('/api/rtmp/test', {
+        const res = await authenticatedFetch('/api/rtmp/test', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: dest.streamUrl, streamKey: dest.streamKey })

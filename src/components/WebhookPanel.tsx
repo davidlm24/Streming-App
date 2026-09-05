@@ -32,6 +32,7 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { WebhookPlatform, WebhookEventLog, WebhookTriggerConfig } from '../types';
+import { authenticatedFetch } from '../lib/api.ts';
 
 interface WebhookPanelProps {
   userId?: string;
@@ -60,7 +61,7 @@ const PLATFORM_PRESETS: Record<WebhookPlatform, {
     badgeBg: 'bg-purple-500/10 text-purple-300',
     badgeBorder: 'border-purple-500/20',
     defaultEndpoint: 'https://api.pwstreamer.com/v1/webhooks/twitch',
-    defaultSecret: 'whsec_tw_88b1f204ca98e',
+    defaultSecret: '',
     eventTypes: [
       {
         id: 'stream.online',
@@ -176,7 +177,7 @@ const PLATFORM_PRESETS: Record<WebhookPlatform, {
     badgeBg: 'bg-blue-500/10 text-blue-300',
     badgeBorder: 'border-blue-500/20',
     defaultEndpoint: 'https://api.pwstreamer.com/v1/webhooks/facebook',
-    defaultSecret: 'whsec_fb_33c91a02fe1',
+    defaultSecret: '',
     eventTypes: [
       {
         id: 'live_video.started',
@@ -290,7 +291,7 @@ const PLATFORM_PRESETS: Record<WebhookPlatform, {
     badgeBg: 'bg-red-500/10 text-red-300',
     badgeBorder: 'border-red-500/20',
     defaultEndpoint: 'https://api.pwstreamer.com/v1/webhooks/youtube',
-    defaultSecret: 'whsec_yt_11a884fbc99',
+    defaultSecret: '',
     eventTypes: [
       {
         id: 'liveBroadcast.active',
@@ -341,7 +342,7 @@ const PLATFORM_PRESETS: Record<WebhookPlatform, {
     badgeBg: 'bg-orange-500/10 text-orange-300',
     badgeBorder: 'border-orange-500/20',
     defaultEndpoint: 'https://api.pwstreamer.com/v1/webhooks/cloudflare',
-    defaultSecret: 'whsec_cf_44e9910ab3',
+    defaultSecret: '',
     eventTypes: [
       {
         id: 'live_input.connected',
@@ -391,7 +392,7 @@ const PLATFORM_PRESETS: Record<WebhookPlatform, {
     badgeBg: 'bg-indigo-500/10 text-indigo-300',
     badgeBorder: 'border-indigo-500/20',
     defaultEndpoint: 'https://api.pwstreamer.com/v1/webhooks/stripe',
-    defaultSecret: 'whsec_stripe_test_9918',
+    defaultSecret: '',
     eventTypes: [
       {
         id: 'checkout.session.completed',
@@ -452,7 +453,7 @@ const PLATFORM_PRESETS: Record<WebhookPlatform, {
     badgeBg: 'bg-emerald-500/10 text-emerald-300',
     badgeBorder: 'border-emerald-500/20',
     defaultEndpoint: 'https://webhook.site/demo-endpoint',
-    defaultSecret: 'secret_custom_token_123',
+    defaultSecret: '',
     eventTypes: [
       {
         id: 'custom_event',
@@ -483,9 +484,9 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
   
   // Trigger form configuration
   const [targetEndpointUrl, setTargetEndpointUrl] = useState<string>('internal');
-  const [secretKey, setSecretKey] = useState<string>('whsec_tw_88b1f204ca98e');
+  const [secretKey, setSecretKey] = useState<string>('');
   const [payloadText, setPayloadText] = useState<string>('');
-  const [customHeadersJson, setCustomHeadersJson] = useState<string>('{\n  "X-Custom-Auth": "pw-streamer-key"\n}');
+  const [customHeadersJson, setCustomHeadersJson] = useState<string>('{}');
   
   // Execution status & feedback
   const [isExecuting, setIsExecuting] = useState(false);
@@ -621,7 +622,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
     }
 
     try {
-      const response = await fetch('/api/webhooks/test-trigger', {
+      const response = await authenticatedFetch('/api/webhooks/test-trigger', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -939,7 +940,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                 />
                 <button
                   type="button"
-                  onClick={() => setSecretKey(`whsec_${selectedPlatform}_${Math.random().toString(36).substring(2, 12)}`)}
+                  onClick={() => setSecretKey(`whsec_${selectedPlatform}_${crypto.randomUUID().replaceAll('-', '')}`)}
                   className="px-3 bg-slate-800 hover:bg-slate-700 text-gray-300 hover:text-white rounded-xl text-[10px] font-bold transition-all cursor-pointer"
                   title="Gerar nova chave secreta aleatória"
                 >

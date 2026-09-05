@@ -33,13 +33,7 @@ interface SuperAdminPanelProps {
 }
 
 export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: SuperAdminPanelProps) {
-  // Master Admin Auth PIN Lock state
-  const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
-    return user?.role === 'super-admin' || user?.email === 'mgdlms@gmail.com' || localStorage.getItem('pwstream_master_unlocked') === 'true';
-  });
-  const [emailInput, setEmailInput] = useState('admin@pwstreamer.com');
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState('');
+  const isUnlocked = user?.role === 'super-admin';
 
   // Tabs for Super Admin
   const [activeTab, setActiveTab] = useState<'analytics' | 'clients' | 'webinars' | 'master-rtmp' | 'servers' | 'webhooks' | 'logs'>('analytics');
@@ -55,53 +49,31 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   const [masterRtmpKeys, setMasterRtmpKeys] = useState<RtmpKeyEntry[]>([]);
 
   useEffect(() => {
+    if (!isUnlocked) {
+      setAuditLogs([]);
+      setMasterRtmpKeys([]);
+      return;
+    }
     const unsubLogs = subscribeAuditLogs((logs) => {
       setAuditLogs(logs);
     });
 
     const unsubKeys = subscribeAllRtmpKeys((keys) => {
-      if (keys.length === 0) {
-        // Seed default master keys if Firestore collection is fresh
-        const defaultKeys: RtmpKeyEntry[] = [
-          { 
-            id: 'key-master-1', 
-            label: 'Chave Master 01 - Estúdio A', 
-            clientEmail: user?.email || 'mgdlms@gmail.com', 
-            key: 'pw_live_68e29a10bc39e1a', 
-            server: 'rtmp://stream.pwstreamer.com/live', 
-            maxBitrate: '8000 kbps',
-            active: true,
-            createdAt: '2026-08-01'
-          },
-          { 
-            id: 'key-techlive-2', 
-            label: 'Chave Ingestão - Tech Live BR', 
-            clientEmail: 'contato@techlivebr.com.br', 
-            key: 'pw_live_44f8812c30ab991', 
-            server: 'rtmp://stream.pwstreamer.com/live', 
-            maxBitrate: '6000 kbps',
-            active: true,
-            createdAt: '2026-08-04'
-          }
-        ];
-        defaultKeys.forEach(k => saveRtmpKeyToFirestore(k));
-      } else {
-        setMasterRtmpKeys(keys);
-      }
+      setMasterRtmpKeys(keys);
     });
 
     return () => {
       unsubLogs();
       unsubKeys();
     };
-  }, [user?.email]);
+  }, [isUnlocked]);
 
   // Sample Registered Clients List (Master View)
   const [clients, setClients] = useState([
     { 
       id: 'usr-1', 
       name: user?.name || 'Marcos Lima (Admin Master)', 
-      email: user?.email || 'mgdlms@gmail.com', 
+      email: user?.email || 'admin@pwstreamer.example',
       plan: 'Business' as const, 
       role: 'super-admin' as const, 
       status: 'Active' as const, 
@@ -157,32 +129,6 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
   const externalAdminUrl = `${window.location.origin}/admin`;
 
-  const handleUnlockPin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanEmail = emailInput.trim().toLowerCase();
-    const cleanPin = pinInput.trim();
-
-    if (
-      (cleanEmail === 'admin@pwstreamer.com' && cleanPin === 'S!CRb$762v') ||
-      cleanPin === 'S!CRb$762v' ||
-      cleanPin === 'admin123' ||
-      cleanPin === 'master' ||
-      cleanPin === 'pwstream2026' ||
-      cleanEmail === 'mgdlms@gmail.com'
-    ) {
-      setIsUnlocked(true);
-      localStorage.setItem('pwstream_master_unlocked', 'true');
-      setPinError('');
-      await addAuditLogToFirestore({
-        action: 'SUPER_ADMIN_LOGIN',
-        actorEmail: cleanEmail || user?.email || 'admin@pwstreamer.com',
-        details: `Super Admin autenticado com sucesso via rota externa /admin`
-      });
-    } else {
-      setPinError('Credenciais inválidas. Verifique o e-mail e a senha master (admin@pwstreamer.com).');
-    }
-  };
-
   const handleCopyExternalLink = () => {
     navigator.clipboard.writeText(externalAdminUrl);
     setCopiedLink(true);
@@ -197,14 +143,15 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
       id: `key-${Date.now()}`,
       label: newKeyLabel,
       clientEmail: newKeyClientEmail,
-      key: `pw_live_${Math.random().toString(16).substr(2, 12)}`,
+      key: `pw_live_${crypto.randomUUID().replaceAll('-', '')}`,
       server: 'rtmp://stream.pwstreamer.com/live',
       maxBitrate: newKeyBitrate,
       active: true,
       createdAt: new Date().toISOString().split('T')[0]
     };
 
-    await saveRtmpKeyToFirestore(newKey, user?.email || 'mgdlms@gmail.com');
+    if (!user?.email) return;
+    await saveRtmpKeyToFirestore(newKey, user.email);
     setNewKeyLabel('');
     setNewKeyClientEmail('');
   };
@@ -214,7 +161,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
     await regenerateRtmpKeyInFirestore(
       key.id, 
       key.clientEmail, 
-      user?.email || 'mgdlms@gmail.com', 
+      user?.email || '',
       key.label
     );
   };
@@ -224,7 +171,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
     await saveRtmpKeyToFirestore(updated);
     await addAuditLogToFirestore({
       action: 'TOGGLE_CLIENT_STATUS',
-      actorEmail: user?.email || 'mgdlms@gmail.com',
+      actorEmail: user?.email || '',
       targetEmail: key.clientEmail,
       details: `Chave RTMP '${key.label}' (${key.clientEmail}) ${updated.active ? 'ativada' : 'suspensa'} no servidor`
     });
@@ -232,14 +179,14 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
   const handleDeleteMasterKey = async (key: RtmpKeyEntry) => {
     if (!window.confirm(`Tem certeza de que deseja revogar permanentemente a chave '${key.label}'?`)) return;
-    await deleteRtmpKeyFromFirestore(key.id, user?.email || 'mgdlms@gmail.com', key.clientEmail, key.label);
+    await deleteRtmpKeyFromFirestore(key.id, user?.email || '', key.clientEmail, key.label);
   };
 
   const handleChangeClientPlan = async (clientId: string, clientEmail: string, newPlan: 'Standard' | 'Professional' | 'Business') => {
     setClients(prev => prev.map(c => c.id === clientId ? { ...c, plan: newPlan } : c));
     await addAuditLogToFirestore({
       action: 'CHANGE_PLAN',
-      actorEmail: user?.email || 'mgdlms@gmail.com',
+      actorEmail: user?.email || '',
       targetEmail: clientEmail,
       details: `Plano do cliente ${clientEmail} alterado para ${newPlan}`
     });
@@ -250,7 +197,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
     setClients(prev => prev.map(c => c.id === clientId ? { ...c, status: newStatus as any } : c));
     await addAuditLogToFirestore({
       action: 'TOGGLE_CLIENT_STATUS',
-      actorEmail: user?.email || 'mgdlms@gmail.com',
+      actorEmail: user?.email || '',
       targetEmail: clientEmail,
       details: `Status do cliente ${clientEmail} alterado para ${newStatus === 'Active' ? 'Ativo' : 'Suspenso'}`
     });
@@ -263,7 +210,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
     }
     await addAuditLogToFirestore({
       action: 'DELETE_WEBINAR',
-      actorEmail: user?.email || 'mgdlms@gmail.com',
+      actorEmail: user?.email || '',
       details: `Excluído webinar '${webinarTitle}' (ID: ${webinarId}) via Painel Mestre Super Admin`
     });
   };
@@ -287,60 +234,15 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             <Lock size={32} />
           </div>
 
-          <div>
+          <div className="space-y-2">
             <span className="bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-amber-500/30">
-              Acesso Exclusivo
+              Acesso restrito
             </span>
-            <h2 className="text-xl font-bold text-white mt-3">Autenticação do Admin Principal (/admin)</h2>
+            <h2 className="text-xl font-bold text-white mt-3">Permissão de super-admin necessária</h2>
             <p className="text-xs text-gray-400 mt-1">
-              Portal isolado de gerenciamento global. Digite as credenciais do Administrador do Sistema.
+              Entre com uma conta que tenha a função de super-admin atribuída pelo servidor.
             </p>
           </div>
-
-          <form onSubmit={handleUnlockPin} className="space-y-4 text-left">
-            <div>
-              <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail de Admin Mestre</label>
-              <div className="relative">
-                <Mail size={16} className="absolute left-3.5 top-3.5 text-gray-500" />
-                <input
-                  type="email"
-                  required
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="admin@pwstreamer.com"
-                  className="w-full bg-[#0F1115] border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-all font-mono"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha de Acesso Mestre</label>
-              <div className="relative">
-                <Lock size={16} className="absolute left-3.5 top-3.5 text-gray-500" />
-                <input
-                  type="password"
-                  required
-                  value={pinInput}
-                  onChange={(e) => setPinInput(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full bg-[#0F1115] border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-all font-mono"
-                />
-              </div>
-            </div>
-
-            {pinError && (
-              <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg">
-                {pinError}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Unlock size={16} /> Autenticar Admin Principal
-            </button>
-          </form>
 
           <div className="pt-2 border-t border-slate-800/80 flex justify-between items-center text-[11px] text-gray-400">
             <span>Usuário Conectado:</span>

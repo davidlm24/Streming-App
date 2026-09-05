@@ -6,7 +6,8 @@ import {
 } from 'lucide-react';
 import { PwStreamLogo } from './PwStreamLogo';
 import { LegalModal } from './LegalModals';
-import { loginWithGoogle, createDirectUserProfile } from '../lib/firestoreService';
+import { loginWithGoogle, loginWithEmail, registerWithEmail } from '../lib/firestoreService';
+import { authenticatedFetch } from '../lib/api.ts';
 
 interface AuthAndPricingProps {
   onAuthSuccess: (user: { 
@@ -168,91 +169,66 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
     }
   };
 
-  const handleDirectDevLogin = (targetEmail = 'mgdlms@gmail.com', targetName = 'Marcos Gonçalves') => {
-    const profile = createDirectUserProfile(targetEmail, targetName);
-    onAuthSuccess(profile);
-  };
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       setAuthError('Por favor, preencha todos os campos.');
       return;
     }
-    // Validação estrita de super-admin
-    const isSuperAdmin = email.trim().toLowerCase() === 'mgdlms@gmail.com';
-    const userRole = isSuperAdmin ? 'super-admin' : 'client';
-    onAuthSuccess({
-      email,
-      name: name || (isSuperAdmin ? 'Marcos Gonçalves' : email.split('@')[0]),
-      role: userRole,
-      plan: 'Free Trial',
-      isExpired: false,
-      trialDays: 30
-    });
+    try {
+      setAuthError('');
+      onAuthSuccess(await loginWithEmail(email, password));
+    } catch (err: any) {
+      setAuthError(err?.code === 'auth/invalid-credential'
+        ? 'E-mail ou senha inválidos.'
+        : (err?.message || 'Não foi possível entrar.'));
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password || !name) {
       setAuthError('Por favor, preencha todos os campos.');
       return;
     }
-    // Entra diretamente na conta com 30 dias de teste grátis
-    onAuthSuccess({
-      email,
-      name,
-      plan: 'Free Trial',
-      isExpired: false,
-      trialDays: 30
-    });
+    try {
+      setAuthError('');
+      onAuthSuccess(await registerWithEmail(email, password, name));
+    } catch (err: any) {
+      setAuthError(err?.code === 'auth/email-already-in-use'
+        ? 'Este e-mail já possui uma conta.'
+        : (err?.message || 'Não foi possível criar a conta.'));
+    }
   };
 
   const handleSelectPlan = (planId: 'Standard' | 'Professional' | 'Business' | 'Free Trial') => {
     setSelectedPlan(planId);
     if (planId === 'Free Trial') {
-      // Free trial goes directly to studio
-      onAuthSuccess({
-        email: email || 'mgdlms@pwstreamer.com',
-        name: name || 'Marcos Gonçalves',
-        plan: 'Free Trial',
-        isExpired: false,
-        trialDays: 30
-      });
+      setView('register');
     } else {
       // Paid plans require checkout simulation
       setView('checkout');
     }
   };
 
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
+  const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedGateway === 'stripe' && !cardName) {
-      setCheckoutError('Por favor, digite o nome impresso no cartão.');
-      return;
-    }
-    if (selectedGateway === 'paypal' && !isPaypalAuthorized) {
-      setCheckoutError('Por favor, faça login e autorize a sua conta PayPal Sandbox primeiro.');
-      return;
-    }
-    if (selectedGateway === 'mercadopago' && mpMethod === 'card' && !cardName) {
-      setCheckoutError('Por favor, digite o nome impresso no cartão.');
-      return;
-    }
-
     setIsProcessingCheckout(true);
     setCheckoutError('');
-
-    setTimeout(() => {
-      setIsProcessingCheckout(false);
-      onAuthSuccess({
-        email: email || 'mgdlms@pwstreamer.com',
-        name: name || 'Marcos Gonçalves',
-        plan: selectedPlan || 'Standard',
-        isExpired: false,
-        trialDays: 30 // Paid plan is unlimited, but we keep active
+    try {
+      const response = await authenticatedFetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId: selectedPlan, method: 'card' }),
       });
-    }, 1500);
+      const result = await response.json();
+      if (!response.ok || !result.url) throw new Error(result.error || 'Falha ao iniciar pagamento.');
+      window.location.assign(result.url);
+    } catch (err: any) {
+      setCheckoutError(err?.message || 'Entre na sua conta antes de assinar um plano.');
+    } finally {
+      setIsProcessingCheckout(false);
+    }
   };
 
   return (
@@ -334,14 +310,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleDirectDevLogin('mgdlms@gmail.com', 'Marcos Gonçalves')}
-                    className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
-                  >
-                    <span>Entrar agora como Marcos Gonçalves (mgdlms@gmail.com)</span>
-                    <ArrowRight size={14} />
-                  </button>
+                  <p className="text-[11px] text-gray-400">
+                    Cadastre este domínio no Firebase Authentication para habilitar o login Google.
+                  </p>
                 </div>
               )}
 
@@ -453,14 +424,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   </button>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleDirectDevLogin('mgdlms@gmail.com', 'Marcos Gonçalves')}
-                  className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
-                >
-                  <span>Entrar agora como Marcos Gonçalves (mgdlms@gmail.com)</span>
-                  <ArrowRight size={14} />
-                </button>
+                <p className="text-[11px] text-gray-400">
+                  Você ainda pode entrar com e-mail e senha depois que o provedor estiver habilitado no Firebase.
+                </p>
               </div>
             )}
 
