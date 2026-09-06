@@ -68,14 +68,14 @@ export function StudioScenePreviewControls({
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border ${
             isStudioPreviewMode
               ? 'bg-cyan-500/15 border-cyan-500 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.25)] ring-1 ring-cyan-500/40'
-              : 'bg-[var(--panel)]/60 border-[var(--line-ctl)]/60 text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--raise)]/50'
+              : 'bg-[var(--panel)]/60 border-[var(--line-ctl)]/60 text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--raise)]/50'
           }`}
           title={isStudioPreviewMode ? 'Desativar modo Preview (voltar para edição ao vivo direta)' : 'Ativar modo Studio Preview (Permite editar câmeras, banners e tickers antes de publicar no ar)'}
         >
-          <Layers size={13} className={isStudioPreviewMode ? 'text-cyan-400 animate-pulse' : 'text-[var(--text-lo)]'} />
+          <Layers size={13} className={isStudioPreviewMode ? 'text-cyan-400 animate-pulse' : 'text-[var(--ink-lo)]'} />
           <span>Preview de Cena (Studio Mode)</span>
           <span className={`text-[8px] font-black px-1 py-0.2 rounded uppercase ${
-            isStudioPreviewMode ? 'bg-cyan-500 text-slate-950' : 'bg-[var(--raise)] text-[var(--text)]'
+            isStudioPreviewMode ? 'bg-cyan-500 text-slate-950' : 'bg-[var(--raise)] text-[var(--ink)]'
           }`}>
             {isStudioPreviewMode ? 'Ativo' : 'Off'}
           </span>
@@ -90,7 +90,7 @@ export function StudioScenePreviewControls({
               className={`px-2 py-0.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer ${
                 previewViewMode === 'split'
                   ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                  : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
               }`}
               title="Exibir Prévia e Ao Vivo Lado a Lado (Estilo OBS / vMix)"
             >
@@ -104,7 +104,7 @@ export function StudioScenePreviewControls({
               className={`px-2 py-0.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer ${
                 previewViewMode === 'preview-only'
                   ? 'bg-cyan-600 text-white shadow-sm'
-                  : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                  : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
               }`}
               title="Focar apenas na Tela de Prévia (Edição)"
             >
@@ -118,11 +118,11 @@ export function StudioScenePreviewControls({
               className={`px-2 py-0.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer ${
                 previewViewMode === 'program-only'
                   ? 'bg-rose-600 text-white shadow-sm'
-                  : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                  : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
               }`}
               title="Visualizar exatamente o que está No Ar (Program)"
             >
-              <Radio size={11} className={isLive ? 'animate-pulse text-[var(--text-hi)]' : ''} />
+              <Radio size={11} className={isLive ? 'animate-pulse text-[var(--ink-hi)]' : ''} />
               <span>Ao Vivo</span>
             </button>
           </div>
@@ -157,13 +157,13 @@ export function StudioScenePreviewControls({
             <button
               type="button"
               onClick={() => setIsTransitionsMenuOpen(prev => !prev)}
-              className="px-2 py-1 bg-[var(--surface)] border border-[var(--line-ctl)]/80 hover:border-[var(--line-ctl)] text-[var(--text)] hover:text-[var(--text-hi)] rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-2 py-1 bg-[var(--surface)] border border-[var(--line-ctl)]/80 hover:border-[var(--line-ctl)] text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
               title="Configurar efeito de transição para o Push to Live"
             >
               <Zap size={11} className="text-amber-400" />
               <span>{transitionLabels[transitionType] || 'Fade'}</span>
-              <span className="text-[9px] text-[var(--text-dim)] font-mono">{transitionDuration}ms</span>
-              <ChevronDown size={10} className="text-[var(--text-lo)]" />
+              <span className="text-[9px] text-[var(--ink-dim)] font-mono">{transitionDuration}ms</span>
+              <ChevronDown size={10} className="text-[var(--ink-lo)]" />
             </button>
 
             {/* Dropdown Menu */}
@@ -174,7 +174,7 @@ export function StudioScenePreviewControls({
                   onClick={() => setIsTransitionsMenuOpen(false)} 
                 />
                 <div className="absolute right-0 top-full mt-1 w-56 bg-[var(--surface)] border border-[var(--line-ctl)] rounded-xl p-2 z-50 shadow-2xl space-y-2">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-[var(--text-lo)] px-1 border-b border-[var(--line)] pb-1">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-[var(--ink-lo)] px-1 border-b border-[var(--line)] pb-1">
                     Efeito de Transição
                   </div>
 
@@ -190,7 +190,7 @@ export function StudioScenePreviewControls({
                         className={`w-full text-left px-2 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center justify-between cursor-pointer ${
                           transitionType === key
                             ? 'bg-blue-600 text-white'
-                            : 'text-[var(--text)] hover:bg-[var(--panel)] hover:text-[var(--text-hi)]'
+                            : 'text-[var(--ink)] hover:bg-[var(--panel)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
                         <span>{label}</span>
@@ -201,9 +201,9 @@ export function StudioScenePreviewControls({
 
                   {/* Duration Slider */}
                   <div className="pt-2 border-t border-[var(--line)] px-1 space-y-1">
-                    <div className="flex items-center justify-between text-[9px] text-[var(--text-lo)]">
+                    <div className="flex items-center justify-between text-[9px] text-[var(--ink-lo)]">
                       <span>Duração:</span>
-                      <span className="font-mono text-[var(--text-hi)] font-bold">{transitionDuration}ms</span>
+                      <span className="font-mono text-[var(--ink-hi)] font-bold">{transitionDuration}ms</span>
                     </div>
                     <input
                       type="range"
@@ -225,7 +225,7 @@ export function StudioScenePreviewControls({
             <button
               type="button"
               onClick={onRevertToLive}
-              className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--text)] hover:text-[var(--text-hi)] border border-[var(--line-ctl)]/60 transition-all flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--ink)] hover:text-[var(--ink-hi)] border border-[var(--line-ctl)]/60 transition-all flex items-center gap-1 cursor-pointer"
               title="Descartar rascunho de prévia e restaurar a cena atual do Ao Vivo"
             >
               <RotateCcw size={11} />
@@ -238,7 +238,7 @@ export function StudioScenePreviewControls({
             <button
               type="button"
               onClick={onSwapPreviewAndLive}
-              className="p-1 rounded-lg text-[10px] font-bold bg-[var(--surface)] hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-[var(--text-hi)] border border-[var(--line)] transition-all flex items-center justify-center cursor-pointer"
+              className="p-1 rounded-lg text-[10px] font-bold bg-[var(--surface)] hover:bg-[var(--panel)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] border border-[var(--line)] transition-all flex items-center justify-center cursor-pointer"
               title="Inverter Prévia e Ao Vivo"
             >
               <ArrowRightLeft size={12} />

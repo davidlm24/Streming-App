@@ -145,7 +145,7 @@ export function WebinarPublicPage({
   const totalVotes = pollVotes.optionA + pollVotes.optionB + pollVotes.optionC;
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-hi)] flex flex-col relative overflow-hidden" id="public-webinar-view">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--ink-hi)] flex flex-col relative overflow-hidden" id="public-webinar-view">
       {/* Dynamic color orb */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
         <div className="absolute top-20 right-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px]" />
@@ -160,7 +160,7 @@ export function WebinarPublicPage({
         </div>
         <button
           onClick={onBackToDashboard}
-          className="px-3.5 py-1.5 border border-[var(--line)] hover:bg-[var(--surface)] text-xs text-[var(--text)] rounded-lg transition-all flex items-center gap-2 cursor-pointer"
+          className="px-3.5 py-1.5 border border-[var(--line)] hover:bg-[var(--surface)] text-xs text-[var(--ink)] rounded-lg transition-all flex items-center gap-2 cursor-pointer"
         >
           <ArrowRight className="rotate-180" size={14} /> Painel Administrativo
         </button>
@@ -179,36 +179,36 @@ export function WebinarPublicPage({
                 <span>Webinar Exclusivo do PwStreamer</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[var(--text-hi)] leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[var(--ink-hi)] leading-tight">
                 {webinarTitle || 'Como Alavancar suas Vendas com webinars interativos'}
               </h1>
 
-              <p className="text-base text-[var(--text)] leading-relaxed max-w-2xl">
+              <p className="text-base text-[var(--ink)] leading-relaxed max-w-2xl">
                 {webinarDesc || 'Aprenda os segredos e técnicas para engajar audiências com transmissões ao vivo de altíssimo nível, gerando conexões reais e impulsionando vendas de infoprodutos.'}
               </p>
 
-              <div className="flex flex-wrap gap-4 sm:gap-6 text-sm text-[var(--text)] pt-2">
+              <div className="flex flex-wrap gap-4 sm:gap-6 text-sm text-[var(--ink)] pt-2">
                 <div className="flex items-center gap-2.5 bg-[var(--surface)]/60 border border-[var(--line)] p-3.5 rounded-xl">
                   <Calendar size={18} className="text-blue-500" />
                   <div>
-                    <p className="text-[10px] text-[var(--text-lo)] font-bold uppercase tracking-wider">Data do Webinar</p>
-                    <p className="font-semibold text-[var(--text-hi)] mt-0.5">{webinarDate || 'Amanhã, às 19:30'}</p>
+                    <p className="text-[10px] text-[var(--ink-lo)] font-bold uppercase tracking-wider">Data do Webinar</p>
+                    <p className="font-semibold text-[var(--ink-hi)] mt-0.5">{webinarDate || 'Amanhã, às 19:30'}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2.5 bg-[var(--surface)]/60 border border-[var(--line)] p-3.5 rounded-xl">
                   <Clock size={18} className="text-blue-500" />
                   <div>
-                    <p className="text-[10px] text-[var(--text-lo)] font-bold uppercase tracking-wider">Duração Estimada</p>
-                    <p className="font-semibold text-[var(--text-hi)] mt-0.5">60 a 90 minutos</p>
+                    <p className="text-[10px] text-[var(--ink-lo)] font-bold uppercase tracking-wider">Duração Estimada</p>
+                    <p className="font-semibold text-[var(--ink-hi)] mt-0.5">60 a 90 minutos</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2.5 bg-[var(--surface)]/60 border border-[var(--line)] p-3.5 rounded-xl">
                   <Users size={18} className="text-blue-500" />
                   <div>
-                    <p className="text-[10px] text-[var(--text-lo)] font-bold uppercase tracking-wider">Inscritos Ativos</p>
-                    <p className="font-semibold text-[var(--text-hi)] mt-0.5">382 participando</p>
+                    <p className="text-[10px] text-[var(--ink-lo)] font-bold uppercase tracking-wider">Inscritos Ativos</p>
+                    <p className="font-semibold text-[var(--ink-hi)] mt-0.5">382 participando</p>
                   </div>
                 </div>
               </div>
@@ -221,7 +221,7 @@ export function WebinarPublicPage({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-xs text-[var(--text-lo)] font-bold uppercase">A transmissão começará em:</p>
+                  <p className="text-xs text-[var(--ink-lo)] font-bold uppercase">A transmissão começará em:</p>
                   <div className="flex items-center gap-2 font-mono text-xl sm:text-2xl font-bold text-blue-400">
                     <span className="bg-[var(--surface)] px-3 py-1.5 border border-[var(--line)] rounded-lg">{String(timeLeft.hours).padStart(2, '0')}h</span>
                     <span>:</span>
@@ -244,54 +244,54 @@ export function WebinarPublicPage({
                   <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 size={36} className="animate-bounce" />
                   </div>
-                  <h3 className="text-xl font-bold text-[var(--text-hi)]">Vaga Garantida!</h3>
-                  <p className="text-xs text-[var(--text-lo)] leading-relaxed">Sua inscrição foi confirmada. Redirecionando para a sala de transmissão...</p>
+                  <h3 className="text-xl font-bold text-[var(--ink-hi)]">Vaga Garantida!</h3>
+                  <p className="text-xs text-[var(--ink-lo)] leading-relaxed">Sua inscrição foi confirmada. Redirecionando para a sala de transmissão...</p>
                 </div>
               ) : (
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="text-left space-y-1 mb-4">
-                    <h2 className="text-lg font-bold text-[var(--text-hi)]">Reserve seu Lugar</h2>
-                    <p className="text-xs text-[var(--text-lo)]">Preencha o formulário para receber os materiais extras e o acesso ao webinar.</p>
+                    <h2 className="text-lg font-bold text-[var(--ink-hi)]">Reserve seu Lugar</h2>
+                    <p className="text-xs text-[var(--ink-lo)]">Preencha o formulário para receber os materiais extras e o acesso ao webinar.</p>
                   </div>
 
                   <div className="space-y-1.5 text-left">
-                    <label className="text-xs text-[var(--text-lo)] font-semibold">Nome Completo</label>
+                    <label className="text-xs text-[var(--ink-lo)] font-semibold">Nome Completo</label>
                     <input
                       type="text"
                       required
                       placeholder="Ex: Carlos Albuquerque"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
                   <div className="space-y-1.5 text-left">
-                    <label className="text-xs text-[var(--text-lo)] font-semibold">E-mail Corporativo</label>
+                    <label className="text-xs text-[var(--ink-lo)] font-semibold">E-mail Corporativo</label>
                     <input
                       type="email"
                       required
                       placeholder="Ex: carlos@empresa.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
                   <div className="space-y-1.5 text-left">
-                    <label className="text-xs text-[var(--text-lo)] font-semibold">Empresa / Cargo</label>
+                    <label className="text-xs text-[var(--ink-lo)] font-semibold">Empresa / Cargo</label>
                     <input
                       type="text"
                       placeholder="Ex: VineaSX Solutions / Diretor"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
-                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
                   <div className="flex items-start gap-2 pt-2 text-left">
                     <input type="checkbox" required defaultChecked id="privacy-check" className="mt-1 accent-blue-500" />
-                    <label htmlFor="privacy-check" className="text-[10px] text-[var(--text-lo)] leading-relaxed">
+                    <label htmlFor="privacy-check" className="text-[10px] text-[var(--ink-lo)] leading-relaxed">
                       Concordo em receber convites de webinars e aceito a <span className="text-blue-400 hover:underline cursor-pointer">Política de Privacidade</span> e os <span className="text-blue-400 hover:underline cursor-pointer">Termos de Uso</span> da plataforma.
                     </label>
                   </div>
@@ -303,9 +303,9 @@ export function WebinarPublicPage({
                     Confirmar Minha Inscrição <ArrowRight size={14} />
                   </button>
 
-                  <div className="pt-4 border-t border-[var(--line)]/60 flex items-center justify-center gap-4 text-[11px] text-[var(--text-lo)]">
+                  <div className="pt-4 border-t border-[var(--line)]/60 flex items-center justify-center gap-4 text-[11px] text-[var(--ink-lo)]">
                     <span className="flex items-center gap-1"><Award size={12} className="text-blue-500" /> Certificado</span>
-                    <span className="text-[var(--text-dim)]">•</span>
+                    <span className="text-[var(--ink-dim)]">•</span>
                     <span className="flex items-center gap-1"><Sparkles size={12} className="text-blue-500" /> Material Complementar</span>
                   </div>
                 </form>
@@ -336,7 +336,7 @@ export function WebinarPublicPage({
                       <span className="bg-red-600 text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md animate-pulse shadow-md pointer-events-auto">
                         AO VIVO
                       </span>
-                      <span className="bg-[var(--surface)]/90 border border-[var(--line)]/80 px-2.5 py-1 rounded-lg text-[10px] font-bold text-[var(--text-hi)] flex items-center gap-1.5 backdrop-blur-sm pointer-events-auto">
+                      <span className="bg-[var(--surface)]/90 border border-[var(--line)]/80 px-2.5 py-1 rounded-lg text-[10px] font-bold text-[var(--ink-hi)] flex items-center gap-1.5 backdrop-blur-sm pointer-events-auto">
                         <Users size={12} className="text-blue-400" /> 1.282 assistindo
                       </span>
                     </div>
@@ -345,11 +345,11 @@ export function WebinarPublicPage({
                   /* Offline state placeholder */
                   <div className="p-8 text-center space-y-4 max-w-md">
                     <div className="w-16 h-16 bg-[var(--surface)] border border-[var(--line)] rounded-full flex items-center justify-center mx-auto">
-                      <Lock size={24} className="text-[var(--text-lo)]" />
+                      <Lock size={24} className="text-[var(--ink-lo)]" />
                     </div>
                     <div className="space-y-1.5">
-                      <h3 className="text-lg font-bold text-[var(--text-hi)]">Transmissão Offline</h3>
-                      <p className="text-xs text-[var(--text-lo)] leading-relaxed">
+                      <h3 className="text-lg font-bold text-[var(--ink-hi)]">Transmissão Offline</h3>
+                      <p className="text-xs text-[var(--ink-lo)] leading-relaxed">
                         A transmissão ainda não começou ou foi concluída. Fique de olho nesta sala para o início do evento programado.
                       </p>
                     </div>
@@ -363,19 +363,19 @@ export function WebinarPublicPage({
               {/* Title & Info Panel */}
               <div className="bg-[var(--surface)]/60 border border-[var(--line)] p-5 rounded-2xl text-left space-y-3">
                 <div className="flex items-center justify-between gap-4">
-                  <h2 className="text-xl font-bold text-[var(--text-hi)] leading-tight">{webinarTitle}</h2>
-                  <button className="px-3 py-1.5 bg-[var(--panel)] hover:bg-[var(--panel)] text-xs font-semibold text-[var(--text)] border border-[var(--line)]/60 rounded-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
+                  <h2 className="text-xl font-bold text-[var(--ink-hi)] leading-tight">{webinarTitle}</h2>
+                  <button className="px-3 py-1.5 bg-[var(--panel)] hover:bg-[var(--panel)] text-xs font-semibold text-[var(--ink)] border border-[var(--line)]/60 rounded-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer">
                     <Share2 size={12} /> Compartilhar
                   </button>
                 </div>
-                <p className="text-xs text-[var(--text)] leading-relaxed">{webinarDesc}</p>
+                <p className="text-xs text-[var(--ink)] leading-relaxed">{webinarDesc}</p>
                 
                 {/* CTA Active block (Simulates real-time Call To Action pushed by presentation host) */}
                 <div className="mt-4 p-4 bg-gradient-to-r from-blue-950/40 via-indigo-950/40 to-[var(--bg)]/40 border border-blue-500/30 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="space-y-1 text-left">
                     <span className="bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">Oferta Especial</span>
-                    <p className="text-xs font-bold text-[var(--text-hi)]">Adquira o PwStreamer Completo com 30% Off</p>
-                    <p className="text-[10px] text-[var(--text-lo)]">Oferta válida exclusivamente para os participantes do webinar de hoje.</p>
+                    <p className="text-xs font-bold text-[var(--ink-hi)]">Adquira o PwStreamer Completo com 30% Off</p>
+                    <p className="text-[10px] text-[var(--ink-lo)]">Oferta válida exclusivamente para os participantes do webinar de hoje.</p>
                   </div>
                   <a 
                     href="#pricing-checkout" 
@@ -392,14 +392,14 @@ export function WebinarPublicPage({
             <div className="lg:col-span-4 flex flex-col bg-[var(--bg)] border border-[var(--line)]/80 rounded-2xl overflow-hidden shadow-2xl h-[480px] sm:h-auto">
               
               {/* Tab Header Selector */}
-              <div className="grid grid-cols-3 border-b border-[var(--line)] bg-[var(--bg)] text-xs font-semibold text-[var(--text-lo)]">
-                <button className="py-3.5 border-b-2 border-blue-500 text-[var(--text-hi)] flex items-center justify-center gap-1.5">
+              <div className="grid grid-cols-3 border-b border-[var(--line)] bg-[var(--bg)] text-xs font-semibold text-[var(--ink-lo)]">
+                <button className="py-3.5 border-b-2 border-blue-500 text-[var(--ink-hi)] flex items-center justify-center gap-1.5">
                   <MessageSquare size={13} /> Chat
                 </button>
-                <div className="py-3.5 flex items-center justify-center gap-1.5 text-[var(--text-dim)] border-x border-[var(--line)]/60">
+                <div className="py-3.5 flex items-center justify-center gap-1.5 text-[var(--ink-dim)] border-x border-[var(--line)]/60">
                   <BarChart3 size={13} /> Enquete
                 </div>
-                <div className="py-3.5 flex items-center justify-center gap-1.5 text-[var(--text-dim)]">
+                <div className="py-3.5 flex items-center justify-center gap-1.5 text-[var(--ink-dim)]">
                   <HelpCircle size={13} /> Q&A
                 </div>
               </div>
@@ -415,7 +415,7 @@ export function WebinarPublicPage({
                     </div>
                   )}
                   {comments.slice(-25).map((comm, idx) => (
-                    <div key={comm.id || idx} className="flex gap-2 text-xs text-left text-[var(--text)] animate-in fade-in duration-150">
+                    <div key={comm.id || idx} className="flex gap-2 text-xs text-left text-[var(--ink)] animate-in fade-in duration-150">
                       <img 
                         src={comm.authorAvatar} 
                         alt={comm.authorName} 
@@ -424,10 +424,10 @@ export function WebinarPublicPage({
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-[var(--text-hi)] truncate">{comm.authorName}</span>
-                          <span className="text-[10px] text-[var(--text-dim)] font-mono">{comm.timestamp}</span>
+                          <span className="font-semibold text-[var(--ink-hi)] truncate">{comm.authorName}</span>
+                          <span className="text-[10px] text-[var(--ink-dim)] font-mono">{comm.timestamp}</span>
                         </div>
-                        <p className="text-[var(--text)] mt-0.5 break-words leading-relaxed">{comm.text}</p>
+                        <p className="text-[var(--ink)] mt-0.5 break-words leading-relaxed">{comm.text}</p>
                       </div>
                     </div>
                   ))}
@@ -438,7 +438,7 @@ export function WebinarPublicPage({
                   {/* Interactive Quick Poll inside Chat Sidebar */}
                   <div className="bg-[var(--surface)] border border-[var(--line)] p-3 rounded-xl space-y-2 text-left">
                     <p className="text-[10px] text-blue-400 font-black tracking-wider uppercase">Votação Rápida</p>
-                    <p className="text-xs font-semibold text-[var(--text-hi)]">Qual rede social você mais utiliza para live streams?</p>
+                    <p className="text-xs font-semibold text-[var(--ink-hi)]">Qual rede social você mais utiliza para live streams?</p>
                     <div className="space-y-1.5">
                       {[
                         { key: 'optionA', label: 'YouTube Live', count: pollVotes.optionA },
@@ -463,8 +463,8 @@ export function WebinarPublicPage({
                               style={{ width: `${pct}%` }}
                             />
                             <div className="relative flex justify-between items-center">
-                              <span className="text-[var(--text)] truncate">{opt.label}</span>
-                              <span className="font-mono text-[var(--text-lo)]">{pct}% ({opt.count})</span>
+                              <span className="text-[var(--ink)] truncate">{opt.label}</span>
+                              <span className="font-mono text-[var(--ink-lo)]">{pct}% ({opt.count})</span>
                             </div>
                           </button>
                         );
@@ -480,7 +480,7 @@ export function WebinarPublicPage({
                       placeholder="Envie uma mensagem..."
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
-                      className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500"
+                      className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
                     />
                     <button
                       type="submit"

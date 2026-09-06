@@ -20,8 +20,8 @@ export function ImagePlaceholder({ onReupload, className = "", error, variant = 
   return (
     <div className={`flex flex-col items-center justify-center bg-[var(--panel)]/50 border border-red-500/30 rounded-lg p-4 text-center ${className}`}>
       <AlertTriangle className="text-red-400 mb-2" size={24} />
-      <p className="text-xs text-[var(--text)] font-medium mb-1">Falha ao carregar imagem</p>
-      {error && <p className="text-[10px] text-[var(--text-lo)] mb-3 max-w-[150px] truncate">{error}</p>}
+      <p className="text-xs text-[var(--ink)] font-medium mb-1">Falha ao carregar imagem</p>
+      {error && <p className="text-[10px] text-[var(--ink-lo)] mb-3 max-w-[150px] truncate">{error}</p>}
       
       {onReupload && (
         <span 

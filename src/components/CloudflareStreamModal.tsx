@@ -62,7 +62,7 @@ export function CloudflareStreamModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-bold text-[var(--text-hi)] leading-tight">
+                <h2 className="text-base sm:text-lg font-bold text-[var(--ink-hi)] leading-tight">
                   Cloudflare Stream & Protocolos de Transmissão
                 </h2>
                 <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -70,14 +70,14 @@ export function CloudflareStreamModal({
                   Online / Ativo
                 </span>
               </div>
-              <p className="text-xs text-[var(--text-lo)] mt-0.5">
+              <p className="text-xs text-[var(--ink-lo)] mt-0.5">
                 Ingestão de ultra-baixa latência (RTMPS, SRT, WebRTC WHIP) e distribuição global via CDN
               </p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-[var(--panel)]/60 text-[var(--text-lo)] hover:text-[var(--text-hi)] rounded-xl transition-colors cursor-pointer"
+            className="p-2 hover:bg-[var(--panel)]/60 text-[var(--ink-lo)] hover:text-[var(--ink-hi)] rounded-xl transition-colors cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -110,7 +110,7 @@ export function CloudflareStreamModal({
                 className={`py-3 px-3 rounded-t-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   active 
                     ? 'bg-[var(--bg)] text-blue-400 border-t-2 border-x border-blue-500 border-[var(--line)]' 
-                    : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--surface)]/40'
+                    : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--surface)]/40'
                 }`}
               >
                 <Icon size={14} />
@@ -121,7 +121,7 @@ export function CloudflareStreamModal({
         </div>
 
         {/* Content Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto max-h-[68vh] text-left space-y-5 text-[var(--text-hi)]">
+        <div className="p-4 sm:p-6 overflow-y-auto max-h-[68vh] text-left space-y-5 text-[var(--ink-hi)]">
           
           {/* TAB 1: INGESTION (RTMPS, SRT, WHIP) */}
           {activeTab === 'ingest' && (
@@ -129,7 +129,7 @@ export function CloudflareStreamModal({
               <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-bold text-blue-400 uppercase tracking-wider">Credenciais de Entrada para Software / Encoder</p>
-                  <p className="text-[11px] text-[var(--text)] mt-1 leading-relaxed">
+                  <p className="text-[11px] text-[var(--ink)] mt-1 leading-relaxed">
                     Use estes dados em seu OBS Studio, vMix, Wirecast ou encoder de hardware para transmitir em alta fidelidade.
                   </p>
                 </div>
@@ -154,7 +154,7 @@ export function CloudflareStreamModal({
 
                 {/* RTMPS URL */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">URL RTMPS (Servidor)</label>
+                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL RTMPS (Servidor)</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -164,7 +164,7 @@ export function CloudflareStreamModal({
                     />
                     <button 
                       onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsUrl, 'rtmpsUrl')}
-                      className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
+                      className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
                     >
                       {copiedField === 'rtmpsUrl' ? <><Check size={14} className="text-emerald-400"/> Copiado</> : <><Copy size={14}/> Copiar</>}
                     </button>
@@ -173,7 +173,7 @@ export function CloudflareStreamModal({
 
                 {/* RTMPS Key */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">Chave RTMPS (Stream Key)</label>
+                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Chave RTMPS (Stream Key)</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -202,7 +202,7 @@ export function CloudflareStreamModal({
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">URL SRT Completa (Com Passphrase e StreamID)</label>
+                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL SRT Completa (Com Passphrase e StreamID)</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -212,7 +212,7 @@ export function CloudflareStreamModal({
                     />
                     <button 
                       onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.srtUrl, 'srtUrl')}
-                      className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
+                      className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
                     >
                       {copiedField === 'srtUrl' ? <><Check size={14} className="text-emerald-400"/> Copiado</> : <><Copy size={14}/> Copiar</>}
                     </button>
@@ -231,7 +231,7 @@ export function CloudflareStreamModal({
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">URL do WebRTC (WHIP)</label>
+                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL do WebRTC (WHIP)</label>
                   <div className="flex gap-2">
                     <input 
                       type="text" 
@@ -241,7 +241,7 @@ export function CloudflareStreamModal({
                     />
                     <button 
                       onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.whipPublishUrl, 'whipUrl')}
-                      className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
+                      className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
                     >
                       {copiedField === 'whipUrl' ? <><Check size={14} className="text-emerald-400"/> Copiado</> : <><Copy size={14}/> Copiar</>}
                     </button>
@@ -252,12 +252,12 @@ export function CloudflareStreamModal({
               {/* Live Input & Subdomain Metadata */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div className="bg-[var(--bg)] border border-[var(--line)] p-3 rounded-xl">
-                  <span className="text-[10px] text-[var(--text-lo)] font-bold uppercase block">ID de Entrada Ao Vivo (Live Input ID)</span>
+                  <span className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block">ID de Entrada Ao Vivo (Live Input ID)</span>
                   <div className="flex items-center justify-between mt-1">
                     <span className="font-mono text-blue-400 text-xs truncate">{CLOUDFLARE_STREAM_CONFIG.liveInputId}</span>
                     <button 
                       onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.liveInputId, 'liveInputId')}
-                      className="text-[var(--text-lo)] hover:text-[var(--text-hi)] p-1 rounded transition-colors"
+                      className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-1 rounded transition-colors"
                       title="Copiar ID"
                     >
                       <Copy size={13} />
@@ -265,12 +265,12 @@ export function CloudflareStreamModal({
                   </div>
                 </div>
                 <div className="bg-[var(--bg)] border border-[var(--line)] p-3 rounded-xl">
-                  <span className="text-[10px] text-[var(--text-lo)] font-bold uppercase block">Subdomínio do Cliente</span>
+                  <span className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block">Subdomínio do Cliente</span>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="font-mono text-[var(--text-hi)] text-xs truncate">{CLOUDFLARE_STREAM_CONFIG.customerSubdomain}</span>
+                    <span className="font-mono text-[var(--ink-hi)] text-xs truncate">{CLOUDFLARE_STREAM_CONFIG.customerSubdomain}</span>
                     <button 
                       onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.customerSubdomain, 'subdomain')}
-                      className="text-[var(--text-lo)] hover:text-[var(--text-hi)] p-1 rounded transition-colors"
+                      className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-1 rounded transition-colors"
                       title="Copiar Subdomínio"
                     >
                       <Copy size={13} />
@@ -284,8 +284,8 @@ export function CloudflareStreamModal({
                 <div className="flex items-center gap-2.5">
                   <Activity size={16} className="text-blue-400" />
                   <div>
-                    <p className="text-xs font-bold text-[var(--text-hi)]">Verificar Status do Pipeline Cloudflare</p>
-                    <p className="text-[10px] text-[var(--text-lo)]">Testa a rota de ingestão e conectividade da chave RTMPS</p>
+                    <p className="text-xs font-bold text-[var(--ink-hi)]">Verificar Status do Pipeline Cloudflare</p>
+                    <p className="text-[10px] text-[var(--ink-lo)]">Testa a rota de ingestão e conectividade da chave RTMPS</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -297,7 +297,7 @@ export function CloudflareStreamModal({
                   <button
                     onClick={handleTestConnection}
                     disabled={isTesting}
-                    className="px-3 py-1.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="px-3 py-1.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <RefreshCw size={13} className={isTesting ? 'animate-spin' : ''} />
                     {isTesting ? 'Testando...' : 'Testar Conexão'}
@@ -312,7 +312,7 @@ export function CloudflareStreamModal({
             <div className="space-y-5">
               <div className="bg-purple-500/10 border border-purple-500/20 p-4 rounded-xl">
                 <p className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-1">Visualização e Código de Incorporação</p>
-                <p className="text-[11px] text-[var(--text)] leading-relaxed">
+                <p className="text-[11px] text-[var(--ink)] leading-relaxed">
                   Incorpore o player oficial do Cloudflare Stream em qualquer site ou abra diretamente no navegador para assistir à live.
                 </p>
               </div>
@@ -320,7 +320,7 @@ export function CloudflareStreamModal({
               {/* Live Iframe Preview */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-[var(--text)] uppercase tracking-wider flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                     <Play size={14} className="text-blue-400" /> Prévia ao Vivo do Stream Player
                   </label>
                   <a 
@@ -346,7 +346,7 @@ export function CloudflareStreamModal({
 
               {/* Direct Player URL */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">URL Direta do Stream Player</label>
+                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL Direta do Stream Player</label>
                 <div className="flex gap-2">
                   <input 
                     type="text" 
@@ -356,7 +356,7 @@ export function CloudflareStreamModal({
                   />
                   <button 
                     onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.playerUrl, 'playerUrl')}
-                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
+                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
                   >
                     {copiedField === 'playerUrl' ? <><Check size={14} className="text-emerald-400"/> Copiado</> : <><Copy size={14}/> Copiar</>}
                   </button>
@@ -366,7 +366,7 @@ export function CloudflareStreamModal({
               {/* Embed Code HTML */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">Código HTML Responsivo para Incorporar (Embed)</label>
+                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Código HTML Responsivo para Incorporar (Embed)</label>
                   <button 
                     onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.embedIframeCode, 'embedCode')}
                     className="text-xs text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1 cursor-pointer"
@@ -375,7 +375,7 @@ export function CloudflareStreamModal({
                   </button>
                 </div>
                 <div className="relative">
-                  <pre className="p-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl font-mono text-[11px] text-[var(--text)] overflow-x-auto whitespace-pre-wrap">
+                  <pre className="p-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl font-mono text-[11px] text-[var(--ink)] overflow-x-auto whitespace-pre-wrap">
                     {CLOUDFLARE_STREAM_CONFIG.embedIframeCode}
                   </pre>
                 </div>
@@ -388,7 +388,7 @@ export function CloudflareStreamModal({
             <div className="space-y-4">
               <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl">
                 <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Manifestos & Protocolos de Distribuição Customizados</p>
-                <p className="text-[11px] text-[var(--text)] leading-relaxed">
+                <p className="text-[11px] text-[var(--ink)] leading-relaxed">
                   Use estas URLs de manifesto com bibliotecas personalizadas de player web (Video.js, HLS.js, Shaka Player, ExoPlayer para Android, AVPlayer para iOS) ou receptores SRT/RTMPS.
                 </p>
               </div>
@@ -408,7 +408,7 @@ export function CloudflareStreamModal({
                   />
                   <button 
                     onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.hlsManifestUrl, 'hls')}
-                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
+                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
                   >
                     {copiedField === 'hls' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
                   </button>
@@ -430,7 +430,7 @@ export function CloudflareStreamModal({
                   />
                   <button 
                     onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.dashManifestUrl, 'dash')}
-                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
+                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
                   >
                     {copiedField === 'dash' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
                   </button>
@@ -452,7 +452,7 @@ export function CloudflareStreamModal({
                   />
                   <button 
                     onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.whepPlaybackUrl, 'whep')}
-                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
+                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
                   >
                     {copiedField === 'whep' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
                   </button>
@@ -474,7 +474,7 @@ export function CloudflareStreamModal({
                   />
                   <button 
                     onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.srtPlaybackUrl, 'srtPlay')}
-                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
+                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
                   >
                     {copiedField === 'srtPlay' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
                   </button>
@@ -489,7 +489,7 @@ export function CloudflareStreamModal({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <label className="text-[9px] text-[var(--text-lo)] font-bold uppercase">URL RTMPS Playback</label>
+                    <label className="text-[9px] text-[var(--ink-lo)] font-bold uppercase">URL RTMPS Playback</label>
                     <div className="flex gap-1.5">
                       <input 
                         type="text" 
@@ -499,14 +499,14 @@ export function CloudflareStreamModal({
                       />
                       <button 
                         onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsPlaybackUrl, 'rtmpsPlayUrl')}
-                        className="px-2.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded text-xs transition-colors"
+                        className="px-2.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded text-xs transition-colors"
                       >
                         <Copy size={12}/>
                       </button>
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[9px] text-[var(--text-lo)] font-bold uppercase">Chave RTMPS Playback</label>
+                    <label className="text-[9px] text-[var(--ink-lo)] font-bold uppercase">Chave RTMPS Playback</label>
                     <div className="flex gap-1.5">
                       <input 
                         type="text" 
@@ -516,7 +516,7 @@ export function CloudflareStreamModal({
                       />
                       <button 
                         onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsPlaybackKey, 'rtmpsPlayKey')}
-                        className="px-2.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded text-xs transition-colors"
+                        className="px-2.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded text-xs transition-colors"
                       >
                         <Copy size={12}/>
                       </button>
@@ -531,11 +531,11 @@ export function CloudflareStreamModal({
           {activeTab === 'guide' && (
             <div className="space-y-5">
               <div className="bg-[var(--surface)] border border-[var(--line)] p-4 rounded-xl space-y-3">
-                <h3 className="text-xs font-bold text-[var(--text-hi)] uppercase tracking-wider flex items-center gap-2">
+                <h3 className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-2">
                   <Sliders size={14} className="text-blue-400" />
                   Como Configurar o OBS Studio em 3 Passos
                 </h3>
-                <ol className="list-decimal list-inside text-xs text-[var(--text)] space-y-2 leading-relaxed">
+                <ol className="list-decimal list-inside text-xs text-[var(--ink)] space-y-2 leading-relaxed">
                   <li>No OBS, clique em <strong>Configurações</strong> &gt; <strong>Transmissão</strong>.</li>
                   <li>No campo <em>Serviço</em>, selecione <strong>Personalizado...</strong></li>
                   <li>No campo <em>Servidor</em>, cole: <code className="bg-[var(--bg)] px-2 py-0.5 rounded text-blue-400 font-mono font-bold">{CLOUDFLARE_STREAM_CONFIG.rtmpsUrl}</code></li>
@@ -545,19 +545,19 @@ export function CloudflareStreamModal({
               </div>
 
               <div className="bg-[var(--surface)] border border-[var(--line)] p-4 rounded-xl space-y-3">
-                <h3 className="text-xs font-bold text-[var(--text-hi)] uppercase tracking-wider flex items-center gap-2">
+                <h3 className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-2">
                   <Zap size={14} className="text-orange-400" />
                   Como Transmitir Direto pelo Navegador (Sem OBS)
                 </h3>
-                <p className="text-xs text-[var(--text)] leading-relaxed">
+                <p className="text-xs text-[var(--ink)] leading-relaxed">
                   O PwStreamer Studio já possui um motor WebRTC integrado. Ao clicar em <strong>Entrar Ao Vivo</strong> no topo do estúdio, sua câmera, microfone e compartilhamento de tela são mixados e enviados automaticamente para o canal Cloudflare Stream configurado.
                 </p>
               </div>
 
               <div className="p-4 bg-gradient-to-r from-blue-900/30 to-indigo-900/30 border border-blue-500/30 rounded-xl flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs font-bold text-[var(--text-hi)]">Deseja definir o Cloudflare Stream como padrão?</p>
-                  <p className="text-[11px] text-[var(--text)]">Isso salva a URL e chave RTMPS diretamente nas preferências do estúdio.</p>
+                  <p className="text-xs font-bold text-[var(--ink-hi)]">Deseja definir o Cloudflare Stream como padrão?</p>
+                  <p className="text-[11px] text-[var(--ink)]">Isso salva a URL e chave RTMPS diretamente nas preferências do estúdio.</p>
                 </div>
                 <button
                   onClick={handleApply}
@@ -572,7 +572,7 @@ export function CloudflareStreamModal({
 
         {/* Modal Footer */}
         <div className="p-4 border-t border-[var(--line)] bg-[var(--well)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-[var(--text-lo)]">
+          <div className="flex items-center gap-2 text-[var(--ink-lo)]">
             <ShieldCheck size={16} className="text-emerald-400" />
             <span>Infraestrutura Cloudflare Edge Global (99.99% SLA)</span>
           </div>
@@ -585,7 +585,7 @@ export function CloudflareStreamModal({
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] font-semibold rounded-xl transition-colors cursor-pointer"
+              className="px-4 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] font-semibold rounded-xl transition-colors cursor-pointer"
             >
               Fechar
             </button>

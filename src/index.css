@@ -83,10 +83,10 @@
      passa nos quatro: 4,57 a 5,78:1. Era o mesmo defeito que a auditoria
      apontou na direção original — um token declarado "nunca texto essencial"
      e usado como texto essencial. */
-  --text-dim: var(--color-n-58);
-  --text-lo:  var(--color-n-70);
-  --text:     var(--color-n-89);
-  --text-hi:  var(--color-n-96);
+  --ink-dim: var(--color-n-58);
+  --ink-lo:  var(--color-n-70);
+  --ink:     var(--color-n-89);
+  --ink-hi:  var(--color-n-96);
 
   --stage: var(--color-n-0);
 
@@ -104,10 +104,10 @@
   --line:    var(--color-n-80);
   --line-ctl:var(--color-n-70);
 
-  --text-dim: var(--color-n-46);
-  --text-lo:  var(--color-n-36);
-  --text:     var(--color-n-18);
-  --text-hi:  var(--color-n-6);
+  --ink-dim: var(--color-n-46);
+  --ink-lo:  var(--color-n-36);
+  --ink:     var(--color-n-18);
+  --ink-hi:  var(--color-n-6);
 
   --stage: var(--color-n-0);   /* o palco de vídeo nunca clareia */
 
@@ -132,10 +132,10 @@
      passa nos quatro: 4,57 a 5,78:1. Era o mesmo defeito que a auditoria
      apontou na direção original — um token declarado "nunca texto essencial"
      e usado como texto essencial. */
-  --text-dim: var(--color-n-58);
-  --text-lo:  var(--color-n-70);
-  --text:     var(--color-n-89);
-  --text-hi:  var(--color-n-96);
+  --ink-dim: var(--color-n-58);
+  --ink-lo:  var(--color-n-70);
+  --ink:     var(--color-n-89);
+  --ink-hi:  var(--color-n-96);
 
   color-scheme: dark;
 }
@@ -144,8 +144,8 @@
    `[class*="bg-blue-"]` e afins, para que texto sobre preenchimento colorido
    herdasse branco. Ela foi REMOVIDA: `[class*=…]` casa com o PREFIXO DE
    VARIANTE também, e a raiz do app carrega `selection:bg-blue-500` — então a
-   raiz casava, redefinia --text-hi como branco e o app inteiro herdava. No
-   tema escuro isso passava despercebido (--text-hi já é quase branco); no
+   raiz casava, redefinia --ink-hi como branco e o app inteiro herdava. No
+   tema escuro isso passava despercebido (--ink-hi já é quase branco); no
    claro derrubava 51 pares de contraste para ~1,1:1.
    Não é preciso substituir: `color` já herda normalmente, então o ícone
    dentro de um botão azul continua branco pelo botão. O texto sobre
@@ -156,7 +156,7 @@
    ══════════════════════════════════════════════════════════════════════════ */
 body {
   background-color: var(--bg);
-  color: var(--text);
+  color: var(--ink);
   font-family: var(--font-sans);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -174,12 +174,12 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="
 textarea,
 select {
   background-color: var(--well);
-  color: var(--text-hi);
+  color: var(--ink-hi);
   border-color: var(--line-ctl);
 }
 input::placeholder,
-textarea::placeholder { color: var(--text-dim); }
-select option { background-color: var(--surface); color: var(--text-hi); }
+textarea::placeholder { color: var(--ink-dim); }
+select option { background-color: var(--surface); color: var(--ink-hi); }
 
 /* foco visível — a auditoria encontrou 137 `focus:outline-none` e ZERO
    substituições `focus-visible:`. Isto devolve o foco de teclado ao app

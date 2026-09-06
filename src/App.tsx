@@ -1895,7 +1895,7 @@ export default function App() {
          fora do escopo e recebiam os tokens de texto do tema claro sobre
          fundo escuro: 2,24–3,55:1. */
       data-surface={currentView === 'studio' ? 'console' : undefined}
-      className={`bg-[var(--bg)] font-sans text-[var(--text-hi)] flex flex-col selection:bg-blue-500 selection:text-white ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
+      className={`bg-[var(--bg)] font-sans text-[var(--ink-hi)] flex flex-col selection:bg-blue-500 selection:text-white ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
       
       {/* Dynamic Header */}
       <Header 
@@ -1955,7 +1955,7 @@ export default function App() {
       {currentView === 'studio' ? (
         <div
           data-surface="console"
-          className="flex-1 overflow-hidden w-full max-w-none px-0 mx-0 relative bg-[var(--bg)] text-[var(--text)]"
+          className="flex-1 overflow-hidden w-full max-w-none px-0 mx-0 relative bg-[var(--bg)] text-[var(--ink)]"
           style={{
             display: 'grid',
             gridTemplateAreas: isMobile
@@ -1977,14 +1977,14 @@ export default function App() {
             <>
               <button
                 onClick={() => setIsImmersiveMode(false)}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-50 bg-[var(--surface)]/95 hover:bg-blue-600 hover:text-white text-[var(--text-lo)] p-2 rounded-r-xl border-y border-r border-[var(--line)]/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-50 bg-[var(--surface)]/95 hover:bg-blue-600 hover:text-white text-[var(--ink-lo)] p-2 rounded-r-xl border-y border-r border-[var(--line)]/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
                 title="Expandir Painel de Participantes"
               >
                 <ChevronRight size={16} className="transition-transform group-hover:scale-110" />
               </button>
               <button
                 onClick={() => setIsImmersiveMode(false)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-50 bg-[var(--surface)]/95 hover:bg-blue-600 hover:text-white text-[var(--text-lo)] p-2 rounded-l-xl border-y border-l border-[var(--line)]/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-50 bg-[var(--surface)]/95 hover:bg-blue-600 hover:text-white text-[var(--ink-lo)] p-2 rounded-l-xl border-y border-l border-[var(--line)]/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
                 title="Expandir Painel de Configurações"
               >
                 <ChevronLeft size={16} className="transition-transform group-hover:scale-110" />
@@ -2217,7 +2217,7 @@ export default function App() {
                         className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 border relative ${
                           isSmartSidebarEnabled 
                             ? 'bg-[var(--color-brand-deep)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
-                            : 'bg-[var(--surface)]/40 border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
+                            : 'bg-[var(--surface)]/40 border-[var(--line)] text-[var(--ink-dim)] hover:text-[var(--ink)]'
                         }`}
                         title="Smart Sidebar: Durante a Live, recolhe abas inativas mantendo o foco no Chat para economizar processamento e espaço visual."
                       >
@@ -2255,7 +2255,7 @@ export default function App() {
                             className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 ${
                               isActive 
                                 ? 'bg-[var(--color-brand-deep)] text-white shadow-lg ring-1 ring-blue-400/20' 
-                                : 'text-[var(--text-lo)] hover:bg-[var(--surface)] hover:text-[var(--text-hi)]'
+                                : 'text-[var(--ink-lo)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)]'
                             }`}
                             title={`${tab.label}: ${tab.desc}`}
                           >
@@ -2270,7 +2270,7 @@ export default function App() {
                     <div className="pt-2 border-t border-[var(--line)]/60 w-full flex justify-center shrink-0">
                       <button
                         onClick={() => setIsMobileSidebarOpen(false)}
-                        className="w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 text-[var(--text-dim)] hover:bg-[var(--surface)] hover:text-[var(--text-hi)] cursor-pointer"
+                        className="w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 text-[var(--ink-dim)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)] cursor-pointer"
                         title="Fechar Painel"
                       >
                         <X size={14} />
@@ -2301,10 +2301,10 @@ export default function App() {
                   className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all border shadow-lg cursor-pointer touch-action-btn ${
                     isMobileScenesOpen
                       ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-[var(--surface)] text-[var(--text)] border-[var(--line)] hover:text-[var(--text-hi)]'
+                      : 'bg-[var(--surface)] text-[var(--ink)] border-[var(--line)] hover:text-[var(--ink-hi)]'
                   }`}
                 >
-                  <Users size={16} className={isMobileScenesOpen ? 'text-[var(--text-hi)]' : 'text-blue-400'} />
+                  <Users size={16} className={isMobileScenesOpen ? 'text-[var(--ink-hi)]' : 'text-blue-400'} />
                   <span>Participantes ({participants.length})</span>
                 </button>
                 <button
@@ -2315,10 +2315,10 @@ export default function App() {
                   className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all border shadow-lg cursor-pointer touch-action-btn ${
                     isMobileSidebarOpen
                       ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-[var(--surface)] text-[var(--text)] border-[var(--line)] hover:text-[var(--text-hi)]'
+                      : 'bg-[var(--surface)] text-[var(--ink)] border-[var(--line)] hover:text-[var(--ink-hi)]'
                   }`}
                 >
-                  <Sliders size={16} className={isMobileSidebarOpen ? 'text-[var(--text-hi)]' : 'text-emerald-400'} />
+                  <Sliders size={16} className={isMobileSidebarOpen ? 'text-[var(--ink-hi)]' : 'text-emerald-400'} />
                   <span>Painel & Ferramentas</span>
                 </button>
               </div>
@@ -2635,7 +2635,7 @@ export default function App() {
                       className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 border relative cursor-pointer ${
                         isSmartSidebarEnabled 
                           ? 'bg-[var(--color-brand-deep)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
-                          : 'bg-[var(--surface)]/40 border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
+                          : 'bg-[var(--surface)]/40 border-[var(--line)] text-[var(--ink-dim)] hover:text-[var(--ink)]'
                       }`}
                       title="Smart Sidebar: Durante a Live, recolhe abas inativas mantendo o foco no Chat para economizar processamento e espaço visual."
                     >
@@ -2673,7 +2673,7 @@ export default function App() {
                           className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 cursor-pointer ${
                             isActive 
                               ? 'bg-[var(--color-brand-deep)] text-white shadow-lg ring-1 ring-blue-400/20' 
-                              : 'text-[var(--text-lo)] hover:bg-[var(--surface)] hover:text-[var(--text-hi)]'
+                              : 'text-[var(--ink-lo)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)]'
                           }`}
                           title={`${tab.label}: ${tab.desc}`}
                         >
@@ -2688,7 +2688,7 @@ export default function App() {
                   <div className="pt-2 border-t border-[var(--line)]/60 w-full flex justify-center shrink-0">
                     <button
                       onClick={() => setIsImmersiveMode(true)}
-                      className="w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 text-[var(--text-dim)] hover:bg-[var(--surface)] hover:text-[var(--text-hi)] cursor-pointer"
+                      className="w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 text-[var(--ink-dim)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)] cursor-pointer"
                       title="Recuar Painel Lateral"
                     >
                       <ChevronRight size={18} className="transition-transform group-hover:translate-x-0.5" />
@@ -2799,14 +2799,14 @@ export default function App() {
           {/* Welcome back user */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-hi)]">Olá, Marcos Gonçalves</h1>
-              <p className="text-sm text-[var(--text-lo)] mt-1">Gerencie, agende e configure seus webinares e transmissões ao vivo.</p>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--ink-hi)]">Olá, Marcos Gonçalves</h1>
+              <p className="text-sm text-[var(--ink-lo)] mt-1">Gerencie, agende e configure seus webinares e transmissões ao vivo.</p>
             </div>
             
             <div className="flex items-center gap-2.5">
               <button
                 onClick={() => setCurrentView('admin')}
-                className="flex items-center gap-2 px-5 py-3 border border-[var(--line)] hover:bg-[var(--surface)] text-[var(--text)] font-bold text-xs rounded-xl transition-all cursor-pointer"
+                className="flex items-center gap-2 px-5 py-3 border border-[var(--line)] hover:bg-[var(--surface)] text-[var(--ink)] font-bold text-xs rounded-xl transition-all cursor-pointer"
               >
                 <Server size={14} className="text-blue-500 animate-pulse" /> Painel de Administração
               </button>
@@ -2829,8 +2829,8 @@ export default function App() {
             ].map((metric, i) => (
               <div key={i} className="bg-[var(--surface)] border border-[var(--line)] p-5 rounded-2xl flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-[var(--text-lo)] font-semibold">{metric.label}</p>
-                  <p className="text-2xl font-bold text-[var(--text-hi)] mt-1.5">{metric.value}</p>
+                  <p className="text-xs text-[var(--ink-lo)] font-semibold">{metric.label}</p>
+                  <p className="text-2xl font-bold text-[var(--ink-hi)] mt-1.5">{metric.value}</p>
                   <p className="text-[10px] text-blue-400 mt-1">{metric.change}</p>
                 </div>
                 <div className="w-11 h-11 bg-[var(--bg)] border border-[var(--line)] rounded-xl flex items-center justify-center text-[var(--color-brand)]">
@@ -2846,7 +2846,7 @@ export default function App() {
             {/* Stream room launcher trigger */}
             <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--line)] rounded-2xl overflow-hidden flex flex-col">
               <div className="p-6 border-b border-[var(--line)] flex items-center justify-between">
-                <h2 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
+                <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
                   <Calendar size={18} className="text-[var(--color-brand)]" /> Próximos Webinares Agendados
                 </h2>
                 <span className="text-xs text-blue-400 hover:underline cursor-pointer">Ver todos</span>
@@ -2857,7 +2857,7 @@ export default function App() {
                   <div key={webinar.id || i} className={`pt-4 first:pt-0 flex flex-col xl:flex-row justify-between items-start gap-4`}>
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-bold text-[var(--text-hi)] hover:text-[var(--color-brand)] transition-colors cursor-pointer text-left">
+                        <p className="text-sm font-bold text-[var(--ink-hi)] hover:text-[var(--color-brand)] transition-colors cursor-pointer text-left">
                           {webinar.title}
                         </p>
                         <span className={`text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
@@ -2866,8 +2866,8 @@ export default function App() {
                           {webinar.type === 'pre-recorded' ? 'Vídeo Gravado' : 'Transmissão Ao Vivo'}
                         </span>
                       </div>
-                      <p className="text-xs text-[var(--text-lo)] text-left">{webinar.desc}</p>
-                      <div className="flex flex-wrap items-center gap-2 text-[10px] text-[var(--text-lo)] pt-1">
+                      <p className="text-xs text-[var(--ink-lo)] text-left">{webinar.desc}</p>
+                      <div className="flex flex-wrap items-center gap-2 text-[10px] text-[var(--ink-lo)] pt-1">
                         <span className="font-semibold text-blue-400">{webinar.time}</span>
                         <span>•</span>
                         <span>Canais: {webinar.channels.join(', ')}</span>
@@ -2921,7 +2921,7 @@ export default function App() {
             {/* Quick settings & support */}
             <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <h2 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
+                <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
                   <Settings size={18} className="text-[var(--color-brand)]" /> Configurações & Chaves
                 </h2>
                 
@@ -2934,10 +2934,10 @@ export default function App() {
                     className="flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
                   >
                     <div>
-                      <p className="text-[var(--text-hi)] font-semibold">Integração com OBS / RTMP Externo</p>
-                      <p className="text-[10px] text-[var(--text-lo)]">Ver chaves de ingestão, URLs de servidores e OBS</p>
+                      <p className="text-[var(--ink-hi)] font-semibold">Integração com OBS / RTMP Externo</p>
+                      <p className="text-[10px] text-[var(--ink-lo)]">Ver chaves de ingestão, URLs de servidores e OBS</p>
                     </div>
-                    <ExternalLink size={12} className="text-[var(--text-dim)]" />
+                    <ExternalLink size={12} className="text-[var(--ink-dim)]" />
                   </div>
 
                   <div 
@@ -2948,10 +2948,10 @@ export default function App() {
                     className="flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
                   >
                     <div>
-                      <p className="text-[var(--text-hi)] font-semibold">Gerenciar Redes Sociais & OAuth</p>
-                      <p className="text-[10px] text-[var(--text-lo)]">Configurações para YouTube, Facebook e Twitch</p>
+                      <p className="text-[var(--ink-hi)] font-semibold">Gerenciar Redes Sociais & OAuth</p>
+                      <p className="text-[10px] text-[var(--ink-lo)]">Configurações para YouTube, Facebook e Twitch</p>
                     </div>
-                    <ExternalLink size={12} className="text-[var(--text-dim)]" />
+                    <ExternalLink size={12} className="text-[var(--ink-dim)]" />
                   </div>
 
                   <div 
@@ -2966,14 +2966,14 @@ export default function App() {
                         <Sparkles size={11} className="animate-pulse text-emerald-400" />
                         Análise de Requisitos & Chaves
                       </p>
-                      <p className="text-[10px] text-[var(--text-lo)]">Mapeamento completo do SaaS e chaves do sistema</p>
+                      <p className="text-[10px] text-[var(--ink-lo)]">Mapeamento completo do SaaS e chaves do sistema</p>
                     </div>
                     <ExternalLink size={12} className="text-emerald-500" />
                   </div>
                 </div>
               </div>
 
-              <div className="border-t border-[var(--line)] pt-4 mt-6 text-xs text-[var(--text-lo)] text-left space-y-1.5">
+              <div className="border-t border-[var(--line)] pt-4 mt-6 text-xs text-[var(--ink-lo)] text-left space-y-1.5">
                 <p>Precisa de ajuda imediata?</p>
                 <p className="text-blue-400 hover:underline cursor-pointer font-semibold flex items-center gap-1">
                   PWstreamer <ArrowRight size={12} />
@@ -2996,14 +2996,14 @@ export default function App() {
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--bg)]">
                   <div className="text-left">
-                    <h3 className="text-sm font-bold text-[var(--text-hi)] flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-[var(--ink-hi)] flex items-center gap-2">
                       <Palette size={16} className="text-blue-500 animate-pulse" /> Gerador de Capas & Miniaturas (Thumbnail Editor)
                     </h3>
-                    <p className="text-xs text-[var(--text-lo)]">Desenhe e baixe capas em alta definição para as suas redes sociais e transmissões</p>
+                    <p className="text-xs text-[var(--ink-lo)]">Desenhe e baixe capas em alta definição para as suas redes sociais e transmissões</p>
                   </div>
                   <button 
                     onClick={() => setIsDashboardEditorOpen(false)}
-                    className="text-[var(--text-lo)] hover:text-[var(--text-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
+                    className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
                   >
                     <X size={18} />
                   </button>
@@ -3035,26 +3035,26 @@ export default function App() {
 
       {/* Styled Footer - Visible only on main page / dashboard */}
       {currentView !== 'studio' && (
-        <footer className="bg-[var(--bg)] border-t border-[var(--line)] py-6 text-xs text-[var(--text-lo)]">
+        <footer className="bg-[var(--bg)] border-t border-[var(--line)] py-6 text-xs text-[var(--ink-lo)]">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex gap-6">
               <button 
                 onClick={() => { setLegalModalType('terms'); setLegalModalOpen(true); }}
-                className="hover:text-[var(--text-hi)] transition-colors uppercase font-semibold cursor-pointer"
+                className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold cursor-pointer"
               >
                 TERMOS
               </button>
               <button 
                 onClick={() => { setLegalModalType('privacy'); setLegalModalOpen(true); }}
-                className="hover:text-[var(--text-hi)] transition-colors uppercase font-semibold cursor-pointer"
+                className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold cursor-pointer"
               >
                 PRIVACIDADE
               </button>
-              <a href="https://pwstreamer.com/support" target="_blank" rel="noreferrer" className="hover:text-[var(--text-hi)] transition-colors uppercase font-semibold">PWstreamer</a>
+              <a href="https://pwstreamer.com/support" target="_blank" rel="noreferrer" className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold">PWstreamer</a>
             </div>
 
-            <div className="text-center text-[var(--text-dim)]">
-              <p>© 2026, All Rights Reserved to <span className="text-[var(--text-hi)]">PwStreamer Online.</span> Developed and Maintained by <span className="text-blue-400">PWstreamer</span></p>
+            <div className="text-center text-[var(--ink-dim)]">
+              <p>© 2026, All Rights Reserved to <span className="text-[var(--ink-hi)]">PwStreamer Online.</span> Developed and Maintained by <span className="text-blue-400">PWstreamer</span></p>
             </div>
 
             <div className="shrink-0">
@@ -3072,14 +3072,14 @@ export default function App() {
             {/* Modal Header */}
             <div className="p-5 border-b border-[var(--line)] flex items-center justify-between">
               <div className="space-y-0.5">
-                <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
+                <h3 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
                   <Calendar size={18} className="text-blue-500" /> Agendar Nova Transmissão
                 </h3>
-                <p className="text-xs text-[var(--text-lo)]">Preencha os dados do webinar, canais de streaming e tipo de conteúdo.</p>
+                <p className="text-xs text-[var(--ink-lo)]">Preencha os dados do webinar, canais de streaming e tipo de conteúdo.</p>
               </div>
               <button 
                 onClick={() => setIsCreateWebinarOpen(false)}
-                className="p-1.5 hover:bg-[var(--panel)] rounded-lg text-[var(--text-lo)] hover:text-[var(--text-hi)] transition-all cursor-pointer"
+                className="p-1.5 hover:bg-[var(--panel)] rounded-lg text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-all cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -3119,48 +3119,48 @@ export default function App() {
             >
               {/* Event Title */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--text)]">Título do Webinar / Transmissão</label>
+                <label className="text-xs font-semibold text-[var(--ink)]">Título do Webinar / Transmissão</label>
                 <input
                   type="text"
                   required
                   placeholder="Ex: Como dominar o tráfego pago em 2026"
                   value={newWebinarTitle}
                   onChange={(e) => setNewWebinarTitle(e.target.value)}
-                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500 transition-all"
+                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all"
                 />
               </div>
 
               {/* Event Description */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--text)]">Descrição Detalhada</label>
+                <label className="text-xs font-semibold text-[var(--ink)]">Descrição Detalhada</label>
                 <textarea
                   placeholder="Ex: Neste webinar exclusivo, abordaremos as novas tendências de audiência..."
                   value={newWebinarDesc}
                   onChange={(e) => setNewWebinarDesc(e.target.value)}
                   rows={3}
-                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500 transition-all resize-none"
+                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all resize-none"
                 />
               </div>
 
               {/* Time & Type Selection Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[var(--text)]">Data e Hora do Início</label>
+                  <label className="text-xs font-semibold text-[var(--ink)]">Data e Hora do Início</label>
                   <input
                     type="text"
                     placeholder="Ex: Amanhã, às 20:00"
                     value={newWebinarTime}
                     onChange={(e) => setNewWebinarTime(e.target.value)}
-                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500 transition-all"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[var(--text)]">Tipo de Conteúdo</label>
+                  <label className="text-xs font-semibold text-[var(--ink)]">Tipo de Conteúdo</label>
                   <select
                     value={newWebinarType}
                     onChange={(e) => setNewWebinarType(e.target.value as any)}
-                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-all"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all"
                   >
                     <option value="webinar">Webinar Interativo (Ao Vivo)</option>
                     <option value="live">Stream Convencional (Ao Vivo)</option>
@@ -3173,7 +3173,7 @@ export default function App() {
               {newWebinarType === 'pre-recorded' && (
                 <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-3">
                   <label className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Upload do Vídeo Pré-gravado</label>
-                  <p className="text-[10px] text-[var(--text-lo)] leading-relaxed">Arraste e solte o arquivo de vídeo (.mp4, .mov) para que nossos servidores façam o transcoding automático e iniciem o fluxo RTMP no horário programado.</p>
+                  <p className="text-[10px] text-[var(--ink-lo)] leading-relaxed">Arraste e solte o arquivo de vídeo (.mp4, .mov) para que nossos servidores façam o transcoding automático e iniciem o fluxo RTMP no horário programado.</p>
                   
                   <div className="border border-dashed border-[var(--line-ctl)] hover:border-blue-500/50 rounded-lg p-5 text-center transition-all cursor-pointer bg-[var(--bg)]">
                     {newWebinarVideoName ? (
@@ -3183,7 +3183,7 @@ export default function App() {
                     ) : (
                       <div 
                         onClick={() => setNewWebinarVideoName('aula_introducao_marketing_v2.mp4')}
-                        className="text-xs text-[var(--text-lo)] hover:text-[var(--text-hi)] transition-colors"
+                        className="text-xs text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-colors"
                       >
                         Clique para simular o upload de <span className="text-blue-400 font-semibold underline">aula_introducao_marketing_v2.mp4</span>
                       </div>
@@ -3194,7 +3194,7 @@ export default function App() {
 
               {/* Destination channels checkbox selections */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-[var(--text)]">Canais de Transmissão Simultânea</label>
+                <label className="text-xs font-semibold text-[var(--ink)]">Canais de Transmissão Simultânea</label>
                 <div className="grid grid-cols-3 gap-2.5">
                   {['YouTube', 'Facebook', 'Instagram', 'Twitch', 'LinkedIn', 'X / Twitter'].map(chan => {
                     const isChecked = newWebinarChannels.includes(chan);
@@ -3202,7 +3202,7 @@ export default function App() {
                       <label 
                         key={chan} 
                         className={`flex items-center gap-2 p-2.5 bg-[var(--bg)] border rounded-xl cursor-pointer text-xs transition-all ${
-                          isChecked ? 'border-blue-500/40 bg-blue-500/5 text-white' : 'border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                          isChecked ? 'border-blue-500/40 bg-blue-500/5 text-white' : 'border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
                         <input
@@ -3252,15 +3252,15 @@ export default function App() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--line)] bg-[var(--bg)]">
               <div className="text-left">
-                <h3 className="text-sm sm:text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
                   <Sparkles size={18} className="text-emerald-400 animate-pulse" />
                   Manual de Integração, Chaves de API e Análise do SaaS
                 </h3>
-                <p className="text-xs text-[var(--text-lo)] mt-0.5">Analise o mapeamento completo de requisitos de produção e variáveis de ambiente.</p>
+                <p className="text-xs text-[var(--ink-lo)] mt-0.5">Analise o mapeamento completo de requisitos de produção e variáveis de ambiente.</p>
               </div>
               <button 
                 onClick={() => setIsIntegrationsModalOpen(false)}
-                className="text-[var(--text-lo)] hover:text-[var(--text-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
+                className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -3281,7 +3281,7 @@ export default function App() {
                     key={tab.id}
                     onClick={() => setIntegrationsModalTab(tab.id as any)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                      active ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                      active ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                     }`}
                   >
                     <Icon size={14} /> {tab.label}
@@ -3291,12 +3291,12 @@ export default function App() {
             </div>
 
             {/* Content Body */}
-            <div className="p-6 max-h-[65vh] overflow-y-auto text-xs text-[var(--text)] space-y-4">
+            <div className="p-6 max-h-[65vh] overflow-y-auto text-xs text-[var(--ink)] space-y-4">
               {integrationsModalTab === 'analysis' && (
                 <div className="space-y-4">
                   <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl">
                     <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Mapeamento Geral do SaaS (Requisitos vs. Código)</p>
-                    <p className="text-[11px] text-[var(--text)] leading-relaxed">Confrontamos as 45 seções e requisitos técnicos de seu plano de negócios com a implementação atual do MVP do PwStreamer. O resultado demonstra as áreas prontas e o roteiro de banco de dados e servidores para a migração para nuvem.</p>
+                    <p className="text-[11px] text-[var(--ink)] leading-relaxed">Confrontamos as 45 seções e requisitos técnicos de seu plano de negócios com a implementação atual do MVP do PwStreamer. O resultado demonstra as áreas prontas e o roteiro de banco de dados e servidores para a migração para nuvem.</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3315,12 +3315,12 @@ export default function App() {
                       <div key={idx} className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-1.5 flex flex-col justify-between">
                         <div>
                           <div className="flex items-center justify-between gap-2">
-                            <span className="font-bold text-[var(--text-hi)] text-xs">{item.title}</span>
+                            <span className="font-bold text-[var(--ink-hi)] text-xs">{item.title}</span>
                             <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
                               item.done ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                             }`}>{item.state}</span>
                           </div>
-                          <p className="text-[10px] text-[var(--text-lo)] leading-relaxed mt-1">{item.desc}</p>
+                          <p className="text-[10px] text-[var(--ink-lo)] leading-relaxed mt-1">{item.desc}</p>
                         </div>
                       </div>
                     ))}
@@ -3328,14 +3328,14 @@ export default function App() {
 
                   <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-2xl space-y-2">
                     <p className="font-bold text-blue-400 text-xs flex items-center gap-1">Chaves Necessárias para o Sistema Completo</p>
-                    <p className="text-[10px] text-[var(--text)] leading-relaxed">As seguintes variáveis devem ser declaradas no arquivo <code className="bg-[var(--bg)] px-1 py-0.5 rounded font-mono text-[var(--text-hi)]">.env</code> de produção para que o ecossistema SaaS opere plenamente:</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] font-mono pt-1 text-[var(--text-lo)]">
-                      <div>• <code className="text-[var(--text-hi)]">GEMINI_API_KEY</code> (Moderação do chat)</div>
-                      <div>• <code className="text-[var(--text-hi)]">STRIPE_SECRET_KEY</code> (Assinaturas e planos)</div>
-                      <div>• <code className="text-[var(--text-hi)]">MERCADO_PAGO_ACCESS_TOKEN</code> (PIX / Boleto)</div>
-                      <div>• <code className="text-[var(--text-hi)]">AWS_ACCESS_KEY_ID</code> (Streaming AWS IVS)</div>
-                      <div>• <code className="text-[var(--text-hi)]">CLOUDFLARE_API_TOKEN</code> (Armazenamento R2)</div>
-                      <div>• <code className="text-[var(--text-hi)]">BREVO_SMTP_KEY</code> (Disparo de emails)</div>
+                    <p className="text-[10px] text-[var(--ink)] leading-relaxed">As seguintes variáveis devem ser declaradas no arquivo <code className="bg-[var(--bg)] px-1 py-0.5 rounded font-mono text-[var(--ink-hi)]">.env</code> de produção para que o ecossistema SaaS opere plenamente:</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] font-mono pt-1 text-[var(--ink-lo)]">
+                      <div>• <code className="text-[var(--ink-hi)]">GEMINI_API_KEY</code> (Moderação do chat)</div>
+                      <div>• <code className="text-[var(--ink-hi)]">STRIPE_SECRET_KEY</code> (Assinaturas e planos)</div>
+                      <div>• <code className="text-[var(--ink-hi)]">MERCADO_PAGO_ACCESS_TOKEN</code> (PIX / Boleto)</div>
+                      <div>• <code className="text-[var(--ink-hi)]">AWS_ACCESS_KEY_ID</code> (Streaming AWS IVS)</div>
+                      <div>• <code className="text-[var(--ink-hi)]">CLOUDFLARE_API_TOKEN</code> (Armazenamento R2)</div>
+                      <div>• <code className="text-[var(--ink-hi)]">BREVO_SMTP_KEY</code> (Disparo de emails)</div>
                     </div>
                   </div>
                 </div>
@@ -3345,15 +3345,15 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl">
                     <p className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Configuração de Transmissão Externa (OBS / Streamlabs)</p>
-                    <p className="text-[11px] text-[var(--text)] leading-relaxed">Você pode conectar encoders físicos ou softwares externos (como OBS Studio, vMix ou Streamlabs) ao PwStreamer. O servidor de ingestão recebe seu sinal em alta definição e faz o multicast simultâneo.</p>
+                    <p className="text-[11px] text-[var(--ink)] leading-relaxed">Você pode conectar encoders físicos ou softwares externos (como OBS Studio, vMix ou Streamlabs) ao PwStreamer. O servidor de ingestão recebe seu sinal em alta definição e faz o multicast simultâneo.</p>
                   </div>
 
                   <div className="space-y-3 bg-[var(--bg)] border border-[var(--line)] p-5 rounded-2xl">
-                    <p className="text-xs font-bold text-[var(--text-hi)] uppercase tracking-wider">Parâmetros de Conexão Ativos</p>
+                    <p className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider">Parâmetros de Conexão Ativos</p>
                     
                     <div className="space-y-2.5">
                       <div>
-                        <p className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">URL do Servidor RTMP Primário (Ingestion)</p>
+                        <p className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL do Servidor RTMP Primário (Ingestion)</p>
                         <div className="flex gap-2 mt-1">
                           <input 
                             type="text" 
@@ -3364,7 +3364,7 @@ export default function App() {
                           <button 
                             type="button"
                             onClick={() => navigator.clipboard.writeText('rtmp://stream.pwstreamer.com:1935/live')}
-                            className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
+                            className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
                           >
                             Copiar
                           </button>
@@ -3372,7 +3372,7 @@ export default function App() {
                       </div>
 
                       <div>
-                        <p className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">Chave de Transmissão (Stream Key)</p>
+                        <p className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Chave de Transmissão (Stream Key)</p>
                         <div className="flex gap-2 mt-1">
                           <input 
                             type="password" 
@@ -3383,7 +3383,7 @@ export default function App() {
                           <button 
                             type="button"
                             onClick={() => navigator.clipboard.writeText('live_5427901_pw_prod_99a8x72cd')}
-                            className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
+                            className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
                           >
                             Copiar
                           </button>
@@ -3393,8 +3393,8 @@ export default function App() {
                   </div>
 
                   <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl">
-                    <p className="text-xs font-bold text-[var(--text-hi)]">Requisitos Recomendados para o OBS:</p>
-                    <ul className="list-disc pl-5 mt-2 space-y-1 text-[var(--text-lo)] text-[10px] leading-relaxed">
+                    <p className="text-xs font-bold text-[var(--ink-hi)]">Requisitos Recomendados para o OBS:</p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1 text-[var(--ink-lo)] text-[10px] leading-relaxed">
                       <li><strong>Encoder de Vídeo:</strong> NVIDIA NVENC H.264 ou x264</li>
                       <li><strong>Taxa de Bits (Bitrate):</strong> 3500 kbps a 6000 kbps (para 720p / 1080p a 30fps)</li>
                       <li><strong>Intervalo de Keyframe:</strong> 2 segundos (Obrigatório para Facebook e YouTube)</li>
@@ -3408,7 +3408,7 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-2xl">
                     <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Social Media APIs & Conexão por OAuth</p>
-                    <p className="text-[11px] text-[var(--text)] leading-relaxed">Para habilitar a retransmissão direta de um clique para canais e páginas, a plataforma utiliza o padrão de autenticação OAuth 2.0. Abaixo listamos as configurações necessárias para os portais de desenvolvedores de cada rede.</p>
+                    <p className="text-[11px] text-[var(--ink)] leading-relaxed">Para habilitar a retransmissão direta de um clique para canais e páginas, a plataforma utiliza o padrão de autenticação OAuth 2.0. Abaixo listamos as configurações necessárias para os portais de desenvolvedores de cada rede.</p>
                   </div>
 
                   <div className="space-y-3">
@@ -3434,12 +3434,12 @@ export default function App() {
                     ].map((platform, idx) => (
                       <div key={idx} className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-2 text-left">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
-                          <p className="text-xs font-bold text-[var(--text-hi)]">{platform.name}</p>
+                          <p className="text-xs font-bold text-[var(--ink-hi)]">{platform.name}</p>
                           <span className="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-mono font-bold">{platform.developer}</span>
                         </div>
-                        <p className="text-[10px] text-[var(--text-lo)] leading-relaxed">{platform.desc}</p>
+                        <p className="text-[10px] text-[var(--ink-lo)] leading-relaxed">{platform.desc}</p>
                         <div className="p-2.5 bg-[var(--bg)] rounded-lg">
-                          <p className="text-[9px] font-bold text-[var(--text-dim)] uppercase tracking-wider">Escopos e Permissões OAuth Requeridas:</p>
+                          <p className="text-[9px] font-bold text-[var(--ink-dim)] uppercase tracking-wider">Escopos e Permissões OAuth Requeridas:</p>
                           <code className="text-[9px] text-indigo-300 block font-mono break-all mt-1">{platform.scopes}</code>
                         </div>
                       </div>
@@ -3464,7 +3464,7 @@ export default function App() {
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-[var(--line)] bg-[var(--bg)] flex items-center justify-between">
-              <span className="text-[10px] text-[var(--text-dim)]">Desenvolvido por PWstreamer Solutions - PwStreamer Cloud Integration Manual</span>
+              <span className="text-[10px] text-[var(--ink-dim)]">Desenvolvido por PWstreamer Solutions - PwStreamer Cloud Integration Manual</span>
               <button
                 type="button"
                 onClick={() => setIsIntegrationsModalOpen(false)}

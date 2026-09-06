@@ -70,13 +70,13 @@ export function PwStreamLogo({
       {/* Brand Typographic Text */}
       {showText && (
         <div className="flex flex-col text-left">
-          <div className={`${textSizes[textSize]} font-black tracking-tight leading-none text-[var(--text-hi)] flex items-center`}>
+          <div className={`${textSizes[textSize]} font-black tracking-tight leading-none text-[var(--ink-hi)] flex items-center`}>
             <span>Pw</span>
             <span className="bg-gradient-to-r from-[var(--color-brand)] via-[#8B5CF6] to-[#EC407A] bg-clip-text text-transparent">
               Streamer
             </span>
           </div>
-          <span className="text-[9px] font-mono tracking-widest text-[var(--text-lo)] uppercase font-bold leading-none mt-1">
+          <span className="text-[9px] font-mono tracking-widest text-[var(--ink-lo)] uppercase font-bold leading-none mt-1">
             online studio
           </span>
         </div>

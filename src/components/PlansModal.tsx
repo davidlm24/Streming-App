@@ -101,13 +101,13 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
           <div className="flex items-center gap-2.5">
             <Activity className="text-blue-500" size={20} />
             <div>
-              <h2 className="text-base font-bold text-[var(--text-hi)]">Escolha de Planos PwStreamer</h2>
-              <p className="text-xs text-[var(--text-lo)]">Ative um plano para desbloquear transmissões ao vivo e gravações</p>
+              <h2 className="text-base font-bold text-[var(--ink-hi)]">Escolha de Planos PwStreamer</h2>
+              <p className="text-xs text-[var(--ink-lo)]">Ative um plano para desbloquear transmissões ao vivo e gravações</p>
             </div>
           </div>
           <button 
             onClick={onClose} 
-            className="p-2 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-[var(--text-hi)] rounded-xl transition-colors cursor-pointer"
+            className="p-2 hover:bg-[var(--panel)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] rounded-xl transition-colors cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -118,7 +118,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
           <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-3 text-amber-300 text-xs flex items-center gap-3">
             <Radio size={18} className="text-amber-400 shrink-0 animate-pulse" />
             <div>
-              <strong className="font-bold text-[var(--text-hi)]">Transmissão Ao Vivo Restrita:</strong> Seu período de testes de 30 dias expirou. Assine um plano abaixo para iniciar e transmitir suas lives para YouTube, Facebook, Twitch ou RTMP.
+              <strong className="font-bold text-[var(--ink-hi)]">Transmissão Ao Vivo Restrita:</strong> Seu período de testes de 30 dias expirou. Assine um plano abaixo para iniciar e transmitir suas lives para YouTube, Facebook, Twitch ou RTMP.
             </div>
           </div>
         )}
@@ -127,7 +127,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
           <div className="bg-red-500/10 border-b border-red-500/20 px-6 py-3 text-red-300 text-xs flex items-center gap-3">
             <Disc size={18} className="text-red-400 shrink-0 animate-pulse" />
             <div>
-              <strong className="font-bold text-[var(--text-hi)]">Gravação de Vídeo Restrita:</strong> Seu período de testes de 30 dias expirou. Assine um plano abaixo para gravar suas transmissões e vídeos em alta resolução.
+              <strong className="font-bold text-[var(--ink-hi)]">Gravação de Vídeo Restrita:</strong> Seu período de testes de 30 dias expirou. Assine um plano abaixo para gravar suas transmissões e vídeos em alta resolução.
             </div>
           </div>
         )}
@@ -135,15 +135,15 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
         {successMessage && (
           <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-6 py-3 text-emerald-300 text-xs flex items-center gap-3">
             <CheckCircle2 size={18} className="text-emerald-400 shrink-0 animate-bounce" />
-            <span className="font-bold text-[var(--text-hi)]">{successMessage}</span>
+            <span className="font-bold text-[var(--ink-hi)]">{successMessage}</span>
           </div>
         )}
 
         <div className="p-6 overflow-y-auto space-y-6">
           <div className="text-center space-y-1">
-            <h3 className="text-xl sm:text-2xl font-bold text-[var(--text-hi)]">Selecione o plano ideal para as suas transmissões</h3>
-            <p className="text-xs text-[var(--text-lo)]">
-              Você pode continuar utilizando o estúdio para testes e montagem de cenas. O plano é requerido apenas para <strong className="text-[var(--text-hi)]">Transmitir Ao Vivo</strong> e <strong className="text-[var(--text-hi)]">Gravar</strong>.
+            <h3 className="text-xl sm:text-2xl font-bold text-[var(--ink-hi)]">Selecione o plano ideal para as suas transmissões</h3>
+            <p className="text-xs text-[var(--ink-lo)]">
+              Você pode continuar utilizando o estúdio para testes e montagem de cenas. O plano é requerido apenas para <strong className="text-[var(--ink-hi)]">Transmitir Ao Vivo</strong> e <strong className="text-[var(--ink-hi)]">Gravar</strong>.
             </p>
           </div>
 
@@ -166,15 +166,15 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
                     </div>
                   )}
                   <div>
-                    <h4 className="text-lg font-bold text-[var(--text-hi)]">{p.name}</h4>
-                    <p className="text-xs text-[var(--text-lo)] mt-1 mb-3">{p.desc}</p>
-                    <div className="text-2xl font-black text-[var(--text-hi)] mb-4">
-                      {p.price}<span className="text-xs text-[var(--text-dim)] font-normal">/mês</span>
+                    <h4 className="text-lg font-bold text-[var(--ink-hi)]">{p.name}</h4>
+                    <p className="text-xs text-[var(--ink-lo)] mt-1 mb-3">{p.desc}</p>
+                    <div className="text-2xl font-black text-[var(--ink-hi)] mb-4">
+                      {p.price}<span className="text-xs text-[var(--ink-dim)] font-normal">/mês</span>
                     </div>
                     
                     <ul className="space-y-2.5 mb-4">
                       {p.features.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-[var(--text)]">
+                        <li key={i} className="flex items-start gap-2 text-xs text-[var(--ink)]">
                           <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                           <span>{f}</span>
                         </li>
@@ -191,7 +191,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
                     className={`w-full py-2 rounded-xl text-xs font-bold transition-all ${
                       isSelected 
                         ? 'bg-blue-600 text-white shadow-md' 
-                        : 'bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text)]'
+                        : 'bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink)]'
                     }`}
                   >
                     {isSelected ? 'Plano Selecionado' : 'Escolher ' + p.name}
@@ -202,22 +202,22 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
           </div>
 
           <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-4 space-y-3">
-            <h4 className="text-xs font-bold text-[var(--text-hi)] flex items-center gap-2">
+            <h4 className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-2">
               <CreditCard size={15} className="text-blue-400" />
               Forma de Pagamento
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'card' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'}`}>
+              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'card' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}>
                 <input type="radio" name="paymethod" value="card" checked={method === 'card'} onChange={() => setMethod('card')} className="hidden" />
                 <CreditCard size={16} className="text-blue-400" />
                 <span className="text-xs font-semibold">Cartão de Crédito</span>
               </label>
-              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'pix' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'}`}>
+              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'pix' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}>
                 <input type="radio" name="paymethod" value="pix" checked={method === 'pix'} onChange={() => setMethod('pix')} className="hidden" />
                 <Sparkles size={16} className="text-emerald-400" />
                 <span className="text-xs font-semibold">PIX Instantâneo</span>
               </label>
-              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'paypal' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'}`}>
+              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'paypal' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}>
                 <input type="radio" name="paymethod" value="paypal" checked={method === 'paypal'} onChange={() => setMethod('paypal')} className="hidden" />
                 <Activity size={16} className="text-indigo-400" />
                 <span className="text-xs font-semibold">PayPal</span>
@@ -230,7 +230,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
         <div className="p-4 border-t border-[var(--line)] bg-[var(--bg)] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <button 
             onClick={onClose}
-            className="w-full sm:w-auto px-4 py-2.5 text-xs font-semibold text-[var(--text-lo)] hover:text-[var(--text-hi)] transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 text-xs font-semibold text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-colors cursor-pointer"
           >
             Continuar no Estúdio (Modo Exploração)
           </button>

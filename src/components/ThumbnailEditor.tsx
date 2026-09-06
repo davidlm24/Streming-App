@@ -218,10 +218,10 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
     <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-5 space-y-6" id="thumbnail-editor-container">
       <div className="flex items-center justify-between">
         <div className="text-left">
-          <h3 className="text-sm font-bold text-[var(--text-hi)] flex items-center gap-1.5">
+          <h3 className="text-sm font-bold text-[var(--ink-hi)] flex items-center gap-1.5">
             <Sparkles size={16} className="text-blue-500" /> Editor de Miniaturas (Capas)
           </h3>
-          <p className="text-[11px] text-[var(--text-lo)]">Crie a capa perfeita e de alto impacto para engajar seus espectadores.</p>
+          <p className="text-[11px] text-[var(--ink-lo)]">Crie a capa perfeita e de alto impacto para engajar seus espectadores.</p>
         </div>
         <div className="flex items-center gap-2">
           {isGenerated && (
@@ -239,7 +239,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
         <div className="lg:col-span-5 space-y-4 text-left">
           {/* 1. Title Input */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
               <Type size={12} /> Título Principal
             </label>
             <input 
@@ -250,13 +250,13 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 setIsGenerated(false);
               }}
               placeholder="Ex: Como Alavancar suas Vendas..."
-              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>
 
           {/* 2. Subtitle Tag */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
               <Layers size={12} /> Tag / Subtítulo
             </label>
             <input 
@@ -267,13 +267,13 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 setIsGenerated(false);
               }}
               placeholder="Ex: WEBINAR AO VIVO"
-              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"
             />
           </div>
 
           {/* 3. Choose Background Preset */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
               <Palette size={12} /> Imagem de Fundo / Gradiente
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -295,7 +295,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                       isActive ? 'border-blue-500 ring-2 ring-blue-500/35 scale-95' : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                     }`}
                   >
-                    <span className="bg-black/70 px-1 py-0.5 rounded text-[8px] text-[var(--text-hi)] leading-none truncate max-w-full block">
+                    <span className="bg-black/70 px-1 py-0.5 rounded text-[8px] text-[var(--ink-hi)] leading-none truncate max-w-full block">
                       {bg.name}
                     </span>
                     {isActive && (
@@ -311,18 +311,18 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
 
           {/* 4. Custom background URL */}
           <form onSubmit={handleCustomImageSubmit} className="space-y-1">
-            <label className="text-[9px] text-[var(--text-dim)] font-semibold">Ou insira URL de imagem customizada:</label>
+            <label className="text-[9px] text-[var(--ink-dim)] font-semibold">Ou insira URL de imagem customizada:</label>
             <div className="flex gap-2">
               <input 
                 type="url" 
                 value={customImageUrl}
                 onChange={(e) => setCustomImageUrl(e.target.value)}
                 placeholder="https://images.unsplash.com/photo-..." 
-                className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-[10px] text-[var(--text-hi)] focus:outline-none focus:border-blue-500"
+                className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-[10px] text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"
               />
               <button 
                 type="submit"
-                className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[10px] font-bold rounded-lg text-[var(--text-hi)]"
+                className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[10px] font-bold rounded-lg text-[var(--ink-hi)]"
               >
                 Aplicar
               </button>
@@ -333,7 +333,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
           <div className="bg-[var(--bg)] border border-[var(--line)]/60 p-3 rounded-xl space-y-3 text-xs">
             {/* Opacity slider */}
             <div className="space-y-1">
-              <div className="flex justify-between text-[10px] text-[var(--text-lo)] font-bold">
+              <div className="flex justify-between text-[10px] text-[var(--ink-lo)] font-bold">
                 <span>Escurecimento de Fundo</span>
                 <span>{Math.round(overlayOpacity * 100)}%</span>
               </div>
@@ -350,7 +350,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
 
             {/* Font size slider */}
             <div className="space-y-1">
-              <div className="flex justify-between text-[10px] text-[var(--text-lo)] font-bold">
+              <div className="flex justify-between text-[10px] text-[var(--ink-lo)] font-bold">
                 <span>Tamanho da Fonte</span>
                 <span>{textSize}px</span>
               </div>
@@ -368,7 +368,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
             {/* Color circles & switches */}
             <div className="flex items-center justify-between pt-1 border-t border-[var(--line)]/60">
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-bold text-[var(--text-lo)]">Cor do Texto:</span>
+                <span className="text-[10px] font-bold text-[var(--ink-lo)]">Cor do Texto:</span>
                 {['#ffffff', '#fde047', '#60a5fa', '#f87171', '#4ade80'].map((color) => (
                   <button 
                     key={color}
@@ -382,7 +382,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 ))}
               </div>
 
-              <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-[var(--text-lo)] font-bold">
+              <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-[var(--ink-lo)] font-bold">
                 <input 
                   type="checkbox" 
                   checked={showLogo} 
@@ -407,7 +407,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
         {/* RIGHT COLUMN: Visual Live Preview & Hidden Canvas (7 cols) */}
         <div className="lg:col-span-7 flex flex-col justify-between">
           <div className="space-y-1.5">
-            <span className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
+            <span className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
               <FileImage size={12} /> Pré-visualização Real-time (16:9)
             </span>
             
@@ -462,8 +462,8 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
 
               {/* Bottom Row: Footer credentials */}
               <div className="relative z-10 border-t border-white/10 pt-2 flex items-center justify-between text-left">
-                <span className="text-[9px] text-[var(--text-lo)] font-semibold">Capa oficial do Webinar agendado</span>
-                <span className="text-[9px] font-mono font-bold text-[var(--text-dim)]">1280 x 720 px</span>
+                <span className="text-[9px] text-[var(--ink-lo)] font-semibold">Capa oficial do Webinar agendado</span>
+                <span className="text-[9px] font-mono font-bold text-[var(--ink-dim)]">1280 x 720 px</span>
               </div>
             </div>
           </div>
@@ -472,8 +472,8 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
           <div className="mt-4 p-3 bg-blue-950/20 border border-blue-500/10 rounded-xl text-left flex items-start gap-2.5">
             <CheckCircle2 size={16} className="text-blue-400 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <p className="text-[11px] font-bold text-[var(--text)]">Pronto para Divulgar nas Redes</p>
-              <p className="text-[10px] text-[var(--text-lo)] leading-normal">
+              <p className="text-[11px] font-bold text-[var(--ink)]">Pronto para Divulgar nas Redes</p>
+              <p className="text-[10px] text-[var(--ink-lo)] leading-normal">
                 Clique no botão de geração para renderizar a imagem final no formato de alta fidelidade e anexá-la automaticamente ao seu convite ou banner.
               </p>
             </div>

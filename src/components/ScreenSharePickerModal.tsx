@@ -14,12 +14,12 @@ function PhotoshopMock() {
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-          <span className="text-[8px] font-bold text-[var(--text-lo)] ml-1">Photoshop - Poster_Marketing_V6.psd</span>
+          <span className="text-[8px] font-bold text-[var(--ink-lo)] ml-1">Photoshop - Poster_Marketing_V6.psd</span>
         </div>
-        <span className="text-[7px] text-[var(--text-dim)] font-bold uppercase tracking-wider">PS 2026</span>
+        <span className="text-[7px] text-[var(--ink-dim)] font-bold uppercase tracking-wider">PS 2026</span>
       </div>
       <div className="flex-1 flex bg-[var(--panel)]">
-        <div className="w-4 bg-[var(--bg)] border-r border-[var(--line)]/60 flex flex-col gap-1 items-center pt-1.5 text-[var(--text-dim)]">
+        <div className="w-4 bg-[var(--bg)] border-r border-[var(--line)]/60 flex flex-col gap-1 items-center pt-1.5 text-[var(--ink-dim)]">
           <div className="w-2.5 h-2.5 bg-blue-500 rounded-sm"></div>
           <div className="w-2 h-2 bg-[var(--panel)] rounded-sm"></div>
           <div className="w-2 h-2 bg-[var(--panel)] rounded-sm"></div>
@@ -33,8 +33,8 @@ function PhotoshopMock() {
             <div className="absolute left-0 right-0 top-1/2 h-[0.5px] bg-cyan-500/20"></div>
           </div>
         </div>
-        <div className="w-14 bg-[var(--bg)] border-l border-[var(--line)]/60 p-1.5 flex flex-col gap-1 text-[6px] text-[var(--text-dim)]">
-          <div className="border-b border-[var(--line)] pb-1 text-[var(--text-lo)] font-bold">Camadas</div>
+        <div className="w-14 bg-[var(--bg)] border-l border-[var(--line)]/60 p-1.5 flex flex-col gap-1 text-[6px] text-[var(--ink-dim)]">
+          <div className="border-b border-[var(--line)] pb-1 text-[var(--ink-lo)] font-bold">Camadas</div>
           <div className="bg-blue-600/25 text-blue-400 p-0.5 rounded text-[5px] flex items-center justify-between">
             <span>Texto Principal</span>
           </div>
@@ -56,14 +56,14 @@ function OBSMock() {
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-          <span className="text-[8px] font-bold text-[var(--text-lo)] ml-1">OBS Studio 30.2 - Transmissão Ativa</span>
+          <span className="text-[8px] font-bold text-[var(--ink-lo)] ml-1">OBS Studio 30.2 - Transmissão Ativa</span>
         </div>
       </div>
       <div className="flex-1 bg-[var(--bg)] flex flex-col p-1.5 gap-1.5">
         <div className="flex-1 bg-[var(--bg)] border border-[var(--line)] flex items-center justify-center relative overflow-hidden">
           <div className="border border-[var(--line)] w-4/5 h-4/5 bg-[var(--surface)] flex items-center justify-center">
             <div className="border border-[var(--line-ctl)] w-3/4 h-3/4 bg-[var(--panel)] flex items-center justify-center">
-              <span className="text-[5px] font-mono text-[var(--text-dim)]">Loop Infinito</span>
+              <span className="text-[5px] font-mono text-[var(--ink-dim)]">Loop Infinito</span>
             </div>
           </div>
           <div className="absolute top-1 left-1 px-1 py-0.5 bg-red-600 text-white font-mono text-[5px] font-black rounded uppercase flex items-center gap-0.5">
@@ -73,11 +73,11 @@ function OBSMock() {
         </div>
         <div className="h-10 bg-[var(--surface)] border border-[var(--line)] rounded p-1 flex justify-between items-center text-[6px]">
           <div className="space-y-0.5">
-            <span className="text-[var(--text-lo)] block font-bold">Cenas</span>
+            <span className="text-[var(--ink-lo)] block font-bold">Cenas</span>
             <div className="bg-blue-600/20 text-blue-400 px-1 py-0.2 rounded font-bold">Cena Principal</div>
           </div>
           <div className="flex-1 mx-2 space-y-0.5">
-            <span className="text-[var(--text-lo)] block font-bold text-center">Mixer de Áudio</span>
+            <span className="text-[var(--ink-lo)] block font-bold text-center">Mixer de Áudio</span>
             <div className="h-1 w-full bg-[var(--bg)] rounded overflow-hidden relative">
               <div className="w-3/4 h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 rounded" />
             </div>
@@ -87,7 +87,7 @@ function OBSMock() {
           </div>
           <div className="flex flex-col gap-0.5 scale-90">
             <span className="bg-emerald-600/25 text-emerald-400 px-1 py-0.2 rounded font-black text-[5px] text-center">TRANSMITINDO</span>
-            <span className="bg-[var(--panel)] text-[var(--text-lo)] px-1 py-0.2 rounded text-[5px] text-center">REC: ATIVO</span>
+            <span className="bg-[var(--panel)] text-[var(--ink-lo)] px-1 py-0.2 rounded text-[5px] text-center">REC: ATIVO</span>
           </div>
         </div>
       </div>
@@ -104,28 +104,28 @@ function VSCodeMock() {
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-          <span className="text-[8px] font-bold text-[var(--text-lo)] ml-1">App.tsx - workspace-podcasting - VS Code</span>
+          <span className="text-[8px] font-bold text-[var(--ink-lo)] ml-1">App.tsx - workspace-podcasting - VS Code</span>
         </div>
       </div>
       <div className="flex-1 flex bg-[var(--surface)]">
-        <div className="w-3 bg-[var(--surface)] flex flex-col items-center pt-1.5 gap-1.5 text-[var(--text-dim)] border-r border-[var(--line)]">
+        <div className="w-3 bg-[var(--surface)] flex flex-col items-center pt-1.5 gap-1.5 text-[var(--ink-dim)] border-r border-[var(--line)]">
           <div className="w-1.5 h-1.5 bg-blue-500 rounded-sm"></div>
           <div className="w-1.5 h-1.5 bg-[var(--raise)] rounded-sm"></div>
         </div>
-        <div className="w-14 bg-[var(--surface)] border-r border-[var(--line)] p-1 flex flex-col gap-0.5 text-[5px] text-[var(--text-dim)]">
-          <span className="font-bold text-[var(--text-lo)] text-[5px] tracking-wide block truncate uppercase">WORKSPACE</span>
+        <div className="w-14 bg-[var(--surface)] border-r border-[var(--line)] p-1 flex flex-col gap-0.5 text-[5px] text-[var(--ink-dim)]">
+          <span className="font-bold text-[var(--ink-lo)] text-[5px] tracking-wide block truncate uppercase">WORKSPACE</span>
           <span className="text-blue-400 pl-1 font-bold">src/</span>
           <span className="text-amber-500 pl-2">App.tsx</span>
-          <span className="text-[var(--text-lo)] pl-2">index.css</span>
+          <span className="text-[var(--ink-lo)] pl-2">index.css</span>
         </div>
-        <div className="flex-1 bg-[var(--bg)] p-1.5 font-mono text-[5px] text-[var(--text-lo)] leading-normal overflow-hidden">
+        <div className="flex-1 bg-[var(--bg)] p-1.5 font-mono text-[5px] text-[var(--ink-lo)] leading-normal overflow-hidden">
           <div className="text-blue-400">import <span className="text-purple-400">{"{ React }"}</span> from <span className="text-orange-400">'react'</span>;</div>
           <div className="text-purple-400">function <span className="text-yellow-400">WebinarApp</span>() {"{"}</div>
-          <div className="pl-2 text-[var(--text-lo)]">const <span className="text-blue-300">{"[live, setLive]"}</span> = useState(true);</div>
+          <div className="pl-2 text-[var(--ink-lo)]">const <span className="text-blue-300">{"[live, setLive]"}</span> = useState(true);</div>
           <div className="pl-2 text-emerald-500">// Restream API</div>
           <div className="pl-2 text-purple-400">return (</div>
           <div className="pl-4 text-blue-400">{"<div className="}<span className="text-orange-400">"studio"</span>{">"}</div>
-          <div className="pl-6 text-[var(--text)]">{"<StudioView />"}</div>
+          <div className="pl-6 text-[var(--ink)]">{"<StudioView />"}</div>
           <div className="pl-4 text-blue-400">{"</div>"}</div>
           <div className="pl-2 text-purple-400">);</div>
           <div className="text-purple-400">{"}"}</div>
@@ -144,20 +144,20 @@ function PowerPointMock() {
           <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
           <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-          <span className="text-[8px] font-bold text-[var(--text-lo)] ml-1">Apresentação de Vendas.pptx - PowerPoint</span>
+          <span className="text-[8px] font-bold text-[var(--ink-lo)] ml-1">Apresentação de Vendas.pptx - PowerPoint</span>
         </div>
       </div>
       <div className="flex-1 flex bg-[var(--panel)]">
         <div className="w-10 bg-[var(--surface)] border-r border-[var(--line)] p-1 flex flex-col gap-1 items-center">
           <div className="w-8 h-4 rounded border border-orange-500 bg-[var(--raise)] text-[4px] text-orange-400 flex items-center justify-center font-bold">Slide 1</div>
-          <div className="w-8 h-4 rounded border border-[var(--line)] bg-[var(--surface)] text-[4px] text-[var(--text-dim)] flex items-center justify-center">Slide 2</div>
-          <div className="w-8 h-4 rounded border border-[var(--line)] bg-[var(--surface)] text-[4px] text-[var(--text-dim)] flex items-center justify-center">Slide 3</div>
+          <div className="w-8 h-4 rounded border border-[var(--line)] bg-[var(--surface)] text-[4px] text-[var(--ink-dim)] flex items-center justify-center">Slide 2</div>
+          <div className="w-8 h-4 rounded border border-[var(--line)] bg-[var(--surface)] text-[4px] text-[var(--ink-dim)] flex items-center justify-center">Slide 3</div>
         </div>
         <div className="flex-1 bg-[var(--surface)] p-2 flex flex-col justify-between">
           <div className="text-center mt-1">
             <span className="text-[4px] text-orange-400 tracking-widest block font-black uppercase">VEGA6 CORPNET</span>
-            <h2 className="text-[9px] font-black text-[var(--text-hi)] mt-0.5">Estratégias de Vendas 2026</h2>
-            <p className="text-[5px] text-[var(--text-lo)]">Alcançando novos horizontes</p>
+            <h2 className="text-[9px] font-black text-[var(--ink-hi)] mt-0.5">Estratégias de Vendas 2026</h2>
+            <p className="text-[5px] text-[var(--ink-lo)]">Alcançando novos horizontes</p>
           </div>
           <div className="flex gap-1 justify-center mb-1">
             <div className="w-5 h-2.5 bg-blue-500/10 rounded flex items-center justify-center text-[4px] text-blue-400 font-bold border border-blue-500/15">+240%</div>
@@ -245,14 +245,14 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
   // Options for "Janela" (Simulated application windows)
   const WINDOWS = [
     { id: 'win-1', name: 'Adobe Photoshop CC 2026', icon: Laptop, color: 'text-blue-600', app: 'Photoshop' },
-    { id: 'win-2', name: 'OBS Studio (Transmissão de Alta Performance)', icon: Laptop, color: 'text-[var(--text-lo)]', app: 'OBS Studio' },
+    { id: 'win-2', name: 'OBS Studio (Transmissão de Alta Performance)', icon: Laptop, color: 'text-[var(--ink-lo)]', app: 'OBS Studio' },
     { id: 'win-3', name: 'VS Code (workspace-podcasting)', icon: Laptop, color: 'text-sky-500', app: 'VS Code' },
     { id: 'win-4', name: 'Powerpoint - Apresentação de Vendas.pptx', icon: FileText, color: 'text-orange-500', app: 'PowerPoint' }
   ];
 
   // Options for "Tela inteira" (Simulated desktop displays)
   const SCREENS = [
-    { id: 'scr-1', name: 'Tela 1 - Monitor Principal (Apresentação)', icon: Laptop, color: 'text-[var(--text-hi)]' },
+    { id: 'scr-1', name: 'Tela 1 - Monitor Principal (Apresentação)', icon: Laptop, color: 'text-[var(--ink-hi)]' },
     { id: 'scr-2', name: 'Tela 2 - Monitor Lateral (Feed & Monitoramento)', icon: Monitor, color: 'text-blue-400' }
   ];
 
@@ -405,21 +405,21 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none font-sans" id="screen-share-picker-modal">
       
       {/* Chrome Dialog Styled Window */}
-      <div className={`w-full ${isExpanded ? 'max-w-5xl h-[600px]' : 'max-w-3xl'} bg-[var(--panel)] border border-[var(--line)] rounded-2xl shadow-2xl text-[var(--text-hi)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 transition-all duration-300`}>
+      <div className={`w-full ${isExpanded ? 'max-w-5xl h-[600px]' : 'max-w-3xl'} bg-[var(--panel)] border border-[var(--line)] rounded-2xl shadow-2xl text-[var(--ink-hi)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 transition-all duration-300`}>
         
         {/* Windows Header Tabbar */}
         <div className="bg-[var(--bg)] px-5 py-4 border-b border-[var(--line)]/80 flex items-center justify-between">
           <div className="flex flex-col">
-            <h3 className="text-sm font-black text-[var(--text-hi)] flex items-center gap-2">
+            <h3 className="text-sm font-black text-[var(--ink-hi)] flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
               Escolha o que compartilhar com pwstreamer.com / restream
             </h3>
-            <p className="text-[11px] text-[var(--text-lo)] mt-0.5">Selecione uma janela física, guia ou envie um arquivo para apresentação</p>
+            <p className="text-[11px] text-[var(--ink-lo)] mt-0.5">Selecione uma janela física, guia ou envie um arquivo para apresentação</p>
           </div>
           <button 
             type="button"
             onClick={onClose}
-            className="text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)] p-1.5 rounded-lg transition-all cursor-pointer"
+            className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)] p-1.5 rounded-lg transition-all cursor-pointer"
             id="btn-close-picker"
           >
             <X size={18} />
@@ -433,7 +433,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
               <AlertCircle size={16} className="text-blue-400 shrink-0" />
               <p className="text-[11px] text-blue-200 leading-normal">
                 Você está visualizando o app dentro do editor. Para usar o recurso nativo de capturar sua 
-                <strong className="text-[var(--text-hi)]"> Segunda Tela (Dual Monitors)</strong> ou janelas reais do seu PC, abra o app em uma aba dedicada.
+                <strong className="text-[var(--ink-hi)]"> Segunda Tela (Dual Monitors)</strong> ou janelas reais do seu PC, abra o app em uma aba dedicada.
               </p>
             </div>
             <button
@@ -467,7 +467,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                   }
                 }}
                 className={`py-3.5 px-4 text-xs font-bold relative transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  isSel ? 'text-blue-400' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                  isSel ? 'text-blue-400' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                 }`}
                 id={`tab-select-${tab.id}`}
               >
@@ -495,20 +495,20 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
             <div className="flex flex-col gap-2 mb-3 pb-3 border-b border-[var(--line)]/80 shrink-0">
               {/* Search input */}
               <div className="relative">
-                <Search size={14} className="absolute left-2.5 top-2.5 text-[var(--text-lo)]" />
+                <Search size={14} className="absolute left-2.5 top-2.5 text-[var(--ink-lo)]" />
                 <input
                   type="text"
                   placeholder="Pesquisar fontes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[var(--bg)] border border-[var(--line)] text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:border-blue-500 transition-all"
+                  className="w-full bg-[var(--bg)] border border-[var(--line)] text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] rounded-xl pl-9 pr-8 py-2 focus:outline-none focus:border-blue-500 transition-all"
                   id="search-sharing-sources"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-2.5 text-[var(--text-lo)] hover:text-[var(--text-hi)] transition-colors"
+                    className="absolute right-2.5 top-2.5 text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-colors"
                   >
                     <X size={12} />
                   </button>
@@ -523,7 +523,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                   className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all cursor-pointer ${
                     isExpanded 
                       ? 'bg-blue-500/15 border-blue-500/40 text-blue-400 shadow-sm' 
-                      : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
+                      : 'bg-[var(--bg)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:border-[var(--line-ctl)]'
                   }`}
                   id="btn-toggle-expanded-mode"
                 >
@@ -556,20 +556,20 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           className={`w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${
                             isSelected 
                               ? 'bg-blue-500/10 border-blue-500 text-white font-bold ring-1 ring-blue-500/20' 
-                              : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] text-[var(--text)] hover:border-[var(--line-ctl)]'
+                              : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] text-[var(--ink)] hover:border-[var(--line-ctl)]'
                           }`}
                           id={`item-tab-${item.id}`}
                         >
                           <Icon size={14} className={`${isSelected ? 'text-blue-400' : item.color} shrink-0 mt-0.5`} />
                           <div className="min-w-0 flex-1">
                             <p className="text-[11px] font-bold truncate">{item.name}</p>
-                            <p className="text-[8px] text-[var(--text-dim)] font-mono mt-0.5">{item.url}</p>
+                            <p className="text-[8px] text-[var(--ink-dim)] font-mono mt-0.5">{item.url}</p>
                           </div>
                         </button>
                       );
                     })
                   ) : (
-                    <div className="text-center py-8 text-[var(--text-dim)]">
+                    <div className="text-center py-8 text-[var(--ink-dim)]">
                       <p className="text-[11px] font-medium">Nenhuma guia correspondente</p>
                     </div>
                   )}
@@ -592,7 +592,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             className={`w-full text-left rounded-xl border transition-all cursor-pointer p-2 flex flex-col gap-2 relative group/card ${
                               isSelected 
                                 ? 'bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/25 text-white' 
-                                : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] hover:border-[var(--line-ctl)] text-[var(--text)]'
+                                : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] hover:border-[var(--line-ctl)] text-[var(--ink)]'
                             }`}
                             id={`item-win-expanded-${item.id}`}
                           >
@@ -605,8 +605,8 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             {/* Label */}
                             <div className="px-1.5 py-0.5 flex justify-between items-center w-full shrink-0">
                               <div className="min-w-0 flex-1">
-                                <p className={`text-[10px] font-black truncate ${isSelected ? 'text-blue-400' : 'text-[var(--text-hi)]'}`}>{item.name}</p>
-                                <p className="text-[8px] text-[var(--text-dim)] font-mono">Software • {item.app}</p>
+                                <p className={`text-[10px] font-black truncate ${isSelected ? 'text-blue-400' : 'text-[var(--ink-hi)]'}`}>{item.name}</p>
+                                <p className="text-[8px] text-[var(--ink-dim)] font-mono">Software • {item.app}</p>
                               </div>
                               {isSelected ? (
                                 <span className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0">
@@ -630,20 +630,20 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           className={`w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${
                             isSelected 
                               ? 'bg-blue-500/10 border-blue-500 text-white font-bold ring-1 ring-blue-500/20' 
-                              : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] text-[var(--text)] hover:border-[var(--line-ctl)]'
+                              : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] text-[var(--ink)] hover:border-[var(--line-ctl)]'
                           }`}
                           id={`item-win-${item.id}`}
                         >
                           <Icon size={14} className={`${isSelected ? 'text-blue-400' : item.color} shrink-0 mt-0.5`} />
                           <div className="min-w-0 flex-1">
                             <p className="text-[11px] font-bold truncate">{item.name}</p>
-                            <p className="text-[8px] text-[var(--text-dim)] font-mono mt-0.5">Software • {item.app}</p>
+                            <p className="text-[8px] text-[var(--ink-dim)] font-mono mt-0.5">Software • {item.app}</p>
                           </div>
                         </button>
                       );
                     })
                   ) : (
-                    <div className="text-center py-8 text-[var(--text-dim)] w-full col-span-2">
+                    <div className="text-center py-8 text-[var(--ink-dim)] w-full col-span-2">
                       <p className="text-[11px] font-medium">Nenhuma janela correspondente</p>
                     </div>
                   )}
@@ -653,7 +653,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
               {/* Tela inteira (PC Dual Monitor Selector) */}
               {activeTab === 'screen' && (
                 <div className="space-y-3">
-                  <p className="text-[10px] text-[var(--text-lo)] leading-normal px-1">
+                  <p className="text-[10px] text-[var(--ink-lo)] leading-normal px-1">
                     Selecione qual monitor deseja compartilhar. Caso seu computador possua 2 telas, escolha abaixo:
                   </p>
                   
@@ -670,7 +670,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
                               isSelected 
                                 ? 'bg-blue-500/10 border-blue-500 text-white font-bold ring-1 ring-blue-500/20' 
-                                : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] text-[var(--text)] hover:border-[var(--line-ctl)]'
+                                : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] text-[var(--ink)] hover:border-[var(--line-ctl)]'
                             }`}
                             id={`item-scr-${item.id}`}
                           >
@@ -683,7 +683,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                         );
                       })
                     ) : (
-                      <div className="text-center py-8 text-[var(--text-dim)]">
+                      <div className="text-center py-8 text-[var(--ink-dim)]">
                         <p className="text-[11px] font-medium">Nenhum monitor correspondente</p>
                       </div>
                     )}
@@ -710,9 +710,9 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                         accept="application/pdf,image/*" 
                         className="hidden" 
                       />
-                      <Upload size={24} className="text-[var(--text-dim)] group-hover:text-blue-400 transition-colors" />
-                      <p className="text-[11px] font-bold text-[var(--text)]">Arraste ou clique para carregar</p>
-                      <p className="text-[8.5px] text-[var(--text-dim)]">Suporta arquivos PDF ou Imagens de Slides</p>
+                      <Upload size={24} className="text-[var(--ink-dim)] group-hover:text-blue-400 transition-colors" />
+                      <p className="text-[11px] font-bold text-[var(--ink)]">Arraste ou clique para carregar</p>
+                      <p className="text-[8.5px] text-[var(--ink-dim)]">Suporta arquivos PDF ou Imagens de Slides</p>
                     </div>
                   )}
 
@@ -724,8 +724,8 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             <span className="text-[7px] font-black uppercase text-blue-400 tracking-wider">Arquivo Ativo</span>
                             <span className="text-[8px] bg-blue-500/10 text-blue-300 font-mono px-1.5 py-0.2 rounded">PDF</span>
                           </div>
-                          <p className="text-[11px] font-bold text-[var(--text-hi)] truncate pr-6">{uploadedFileName}</p>
-                          <p className="text-[8px] text-[var(--text-lo)]">12 Slides processados e prontos</p>
+                          <p className="text-[11px] font-bold text-[var(--ink-hi)] truncate pr-6">{uploadedFileName}</p>
+                          <p className="text-[8px] text-[var(--ink-lo)]">12 Slides processados e prontos</p>
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
@@ -733,7 +733,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                               setUploadedFileUrl('');
                               setSelectedItemId(null);
                             }}
-                            className="absolute right-2.5 top-2.5 text-[var(--text-lo)] hover:text-[var(--text-hi)]"
+                            className="absolute right-2.5 top-2.5 text-[var(--ink-lo)] hover:text-[var(--ink-hi)]"
                             title="Excluir"
                           >
                             <X size={12} />
@@ -743,7 +743,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                         {/* Visualizador de Miniaturas com Setas Laterais */}
                         <div className="space-y-3 bg-[var(--bg)] p-3 rounded-xl border border-[var(--line)]">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">Visualizador de Slides</span>
+                            <span className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Visualizador de Slides</span>
                             <span className="text-[9px] font-mono text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/10">
                               Slide {pdfPreviewPage} / 12
                             </span>
@@ -756,7 +756,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                               type="button"
                               onClick={() => setPdfPreviewPage(prev => Math.max(1, prev - 1))}
                               disabled={pdfPreviewPage === 1}
-                              className={`absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--surface)]/90 border border-[var(--line)] text-[var(--text-hi)] hover:text-orange-400 hover:border-orange-500/30 transition-all shadow-lg z-10 ${
+                              className={`absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--surface)]/90 border border-[var(--line)] text-[var(--ink-hi)] hover:text-orange-400 hover:border-orange-500/30 transition-all shadow-lg z-10 ${
                                 pdfPreviewPage === 1 ? 'opacity-25 cursor-not-allowed' : 'opacity-100 cursor-pointer hover:scale-105'
                               }`}
                               title="Slide Anterior"
@@ -782,7 +782,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                                   {pdfPreviewPage === 11 && "Qualidade"}
                                   {pdfPreviewPage === 12 && "Perguntas"}
                                 </div>
-                                <h4 className="text-[11px] font-bold text-[var(--text-hi)] line-clamp-1">
+                                <h4 className="text-[11px] font-bold text-[var(--ink-hi)] line-clamp-1">
                                   {pdfPreviewPage === 1 && "Estratégia de Expansão Global Vega6"}
                                   {pdfPreviewPage === 2 && "Maximização de Engajamento & Retenção"}
                                   {pdfPreviewPage === 3 && "Análise Demográfica do Público-Alvo"}
@@ -808,7 +808,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                               type="button"
                               onClick={() => setPdfPreviewPage(prev => Math.min(12, prev + 1))}
                               disabled={pdfPreviewPage === 12}
-                              className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--surface)]/90 border border-[var(--line)] text-[var(--text-hi)] hover:text-orange-400 hover:border-orange-500/30 transition-all shadow-lg z-10 ${
+                              className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--surface)]/90 border border-[var(--line)] text-[var(--ink-hi)] hover:text-orange-400 hover:border-orange-500/30 transition-all shadow-lg z-10 ${
                                 pdfPreviewPage === 12 ? 'opacity-25 cursor-not-allowed' : 'opacity-100 cursor-pointer hover:scale-105'
                               }`}
                               title="Próximo Slide"
@@ -820,7 +820,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
 
                           {/* Horizontal Thumbnail Track */}
                           <div className="space-y-1.5">
-                            <span className="text-[8px] text-[var(--text-dim)] font-bold uppercase tracking-wider block px-0.5">Selecione para saltar</span>
+                            <span className="text-[8px] text-[var(--ink-dim)] font-bold uppercase tracking-wider block px-0.5">Selecione para saltar</span>
                             <div className="flex gap-1.5 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
                               {Array.from({ length: 12 }).map((_, index) => {
                                 const pageNum = index + 1;
@@ -840,10 +840,10 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                                     }`}
                                     title={`Ir para Página ${pageNum}`}
                                   >
-                                    <span className={`text-[9px] font-mono font-black ${isSelected ? 'text-orange-400' : 'text-[var(--text-lo)]'}`}>
+                                    <span className={`text-[9px] font-mono font-black ${isSelected ? 'text-orange-400' : 'text-[var(--ink-lo)]'}`}>
                                       {pageNum}
                                     </span>
-                                    <span className="text-[5px] text-[var(--text-dim)] scale-90 uppercase tracking-tighter">
+                                    <span className="text-[5px] text-[var(--ink-dim)] scale-90 uppercase tracking-tighter">
                                       {pageNum === 1 && "Abert"}
                                       {pageNum === 2 && "Objet"}
                                       {pageNum === 3 && "Mercad"}
@@ -865,7 +865,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-[var(--text-dim)]">
+                      <div className="text-center py-8 text-[var(--ink-dim)]">
                         <p className="text-[11px] font-medium">Nenhum arquivo correspondente</p>
                       </div>
                     )
@@ -881,12 +881,12 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                       >
                         <FileText size={15} className="text-amber-500 shrink-0" />
                         <div>
-                          <p className="text-[11px] font-bold text-[var(--text-hi)]">Usar PDF de Demonstração</p>
-                          <p className="text-[8px] text-[var(--text-dim)]">Estatísticas Consolidadas Vega6</p>
+                          <p className="text-[11px] font-bold text-[var(--ink-hi)]">Usar PDF de Demonstração</p>
+                          <p className="text-[8px] text-[var(--ink-dim)]">Estatísticas Consolidadas Vega6</p>
                         </div>
                       </button>
                     ) : (
-                      <div className="text-center py-8 text-[var(--text-dim)]">
+                      <div className="text-center py-8 text-[var(--ink-dim)]">
                         <p className="text-[11px] font-medium">Nenhum arquivo correspondente</p>
                       </div>
                     )
@@ -913,9 +913,9 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                         accept="video/mp4,video/webm,video/ogg" 
                         className="hidden" 
                       />
-                      <Video size={24} className="text-[var(--text-dim)] group-hover:text-emerald-400 transition-colors" />
-                      <p className="text-[11px] font-bold text-[var(--text)]">Arraste ou clique para carregar</p>
-                      <p className="text-[8.5px] text-[var(--text-dim)]">Suporta arquivos MP4, WebM ou OGG</p>
+                      <Video size={24} className="text-[var(--ink-dim)] group-hover:text-emerald-400 transition-colors" />
+                      <p className="text-[11px] font-bold text-[var(--ink)]">Arraste ou clique para carregar</p>
+                      <p className="text-[8.5px] text-[var(--ink-dim)]">Suporta arquivos MP4, WebM ou OGG</p>
                     </div>
                   )}
 
@@ -926,8 +926,8 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           <span className="text-[7px] font-black uppercase text-emerald-400 tracking-wider">Vídeo Pronto</span>
                           <span className="text-[8px] bg-emerald-500/10 text-emerald-300 font-mono px-1.5 py-0.2 rounded">MP4</span>
                         </div>
-                        <p className="text-[11px] font-bold text-[var(--text-hi)] truncate pr-6">{uploadedFileName}</p>
-                        <p className="text-[8px] text-[var(--text-lo)]">Stream dinâmico habilitado</p>
+                        <p className="text-[11px] font-bold text-[var(--ink-hi)] truncate pr-6">{uploadedFileName}</p>
+                        <p className="text-[8px] text-[var(--ink-lo)]">Stream dinâmico habilitado</p>
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
@@ -935,14 +935,14 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             setUploadedFileUrl('');
                             setSelectedItemId(null);
                           }}
-                          className="absolute right-2.5 top-2.5 text-[var(--text-lo)] hover:text-[var(--text-hi)]"
+                          className="absolute right-2.5 top-2.5 text-[var(--ink-lo)] hover:text-[var(--ink-hi)]"
                           title="Excluir"
                         >
                           <X size={12} />
                         </button>
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-[var(--text-dim)]">
+                      <div className="text-center py-8 text-[var(--ink-dim)]">
                         <p className="text-[11px] font-medium">Nenhum arquivo correspondente</p>
                       </div>
                     )
@@ -959,12 +959,12 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                       >
                         <Play size={15} className="text-emerald-400 shrink-0" fill="currentColor" />
                         <div>
-                          <p className="text-[11px] font-bold text-[var(--text-hi)]">Usar Vídeo de Demonstração</p>
-                          <p className="text-[8px] text-[var(--text-dim)]">Apresentação Institucional Corporativa</p>
+                          <p className="text-[11px] font-bold text-[var(--ink-hi)]">Usar Vídeo de Demonstração</p>
+                          <p className="text-[8px] text-[var(--ink-dim)]">Apresentação Institucional Corporativa</p>
                         </div>
                       </button>
                     ) : (
-                      <div className="text-center py-8 text-[var(--text-dim)]">
+                      <div className="text-center py-8 text-[var(--ink-dim)]">
                         <p className="text-[11px] font-medium">Nenhum arquivo correspondente</p>
                       </div>
                     )
@@ -985,7 +985,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                 <div className="bg-[var(--bg)] px-3 py-2 border-b border-[var(--line)]/80 flex items-center justify-between gap-2 shrink-0">
                   <div className="flex items-center gap-1.5 overflow-hidden">
                     <span className="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
-                    <span className="text-[9px] font-bold text-[var(--text-lo)] truncate max-w-[180px]">
+                    <span className="text-[9px] font-bold text-[var(--ink-lo)] truncate max-w-[180px]">
                       {getSelectedItemName()}
                     </span>
                   </div>
@@ -1003,8 +1003,8 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                       <div className="w-8 h-8 rounded-full bg-rose-500/15 flex items-center justify-center mx-auto text-rose-500 animate-pulse">
                         <Compass size={16} />
                       </div>
-                      <p className="text-[11px] font-bold text-[var(--text-hi)] leading-tight">PwStreamer - Estúdio Ao Vivo</p>
-                      <p className="text-[8px] text-[var(--text-lo)] leading-normal">Hospede webinars corporativos e lives profissionais em tempo real.</p>
+                      <p className="text-[11px] font-bold text-[var(--ink-hi)] leading-tight">PwStreamer - Estúdio Ao Vivo</p>
+                      <p className="text-[8px] text-[var(--ink-lo)] leading-normal">Hospede webinars corporativos e lives profissionais em tempo real.</p>
                       <div className="w-full h-1 bg-[var(--surface)] rounded-full overflow-hidden">
                         <div className="w-2/3 h-full bg-rose-500 rounded-full animate-pulse" />
                       </div>
@@ -1017,23 +1017,23 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                       <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center mx-auto text-white">
                         <Play size={14} fill="currentColor" />
                       </div>
-                      <p className="text-[11px] font-bold text-[var(--text-hi)] leading-tight">PL da Misoginia: entenda os impactos reais</p>
-                      <p className="text-[8px] text-[var(--text-lo)]">Vega6 TV • Transmissão Ativa</p>
+                      <p className="text-[11px] font-bold text-[var(--ink-hi)] leading-tight">PL da Misoginia: entenda os impactos reais</p>
+                      <p className="text-[8px] text-[var(--ink-lo)]">Vega6 TV • Transmissão Ativa</p>
                     </div>
                   )}
 
                   {/* Chrome Tab: Gmail */}
                   {selectedItemId === 'tab-6' && (
                     <div className="w-full max-w-[220px] text-left text-[8px] space-y-1.5">
-                      <div className="flex items-center justify-between font-bold text-[var(--text)] border-b border-[var(--line)] pb-1.5">
+                      <div className="flex items-center justify-between font-bold text-[var(--ink)] border-b border-[var(--line)] pb-1.5">
                         <span className="flex items-center gap-1">📥 Caixa de Entrada</span>
                         <span className="text-red-400">237 Novas</span>
                       </div>
-                      <div className="bg-[var(--surface)] p-1.5 rounded border border-[var(--line)] truncate text-[var(--text)]">
-                        <strong className="text-[var(--text-hi)]">Marcos:</strong> Confirmado o webinar hoje às 20h.
+                      <div className="bg-[var(--surface)] p-1.5 rounded border border-[var(--line)] truncate text-[var(--ink)]">
+                        <strong className="text-[var(--ink-hi)]">Marcos:</strong> Confirmado o webinar hoje às 20h.
                       </div>
-                      <div className="bg-[var(--surface)] p-1.5 rounded border border-[var(--line)] truncate text-[var(--text)]">
-                        <strong className="text-[var(--text-hi)]">Felipe:</strong> Adorei o layout do estúdio.
+                      <div className="bg-[var(--surface)] p-1.5 rounded border border-[var(--line)] truncate text-[var(--ink)]">
+                        <strong className="text-[var(--ink-hi)]">Felipe:</strong> Adorei o layout do estúdio.
                       </div>
                     </div>
                   )}
@@ -1041,11 +1041,11 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                   {/* Window: PowerPoint */}
                   {selectedItemId === 'win-4' && (
                     <div className="space-y-2.5 w-full max-w-[220px] text-center">
-                      <p className="text-[11px] font-black text-[var(--text-hi)]">Powerpoint - Apresentação de Vendas.pptx</p>
+                      <p className="text-[11px] font-black text-[var(--ink-hi)]">Powerpoint - Apresentação de Vendas.pptx</p>
                       <div className="grid grid-cols-3 gap-1 px-1">
-                        <div className="h-7 bg-[var(--surface)] border border-[var(--line)] rounded text-[7px] flex items-center justify-center text-[var(--text-dim)]">Slide 1</div>
+                        <div className="h-7 bg-[var(--surface)] border border-[var(--line)] rounded text-[7px] flex items-center justify-center text-[var(--ink-dim)]">Slide 1</div>
                         <div className="h-7 bg-blue-500/10 border border-blue-500 rounded text-[7px] flex items-center justify-center text-blue-400 font-bold">Slide 2</div>
-                        <div className="h-7 bg-[var(--surface)] border border-[var(--line)] rounded text-[7px] flex items-center justify-center text-[var(--text-dim)]">Slide 3</div>
+                        <div className="h-7 bg-[var(--surface)] border border-[var(--line)] rounded text-[7px] flex items-center justify-center text-[var(--ink-dim)]">Slide 3</div>
                       </div>
                     </div>
                   )}
@@ -1053,17 +1053,17 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                   {/* Simulated screen shares (dual monitor mockups) */}
                   {(selectedItemId === 'scr-1' || selectedItemId === 'scr-2') && (
                     <div className="space-y-2.5 w-full max-w-[220px]">
-                      <div className="text-[var(--text-lo)] text-2xl">🖥️</div>
-                      <p className="text-[11px] font-black text-[var(--text-hi)] leading-tight">
+                      <div className="text-[var(--ink-lo)] text-2xl">🖥️</div>
+                      <p className="text-[11px] font-black text-[var(--ink-hi)] leading-tight">
                         {selectedItemId === 'scr-1' ? 'Monitor 1 (Principal)' : 'Monitor 2 (Monitor Lateral)'}
                       </p>
-                      <p className="text-[8px] text-[var(--text-dim)]">
+                      <p className="text-[8px] text-[var(--ink-dim)]">
                         {selectedItemId === 'scr-1' 
                           ? 'Compartilhando Área de Trabalho com todos os aplicativos.' 
                           : 'Compartilhando Janelas de chat e monitoramento lateral.'}
                       </p>
                       <div className="flex gap-1.5 justify-center">
-                        <span className="text-[7px] bg-[var(--panel)] text-[var(--text-lo)] px-1.5 py-0.5 rounded font-mono">1920x1080</span>
+                        <span className="text-[7px] bg-[var(--panel)] text-[var(--ink-lo)] px-1.5 py-0.5 rounded font-mono">1920x1080</span>
                         <span className="text-[7px] bg-blue-500/15 text-blue-400 px-1.5 py-0.5 rounded font-mono">60 FPS</span>
                       </div>
                     </div>
@@ -1075,7 +1075,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                       <div className="flex justify-between items-center border-b border-orange-500/20 pb-2 mb-2 shrink-0">
                         <div className="flex items-center gap-1.5 overflow-hidden">
                           <span className="p-0.5 px-1.5 rounded bg-orange-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">PDF</span>
-                          <span className="text-[10px] font-bold text-[var(--text-hi)] truncate max-w-[120px]">{uploadedFileName || 'Plano_de_Marketing_2026.pdf'}</span>
+                          <span className="text-[10px] font-bold text-[var(--ink-hi)] truncate max-w-[120px]">{uploadedFileName || 'Plano_de_Marketing_2026.pdf'}</span>
                         </div>
                         <span className="text-[8px] text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 shrink-0 uppercase">Pág. {pdfPreviewPage} de 12</span>
                       </div>
@@ -1085,7 +1085,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           type="button"
                           onClick={() => setPdfPreviewPage(prev => Math.max(1, prev - 1))}
                           disabled={pdfPreviewPage === 1}
-                          className={`absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--text-hi)] transition-all shadow z-10 ${
+                          className={`absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--ink-hi)] transition-all shadow z-10 ${
                             pdfPreviewPage === 1 ? 'opacity-20 cursor-not-allowed' : 'opacity-100 cursor-pointer'
                           }`}
                         >
@@ -1096,7 +1096,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           type="button"
                           onClick={() => setPdfPreviewPage(prev => Math.min(12, prev + 1))}
                           disabled={pdfPreviewPage === 12}
-                          className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--text-hi)] transition-all shadow z-10 ${
+                          className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--ink-hi)] transition-all shadow z-10 ${
                             pdfPreviewPage === 12 ? 'opacity-20 cursor-not-allowed' : 'opacity-100 cursor-pointer'
                           }`}
                         >
@@ -1119,7 +1119,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             {pdfPreviewPage === 12 && "Conclusão & Próximos Passos"}
                           </span>
 
-                          <h3 className="text-[11px] font-black text-[var(--text-hi)] tracking-tight leading-snug">
+                          <h3 className="text-[11px] font-black text-[var(--ink-hi)] tracking-tight leading-snug">
                             {pdfPreviewPage === 1 && "Estratégia de Expansão Global Vega6"}
                             {pdfPreviewPage === 2 && "Maximização de Engajamento & Retenção"}
                             {pdfPreviewPage === 3 && "Análise Demográfica do Público-Alvo"}
@@ -1134,7 +1134,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             {pdfPreviewPage === 12 && "Sessão de Perguntas & Respostas (Q&A)"}
                           </h3>
 
-                          <p className="text-[9px] text-[var(--text-lo)] max-w-md mx-auto leading-normal">
+                          <p className="text-[9px] text-[var(--ink-lo)] max-w-md mx-auto leading-normal">
                             {pdfPreviewPage === 1 && "Bem-vindo à apresentação executiva do plano de aceleração corporativa para o ano de 2026."}
                             {pdfPreviewPage === 2 && "Foco absoluto em diminuir o Churn rate e expandir o Net Promoter Score por meio de ferramentas interativas."}
                             {pdfPreviewPage === 3 && "Identificação dos segmentos de usuários com maior propensão de conversão para planos anuais."}
@@ -1151,7 +1151,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                         </div>
                       </div>
 
-                      <div className="text-[8px] text-[var(--text-dim)] text-center font-mono uppercase tracking-wide shrink-0">
+                      <div className="text-[8px] text-[var(--ink-dim)] text-center font-mono uppercase tracking-wide shrink-0">
                         Navegação rápida habilitada
                       </div>
                     </div>
@@ -1163,7 +1163,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                       <div className="flex justify-between items-center border-b border-emerald-500/20 pb-2 mb-2 shrink-0">
                         <div className="flex items-center gap-1.5 overflow-hidden">
                           <span className="p-0.5 px-1.5 rounded bg-emerald-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">VÍDEO</span>
-                          <span className="text-[10px] font-bold text-[var(--text-hi)] truncate max-w-[150px]">{uploadedFileName || 'Apresentação_Institucional.mp4'}</span>
+                          <span className="text-[10px] font-bold text-[var(--ink-hi)] truncate max-w-[150px]">{uploadedFileName || 'Apresentação_Institucional.mp4'}</span>
                         </div>
                         <span className="text-[8px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 shrink-0 uppercase flex items-center gap-1">
                           <span className="w-1 h-1 rounded-full bg-emerald-400 animate-ping" />
@@ -1207,7 +1207,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                                 <button
                                   type="button"
                                   onClick={togglePlay}
-                                  className="text-[var(--text-hi)] hover:text-emerald-400 transition-colors p-1 bg-[var(--surface)]/60 rounded-full cursor-pointer"
+                                  className="text-[var(--ink-hi)] hover:text-emerald-400 transition-colors p-1 bg-[var(--surface)]/60 rounded-full cursor-pointer"
                                   title={videoPlaying ? "Pausar" : "Reproduzir"}
                                 >
                                   {videoPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
@@ -1217,19 +1217,19 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                                 <button
                                   type="button"
                                   onClick={toggleMute}
-                                  className="text-[var(--text)] hover:text-emerald-400 transition-colors p-1 cursor-pointer"
+                                  className="text-[var(--ink)] hover:text-emerald-400 transition-colors p-1 cursor-pointer"
                                   title={videoMuted ? "Ativar Áudio" : "Mudar para Mudo"}
                                 >
                                   {videoMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
                                 </button>
 
                                 {/* Time display */}
-                                <span className="text-[9px] font-mono font-medium text-[var(--text)] select-none">
+                                <span className="text-[9px] font-mono font-medium text-[var(--ink)] select-none">
                                   {formatVideoTime(videoCurrentTime)} / {formatVideoTime(videoDuration)}
                                 </span>
                               </div>
 
-                              <span className="text-[7px] font-mono text-[var(--text-dim)] uppercase tracking-widest bg-[var(--bg)] px-1.5 py-0.5 rounded border border-[var(--line)]">
+                              <span className="text-[7px] font-mono text-[var(--ink-dim)] uppercase tracking-widest bg-[var(--bg)] px-1.5 py-0.5 rounded border border-[var(--line)]">
                                 player ativo
                               </span>
                             </div>
@@ -1248,15 +1248,15 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                         </div>
                       ) : (
                         <div className="flex-1 border border-dashed border-[var(--line)] rounded-lg flex flex-col items-center justify-center text-center p-4 bg-[var(--bg)]/40">
-                          <div className="w-10 h-10 rounded-full bg-[var(--surface)] flex items-center justify-center border border-[var(--line)] text-[var(--text-dim)] mb-2">
+                          <div className="w-10 h-10 rounded-full bg-[var(--surface)] flex items-center justify-center border border-[var(--line)] text-[var(--ink-dim)] mb-2">
                             <Video size={16} />
                           </div>
-                          <p className="text-[10px] font-bold text-[var(--text)]">Nenhum vídeo selecionado</p>
-                          <p className="text-[8px] text-[var(--text-dim)] max-w-[160px] mt-1 leading-normal">Carregue um clipe local ou selecione o vídeo de demonstração ao lado para pré-visualizar.</p>
+                          <p className="text-[10px] font-bold text-[var(--ink)]">Nenhum vídeo selecionado</p>
+                          <p className="text-[8px] text-[var(--ink-dim)] max-w-[160px] mt-1 leading-normal">Carregue um clipe local ou selecione o vídeo de demonstração ao lado para pré-visualizar.</p>
                         </div>
                       )}
 
-                      <div className="text-[8px] text-[var(--text-dim)] text-center font-mono uppercase tracking-wide shrink-0 mt-2">
+                      <div className="text-[8px] text-[var(--ink-dim)] text-center font-mono uppercase tracking-wide shrink-0 mt-2">
                         Controles interativos habilitados
                       </div>
                     </div>
@@ -1265,27 +1265,27 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                   {/* General Fallback for other items */}
                   {![ 'tab-2', 'tab-3', 'tab-6', 'win-4', 'scr-1', 'scr-2' ].includes(selectedItemId) && activeTab !== 'pdf' && activeTab !== 'video' && (
                     <div className="space-y-1.5">
-                      <div className="text-[var(--text-dim)] text-xl">🖥️</div>
-                      <p className="text-[11px] font-bold text-[var(--text-hi)] truncate max-w-[180px] mx-auto">{getSelectedItemName()}</p>
-                      <p className="text-[8px] text-[var(--text-dim)]">Transmissão em tempo real ativa disponível.</p>
+                      <div className="text-[var(--ink-dim)] text-xl">🖥️</div>
+                      <p className="text-[11px] font-bold text-[var(--ink-hi)] truncate max-w-[180px] mx-auto">{getSelectedItemName()}</p>
+                      <p className="text-[8px] text-[var(--ink-dim)]">Transmissão em tempo real ativa disponível.</p>
                     </div>
                   )}
 
                 </div>
 
                 {/* Simulated Bottom strip */}
-                <div className="bg-[var(--bg)] px-3 py-1.5 border-t border-[var(--line)]/80 text-[8px] text-[var(--text-dim)] text-center uppercase tracking-wider font-bold">
+                <div className="bg-[var(--bg)] px-3 py-1.5 border-t border-[var(--line)]/80 text-[8px] text-[var(--ink-dim)] text-center uppercase tracking-wider font-bold">
                   Clique em Compartilhar para transmitir para o Estúdio
                 </div>
 
               </div>
             ) : (
               <div className="w-full h-full border border-dashed border-[var(--line)] rounded-2xl flex flex-col items-center justify-center text-center p-6 bg-[var(--bg)]/30">
-                <div className="w-12 h-12 rounded-full bg-[var(--surface)] flex items-center justify-center text-[var(--text-dim)] border border-[var(--line)] mb-3">
+                <div className="w-12 h-12 rounded-full bg-[var(--surface)] flex items-center justify-center text-[var(--ink-dim)] border border-[var(--line)] mb-3">
                   <Monitor size={20} />
                 </div>
-                <p className="text-xs font-bold text-[var(--text)]">Selecione uma opção ao lado</p>
-                <p className="text-[10px] text-[var(--text-dim)] max-w-[180px] mt-1.5 leading-normal">
+                <p className="text-xs font-bold text-[var(--ink)]">Selecione uma opção ao lado</p>
+                <p className="text-[10px] text-[var(--ink-dim)] max-w-[180px] mt-1.5 leading-normal">
                   Escolha qual guia, janela, monitor, PDF ou vídeo deseja visualizar no estúdio de gravação.
                 </p>
               </div>
@@ -1299,7 +1299,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
           
           <div className="flex flex-wrap items-center gap-5">
             {/* Audio toggle */}
-            <label className="flex items-center gap-2.5 cursor-pointer text-[var(--text-lo)] hover:text-[var(--text-hi)] transition-all shrink-0">
+            <label className="flex items-center gap-2.5 cursor-pointer text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-all shrink-0">
               <input
                 type="checkbox"
                 checked={audioShared}
@@ -1316,7 +1316,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
             {/* Capture Quality Options */}
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex flex-col gap-0.5">
-                <span className="text-[8px] text-[var(--text-dim)] font-extrabold uppercase tracking-wider">Resolução</span>
+                <span className="text-[8px] text-[var(--ink-dim)] font-extrabold uppercase tracking-wider">Resolução</span>
                 <div className="flex bg-[var(--bg)]/80 rounded-lg p-0.5 border border-[var(--line)]/80">
                   <button
                     type="button"
@@ -1324,7 +1324,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                     className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
                       resolution === '720p' 
                         ? 'bg-blue-600 text-white shadow' 
-                        : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                        : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                     }`}
                     id="opt-res-720"
                   >
@@ -1336,7 +1336,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                     className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
                       resolution === '1080p' 
                         ? 'bg-blue-600 text-white shadow' 
-                        : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                        : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                     }`}
                     id="opt-res-1080"
                   >
@@ -1346,7 +1346,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
               </div>
 
               <div className="flex flex-col gap-0.5">
-                <span className="text-[8px] text-[var(--text-dim)] font-extrabold uppercase tracking-wider">Taxa de Quadros</span>
+                <span className="text-[8px] text-[var(--ink-dim)] font-extrabold uppercase tracking-wider">Taxa de Quadros</span>
                 <div className="flex bg-[var(--bg)]/80 rounded-lg p-0.5 border border-[var(--line)]/80">
                   <button
                     type="button"
@@ -1354,7 +1354,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                     className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
                       frameRate === '30fps' 
                         ? 'bg-blue-600 text-white shadow' 
-                        : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                        : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                     }`}
                     id="opt-fps-30"
                   >
@@ -1366,7 +1366,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                     className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
                       frameRate === '60fps' 
                         ? 'bg-blue-600 text-white shadow' 
-                        : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                        : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                     }`}
                     id="opt-fps-60"
                   >
@@ -1382,7 +1382,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)] transition-all border border-[var(--line)] cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)] transition-all border border-[var(--line)] cursor-pointer"
               id="btn-cancel-picker"
             >
               Cancelar
@@ -1395,7 +1395,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
               className={`px-5 py-2 rounded-xl text-xs font-bold text-white transition-all cursor-pointer ${
                 selectedItemId 
                   ? 'bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/10 hover:scale-[1.02] active:scale-[0.98]' 
-                  : 'bg-[var(--panel)] text-[var(--text-dim)] cursor-not-allowed'
+                  : 'bg-[var(--panel)] text-[var(--ink-dim)] cursor-not-allowed'
               }`}
               id="btn-confirm-share"
             >

@@ -24,13 +24,13 @@ export function InviteModal({ isOpen, onClose, inviteUrl }: InviteModalProps) {
         
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[var(--line)] bg-[var(--bg)]">
-          <h3 className="text-sm font-bold text-[var(--text-hi)] flex items-center gap-2">
+          <h3 className="text-sm font-bold text-[var(--ink-hi)] flex items-center gap-2">
             <Globe size={16} className="text-blue-400" />
             Convidar Co-palestrantes ou Convidados
           </h3>
           <button 
             onClick={onClose}
-            className="text-[var(--text-lo)] hover:text-[var(--text-hi)] p-1 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
+            className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-1 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -38,7 +38,7 @@ export function InviteModal({ isOpen, onClose, inviteUrl }: InviteModalProps) {
 
         {/* Body */}
         <div className="p-6 space-y-4">
-          <p className="text-xs text-[var(--text-lo)] leading-relaxed">
+          <p className="text-xs text-[var(--ink-lo)] leading-relaxed">
             Compartilhe o link abaixo com seus convidados. Eles poderão entrar no estúdio de transmissão com webcam e microfone diretamente pelo navegador, sem precisar instalar nada!
           </p>
 
@@ -49,7 +49,7 @@ export function InviteModal({ isOpen, onClose, inviteUrl }: InviteModalProps) {
                 type="text"
                 readOnly
                 value={inviteUrl}
-                className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2.5 text-xs font-mono text-[var(--text)] focus:outline-none select-all"
+                className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2.5 text-xs font-mono text-[var(--ink)] focus:outline-none select-all"
               />
               <button
                 onClick={handleCopyStudio}
@@ -72,7 +72,7 @@ export function InviteModal({ isOpen, onClose, inviteUrl }: InviteModalProps) {
             </div>
           </div>
 
-          <div className="bg-[var(--bg)] border border-[var(--line)]/40 p-3 rounded-xl text-[10px] text-[var(--text-lo)]">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/40 p-3 rounded-xl text-[10px] text-[var(--ink-lo)]">
             💡 <b>Dica do Estúdio</b>: Você pode adicionar até 4 convidados simultâneos no palco de transmissão usando o layout em grade (Bento) ou splits.
           </div>
         </div>
@@ -81,7 +81,7 @@ export function InviteModal({ isOpen, onClose, inviteUrl }: InviteModalProps) {
         <div className="bg-[var(--bg)]/50 p-4 border-t border-[var(--line)] flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-xs font-semibold rounded-lg text-[var(--text-hi)] transition-all cursor-pointer"
+            className="px-4 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-xs font-semibold rounded-lg text-[var(--ink-hi)] transition-all cursor-pointer"
           >
             Fechar
           </button>

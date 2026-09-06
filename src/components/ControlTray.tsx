@@ -269,7 +269,7 @@ export function ControlTray({
       {/* 1. Left side: Studio Status Indicator (Hidden on small mobile screens) */}
       <div className="hidden sm:flex items-center gap-1.5 md:gap-2 shrink-0">
         <span className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full animate-pulse ${isLive ? 'bg-red-500' : 'bg-[var(--color-brand-deep)]'}`}></span>
-        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider text-[var(--text-lo)]">
+        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider text-[var(--ink-lo)]">
           {isLive ? 'LIVE' : 'PRONTO'}
         </span>
       </div>
@@ -288,7 +288,7 @@ export function ControlTray({
               className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                 isCamStopped 
                   ? 'bg-red-600 text-white shadow-md' 
-                  : 'text-[var(--text)] hover:text-[var(--text-hi)]'
+                  : 'text-[var(--ink)] hover:text-[var(--ink-hi)]'
               }`}
               title={isCamStopped ? "Ativar Câmera" : "Desativar Câmera"}
             >
@@ -298,7 +298,7 @@ export function ControlTray({
             {/* Chevron Dropdown trigger */}
             <button
               onClick={() => setIsCamDropdownOpen(!isCamDropdownOpen)}
-              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-[var(--text-dim)] hover:text-[var(--text-hi)] transition-all border-l border-[var(--line)]/80 pr-0.5 cursor-pointer"
+              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-[var(--ink-dim)] hover:text-[var(--ink-hi)] transition-all border-l border-[var(--line)]/80 pr-0.5 cursor-pointer"
               title="Escolher Câmera"
             >
               <ChevronUp size={9} className={`transition-transform duration-200 ${isCamDropdownOpen ? 'rotate-180' : ''}`} />
@@ -309,7 +309,7 @@ export function ControlTray({
           {isCamDropdownOpen && (
             <div className="absolute bottom-12 sm:bottom-14 left-0 z-50 w-72 sm:w-80 bg-[var(--panel)] border border-[var(--line-ctl)]/80 rounded-xl shadow-2xl p-2 text-left mb-1">
               <div className="flex items-center justify-between px-2 py-1 border-b border-[var(--line)]/80 mb-1">
-                <span className="text-[10px] uppercase font-bold text-[var(--text-lo)]">Câmera</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--ink-lo)]">Câmera</span>
                 {!permissionsGranted && (
                   <button 
                     onClick={requestBrowserAccess}
@@ -335,7 +335,7 @@ export function ControlTray({
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors ${
                         isSelected 
                           ? 'bg-blue-500 text-white font-bold' 
-                          : 'text-[var(--text)] hover:bg-[var(--panel)]'
+                          : 'text-[var(--ink)] hover:bg-[var(--panel)]'
                       }`}
                     >
                       <span className="truncate pr-2 flex items-center gap-1.5">
@@ -343,7 +343,7 @@ export function ControlTray({
                         {source.isReal ? (
                           <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/20 shrink-0">Real</span>
                         ) : (
-                          <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-[var(--panel)] text-[var(--text-dim)] border border-[var(--line-ctl)]/40 shrink-0">Simulado</span>
+                          <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-[var(--panel)] text-[var(--ink-dim)] border border-[var(--line-ctl)]/40 shrink-0">Simulado</span>
                         )}
                       </span>
                       {isSelected && <Check size={12} className="shrink-0" />}
@@ -378,7 +378,7 @@ export function ControlTray({
             {/* Chevron Dropdown trigger */}
             <button
               onClick={() => setIsMicDropdownOpen(!isMicDropdownOpen)}
-              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-[var(--text-dim)] hover:text-[var(--text-hi)] transition-all border-l border-[var(--line)]/80 pr-0.5 cursor-pointer"
+              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-[var(--ink-dim)] hover:text-[var(--ink-hi)] transition-all border-l border-[var(--line)]/80 pr-0.5 cursor-pointer"
               title="Escolher Microfone"
             >
               <ChevronUp size={9} className={`transition-transform duration-200 ${isMicDropdownOpen ? 'rotate-180' : ''}`} />
@@ -389,7 +389,7 @@ export function ControlTray({
           {isMicDropdownOpen && (
             <div className="absolute bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-50 w-72 sm:w-80 bg-[var(--panel)] border border-[var(--line-ctl)]/80 rounded-xl shadow-2xl p-2 text-left mb-1">
               <div className="flex items-center justify-between px-2 py-1 border-b border-[var(--line)]/80 mb-1">
-                <span className="text-[10px] uppercase font-bold text-[var(--text-lo)]">Microfone</span>
+                <span className="text-[10px] uppercase font-bold text-[var(--ink-lo)]">Microfone</span>
                 {!permissionsGranted && (
                   <button 
                     onClick={requestBrowserAccess}
@@ -403,7 +403,7 @@ export function ControlTray({
               {/* VU Meter */}
               <div className="p-2 bg-[var(--bg)] border border-[var(--line)] rounded-lg mb-2 mx-1 select-none">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[8px] font-black tracking-wider text-[var(--text-lo)] flex items-center gap-1.5">
+                  <span className="text-[8px] font-black tracking-wider text-[var(--ink-lo)] flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                     VU METER
                   </span>
@@ -430,7 +430,7 @@ export function ControlTray({
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors ${
                         isSelected 
                           ? 'bg-blue-500 text-white font-bold' 
-                          : 'text-[var(--text)] hover:bg-[var(--panel)]'
+                          : 'text-[var(--ink)] hover:bg-[var(--panel)]'
                       }`}
                     >
                       <span className="truncate pr-2 flex items-center gap-1.5">
@@ -438,7 +438,7 @@ export function ControlTray({
                         {source.isReal ? (
                           <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/20 shrink-0">Real</span>
                         ) : (
-                          <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-[var(--panel)] text-[var(--text-dim)] border border-[var(--line-ctl)]/40 shrink-0">Simulado</span>
+                          <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-[var(--panel)] text-[var(--ink-dim)] border border-[var(--line-ctl)]/40 shrink-0">Simulado</span>
                         )}
                       </span>
                       {isSelected && <Check size={12} className="shrink-0" />}
@@ -467,13 +467,13 @@ export function ControlTray({
               }`}
               title={isScreenSharing ? "Parar Compartilhamento" : "Escolher o que compartilhar"}
             >
-              <Monitor size={14} className={isScreenSharing ? 'text-[var(--text-hi)] sm:w-4 sm:h-4' : 'text-blue-400 sm:w-4 sm:h-4'} />
+              <Monitor size={14} className={isScreenSharing ? 'text-[var(--ink-hi)] sm:w-4 sm:h-4' : 'text-blue-400 sm:w-4 sm:h-4'} />
             </button>
 
             {/* Chevron trigger */}
             <button
               onClick={() => setIsShareMenuOpen(!isShareMenuOpen)}
-              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-[var(--text-dim)] hover:text-[var(--text-hi)] transition-all border-l border-[var(--line)]/80 pr-0.5 cursor-pointer"
+              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-[var(--ink-dim)] hover:text-[var(--ink-hi)] transition-all border-l border-[var(--line)]/80 pr-0.5 cursor-pointer"
               title="Opções extras"
             >
               <ChevronUp size={9} className={`transition-transform duration-200 ${isShareMenuOpen ? 'rotate-180' : ''}`} />
@@ -490,7 +490,7 @@ export function ControlTray({
                   onToggleScreenShare('screen');
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--text-hi)] transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--ink-hi)] transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-2.5">
                   <Monitor size={15} className="text-blue-400" />
@@ -505,7 +505,7 @@ export function ControlTray({
                   onToggleScreenShare('pdf');
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--text-hi)] hover:text-[var(--text-hi)] transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--ink-hi)] hover:text-[var(--ink-hi)] transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-2.5">
                   <Tv size={15} className="text-indigo-400" />
@@ -521,7 +521,7 @@ export function ControlTray({
                   onToggleScreenShare('video');
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--text-hi)] hover:text-[var(--text-hi)] transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--ink-hi)] hover:text-[var(--ink-hi)] transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-2.5">
                   <Film size={15} className="text-emerald-400" />
@@ -536,7 +536,7 @@ export function ControlTray({
                   window.dispatchEvent(new CustomEvent('switch-studio-subtab', { detail: { tab: 'audios' } }));
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-2.5 p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--text)] hover:text-[var(--text-hi)] transition-colors border-t border-[var(--line)] mt-1 pt-2 cursor-pointer"
+                className="w-full flex items-center gap-2.5 p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--ink)] hover:text-[var(--ink-hi)] transition-colors border-t border-[var(--line)] mt-1 pt-2 cursor-pointer"
               >
                 <Volume2 size={15} className="text-pink-400" />
                 <span>Background Audio</span>
@@ -550,10 +550,10 @@ export function ControlTray({
         <div className="relative shrink-0">
           <button
             onClick={onInviteOpen}
-            className="w-8.5 h-8.5 sm:w-9 sm:h-9 md:w-9.5 md:h-9.5 rounded-full bg-[var(--well)] hover:bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:text-[var(--text-hi)] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-md"
+            className="w-8.5 h-8.5 sm:w-9 sm:h-9 md:w-9.5 md:h-9.5 rounded-full bg-[var(--well)] hover:bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:text-[var(--ink-hi)] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-md"
             title="Convidar Participante para o Estúdio"
           >
-            <UserPlus size={14} className="sm:w-4 sm:h-4 text-[var(--text)]" />
+            <UserPlus size={14} className="sm:w-4 sm:h-4 text-[var(--ink)]" />
           </button>
         </div>
 
@@ -566,7 +566,7 @@ export function ControlTray({
                 ? 'bg-red-600 border-red-500 text-white animate-pulse' 
                 : isTrialExpired
                   ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
-                  : 'bg-transparent border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
+                  : 'bg-transparent border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:border-[var(--line-ctl)]'
             }`}
             title={isRecording ? "Parar Gravação Local" : isTrialExpired ? "Gravação restrita - Assine um plano para gravar transmissões" : "Iniciar Gravação Local"}
           >
@@ -574,12 +574,12 @@ export function ControlTray({
               <Lock size={11} className="text-amber-400" />
             ) : (
               <div className="relative flex items-center justify-center">
-                <Disc size={13} className={isRecording ? 'animate-spin text-[var(--text-hi)]' : ''} />
+                <Disc size={13} className={isRecording ? 'animate-spin text-[var(--ink-hi)]' : ''} />
                 <span className={`absolute w-1 h-1 rounded-full ${isRecording ? 'bg-white' : 'bg-red-500'}`}></span>
               </div>
             )}
           </button>
-          <span className={`text-[9px] sm:text-[10px] font-mono font-bold tracking-wider ${isRecording ? 'text-red-500 font-extrabold' : isTrialExpired ? 'text-amber-400 font-semibold' : 'text-[var(--text-lo)]'}`}>
+          <span className={`text-[9px] sm:text-[10px] font-mono font-bold tracking-wider ${isRecording ? 'text-red-500 font-extrabold' : isTrialExpired ? 'text-amber-400 font-semibold' : 'text-[var(--ink-lo)]'}`}>
             {isRecording ? formatRecordingTime(recordingTime) : isTrialExpired ? 'REC 🔒' : 'RECORD'}
           </span>
         </div>
@@ -588,7 +588,7 @@ export function ControlTray({
 
       {/* 3. Right side: Stream Quality indicator */}
       <div className="shrink-0 text-right hidden md:block space-y-0.5">
-        <span className="text-[10px] text-[var(--text-dim)] font-mono tracking-widest uppercase block">HD 1080P • 60 FPS</span>
+        <span className="text-[10px] text-[var(--ink-dim)] font-mono tracking-widest uppercase block">HD 1080P • 60 FPS</span>
         <span className="text-[9px] text-green-400 font-bold bg-green-500/10 px-2 py-0.5 rounded uppercase tracking-wider block">AUTO-PIPELINE SECURE</span>
       </div>
 

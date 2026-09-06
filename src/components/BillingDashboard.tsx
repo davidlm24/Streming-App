@@ -373,16 +373,16 @@ Suporte Técnico: suporte@pwstreamer.com
           >
             <ArrowLeft size={14} /> Voltar para o Dashboard
           </button>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-hi)] flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--ink-hi)] flex items-center gap-2">
             <Settings size={26} className="text-blue-500" /> 
             Configurações da Conta
           </h1>
-          <p className="text-sm text-[var(--text-lo)] mt-1">Gerencie suas informações cadastrais, consulte faturamento e mude seu plano de assinatura.</p>
+          <p className="text-sm text-[var(--ink-lo)] mt-1">Gerencie suas informações cadastrais, consulte faturamento e mude seu plano de assinatura.</p>
         </div>
 
         <button
           onClick={onBackToDashboard}
-          className="px-5 py-2.5 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-[var(--text)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)] font-bold text-xs transition-all cursor-pointer"
+          className="px-5 py-2.5 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-[var(--ink)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)] font-bold text-xs transition-all cursor-pointer"
         >
           Ir para Estúdio
         </button>
@@ -410,7 +410,7 @@ Suporte Técnico: suporte@pwstreamer.com
               className={`flex items-center gap-2 px-5 py-3 text-xs font-bold transition-all border-b-2 shrink-0 ${
                 isActive 
                   ? 'border-blue-500 text-blue-400 font-extrabold bg-blue-500/5 rounded-t-xl' 
-                  : 'border-transparent text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
+                  : 'border-transparent text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:border-[var(--line-ctl)]'
               } cursor-pointer`}
             >
               <Icon size={14} />
@@ -427,8 +427,8 @@ Suporte Técnico: suporte@pwstreamer.com
             <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold border border-blue-500/20 inline-flex items-center gap-1.5">
               <Sparkles size={14} /> Cresça seu Público e Multiplique Canais
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-hi)]">Escolha o plano ideal para suas transmissões</h2>
-            <p className="text-xs sm:text-sm text-[var(--text-lo)]">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--ink-hi)]">Escolha o plano ideal para suas transmissões</h2>
+            <p className="text-xs sm:text-sm text-[var(--ink-lo)]">
               Gerencie destinos simultâneos no YouTube, Facebook, Twitch e links RTMP customizados sem limite de tempo e com qualidade Full HD.
             </p>
 
@@ -436,13 +436,13 @@ Suporte Técnico: suporte@pwstreamer.com
             <div className="inline-flex items-center gap-2 p-1 bg-[var(--surface)] border border-[var(--line)] rounded-xl mt-4">
               <button 
                 onClick={() => setIsAnnual(false)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}
               >
                 Mensal
               </button>
               <button 
                 onClick={() => setIsAnnual(true)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}
               >
                 Anual <span className="text-[9px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/10 font-bold">Economize 20%</span>
               </button>
@@ -468,7 +468,7 @@ Suporte Técnico: suporte@pwstreamer.com
                     <span className={`absolute -top-3 right-4 px-2.5 py-1 text-[9px] font-black uppercase rounded-full border ${
                       plan.popular 
                         ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' 
-                        : 'bg-[var(--panel)] text-[var(--text-lo)] border-[var(--line-ctl)]'
+                        : 'bg-[var(--panel)] text-[var(--ink-lo)] border-[var(--line-ctl)]'
                     }`}>
                       {plan.badge}
                     </span>
@@ -476,13 +476,13 @@ Suporte Técnico: suporte@pwstreamer.com
 
                   <div className="space-y-4 text-left">
                     <div>
-                      <h3 className="text-lg font-bold text-[var(--text-hi)]">{plan.name}</h3>
-                      <p className="text-xs text-[var(--text-lo)] mt-1 min-h-[32px]">{plan.description}</p>
+                      <h3 className="text-lg font-bold text-[var(--ink-hi)]">{plan.name}</h3>
+                      <p className="text-xs text-[var(--ink-lo)] mt-1 min-h-[32px]">{plan.description}</p>
                     </div>
 
                     <div className="py-2.5 border-y border-[var(--line)]/60">
-                      <span className="text-3xl font-black text-[var(--text-hi)] font-mono">${price}</span>
-                      <span className="text-xs text-[var(--text-lo)] font-semibold"> /mês</span>
+                      <span className="text-3xl font-black text-[var(--ink-hi)] font-mono">${price}</span>
+                      <span className="text-xs text-[var(--ink-lo)] font-semibold"> /mês</span>
                       {isAnnual && <p className="text-[10px] text-green-400 mt-0.5">Cobrado anualmente (${price * 12}/ano)</p>}
                     </div>
 
@@ -494,7 +494,7 @@ Suporte Técnico: suporte@pwstreamer.com
                           ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 cursor-default'
                           : plan.popular
                             ? 'bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white shadow-lg shadow-blue-950/20'
-                            : 'bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-[var(--text-hi)]'
+                            : 'bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-[var(--ink-hi)]'
                       }`}
                     >
                       {isCurrentActivePlan ? 'Plano Atual Ativo' : 'Assinar Plano'}
@@ -502,11 +502,11 @@ Suporte Técnico: suporte@pwstreamer.com
 
                     {/* Features block */}
                     <div className="pt-4 space-y-2.5">
-                      <p className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-wide">Recursos incluídos:</p>
+                      <p className="text-[10px] uppercase font-bold text-[var(--ink-dim)] tracking-wide">Recursos incluídos:</p>
                       {plan.features.map((feat, idx) => (
                         <div key={idx} className="flex items-start gap-2 text-xs">
                           <Check size={14} className="text-blue-500 mt-0.5 shrink-0" />
-                          <span className="text-[var(--text)] leading-tight">{feat}</span>
+                          <span className="text-[var(--ink)] leading-tight">{feat}</span>
                         </div>
                       ))}
                     </div>
@@ -518,12 +518,12 @@ Suporte Técnico: suporte@pwstreamer.com
 
           <div className="bg-[var(--bg)] border border-[var(--line)]/60 rounded-2xl p-5 text-left flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="space-y-1">
-              <span className="px-2 py-0.5 bg-[var(--panel)] text-[var(--text-lo)] rounded text-[9px] uppercase font-bold">Seu plano atual</span>
-              <p className="text-sm font-bold text-[var(--text-hi)]">
+              <span className="px-2 py-0.5 bg-[var(--panel)] text-[var(--ink-lo)] rounded text-[9px] uppercase font-bold">Seu plano atual</span>
+              <p className="text-sm font-bold text-[var(--ink-hi)]">
                 PwStreamer {user ? user.plan : 'Trial'}
                 {user?.plan === 'Free Trial' ? ` (${user.trialDays} dias restantes)` : ' - Acesso Completo'}
               </p>
-              <p className="text-xs text-[var(--text-dim)]">Seu plano é cobrado de forma automática e transparente. Cancele ou alterne a qualquer momento.</p>
+              <p className="text-xs text-[var(--ink-dim)]">Seu plano é cobrado de forma automática e transparente. Cancele ou alterne a qualquer momento.</p>
             </div>
             {user?.plan !== 'Free Trial' && (
               <button 
@@ -545,7 +545,7 @@ Suporte Técnico: suporte@pwstreamer.com
         <div className="max-w-xl mx-auto bg-[var(--surface)] border border-[var(--line)] rounded-2xl overflow-hidden shadow-2xl text-left animate-in zoom-in-95 duration-150">
           
           {/* Checkout Steps Indicator */}
-          <div className="grid grid-cols-3 bg-[var(--bg)] border-b border-[var(--line)] text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-dim)]">
+          <div className="grid grid-cols-3 bg-[var(--bg)] border-b border-[var(--line)] text-center text-[10px] font-bold uppercase tracking-wider text-[var(--ink-dim)]">
             <div className={`py-3 ${checkoutStep === 'gateway' ? 'text-blue-400 border-b-2 border-blue-500 bg-blue-500/5' : ''}`}>
               1. Meio de Pagamento
             </div>
@@ -562,8 +562,8 @@ Suporte Técnico: suporte@pwstreamer.com
             <div className="p-6 space-y-6">
               <div className="space-y-1.5">
                 <span className="text-[10px] text-blue-400 uppercase font-black tracking-wider">Passo 1</span>
-                <h3 className="text-lg font-bold text-[var(--text-hi)]">Como deseja pagar sua assinatura?</h3>
-                <p className="text-xs text-[var(--text-lo)]">Trabalhamos com os gateways mais seguros do mercado nacional e internacional.</p>
+                <h3 className="text-lg font-bold text-[var(--ink-hi)]">Como deseja pagar sua assinatura?</h3>
+                <p className="text-xs text-[var(--ink-lo)]">Trabalhamos com os gateways mais seguros do mercado nacional e internacional.</p>
               </div>
 
               {/* Gateway selector buttons */}
@@ -583,8 +583,8 @@ Suporte Técnico: suporte@pwstreamer.com
                       Stripe
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-[var(--text-hi)]">Stripe Checkout</p>
-                      <p className="text-[10px] text-[var(--text-lo)]">Pague com cartão de crédito internacional e aprovação instantânea.</p>
+                      <p className="text-xs font-bold text-[var(--ink-hi)]">Stripe Checkout</p>
+                      <p className="text-[10px] text-[var(--ink-lo)]">Pague com cartão de crédito internacional e aprovação instantânea.</p>
                     </div>
                   </div>
                   <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedGateway === 'stripe' ? 'border-blue-500 bg-blue-500' : 'border-[var(--line-ctl)]'}`}>
@@ -607,8 +607,8 @@ Suporte Técnico: suporte@pwstreamer.com
                       PayPal
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-[var(--text-hi)]">PayPal Checkout</p>
-                      <p className="text-[10px] text-[var(--text-lo)]">Pague direto de sua carteira PayPal via saldo ou cartão cadastrado.</p>
+                      <p className="text-xs font-bold text-[var(--ink-hi)]">PayPal Checkout</p>
+                      <p className="text-[10px] text-[var(--ink-lo)]">Pague direto de sua carteira PayPal via saldo ou cartão cadastrado.</p>
                     </div>
                   </div>
                   <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedGateway === 'paypal' ? 'border-blue-500 bg-blue-500' : 'border-[var(--line-ctl)]'}`}>
@@ -631,8 +631,8 @@ Suporte Técnico: suporte@pwstreamer.com
                       MPago
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-[var(--text-hi)]">Mercado Pago</p>
-                      <p className="text-[10px] text-[var(--text-lo)]">Pague via PIX nacional instantâneo ou cartão de crédito parcelado.</p>
+                      <p className="text-xs font-bold text-[var(--ink-hi)]">Mercado Pago</p>
+                      <p className="text-[10px] text-[var(--ink-lo)]">Pague via PIX nacional instantâneo ou cartão de crédito parcelado.</p>
                     </div>
                   </div>
                   <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${selectedGateway === 'mercadopago' ? 'border-blue-500 bg-blue-500' : 'border-[var(--line-ctl)]'}`}>
@@ -643,9 +643,9 @@ Suporte Técnico: suporte@pwstreamer.com
 
               {/* Order summary detail card */}
               <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--line)] space-y-2">
-                <div className="flex items-center justify-between text-xs font-semibold text-[var(--text-lo)]">
+                <div className="flex items-center justify-between text-xs font-semibold text-[var(--ink-lo)]">
                   <span>Plano selecionado:</span>
-                  <span className="text-[var(--text-hi)] font-bold">{selectedUpgradePlan} ({isAnnual ? 'Anual' : 'Mensal'})</span>
+                  <span className="text-[var(--ink-hi)] font-bold">{selectedUpgradePlan} ({isAnnual ? 'Anual' : 'Mensal'})</span>
                 </div>
                 <div className="flex items-center justify-between text-xs font-bold text-blue-400 border-t border-[var(--line)]/80 pt-2">
                   <span>Valor do faturamento:</span>
@@ -662,7 +662,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 <button
                   type="button"
                   onClick={() => setCheckoutStep('none')}
-                  className="py-3 bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-xs font-bold text-[var(--text-hi)] rounded-xl transition-all text-center"
+                  className="py-3 bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-xs font-bold text-[var(--ink-hi)] rounded-xl transition-all text-center"
                 >
                   Voltar para Planos
                 </button>
@@ -683,11 +683,11 @@ Suporte Técnico: suporte@pwstreamer.com
               
               <div className="flex justify-between items-center border-b border-[var(--line)] pb-3">
                 <div className="space-y-0.5">
-                  <h3 className="text-sm font-bold text-[var(--text-hi)] uppercase tracking-wider flex items-center gap-1">
+                  <h3 className="text-sm font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-1">
                     <Lock size={14} className="text-emerald-500" />
                     Pagamento {selectedGateway === 'stripe' ? 'Stripe' : selectedGateway === 'paypal' ? 'PayPal' : 'Mercado Pago'}
                   </h3>
-                  <p className="text-[11px] text-[var(--text-lo)]">Ambiente de Testes Sandbox Ativo</p>
+                  <p className="text-[11px] text-[var(--ink-lo)]">Ambiente de Testes Sandbox Ativo</p>
                 </div>
                 <button
                   type="button"
@@ -707,11 +707,11 @@ Suporte Técnico: suporte@pwstreamer.com
                       <Sparkles size={14} />
                       <span>Dados de Cartão de Testes Stripe</span>
                     </div>
-                    <p className="text-[10px] text-[var(--text-lo)]">
+                    <p className="text-[10px] text-[var(--ink-lo)]">
                       Utilize o cartão de testes abaixo para simular o faturamento real sem cobrar taxas:
                     </p>
                     <div className="flex items-center justify-between bg-[var(--bg)] p-2 rounded-lg text-[11px] font-mono border border-[var(--line)]/80">
-                      <span className="text-[var(--text-hi)]">Nº: 4242 4242 4242 4242 | CVV: 424 | MM/AA: 12/29</span>
+                      <span className="text-[var(--ink-hi)]">Nº: 4242 4242 4242 4242 | CVV: 424 | MM/AA: 12/29</span>
                       <button 
                         type="button"
                         onClick={handleUseStripeTestCard}
@@ -724,30 +724,30 @@ Suporte Técnico: suporte@pwstreamer.com
 
                   <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Número do Cartão</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
                       <input 
                         type="text" 
                         required
                         value={stripeCardNumber}
                         onChange={(e) => setStripeCardNumber(e.target.value)}
-                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-all"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Validade</label>
+                        <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
                         <input 
                           type="text" 
                           required
                           value={stripeExpiry}
                           onChange={(e) => setStripeExpiry(e.target.value)}
                           placeholder="MM/AA"
-                          className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-all"
+                          className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">CVC</label>
+                        <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
                         <input 
                           type="password" 
                           required
@@ -755,19 +755,19 @@ Suporte Técnico: suporte@pwstreamer.com
                           onChange={(e) => setStripeCvc(e.target.value)}
                           placeholder="424"
                           maxLength={4}
-                          className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-all"
+                          className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Nome do Titular</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Nome do Titular</label>
                       <input 
                         type="text" 
                         required
                         value={stripeCardName}
                         onChange={(e) => setStripeCardName(e.target.value.toUpperCase())}
-                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] uppercase focus:outline-none focus:border-blue-500 transition-all"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] uppercase focus:outline-none focus:border-blue-500 transition-all"
                       />
                     </div>
                   </div>
@@ -782,30 +782,30 @@ Suporte Técnico: suporte@pwstreamer.com
                       <Sparkles size={14} />
                       <span>Sandbox PayPal Integrado</span>
                     </div>
-                    <p className="text-[10px] text-[var(--text-lo)]">
+                    <p className="text-[10px] text-[var(--ink-lo)]">
                       Simule o login na sua carteira digital para aprovar a cobrança recorrente mensal:
                     </p>
                   </div>
 
                   <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3 text-left">
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">E-mail do Sandbox PayPal</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">E-mail do Sandbox PayPal</label>
                       <input 
                         type="email" 
                         required
                         value={paypalEmail}
                         onChange={(e) => setPaypalEmail(e.target.value)}
-                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--text-hi)] focus:outline-none"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Senha</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Senha</label>
                       <input 
                         type="password" 
                         required
                         value={paypalPassword}
                         onChange={(e) => setPaypalPassword(e.target.value)}
-                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--text-hi)] focus:outline-none"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
                       />
                     </div>
 
@@ -839,7 +839,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       type="button"
                       onClick={() => setMpMethod('pix')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'pix' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                        mpMethod === 'pix' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                       }`}
                     >
                       PIX Instantâneo
@@ -848,7 +848,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       type="button"
                       onClick={() => setMpMethod('card')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'card' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
+                        mpMethod === 'card' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                       }`}
                     >
                       Cartão Mercado Pago
@@ -863,8 +863,8 @@ Suporte Técnico: suporte@pwstreamer.com
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <p className="text-xs font-bold text-[var(--text-hi)]">Escaneie o QR Code PIX para Teste</p>
-                        <p className="text-[10px] text-[var(--text-lo)] max-w-sm mx-auto">
+                        <p className="text-xs font-bold text-[var(--ink-hi)]">Escaneie o QR Code PIX para Teste</p>
+                        <p className="text-[10px] text-[var(--ink-lo)] max-w-sm mx-auto">
                           A aprovação é simulada imediatamente ao confirmar o pagamento no botão inferior.
                         </p>
                       </div>
@@ -874,7 +874,7 @@ Suporte Técnico: suporte@pwstreamer.com
                           type="text" 
                           readOnly 
                           value="00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98" 
-                          className="bg-transparent text-[10px] text-[var(--text-lo)] select-all font-mono focus:outline-none flex-1 truncate"
+                          className="bg-transparent text-[10px] text-[var(--ink-lo)] select-all font-mono focus:outline-none flex-1 truncate"
                         />
                         <button
                           type="button"
@@ -897,7 +897,7 @@ Suporte Técnico: suporte@pwstreamer.com
                           <span>Mercado Pago Test Card</span>
                         </div>
                         <div className="flex items-center justify-between bg-[var(--bg)] p-2 rounded-lg text-[11px] font-mono border border-[var(--line)]/80">
-                          <span className="text-[var(--text-hi)]">Nº: 5031 4000 1234 5678 | CVV: 123</span>
+                          <span className="text-[var(--ink-hi)]">Nº: 5031 4000 1234 5678 | CVV: 123</span>
                           <button 
                             type="button"
                             onClick={handleUseMpTestCard}
@@ -910,47 +910,47 @@ Suporte Técnico: suporte@pwstreamer.com
 
                       <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3">
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Número do Cartão</label>
+                          <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
                           <input 
                             type="text" 
                             required
                             value={mpCardNumber}
                             onChange={(e) => setMpCardNumber(e.target.value)}
-                            className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--text-hi)] focus:outline-none"
+                            className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
                           />
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Validade</label>
+                            <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
                             <input 
                               type="text" 
                               required
                               value={mpExpiry}
                               onChange={(e) => setMpExpiry(e.target.value)}
-                              className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--text-hi)] focus:outline-none"
+                              className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
                             />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">CVC</label>
+                            <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
                             <input 
                               type="password" 
                               required
                               value={mpCvc}
                               onChange={(e) => setMpCvc(e.target.value)}
-                              className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--text-hi)] focus:outline-none"
+                              className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
                             />
                           </div>
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Nome Completo</label>
+                          <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Nome Completo</label>
                           <input 
                             type="text" 
                             required
                             value={mpCardName}
                             onChange={(e) => setMpCardName(e.target.value.toUpperCase())}
-                            className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] uppercase focus:outline-none"
+                            className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] uppercase focus:outline-none"
                           />
                         </div>
                       </div>
@@ -967,17 +967,17 @@ Suporte Técnico: suporte@pwstreamer.com
               </div>
 
               {/* Invoice subtotal summary detail card */}
-              <div className="p-3.5 bg-[var(--bg)] rounded-xl border border-[var(--line)]/80 space-y-1 text-xs text-[var(--text)]">
+              <div className="p-3.5 bg-[var(--bg)] rounded-xl border border-[var(--line)]/80 space-y-1 text-xs text-[var(--ink)]">
                 <div className="flex justify-between">
                   <span>Subtotal do plano:</span>
-                  <span className="font-mono text-[var(--text-hi)] font-bold">
+                  <span className="font-mono text-[var(--ink-hi)] font-bold">
                     ${isAnnual 
                       ? (plansData.find(p => p.id === selectedUpgradePlan)?.priceAnnual || 0) 
                       : (plansData.find(p => p.id === selectedUpgradePlan)?.priceMonthly || 0)
                     }.00
                   </span>
                 </div>
-                <div className="flex justify-between text-[var(--text-dim)]">
+                <div className="flex justify-between text-[var(--ink-dim)]">
                   <span>Descontos / Promoção:</span>
                   <span>$0.00</span>
                 </div>
@@ -996,7 +996,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 <button
                   type="button"
                   onClick={() => setCheckoutStep('gateway')}
-                  className="py-3 bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-xs font-bold text-[var(--text-hi)] rounded-xl transition-all text-center"
+                  className="py-3 bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-xs font-bold text-[var(--ink-hi)] rounded-xl transition-all text-center"
                 >
                   Voltar
                 </button>
@@ -1028,23 +1028,23 @@ Suporte Técnico: suporte@pwstreamer.com
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-xl font-bold text-[var(--text-hi)] font-sans">Assinatura Ativada com Sucesso!</h3>
-                <p className="text-xs text-[var(--text-lo)] max-w-sm mx-auto leading-relaxed">
-                  Parabéns! O seu pagamento foi processado com sucesso pelo gateway parceiro. Seu plano <strong className="text-[var(--text-hi)] uppercase font-extrabold">{selectedUpgradePlan}</strong> está ativo de imediato.
+                <h3 className="text-xl font-bold text-[var(--ink-hi)] font-sans">Assinatura Ativada com Sucesso!</h3>
+                <p className="text-xs text-[var(--ink-lo)] max-w-sm mx-auto leading-relaxed">
+                  Parabéns! O seu pagamento foi processado com sucesso pelo gateway parceiro. Seu plano <strong className="text-[var(--ink-hi)] uppercase font-extrabold">{selectedUpgradePlan}</strong> está ativo de imediato.
                 </p>
               </div>
 
               <div className="bg-[var(--bg)] p-4 rounded-xl border border-[var(--line)]/80 text-left space-y-2 text-xs">
-                <p className="text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider">Resumo do Faturamento</p>
-                <div className="flex justify-between text-[var(--text)]">
+                <p className="text-[10px] font-bold text-[var(--ink-dim)] uppercase tracking-wider">Resumo do Faturamento</p>
+                <div className="flex justify-between text-[var(--ink)]">
                   <span>Plano Ativo:</span>
-                  <span className="font-bold text-[var(--text-hi)]">{selectedUpgradePlan}</span>
+                  <span className="font-bold text-[var(--ink-hi)]">{selectedUpgradePlan}</span>
                 </div>
-                <div className="flex justify-between text-[var(--text)]">
+                <div className="flex justify-between text-[var(--ink)]">
                   <span>Ciclo de Cobrança:</span>
                   <span>{isAnnual ? 'Cobrança Anual' : 'Cobrança Mensal'}</span>
                 </div>
-                <div className="flex justify-between text-[var(--text)]">
+                <div className="flex justify-between text-[var(--ink)]">
                   <span>Valor Recorrente:</span>
                   <span className="font-bold text-blue-400">
                     ${isAnnual 
@@ -1077,10 +1077,10 @@ Suporte Técnico: suporte@pwstreamer.com
       {activeSubTab === 'profile' && (
         <div className="max-w-2xl mx-auto bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 text-left space-y-6">
           <div className="border-b border-[var(--line)] pb-4">
-            <h2 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
+            <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
               <User size={18} className="text-blue-500" /> Informações Cadastrais & Fiscais
             </h2>
-            <p className="text-xs text-[var(--text-lo)]">Mantenha seus dados atualizados para a correta emissão e envio de faturas e recibos de pagamento.</p>
+            <p className="text-xs text-[var(--ink-lo)]">Mantenha seus dados atualizados para a correta emissão e envio de faturas e recibos de pagamento.</p>
           </div>
 
           {profileMessage && (
@@ -1093,74 +1093,74 @@ Suporte Técnico: suporte@pwstreamer.com
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--text)]">Nome Completo</label>
+                <label className="text-xs font-semibold text-[var(--ink)]">Nome Completo</label>
                 <div className="relative">
                   <input 
                     type="text" 
                     required
                     value={profileName}
                     onChange={(e) => setProfileName(e.target.value)}
-                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-9 pr-4 py-2.5 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500 transition-all"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-9 pr-4 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all"
                   />
-                  <User size={14} className="absolute left-3.5 top-3.5 text-[var(--text-dim)]" />
+                  <User size={14} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--text)]">Endereço de E-mail</label>
+                <label className="text-xs font-semibold text-[var(--ink)]">Endereço de E-mail</label>
                 <div className="relative">
                   <input 
                     type="email" 
                     required
                     value={profileEmail}
                     onChange={(e) => setProfileEmail(e.target.value)}
-                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-9 pr-4 py-2.5 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500 transition-all"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-9 pr-4 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all"
                   />
-                  <Mail size={14} className="absolute left-3.5 top-3.5 text-[var(--text-dim)]" />
+                  <Mail size={14} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
                 </div>
               </div>
             </div>
 
             <div className="border-t border-[var(--line)]/60 pt-4 space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-lo)]">Dados de Emissão Fiscal (Invoice / NF-e)</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--ink-lo)]">Dados de Emissão Fiscal (Invoice / NF-e)</h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[var(--text)]">Razão Social / Nome de Faturamento</label>
+                  <label className="text-xs font-semibold text-[var(--ink)]">Razão Social / Nome de Faturamento</label>
                   <div className="relative">
                     <input 
                       type="text" 
                       placeholder="Ex: Minha Empresa de Tecnologia Ltda"
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
-                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-9 pr-4 py-2.5 text-xs text-[var(--text-hi)] focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-9 pr-4 py-2.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"
                     />
-                    <Briefcase size={14} className="absolute left-3.5 top-3.5 text-[var(--text-dim)]" />
+                    <Briefcase size={14} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[var(--text)]">CNPJ / CPF / Documento Fiscal</label>
+                  <label className="text-xs font-semibold text-[var(--ink)]">CNPJ / CPF / Documento Fiscal</label>
                   <div className="relative">
                     <input 
                       type="text" 
                       placeholder="Ex: 00.000.000/0001-00"
                       value={taxId}
                       onChange={(e) => setTaxId(e.target.value)}
-                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-9 pr-4 py-2.5 text-xs text-[var(--text-hi)] focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-9 pr-4 py-2.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"
                     />
-                    <FileText size={14} className="absolute left-3.5 top-3.5 text-[var(--text-dim)]" />
+                    <FileText size={14} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
                   </div>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--text)]">Endereço Completo de Cobrança</label>
+                <label className="text-xs font-semibold text-[var(--ink)]">Endereço Completo de Cobrança</label>
                 <textarea 
                   rows={2}
                   value={billingAddress}
                   onChange={(e) => setBillingAddress(e.target.value)}
-                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] focus:outline-none focus:border-blue-500 resize-none"
+                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 resize-none"
                 />
               </div>
             </div>
@@ -1189,16 +1189,16 @@ Suporte Técnico: suporte@pwstreamer.com
       {activeSubTab === 'billing-history' && (
         <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 text-left space-y-6">
           <div className="border-b border-[var(--line)] pb-4">
-            <h2 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
+            <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
               <FileText size={18} className="text-blue-500" /> Histórico de Transações & Faturas
             </h2>
-            <p className="text-xs text-[var(--text-lo)]">Verifique os comprovantes de pagamentos anteriores e baixe os recibos fiscais de suas mensalidades.</p>
+            <p className="text-xs text-[var(--ink-lo)]">Verifique os comprovantes de pagamentos anteriores e baixe os recibos fiscais de suas mensalidades.</p>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left border-collapse">
               <thead>
-                <tr className="border-b border-[var(--line)]/80 text-[var(--text-dim)] uppercase font-bold tracking-wider">
+                <tr className="border-b border-[var(--line)]/80 text-[var(--ink-dim)] uppercase font-bold tracking-wider">
                   <th className="py-3 px-4">ID da Fatura</th>
                   <th className="py-3 px-4">Data</th>
                   <th className="py-3 px-4">Plano Adquirido</th>
@@ -1210,13 +1210,13 @@ Suporte Técnico: suporte@pwstreamer.com
               </thead>
               <tbody className="divide-y divide-[var(--line)]/40">
                 {invoices.map((invoice, i) => (
-                  <tr key={invoice.id || i} className="hover:bg-[var(--panel)]/20 text-[var(--text)]">
-                    <td className="py-3.5 px-4 font-mono font-bold text-[var(--text-hi)]">{invoice.id}</td>
+                  <tr key={invoice.id || i} className="hover:bg-[var(--panel)]/20 text-[var(--ink)]">
+                    <td className="py-3.5 px-4 font-mono font-bold text-[var(--ink-hi)]">{invoice.id}</td>
                     <td className="py-3.5 px-4">{invoice.date}</td>
                     <td className="py-3.5 px-4">{invoice.plan}</td>
                     <td className="py-3.5 px-4 font-bold">${invoice.amount.toFixed(2)} USD</td>
                     <td className="py-3.5 px-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-[var(--panel)] text-[var(--text)] border border-[var(--line-ctl)]/60">
+                      <span className="px-2 py-0.5 rounded text-[10px] bg-[var(--panel)] text-[var(--ink)] border border-[var(--line-ctl)]/60">
                         {invoice.gateway}
                       </span>
                     </td>
@@ -1229,14 +1229,14 @@ Suporte Técnico: suporte@pwstreamer.com
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => setSelectedInvoiceForModal(invoice)}
-                          className="p-1.5 bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] rounded-lg text-blue-400 hover:text-[var(--text-hi)] transition-all cursor-pointer"
+                          className="p-1.5 bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] rounded-lg text-blue-400 hover:text-[var(--ink-hi)] transition-all cursor-pointer"
                           title="Visualizar Recibo de Fatura"
                         >
                           <Eye size={12} />
                         </button>
                         <button
                           onClick={() => handleDownloadInvoice(invoice)}
-                          className="p-1.5 bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] rounded-lg text-emerald-400 hover:text-[var(--text-hi)] transition-all cursor-pointer"
+                          className="p-1.5 bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] rounded-lg text-emerald-400 hover:text-[var(--ink-hi)] transition-all cursor-pointer"
                           title="Baixar comprovante de pagamento"
                         >
                           <Download size={12} />
@@ -1257,53 +1257,53 @@ Suporte Técnico: suporte@pwstreamer.com
                   <span className="text-xs font-bold text-blue-400 font-mono">Detalhes da Fatura {selectedInvoiceForModal.id}</span>
                   <button 
                     onClick={() => setSelectedInvoiceForModal(null)}
-                    className="text-[var(--text-lo)] hover:text-[var(--text-hi)] font-bold"
+                    className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] font-bold"
                   >
                     Fechar
                   </button>
                 </div>
 
-                <div className="p-6 space-y-4 text-xs text-[var(--text)]">
+                <div className="p-6 space-y-4 text-xs text-[var(--ink)]">
                   <div className="flex justify-between border-b border-[var(--line)]/60 pb-2">
-                    <span className="text-[var(--text-dim)] font-bold">PWSTREAMER STUDIO</span>
+                    <span className="text-[var(--ink-dim)] font-bold">PWSTREAMER STUDIO</span>
                     <span className="text-emerald-400 uppercase font-black tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded text-[10px]">PAGO</span>
                   </div>
 
                   <div className="space-y-1.5">
-                    <p className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-wider">Dados da Fatura</p>
+                    <p className="text-[10px] uppercase font-bold text-[var(--ink-dim)] tracking-wider">Dados da Fatura</p>
                     <div className="flex justify-between">
                       <span>Código de Transação:</span>
-                      <span className="text-[var(--text-hi)] font-mono font-bold">{selectedInvoiceForModal.id}</span>
+                      <span className="text-[var(--ink-hi)] font-mono font-bold">{selectedInvoiceForModal.id}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Data do Faturamento:</span>
-                      <span className="text-[var(--text-hi)]">{selectedInvoiceForModal.date}</span>
+                      <span className="text-[var(--ink-hi)]">{selectedInvoiceForModal.date}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Gateway de Pagamento:</span>
-                      <span className="text-[var(--text-hi)]">{selectedInvoiceForModal.gateway} (Teste)</span>
+                      <span className="text-[var(--ink-hi)]">{selectedInvoiceForModal.gateway} (Teste)</span>
                     </div>
                   </div>
 
                   <div className="space-y-1.5 border-t border-[var(--line)]/40 pt-3">
-                    <p className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-wider">Faturado Para</p>
+                    <p className="text-[10px] uppercase font-bold text-[var(--ink-dim)] tracking-wider">Faturado Para</p>
                     <div className="flex justify-between">
                       <span>Assinante:</span>
-                      <span className="text-[var(--text-hi)]">{profileName || 'Marcos Gonçalves'}</span>
+                      <span className="text-[var(--ink-hi)]">{profileName || 'Marcos Gonçalves'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Empresa:</span>
-                      <span className="text-[var(--text-hi)]">{companyName}</span>
+                      <span className="text-[var(--ink-hi)]">{companyName}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Documento Fiscal:</span>
-                      <span className="text-[var(--text-hi)]">{taxId}</span>
+                      <span className="text-[var(--ink-hi)]">{taxId}</span>
                     </div>
                   </div>
 
                   <div className="space-y-1.5 border-t border-[var(--line)]/40 pt-3">
-                    <p className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-wider">Descrição dos Itens</p>
-                    <div className="flex justify-between text-[var(--text-hi)] font-semibold bg-[var(--bg)] p-2.5 rounded-xl border border-[var(--line)]">
+                    <p className="text-[10px] uppercase font-bold text-[var(--ink-dim)] tracking-wider">Descrição dos Itens</p>
+                    <div className="flex justify-between text-[var(--ink-hi)] font-semibold bg-[var(--bg)] p-2.5 rounded-xl border border-[var(--line)]">
                       <span>Assinatura {selectedInvoiceForModal.plan}</span>
                       <span>${selectedInvoiceForModal.amount.toFixed(2)} USD</span>
                     </div>
@@ -1325,7 +1325,7 @@ Suporte Técnico: suporte@pwstreamer.com
                     <button
                       type="button"
                       onClick={() => setSelectedInvoiceForModal(null)}
-                      className="py-2.5 bg-[var(--bg)] border border-[var(--line)] hover:bg-[var(--panel)] text-[var(--text-hi)] text-xs font-bold rounded-xl transition-all text-center"
+                      className="py-2.5 bg-[var(--bg)] border border-[var(--line)] hover:bg-[var(--panel)] text-[var(--ink-hi)] text-xs font-bold rounded-xl transition-all text-center"
                     >
                       Fechar Janela
                     </button>
@@ -1420,11 +1420,11 @@ Suporte Técnico: suporte@pwstreamer.com
               
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--line)] pb-4">
                 <div className="space-y-1">
-                  <h2 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
+                  <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
                     <BarChart3 size={18} className="text-blue-500 animate-pulse" />
                     Painel Consolidado de Consumo de Recursos
                   </h2>
-                  <p className="text-xs text-[var(--text-lo)]">
+                  <p className="text-xs text-[var(--ink-lo)]">
                     Sua equipe está utilizando o plano <strong className="text-blue-400 uppercase font-black">PwStreamer {currentPlan}</strong>. Veja os limites atuais e o consumo por usuário.
                   </p>
                 </div>
@@ -1434,7 +1434,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   </span>
                   <button
                     onClick={handleResetSimulations}
-                    className="p-2 bg-[var(--bg)] border border-[var(--line)] hover:bg-[var(--surface)] rounded-lg text-[var(--text-lo)] hover:text-[var(--text-hi)] transition-all text-xs flex items-center gap-1 cursor-pointer font-bold"
+                    className="p-2 bg-[var(--bg)] border border-[var(--line)] hover:bg-[var(--surface)] rounded-lg text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-all text-xs flex items-center gap-1 cursor-pointer font-bold"
                     title="Restaurar consumos iniciais"
                   >
                     <Trash2 size={13} />
@@ -1449,7 +1449,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 {/* Meter 1: Streaming Minutes */}
                 <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-2xl p-5 space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-lo)]">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--ink-lo)]">
                       <Clock size={15} className="text-blue-400" />
                       <span>Uso de Minutos</span>
                     </div>
@@ -1459,10 +1459,10 @@ Suporte Técnico: suporte@pwstreamer.com
                   </div>
                   <div className="space-y-1 text-left">
                     <div className="flex items-baseline gap-1">
-                      <p className="text-3xl font-black text-[var(--text-hi)] font-mono">{totalMinutesUsed}</p>
-                      <span className="text-xs text-[var(--text-dim)] font-semibold">/ {activeLimits.minutes} min</span>
+                      <p className="text-3xl font-black text-[var(--ink-hi)] font-mono">{totalMinutesUsed}</p>
+                      <span className="text-xs text-[var(--ink-dim)] font-semibold">/ {activeLimits.minutes} min</span>
                     </div>
-                    <p className="text-[10px] text-[var(--text-lo)]">Tempo acumulado de lives transmitidas no mês</p>
+                    <p className="text-[10px] text-[var(--ink-lo)]">Tempo acumulado de lives transmitidas no mês</p>
                   </div>
                   <div className="w-full bg-[var(--panel)] h-2 rounded-full overflow-hidden">
                     <div 
@@ -1470,7 +1470,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       style={{ width: `${Math.min(100, minutesPercentage)}%` }}
                     />
                   </div>
-                  <div className="flex justify-between items-center text-[10px] text-[var(--text-dim)]">
+                  <div className="flex justify-between items-center text-[10px] text-[var(--ink-dim)]">
                     <span>Disponível: {Math.max(0, activeLimits.minutes - totalMinutesUsed)} min</span>
                     <span>Renova em 20 dias</span>
                   </div>
@@ -1479,7 +1479,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 {/* Meter 2: Video Cloud Storage */}
                 <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-2xl p-5 space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-lo)]">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--ink-lo)]">
                       <Database size={15} className="text-emerald-400" />
                       <span>Storage de Vídeos</span>
                     </div>
@@ -1489,10 +1489,10 @@ Suporte Técnico: suporte@pwstreamer.com
                   </div>
                   <div className="space-y-1 text-left">
                     <div className="flex items-baseline gap-1">
-                      <p className="text-3xl font-black text-[var(--text-hi)] font-mono">{totalStorageUsed}</p>
-                      <span className="text-xs text-[var(--text-dim)] font-semibold">/ {activeLimits.storage} GB</span>
+                      <p className="text-3xl font-black text-[var(--ink-hi)] font-mono">{totalStorageUsed}</p>
+                      <span className="text-xs text-[var(--ink-dim)] font-semibold">/ {activeLimits.storage} GB</span>
                     </div>
-                    <p className="text-[10px] text-[var(--text-lo)]">Armazenamento em nuvem de gravações salvas</p>
+                    <p className="text-[10px] text-[var(--ink-lo)]">Armazenamento em nuvem de gravações salvas</p>
                   </div>
                   <div className="w-full bg-[var(--panel)] h-2 rounded-full overflow-hidden">
                     <div 
@@ -1500,7 +1500,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       style={{ width: `${Math.min(100, storagePercentage)}%` }}
                     />
                   </div>
-                  <div className="flex justify-between items-center text-[10px] text-[var(--text-dim)]">
+                  <div className="flex justify-between items-center text-[10px] text-[var(--ink-dim)]">
                     <span>Disponível: {Math.max(0, Number((activeLimits.storage - totalStorageUsed).toFixed(1)))} GB</span>
                     <span>Compactação ativa</span>
                   </div>
@@ -1509,7 +1509,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 {/* Meter 3: Active seats inside limit */}
                 <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-2xl p-5 space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-lo)]">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--ink-lo)]">
                       <Users size={15} className="text-purple-400" />
                       <span>Membros de Equipe</span>
                     </div>
@@ -1519,10 +1519,10 @@ Suporte Técnico: suporte@pwstreamer.com
                   </div>
                   <div className="space-y-1 text-left">
                     <div className="flex items-baseline gap-1">
-                      <p className="text-3xl font-black text-[var(--text-hi)] font-mono">{seatsUsed}</p>
-                      <span className="text-xs text-[var(--text-dim)] font-semibold">/ {activeLimits.seats} {activeLimits.seats === 1 ? 'membro' : 'membros'}</span>
+                      <p className="text-3xl font-black text-[var(--ink-hi)] font-mono">{seatsUsed}</p>
+                      <span className="text-xs text-[var(--ink-dim)] font-semibold">/ {activeLimits.seats} {activeLimits.seats === 1 ? 'membro' : 'membros'}</span>
                     </div>
-                    <p className="text-[10px] text-[var(--text-lo)]">Co-produtores com acesso simultâneo</p>
+                    <p className="text-[10px] text-[var(--ink-lo)]">Co-produtores com acesso simultâneo</p>
                   </div>
                   <div className="w-full bg-[var(--panel)] h-2 rounded-full overflow-hidden">
                     <div 
@@ -1530,7 +1530,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       style={{ width: `${(seatsUsed / activeLimits.seats) * 100}%` }}
                     />
                   </div>
-                  <div className="flex justify-between items-center text-[10px] text-[var(--text-dim)]">
+                  <div className="flex justify-between items-center text-[10px] text-[var(--ink-dim)]">
                     <span>Vagas livres: {Math.max(0, activeLimits.seats - seatsUsed)}</span>
                     <span className="text-[9px] bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/10 font-bold">Multi-assento</span>
                   </div>
@@ -1544,7 +1544,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-500" />
                   <div className="space-y-1 text-left">
                     <p className="font-bold text-amber-300">Atenção: Limite de recursos se aproximando do teto!</p>
-                    <p className="text-[11px] text-[var(--text-lo)]">
+                    <p className="text-[11px] text-[var(--ink-lo)]">
                       {minutesPercentage >= 80 && `Você consumiu ${minutesPercentage}% dos minutos de streaming mensais contratados. `}
                       {storagePercentage >= 80 && `O armazenamento de gravações está com ${storagePercentage}% de ocupação máxima. `}
                       Recomendamos fazer o upgrade para o próximo nível para garantir transmissões ininterruptas e sem sobressaltos.
@@ -1562,10 +1562,10 @@ Suporte Técnico: suporte@pwstreamer.com
               {/* USER BY USER DETAILED BREAKDOWN PANEL */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-lo)]">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--ink-lo)]">
                     Detalhamento do Consumo Individual por Usuário
                   </h3>
-                  <span className="text-[10px] text-[var(--text-dim)]">Assentos Ativos: {seatsUsed} de {activeLimits.seats} permitidos</span>
+                  <span className="text-[10px] text-[var(--ink-dim)]">Assentos Ativos: {seatsUsed} de {activeLimits.seats} permitidos</span>
                 </div>
 
                 <div className="bg-[var(--bg)] border border-[var(--line)] rounded-2xl overflow-hidden divide-y divide-[var(--line)]/60">
@@ -1577,40 +1577,40 @@ Suporte Técnico: suporte@pwstreamer.com
                         MG
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-[var(--text-hi)] flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-1.5">
                           {profileName || 'Marcos Gonçalves'}
                           <span className="text-[9px] bg-blue-500/20 text-blue-400 border border-blue-500/10 px-1.5 py-0.5 rounded-md font-bold uppercase">
                             Proprietário (Você)
                           </span>
                         </p>
-                        <p className="text-[10px] text-[var(--text-dim)]">{profileEmail || 'mgdlms@gmail.com'}</p>
+                        <p className="text-[10px] text-[var(--ink-dim)]">{profileEmail || 'mgdlms@gmail.com'}</p>
                       </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-6 text-xs w-full sm:w-auto justify-between sm:justify-end">
                       <div className="text-left sm:text-right">
-                        <span className="text-[9px] text-[var(--text-dim)] uppercase font-bold tracking-wider">Uso de Transmissão</span>
-                        <p className="text-xs font-bold text-[var(--text-hi)] font-mono">{memberMinutes.marcos} minutos</p>
-                        <p className="text-[9px] text-[var(--text-dim)]">~{Number((memberMinutes.marcos / 60).toFixed(1))} horas</p>
+                        <span className="text-[9px] text-[var(--ink-dim)] uppercase font-bold tracking-wider">Uso de Transmissão</span>
+                        <p className="text-xs font-bold text-[var(--ink-hi)] font-mono">{memberMinutes.marcos} minutos</p>
+                        <p className="text-[9px] text-[var(--ink-dim)]">~{Number((memberMinutes.marcos / 60).toFixed(1))} horas</p>
                       </div>
                       <div className="text-left sm:text-right border-l sm:border-l-0 sm:border-r border-[var(--line)] pl-4 sm:pl-0 sm:pr-4">
-                        <span className="text-[9px] text-[var(--text-dim)] uppercase font-bold tracking-wider">Storage de Vídeo</span>
-                        <p className="text-xs font-bold text-[var(--text-hi)] font-mono">{memberStorage.marcos} GB</p>
-                        <p className="text-[9px] text-[var(--text-dim)]">~{Math.round(memberStorage.marcos * 2)} arquivos salvos</p>
+                        <span className="text-[9px] text-[var(--ink-dim)] uppercase font-bold tracking-wider">Storage de Vídeo</span>
+                        <p className="text-xs font-bold text-[var(--ink-hi)] font-mono">{memberStorage.marcos} GB</p>
+                        <p className="text-[9px] text-[var(--ink-dim)]">~{Math.round(memberStorage.marcos * 2)} arquivos salvos</p>
                       </div>
                       
                       {/* Individual simulation buttons */}
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => handleSimulateMinutes('marcos', 15)}
-                          className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--text)] hover:text-[var(--text-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                          className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           title="Simular transmissão de +15m"
                         >
                           <Plus size={10} /> 15m
                         </button>
                         <button
                           onClick={() => handleSimulateStorage('marcos', 0.5)}
-                          className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--text)] hover:text-[var(--text-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                          className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           title="Simular gravação de +0.5GB"
                         >
                           <Plus size={10} /> 0.5GB
@@ -1622,13 +1622,13 @@ Suporte Técnico: suporte@pwstreamer.com
                   {/* User 2: Ana Beatriz (Co-producer) */}
                   <div className={`p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors ${!anaActive ? 'opacity-40 bg-[var(--bg)]/20' : 'hover:bg-[var(--surface)]/40'}`}>
                     <div className="flex items-center gap-3 text-left">
-                      <div className={`w-9 h-9 rounded-xl font-extrabold flex items-center justify-center text-xs ${anaActive ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' : 'bg-[var(--surface)] text-[var(--text-dim)] border border-[var(--line)]'}`}>
+                      <div className={`w-9 h-9 rounded-xl font-extrabold flex items-center justify-center text-xs ${anaActive ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' : 'bg-[var(--surface)] text-[var(--ink-dim)] border border-[var(--line)]'}`}>
                         AB
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-[var(--text-hi)] flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-1.5">
                           Ana Beatriz
-                          <span className={`text-[9px] border px-1.5 py-0.5 rounded-md font-bold uppercase ${anaActive ? 'bg-purple-500/20 text-purple-400 border-purple-500/10' : 'bg-[var(--panel)] text-[var(--text-dim)] border-[var(--line-ctl)]'}`}>
+                          <span className={`text-[9px] border px-1.5 py-0.5 rounded-md font-bold uppercase ${anaActive ? 'bg-purple-500/20 text-purple-400 border-purple-500/10' : 'bg-[var(--panel)] text-[var(--ink-dim)] border-[var(--line-ctl)]'}`}>
                             Co-Produtor
                           </span>
                           {!anaActive && (
@@ -1637,37 +1637,37 @@ Suporte Técnico: suporte@pwstreamer.com
                             </span>
                           )}
                         </p>
-                        <p className="text-[10px] text-[var(--text-dim)]">ana.beatriz@pwstreamer.com</p>
+                        <p className="text-[10px] text-[var(--ink-dim)]">ana.beatriz@pwstreamer.com</p>
                       </div>
                     </div>
 
                     {anaActive ? (
                       <div className="flex flex-wrap items-center gap-6 text-xs w-full sm:w-auto justify-between sm:justify-end">
                         <div className="text-left sm:text-right">
-                          <span className="text-[9px] text-[var(--text-dim)] uppercase font-bold tracking-wider">Uso de Transmissão</span>
-                          <p className="text-xs font-bold text-[var(--text-hi)] font-mono">{memberMinutes.ana} minutos</p>
+                          <span className="text-[9px] text-[var(--ink-dim)] uppercase font-bold tracking-wider">Uso de Transmissão</span>
+                          <p className="text-xs font-bold text-[var(--ink-hi)] font-mono">{memberMinutes.ana} minutos</p>
                         </div>
                         <div className="text-left sm:text-right border-l sm:border-l-0 sm:border-r border-[var(--line)] pl-4 sm:pl-0 sm:pr-4">
-                          <span className="text-[9px] text-[var(--text-dim)] uppercase font-bold tracking-wider">Storage de Vídeo</span>
-                          <p className="text-xs font-bold text-[var(--text-hi)] font-mono">{memberStorage.ana} GB</p>
+                          <span className="text-[9px] text-[var(--ink-dim)] uppercase font-bold tracking-wider">Storage de Vídeo</span>
+                          <p className="text-xs font-bold text-[var(--ink-hi)] font-mono">{memberStorage.ana} GB</p>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleSimulateMinutes('ana', 15)}
-                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--text)] hover:text-[var(--text-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           >
                             <Plus size={10} /> 15m
                           </button>
                           <button
                             onClick={() => handleSimulateStorage('ana', 0.5)}
-                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--text)] hover:text-[var(--text-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           >
                             <Plus size={10} /> 0.5GB
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-xs text-[var(--text-dim)] w-full sm:w-auto justify-between sm:justify-end">
+                      <div className="flex items-center gap-2 text-xs text-[var(--ink-dim)] w-full sm:w-auto justify-between sm:justify-end">
                         <span className="hidden sm:inline">Requer upgrade para plano com mais assentos</span>
                         <button
                           onClick={() => setActiveSubTab('plans')}
@@ -1682,13 +1682,13 @@ Suporte Técnico: suporte@pwstreamer.com
                   {/* User 3: Lucas Lima (Moderator) */}
                   <div className={`p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors ${!lucasActive ? 'opacity-40 bg-[var(--bg)]/20' : 'hover:bg-[var(--surface)]/40'}`}>
                     <div className="flex items-center gap-3 text-left">
-                      <div className={`w-9 h-9 rounded-xl font-extrabold flex items-center justify-center text-xs ${lucasActive ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' : 'bg-[var(--surface)] text-[var(--text-dim)] border border-[var(--line)]'}`}>
+                      <div className={`w-9 h-9 rounded-xl font-extrabold flex items-center justify-center text-xs ${lucasActive ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' : 'bg-[var(--surface)] text-[var(--ink-dim)] border border-[var(--line)]'}`}>
                         LL
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-[var(--text-hi)] flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-1.5">
                           Lucas Lima
-                          <span className={`text-[9px] border px-1.5 py-0.5 rounded-md font-bold uppercase ${lucasActive ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' : 'bg-[var(--panel)] text-[var(--text-dim)] border-[var(--line-ctl)]'}`}>
+                          <span className={`text-[9px] border px-1.5 py-0.5 rounded-md font-bold uppercase ${lucasActive ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' : 'bg-[var(--panel)] text-[var(--ink-dim)] border-[var(--line-ctl)]'}`}>
                             Moderador / Equipe
                           </span>
                           {!lucasActive && (
@@ -1697,37 +1697,37 @@ Suporte Técnico: suporte@pwstreamer.com
                             </span>
                           )}
                         </p>
-                        <p className="text-[10px] text-[var(--text-dim)]">lucas.lima@pwstreamer.com</p>
+                        <p className="text-[10px] text-[var(--ink-dim)]">lucas.lima@pwstreamer.com</p>
                       </div>
                     </div>
 
                     {lucasActive ? (
                       <div className="flex flex-wrap items-center gap-6 text-xs w-full sm:w-auto justify-between sm:justify-end">
                         <div className="text-left sm:text-right">
-                          <span className="text-[9px] text-[var(--text-dim)] uppercase font-bold tracking-wider">Uso de Transmissão</span>
-                          <p className="text-xs font-bold text-[var(--text-hi)] font-mono">{memberMinutes.lucas} minutos</p>
+                          <span className="text-[9px] text-[var(--ink-dim)] uppercase font-bold tracking-wider">Uso de Transmissão</span>
+                          <p className="text-xs font-bold text-[var(--ink-hi)] font-mono">{memberMinutes.lucas} minutos</p>
                         </div>
                         <div className="text-left sm:text-right border-l sm:border-l-0 sm:border-r border-[var(--line)] pl-4 sm:pl-0 sm:pr-4">
-                          <span className="text-[9px] text-[var(--text-dim)] uppercase font-bold tracking-wider">Storage de Vídeo</span>
-                          <p className="text-xs font-bold text-[var(--text-hi)] font-mono">{memberStorage.lucas} GB</p>
+                          <span className="text-[9px] text-[var(--ink-dim)] uppercase font-bold tracking-wider">Storage de Vídeo</span>
+                          <p className="text-xs font-bold text-[var(--ink-hi)] font-mono">{memberStorage.lucas} GB</p>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleSimulateMinutes('lucas', 15)}
-                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--text)] hover:text-[var(--text-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           >
                             <Plus size={10} /> 15m
                           </button>
                           <button
                             onClick={() => handleSimulateStorage('lucas', 0.5)}
-                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--text)] hover:text-[var(--text-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
+                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
                           >
                             <Plus size={10} /> 0.5GB
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-xs text-[var(--text-dim)] w-full sm:w-auto justify-between sm:justify-end">
+                      <div className="flex items-center gap-2 text-xs text-[var(--ink-dim)] w-full sm:w-auto justify-between sm:justify-end">
                         <span className="hidden sm:inline">Excede os assentos permitidos no seu plano atual</span>
                         <button
                           onClick={() => setActiveSubTab('plans')}
@@ -1744,8 +1744,8 @@ Suporte Técnico: suporte@pwstreamer.com
 
               {/* Informational tech parameters specs list card */}
               <div className="bg-[var(--bg)] border border-[var(--line)] p-5 rounded-2xl text-left space-y-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-lo)]">Qualidade Técnica e Limites Estruturais ({currentPlan})</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-[var(--text)]">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--ink-lo)]">Qualidade Técnica e Limites Estruturais ({currentPlan})</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-[var(--ink)]">
                   <div className="flex items-center gap-2 bg-[var(--surface)] p-3 rounded-xl border border-[var(--line)]/60">
                     <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
                     <span>Transmissão simultânea: Até {activeLimits.destinations} destinos de canais</span>

@@ -1795,14 +1795,14 @@ export function StudioPreview({
               <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-[var(--color-brand)] mb-3 animate-pulse">
                 <User size={32} />
               </div>
-              <p className="text-sm font-semibold text-[var(--text-hi)]">Marcos (Você)</p>
-              <p className="text-[10px] text-[var(--text-lo)]">Câmera Desativada</p>
+              <p className="text-sm font-semibold text-[var(--ink-hi)]">Marcos (Você)</p>
+              <p className="text-[10px] text-[var(--ink-lo)]">Câmera Desativada</p>
             </div>
           )}
           {/* Label Tag */}
           <div 
             style={{ backgroundColor: streamColor }}
-            className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-[var(--text-hi)] tracking-wide"
+            className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-[var(--ink-hi)] tracking-wide"
           >
             Marcos (Palestrante)
           </div>
@@ -1829,14 +1829,14 @@ export function StudioPreview({
               <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 mb-3 animate-pulse">
                 <Video size={32} />
               </div>
-              <p className="text-sm font-semibold text-[var(--text-hi)]">Vídeo: {activeVideoClip.name}</p>
-              <p className="text-[10px] text-[var(--text-lo)]">Reproduzindo no estúdio</p>
+              <p className="text-sm font-semibold text-[var(--ink-hi)]">Vídeo: {activeVideoClip.name}</p>
+              <p className="text-[10px] text-[var(--ink-lo)]">Reproduzindo no estúdio</p>
             </div>
           )}
           {/* Label Tag */}
           <div 
             style={{ backgroundColor: streamColor }}
-            className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-[var(--text-hi)] tracking-wide z-10 flex items-center gap-1"
+            className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-[var(--ink-hi)] tracking-wide z-10 flex items-center gap-1"
           >
             <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
             <span>CLIPE DE VÍDEO ATIVO</span>
@@ -1852,7 +1852,7 @@ export function StudioPreview({
           <div className="bg-[var(--surface)]/90 px-4 py-2 flex items-center justify-between border-b border-[var(--line)] z-10">
             <div className="flex items-center gap-2">
               <Presentation size={14} className="text-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-black uppercase text-[var(--text)] truncate max-w-[160px] tracking-wider">{activeSlide.name}</span>
+              <span className="text-[10px] font-black uppercase text-[var(--ink)] truncate max-w-[160px] tracking-wider">{activeSlide.name}</span>
             </div>
             <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
               PÁGINA {activeSlide.currentPage} de {activeSlide.totalPages}
@@ -1868,30 +1868,30 @@ export function StudioPreview({
             {activeSlide.currentPage === 1 && (
               <div className="space-y-2 animate-in fade-in duration-300 z-10">
                 <Sparkles size={36} className="text-emerald-400 mx-auto mb-2 animate-pulse" />
-                <h2 className="text-base font-black text-[var(--text-hi)] tracking-tight">Planejamento Estratégico & Metas</h2>
-                <p className="text-[11px] text-[var(--text-lo)] max-w-sm mx-auto leading-relaxed">Evolução do mercado corporativo, canais de streaming e estratégias digitais de alta performance.</p>
+                <h2 className="text-base font-black text-[var(--ink-hi)] tracking-tight">Planejamento Estratégico & Metas</h2>
+                <p className="text-[11px] text-[var(--ink-lo)] max-w-sm mx-auto leading-relaxed">Evolução do mercado corporativo, canais de streaming e estratégias digitais de alta performance.</p>
               </div>
             )}
             {activeSlide.currentPage === 2 && (
               <div className="space-y-3 w-full max-w-xs animate-in slide-in-from-right duration-300 z-10">
-                <h2 className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-lo)]">Público-Alvo & Engajamento</h2>
+                <h2 className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)]">Público-Alvo & Engajamento</h2>
                 <div className="h-2 w-full bg-[var(--panel)] rounded-full overflow-hidden">
                   <div className="h-full bg-emerald-500 rounded-full" style={{ width: '85%' }} />
                 </div>
-                <p className="text-[10px] text-[var(--text-lo)] leading-normal">85% dos usuários interagem ativamente através do chat integrado ou perguntas e respostas.</p>
+                <p className="text-[10px] text-[var(--ink-lo)] leading-normal">85% dos usuários interagem ativamente através do chat integrado ou perguntas e respostas.</p>
               </div>
             )}
             {activeSlide.currentPage >= 3 && (
               <div className="space-y-2 animate-in zoom-in-95 duration-300 z-10">
                 <Activity size={32} className="text-blue-400 mx-auto mb-1 animate-pulse" />
-                <h2 className="text-[11px] font-bold text-[var(--text-hi)] uppercase tracking-wider">Crescimento de Audiência</h2>
-                <p className="text-[10px] text-[var(--text-lo)] max-w-xs leading-normal">Análise preditiva de métricas em tempo real e canais de distribuição CDN unificados de alta disponibilidade.</p>
+                <h2 className="text-[11px] font-bold text-[var(--ink-hi)] uppercase tracking-wider">Crescimento de Audiência</h2>
+                <p className="text-[10px] text-[var(--ink-lo)] max-w-xs leading-normal">Análise preditiva de métricas em tempo real e canais de distribuição CDN unificados de alta disponibilidade.</p>
               </div>
             )}
           </div>
 
           {/* Slide Footer */}
-          <div className="bg-[var(--bg)] px-4 py-1.5 flex items-center justify-between text-[8px] font-mono text-[var(--text-dim)] border-t border-[var(--line)] z-10">
+          <div className="bg-[var(--bg)] px-4 py-1.5 flex items-center justify-between text-[8px] font-mono text-[var(--ink-dim)] border-t border-[var(--line)] z-10">
             <span>PwStreamer Presentations™</span>
             <span>Apresentado por Marcos (Palestrante)</span>
           </div>
@@ -1921,7 +1921,7 @@ export function StudioPreview({
               className="w-full h-full object-contain"
             />
           ) : selectedSharedSource ? (
-            <div className="w-full h-full bg-[var(--bg)] text-[var(--text-hi)] flex flex-col overflow-hidden select-none font-sans">
+            <div className="w-full h-full bg-[var(--bg)] text-[var(--ink-hi)] flex flex-col overflow-hidden select-none font-sans">
               
               {/* Simulated browser search bar / top window header */}
               <div className="bg-[var(--surface)] border-b border-[var(--line)] px-3.5 py-1.5 flex items-center gap-3 shrink-0">
@@ -1930,11 +1930,11 @@ export function StudioPreview({
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
                 </div>
-                <div className="bg-[var(--surface)]/90 border border-[var(--line)] rounded px-3 py-0.5 text-[10px] text-[var(--text-lo)] flex items-center gap-1.5 flex-1 max-w-md mx-auto">
+                <div className="bg-[var(--surface)]/90 border border-[var(--line)] rounded px-3 py-0.5 text-[10px] text-[var(--ink-lo)] flex items-center gap-1.5 flex-1 max-w-md mx-auto">
                   <Globe size={10} className="text-blue-400" />
                   <span className="truncate">https://{selectedSharedSource.name.includes('PwStreamer') ? 'pwstreamer.com' : selectedSharedSource.name.includes('Caixa') ? 'mail.google.com' : 'app.restream.io'}/studio</span>
                 </div>
-                <span className="text-[9px] font-mono text-[var(--text-dim)] uppercase font-black tracking-widest bg-[var(--surface)]/60 px-1.5 py-0.5 rounded border border-[var(--line)] shrink-0">
+                <span className="text-[9px] font-mono text-[var(--ink-dim)] uppercase font-black tracking-widest bg-[var(--surface)]/60 px-1.5 py-0.5 rounded border border-[var(--line)] shrink-0">
                   {selectedSharedSource.type === 'tab' ? 'Guia' : selectedSharedSource.type === 'window' ? 'Janela' : selectedSharedSource.type === 'screen' ? 'Tela' : selectedSharedSource.type === 'pdf' ? 'PDF' : 'Vídeo'}
                 </span>
               </div>
@@ -1952,7 +1952,7 @@ export function StudioPreview({
                           <div className="p-1 rounded bg-rose-600/15 text-rose-500">
                             <Compass size={14} />
                           </div>
-                          <span className="text-xs font-black tracking-wider uppercase text-[var(--text)]">PwStreamer Live Studio</span>
+                          <span className="text-xs font-black tracking-wider uppercase text-[var(--ink)]">PwStreamer Live Studio</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -1965,8 +1965,8 @@ export function StudioPreview({
                         <div className="absolute top-2 right-2 flex items-center gap-1 text-[8px] text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full font-bold">
                           <Activity size={8} /> METRICS UPDATE
                         </div>
-                        <h4 className="text-sm font-black text-[var(--text-hi)] tracking-tight">Estratégias de Engajamento 2026</h4>
-                        <p className="text-[10px] text-[var(--text-lo)] max-w-sm mx-auto leading-relaxed">
+                        <h4 className="text-sm font-black text-[var(--ink-hi)] tracking-tight">Estratégias de Engajamento 2026</h4>
+                        <p className="text-[10px] text-[var(--ink-lo)] max-w-sm mx-auto leading-relaxed">
                           A evolução dos webinars corporativos e o uso de inteligência artificial generativa em tempo real.
                         </p>
                         
@@ -1979,8 +1979,8 @@ export function StudioPreview({
                             { label: 'Conversão', val: '18.5%', color: 'bg-emerald-500' }
                           ].map(metric => (
                             <div key={metric.label} className="bg-[var(--bg)]/70 border border-[var(--line)]/80 p-2 rounded-lg text-center">
-                              <span className="text-[7px] text-[var(--text-dim)] block uppercase font-bold">{metric.label}</span>
-                              <span className="text-[11px] font-black font-mono text-[var(--text-hi)] mt-0.5 block">{metric.val}</span>
+                              <span className="text-[7px] text-[var(--ink-dim)] block uppercase font-bold">{metric.label}</span>
+                              <span className="text-[11px] font-black font-mono text-[var(--ink-hi)] mt-0.5 block">{metric.val}</span>
                               <div className="w-full h-1 bg-[var(--surface)] rounded-full mt-1.5 overflow-hidden">
                                 <div className={`h-full ${metric.color} rounded-full`} style={{ width: '75%' }} />
                               </div>
@@ -1991,12 +1991,12 @@ export function StudioPreview({
                     </div>
 
                     {/* Chat Sidebar */}
-                    <div className="flex-1 bg-[var(--bg)] p-3 flex flex-col justify-between text-[9px] text-[var(--text-lo)]">
+                    <div className="flex-1 bg-[var(--bg)] p-3 flex flex-col justify-between text-[9px] text-[var(--ink-lo)]">
                       <div className="border-b border-[var(--line)] pb-2 mb-2 flex items-center justify-between">
-                        <span className="font-extrabold text-[var(--text-hi)] flex items-center gap-1.5 uppercase tracking-wide">
+                        <span className="font-extrabold text-[var(--ink-hi)] flex items-center gap-1.5 uppercase tracking-wide">
                           <MessageSquare size={10} className="text-rose-500" /> Bate-papo (Guia)
                         </span>
-                        <span className="bg-[var(--panel)]/80 text-[8px] font-bold px-1 rounded text-[var(--text)]">Chat</span>
+                        <span className="bg-[var(--panel)]/80 text-[8px] font-bold px-1 rounded text-[var(--ink)]">Chat</span>
                       </div>
                       
                       <div className="flex-1 space-y-2 overflow-y-auto pr-1">
@@ -2011,7 +2011,7 @@ export function StudioPreview({
                         </div>
                       </div>
 
-                      <div className="mt-2 pt-2 border-t border-[var(--line)] text-[8px] text-[var(--text-dim)] text-center uppercase tracking-wider font-bold">
+                      <div className="mt-2 pt-2 border-t border-[var(--line)] text-[8px] text-[var(--ink-dim)] text-center uppercase tracking-wider font-bold">
                         Enviando como restream-bot
                       </div>
                     </div>
@@ -2031,18 +2031,18 @@ export function StudioPreview({
                           <span>📥 Entrada</span>
                           <span className="text-[8px] font-mono font-black bg-blue-500 text-white px-1.5 rounded-full">192</span>
                         </div>
-                        <div className="hover:bg-[var(--panel)]/40 text-[var(--text-lo)] px-2.5 py-1 rounded">⭐ Com Estrela</div>
-                        <div className="hover:bg-[var(--panel)]/40 text-[var(--text-lo)] px-2.5 py-1 rounded">📤 Enviados</div>
-                        <div className="hover:bg-[var(--panel)]/40 text-[var(--text-lo)] px-2.5 py-1 rounded">📝 Rascunhos</div>
+                        <div className="hover:bg-[var(--panel)]/40 text-[var(--ink-lo)] px-2.5 py-1 rounded">⭐ Com Estrela</div>
+                        <div className="hover:bg-[var(--panel)]/40 text-[var(--ink-lo)] px-2.5 py-1 rounded">📤 Enviados</div>
+                        <div className="hover:bg-[var(--panel)]/40 text-[var(--ink-lo)] px-2.5 py-1 rounded">📝 Rascunhos</div>
                       </div>
-                      <span className="text-[7px] text-[var(--text-dim)] font-mono text-center block">Google Workspace</span>
+                      <span className="text-[7px] text-[var(--ink-dim)] font-mono text-center block">Google Workspace</span>
                     </div>
 
                     {/* Gmail List */}
                     <div className="flex-1 p-3 bg-[var(--bg)] flex flex-col">
                       <div className="border-b border-[var(--line)]/60 pb-2 mb-2 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-[var(--text)]">Caixa de Entrada (mgdlms@gmail.com)</span>
-                        <span className="text-[8px] text-[var(--text-dim)]">Filtrado por: Mais Recentes</span>
+                        <span className="text-[10px] font-bold text-[var(--ink)]">Caixa de Entrada (mgdlms@gmail.com)</span>
+                        <span className="text-[8px] text-[var(--ink-dim)]">Filtrado por: Mais Recentes</span>
                       </div>
                       
                       <div className="flex-1 space-y-1.5 overflow-y-auto">
@@ -2055,12 +2055,12 @@ export function StudioPreview({
                           <div key={idx} className="bg-[var(--surface)]/60 border border-[var(--line)]/60 p-2 rounded-lg hover:border-blue-500/40 transition-all flex items-start gap-2.5">
                             <span className="text-[11px] shrink-0 mt-0.5">✉️</span>
                             <div className="flex-1 min-w-0 text-[9px]">
-                              <div className="flex justify-between font-bold text-[var(--text-hi)]">
+                              <div className="flex justify-between font-bold text-[var(--ink-hi)]">
                                 <span className="truncate">{email.sender}</span>
-                                <span className="text-[var(--text-dim)] font-mono text-[8px]">{email.time}</span>
+                                <span className="text-[var(--ink-dim)] font-mono text-[8px]">{email.time}</span>
                               </div>
                               <p className="text-blue-400 font-medium truncate mt-0.5">{email.title}</p>
-                              <p className="text-[var(--text-lo)] truncate mt-0.5 text-[8px]">{email.desc}</p>
+                              <p className="text-[var(--ink-lo)] truncate mt-0.5 text-[8px]">{email.desc}</p>
                             </div>
                           </div>
                         ))}
@@ -2076,7 +2076,7 @@ export function StudioPreview({
                     <div className="flex justify-between items-center border-b border-orange-500/20 pb-2 mb-3">
                       <div className="flex items-center gap-2">
                         <span className="p-1 rounded bg-orange-600 text-white font-extrabold text-[9px] tracking-wide uppercase">P</span>
-                        <span className="text-xs font-bold text-[var(--text-hi)]">Powerpoint - Apresentação de Vendas.pptx [Modo de Exibição]</span>
+                        <span className="text-xs font-bold text-[var(--ink-hi)]">Powerpoint - Apresentação de Vendas.pptx [Modo de Exibição]</span>
                       </div>
                       <span className="text-[8px] text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 shrink-0">SLIDE {pdfCurrentPage} / 12</span>
                     </div>
@@ -2098,7 +2098,7 @@ export function StudioPreview({
                           {pdfCurrentPage === 11 && "FAQ de Suporte"}
                           {pdfCurrentPage === 12 && "Fechamento & Contato"}
                         </span>
-                        <h3 className="text-base font-extrabold text-[var(--text-hi)] tracking-tight">
+                        <h3 className="text-base font-extrabold text-[var(--ink-hi)] tracking-tight">
                           {pdfCurrentPage === 1 && "Estratégia de Expansão Global Vega6"}
                           {pdfCurrentPage === 2 && "Vega6: Métricas de Crescimento 2026"}
                           {pdfCurrentPage === 3 && "Retenção de Clientes e Crescimento YoY"}
@@ -2112,7 +2112,7 @@ export function StudioPreview({
                           {pdfCurrentPage === 11 && "Canais de Atendimento Prioritários"}
                           {pdfCurrentPage === 12 && "Perguntas & Respostas (Q&A)"}
                         </h3>
-                        <p className="text-[10px] text-[var(--text-lo)] max-w-md mx-auto">
+                        <p className="text-[10px] text-[var(--ink-lo)] max-w-md mx-auto">
                           {pdfCurrentPage === 1 && "Bem-vindo à apresentação executiva do plano de aceleração corporativa para o ano de 2026."}
                           {pdfCurrentPage === 2 && "Demonstração das estatísticas consolidadas do último trimestre da plataforma."}
                           {pdfCurrentPage === 3 && "Foco absoluto em diminuir o Churn rate e expandir o Net Promoter Score por meio de ferramentas interativas."}
@@ -2131,21 +2131,21 @@ export function StudioPreview({
                       {/* Charts and columns */}
                       <div className="grid grid-cols-3 gap-3 max-w-md mx-auto w-full">
                         <div className="bg-[var(--surface)]/80 border border-[var(--line)] p-2.5 rounded-lg text-center">
-                          <span className="text-[8px] text-[var(--text-lo)] block uppercase font-bold">Crescimento MRR</span>
+                          <span className="text-[8px] text-[var(--ink-lo)] block uppercase font-bold">Crescimento MRR</span>
                           <span className="text-xs font-black text-emerald-400 block mt-0.5">+{30 + pdfCurrentPage * 2}% YoY</span>
                           <div className="h-1 bg-[var(--bg)] rounded-full mt-2 overflow-hidden">
                             <div className="h-full bg-emerald-500" style={{ width: `${60 + pdfCurrentPage * 3}%` }} />
                           </div>
                         </div>
                         <div className="bg-[var(--surface)]/80 border border-[var(--line)] p-2.5 rounded-lg text-center">
-                          <span className="text-[8px] text-[var(--text-lo)] block uppercase font-bold">Retenção de Clientes</span>
+                          <span className="text-[8px] text-[var(--ink-lo)] block uppercase font-bold">Retenção de Clientes</span>
                           <span className="text-xs font-black text-amber-400 block mt-0.5">{90 + (pdfCurrentPage * 0.4).toFixed(1)}%</span>
                           <div className="h-1 bg-[var(--bg)] rounded-full mt-2 overflow-hidden">
                             <div className="h-full bg-amber-500" style={{ width: `${80 + pdfCurrentPage * 1.5}%` }} />
                           </div>
                         </div>
                         <div className="bg-[var(--surface)]/80 border border-[var(--line)] p-2.5 rounded-lg text-center">
-                          <span className="text-[8px] text-[var(--text-lo)] block uppercase font-bold">Suporte CSAT</span>
+                          <span className="text-[8px] text-[var(--ink-lo)] block uppercase font-bold">Suporte CSAT</span>
                           <span className="text-xs font-black text-sky-400 block mt-0.5">{(4.0 + pdfCurrentPage * 0.08).toFixed(1)} / 5.0</span>
                           <div className="h-1 bg-[var(--bg)] rounded-full mt-2 overflow-hidden">
                             <div className="h-full bg-sky-500" style={{ width: `${70 + pdfCurrentPage * 2}%` }} />
@@ -2154,18 +2154,18 @@ export function StudioPreview({
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center text-[8px] text-[var(--text-dim)] pt-1.5 border-t border-[var(--line)]/40 shrink-0">
+                    <div className="flex justify-between items-center text-[8px] text-[var(--ink-dim)] pt-1.5 border-t border-[var(--line)]/40 shrink-0">
                       <span>Navegação do Apresentador</span>
                       <div className="flex gap-1.5">
                         <button 
                           onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
-                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
+                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
                         >
                           Anterior
                         </button>
                         <button 
                           onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
-                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
+                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
                         >
                           Próximo
                         </button>
@@ -2178,7 +2178,7 @@ export function StudioPreview({
                 {selectedSharedSource.name.includes('Como funciona') && (
                   <div className="flex-1 flex flex-col bg-[var(--bg)] p-4 justify-between">
                     <div className="flex justify-between items-center border-b border-red-500/10 pb-1.5 mb-2">
-                      <span className="text-xs font-bold text-[var(--text-hi)] flex items-center gap-1.5"><Youtube size={14} className="text-red-500" /> YouTube Premium Player</span>
+                      <span className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-1.5"><Youtube size={14} className="text-red-500" /> YouTube Premium Player</span>
                       <span className="text-[8px] bg-red-600 text-white font-bold px-1.5 rounded uppercase">Reproduzindo</span>
                     </div>
 
@@ -2188,12 +2188,12 @@ export function StudioPreview({
                         <div className="w-10 h-10 rounded-full bg-red-600/10 flex items-center justify-center text-red-500">
                           <Play size={16} fill="currentColor" />
                         </div>
-                        <h4 className="text-[11px] font-black text-[var(--text-hi)] px-4">Como funciona a tecnologia x prevenção na saúde inteligente</h4>
-                        <p className="text-[9px] text-[var(--text-lo)]">Vega6 Webinars & Palestras Acadêmicas</p>
+                        <h4 className="text-[11px] font-black text-[var(--ink-hi)] px-4">Como funciona a tecnologia x prevenção na saúde inteligente</h4>
+                        <p className="text-[9px] text-[var(--ink-lo)]">Vega6 Webinars & Palestras Acadêmicas</p>
                       </div>
 
                       {/* YouTube Player Controller Bar */}
-                      <div className="bg-black/80 p-2 rounded-lg border border-[var(--line)] mt-2 space-y-1 text-[8px] text-[var(--text-lo)]">
+                      <div className="bg-black/80 p-2 rounded-lg border border-[var(--line)] mt-2 space-y-1 text-[8px] text-[var(--ink-lo)]">
                         <div className="w-full h-1 bg-[var(--panel)] rounded-full overflow-hidden">
                           <div className="w-1/3 h-full bg-red-600" />
                         </div>
@@ -2212,7 +2212,7 @@ export function StudioPreview({
                     <div className="flex justify-between items-center border-b border-orange-500/20 pb-2 mb-2">
                       <div className="flex items-center gap-2 overflow-hidden">
                         <span className="p-1 px-1.5 rounded bg-orange-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">PDF</span>
-                        <span className="text-[11px] font-bold text-[var(--text-hi)] truncate max-w-sm">{selectedSharedSource.name}</span>
+                        <span className="text-[11px] font-bold text-[var(--ink-hi)] truncate max-w-sm">{selectedSharedSource.name}</span>
                       </div>
                       <span className="text-[8px] text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 shrink-0">SLIDE {pdfCurrentPage} DE 12</span>
                     </div>
@@ -2231,7 +2231,7 @@ export function StudioPreview({
                       <button 
                         onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
                         disabled={pdfCurrentPage === 12}
-                        className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--text-hi)] transition-all shadow z-10 ${
+                        className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--ink-hi)] transition-all shadow z-10 ${
                           pdfCurrentPage === 12 ? 'opacity-20 cursor-not-allowed' : 'opacity-100 cursor-pointer'
                         }`}
                       >
@@ -2254,7 +2254,7 @@ export function StudioPreview({
                           {pdfCurrentPage === 12 && "Conclusão & Próximos Passos"}
                         </span>
 
-                        <h3 className="text-sm font-black text-[var(--text-hi)] tracking-tight leading-snug">
+                        <h3 className="text-sm font-black text-[var(--ink-hi)] tracking-tight leading-snug">
                           {pdfCurrentPage === 1 && "Estratégia de Expansão Global Vega6"}
                           {pdfCurrentPage === 2 && "Maximização de Engajamento & Retenção"}
                           {pdfCurrentPage === 3 && "Análise Demográfica do Público-Alvo"}
@@ -2269,7 +2269,7 @@ export function StudioPreview({
                           {pdfCurrentPage === 12 && "Sessão de Perguntas & Respostas (Q&A)"}
                         </h3>
 
-                        <p className="text-[10px] text-[var(--text-lo)] max-w-md mx-auto leading-normal">
+                        <p className="text-[10px] text-[var(--ink-lo)] max-w-md mx-auto leading-normal">
                           {pdfCurrentPage === 1 && "Bem-vindo à apresentação executiva do plano de aceleração corporativa para o ano de 2026."}
                           {pdfCurrentPage === 2 && "Foco absoluto em diminuir o Churn rate e expandir o Net Promoter Score por meio de ferramentas interativas."}
                           {pdfCurrentPage === 3 && "Identificação dos segmentos de usuários com maior propensão de conversão para planos anuais."}
@@ -2288,37 +2288,37 @@ export function StudioPreview({
                       {pdfCurrentPage % 2 === 0 && (
                         <div className="grid grid-cols-4 gap-1.5 max-w-xs mx-auto w-full pt-1">
                           <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-[var(--text-dim)] block uppercase font-bold">Conversão</span>
+                            <span className="text-[6px] text-[var(--ink-dim)] block uppercase font-bold">Conversão</span>
                             <span className="text-[8px] font-bold text-emerald-400 block font-mono">14.2%</span>
                           </div>
                           <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-[var(--text-dim)] block uppercase font-bold">Interações</span>
+                            <span className="text-[6px] text-[var(--ink-dim)] block uppercase font-bold">Interações</span>
                             <span className="text-[8px] font-bold text-rose-400 block font-mono">82/min</span>
                           </div>
                           <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-[var(--text-dim)] block uppercase font-bold">Tempo Médio</span>
+                            <span className="text-[6px] text-[var(--ink-dim)] block uppercase font-bold">Tempo Médio</span>
                             <span className="text-[8px] font-bold text-blue-400 block font-mono">48m</span>
                           </div>
                           <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-[var(--text-dim)] block uppercase font-bold">Suporte</span>
+                            <span className="text-[6px] text-[var(--ink-dim)] block uppercase font-bold">Suporte</span>
                             <span className="text-[8px] font-bold text-amber-400 block font-mono">99.9%</span>
                           </div>
                         </div>
                       )}
                     </div>
 
-                    <div className="flex justify-between items-center text-[8px] text-[var(--text-dim)] pt-1.5 border-t border-[var(--line)]/40 shrink-0">
+                    <div className="flex justify-between items-center text-[8px] text-[var(--ink-dim)] pt-1.5 border-t border-[var(--line)]/40 shrink-0">
                       <span>Navegação do Apresentador</span>
                       <div className="flex gap-1.5">
                         <button 
                           onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
-                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
+                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
                         >
                           Anterior
                         </button>
                         <button 
                           onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
-                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
+                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
                         >
                           Próximo
                         </button>
@@ -2339,11 +2339,11 @@ export function StudioPreview({
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <div className="flex-1 flex flex-col justify-between p-4 bg-[var(--well)] text-[var(--text-hi)] font-sans min-h-0">
+                      <div className="flex-1 flex flex-col justify-between p-4 bg-[var(--well)] text-[var(--ink-hi)] font-sans min-h-0">
                         <div className="flex justify-between items-center border-b border-emerald-500/20 pb-1.5 mb-2 shrink-0">
                           <div className="flex items-center gap-1.5 overflow-hidden">
                             <span className="p-0.5 px-1.5 rounded bg-emerald-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">VIDEO</span>
-                            <span className="text-[11px] font-bold text-[var(--text-hi)] truncate max-w-sm">{selectedSharedSource.name}</span>
+                            <span className="text-[11px] font-bold text-[var(--ink-hi)] truncate max-w-sm">{selectedSharedSource.name}</span>
                           </div>
                           <span className="text-[8px] bg-emerald-600 text-white font-bold px-1.5 rounded uppercase animate-pulse shrink-0">REPRODUZINDO</span>
                         </div>
@@ -2353,14 +2353,14 @@ export function StudioPreview({
                             <Play size={16} fill="currentColor" />
                           </div>
                           <div className="space-y-0.5">
-                            <h4 className="text-[11px] font-extrabold text-[var(--text-hi)]">Transmissão de Vídeo Digital Ativa</h4>
-                            <p className="text-[9px] text-[var(--text-lo)] max-w-xs leading-normal">
+                            <h4 className="text-[11px] font-extrabold text-[var(--ink-hi)]">Transmissão de Vídeo Digital Ativa</h4>
+                            <p className="text-[9px] text-[var(--ink-lo)] max-w-xs leading-normal">
                               O reprodutor está processando áudio e vídeo integrados no palco de streaming.
                             </p>
                           </div>
                         </div>
 
-                        <div className="bg-[var(--bg)]/80 p-2 rounded-lg border border-[var(--line)] mt-2 flex items-center justify-between gap-3 text-[8px] font-mono text-[var(--text-lo)] shrink-0">
+                        <div className="bg-[var(--bg)]/80 p-2 rounded-lg border border-[var(--line)] mt-2 flex items-center justify-between gap-3 text-[8px] font-mono text-[var(--ink-lo)] shrink-0">
                           <span>01:45 / 03:00</span>
                           <div className="flex-1 h-1 bg-[var(--panel)] rounded-full overflow-hidden">
                             <div className="h-full bg-emerald-500 w-[58%]" />
@@ -2378,9 +2378,9 @@ export function StudioPreview({
                     <div className="flex justify-between items-center border-b border-[var(--line)] pb-2 shrink-0">
                       <div className="flex items-center gap-1.5 overflow-hidden">
                         <Monitor size={12} className="text-blue-400 shrink-0" />
-                        <span className="text-xs font-bold text-[var(--text-hi)] truncate max-w-xs">{selectedSharedSource.name}</span>
+                        <span className="text-xs font-bold text-[var(--ink-hi)] truncate max-w-xs">{selectedSharedSource.name}</span>
                       </div>
-                      <span className="text-[8px] font-mono font-bold text-[var(--text-lo)] shrink-0">DISPOSITIVO VIRTUAL</span>
+                      <span className="text-[8px] font-mono font-bold text-[var(--ink-lo)] shrink-0">DISPOSITIVO VIRTUAL</span>
                     </div>
 
                     <div className="flex-1 flex flex-col justify-center items-center text-center space-y-2 p-3 bg-[var(--surface)]/30 border border-[var(--line)]/50 rounded-xl my-2 min-h-0">
@@ -2388,12 +2388,12 @@ export function StudioPreview({
                         <Activity size={16} />
                       </div>
                       <div className="space-y-0.5">
-                        <h4 className="text-[11px] font-extrabold text-[var(--text-hi)]">Transmissão Compartilhada Ativa</h4>
-                        <p className="text-[9px] text-[var(--text-lo)] max-w-xs mx-auto">Sua tela está sendo transmitida em tempo real para os servidores de distribuição.</p>
+                        <h4 className="text-[11px] font-extrabold text-[var(--ink-hi)]">Transmissão Compartilhada Ativa</h4>
+                        <p className="text-[9px] text-[var(--ink-lo)] max-w-xs mx-auto">Sua tela está sendo transmitida em tempo real para os servidores de distribuição.</p>
                       </div>
                     </div>
 
-                    <div className="text-[8px] text-[var(--text-dim)] text-center font-mono uppercase tracking-wide shrink-0">
+                    <div className="text-[8px] text-[var(--ink-dim)] text-center font-mono uppercase tracking-wide shrink-0">
                       Compartilhamento de Áudio: {selectedSharedSource.audioShared ? 'ATIVADO' : 'DESATIVADO'}
                     </div>
                   </div>
@@ -2404,16 +2404,16 @@ export function StudioPreview({
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-center bg-gradient-to-br from-[var(--bg)] to-[var(--surface)] p-6">
               <Monitor size={48} className="text-[var(--color-brand)] mb-3 animate-pulse" />
-              <p className="text-sm font-semibold text-[var(--text-hi)]">Compartilhamento de Tela Ativo</p>
-              <p className="text-[11px] text-[var(--text-lo)] max-w-xs mt-1">Exibindo slides ou janelas do apresentador para os participantes.</p>
+              <p className="text-sm font-semibold text-[var(--ink-hi)]">Compartilhamento de Tela Ativo</p>
+              <p className="text-[11px] text-[var(--ink-lo)] max-w-xs mt-1">Exibindo slides ou janelas do apresentador para os participantes.</p>
             </div>
           )}
           {/* Label Tag */}
-          <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/60 text-[var(--text-hi)] tracking-wide flex items-center gap-1.5">
+          <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/60 text-[var(--ink-hi)] tracking-wide flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-[var(--color-brand-deep)] rounded-full animate-ping"></span>
             <span>Tela Compartilhada</span>
             {selectedSharedSource && (
-              <span className="text-[var(--text-lo)] font-mono text-[9px] border-l border-[var(--line-ctl)] pl-1.5 ml-0.5">
+              <span className="text-[var(--ink-lo)] font-mono text-[9px] border-l border-[var(--line-ctl)] pl-1.5 ml-0.5">
                 {selectedSharedSource.resolution || '1080p'} @ {selectedSharedSource.frameRate ? selectedSharedSource.frameRate.replace('fps', ' FPS') : '30 FPS'}
               </span>
             )}
@@ -2432,13 +2432,13 @@ export function StudioPreview({
             className="w-16 h-16 rounded-full object-cover border-2 border-dashed border-[var(--line-ctl)] mb-2 animate-pulse"
             referrerPolicy="no-referrer"
           />
-          <p className="text-xs font-semibold text-[var(--text-hi)]">{p.name}</p>
+          <p className="text-xs font-semibold text-[var(--ink-hi)]">{p.name}</p>
           <p className="text-[9px] text-blue-400 flex items-center gap-1 mt-0.5">
             <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Convidado Conectado
           </p>
         </div>
         {/* Label Tag */}
-        <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/50 text-[var(--text-hi)] tracking-wide">
+        <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/50 text-[var(--ink-hi)] tracking-wide">
           {p.name}
         </div>
       </div>
@@ -2497,7 +2497,7 @@ export function StudioPreview({
             }`}
           >
             {/* Top Bar with Drag Grip & Quick Scale Tools */}
-            <div className="flex items-center justify-between opacity-0 group-hover/speakercard:opacity-100 transition-opacity bg-black/85 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10 text-[var(--text-hi)] text-[9px] pointer-events-auto">
+            <div className="flex items-center justify-between opacity-0 group-hover/speakercard:opacity-100 transition-opacity bg-black/85 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10 text-[var(--ink-hi)] text-[9px] pointer-events-auto">
               <span className="flex items-center gap-1 font-bold text-[8px] uppercase tracking-wider text-blue-300">
                 <Move size={10} className="animate-pulse" />
                 <span>Mover</span>
@@ -2511,19 +2511,19 @@ export function StudioPreview({
                     e.stopPropagation();
                     setSpeakerCardScale(prev => Math.max(0.6, Number((prev - 0.1).toFixed(1))));
                   }}
-                  className="w-4 h-4 rounded bg-[var(--panel)] hover:bg-[var(--raise)] flex items-center justify-center text-[var(--text-hi)]"
+                  className="w-4 h-4 rounded bg-[var(--panel)] hover:bg-[var(--raise)] flex items-center justify-center text-[var(--ink-hi)]"
                   title="Diminuir tamanho"
                 >
                   -
                 </button>
-                <span className="font-mono text-[8px] text-[var(--text)]">{Math.round(speakerCardScale * 100)}%</span>
+                <span className="font-mono text-[8px] text-[var(--ink)]">{Math.round(speakerCardScale * 100)}%</span>
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSpeakerCardScale(prev => Math.min(1.8, Number((prev + 0.1).toFixed(1))));
                   }}
-                  className="w-4 h-4 rounded bg-[var(--panel)] hover:bg-[var(--raise)] flex items-center justify-center text-[var(--text-hi)]"
+                  className="w-4 h-4 rounded bg-[var(--panel)] hover:bg-[var(--raise)] flex items-center justify-center text-[var(--ink-hi)]"
                   title="Aumentar tamanho"
                 >
                   +
@@ -2540,7 +2540,7 @@ export function StudioPreview({
                     e.stopPropagation();
                     setSpeakerPresetPos('top-left');
                   }}
-                  className="p-1 hover:bg-blue-600 rounded text-[var(--text)] hover:text-white transition-colors"
+                  className="p-1 hover:bg-blue-600 rounded text-[var(--ink)] hover:text-white transition-colors"
                   title="Fixar no Topo Esquerdo (↖)"
                 >
                   <ArrowUpLeft size={10} />
@@ -2551,7 +2551,7 @@ export function StudioPreview({
                     e.stopPropagation();
                     setSpeakerPresetPos('top-right');
                   }}
-                  className="p-1 hover:bg-blue-600 rounded text-[var(--text)] hover:text-white transition-colors"
+                  className="p-1 hover:bg-blue-600 rounded text-[var(--ink)] hover:text-white transition-colors"
                   title="Fixar no Topo Direito (↗)"
                 >
                   <ArrowUpRight size={10} />
@@ -2562,7 +2562,7 @@ export function StudioPreview({
                     e.stopPropagation();
                     setSpeakerPresetPos('bottom-left');
                   }}
-                  className="p-1 hover:bg-blue-600 rounded text-[var(--text)] hover:text-white transition-colors"
+                  className="p-1 hover:bg-blue-600 rounded text-[var(--ink)] hover:text-white transition-colors"
                   title="Fixar na Base Esquerda (↙)"
                 >
                   <ArrowDownLeft size={10} />
@@ -2573,7 +2573,7 @@ export function StudioPreview({
                     e.stopPropagation();
                     setSpeakerPresetPos('bottom-right');
                   }}
-                  className="p-1 hover:bg-blue-600 rounded text-[var(--text)] hover:text-white transition-colors"
+                  className="p-1 hover:bg-blue-600 rounded text-[var(--ink)] hover:text-white transition-colors"
                   title="Fixar na Base Direita (↘)"
                 >
                   <ArrowDownRight size={10} />
@@ -2585,7 +2585,7 @@ export function StudioPreview({
                     e.stopPropagation();
                     setSpeakerCardShape(prev => prev === 'rounded' ? 'circle' : prev === 'circle' ? 'compact' : 'rounded');
                   }}
-                  className="px-1 py-0.5 hover:bg-blue-600 rounded text-[8px] font-bold text-[var(--text)] hover:text-white transition-colors"
+                  className="px-1 py-0.5 hover:bg-blue-600 rounded text-[8px] font-bold text-[var(--ink)] hover:text-white transition-colors"
                   title="Alterar Formato do Card (Retângulo / Círculo / Compacto)"
                 >
                   {isCircle ? 'Circ' : isCompact ? 'Mini' : 'Ret'}
@@ -2596,7 +2596,7 @@ export function StudioPreview({
                     e.stopPropagation();
                     resetSpeakerCardPos();
                   }}
-                  className="p-1 hover:bg-rose-600 rounded text-[var(--text)] hover:text-white transition-colors"
+                  className="p-1 hover:bg-rose-600 rounded text-[var(--ink)] hover:text-white transition-colors"
                   title="Resetar Posição Padrão"
                 >
                   <RotateCcw size={10} />
@@ -2634,8 +2634,8 @@ export function StudioPreview({
       return (
         <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--bg)]/95 text-center p-6">
           <ShieldAlert size={48} className="text-[var(--color-brand)] mb-3" />
-          <p className="text-base font-semibold text-[var(--text-hi)]">Transmissão Vazia</p>
-          <p className="text-xs text-[var(--text-lo)] max-w-sm mt-1">Adicione o seu vídeo ou compartilhamento de tela ao palco para começar.</p>
+          <p className="text-base font-semibold text-[var(--ink-hi)]">Transmissão Vazia</p>
+          <p className="text-xs text-[var(--ink-lo)] max-w-sm mt-1">Adicione o seu vídeo ou compartilhamento de tela ao palco para começar.</p>
           <button 
             onClick={() => onToggleParticipantActive('p-local')}
             className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white text-xs font-semibold rounded-lg transition-all"
@@ -2817,12 +2817,12 @@ export function StudioPreview({
               <span className="bg-red-600 text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded tracking-widest text-white animate-blink">
                 AO VIVO
               </span>
-              <span className="bg-black/60 text-[8px] sm:text-[10px] font-mono font-semibold px-1.5 sm:px-2 py-0.5 rounded text-[var(--text-hi)]">
+              <span className="bg-black/60 text-[8px] sm:text-[10px] font-mono font-semibold px-1.5 sm:px-2 py-0.5 rounded text-[var(--ink-hi)]">
                 {formatTime(liveTime)}
               </span>
             </>
           ) : (
-            <span className="bg-[var(--raise)] text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded tracking-wide text-[var(--text-hi)]">
+            <span className="bg-[var(--raise)] text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded tracking-wide text-[var(--ink-hi)]">
               PREVIEW
             </span>
           )}
@@ -2835,11 +2835,11 @@ export function StudioPreview({
               className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 rounded text-[7px] sm:text-[8px] font-black tracking-wider uppercase transition-all shadow-md cursor-pointer border ${
                 isFloatingChatOpen
                   ? 'bg-blue-600/30 border-blue-400 text-blue-200 hover:bg-blue-600/40 ring-1 ring-blue-500/30'
-                  : 'bg-black/60 border-white/10 text-[var(--text)] hover:text-[var(--text-hi)] hover:bg-black/80'
+                  : 'bg-black/60 border-white/10 text-[var(--ink)] hover:text-[var(--ink-hi)] hover:bg-black/80'
               }`}
               title={isFloatingChatOpen ? "Ocultar Chat Flutuante" : "Exibir Chat Flutuante no Preview"}
             >
-              <MessageSquare size={10} className={isFloatingChatOpen ? 'text-blue-400 animate-pulse' : 'text-[var(--text-lo)]'} />
+              <MessageSquare size={10} className={isFloatingChatOpen ? 'text-blue-400 animate-pulse' : 'text-[var(--ink-lo)]'} />
               <span>Chat: {isFloatingChatOpen ? 'ON' : 'OFF'}</span>
               {comments && comments.length > 0 && (
                 <span className="bg-blue-500 text-white px-1 py-0.2 rounded-full text-[7px] font-mono leading-none">
@@ -2857,7 +2857,7 @@ export function StudioPreview({
               className={`px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                 isDrawingMode 
                   ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' 
-                  : 'bg-black/65 hover:bg-[var(--panel)] text-[var(--text)] hover:text-[var(--text-hi)] border border-[var(--line)]/80'
+                  : 'bg-black/65 hover:bg-[var(--panel)] text-[var(--ink)] hover:text-[var(--ink-hi)] border border-[var(--line)]/80'
               }`}
             >
               <Pencil size={11} className={isDrawingMode ? "animate-pulse" : ""} />
@@ -2870,7 +2870,7 @@ export function StudioPreview({
             <button
               type="button"
               onClick={handleTakeSnapshot}
-              className="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide transition-all duration-200 cursor-pointer bg-black/65 hover:bg-blue-600 text-[var(--text)] hover:text-white border border-[var(--line)]/80 flex items-center gap-1.5 active:scale-95"
+              className="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide transition-all duration-200 cursor-pointer bg-black/65 hover:bg-blue-600 text-[var(--ink)] hover:text-white border border-[var(--line)]/80 flex items-center gap-1.5 active:scale-95"
               title="Tirar Snapshot da Transmissão"
             >
               <Camera size={11} />
@@ -3118,10 +3118,10 @@ export function StudioPreview({
                 </div>
                 
                 <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-[var(--text)]">
+                  <h4 className="text-sm font-bold text-[var(--ink)]">
                     {isLive ? 'Voltamos em breve!' : 'O Webinar começará em:'}
                   </h4>
-                  <p className="text-[10px] text-[var(--text-dim)] uppercase tracking-wider font-semibold">
+                  <p className="text-[10px] text-[var(--ink-dim)] uppercase tracking-wider font-semibold">
                     Aproveite para preparar sua água
                   </p>
                 </div>
@@ -3144,7 +3144,7 @@ export function StudioPreview({
                   />
                 </div>
 
-                <p className="text-[9px] text-[var(--text-lo)] font-medium leading-relaxed">
+                <p className="text-[9px] text-[var(--ink-lo)] font-medium leading-relaxed">
                   {isCountdownActive ? 'Contagem regressiva ao vivo' : 'Temporizador pausado pelo produtor'}
                 </p>
               </motion.div>
@@ -3174,8 +3174,8 @@ export function StudioPreview({
 
               {/* Thumbnail Preview box */}
               <div className="relative aspect-video w-full rounded-xl bg-[var(--bg)] border border-[var(--line)]/80 overflow-hidden flex flex-col justify-between p-2.5 shadow-inner">
-                <div className="flex justify-between items-center text-[7px] text-[var(--text-dim)] uppercase tracking-wider">
-                  <span className="truncate max-w-[120px] font-bold text-[var(--text)]">{selectedSharedSource.name}</span>
+                <div className="flex justify-between items-center text-[7px] text-[var(--ink-dim)] uppercase tracking-wider">
+                  <span className="truncate max-w-[120px] font-bold text-[var(--ink)]">{selectedSharedSource.name}</span>
                   <span className="shrink-0 font-bold text-orange-400 bg-orange-500/10 px-1.5 py-0.2 rounded border border-orange-500/20">
                     SLIDE {pdfCurrentPage} / 12
                   </span>
@@ -3184,7 +3184,7 @@ export function StudioPreview({
                 {/* Dynamic Thumbnail Content based on current page */}
                 <div className="flex-1 flex flex-col justify-center items-center text-center p-1 space-y-1">
                   <Presentation size={14} className="text-blue-400 animate-pulse" />
-                  <h4 className="text-[8px] font-extrabold text-[var(--text-hi)] leading-tight truncate max-w-full">
+                  <h4 className="text-[8px] font-extrabold text-[var(--ink-hi)] leading-tight truncate max-w-full">
                     {pdfCurrentPage === 1 && "Estratégia de Expansão Global Vega6"}
                     {pdfCurrentPage === 2 && (selectedSharedSource.type === 'pdf' ? "Maximização de Engajamento & Retenção" : "Vega6: Métricas de Crescimento 2026")}
                     {pdfCurrentPage === 3 && (selectedSharedSource.type === 'pdf' ? "Análise Demográfica do Público-Alvo" : "Retenção de Clientes e Crescimento YoY")}
@@ -3198,7 +3198,7 @@ export function StudioPreview({
                     {pdfCurrentPage === 11 && (selectedSharedSource.type === 'pdf' ? "Suporte ao Cliente & SLA de 99.9%" : "Canais de Atendimento Prioritários")}
                     {pdfCurrentPage === 12 && "Sessão de Perguntas & Respostas (Q&A)"}
                   </h4>
-                  <p className="text-[6.5px] text-[var(--text-dim)] uppercase tracking-wide font-mono">
+                  <p className="text-[6.5px] text-[var(--ink-dim)] uppercase tracking-wide font-mono">
                     Slide Pré-carregado
                   </p>
                 </div>
@@ -3218,7 +3218,7 @@ export function StudioPreview({
                   type="button"
                   onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={pdfCurrentPage === 1}
-                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-[var(--text-hi)] transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
+                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] hover:text-[var(--ink-hi)] transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
                 >
                   <ChevronLeft size={10} />
                   Anterior
@@ -3228,7 +3228,7 @@ export function StudioPreview({
                   type="button"
                   onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
                   disabled={pdfCurrentPage === 12}
-                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-[var(--text-hi)] transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
+                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] hover:text-[var(--ink-hi)] transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
                 >
                   Próximo
                   <ChevronRight size={10} />
@@ -3272,12 +3272,12 @@ export function StudioPreview({
               />
               <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-bold text-[var(--text-hi)] text-[10px] truncate leading-none">{pinnedComment.authorName}</span>
+                  <span className="font-bold text-[var(--ink-hi)] text-[10px] truncate leading-none">{pinnedComment.authorName}</span>
                   <span className="text-[7px] text-[var(--color-brand)] uppercase px-1.5 py-0.5 rounded bg-blue-500/20 font-bold tracking-wider leading-none shadow-xs">
                     {pinnedComment.platform}
                   </span>
                 </div>
-                <p className="text-[var(--text-hi)] text-[11px] leading-tight break-words font-medium">{pinnedComment.text}</p>
+                <p className="text-[var(--ink-hi)] text-[11px] leading-tight break-words font-medium">{pinnedComment.text}</p>
               </div>
             </motion.div>
           )}
@@ -3304,11 +3304,11 @@ export function StudioPreview({
                     <MessageSquare size={13} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-[var(--text-hi)] flex items-center gap-1.5 leading-none">
+                    <h4 className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-1.5 leading-none">
                       Chat Flutuante
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                     </h4>
-                    <p className="text-[9px] text-[var(--text-lo)] mt-0.5">Comentários ao vivo</p>
+                    <p className="text-[9px] text-[var(--ink-lo)] mt-0.5">Comentários ao vivo</p>
                   </div>
                 </div>
 
@@ -3316,7 +3316,7 @@ export function StudioPreview({
                   <button
                     type="button"
                     onClick={() => setIsFloatingChatOpen(false)}
-                    className="p-1 hover:bg-[var(--panel)] rounded-lg text-[var(--text-lo)] hover:text-[var(--text-hi)] transition-colors cursor-pointer"
+                    className="p-1 hover:bg-[var(--panel)] rounded-lg text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-colors cursor-pointer"
                     title="Ocultar Chat Flutuante"
                   >
                     <X size={14} />
@@ -3327,7 +3327,7 @@ export function StudioPreview({
               {/* List of recent comments */}
               <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1 text-left custom-scrollbar">
                 {!comments || comments.length === 0 ? (
-                  <div className="text-center py-6 text-[var(--text-dim)] text-xs animate-in fade-in duration-300">
+                  <div className="text-center py-6 text-[var(--ink-dim)] text-xs animate-in fade-in duration-300">
                     Nenhum comentário recebido ainda.
                   </div>
                 ) : (
@@ -3355,7 +3355,7 @@ export function StudioPreview({
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1">
-                            <span className="font-semibold text-[var(--text-hi)] text-[10px] truncate">{comm.authorName}</span>
+                            <span className="font-semibold text-[var(--ink-hi)] text-[10px] truncate">{comm.authorName}</span>
                             <div className="flex items-center gap-1">
                               <span className="text-[7px] text-blue-400 uppercase px-1 py-0.2 rounded bg-blue-500/10 font-bold tracking-wider">
                                 {comm.platform}
@@ -3365,7 +3365,7 @@ export function StudioPreview({
                                   type="button"
                                   onClick={() => onPinComment(isPinned ? null : comm.id)}
                                   className={`p-0.5 rounded transition-colors ${
-                                    isPinned ? 'bg-blue-500 text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--raise)]'
+                                    isPinned ? 'bg-blue-500 text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--raise)]'
                                   }`}
                                   title={isPinned ? "Desafixar comentário" : "Fixar comentário na tela"}
                                 >
@@ -3374,7 +3374,7 @@ export function StudioPreview({
                               )}
                             </div>
                           </div>
-                          <p className="text-[var(--text-hi)] text-[10px] mt-0.5 break-words leading-snug">
+                          <p className="text-[var(--ink-hi)] text-[10px] mt-0.5 break-words leading-snug">
                             {comm.text}
                           </p>
                         </div>
@@ -3422,7 +3422,7 @@ export function StudioPreview({
                 {/* Main Title / Lower pill */}
                 <div 
                   style={{ backgroundColor: activeBanner.themeColor || '#1d273b' }}
-                  className="px-4 py-2.5 sm:py-3 text-sm sm:text-base font-extrabold text-[var(--text-hi)] rounded-tr-xl rounded-br-2xl rounded-bl-xl shadow-2xl border-l-4 border-lime-400 leading-snug break-words"
+                  className="px-4 py-2.5 sm:py-3 text-sm sm:text-base font-extrabold text-[var(--ink-hi)] rounded-tr-xl rounded-br-2xl rounded-bl-xl shadow-2xl border-l-4 border-lime-400 leading-snug break-words"
                 >
                   {activeBanner.text}
                 </div>
@@ -3432,8 +3432,8 @@ export function StudioPreview({
               {(isHoveringBanner || isDraggingBanner || isResizingBanner) && (
                 <>
                   {/* Top toolbar */}
-                  <div className="absolute -top-8 left-0 flex items-center gap-1.5 bg-[var(--bg)]/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-[var(--line-ctl)] shadow-xl text-[10px] text-[var(--text-hi)] pointer-events-auto">
-                    <span className="text-[var(--text-lo)] font-bold text-[9px] uppercase tracking-wider flex items-center gap-1">
+                  <div className="absolute -top-8 left-0 flex items-center gap-1.5 bg-[var(--bg)]/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-[var(--line-ctl)] shadow-xl text-[10px] text-[var(--ink-hi)] pointer-events-auto">
+                    <span className="text-[var(--ink-lo)] font-bold text-[9px] uppercase tracking-wider flex items-center gap-1">
                       <Move size={10} className="text-indigo-400" /> Arrastar Banner
                     </span>
                     <div className="w-px h-3 bg-[var(--raise)]" />
@@ -3493,7 +3493,7 @@ export function StudioPreview({
               {/* Badge Indicator */}
               <div 
                 style={{ backgroundColor: streamColor }}
-                className="h-full shrink-0 flex items-center justify-center px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[var(--text-hi)] shadow-md z-10 animate-ticker-badge"
+                className="h-full shrink-0 flex items-center justify-center px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[var(--ink-hi)] shadow-md z-10 animate-ticker-badge"
               >
                 {activeTicker.badgeText || 'ALERTA'}
               </div>
@@ -3504,7 +3504,7 @@ export function StudioPreview({
                   style={{
                     animationDuration: tickerSpeed === 'slow' ? '25s' : tickerSpeed === 'fast' ? '8s' : '15s'
                   }}
-                  className={`${tickerDirection === 'right' ? 'animate-ticker-right' : 'animate-ticker-left'} text-xs sm:text-sm font-semibold text-[var(--text-hi)] whitespace-nowrap pl-4 pr-12`}
+                  className={`${tickerDirection === 'right' ? 'animate-ticker-right' : 'animate-ticker-left'} text-xs sm:text-sm font-semibold text-[var(--ink-hi)] whitespace-nowrap pl-4 pr-12`}
                 >
                   {activeTicker.text} &nbsp; &bull; &nbsp; {activeTicker.text}
                 </div>
@@ -3514,7 +3514,7 @@ export function StudioPreview({
               <button
                 type="button"
                 onClick={() => onSetActiveTicker?.(null)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-[var(--surface)]/80 hover:bg-red-600 text-[var(--text)] hover:text-white p-1 rounded-md text-[10px] z-20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-md"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-[var(--surface)]/80 hover:bg-red-600 text-[var(--ink)] hover:text-white p-1 rounded-md text-[10px] z-20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-md"
                 title="Ocultar Barra de Rolagem"
               >
                 <X size={12} />
@@ -3537,7 +3537,7 @@ export function StudioPreview({
               <div className="absolute top-3 right-3 z-40 bg-[var(--well)]/90 backdrop-blur-xl border border-[var(--line)] rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-xl">
                 <div className="flex items-center gap-1.5 pr-2 border-r border-[var(--line)]">
                   <span className={`w-2 h-2 rounded-full ${isTeleprompterPlaying ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-                  <span className="text-[10px] font-black uppercase tracking-wider text-[var(--text)] hidden sm:inline flex items-center gap-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[var(--ink)] hidden sm:inline flex items-center gap-1">
                     <FileText size={11} className="text-blue-400" />
                     {isTeleprompterPlaying ? 'Lendo...' : 'Pausado'}
                   </span>
@@ -3563,7 +3563,7 @@ export function StudioPreview({
                   onClick={() => {
                     if (studioPrompterRef.current) studioPrompterRef.current.scrollTop = 0;
                   }}
-                  className="p-1.5 text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)] rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)] rounded-lg transition-colors cursor-pointer"
                   title="Voltar ao topo"
                 >
                   <RotateCcw size={13} />
@@ -3573,7 +3573,7 @@ export function StudioPreview({
                 <button
                   type="button"
                   onClick={() => onToggleShowTeleprompterOnStudio()}
-                  className="p-1.5 text-[var(--text-lo)] hover:text-red-400 hover:bg-[var(--panel)] rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-[var(--ink-lo)] hover:text-red-400 hover:bg-[var(--panel)] rounded-lg transition-colors cursor-pointer"
                   title="Fechar Teleprompter do Palco"
                 >
                   <X size={14} />
@@ -3601,7 +3601,7 @@ export function StudioPreview({
                   teleprompterFontSize === 'md' ? 'text-lg sm:text-xl' :
                   teleprompterFontSize === 'xl' ? 'text-2xl sm:text-4xl font-black' :
                   'text-xl sm:text-3xl'
-                } ${isTeleprompterPlaying ? 'text-yellow-300' : 'text-[var(--text-hi)]'}`}
+                } ${isTeleprompterPlaying ? 'text-yellow-300' : 'text-[var(--ink-hi)]'}`}
               >
                 {/* Generous top spacer so text enters at center reading line */}
                 <div className="h-[40vh]" />
@@ -3672,19 +3672,19 @@ export function StudioPreview({
                       e.stopPropagation();
                       setQrCodeScale(prev => Math.max(0.6, Number((prev - 0.1).toFixed(1))));
                     }}
-                    className="p-0.5 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-[var(--text-hi)] rounded text-[9px] font-bold cursor-pointer"
+                    className="p-0.5 hover:bg-[var(--panel)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] rounded text-[9px] font-bold cursor-pointer"
                     title="Diminuir Escala"
                   >
                     -
                   </button>
-                  <span className="text-[8px] font-mono text-[var(--text)]">{Math.round(qrCodeScale * 100)}%</span>
+                  <span className="text-[8px] font-mono text-[var(--ink)]">{Math.round(qrCodeScale * 100)}%</span>
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setQrCodeScale(prev => Math.min(1.8, Number((prev + 0.1).toFixed(1))));
                     }}
-                    className="p-0.5 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-[var(--text-hi)] rounded text-[9px] font-bold cursor-pointer"
+                    className="p-0.5 hover:bg-[var(--panel)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] rounded text-[9px] font-bold cursor-pointer"
                     title="Aumentar Escala"
                   >
                     +
@@ -3709,7 +3709,7 @@ export function StudioPreview({
                         e.stopPropagation();
                         onToggleShowQrCode(false);
                       }}
-                      className="p-0.5 hover:bg-red-600/30 text-[var(--text-lo)] hover:text-red-400 rounded cursor-pointer"
+                      className="p-0.5 hover:bg-red-600/30 text-[var(--ink-lo)] hover:text-red-400 rounded cursor-pointer"
                       title="Ocultar da Tela"
                     >
                       <X size={9} />
@@ -3745,8 +3745,8 @@ export function StudioPreview({
 
                 // Card Theme classes
                 let themeClasses = {
-                  bg: 'bg-[var(--bg)]/95 text-[var(--text-hi)] border-[var(--line)] shadow-2xl',
-                  subtext: 'text-[var(--text-lo)]',
+                  bg: 'bg-[var(--bg)]/95 text-[var(--ink-hi)] border-[var(--line)] shadow-2xl',
+                  subtext: 'text-[var(--ink-lo)]',
                   priceColor: 'text-emerald-400',
                   border: 'border-[var(--line)]'
                 };
@@ -3754,35 +3754,35 @@ export function StudioPreview({
                 if (effectiveConfig.cardTheme === 'light') {
                   themeClasses = {
                     bg: 'bg-white/95 text-slate-900 border-slate-200 shadow-2xl',
-                    subtext: 'text-[var(--text-dim)]',
+                    subtext: 'text-[var(--ink-dim)]',
                     priceColor: 'text-emerald-600',
                     border: 'border-slate-300'
                   };
                 } else if (effectiveConfig.cardTheme === 'brand') {
                   themeClasses = {
-                    bg: 'bg-[var(--bg)]/95 text-[var(--text-hi)] border-blue-500/40 shadow-[0_10px_30px_rgba(70,131,224,0.3)]',
+                    bg: 'bg-[var(--bg)]/95 text-[var(--ink-hi)] border-blue-500/40 shadow-[0_10px_30px_rgba(70,131,224,0.3)]',
                     subtext: 'text-blue-200/70',
                     priceColor: 'text-blue-400',
                     border: 'border-blue-500/30'
                   };
                 } else if (effectiveConfig.cardTheme === 'neon') {
                   themeClasses = {
-                    bg: 'bg-[var(--well)]/95 text-[var(--text-hi)] border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
+                    bg: 'bg-[var(--well)]/95 text-[var(--ink-hi)] border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
                     subtext: 'text-cyan-200/80',
                     priceColor: 'text-cyan-400',
                     border: 'border-cyan-500/40'
                   };
                 } else if (effectiveConfig.cardTheme === 'gold') {
                   themeClasses = {
-                    bg: 'bg-[var(--bg)]/95 text-[var(--text-hi)] border-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.25)]',
+                    bg: 'bg-[var(--bg)]/95 text-[var(--ink-hi)] border-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.25)]',
                     subtext: 'text-amber-200/80',
                     priceColor: 'text-amber-400',
                     border: 'border-amber-500/40'
                   };
                 } else if (effectiveConfig.cardTheme === 'glass') {
                   themeClasses = {
-                    bg: 'bg-[var(--bg)]/75 backdrop-blur-xl text-[var(--text-hi)] border-white/20 shadow-2xl',
-                    subtext: 'text-[var(--text)]',
+                    bg: 'bg-[var(--bg)]/75 backdrop-blur-xl text-[var(--ink-hi)] border-white/20 shadow-2xl',
+                    subtext: 'text-[var(--ink)]',
                     priceColor: 'text-emerald-400',
                     border: 'border-white/15'
                   };
@@ -3824,7 +3824,7 @@ export function StudioPreview({
                             </span>
                           )}
                           {effectiveConfig.showPrice && effectiveConfig.originalPrice && (
-                            <span className="text-[9px] text-[var(--text-dim)] line-through">
+                            <span className="text-[9px] text-[var(--ink-dim)] line-through">
                               {effectiveConfig.originalPrice}
                             </span>
                           )}
@@ -3890,7 +3890,7 @@ export function StudioPreview({
                           </span>
                         )}
                         {effectiveConfig.showPrice && effectiveConfig.originalPrice && (
-                          <span className="text-[9px] text-[var(--text-dim)] line-through">
+                          <span className="text-[9px] text-[var(--ink-dim)] line-through">
                             {effectiveConfig.originalPrice}
                           </span>
                         )}
@@ -3951,7 +3951,7 @@ export function StudioPreview({
             {/* Status light & Label */}
             <div className="flex items-center gap-1.5 pr-2.5 border-r border-[var(--line)] shrink-0">
               <span className="w-2 h-2 bg-rose-500 rounded-full animate-ping"></span>
-              <span className="text-[9px] font-black tracking-wider text-[var(--text-lo)] uppercase">LOUSA ATIVA</span>
+              <span className="text-[9px] font-black tracking-wider text-[var(--ink-lo)] uppercase">LOUSA ATIVA</span>
             </div>
 
             {/* Quick Colors Selector */}
@@ -4023,7 +4023,7 @@ export function StudioPreview({
                   className={`px-2 py-0.5 rounded text-[8px] font-extrabold uppercase transition-all cursor-pointer ${
                     drawThickness === size.val
                       ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-[var(--surface)]/80 text-[var(--text-lo)] hover:text-[var(--text-hi)] border border-transparent'
+                      : 'bg-[var(--surface)]/80 text-[var(--ink-lo)] hover:text-[var(--ink-hi)] border border-transparent'
                   }`}
                 >
                   {size.label}
@@ -4053,7 +4053,7 @@ export function StudioPreview({
               <button
                 type="button"
                 onClick={() => setIsDrawingMode(false)}
-                className="p-1 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-[var(--text-hi)] rounded-md transition-all cursor-pointer flex items-center justify-center"
+                className="p-1 hover:bg-[var(--panel)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] rounded-md transition-all cursor-pointer flex items-center justify-center"
                 title="Sair da Lousa"
               >
                 <X size={13} />

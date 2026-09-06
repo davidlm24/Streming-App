@@ -118,12 +118,12 @@ export function ProgramMonitorView({
               <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-[var(--color-brand)] mb-1">
                 <User size={20} />
               </div>
-              <p className="text-[11px] font-semibold text-[var(--text-hi)]">Marcos (Você)</p>
+              <p className="text-[11px] font-semibold text-[var(--ink-hi)]">Marcos (Você)</p>
             </div>
           )}
           <div 
             style={{ backgroundColor: streamColor }}
-            className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-bold shadow text-[var(--text-hi)]"
+            className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-bold shadow text-[var(--ink-hi)]"
           >
             Marcos (Palestrante)
           </div>
@@ -135,15 +135,15 @@ export function ProgramMonitorView({
       return (
         <div key={p.id} className={`relative w-full h-full bg-[var(--bg)] overflow-hidden rounded-lg flex flex-col justify-between border border-[var(--line)] ${customClass}`}>
           <div className="bg-[var(--surface)]/90 px-2 py-1 flex items-center justify-between border-b border-[var(--line)]">
-            <span className="text-[9px] font-bold text-[var(--text)] truncate">{activeSlide.name}</span>
+            <span className="text-[9px] font-bold text-[var(--ink)] truncate">{activeSlide.name}</span>
             <span className="text-[8px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.2 rounded">
               PÁG {activeSlide.currentPage}/{activeSlide.totalPages}
             </span>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center p-2 text-center bg-gradient-to-br from-[var(--bg)] to-[var(--well)]">
             <Sparkles size={20} className="text-emerald-400 mb-1 animate-pulse" />
-            <p className="text-[11px] font-black text-[var(--text-hi)]">Planejamento Estratégico</p>
-            <p className="text-[8px] text-[var(--text-lo)]">Transmissão de Slides Ativa</p>
+            <p className="text-[11px] font-black text-[var(--ink-hi)]">Planejamento Estratégico</p>
+            <p className="text-[8px] text-[var(--ink-lo)]">Transmissão de Slides Ativa</p>
           </div>
         </div>
       );
@@ -152,12 +152,12 @@ export function ProgramMonitorView({
     return (
       <div key={p.id} className={`relative w-full h-full bg-[var(--surface)] overflow-hidden rounded-lg flex items-center justify-center ${customClass}`}>
         <div className="flex flex-col items-center justify-center text-center p-2">
-          <div className="w-10 h-10 rounded-full bg-[var(--raise)]/50 flex items-center justify-center text-[var(--text)] mb-1">
+          <div className="w-10 h-10 rounded-full bg-[var(--raise)]/50 flex items-center justify-center text-[var(--ink)] mb-1">
             <User size={18} />
           </div>
-          <p className="text-[10px] font-medium text-[var(--text-hi)]">{p.name || 'Convidado'}</p>
+          <p className="text-[10px] font-medium text-[var(--ink-hi)]">{p.name || 'Convidado'}</p>
         </div>
-        <div className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded text-[8px] font-semibold bg-black/60 text-[var(--text-hi)]">
+        <div className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded text-[8px] font-semibold bg-black/60 text-[var(--ink-hi)]">
           {p.name || 'Convidado'}
         </div>
       </div>
@@ -168,7 +168,7 @@ export function ProgramMonitorView({
     if (feeds.length === 0) {
       return (
         <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
-          <p className="text-xs text-[var(--text-lo)] font-bold">Nenhum participante no ar</p>
+          <p className="text-xs text-[var(--ink-lo)] font-bold">Nenhum participante no ar</p>
         </div>
       );
     }
@@ -244,7 +244,7 @@ export function ProgramMonitorView({
             {formatTime(liveTime)}
           </span>
         ) : (
-          <span className="bg-[var(--surface)]/80 text-[8px] font-mono text-[var(--text-lo)] px-1.5 py-0.5 rounded">
+          <span className="bg-[var(--surface)]/80 text-[8px] font-mono text-[var(--ink-lo)] px-1.5 py-0.5 rounded">
             TRANSMISSÃO PRONTA
           </span>
         )}
@@ -278,7 +278,7 @@ export function ProgramMonitorView({
           <img src={pinnedComment.authorAvatar} alt="" className="w-6 h-6 rounded-full" />
           <div className="flex-1 min-w-0">
             <span className="text-[9px] font-bold text-blue-400 block">{pinnedComment.authorName}</span>
-            <p className="text-[10px] text-[var(--text-hi)] truncate">{pinnedComment.text}</p>
+            <p className="text-[10px] text-[var(--ink-hi)] truncate">{pinnedComment.text}</p>
           </div>
         </div>
       )}
@@ -303,7 +303,7 @@ export function ProgramMonitorView({
           )}
           <div 
             style={{ backgroundColor: activeBanner.themeColor || '#1d273b' }}
-            className="px-3 py-1.5 rounded-md border-l-4 border-emerald-400 text-[var(--text-hi)] font-bold text-[11px] shadow-xl truncate"
+            className="px-3 py-1.5 rounded-md border-l-4 border-emerald-400 text-[var(--ink-hi)] font-bold text-[11px] shadow-xl truncate"
           >
             {activeBanner.text}
           </div>
@@ -315,11 +315,11 @@ export function ProgramMonitorView({
         <div className="absolute bottom-0 inset-x-0 h-6 bg-[var(--bg)]/95 border-t border-[var(--line)] z-30 flex items-center overflow-hidden">
           <div 
             style={{ backgroundColor: streamColor }}
-            className="h-full px-2 text-[8px] font-black text-[var(--text-hi)] flex items-center uppercase shrink-0"
+            className="h-full px-2 text-[8px] font-black text-[var(--ink-hi)] flex items-center uppercase shrink-0"
           >
             {activeTicker.badgeText || 'ALERTA'}
           </div>
-          <div className="px-2 text-[9px] font-semibold text-[var(--text-hi)] whitespace-nowrap truncate animate-pulse">
+          <div className="px-2 text-[9px] font-semibold text-[var(--ink-hi)] whitespace-nowrap truncate animate-pulse">
             {activeTicker.text}
           </div>
         </div>
@@ -333,7 +333,7 @@ export function ProgramMonitorView({
             alt="QR Code" 
             className="w-12 h-12"
           />
-          <span className="text-[7px] font-black text-[var(--text-hi)] uppercase mt-0.5">ACESSE</span>
+          <span className="text-[7px] font-black text-[var(--ink-hi)] uppercase mt-0.5">ACESSE</span>
         </div>
       )}
     </div>
