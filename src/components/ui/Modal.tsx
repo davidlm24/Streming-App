@@ -27,6 +27,11 @@ export interface ModalProps {
   dismissible?: boolean;
   /** Rótulo acessível quando não há `title` visível. */
   ariaLabel?: string;
+  /** Ícone à esquerda do título. Vários diálogos do produto usam um. */
+  icon?: React.ReactNode;
+  /** Sem cromo: o conteúdo desenha o próprio cabeçalho e rodapé.
+      Necessário para os diálogos grandes, que têm layout interno próprio. */
+  bare?: boolean;
 }
 
 const SIZES: Record<NonNullable<ModalProps['size']>, string> = {
@@ -53,6 +58,8 @@ export function Modal({
   size = 'md',
   dismissible = true,
   ariaLabel,
+  icon,
+  bare = false,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
@@ -142,11 +149,16 @@ export function Modal({
         aria-label={title ? undefined : ariaLabel}
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
-        className={`relative w-full ${SIZES[size]} bg-[var(--surface)] border border-[var(--line)] rounded-2xl shadow-2xl flex flex-col max-h-[calc(100dvh-2rem)] animate-in fade-in zoom-in-95 duration-200`}
+        className={`relative flex flex-col animate-in fade-in zoom-in-95 duration-200 ${
+          bare
+            ? 'w-full items-center'
+            : `w-full ${SIZES[size]} bg-[var(--surface)] border border-[var(--line)] rounded-2xl shadow-2xl max-h-[calc(100dvh-2rem)]`
+        }`}
         style={{ zIndex: 'var(--z-modal)' }}
       >
-        {(title || dismissible) && (
+        {!bare && (title || dismissible) && (
           <header className="flex items-start gap-4 px-5 pt-5 pb-3 border-b border-[var(--line)]">
+            {icon && <span className="shrink-0 mt-0.5 text-[var(--ink-lo)]">{icon}</span>}
             <div className="min-w-0 flex-1">
               {title && (
                 <h2 id={titleId} className="text-base font-semibold text-[var(--ink-hi)] leading-snug">
@@ -172,9 +184,11 @@ export function Modal({
           </header>
         )}
 
-        <div className="px-5 py-4 overflow-y-auto text-sm text-[var(--ink)]">{children}</div>
+        {bare ? children : (
+          <div className="px-5 py-4 overflow-y-auto text-sm text-[var(--ink)]">{children}</div>
+        )}
 
-        {footer && (
+        {!bare && footer && (
           <footer className="flex flex-wrap justify-end gap-2.5 px-5 pb-5 pt-3 border-t border-[var(--line)]">
             {footer}
           </footer>

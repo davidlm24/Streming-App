@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Copy, CheckCircle2, Server, Save, Activity, RefreshCw, AlertCircle, Plus, Trash2, Youtube, Tv, Globe, Radio, Check, Edit3 } from 'lucide-react';
 import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 
 export interface RTMPProfile {
   id: string;
@@ -116,8 +117,6 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
     }
   }, [profiles]);
 
-  if (!isOpen) return null;
-
   const handleCopyUrl = () => {
     copyText(url);
     setCopiedUrl(true);
@@ -226,7 +225,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[var(--bg)]/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="Configuração RTMP">
       <div className="bg-[var(--surface)] border border-[var(--line-ctl)]/50 rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[var(--bg)]">
@@ -476,6 +475,6 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
           </div>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

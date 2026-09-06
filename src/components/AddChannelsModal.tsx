@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, Lock, Sparkles, ArrowRight, ShieldCheck, Radio, Server, Copy, CheckCircle2, ChevronRight, AlertCircle, Info, ExternalLink } from 'lucide-react';
 import { Destination } from '../types';
+import { Modal } from './ui/Modal';
 
 interface AddChannelsModalProps {
   isOpen: boolean;
@@ -44,8 +45,6 @@ export function AddChannelsModal({
   const [showKey, setShowKey] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
   const [successSaved, setSuccessSaved] = useState(false);
-
-  if (!isOpen) return null;
 
   // Maximum active destinations allowed based on plan
   const planLimits: Record<string, { maxChannels: number; allowedProtocols: string[] }> = {
@@ -239,10 +238,7 @@ export function AddChannelsModal({
   };
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
-      id="add-channels-modal-overlay"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="Adicionar canais de transmissão">
       <div className="bg-[var(--bg)] text-[var(--ink-hi)] rounded-3xl w-full max-w-5xl border border-[var(--line-ctl)]/80 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Modal Top Header */}
@@ -455,12 +451,16 @@ export function AddChannelsModal({
 
       {/* Slide-over / Modal for Platform RTMP Details Configuration */}
       <AnimatePresence>
+        {/* Diálogo aninhado. Era um scrim próprio em z-60, sem ESC, sem
+            armadilha de foco e sem trava de rolagem. A trava do Modal é
+            CONTADA justamente para este caso: fechar este não pode devolver
+            a rolagem enquanto o diálogo de baixo continua aberto. */}
         {selectedPlatform && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          <Modal
+            isOpen={!!selectedPlatform}
+            onClose={() => setSelectedPlatform(null)}
+            bare
+            ariaLabel={`Configurar ${selectedPlatform.name}`}
           >
             <div className="bg-[var(--bg)] text-[var(--ink-hi)] rounded-3xl w-full max-w-lg border border-[var(--line-ctl)] shadow-2xl overflow-hidden p-6 space-y-5">
               
@@ -581,9 +581,9 @@ export function AddChannelsModal({
               </div>
 
             </div>
-          </motion.div>
+          </Modal>
         )}
       </AnimatePresence>
-    </div>
+    </Modal>
   );
 }

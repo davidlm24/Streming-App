@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Modal } from './ui/Modal';
 import { 
   X, Compass, Globe, Youtube, Mail, Server, Laptop, Monitor, FileText, 
   Upload, Play, AlertCircle, Check, Copy, ArrowRight, Video, ChevronLeft, ChevronRight,
@@ -227,8 +228,6 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
-  if (!isOpen) return null;
-
   // Custom Iframe detection helper
   const isInsideIframe = window.self !== window.top;
 
@@ -402,7 +401,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
   };
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md select-none font-sans" id="screen-share-picker-modal">
+    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="Escolher o que compartilhar">
       
       {/* Chrome Dialog Styled Window */}
       <div className={`w-full ${isExpanded ? 'max-w-5xl h-[600px]' : 'max-w-3xl'} bg-[var(--panel)] border border-[var(--line)] rounded-2xl shadow-2xl text-[var(--ink-hi)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 transition-all duration-300`}>
@@ -1407,6 +1406,6 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
 
       </div>
 
-    </div>
+    </Modal>
   );
 }

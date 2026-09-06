@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Copy, CheckCircle2, Video, Settings, Radio, Activity, RefreshCw, AlertCircle, Server, Globe2, ShieldCheck, Gauge, ArrowRight, Trash2 } from 'lucide-react';
 import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 
 interface OBSIntegrationModalProps {
   isOpen: boolean;
@@ -82,8 +83,6 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
   const [isTestingActive, setIsTestingActive] = useState(false);
   const [activeTestResult, setActiveTestResult] = useState<'idle' | 'success' | 'error'>('idle');
   const [logsClearedMessage, setLogsClearedMessage] = useState(false);
-
-  if (!isOpen) return null;
 
   const handleClearLatencyLogs = () => {
     setLatencyResults({});
@@ -193,7 +192,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-[var(--bg)]/85 backdrop-blur-md animate-in fade-in duration-200" id="obs-integration-modal">
+    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="Integração com OBS">
       <div className="bg-[var(--bg)] border border-[var(--line-ctl)]/60 rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col custom-scrollbar">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[var(--bg)] sticky top-0 z-10">
@@ -514,7 +513,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 

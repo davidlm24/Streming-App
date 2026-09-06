@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { CLOUDFLARE_STREAM_CONFIG } from '../lib/cloudflareStreamConfig';
 import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 
 interface CloudflareStreamModalProps {
   isOpen: boolean;
@@ -25,8 +26,6 @@ export function CloudflareStreamModal({
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<'idle' | 'success' | 'error'>('idle');
   const [appliedNotification, setAppliedNotification] = useState(false);
-
-  if (!isOpen) return null;
 
   const copyToClipboard = (text: string, fieldName: string) => {
     copyText(text);
@@ -52,7 +51,7 @@ export function CloudflareStreamModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 bg-[var(--bg)]/85 backdrop-blur-md animate-in fade-in duration-200">
+    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="Cloudflare Stream">
       <div className="bg-[var(--bg)] border border-blue-500/30 rounded-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden shadow-2xl flex flex-col">
         
         {/* Modal Header */}
@@ -594,6 +593,6 @@ export function CloudflareStreamModal({
         </div>
 
       </div>
-    </div>
+    </Modal>
   );
 }

@@ -29,6 +29,7 @@ import {
 import { Destination } from '../types';
 import { useConfirm } from './ui/ConfirmDialog';
 import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 import { 
   saveDestinationsToFirestore, 
   addCustomDestinationToFirestore, 
@@ -500,10 +501,8 @@ export function CustomDestinationModal({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-6 bg-[var(--bg)]/85 backdrop-blur-md animate-in fade-in duration-200" id="custom-destination-modal">
+    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="Destinos RTMP personalizados">
       <div className="bg-[var(--bg)] border border-[var(--line-ctl)]/80 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col overflow-hidden max-h-[92vh]">
         
         {/* Modal Header */}
@@ -1184,6 +1183,6 @@ export function CustomDestinationModal({
         </div>
 
       </div>
-    </div>
+    </Modal>
   );
 }

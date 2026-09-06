@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, Shield, FileText } from 'lucide-react';
+import { Shield, FileText } from 'lucide-react';
+import { Modal } from './ui/Modal';
 
 interface LegalModalProps {
   isOpen: boolean;
@@ -8,37 +9,26 @@ interface LegalModalProps {
 }
 
 export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
-  if (!isOpen) return null;
-
   const isPrivacy = type === 'privacy';
 
   return (
-    <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
-      <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--bg)]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-              {isPrivacy ? <Shield size={20} /> : <FileText size={20} />}
-            </div>
-            <div className="text-left">
-              <h3 className="text-base font-bold text-[var(--ink-hi)]">
-                {isPrivacy ? 'Política de Privacidade' : 'Termos e Condições de Uso'}
-              </h3>
-              <p className="text-xs text-[var(--ink-lo)]">PW Stream Online — Atualizado em Julho de 2026</p>
-            </div>
-          </div>
-          <button 
-            onClick={onClose}
-            className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Content Body */}
-        <div className="p-6 overflow-y-auto text-sm text-[var(--ink)] space-y-6 text-left leading-relaxed font-sans custom-scrollbar select-text">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="xl"
+      icon={isPrivacy ? <Shield size={18} className="text-blue-400" /> : <FileText size={18} className="text-blue-400" />}
+      title={isPrivacy ? 'Política de Privacidade' : 'Termos e Condições de Uso'}
+      description="PW Stream Online — atualizado em julho de 2026"
+      footer={
+        <button
+          onClick={onClose}
+          className="px-5 py-2 bg-[var(--raise)] hover:bg-[var(--panel)] text-[var(--ink-hi)] rounded-xl text-xs font-bold active:scale-95 transition-colors cursor-pointer"
+        >
+          Fechar documento
+        </button>
+      }
+    >
+      <div className="space-y-6 leading-relaxed select-text">
           {isPrivacy ? (
             <>
               <div>
@@ -380,18 +370,7 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
             </>
           )}
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4 bg-[var(--bg)] border-t border-[var(--line)] flex justify-end">
-          <button 
-            onClick={onClose}
-            className="px-5 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-xl text-xs font-bold transition-colors cursor-pointer"
-          >
-            Fechar Documento
-          </button>
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 }

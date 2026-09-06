@@ -3,6 +3,7 @@ import { X, QrCode, ShoppingBag, Link as LinkIcon, Sparkles, Copy, Check, Downlo
 import { motion, AnimatePresence } from 'motion/react';
 import { QrCodeConfig } from '../types';
 import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 
 interface QrCodeModalProps {
   isOpen: boolean;
@@ -150,8 +151,6 @@ export function QrCodeModal({
     }
   }, [config, isOpen]);
 
-  if (!isOpen) return null;
-
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(form.storeUrl || 'https://pwstreamer.com')}&color=${(form.qrColor || '#000000').replace('#', '')}&bgcolor=${(form.qrBgColor || '#ffffff').replace('#', '')}`;
 
   const handleCopyLink = () => {
@@ -260,7 +259,7 @@ export function QrCodeModal({
   const theme = getThemeStyles();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md overflow-y-auto" id="qr-code-modal-overlay">
+    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="QR Code na transmissão">
       <div className="relative w-full max-w-5xl bg-[var(--bg)] border border-[var(--line)] rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-[var(--ink-hi)] animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
@@ -925,6 +924,6 @@ export function QrCodeModal({
           </div>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
