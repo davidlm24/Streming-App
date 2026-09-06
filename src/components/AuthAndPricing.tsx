@@ -9,6 +9,9 @@ import { LegalModal } from './LegalModals';
 import { FeaturesPage } from './FeaturesPage';
 import { loginWithGoogle, createDirectUserProfile } from '../lib/firestoreService';
 
+/** Vite remove o ramo inteiro no build de produção. */
+const IS_DEV: boolean = Boolean((import.meta as any)?.env?.DEV);
+
 interface AuthAndPricingProps {
   onAuthSuccess: (user: { 
     email: string; 
@@ -38,17 +41,20 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
   const [authError, setAuthError] = useState('');
   const [isUnauthorizedDomain, setIsUnauthorizedDomain] = useState(false);
   const [domainCopied, setDomainCopied] = useState(false);
+  // Nem o login nem o cadastro tinham estado pendente: dava para enviar o
+  // formulario varias vezes sem nenhum retorno visual.
+  const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
 
   // Checkout inputs
-  const [cardNumber, setCardNumber] = useState('4242 4242 4242 4242');
-  const [cardExpiry, setCardExpiry] = useState('12/29');
-  const [cardCvc, setCardCvc] = useState('424');
+  const [cardNumber, setCardNumber] = useState(IS_DEV ? '4242 4242 4242 4242' : '');
+  const [cardExpiry, setCardExpiry] = useState(IS_DEV ? '12/29' : '');
+  const [cardCvc, setCardCvc] = useState(IS_DEV ? '424' : '');
   const [cardName, setCardName] = useState('');
   const [checkoutError, setCheckoutError] = useState('');
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const [selectedGateway, setSelectedGateway] = useState<'stripe' | 'paypal' | 'mercadopago'>('stripe');
-  const [paypalEmail, setPaypalEmail] = useState('marcos-test@pwstreamer.com');
-  const [paypalPassword, setPaypalPassword] = useState('••••••••••');
+  const [paypalEmail, setPaypalEmail] = useState(IS_DEV ? 'marcos-test@pwstreamer.com' : '');
+  const [paypalPassword, setPaypalPassword] = useState('');
   const [isPaypalAuthorized, setIsPaypalAuthorized] = useState(false);
   const [mpMethod, setMpMethod] = useState<'pix' | 'card'>('pix');
   const [pixCopied, setPixCopied] = useState(false);
@@ -176,10 +182,12 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingAuth) return;
     if (!email || !password) {
       setAuthError('Por favor, preencha todos os campos.');
       return;
     }
+    setIsSubmittingAuth(true);
     // Validação estrita de super-admin
     const isSuperAdmin = email.trim().toLowerCase() === 'mgdlms@gmail.com';
     const userRole = isSuperAdmin ? 'super-admin' : 'client';
@@ -195,10 +203,12 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingAuth) return;
     if (!email || !password || !name) {
       setAuthError('Por favor, preencha todos os campos.');
       return;
     }
+    setIsSubmittingAuth(true);
     // Entra diretamente na conta com 30 dias de teste grátis
     onAuthSuccess({
       email,
@@ -305,22 +315,27 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             O gradiente no título também saiu: era decorativo e o próprio
             sistema reserva cor para significado, não para ornamento. */}
         {view === 'landing' && (
-          <div className="text-center space-y-12 max-w-4xl mx-auto animate-in fade-in duration-200" id="landing-view">
-            <div className="space-y-6">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold border border-blue-500/20">
-                <Sparkles size={14} /> Estúdio de webinars e transmissão ao vivo
-              </span>
-              <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight text-[var(--ink-hi)] leading-none text-balance">
-                Uma transmissão.<br />Todos os seus canais.
-              </h1>
-              <p className="text-base sm:text-lg text-[var(--ink-lo)] max-w-2xl mx-auto leading-relaxed">
-                Transmita ao vivo para YouTube, Facebook e Twitch ao mesmo tempo, direto do
-                navegador. Sem instalar nada.
-              </p>
-            </div>
+          <div className="w-full max-w-[1200px] mx-auto" id="landing-view">
+            {/* HERÓI ASSIMÉTRICO.
+                Era centralizado, com o texto, os botões e a prévia de planos
+                todos no eixo do meio. Agora a mensagem e a ação ficam à
+                esquerda e a imagem do produto à direita, que é o que dá
+                hierarquia de leitura em vez de simetria. */}
+            <section className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center py-14 lg:py-20">
+              <div className="lg:col-span-7 space-y-6 text-left">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold border border-blue-500/20">
+                  <Sparkles size={14} /> Estúdio de webinars e transmissão ao vivo
+                </span>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-[var(--ink-hi)] leading-[1.04] text-balance">
+                  Uma transmissão.<br />Todos os seus canais.
+                </h1>
+                <p className="text-base sm:text-lg text-[var(--ink-lo)] max-w-[52ch] leading-relaxed">
+                  Transmita ao vivo para YouTube, Facebook e Twitch ao mesmo tempo, direto do
+                  navegador. Sem instalar nada.
+                </p>
 
             {/* Actions Panel */}
-            <div className="space-y-4 max-w-md mx-auto">
+            <div className="space-y-4 max-w-md">
               {isUnauthorizedDomain && (
                 <div className="p-4 bg-blue-950/40 border border-blue-500/30 rounded-2xl text-left space-y-3">
                   <div className="flex items-start gap-2.5">
@@ -334,7 +349,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   </div>
 
                   <div className="bg-[var(--bg)]/80 p-2.5 rounded-xl border border-[var(--line)] flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-mono text-[var(--ink)] truncate select-all">{typeof window !== 'undefined' ? window.location.hostname : ''}</span>
+                    <span className="text-xs font-mono text-[var(--ink)] truncate select-all">{typeof window !== 'undefined' ? window.location.hostname : ''}</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -344,7 +359,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                           setTimeout(() => setDomainCopied(false), 2000);
                         }
                       }}
-                      className="px-2.5 py-1 bg-[var(--panel)] hover:bg-[var(--raise)] text-[10px] font-bold text-[var(--ink-hi)] rounded-lg flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 bg-[var(--panel)] hover:bg-[var(--raise)] text-[0.625rem] font-bold text-[var(--ink-hi)] rounded-lg flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
                     >
                       <Copy size={12} />
                       {domainCopied ? 'Copiado!' : 'Copiar'}
@@ -369,71 +384,93 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button 
+              {/* Um botão sólido, não gradiente: `bg-gradient-to-r from-blue
+                  to-blue` num CTA primário é a receita mais reconhecível de
+                  interface gerada por IA. */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
                   onClick={handleGoogleLogin}
-                  className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[var(--color-brand)] to-blue-600 hover:from-blue-500 hover:to-blue-700 text-white font-bold text-sm rounded-xl shadow-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="px-7 py-3.5 bg-[var(--color-brand-deep)] hover:brightness-110 active:brightness-95 text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   Entrar com Google <ArrowRight size={16} />
                 </button>
-                <button 
+                <button
                   onClick={() => setView('register')}
-                  className="w-full sm:w-auto px-8 py-4 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] text-[var(--ink-hi)] font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="px-7 py-3.5 bg-transparent hover:bg-[var(--surface)] border border-[var(--line-ctl)] text-[var(--ink-hi)] font-semibold text-sm rounded-xl transition-colors cursor-pointer"
                 >
-                  Criar Conta Grátis
+                  Criar conta
                 </button>
               </div>
+
+              <p className="text-xs text-[var(--ink-dim)] font-medium">
+                Já tem conta? <button onClick={() => setView('login')} className="text-blue-400 hover:underline">Entre aqui</button>
+              </p>
             </div>
+              </div>
 
-            <p className="text-xs text-[var(--ink-dim)] font-medium">
-              Conta existente? <button onClick={() => setView('login')} className="text-blue-400 hover:underline">Entre aqui</button>
-            </p>
+              {/* Espaço de imagem real do produto, no lugar do vazio simétrico
+                  que existia à direita. Sem screenshot falso feito de <div>. */}
+              <div className="lg:col-span-5">
+                {/* TODO(imagem): captura real do estúdio em transmissão,
+                    1200x900, com monitor de programa e bandeja de controles. */}
+                <div className="aspect-[4/3] rounded-xl border border-[var(--line)] bg-[var(--surface)] flex items-center justify-center">
+                  <span className="text-xs text-[var(--ink-dim)] font-medium">Captura do estúdio</span>
+                </div>
+              </div>
+            </section>
 
-            {/* Quick Pricing Preview Grid */}
-            <div className="pt-16 border-t border-[var(--line)]/80">
-              <p className="text-xs uppercase font-extrabold text-[var(--ink-dim)] tracking-wider mb-6">Nossos Planos de Transmissão Profissional</p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
-                {/* Alinhado ao PlansModal, que é a tela de checkout e portanto
-                    a fonte canônica. Antes: $14/$29/$49 aqui contra
-                    R$ 49,90/99,90/199,90 lá — mesmos nomes de plano, cerca de
-                    3,5x de diferença, e contagens de canais divergentes
-                    ("3 canais" contra "até 2 destinos"). */}
+            {/* PRÉVIA DE PLANOS.
+                Eram três cartões idênticos lado a lado, o layout mais
+                reconhecível de página gerada por IA. Agora o plano recomendado
+                ocupa o dobro e os outros dois dividem a coluna: mesma
+                informação, hierarquia de verdade.
+                O botão de cada cartão também saiu: "Assinar Plano" repetia a
+                intenção de cadastro que os botões do herói já cobrem. Um
+                rótulo por intenção. */}
+            <section className="pb-20 border-t border-[var(--line)] pt-14">
+              <div className="flex flex-wrap items-baseline justify-between gap-4 mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[var(--ink-hi)]">
+                  Planos
+                </h2>
+                <button
+                  onClick={() => setView('pricing')}
+                  className="text-sm text-blue-400 font-semibold flex items-center gap-1.5 hover:underline"
+                >
+                  Comparar todos os planos <ArrowRight size={14} />
+                </button>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-4">
+                <div className="lg:col-span-2 lg:row-span-2 bg-[var(--surface)] border border-[var(--color-brand)] rounded-xl p-6 flex flex-col gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <h3 className="font-bold text-[var(--ink-hi)] text-lg">Professional</h3>
+                    <span className="text-xs font-semibold text-[var(--color-brand)] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">Recomendado</span>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-black text-[var(--ink-hi)] tabular-nums">R$ 99,90</span>
+                    <span className="text-sm text-[var(--ink-dim)] font-semibold">/mês</span>
+                  </div>
+                  <p className="text-sm text-[var(--ink-lo)] leading-relaxed">
+                    Para criadores profissionais e empresas. Até 5 destinos simultâneos, 1080p a 60fps
+                    e sem marca da plataforma.
+                  </p>
+                </div>
+
                 {[
-                  { name: 'Standard', price: 'R$ 49,90', desc: 'Para criadores e produtores autônomos.', label: 'Até 2 destinos simultâneos' },
-                  { name: 'Professional', price: 'R$ 99,90', desc: 'Para criadores profissionais e empresas.', label: 'Até 5 destinos + 1080p 60fps' },
-                  { name: 'Business', price: 'R$ 199,90', desc: 'Para emissoras, agências e estúdios.', label: 'Destinos ilimitados + 4K' }
-                ].map((p, i) => (
-                  <div key={i} className="bg-[var(--surface)]/60 border border-[var(--line)]/80 p-5 rounded-2xl space-y-3 relative group hover:border-blue-500/50 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-[var(--ink-hi)] text-base">{p.name}</h3>
-                      <span className="text-xs text-[var(--color-brand)] font-black">{p.label}</span>
+                  { name: 'Standard', price: 'R$ 49,90', desc: 'Criadores e produtores autônomos. Até 2 destinos simultâneos.' },
+                  { name: 'Business', price: 'R$ 199,90', desc: 'Emissoras, agências e estúdios. Destinos ilimitados e 4K.' }
+                ].map(p => (
+                  <div key={p.name} className="lg:col-span-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl p-5 flex flex-col gap-2">
+                    <h3 className="font-bold text-[var(--ink-hi)]">{p.name}</h3>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-black text-[var(--ink-hi)] tabular-nums">{p.price}</span>
+                      <span className="text-xs text-[var(--ink-dim)] font-semibold">/mês</span>
                     </div>
-                    <div>
-                      <span className="text-2xl font-black text-[var(--ink-hi)]">{p.price}</span>
-                      <span className="text-xs text-[var(--ink-dim)] font-bold"> /mês</span>
-                    </div>
-                    <p className="text-xs text-[var(--ink-lo)]">{p.desc}</p>
-                    <button 
-                      onClick={() => {
-                        setSelectedPlan(p.name as any);
-                        setView('register');
-                      }} 
-                      className="w-full py-2 bg-[var(--bg)] hover:bg-[var(--color-brand-deep)] text-xs font-bold rounded-lg border border-[var(--line)] group-hover:border-transparent transition-colors text-center"
-                    >
-                      Assinar Plano
-                    </button>
+                    <p className="text-sm text-[var(--ink-lo)] leading-relaxed">{p.desc}</p>
                   </div>
                 ))}
               </div>
-              <div className="mt-6 flex justify-center">
-                <button 
-                  onClick={() => setView('pricing')} 
-                  className="text-xs text-blue-400 font-semibold flex items-center gap-1 hover:underline"
-                >
-                  Ver tabela comparativa de todos os planos <ArrowRight size={12} />
-                </button>
-              </div>
-            </div>
+            </section>
           </div>
         )}
 
@@ -458,7 +495,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 </div>
 
                 <div className="bg-[var(--bg)]/80 p-2.5 rounded-xl border border-[var(--line)] flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-mono text-[var(--ink)] truncate select-all">{typeof window !== 'undefined' ? window.location.hostname : ''}</span>
+                  <span className="text-xs font-mono text-[var(--ink)] truncate select-all">{typeof window !== 'undefined' ? window.location.hostname : ''}</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -468,7 +505,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                         setTimeout(() => setDomainCopied(false), 2000);
                       }
                     }}
-                    className="px-2.5 py-1 bg-[var(--panel)] hover:bg-[var(--raise)] text-[10px] font-bold text-[var(--ink-hi)] rounded-lg flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
+                    className="px-2.5 py-1 bg-[var(--panel)] hover:bg-[var(--raise)] text-[0.625rem] font-bold text-[var(--ink-hi)] rounded-lg flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
                   >
                     <Copy size={12} />
                     {domainCopied ? 'Copiado!' : 'Copiar'}
@@ -509,41 +546,46 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
             <div className="relative flex py-1 items-center">
               <div className="flex-grow border-t border-[var(--line)]"></div>
-              <span className="flex-shrink mx-3 text-[10px] text-[var(--ink-dim)] font-bold uppercase">ou e-mail</span>
+              <span className="flex-shrink mx-3 text-[0.625rem] text-[var(--ink-dim)] font-bold uppercase">ou e-mail</span>
               <div className="flex-grow border-t border-[var(--line)]"></div>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4 text-left">
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase font-bold text-[var(--ink-lo)]">E-mail</label>
-                <input 
+                <label htmlFor="campo-0-e-mail" className="text-xs font-semibold text-[var(--ink-lo)]">E-mail</label>
+                <input id="campo-0-e-mail" 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="mgdlms@pwstreamer.com" 
-                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:border-blue-500 transition-colors"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <label className="text-[11px] uppercase font-bold text-[var(--ink-lo)]">Senha</label>
-                  <a href="#forgot" className="text-[10px] text-blue-400 hover:underline">Esqueceu a senha?</a>
+                  <label htmlFor="campo-1-senha" className="text-xs font-semibold text-[var(--ink-lo)]">Senha</label>
+                  {/* Aqui havia um link "Esqueceu a senha?" apontando para
+                      #forgot, uma âncora que não existe. Não há fluxo de
+                      recuperação implementado, então o link prometia algo que
+                      o produto não faz. Volta quando o fluxo existir. */}
                 </div>
-                <input 
+                <input id="campo-1-senha" 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••" 
-                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:border-blue-500 transition-colors"
                 />
               </div>
 
               <button 
                 type="submit"
-                className="w-full py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 rounded-xl text-sm font-bold transition-all text-white flex items-center justify-center gap-2"
+                disabled={isSubmittingAuth}
+                aria-busy={isSubmittingAuth}
+                className="w-full py-3 bg-[var(--color-brand-deep)] hover:brightness-110 active:brightness-95 rounded-xl text-sm font-bold transition-all text-white flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-wait"
               >
-                Entrar no Estúdio <LogIn size={16} />
+                {isSubmittingAuth ? 'Entrando...' : <>Entrar no Estúdio <LogIn size={16} /></>}
               </button>
             </form>
 
@@ -572,58 +614,69 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
             <form onSubmit={handleRegister} className="space-y-4 text-left">
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase font-bold text-[var(--ink-lo)]">Nome Completo</label>
-                <input 
+                <label htmlFor="campo-2-nome-completo" className="text-xs font-semibold text-[var(--ink-lo)]">Nome Completo</label>
+                <input id="campo-2-nome-completo" 
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Marcos Gonçalves" 
                   required
-                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:border-blue-500 transition-colors"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase font-bold text-[var(--ink-lo)]">E-mail Corporativo ou Pessoal</label>
-                <input 
+                <label htmlFor="campo-3-e-mail-corporativo-o" className="text-xs font-semibold text-[var(--ink-lo)]">E-mail Corporativo ou Pessoal</label>
+                <input id="campo-3-e-mail-corporativo-o" 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="mgdlms@pwstreamer.com" 
                   required
-                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:border-blue-500 transition-colors"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase font-bold text-[var(--ink-lo)]">Senha</label>
-                <input 
+                <label htmlFor="campo-4-senha" className="text-xs font-semibold text-[var(--ink-lo)]">Senha</label>
+                <input id="campo-4-senha" 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••" 
                   required
-                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:border-blue-500 transition-colors"
                 />
               </div>
 
-              <div className="flex items-start gap-2 pt-1 text-[11px] text-[var(--ink-lo)]">
+              <div className="flex items-start gap-2 pt-1 text-xs text-[var(--ink-lo)]">
                 <input type="checkbox" id="terms" required className="mt-0.5 rounded border-[var(--line)] bg-[var(--bg)] text-blue-500 cursor-pointer" />
                 <label htmlFor="terms" className="cursor-pointer">Aceito os termos de serviço e políticas de privacidade.</label>
               </div>
 
-              <button 
+              {/* Antes: gradiente azul-para-índigo, sombra colorida azul e
+                  hover:scale sem gate de ponteiro, com um rótulo de sete
+                  palavras que quebrava em duas linhas. O prazo de teste
+                  agora fica na frase abaixo do botão, que é onde ele informa
+                  sem competir com a ação. O rótulo é o mesmo "Criar conta"
+                  usado no menu: um rótulo por intenção. */}
+              <button
                 type="submit"
-                className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-xl text-sm font-bold transition-all text-white flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
+                disabled={isSubmittingAuth}
+                aria-busy={isSubmittingAuth}
+                className="w-full py-3.5 bg-[var(--color-brand-deep)] hover:brightness-110 active:brightness-95 rounded-xl text-sm font-bold transition-all text-white flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-wait [@media(hover:hover)]:hover:scale-[1.01]"
               >
-                Cadastrar e Iniciar 30 Dias de Teste Grátis <ArrowRight size={16} />
+                {isSubmittingAuth ? 'Criando conta...' : <>Criar conta <ArrowRight size={16} /></>}
               </button>
+              <p className="text-xs text-[var(--ink-dim)] text-center">
+                30 dias de teste. Sem cartão de crédito.
+              </p>
 
               <div className="text-center pt-1">
                 <button 
                   type="button" 
                   onClick={() => setView('pricing')} 
-                  className="text-[11px] text-blue-400/80 hover:text-blue-300 hover:underline cursor-pointer"
+                  className="text-xs text-blue-400/80 hover:text-blue-300 hover:underline cursor-pointer"
                 >
                   Deseja assinar um plano direto? Ver planos e preços →
                 </button>
@@ -661,7 +714,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   onClick={() => setIsAnnual(true)}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}
                 >
-                  Anual <span className="text-[9px] bg-green-500/20 text-green-400 px-1 py-0.5 rounded border border-green-500/10">Economize 20%</span>
+                  Anual <span className="text-[0.625rem] bg-green-500/20 text-green-400 px-1 py-0.5 rounded border border-green-500/10">Economize 20%</span>
                 </button>
               </div>
             </div>
@@ -683,7 +736,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   >
                     {/* Badge */}
                     {plan.badge && (
-                      <span className={`absolute -top-3 right-4 px-2.5 py-1 text-[9px] font-black uppercase rounded-full border ${
+                      <span className={`absolute -top-3 right-4 px-2.5 py-1 text-[0.625rem] font-black uppercase rounded-full border ${
                         plan.popular 
                           ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' 
                           : 'bg-[var(--panel)] text-[var(--ink-lo)] border-[var(--line-ctl)]'
@@ -721,7 +774,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
                       {/* Features checklist */}
                       <div className="pt-4 space-y-2.5">
-                        <p className="text-[10px] uppercase font-bold text-[var(--ink-dim)] tracking-wide">Recursos incluídos:</p>
+                        <p className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)] tracking-wide">Recursos incluídos:</p>
                         {plan.features.map((feat, idx) => (
                           <div key={idx} className="flex items-start gap-2 text-xs">
                             <Check size={14} className="text-blue-500 mt-0.5 shrink-0" />
@@ -732,7 +785,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     </div>
 
                     {plan.id === 'Free Trial' && (
-                      <div className="mt-6 p-2.5 bg-emerald-500/5 rounded-xl border border-emerald-500/10 text-[10px] text-emerald-400 text-center flex items-center gap-1.5 justify-center">
+                      <div className="mt-6 p-2.5 bg-emerald-500/5 rounded-xl border border-emerald-500/10 text-[0.625rem] text-emerald-400 text-center flex items-center gap-1.5 justify-center">
                         <Shield size={12} />
                         <span>Não requer cartão de crédito</span>
                       </div>
@@ -756,7 +809,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             {/* Header / Step Progress */}
             <div className="flex items-center justify-between border-b border-[var(--line)] pb-4">
               <div className="text-left space-y-1">
-                <span className="text-[10px] uppercase font-bold text-blue-500">Checkout Seguro</span>
+                <span className="text-[0.625rem] uppercase font-bold text-blue-500">Checkout Seguro</span>
                 <h2 className="text-xl font-bold text-[var(--ink-hi)]">Finalizar Assinatura</h2>
               </div>
               <div className="text-right">
@@ -815,10 +868,10 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               {selectedGateway === 'stripe' && (
                 <div className="space-y-4">
                   <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-1.5">
-                    <p className="text-[10px] text-[var(--ink-lo)]">
+                    <p className="text-[0.625rem] text-[var(--ink-lo)]">
                       Ambiente de testes ativo. Autofácil de dados de cartão de crédito Stripe:
                     </p>
-                    <div className="flex items-center justify-between bg-[var(--bg)] p-2 rounded-lg text-[10px] font-mono border border-[var(--line)]/60">
+                    <div className="flex items-center justify-between bg-[var(--bg)] p-2 rounded-lg text-[0.625rem] font-mono border border-[var(--line)]/60">
                       <span className="text-[var(--ink-hi)]">4242 4242 4242 4242 | MM/AA: 12/29 | CVV: 424</span>
                       <button 
                         type="button"
@@ -828,7 +881,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                           setCardCvc('424');
                           setCardName('MARCOS GONÇALVES');
                         }}
-                        className="px-2 py-0.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-[9px] font-sans font-bold"
+                        className="px-2 py-0.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-[0.625rem] font-sans font-bold"
                       >
                         Preencher
                       </button>
@@ -837,51 +890,51 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
                   <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-2xl space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
-                      <input 
+                      <label htmlFor="campo-6-numero-do-cartao" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
+                      <input id="campo-6-numero-do-cartao" 
                         type="text" 
                         required
                         value={cardNumber}
                         onChange={(e) => setCardNumber(e.target.value)}
-                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
+                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)]"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
-                        <input 
+                        <label htmlFor="campo-7-validade" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
+                        <input id="campo-7-validade" 
                           type="text" 
                           required
                           value={cardExpiry}
                           onChange={(e) => setCardExpiry(e.target.value)}
                           placeholder="MM/AA" 
-                          className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
+                          className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)]"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
-                        <input 
+                        <label htmlFor="campo-8-cvc" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
+                        <input id="campo-8-cvc" 
                           type="password" 
                           required
                           value={cardCvc}
                           onChange={(e) => setCardCvc(e.target.value)}
                           placeholder="424" 
                           maxLength={4}
-                          className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
+                          className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)]"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Nome do Titular</label>
-                      <input 
+                      <label htmlFor="campo-9-nome-do-titular" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Nome do Titular</label>
+                      <input id="campo-9-nome-do-titular" 
                         type="text" 
                         required
                         value={cardName}
                         onChange={(e) => setCardName(e.target.value.toUpperCase())}
                         placeholder="MARCOS GONÇALVES" 
-                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--ink-hi)] focus:outline-none uppercase"
+                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--ink-hi)] uppercase"
                       />
                     </div>
                   </div>
@@ -891,29 +944,29 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               {/* RENDER PAYPAL GATEWAY */}
               {selectedGateway === 'paypal' && (
                 <div className="space-y-4">
-                  <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-[11px] text-[var(--ink-lo)]">
+                  <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-xs text-[var(--ink-lo)]">
                     Aprovação simulada na carteira PayPal. Autentique-se na conta de testes:
                   </div>
 
                   <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-2xl space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">PayPal Sandbox E-mail</label>
-                      <input 
+                      <label htmlFor="campo-10-paypal-sandbox-e-mai" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">PayPal Sandbox E-mail</label>
+                      <input id="campo-10-paypal-sandbox-e-mai" 
                         type="email" 
                         required
                         value={paypalEmail}
                         onChange={(e) => setPaypalEmail(e.target.value)}
-                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--ink-hi)] focus:outline-none font-mono"
+                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--ink-hi)] font-mono"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Senha</label>
-                      <input 
+                      <label htmlFor="campo-11-senha" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Senha</label>
+                      <input id="campo-11-senha" 
                         type="password" 
                         required
                         value={paypalPassword}
                         onChange={(e) => setPaypalPassword(e.target.value)}
-                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--ink-hi)] focus:outline-none font-mono"
+                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--ink-hi)] font-mono"
                       />
                     </div>
 
@@ -944,7 +997,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     <button
                       type="button"
                       onClick={() => setMpMethod('pix')}
-                      className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
+                      className={`flex-1 text-center py-1.5 text-xs font-bold rounded-lg transition-all ${
                         mpMethod === 'pix' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                       }`}
                     >
@@ -953,7 +1006,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     <button
                       type="button"
                       onClick={() => setMpMethod('card')}
-                      className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
+                      className={`flex-1 text-center py-1.5 text-xs font-bold rounded-lg transition-all ${
                         mpMethod === 'card' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                       }`}
                     >
@@ -970,7 +1023,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       </div>
                       <div className="space-y-1">
                         <p className="text-xs font-bold text-[var(--ink-hi)]">Chave PIX Simulada</p>
-                        <p className="text-[10px] text-[var(--ink-dim)]">Escaneie ou copie a chave de testes abaixo.</p>
+                        <p className="text-[0.625rem] text-[var(--ink-dim)]">Escaneie ou copie a chave de testes abaixo.</p>
                       </div>
 
                       <div className="flex items-center gap-2 bg-[var(--surface)] p-2 rounded-xl border border-[var(--line)]">
@@ -978,7 +1031,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                           type="text" 
                           readOnly 
                           value="00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98" 
-                          className="bg-transparent text-[9px] text-[var(--ink-lo)] select-all font-mono focus:outline-none flex-1 truncate"
+                          className="bg-transparent text-[0.625rem] text-[var(--ink-lo)] select-all font-mono flex-1 truncate"
                         />
                         <button
                           type="button"
@@ -987,7 +1040,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                             navigator.clipboard.writeText("00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98");
                             setTimeout(() => setPixCopied(false), 2000);
                           }}
-                          className="px-2.5 py-1 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded text-[9px] font-bold shrink-0"
+                          className="px-2.5 py-1 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded text-[0.625rem] font-bold shrink-0"
                         >
                           {pixCopied ? 'Copiado!' : 'Copiar'}
                         </button>
@@ -996,8 +1049,8 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   ) : (
                     <div className="space-y-4">
                       <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-1.5">
-                        <p className="text-[10px] text-[var(--ink-lo)]">Cartão de testes do Mercado Pago:</p>
-                        <div className="flex items-center justify-between bg-[var(--bg)] p-2 rounded-lg text-[10px] font-mono border border-[var(--line)]/60">
+                        <p className="text-[0.625rem] text-[var(--ink-lo)]">Cartão de testes do Mercado Pago:</p>
+                        <div className="flex items-center justify-between bg-[var(--bg)] p-2 rounded-lg text-[0.625rem] font-mono border border-[var(--line)]/60">
                           <span className="text-[var(--ink-hi)]">5031 4000 1234 5678 | CVV: 123</span>
                           <button 
                             type="button"
@@ -1007,7 +1060,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                               setCardCvc('123');
                               setCardName('MARCOS GONÇALVES');
                             }}
-                            className="px-2 py-0.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-[9px] font-sans font-bold"
+                            className="px-2 py-0.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-[0.625rem] font-sans font-bold"
                           >
                             Preencher
                           </button>
@@ -1016,48 +1069,48 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
                       <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-2xl space-y-3">
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
-                          <input 
+                          <label htmlFor="campo-12-numero-do-cartao" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
+                          <input id="campo-12-numero-do-cartao" 
                             type="text" 
                             required
                             value={cardNumber}
                             onChange={(e) => setCardNumber(e.target.value)}
-                            className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
+                            className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)]"
                           />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
-                            <input 
+                            <label htmlFor="campo-13-validade" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
+                            <input id="campo-13-validade" 
                               type="text" 
                               required
                               value={cardExpiry}
                               onChange={(e) => setCardExpiry(e.target.value)}
-                              className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
+                              className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)]"
                             />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
-                            <input 
+                            <label htmlFor="campo-14-cvc" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
+                            <input id="campo-14-cvc" 
                               type="password" 
                               required
                               value={cardCvc}
                               onChange={(e) => setCardCvc(e.target.value)}
                               placeholder="123" 
-                              className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)] focus:outline-none"
+                              className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--ink-hi)]"
                             />
                           </div>
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Nome no Cartão</label>
-                          <input 
+                          <label htmlFor="campo-15-nome-no-cartao" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Nome no Cartão</label>
+                          <input id="campo-15-nome-no-cartao" 
                             type="text" 
                             required
                             value={cardName}
                             onChange={(e) => setCardName(e.target.value.toUpperCase())}
-                            className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--ink-hi)] focus:outline-none uppercase"
+                            className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--ink-hi)] uppercase"
                           />
                         </div>
                       </div>
@@ -1083,7 +1136,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-[11px] text-[var(--ink-lo)] bg-blue-950/20 p-3 rounded-xl border border-blue-500/10">
+              <div className="flex items-center gap-2 text-xs text-[var(--ink-lo)] bg-blue-950/20 p-3 rounded-xl border border-blue-500/10">
                 <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
                 <span>Simulação segura. Clique em confirmar para ativar o plano imediatamente no dashboard.</span>
               </div>
