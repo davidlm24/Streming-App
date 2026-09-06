@@ -149,25 +149,25 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
     <div className="space-y-8 text-left animate-in fade-in duration-200" id="super-admin-analytics-component">
       
       {/* Header Summary */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl shadow-xl">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl shadow-xl">
         <div>
           <div className="flex items-center gap-2">
             <span className="bg-blue-500/10 text-blue-400 text-[10px] font-black uppercase px-2.5 py-1 rounded-md border border-blue-500/20">
               Telemetria Global de Armazenamento
             </span>
-            <span className="text-gray-500 text-xs">• Mídia & Cloud Storage</span>
+            <span className="text-[var(--text-dim)] text-xs">• Mídia & Cloud Storage</span>
           </div>
-          <h2 className="text-xl font-bold text-white mt-1 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-[var(--text-hi)] mt-1 flex items-center gap-2">
             <BarChart3 className="text-amber-400" size={22} /> Resumo de Uso da Plataforma & Quotas por Cliente
           </h2>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-[var(--text-lo)] mt-1">
             Monitoramento centralizado de espaço em disco ocupado, transmissão de tráfego (Egress) e total de webinars ativos por conta de cliente.
           </p>
         </div>
 
         <button
           onClick={handleRefresh}
-          className={`px-4 py-2 bg-[var(--bg)] hover:bg-slate-800 border border-slate-800 text-gray-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md shrink-0 ${isRefreshing ? 'animate-spin' : ''}`}
+          className={`px-4 py-2 bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-[var(--text)] hover:text-[var(--text-hi)] rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md shrink-0 ${isRefreshing ? 'animate-spin' : ''}`}
         >
           <RefreshCw size={14} /> Atualizar Métricas
         </button>
@@ -175,7 +175,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
 
       {/* Alert Banner if any client is nearing storage limit */}
       {highUsageClients.length > 0 && (
-        <div className="bg-gradient-to-r from-amber-950/60 via-slate-900 to-red-950/60 border border-amber-500/40 p-4 rounded-2xl flex items-center justify-between gap-4 shadow-xl">
+        <div className="bg-gradient-to-r from-amber-950/60 via-[var(--surface)] to-red-950/60 border border-amber-500/40 p-4 rounded-2xl flex items-center justify-between gap-4 shadow-xl">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl border border-amber-500/30 shrink-0">
               <AlertTriangle size={20} />
@@ -184,7 +184,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
               <p className="text-xs font-bold text-amber-300">
                 Atenção: {highUsageClients.length} cliente(s) próximo(s) do limite de armazenamento quota
               </p>
-              <p className="text-[11px] text-gray-400 mt-0.5">
+              <p className="text-[11px] text-[var(--text-lo)] mt-0.5">
                 {highUsageClients.map(c => `${c.clientEmail} (${((c.storageUsedGb / c.storageLimitGb) * 100).toFixed(0)}%)`).join(', ')}
               </p>
             </div>
@@ -201,28 +201,28 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
       {/* KPI Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        <div className="bg-[var(--surface)] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-5 rounded-2xl space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Webinars Ativos no Servidor</span>
+            <span className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">Webinars Ativos no Servidor</span>
             <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
               <Video size={16} />
             </div>
           </div>
           <p className="text-3xl font-black text-blue-400">{totalActiveWebinars}</p>
-          <p className="text-[11px] text-gray-400 flex items-center gap-1">
+          <p className="text-[11px] text-[var(--text-lo)] flex items-center gap-1">
             <TrendingUp size={12} className="text-emerald-400" /> Transmissões ao vivo & gravadas
           </p>
         </div>
 
-        <div className="bg-[var(--surface)] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-5 rounded-2xl space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Armazenamento Ocupado Total</span>
+            <span className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">Armazenamento Ocupado Total</span>
             <div className="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
               <HardDrive size={16} />
             </div>
           </div>
-          <p className="text-3xl font-black text-amber-400">{totalStorageUsed.toFixed(1)} <span className="text-sm font-semibold text-gray-400">/ {totalStorageAllocated} GB</span></p>
-          <div className="w-full bg-[var(--bg)] h-1.5 rounded-full overflow-hidden border border-slate-800">
+          <p className="text-3xl font-black text-amber-400">{totalStorageUsed.toFixed(1)} <span className="text-sm font-semibold text-[var(--text-lo)]">/ {totalStorageAllocated} GB</span></p>
+          <div className="w-full bg-[var(--bg)] h-1.5 rounded-full overflow-hidden border border-[var(--line)]">
             <div 
               className="bg-gradient-to-r from-amber-500 to-emerald-400 h-full rounded-full transition-all"
               style={{ width: `${Math.min(100, (totalStorageUsed / totalStorageAllocated) * 100)}%` }}
@@ -230,26 +230,26 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
           </div>
         </div>
 
-        <div className="bg-[var(--surface)] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-5 rounded-2xl space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Gravações em Nuvem</span>
+            <span className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">Gravações em Nuvem</span>
             <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
               <FolderArchive size={16} />
             </div>
           </div>
           <p className="text-3xl font-black text-emerald-400">{totalRecordings}</p>
-          <p className="text-[11px] text-gray-400">Arquivos MP4/HLS gerados</p>
+          <p className="text-[11px] text-[var(--text-lo)]">Arquivos MP4/HLS gerados</p>
         </div>
 
-        <div className="bg-[var(--surface)] border border-slate-800 p-5 rounded-2xl space-y-2 shadow-lg">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-5 rounded-2xl space-y-2 shadow-lg">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tráfego Egress (Bandwidth)</span>
+            <span className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">Tráfego Egress (Bandwidth)</span>
             <div className="p-2 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20">
               <Cpu size={16} />
             </div>
           </div>
-          <p className="text-3xl font-black text-purple-400">{(totalBandwidthGb / 1024).toFixed(2)} <span className="text-sm font-semibold text-gray-400">TB</span></p>
-          <p className="text-[11px] text-gray-400">Transferência para CDN/Redes</p>
+          <p className="text-3xl font-black text-purple-400">{(totalBandwidthGb / 1024).toFixed(2)} <span className="text-sm font-semibold text-[var(--text-lo)]">TB</span></p>
+          <p className="text-[11px] text-[var(--text-lo)]">Transferência para CDN/Redes</p>
         </div>
 
       </div>
@@ -258,13 +258,13 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Bar Chart: Storage by Client */}
-        <div className="lg:col-span-2 bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl space-y-4 shadow-xl">
+          <div className="flex items-center justify-between border-b border-[var(--line)] pb-3">
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold text-[var(--text-hi)] flex items-center gap-2">
                 <BarChart3 size={16} className="text-blue-400" /> Comparativo de Espaço em Disco por Cliente (GB)
               </h3>
-              <p className="text-[11px] text-gray-400">Ocupado vs Quota total do Plano</p>
+              <p className="text-[11px] text-[var(--text-lo)]">Ocupado vs Quota total do Plano</p>
             </div>
           </div>
 
@@ -284,12 +284,12 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
         </div>
 
         {/* Pie Chart: Storage Asset Type Distribution */}
-        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl flex flex-col justify-between">
-          <div className="border-b border-slate-800 pb-3">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl space-y-4 shadow-xl flex flex-col justify-between">
+          <div className="border-b border-[var(--line)] pb-3">
+            <h3 className="text-sm font-bold text-[var(--text-hi)] flex items-center gap-2">
               <Layers size={16} className="text-amber-400" /> Distribuição por Tipo de Mídia
             </h3>
-            <p className="text-[11px] text-gray-400">Proporção dos arquivos armazenados</p>
+            <p className="text-[11px] text-[var(--text-lo)]">Proporção dos arquivos armazenados</p>
           </div>
 
           <div className="h-48 w-full">
@@ -315,14 +315,14 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
             </ResponsiveContainer>
           </div>
 
-          <div className="space-y-2 pt-2 border-t border-slate-800 text-[11px]">
+          <div className="space-y-2 pt-2 border-t border-[var(--line)] text-[11px]">
             {chartStorageTypeDistribution.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between text-gray-300">
+              <div key={idx} className="flex items-center justify-between text-[var(--text)]">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
                   <span>{item.name}</span>
                 </div>
-                <span className="font-bold text-white">{item.value} GB</span>
+                <span className="font-bold text-[var(--text-hi)]">{item.value} GB</span>
               </div>
             ))}
           </div>
@@ -331,18 +331,18 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
       </div>
 
       {/* Client Storage Breakdown Table */}
-      <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 space-y-4 shadow-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[var(--line)] pb-4">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
               <Database size={18} className="text-emerald-400" /> Detalhamento de Armazenamento Ocupado por Cliente
             </h3>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-[var(--text-lo)] mt-0.5">
               Lista individualizada de consumo de espaço e webinars ativos por e-mail cadastrado.
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[var(--bg)] border border-slate-800 p-1 rounded-xl text-xs font-bold">
+          <div className="flex items-center gap-1.5 bg-[var(--bg)] border border-[var(--line)] p-1 rounded-xl text-xs font-bold">
             {(['all', 'high-usage', 'active-only'] as const).map(filter => (
               <button
                 key={filter}
@@ -350,7 +350,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   selectedFilter === filter 
                     ? 'bg-amber-500 text-slate-950 font-black' 
-                    : 'text-gray-400 hover:text-white'
+                    : 'text-[var(--text-lo)] hover:text-white'
                 }`}
               >
                 {filter === 'all' ? 'Todos os Clientes' : filter === 'high-usage' ? '⚠️ >75% Quota' : 'Com Webinars Ativos'}
@@ -362,7 +362,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-800 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+              <tr className="border-b border-[var(--line)] text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">
                 <th className="p-3">Cliente / E-mail</th>
                 <th className="p-3">Plano</th>
                 <th className="p-3 text-center">Webinars Ativos</th>
@@ -372,17 +372,17 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
                 <th className="p-3 text-right">Egress Tráfego</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 text-xs">
+            <tbody className="divide-y divide-[var(--line)]/60 text-xs">
               {filteredData.map(client => {
                 const percentUsed = (client.storageUsedGb / client.storageLimitGb) * 100;
                 const statusColor = percentUsed > 85 ? 'bg-red-500' : percentUsed > 65 ? 'bg-amber-500' : 'bg-emerald-500';
 
                 return (
-                  <tr key={client.id} className="hover:bg-slate-800/40 transition-colors">
+                  <tr key={client.id} className="hover:bg-[var(--panel)]/40 transition-colors">
                     <td className="p-3">
                       <div>
-                        <p className="font-bold text-white">{client.clientName}</p>
-                        <p className="text-[11px] text-gray-400 font-mono mt-0.5">{client.clientEmail}</p>
+                        <p className="font-bold text-[var(--text-hi)]">{client.clientName}</p>
+                        <p className="text-[11px] text-[var(--text-lo)] font-mono mt-0.5">{client.clientEmail}</p>
                       </div>
                     </td>
 
@@ -391,7 +391,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
                         client.plan === 'Business' ? 'bg-amber-500/10 text-amber-300 border-amber-500/20' :
                         client.plan === 'Professional' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
                         client.plan === 'Standard' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                        'bg-gray-800 text-gray-400 border-gray-700'
+                        'bg-[var(--panel)] text-[var(--text-lo)] border-[var(--line-ctl)]'
                       }`}>
                         {client.plan}
                       </span>
@@ -402,25 +402,25 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
                     </td>
 
                     <td className="p-3 text-center">
-                      <span className="font-bold text-gray-300">{client.totalRecordingsCount} arquivos</span>
+                      <span className="font-bold text-[var(--text)]">{client.totalRecordingsCount} arquivos</span>
                     </td>
 
                     <td className="p-3 font-mono">
-                      <span className="font-bold text-white">{client.storageUsedGb.toFixed(1)} GB</span>
-                      <span className="text-[10px] text-gray-500 block">de {client.storageLimitGb} GB</span>
+                      <span className="font-bold text-[var(--text-hi)]">{client.storageUsedGb.toFixed(1)} GB</span>
+                      <span className="text-[10px] text-[var(--text-dim)] block">de {client.storageLimitGb} GB</span>
                     </td>
 
                     <td className="p-3 min-w-[140px]">
                       <div className="space-y-1">
                         <div className="flex justify-between text-[10px] font-bold">
-                          <span className={percentUsed > 85 ? 'text-red-400' : 'text-gray-300'}>
+                          <span className={percentUsed > 85 ? 'text-red-400' : 'text-[var(--text)]'}>
                             {percentUsed.toFixed(0)}%
                           </span>
                           {percentUsed > 85 && (
                             <span className="text-red-400 text-[9px] uppercase font-black">Quota Limite</span>
                           )}
                         </div>
-                        <div className="w-full bg-[var(--bg)] h-2 rounded-full overflow-hidden border border-slate-800">
+                        <div className="w-full bg-[var(--bg)] h-2 rounded-full overflow-hidden border border-[var(--line)]">
                           <div 
                             className={`h-full rounded-full ${statusColor}`}
                             style={{ width: `${Math.min(100, percentUsed)}%` }}

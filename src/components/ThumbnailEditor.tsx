@@ -215,7 +215,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
   };
 
   return (
-    <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl p-5 space-y-6" id="thumbnail-editor-container">
+    <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-5 space-y-6" id="thumbnail-editor-container">
       <div className="flex items-center justify-between">
         <div className="text-left">
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
@@ -239,7 +239,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
         <div className="lg:col-span-5 space-y-4 text-left">
           {/* 1. Title Input */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
               <Type size={12} /> Título Principal
             </label>
             <input 
@@ -250,13 +250,13 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 setIsGenerated(false);
               }}
               placeholder="Ex: Como Alavancar suas Vendas..."
-              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>
 
           {/* 2. Subtitle Tag */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
               <Layers size={12} /> Tag / Subtítulo
             </label>
             <input 
@@ -267,13 +267,13 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 setIsGenerated(false);
               }}
               placeholder="Ex: WEBINAR AO VIVO"
-              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
             />
           </div>
 
           {/* 3. Choose Background Preset */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
               <Palette size={12} /> Imagem de Fundo / Gradiente
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -292,7 +292,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                       backgroundPosition: 'center'
                     }}
                     className={`h-14 rounded-lg relative overflow-hidden transition-all text-[9px] font-bold flex items-end p-1 border text-left ${
-                      isActive ? 'border-blue-500 ring-2 ring-blue-500/35 scale-95' : 'border-slate-800 hover:border-slate-600'
+                      isActive ? 'border-blue-500 ring-2 ring-blue-500/35 scale-95' : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                     }`}
                   >
                     <span className="bg-black/70 px-1 py-0.5 rounded text-[8px] text-white leading-none truncate max-w-full block">
@@ -311,18 +311,18 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
 
           {/* 4. Custom background URL */}
           <form onSubmit={handleCustomImageSubmit} className="space-y-1">
-            <label className="text-[9px] text-gray-500 font-semibold">Ou insira URL de imagem customizada:</label>
+            <label className="text-[9px] text-[var(--text-dim)] font-semibold">Ou insira URL de imagem customizada:</label>
             <div className="flex gap-2">
               <input 
                 type="url" 
                 value={customImageUrl}
                 onChange={(e) => setCustomImageUrl(e.target.value)}
                 placeholder="https://images.unsplash.com/photo-..." 
-                className="flex-1 bg-[var(--bg)] border border-slate-800 rounded-lg px-2.5 py-1.5 text-[10px] text-white focus:outline-none focus:border-blue-500"
+                className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-[10px] text-white focus:outline-none focus:border-blue-500"
               />
               <button 
                 type="submit"
-                className="px-3 bg-slate-800 hover:bg-slate-700 text-[10px] font-bold rounded-lg text-white"
+                className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[10px] font-bold rounded-lg text-white"
               >
                 Aplicar
               </button>
@@ -330,10 +330,10 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
           </form>
 
           {/* 5. Sliders & Switches */}
-          <div className="bg-[var(--bg)] border border-slate-800/60 p-3 rounded-xl space-y-3 text-xs">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/60 p-3 rounded-xl space-y-3 text-xs">
             {/* Opacity slider */}
             <div className="space-y-1">
-              <div className="flex justify-between text-[10px] text-gray-400 font-bold">
+              <div className="flex justify-between text-[10px] text-[var(--text-lo)] font-bold">
                 <span>Escurecimento de Fundo</span>
                 <span>{Math.round(overlayOpacity * 100)}%</span>
               </div>
@@ -344,13 +344,13 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 step="0.05"
                 value={overlayOpacity}
                 onChange={(e) => setOverlayOpacity(parseFloat(e.target.value))}
-                className="w-full accent-blue-500 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                className="w-full accent-blue-500 h-1 bg-[var(--panel)] rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             {/* Font size slider */}
             <div className="space-y-1">
-              <div className="flex justify-between text-[10px] text-gray-400 font-bold">
+              <div className="flex justify-between text-[10px] text-[var(--text-lo)] font-bold">
                 <span>Tamanho da Fonte</span>
                 <span>{textSize}px</span>
               </div>
@@ -361,14 +361,14 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 step="1"
                 value={textSize}
                 onChange={(e) => setTextSize(parseInt(e.target.value))}
-                className="w-full accent-blue-500 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer"
+                className="w-full accent-blue-500 h-1 bg-[var(--panel)] rounded-lg appearance-none cursor-pointer"
               />
             </div>
 
             {/* Color circles & switches */}
-            <div className="flex items-center justify-between pt-1 border-t border-slate-800/60">
+            <div className="flex items-center justify-between pt-1 border-t border-[var(--line)]/60">
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-bold text-gray-400">Cor do Texto:</span>
+                <span className="text-[10px] font-bold text-[var(--text-lo)]">Cor do Texto:</span>
                 {['#ffffff', '#fde047', '#60a5fa', '#f87171', '#4ade80'].map((color) => (
                   <button 
                     key={color}
@@ -382,12 +382,12 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 ))}
               </div>
 
-              <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-gray-400 font-bold">
+              <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-[var(--text-lo)] font-bold">
                 <input 
                   type="checkbox" 
                   checked={showLogo} 
                   onChange={(e) => setShowLogo(e.target.checked)}
-                  className="rounded border-slate-800 bg-slate-900 text-blue-500"
+                  className="rounded border-[var(--line)] bg-[var(--surface)] text-blue-500"
                 />
                 <span>Mostrar Logo</span>
               </label>
@@ -407,7 +407,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
         {/* RIGHT COLUMN: Visual Live Preview & Hidden Canvas (7 cols) */}
         <div className="lg:col-span-7 flex flex-col justify-between">
           <div className="space-y-1.5">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+            <span className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
               <FileImage size={12} /> Pré-visualização Real-time (16:9)
             </span>
             
@@ -420,7 +420,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 backgroundPosition: 'center',
                 aspectRatio: '16/9'
               }}
-              className="w-full rounded-2xl border border-slate-800 overflow-hidden relative shadow-2xl flex flex-col justify-between p-6 sm:p-8 select-none text-left"
+              className="w-full rounded-2xl border border-[var(--line)] overflow-hidden relative shadow-2xl flex flex-col justify-between p-6 sm:p-8 select-none text-left"
             >
               {/* Overlay shading */}
               <div 
@@ -463,7 +463,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
               {/* Bottom Row: Footer credentials */}
               <div className="relative z-10 border-t border-white/10 pt-2 flex items-center justify-between text-left">
                 <span className="text-[9px] text-[var(--text-lo)] font-semibold">Capa oficial do Webinar agendado</span>
-                <span className="text-[9px] font-mono font-bold text-gray-500">1280 x 720 px</span>
+                <span className="text-[9px] font-mono font-bold text-[var(--text-dim)]">1280 x 720 px</span>
               </div>
             </div>
           </div>
@@ -472,8 +472,8 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
           <div className="mt-4 p-3 bg-blue-950/20 border border-blue-500/10 rounded-xl text-left flex items-start gap-2.5">
             <CheckCircle2 size={16} className="text-blue-400 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <p className="text-[11px] font-bold text-gray-300">Pronto para Divulgar nas Redes</p>
-              <p className="text-[10px] text-gray-400 leading-normal">
+              <p className="text-[11px] font-bold text-[var(--text)]">Pronto para Divulgar nas Redes</p>
+              <p className="text-[10px] text-[var(--text-lo)] leading-normal">
                 Clique no botão de geração para renderizar a imagem final no formato de alta fidelidade e anexá-la automaticamente ao seu convite ou banner.
               </p>
             </div>

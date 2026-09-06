@@ -130,6 +130,36 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   SUPERFÍCIES CROMÁTICAS — texto sobre preenchimento colorido.
+   Substitui ~200 linhas de sobrescrita por negação
+   (`.text-white:not(.bg-blue-600 *):not(.bg-red-500 *)…`) por UMA regra que
+   funciona por HERANÇA: qualquer elemento com fundo colorido redefine os
+   tokens de texto localmente, e todo descendente herda. Isso resolve o caso
+   que a negação nunca cobriu — o ícone dentro do botão colorido.
+   ══════════════════════════════════════════════════════════════════════════ */
+[class*="bg-blue-"],   [class*="bg-red-"],    [class*="bg-green-"],
+[class*="bg-emerald-"],[class*="bg-indigo-"], [class*="bg-purple-"],
+[class*="bg-violet-"], [class*="bg-amber-"],  [class*="bg-orange-"],
+[class*="bg-pink-"],   [class*="bg-rose-"],   [class*="bg-cyan-"],
+[class*="bg-sky-"],    [class*="bg-teal-"],   [class*="bg-fuchsia-"],
+[class*="bg-lime-"],   [class*="bg-yellow-"],
+[class*="bg-gradient"],
+[class*="bg-[var(--color-brand)]"],
+[class*="bg-[var(--color-sig)]"] {
+  --text-hi: var(--color-n-100);
+  --text:    var(--color-n-100);
+  --text-lo: var(--color-n-92);
+}
+
+/* …exceto os preenchimentos tênues (`bg-blue-500/10`), que são fundos claros
+   com texto colorido, não botões. Ali o texto volta a seguir o tema. */
+[class*="/5"], [class*="/10"], [class*="/15"], [class*="/20"], [class*="/25"] {
+  --text-hi: inherit;
+  --text:    inherit;
+  --text-lo: inherit;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    BASE
    ══════════════════════════════════════════════════════════════════════════ */
 body {

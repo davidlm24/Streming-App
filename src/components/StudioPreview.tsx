@@ -1796,7 +1796,7 @@ export function StudioPreview({
                 <User size={32} />
               </div>
               <p className="text-sm font-semibold text-white">Marcos (Você)</p>
-              <p className="text-[10px] text-gray-400">Câmera Desativada</p>
+              <p className="text-[10px] text-[var(--text-lo)]">Câmera Desativada</p>
             </div>
           )}
           {/* Label Tag */}
@@ -1830,7 +1830,7 @@ export function StudioPreview({
                 <Video size={32} />
               </div>
               <p className="text-sm font-semibold text-white">Vídeo: {activeVideoClip.name}</p>
-              <p className="text-[10px] text-gray-400">Reproduzindo no estúdio</p>
+              <p className="text-[10px] text-[var(--text-lo)]">Reproduzindo no estúdio</p>
             </div>
           )}
           {/* Label Tag */}
@@ -1847,12 +1847,12 @@ export function StudioPreview({
 
     if ((p as any).isSlides && activeSlide) {
       return (
-        <div key={p.id} className={`relative w-full h-full bg-[var(--bg)] overflow-hidden rounded-xl flex flex-col justify-between border border-slate-800/80 ${customClass}`}>
+        <div key={p.id} className={`relative w-full h-full bg-[var(--bg)] overflow-hidden rounded-xl flex flex-col justify-between border border-[var(--line)]/80 ${customClass}`}>
           {/* Slide Header */}
-          <div className="bg-slate-900/90 px-4 py-2 flex items-center justify-between border-b border-slate-800 z-10">
+          <div className="bg-[var(--surface)]/90 px-4 py-2 flex items-center justify-between border-b border-[var(--line)] z-10">
             <div className="flex items-center gap-2">
               <Presentation size={14} className="text-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-black uppercase text-slate-300 truncate max-w-[160px] tracking-wider">{activeSlide.name}</span>
+              <span className="text-[10px] font-black uppercase text-[var(--text)] truncate max-w-[160px] tracking-wider">{activeSlide.name}</span>
             </div>
             <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
               PÁGINA {activeSlide.currentPage} de {activeSlide.totalPages}
@@ -1869,29 +1869,29 @@ export function StudioPreview({
               <div className="space-y-2 animate-in fade-in duration-300 z-10">
                 <Sparkles size={36} className="text-emerald-400 mx-auto mb-2 animate-pulse" />
                 <h2 className="text-base font-black text-white tracking-tight">Planejamento Estratégico & Metas</h2>
-                <p className="text-[11px] text-slate-400 max-w-sm mx-auto leading-relaxed">Evolução do mercado corporativo, canais de streaming e estratégias digitais de alta performance.</p>
+                <p className="text-[11px] text-[var(--text-lo)] max-w-sm mx-auto leading-relaxed">Evolução do mercado corporativo, canais de streaming e estratégias digitais de alta performance.</p>
               </div>
             )}
             {activeSlide.currentPage === 2 && (
               <div className="space-y-3 w-full max-w-xs animate-in slide-in-from-right duration-300 z-10">
-                <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Público-Alvo & Engajamento</h2>
-                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                <h2 className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-lo)]">Público-Alvo & Engajamento</h2>
+                <div className="h-2 w-full bg-[var(--panel)] rounded-full overflow-hidden">
                   <div className="h-full bg-emerald-500 rounded-full" style={{ width: '85%' }} />
                 </div>
-                <p className="text-[10px] text-slate-400 leading-normal">85% dos usuários interagem ativamente através do chat integrado ou perguntas e respostas.</p>
+                <p className="text-[10px] text-[var(--text-lo)] leading-normal">85% dos usuários interagem ativamente através do chat integrado ou perguntas e respostas.</p>
               </div>
             )}
             {activeSlide.currentPage >= 3 && (
               <div className="space-y-2 animate-in zoom-in-95 duration-300 z-10">
                 <Activity size={32} className="text-blue-400 mx-auto mb-1 animate-pulse" />
-                <h2 className="text-[11px] font-bold text-white uppercase tracking-wider">Crescimento de Audiência</h2>
-                <p className="text-[10px] text-slate-400 max-w-xs leading-normal">Análise preditiva de métricas em tempo real e canais de distribuição CDN unificados de alta disponibilidade.</p>
+                <h2 className="text-[11px] font-bold text-[var(--text-hi)] uppercase tracking-wider">Crescimento de Audiência</h2>
+                <p className="text-[10px] text-[var(--text-lo)] max-w-xs leading-normal">Análise preditiva de métricas em tempo real e canais de distribuição CDN unificados de alta disponibilidade.</p>
               </div>
             )}
           </div>
 
           {/* Slide Footer */}
-          <div className="bg-slate-950 px-4 py-1.5 flex items-center justify-between text-[8px] font-mono text-slate-500 border-t border-slate-900 z-10">
+          <div className="bg-[var(--bg)] px-4 py-1.5 flex items-center justify-between text-[8px] font-mono text-[var(--text-dim)] border-t border-[var(--line)] z-10">
             <span>PwStreamer Presentations™</span>
             <span>Apresentado por Marcos (Palestrante)</span>
           </div>
@@ -1921,20 +1921,20 @@ export function StudioPreview({
               className="w-full h-full object-contain"
             />
           ) : selectedSharedSource ? (
-            <div className="w-full h-full bg-[var(--bg)] text-slate-100 flex flex-col overflow-hidden select-none font-sans">
+            <div className="w-full h-full bg-[var(--bg)] text-[var(--text-hi)] flex flex-col overflow-hidden select-none font-sans">
               
               {/* Simulated browser search bar / top window header */}
-              <div className="bg-[var(--surface)] border-b border-slate-800 px-3.5 py-1.5 flex items-center gap-3 shrink-0">
+              <div className="bg-[var(--surface)] border-b border-[var(--line)] px-3.5 py-1.5 flex items-center gap-3 shrink-0">
                 <div className="flex gap-1.5 shrink-0">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
                 </div>
-                <div className="bg-slate-900/90 border border-slate-800 rounded px-3 py-0.5 text-[10px] text-slate-400 flex items-center gap-1.5 flex-1 max-w-md mx-auto">
+                <div className="bg-[var(--surface)]/90 border border-[var(--line)] rounded px-3 py-0.5 text-[10px] text-[var(--text-lo)] flex items-center gap-1.5 flex-1 max-w-md mx-auto">
                   <Globe size={10} className="text-blue-400" />
                   <span className="truncate">https://{selectedSharedSource.name.includes('PwStreamer') ? 'pwstreamer.com' : selectedSharedSource.name.includes('Caixa') ? 'mail.google.com' : 'app.restream.io'}/studio</span>
                 </div>
-                <span className="text-[9px] font-mono text-slate-500 uppercase font-black tracking-widest bg-slate-900/60 px-1.5 py-0.5 rounded border border-slate-800 shrink-0">
+                <span className="text-[9px] font-mono text-[var(--text-dim)] uppercase font-black tracking-widest bg-[var(--surface)]/60 px-1.5 py-0.5 rounded border border-[var(--line)] shrink-0">
                   {selectedSharedSource.type === 'tab' ? 'Guia' : selectedSharedSource.type === 'window' ? 'Janela' : selectedSharedSource.type === 'screen' ? 'Tela' : selectedSharedSource.type === 'pdf' ? 'PDF' : 'Vídeo'}
                 </span>
               </div>
@@ -1946,13 +1946,13 @@ export function StudioPreview({
                 {selectedSharedSource.name.includes('PwStreamer') && (
                   <div className="flex-1 flex overflow-hidden">
                     {/* Main content */}
-                    <div className="flex-[3] p-4 flex flex-col justify-between border-r border-slate-800 bg-gradient-to-b from-[var(--surface)] to-[var(--bg)]">
+                    <div className="flex-[3] p-4 flex flex-col justify-between border-r border-[var(--line)] bg-gradient-to-b from-[var(--surface)] to-[var(--bg)]">
                       <div className="flex justify-between items-center mb-2">
                         <div className="flex items-center gap-2">
                           <div className="p-1 rounded bg-rose-600/15 text-rose-500">
                             <Compass size={14} />
                           </div>
-                          <span className="text-xs font-black tracking-wider uppercase text-slate-300">PwStreamer Live Studio</span>
+                          <span className="text-xs font-black tracking-wider uppercase text-[var(--text)]">PwStreamer Live Studio</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -1961,12 +1961,12 @@ export function StudioPreview({
                       </div>
 
                       {/* Animated live statistics or slideshow mockup */}
-                      <div className="flex-1 rounded-xl bg-slate-900/60 border border-slate-800 p-4 flex flex-col justify-center text-center space-y-3 relative overflow-hidden">
+                      <div className="flex-1 rounded-xl bg-[var(--surface)]/60 border border-[var(--line)] p-4 flex flex-col justify-center text-center space-y-3 relative overflow-hidden">
                         <div className="absolute top-2 right-2 flex items-center gap-1 text-[8px] text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full font-bold">
                           <Activity size={8} /> METRICS UPDATE
                         </div>
                         <h4 className="text-sm font-black text-white tracking-tight">Estratégias de Engajamento 2026</h4>
-                        <p className="text-[10px] text-slate-400 max-w-sm mx-auto leading-relaxed">
+                        <p className="text-[10px] text-[var(--text-lo)] max-w-sm mx-auto leading-relaxed">
                           A evolução dos webinars corporativos e o uso de inteligência artificial generativa em tempo real.
                         </p>
                         
@@ -1978,10 +1978,10 @@ export function StudioPreview({
                             { label: 'Chat Q&A', val: '148', color: 'bg-blue-500' },
                             { label: 'Conversão', val: '18.5%', color: 'bg-emerald-500' }
                           ].map(metric => (
-                            <div key={metric.label} className="bg-slate-950/70 border border-slate-800/80 p-2 rounded-lg text-center">
-                              <span className="text-[7px] text-slate-500 block uppercase font-bold">{metric.label}</span>
-                              <span className="text-[11px] font-black font-mono text-white mt-0.5 block">{metric.val}</span>
-                              <div className="w-full h-1 bg-slate-900 rounded-full mt-1.5 overflow-hidden">
+                            <div key={metric.label} className="bg-[var(--bg)]/70 border border-[var(--line)]/80 p-2 rounded-lg text-center">
+                              <span className="text-[7px] text-[var(--text-dim)] block uppercase font-bold">{metric.label}</span>
+                              <span className="text-[11px] font-black font-mono text-[var(--text-hi)] mt-0.5 block">{metric.val}</span>
+                              <div className="w-full h-1 bg-[var(--surface)] rounded-full mt-1.5 overflow-hidden">
                                 <div className={`h-full ${metric.color} rounded-full`} style={{ width: '75%' }} />
                               </div>
                             </div>
@@ -1991,27 +1991,27 @@ export function StudioPreview({
                     </div>
 
                     {/* Chat Sidebar */}
-                    <div className="flex-1 bg-[var(--bg)] p-3 flex flex-col justify-between text-[9px] text-slate-400">
-                      <div className="border-b border-slate-800 pb-2 mb-2 flex items-center justify-between">
-                        <span className="font-extrabold text-slate-200 flex items-center gap-1.5 uppercase tracking-wide">
+                    <div className="flex-1 bg-[var(--bg)] p-3 flex flex-col justify-between text-[9px] text-[var(--text-lo)]">
+                      <div className="border-b border-[var(--line)] pb-2 mb-2 flex items-center justify-between">
+                        <span className="font-extrabold text-[var(--text-hi)] flex items-center gap-1.5 uppercase tracking-wide">
                           <MessageSquare size={10} className="text-rose-500" /> Bate-papo (Guia)
                         </span>
-                        <span className="bg-slate-800/80 text-[8px] font-bold px-1 rounded text-slate-300">Chat</span>
+                        <span className="bg-[var(--panel)]/80 text-[8px] font-bold px-1 rounded text-[var(--text)]">Chat</span>
                       </div>
                       
                       <div className="flex-1 space-y-2 overflow-y-auto pr-1">
-                        <div className="bg-slate-900/50 p-2 rounded border border-slate-800/40">
+                        <div className="bg-[var(--surface)]/50 p-2 rounded border border-[var(--line)]/40">
                           <strong className="text-rose-400">Ana Souza:</strong> Olá Marcos! Webinar fantástico!
                         </div>
-                        <div className="bg-slate-900/50 p-2 rounded border border-slate-800/40">
+                        <div className="bg-[var(--surface)]/50 p-2 rounded border border-[var(--line)]/40">
                           <strong className="text-amber-400">Carlos Lima:</strong> O recurso de lousa digital está excelente.
                         </div>
-                        <div className="bg-slate-900/50 p-2 rounded border border-slate-800/40">
+                        <div className="bg-[var(--surface)]/50 p-2 rounded border border-[var(--line)]/40">
                           <strong className="text-sky-400">Marcos:</strong> Obrigado pessoal! Próximo slide em instantes.
                         </div>
                       </div>
 
-                      <div className="mt-2 pt-2 border-t border-slate-800 text-[8px] text-slate-500 text-center uppercase tracking-wider font-bold">
+                      <div className="mt-2 pt-2 border-t border-[var(--line)] text-[8px] text-[var(--text-dim)] text-center uppercase tracking-wider font-bold">
                         Enviando como restream-bot
                       </div>
                     </div>
@@ -2022,7 +2022,7 @@ export function StudioPreview({
                 {selectedSharedSource.name.includes('Caixa') && (
                   <div className="flex-1 flex overflow-hidden">
                     {/* Gmail Sidebar */}
-                    <div className="w-1/4 bg-[var(--surface)] p-3 border-r border-slate-800/80 flex flex-col justify-between">
+                    <div className="w-1/4 bg-[var(--surface)] p-3 border-r border-[var(--line)]/80 flex flex-col justify-between">
                       <div className="space-y-1 text-[10px]">
                         <div className="bg-rose-500/15 text-rose-400 px-3 py-1.5 rounded-lg font-black tracking-wide text-center uppercase mb-3 border border-rose-500/10">
                           ✉️ Escrever
@@ -2031,18 +2031,18 @@ export function StudioPreview({
                           <span>📥 Entrada</span>
                           <span className="text-[8px] font-mono font-black bg-blue-500 text-white px-1.5 rounded-full">192</span>
                         </div>
-                        <div className="hover:bg-slate-800/40 text-slate-400 px-2.5 py-1 rounded">⭐ Com Estrela</div>
-                        <div className="hover:bg-slate-800/40 text-slate-400 px-2.5 py-1 rounded">📤 Enviados</div>
-                        <div className="hover:bg-slate-800/40 text-slate-400 px-2.5 py-1 rounded">📝 Rascunhos</div>
+                        <div className="hover:bg-[var(--panel)]/40 text-[var(--text-lo)] px-2.5 py-1 rounded">⭐ Com Estrela</div>
+                        <div className="hover:bg-[var(--panel)]/40 text-[var(--text-lo)] px-2.5 py-1 rounded">📤 Enviados</div>
+                        <div className="hover:bg-[var(--panel)]/40 text-[var(--text-lo)] px-2.5 py-1 rounded">📝 Rascunhos</div>
                       </div>
-                      <span className="text-[7px] text-slate-600 font-mono text-center block">Google Workspace</span>
+                      <span className="text-[7px] text-[var(--text-dim)] font-mono text-center block">Google Workspace</span>
                     </div>
 
                     {/* Gmail List */}
                     <div className="flex-1 p-3 bg-[var(--bg)] flex flex-col">
-                      <div className="border-b border-slate-800/60 pb-2 mb-2 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-slate-300">Caixa de Entrada (mgdlms@gmail.com)</span>
-                        <span className="text-[8px] text-slate-500">Filtrado por: Mais Recentes</span>
+                      <div className="border-b border-[var(--line)]/60 pb-2 mb-2 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-[var(--text)]">Caixa de Entrada (mgdlms@gmail.com)</span>
+                        <span className="text-[8px] text-[var(--text-dim)]">Filtrado por: Mais Recentes</span>
                       </div>
                       
                       <div className="flex-1 space-y-1.5 overflow-y-auto">
@@ -2052,15 +2052,15 @@ export function StudioPreview({
                           { sender: 'Marcos (Você)', title: '📝 Pauta da Transmissão da Comunidade', time: 'Ontem', desc: 'Olá time, segue a pauta e os tópicos que abordaremos na apresentação.' },
                           { sender: 'Felipe Ramos', title: '⚡ Feedback da nova Lousa Digital', time: 'Ontem', desc: 'Impressionante como os traços ficaram responsivos e sem latência na transmissão.' }
                         ].map((email, idx) => (
-                          <div key={idx} className="bg-slate-900/60 border border-slate-800/60 p-2 rounded-lg hover:border-blue-500/40 transition-all flex items-start gap-2.5">
+                          <div key={idx} className="bg-[var(--surface)]/60 border border-[var(--line)]/60 p-2 rounded-lg hover:border-blue-500/40 transition-all flex items-start gap-2.5">
                             <span className="text-[11px] shrink-0 mt-0.5">✉️</span>
                             <div className="flex-1 min-w-0 text-[9px]">
-                              <div className="flex justify-between font-bold text-slate-200">
+                              <div className="flex justify-between font-bold text-[var(--text-hi)]">
                                 <span className="truncate">{email.sender}</span>
-                                <span className="text-slate-500 font-mono text-[8px]">{email.time}</span>
+                                <span className="text-[var(--text-dim)] font-mono text-[8px]">{email.time}</span>
                               </div>
                               <p className="text-blue-400 font-medium truncate mt-0.5">{email.title}</p>
-                              <p className="text-slate-400 truncate mt-0.5 text-[8px]">{email.desc}</p>
+                              <p className="text-[var(--text-lo)] truncate mt-0.5 text-[8px]">{email.desc}</p>
                             </div>
                           </div>
                         ))}
@@ -2082,7 +2082,7 @@ export function StudioPreview({
                     </div>
 
                     {/* Slide main graphics */}
-                    <div className="flex-1 bg-slate-950/60 border border-slate-800 rounded-xl p-4 flex flex-col justify-center text-center space-y-4">
+                    <div className="flex-1 bg-[var(--bg)]/60 border border-[var(--line)] rounded-xl p-4 flex flex-col justify-center text-center space-y-4">
                       <div className="space-y-1">
                         <span className="text-[8px] font-mono tracking-widest text-orange-500 font-black uppercase">
                           {pdfCurrentPage === 1 && "Apresentação de Abertura"}
@@ -2112,7 +2112,7 @@ export function StudioPreview({
                           {pdfCurrentPage === 11 && "Canais de Atendimento Prioritários"}
                           {pdfCurrentPage === 12 && "Perguntas & Respostas (Q&A)"}
                         </h3>
-                        <p className="text-[10px] text-slate-400 max-w-md mx-auto">
+                        <p className="text-[10px] text-[var(--text-lo)] max-w-md mx-auto">
                           {pdfCurrentPage === 1 && "Bem-vindo à apresentação executiva do plano de aceleração corporativa para o ano de 2026."}
                           {pdfCurrentPage === 2 && "Demonstração das estatísticas consolidadas do último trimestre da plataforma."}
                           {pdfCurrentPage === 3 && "Foco absoluto em diminuir o Churn rate e expandir o Net Promoter Score por meio de ferramentas interativas."}
@@ -2130,42 +2130,42 @@ export function StudioPreview({
 
                       {/* Charts and columns */}
                       <div className="grid grid-cols-3 gap-3 max-w-md mx-auto w-full">
-                        <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-lg text-center">
-                          <span className="text-[8px] text-slate-400 block uppercase font-bold">Crescimento MRR</span>
+                        <div className="bg-[var(--surface)]/80 border border-[var(--line)] p-2.5 rounded-lg text-center">
+                          <span className="text-[8px] text-[var(--text-lo)] block uppercase font-bold">Crescimento MRR</span>
                           <span className="text-xs font-black text-emerald-400 block mt-0.5">+{30 + pdfCurrentPage * 2}% YoY</span>
-                          <div className="h-1 bg-slate-950 rounded-full mt-2 overflow-hidden">
+                          <div className="h-1 bg-[var(--bg)] rounded-full mt-2 overflow-hidden">
                             <div className="h-full bg-emerald-500" style={{ width: `${60 + pdfCurrentPage * 3}%` }} />
                           </div>
                         </div>
-                        <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-lg text-center">
-                          <span className="text-[8px] text-slate-400 block uppercase font-bold">Retenção de Clientes</span>
+                        <div className="bg-[var(--surface)]/80 border border-[var(--line)] p-2.5 rounded-lg text-center">
+                          <span className="text-[8px] text-[var(--text-lo)] block uppercase font-bold">Retenção de Clientes</span>
                           <span className="text-xs font-black text-amber-400 block mt-0.5">{90 + (pdfCurrentPage * 0.4).toFixed(1)}%</span>
-                          <div className="h-1 bg-slate-950 rounded-full mt-2 overflow-hidden">
+                          <div className="h-1 bg-[var(--bg)] rounded-full mt-2 overflow-hidden">
                             <div className="h-full bg-amber-500" style={{ width: `${80 + pdfCurrentPage * 1.5}%` }} />
                           </div>
                         </div>
-                        <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-lg text-center">
-                          <span className="text-[8px] text-slate-400 block uppercase font-bold">Suporte CSAT</span>
+                        <div className="bg-[var(--surface)]/80 border border-[var(--line)] p-2.5 rounded-lg text-center">
+                          <span className="text-[8px] text-[var(--text-lo)] block uppercase font-bold">Suporte CSAT</span>
                           <span className="text-xs font-black text-sky-400 block mt-0.5">{(4.0 + pdfCurrentPage * 0.08).toFixed(1)} / 5.0</span>
-                          <div className="h-1 bg-slate-950 rounded-full mt-2 overflow-hidden">
+                          <div className="h-1 bg-[var(--bg)] rounded-full mt-2 overflow-hidden">
                             <div className="h-full bg-sky-500" style={{ width: `${70 + pdfCurrentPage * 2}%` }} />
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center text-[8px] text-gray-500 pt-1.5 border-t border-slate-800/40 shrink-0">
+                    <div className="flex justify-between items-center text-[8px] text-[var(--text-dim)] pt-1.5 border-t border-[var(--line)]/40 shrink-0">
                       <span>Navegação do Apresentador</span>
                       <div className="flex gap-1.5">
                         <button 
                           onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
-                          className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-gray-300 hover:bg-slate-800 cursor-pointer text-[8px]"
+                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
                         >
                           Anterior
                         </button>
                         <button 
                           onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
-                          className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-gray-300 hover:bg-slate-800 cursor-pointer text-[8px]"
+                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
                         >
                           Próximo
                         </button>
@@ -2178,23 +2178,23 @@ export function StudioPreview({
                 {selectedSharedSource.name.includes('Como funciona') && (
                   <div className="flex-1 flex flex-col bg-[var(--bg)] p-4 justify-between">
                     <div className="flex justify-between items-center border-b border-red-500/10 pb-1.5 mb-2">
-                      <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5"><Youtube size={14} className="text-red-500" /> YouTube Premium Player</span>
+                      <span className="text-xs font-bold text-[var(--text-hi)] flex items-center gap-1.5"><Youtube size={14} className="text-red-500" /> YouTube Premium Player</span>
                       <span className="text-[8px] bg-red-600 text-white font-bold px-1.5 rounded uppercase">Reproduzindo</span>
                     </div>
 
-                    <div className="flex-1 bg-slate-900/80 border border-slate-800 rounded-xl overflow-hidden flex flex-col justify-between p-3 relative">
+                    <div className="flex-1 bg-[var(--surface)]/80 border border-[var(--line)] rounded-xl overflow-hidden flex flex-col justify-between p-3 relative">
                       {/* Video Simulated Poster/Illustration */}
                       <div className="flex-1 flex flex-col justify-center items-center text-center space-y-2">
                         <div className="w-10 h-10 rounded-full bg-red-600/10 flex items-center justify-center text-red-500">
                           <Play size={16} fill="currentColor" />
                         </div>
                         <h4 className="text-[11px] font-black text-white px-4">Como funciona a tecnologia x prevenção na saúde inteligente</h4>
-                        <p className="text-[9px] text-slate-400">Vega6 Webinars & Palestras Acadêmicas</p>
+                        <p className="text-[9px] text-[var(--text-lo)]">Vega6 Webinars & Palestras Acadêmicas</p>
                       </div>
 
                       {/* YouTube Player Controller Bar */}
-                      <div className="bg-black/80 p-2 rounded-lg border border-slate-800 mt-2 space-y-1 text-[8px] text-slate-400">
-                        <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="bg-black/80 p-2 rounded-lg border border-[var(--line)] mt-2 space-y-1 text-[8px] text-[var(--text-lo)]">
+                        <div className="w-full h-1 bg-[var(--panel)] rounded-full overflow-hidden">
                           <div className="w-1/3 h-full bg-red-600" />
                         </div>
                         <div className="flex justify-between items-center">
@@ -2217,11 +2217,11 @@ export function StudioPreview({
                       <span className="text-[8px] text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 shrink-0">SLIDE {pdfCurrentPage} DE 12</span>
                     </div>
 
-                    <div className="flex-1 bg-slate-950/70 border border-slate-800 rounded-xl p-3 flex flex-col justify-center text-center space-y-2 relative group min-h-0 overflow-hidden">
+                    <div className="flex-1 bg-[var(--bg)]/70 border border-[var(--line)] rounded-xl p-3 flex flex-col justify-center text-center space-y-2 relative group min-h-0 overflow-hidden">
                       <button 
                         onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
                         disabled={pdfCurrentPage === 1}
-                        className={`absolute left-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white transition-all shadow z-10 ${
+                        className={`absolute left-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-white transition-all shadow z-10 ${
                           pdfCurrentPage === 1 ? 'opacity-20 cursor-not-allowed' : 'opacity-100 cursor-pointer'
                         }`}
                       >
@@ -2231,7 +2231,7 @@ export function StudioPreview({
                       <button 
                         onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
                         disabled={pdfCurrentPage === 12}
-                        className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white transition-all shadow z-10 ${
+                        className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--text-hi)] transition-all shadow z-10 ${
                           pdfCurrentPage === 12 ? 'opacity-20 cursor-not-allowed' : 'opacity-100 cursor-pointer'
                         }`}
                       >
@@ -2254,7 +2254,7 @@ export function StudioPreview({
                           {pdfCurrentPage === 12 && "Conclusão & Próximos Passos"}
                         </span>
 
-                        <h3 className="text-sm font-black text-white tracking-tight leading-snug">
+                        <h3 className="text-sm font-black text-[var(--text-hi)] tracking-tight leading-snug">
                           {pdfCurrentPage === 1 && "Estratégia de Expansão Global Vega6"}
                           {pdfCurrentPage === 2 && "Maximização de Engajamento & Retenção"}
                           {pdfCurrentPage === 3 && "Análise Demográfica do Público-Alvo"}
@@ -2269,7 +2269,7 @@ export function StudioPreview({
                           {pdfCurrentPage === 12 && "Sessão de Perguntas & Respostas (Q&A)"}
                         </h3>
 
-                        <p className="text-[10px] text-slate-400 max-w-md mx-auto leading-normal">
+                        <p className="text-[10px] text-[var(--text-lo)] max-w-md mx-auto leading-normal">
                           {pdfCurrentPage === 1 && "Bem-vindo à apresentação executiva do plano de aceleração corporativa para o ano de 2026."}
                           {pdfCurrentPage === 2 && "Foco absoluto em diminuir o Churn rate e expandir o Net Promoter Score por meio de ferramentas interativas."}
                           {pdfCurrentPage === 3 && "Identificação dos segmentos de usuários com maior propensão de conversão para planos anuais."}
@@ -2287,38 +2287,38 @@ export function StudioPreview({
 
                       {pdfCurrentPage % 2 === 0 && (
                         <div className="grid grid-cols-4 gap-1.5 max-w-xs mx-auto w-full pt-1">
-                          <div className="bg-slate-900 border border-slate-800 p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-gray-500 block uppercase font-bold">Conversão</span>
+                          <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
+                            <span className="text-[6px] text-[var(--text-dim)] block uppercase font-bold">Conversão</span>
                             <span className="text-[8px] font-bold text-emerald-400 block font-mono">14.2%</span>
                           </div>
-                          <div className="bg-slate-900 border border-slate-800 p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-gray-500 block uppercase font-bold">Interações</span>
+                          <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
+                            <span className="text-[6px] text-[var(--text-dim)] block uppercase font-bold">Interações</span>
                             <span className="text-[8px] font-bold text-rose-400 block font-mono">82/min</span>
                           </div>
-                          <div className="bg-slate-900 border border-slate-800 p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-gray-500 block uppercase font-bold">Tempo Médio</span>
+                          <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
+                            <span className="text-[6px] text-[var(--text-dim)] block uppercase font-bold">Tempo Médio</span>
                             <span className="text-[8px] font-bold text-blue-400 block font-mono">48m</span>
                           </div>
-                          <div className="bg-slate-900 border border-slate-800 p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-gray-500 block uppercase font-bold">Suporte</span>
+                          <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
+                            <span className="text-[6px] text-[var(--text-dim)] block uppercase font-bold">Suporte</span>
                             <span className="text-[8px] font-bold text-amber-400 block font-mono">99.9%</span>
                           </div>
                         </div>
                       )}
                     </div>
 
-                    <div className="flex justify-between items-center text-[8px] text-gray-500 pt-1.5 border-t border-slate-800/40 shrink-0">
+                    <div className="flex justify-between items-center text-[8px] text-[var(--text-dim)] pt-1.5 border-t border-[var(--line)]/40 shrink-0">
                       <span>Navegação do Apresentador</span>
                       <div className="flex gap-1.5">
                         <button 
                           onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
-                          className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-gray-300 hover:bg-slate-800 cursor-pointer text-[8px]"
+                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
                         >
                           Anterior
                         </button>
                         <button 
                           onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
-                          className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-gray-300 hover:bg-slate-800 cursor-pointer text-[8px]"
+                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
                         >
                           Próximo
                         </button>
@@ -2339,7 +2339,7 @@ export function StudioPreview({
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <div className="flex-1 flex flex-col justify-between p-4 bg-[var(--well)] text-slate-100 font-sans min-h-0">
+                      <div className="flex-1 flex flex-col justify-between p-4 bg-[var(--well)] text-[var(--text-hi)] font-sans min-h-0">
                         <div className="flex justify-between items-center border-b border-emerald-500/20 pb-1.5 mb-2 shrink-0">
                           <div className="flex items-center gap-1.5 overflow-hidden">
                             <span className="p-0.5 px-1.5 rounded bg-emerald-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">VIDEO</span>
@@ -2348,21 +2348,21 @@ export function StudioPreview({
                           <span className="text-[8px] bg-emerald-600 text-white font-bold px-1.5 rounded uppercase animate-pulse shrink-0">REPRODUZINDO</span>
                         </div>
 
-                        <div className="flex-1 flex flex-col justify-center items-center text-center space-y-2 p-3 bg-slate-950/60 border border-slate-800 rounded-xl min-h-0">
+                        <div className="flex-1 flex flex-col justify-center items-center text-center space-y-2 p-3 bg-[var(--bg)]/60 border border-[var(--line)] rounded-xl min-h-0">
                           <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 animate-pulse shrink-0">
                             <Play size={16} fill="currentColor" />
                           </div>
                           <div className="space-y-0.5">
                             <h4 className="text-[11px] font-extrabold text-white">Transmissão de Vídeo Digital Ativa</h4>
-                            <p className="text-[9px] text-gray-400 max-w-xs leading-normal">
+                            <p className="text-[9px] text-[var(--text-lo)] max-w-xs leading-normal">
                               O reprodutor está processando áudio e vídeo integrados no palco de streaming.
                             </p>
                           </div>
                         </div>
 
-                        <div className="bg-slate-950/80 p-2 rounded-lg border border-slate-800 mt-2 flex items-center justify-between gap-3 text-[8px] font-mono text-gray-400 shrink-0">
+                        <div className="bg-[var(--bg)]/80 p-2 rounded-lg border border-[var(--line)] mt-2 flex items-center justify-between gap-3 text-[8px] font-mono text-[var(--text-lo)] shrink-0">
                           <span>01:45 / 03:00</span>
-                          <div className="flex-1 h-1 bg-slate-800 rounded-full overflow-hidden">
+                          <div className="flex-1 h-1 bg-[var(--panel)] rounded-full overflow-hidden">
                             <div className="h-full bg-emerald-500 w-[58%]" />
                           </div>
                           <span>1080p Stream</span>
@@ -2375,25 +2375,25 @@ export function StudioPreview({
                 {/* 7. GENERAL / FALLBACK TEMPLATE */}
                 {selectedSharedSource.type !== 'pdf' && selectedSharedSource.type !== 'video' && !['PwStreamer', 'Caixa', 'Powerpoint', 'Como funciona'].some(key => selectedSharedSource.name.includes(key)) && (
                   <div className="flex-1 flex flex-col justify-between p-4 bg-gradient-to-br from-[var(--bg)] to-[var(--well)] min-h-0">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-2 shrink-0">
+                    <div className="flex justify-between items-center border-b border-[var(--line)] pb-2 shrink-0">
                       <div className="flex items-center gap-1.5 overflow-hidden">
                         <Monitor size={12} className="text-blue-400 shrink-0" />
-                        <span className="text-xs font-bold text-slate-200 truncate max-w-xs">{selectedSharedSource.name}</span>
+                        <span className="text-xs font-bold text-[var(--text-hi)] truncate max-w-xs">{selectedSharedSource.name}</span>
                       </div>
-                      <span className="text-[8px] font-mono font-bold text-slate-400 shrink-0">DISPOSITIVO VIRTUAL</span>
+                      <span className="text-[8px] font-mono font-bold text-[var(--text-lo)] shrink-0">DISPOSITIVO VIRTUAL</span>
                     </div>
 
-                    <div className="flex-1 flex flex-col justify-center items-center text-center space-y-2 p-3 bg-slate-900/30 border border-slate-800/50 rounded-xl my-2 min-h-0">
+                    <div className="flex-1 flex flex-col justify-center items-center text-center space-y-2 p-3 bg-[var(--surface)]/30 border border-[var(--line)]/50 rounded-xl my-2 min-h-0">
                       <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 animate-pulse shrink-0">
                         <Activity size={16} />
                       </div>
                       <div className="space-y-0.5">
                         <h4 className="text-[11px] font-extrabold text-white">Transmissão Compartilhada Ativa</h4>
-                        <p className="text-[9px] text-slate-400 max-w-xs mx-auto">Sua tela está sendo transmitida em tempo real para os servidores de distribuição.</p>
+                        <p className="text-[9px] text-[var(--text-lo)] max-w-xs mx-auto">Sua tela está sendo transmitida em tempo real para os servidores de distribuição.</p>
                       </div>
                     </div>
 
-                    <div className="text-[8px] text-slate-500 text-center font-mono uppercase tracking-wide shrink-0">
+                    <div className="text-[8px] text-[var(--text-dim)] text-center font-mono uppercase tracking-wide shrink-0">
                       Compartilhamento de Áudio: {selectedSharedSource.audioShared ? 'ATIVADO' : 'DESATIVADO'}
                     </div>
                   </div>
@@ -2413,7 +2413,7 @@ export function StudioPreview({
             <span className="w-1.5 h-1.5 bg-[var(--color-brand)] rounded-full animate-ping"></span>
             <span>Tela Compartilhada</span>
             {selectedSharedSource && (
-              <span className="text-gray-400 font-mono text-[9px] border-l border-slate-700 pl-1.5 ml-0.5">
+              <span className="text-[var(--text-lo)] font-mono text-[9px] border-l border-[var(--line-ctl)] pl-1.5 ml-0.5">
                 {selectedSharedSource.resolution || '1080p'} @ {selectedSharedSource.frameRate ? selectedSharedSource.frameRate.replace('fps', ' FPS') : '30 FPS'}
               </span>
             )}
@@ -2429,7 +2429,7 @@ export function StudioPreview({
           <img 
             src={p.avatarUrl} 
             alt={p.name} 
-            className="w-16 h-16 rounded-full object-cover border-2 border-dashed border-slate-700 mb-2 animate-pulse"
+            className="w-16 h-16 rounded-full object-cover border-2 border-dashed border-[var(--line-ctl)] mb-2 animate-pulse"
             referrerPolicy="no-referrer"
           />
           <p className="text-xs font-semibold text-white">{p.name}</p>
@@ -2477,7 +2477,7 @@ export function StudioPreview({
       >
         {/* Main Card Content */}
         <div 
-          className={`w-full h-full relative overflow-hidden bg-slate-950 border-2 transition-all ${
+          className={`w-full h-full relative overflow-hidden bg-[var(--bg)] border-2 transition-all ${
             isCircle ? 'rounded-full' : isCompact ? 'rounded-lg' : 'rounded-xl'
           } ${
             isHoveringSpeakerCard || isDraggingSpeakerCard 
@@ -2497,7 +2497,7 @@ export function StudioPreview({
             }`}
           >
             {/* Top Bar with Drag Grip & Quick Scale Tools */}
-            <div className="flex items-center justify-between opacity-0 group-hover/speakercard:opacity-100 transition-opacity bg-black/85 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10 text-white text-[9px] pointer-events-auto">
+            <div className="flex items-center justify-between opacity-0 group-hover/speakercard:opacity-100 transition-opacity bg-black/85 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10 text-[var(--text-hi)] text-[9px] pointer-events-auto">
               <span className="flex items-center gap-1 font-bold text-[8px] uppercase tracking-wider text-blue-300">
                 <Move size={10} className="animate-pulse" />
                 <span>Mover</span>
@@ -2511,19 +2511,19 @@ export function StudioPreview({
                     e.stopPropagation();
                     setSpeakerCardScale(prev => Math.max(0.6, Number((prev - 0.1).toFixed(1))));
                   }}
-                  className="w-4 h-4 rounded bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white"
+                  className="w-4 h-4 rounded bg-[var(--panel)] hover:bg-[var(--raise)] flex items-center justify-center text-[var(--text-hi)]"
                   title="Diminuir tamanho"
                 >
                   -
                 </button>
-                <span className="font-mono text-[8px] text-gray-300">{Math.round(speakerCardScale * 100)}%</span>
+                <span className="font-mono text-[8px] text-[var(--text)]">{Math.round(speakerCardScale * 100)}%</span>
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSpeakerCardScale(prev => Math.min(1.8, Number((prev + 0.1).toFixed(1))));
                   }}
-                  className="w-4 h-4 rounded bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-white"
+                  className="w-4 h-4 rounded bg-[var(--panel)] hover:bg-[var(--raise)] flex items-center justify-center text-[var(--text-hi)]"
                   title="Aumentar tamanho"
                 >
                   +
@@ -2533,14 +2533,14 @@ export function StudioPreview({
 
             {/* Bottom Floating Quick Preset Dock on Hover */}
             <div className="flex items-center justify-center gap-1 opacity-0 group-hover/speakercard:opacity-100 transition-opacity pointer-events-auto">
-              <div className="flex items-center gap-0.5 bg-black/90 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-slate-700/80 shadow-lg">
+              <div className="flex items-center gap-0.5 bg-black/90 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-[var(--line-ctl)]/80 shadow-lg">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSpeakerPresetPos('top-left');
                   }}
-                  className="p-1 hover:bg-blue-600 rounded text-slate-300 hover:text-white transition-colors"
+                  className="p-1 hover:bg-blue-600 rounded text-[var(--text)] hover:text-white transition-colors"
                   title="Fixar no Topo Esquerdo (↖)"
                 >
                   <ArrowUpLeft size={10} />
@@ -2551,7 +2551,7 @@ export function StudioPreview({
                     e.stopPropagation();
                     setSpeakerPresetPos('top-right');
                   }}
-                  className="p-1 hover:bg-blue-600 rounded text-slate-300 hover:text-white transition-colors"
+                  className="p-1 hover:bg-blue-600 rounded text-[var(--text)] hover:text-white transition-colors"
                   title="Fixar no Topo Direito (↗)"
                 >
                   <ArrowUpRight size={10} />
@@ -2562,7 +2562,7 @@ export function StudioPreview({
                     e.stopPropagation();
                     setSpeakerPresetPos('bottom-left');
                   }}
-                  className="p-1 hover:bg-blue-600 rounded text-slate-300 hover:text-white transition-colors"
+                  className="p-1 hover:bg-blue-600 rounded text-[var(--text)] hover:text-white transition-colors"
                   title="Fixar na Base Esquerda (↙)"
                 >
                   <ArrowDownLeft size={10} />
@@ -2573,19 +2573,19 @@ export function StudioPreview({
                     e.stopPropagation();
                     setSpeakerPresetPos('bottom-right');
                   }}
-                  className="p-1 hover:bg-blue-600 rounded text-slate-300 hover:text-white transition-colors"
+                  className="p-1 hover:bg-blue-600 rounded text-[var(--text)] hover:text-white transition-colors"
                   title="Fixar na Base Direita (↘)"
                 >
                   <ArrowDownRight size={10} />
                 </button>
-                <div className="w-[1px] h-2.5 bg-slate-700 mx-0.5" />
+                <div className="w-[1px] h-2.5 bg-[var(--raise)] mx-0.5" />
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSpeakerCardShape(prev => prev === 'rounded' ? 'circle' : prev === 'circle' ? 'compact' : 'rounded');
                   }}
-                  className="px-1 py-0.5 hover:bg-blue-600 rounded text-[8px] font-bold text-slate-300 hover:text-white transition-colors"
+                  className="px-1 py-0.5 hover:bg-blue-600 rounded text-[8px] font-bold text-[var(--text)] hover:text-white transition-colors"
                   title="Alterar Formato do Card (Retângulo / Círculo / Compacto)"
                 >
                   {isCircle ? 'Circ' : isCompact ? 'Mini' : 'Ret'}
@@ -2596,7 +2596,7 @@ export function StudioPreview({
                     e.stopPropagation();
                     resetSpeakerCardPos();
                   }}
-                  className="p-1 hover:bg-rose-600 rounded text-slate-300 hover:text-white transition-colors"
+                  className="p-1 hover:bg-rose-600 rounded text-[var(--text)] hover:text-white transition-colors"
                   title="Resetar Posição Padrão"
                 >
                   <RotateCcw size={10} />
@@ -2635,7 +2635,7 @@ export function StudioPreview({
         <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--bg)]/95 text-center p-6">
           <ShieldAlert size={48} className="text-[var(--color-brand)] mb-3" />
           <p className="text-base font-semibold text-white">Transmissão Vazia</p>
-          <p className="text-xs text-gray-400 max-w-sm mt-1">Adicione o seu vídeo ou compartilhamento de tela ao palco para começar.</p>
+          <p className="text-xs text-[var(--text-lo)] max-w-sm mt-1">Adicione o seu vídeo ou compartilhamento de tela ao palco para começar.</p>
           <button 
             onClick={() => onToggleParticipantActive('p-local')}
             className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white text-xs font-semibold rounded-lg transition-all"
@@ -2762,7 +2762,7 @@ export function StudioPreview({
           className={`relative rounded-2xl overflow-hidden shadow-2xl bg-black flex items-center justify-center transition-all duration-150 ${
             isStudioPreviewMode
               ? 'border-2 border-cyan-500/70 ring-2 ring-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.15)]'
-              : 'border border-slate-800'
+              : 'border border-[var(--line)]'
           }`}
         >
         {/* Active background selection */}
@@ -2822,7 +2822,7 @@ export function StudioPreview({
               </span>
             </>
           ) : (
-            <span className="bg-gray-700 text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded tracking-wide text-white">
+            <span className="bg-[var(--raise)] text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded tracking-wide text-white">
               PREVIEW
             </span>
           )}
@@ -2835,11 +2835,11 @@ export function StudioPreview({
               className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 rounded text-[7px] sm:text-[8px] font-black tracking-wider uppercase transition-all shadow-md cursor-pointer border ${
                 isFloatingChatOpen
                   ? 'bg-blue-600/30 border-blue-400 text-blue-200 hover:bg-blue-600/40 ring-1 ring-blue-500/30'
-                  : 'bg-black/60 border-white/10 text-gray-300 hover:text-white hover:bg-black/80'
+                  : 'bg-black/60 border-white/10 text-[var(--text)] hover:text-white hover:bg-black/80'
               }`}
               title={isFloatingChatOpen ? "Ocultar Chat Flutuante" : "Exibir Chat Flutuante no Preview"}
             >
-              <MessageSquare size={10} className={isFloatingChatOpen ? 'text-blue-400 animate-pulse' : 'text-gray-400'} />
+              <MessageSquare size={10} className={isFloatingChatOpen ? 'text-blue-400 animate-pulse' : 'text-[var(--text-lo)]'} />
               <span>Chat: {isFloatingChatOpen ? 'ON' : 'OFF'}</span>
               {comments && comments.length > 0 && (
                 <span className="bg-blue-500 text-white px-1 py-0.2 rounded-full text-[7px] font-mono leading-none">
@@ -2857,7 +2857,7 @@ export function StudioPreview({
               className={`px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                 isDrawingMode 
                   ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' 
-                  : 'bg-black/65 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800/80'
+                  : 'bg-black/65 hover:bg-[var(--panel)] text-[var(--text)] hover:text-white border border-[var(--line)]/80'
               }`}
             >
               <Pencil size={11} className={isDrawingMode ? "animate-pulse" : ""} />
@@ -2870,7 +2870,7 @@ export function StudioPreview({
             <button
               type="button"
               onClick={handleTakeSnapshot}
-              className="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide transition-all duration-200 cursor-pointer bg-black/65 hover:bg-blue-600 text-slate-300 hover:text-white border border-slate-800/80 flex items-center gap-1.5 active:scale-95"
+              className="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide transition-all duration-200 cursor-pointer bg-black/65 hover:bg-blue-600 text-[var(--text)] hover:text-white border border-[var(--line)]/80 flex items-center gap-1.5 active:scale-95"
               title="Tirar Snapshot da Transmissão"
             >
               <Camera size={11} />
@@ -3108,7 +3108,7 @@ export function StudioPreview({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 16, scale: 0.94 }}
                 transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-                className="bg-[var(--bg)]/95 border border-slate-800 p-8 rounded-2xl text-center max-w-sm w-full space-y-4 shadow-2xl"
+                className="bg-[var(--bg)]/95 border border-[var(--line)] p-8 rounded-2xl text-center max-w-sm w-full space-y-4 shadow-2xl"
               >
                 <div className="flex items-center justify-center gap-2 text-blue-400">
                   <Clock size={20} className="animate-spin duration-1000" style={{ animationDuration: '4s' }} />
@@ -3118,23 +3118,23 @@ export function StudioPreview({
                 </div>
                 
                 <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-gray-300">
+                  <h4 className="text-sm font-bold text-[var(--text)]">
                     {isLive ? 'Voltamos em breve!' : 'O Webinar começará em:'}
                   </h4>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+                  <p className="text-[10px] text-[var(--text-dim)] uppercase tracking-wider font-semibold">
                     Aproveite para preparar sua água
                   </p>
                 </div>
 
                 <div 
-                  className="py-4 px-6 bg-black/60 rounded-xl border border-slate-800/80 font-mono font-black text-4xl tracking-widest text-center shadow-inner"
+                  className="py-4 px-6 bg-black/60 rounded-xl border border-[var(--line)]/80 font-mono font-black text-4xl tracking-widest text-center shadow-inner"
                   style={{ color: streamColor || '#4683E0' }}
                 >
                   {Math.floor(countdownTimeLeft / 60).toString().padStart(2, '0')}:
                   {(countdownTimeLeft % 60).toString().padStart(2, '0')}
                 </div>
 
-                <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
+                <div className="w-full bg-[var(--surface)] h-1.5 rounded-full overflow-hidden border border-[var(--line)]">
                   <div 
                     className="h-full rounded-full transition-all duration-1000 ease-linear"
                     style={{ 
@@ -3164,7 +3164,7 @@ export function StudioPreview({
               className="absolute top-16 right-4 z-40 w-[240px] bg-[var(--bg)]/95 backdrop-blur-md border border-blue-500/30 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5 text-left"
             >
               {/* Status indicator */}
-              <div className="flex items-center justify-between border-b border-slate-800/80 pb-1.5">
+              <div className="flex items-center justify-between border-b border-[var(--line)]/80 pb-1.5">
                 <span className="flex items-center gap-1.5 text-[8px] font-black text-blue-400 uppercase tracking-wider">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                   Slides: Modo Sandbox
@@ -3173,9 +3173,9 @@ export function StudioPreview({
               </div>
 
               {/* Thumbnail Preview box */}
-              <div className="relative aspect-video w-full rounded-xl bg-slate-950 border border-slate-800/80 overflow-hidden flex flex-col justify-between p-2.5 shadow-inner">
-                <div className="flex justify-between items-center text-[7px] text-gray-500 uppercase tracking-wider">
-                  <span className="truncate max-w-[120px] font-bold text-gray-300">{selectedSharedSource.name}</span>
+              <div className="relative aspect-video w-full rounded-xl bg-[var(--bg)] border border-[var(--line)]/80 overflow-hidden flex flex-col justify-between p-2.5 shadow-inner">
+                <div className="flex justify-between items-center text-[7px] text-[var(--text-dim)] uppercase tracking-wider">
+                  <span className="truncate max-w-[120px] font-bold text-[var(--text)]">{selectedSharedSource.name}</span>
                   <span className="shrink-0 font-bold text-orange-400 bg-orange-500/10 px-1.5 py-0.2 rounded border border-orange-500/20">
                     SLIDE {pdfCurrentPage} / 12
                   </span>
@@ -3198,13 +3198,13 @@ export function StudioPreview({
                     {pdfCurrentPage === 11 && (selectedSharedSource.type === 'pdf' ? "Suporte ao Cliente & SLA de 99.9%" : "Canais de Atendimento Prioritários")}
                     {pdfCurrentPage === 12 && "Sessão de Perguntas & Respostas (Q&A)"}
                   </h4>
-                  <p className="text-[6.5px] text-gray-500 uppercase tracking-wide font-mono">
+                  <p className="text-[6.5px] text-[var(--text-dim)] uppercase tracking-wide font-mono">
                     Slide Pré-carregado
                   </p>
                 </div>
 
                 {/* Progress bar */}
-                <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
+                <div className="w-full bg-[var(--surface)] h-1 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-blue-500 rounded-full transition-all duration-300" 
                     style={{ width: `${(pdfCurrentPage / 12) * 100}%` }}
@@ -3218,7 +3218,7 @@ export function StudioPreview({
                   type="button"
                   onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={pdfCurrentPage === 1}
-                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-slate-800 text-gray-300 hover:bg-slate-800 hover:text-white transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
+                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-white transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
                 >
                   <ChevronLeft size={10} />
                   Anterior
@@ -3228,7 +3228,7 @@ export function StudioPreview({
                   type="button"
                   onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
                   disabled={pdfCurrentPage === 12}
-                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-slate-800 text-gray-300 hover:bg-slate-800 hover:text-white transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
+                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-white transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
                 >
                   Próximo
                   <ChevronRight size={10} />
@@ -3277,7 +3277,7 @@ export function StudioPreview({
                     {pinnedComment.platform}
                   </span>
                 </div>
-                <p className="text-gray-100 text-[11px] leading-tight break-words font-medium">{pinnedComment.text}</p>
+                <p className="text-[var(--text-hi)] text-[11px] leading-tight break-words font-medium">{pinnedComment.text}</p>
               </div>
             </motion.div>
           )}
@@ -3292,13 +3292,13 @@ export function StudioPreview({
               animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: 20, scale: 0.93, filter: 'blur(6px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', damping: 25, stiffness: 290, mass: 0.8 }}
-              className={`absolute right-3 z-30 w-72 sm:w-80 max-h-72 backdrop-blur-md border border-slate-700/80 rounded-2xl shadow-2xl p-3 flex flex-col transition-all duration-300 ${
+              className={`absolute right-3 z-30 w-72 sm:w-80 max-h-72 backdrop-blur-md border border-[var(--line-ctl)]/80 rounded-2xl shadow-2xl p-3 flex flex-col transition-all duration-300 ${
                 activeTicker && isPresentationOverlayActive ? 'bottom-14 sm:bottom-16' : 'bottom-3'
               }`}
               style={{ backgroundColor: `rgba(15, 17, 21, ${chatWidgetOpacity / 100})` }}
             >
               {/* Header */}
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 text-left shrink-0">
+              <div className="flex items-center justify-between pb-2 mb-2 border-b border-[var(--line)] text-left shrink-0">
                 <div className="flex items-center gap-2">
                   <div className="p-1 rounded-md bg-blue-500/20 text-blue-400">
                     <MessageSquare size={13} />
@@ -3308,7 +3308,7 @@ export function StudioPreview({
                       Chat Flutuante
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                     </h4>
-                    <p className="text-[9px] text-gray-400 mt-0.5">Comentários ao vivo</p>
+                    <p className="text-[9px] text-[var(--text-lo)] mt-0.5">Comentários ao vivo</p>
                   </div>
                 </div>
 
@@ -3316,7 +3316,7 @@ export function StudioPreview({
                   <button
                     type="button"
                     onClick={() => setIsFloatingChatOpen(false)}
-                    className="p-1 hover:bg-slate-800 rounded-lg text-gray-400 hover:text-white transition-colors cursor-pointer"
+                    className="p-1 hover:bg-[var(--panel)] rounded-lg text-[var(--text-lo)] hover:text-white transition-colors cursor-pointer"
                     title="Ocultar Chat Flutuante"
                   >
                     <X size={14} />
@@ -3327,7 +3327,7 @@ export function StudioPreview({
               {/* List of recent comments */}
               <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1 text-left custom-scrollbar">
                 {!comments || comments.length === 0 ? (
-                  <div className="text-center py-6 text-gray-500 text-xs animate-in fade-in duration-300">
+                  <div className="text-center py-6 text-[var(--text-dim)] text-xs animate-in fade-in duration-300">
                     Nenhum comentário recebido ainda.
                   </div>
                 ) : (
@@ -3339,7 +3339,7 @@ export function StudioPreview({
                         className={`p-2 rounded-xl text-xs transition-all border flex gap-2 animate-chat-bubble-in ${
                           isPinned
                             ? 'border-blue-500/60 shadow-sm'
-                            : 'border-slate-800 hover:border-slate-700'
+                            : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                         }`}
                         style={{
                           backgroundColor: isPinned 
@@ -3365,7 +3365,7 @@ export function StudioPreview({
                                   type="button"
                                   onClick={() => onPinComment(isPinned ? null : comm.id)}
                                   className={`p-0.5 rounded transition-colors ${
-                                    isPinned ? 'bg-blue-500 text-white' : 'text-gray-400 hover:text-white hover:bg-slate-700'
+                                    isPinned ? 'bg-blue-500 text-white' : 'text-[var(--text-lo)] hover:text-white hover:bg-[var(--raise)]'
                                   }`}
                                   title={isPinned ? "Desafixar comentário" : "Fixar comentário na tela"}
                                 >
@@ -3374,7 +3374,7 @@ export function StudioPreview({
                               )}
                             </div>
                           </div>
-                          <p className="text-gray-200 text-[10px] mt-0.5 break-words leading-snug">
+                          <p className="text-[var(--text-hi)] text-[10px] mt-0.5 break-words leading-snug">
                             {comm.text}
                           </p>
                         </div>
@@ -3432,11 +3432,11 @@ export function StudioPreview({
               {(isHoveringBanner || isDraggingBanner || isResizingBanner) && (
                 <>
                   {/* Top toolbar */}
-                  <div className="absolute -top-8 left-0 flex items-center gap-1.5 bg-[var(--bg)]/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-slate-700 shadow-xl text-[10px] text-white pointer-events-auto">
-                    <span className="text-gray-400 font-bold text-[9px] uppercase tracking-wider flex items-center gap-1">
+                  <div className="absolute -top-8 left-0 flex items-center gap-1.5 bg-[var(--bg)]/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-[var(--line-ctl)] shadow-xl text-[10px] text-white pointer-events-auto">
+                    <span className="text-[var(--text-lo)] font-bold text-[9px] uppercase tracking-wider flex items-center gap-1">
                       <Move size={10} className="text-indigo-400" /> Arrastar Banner
                     </span>
-                    <div className="w-px h-3 bg-slate-700" />
+                    <div className="w-px h-3 bg-[var(--raise)]" />
                     <button 
                       type="button"
                       onClick={(e) => { e.stopPropagation(); setBannerScale(s => Math.max(0.5, s - 0.1)); }}
@@ -3488,7 +3488,7 @@ export function StudioPreview({
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: 28, filter: 'blur(6px)', transition: { duration: 0.26, ease: [0.4, 0, 1, 1] } }}
               transition={{ type: 'spring', damping: 28, stiffness: 280, mass: 0.9 }}
-              className="absolute bottom-0 left-0 right-0 z-20 h-10 sm:h-12 bg-[var(--bg)]/95 backdrop-blur-md border-t border-slate-800/80 flex items-center overflow-hidden shadow-2xl group select-none"
+              className="absolute bottom-0 left-0 right-0 z-20 h-10 sm:h-12 bg-[var(--bg)]/95 backdrop-blur-md border-t border-[var(--line)]/80 flex items-center overflow-hidden shadow-2xl group select-none"
             >
               {/* Badge Indicator */}
               <div 
@@ -3504,7 +3504,7 @@ export function StudioPreview({
                   style={{
                     animationDuration: tickerSpeed === 'slow' ? '25s' : tickerSpeed === 'fast' ? '8s' : '15s'
                   }}
-                  className={`${tickerDirection === 'right' ? 'animate-ticker-right' : 'animate-ticker-left'} text-xs sm:text-sm font-semibold text-white whitespace-nowrap pl-4 pr-12`}
+                  className={`${tickerDirection === 'right' ? 'animate-ticker-right' : 'animate-ticker-left'} text-xs sm:text-sm font-semibold text-[var(--text-hi)] whitespace-nowrap pl-4 pr-12`}
                 >
                   {activeTicker.text} &nbsp; &bull; &nbsp; {activeTicker.text}
                 </div>
@@ -3514,7 +3514,7 @@ export function StudioPreview({
               <button
                 type="button"
                 onClick={() => onSetActiveTicker?.(null)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-slate-900/80 hover:bg-red-600 text-gray-300 hover:text-white p-1 rounded-md text-[10px] z-20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-md"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-[var(--surface)]/80 hover:bg-red-600 text-[var(--text)] hover:text-white p-1 rounded-md text-[10px] z-20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-md"
                 title="Ocultar Barra de Rolagem"
               >
                 <X size={12} />
@@ -3531,13 +3531,13 @@ export function StudioPreview({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 z-30 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-8 overflow-hidden select-none"
+              className="absolute inset-0 z-30 bg-[var(--bg)]/80 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-8 overflow-hidden select-none"
             >
               {/* Floating Top Control Toolbar */}
-              <div className="absolute top-3 right-3 z-40 bg-[var(--well)]/90 backdrop-blur-xl border border-slate-800 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-xl">
-                <div className="flex items-center gap-1.5 pr-2 border-r border-slate-800">
+              <div className="absolute top-3 right-3 z-40 bg-[var(--well)]/90 backdrop-blur-xl border border-[var(--line)] rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-xl">
+                <div className="flex items-center gap-1.5 pr-2 border-r border-[var(--line)]">
                   <span className={`w-2 h-2 rounded-full ${isTeleprompterPlaying ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-300 hidden sm:inline flex items-center gap-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[var(--text)] hidden sm:inline flex items-center gap-1">
                     <FileText size={11} className="text-blue-400" />
                     {isTeleprompterPlaying ? 'Lendo...' : 'Pausado'}
                   </span>
@@ -3563,7 +3563,7 @@ export function StudioPreview({
                   onClick={() => {
                     if (studioPrompterRef.current) studioPrompterRef.current.scrollTop = 0;
                   }}
-                  className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-[var(--text-lo)] hover:text-white hover:bg-[var(--panel)] rounded-lg transition-colors cursor-pointer"
                   title="Voltar ao topo"
                 >
                   <RotateCcw size={13} />
@@ -3573,7 +3573,7 @@ export function StudioPreview({
                 <button
                   type="button"
                   onClick={() => onToggleShowTeleprompterOnStudio()}
-                  className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-[var(--text-lo)] hover:text-red-400 hover:bg-[var(--panel)] rounded-lg transition-colors cursor-pointer"
                   title="Fechar Teleprompter do Palco"
                 >
                   <X size={14} />
@@ -3601,7 +3601,7 @@ export function StudioPreview({
                   teleprompterFontSize === 'md' ? 'text-lg sm:text-xl' :
                   teleprompterFontSize === 'xl' ? 'text-2xl sm:text-4xl font-black' :
                   'text-xl sm:text-3xl'
-                } ${isTeleprompterPlaying ? 'text-yellow-300' : 'text-slate-100'}`}
+                } ${isTeleprompterPlaying ? 'text-yellow-300' : 'text-[var(--text-hi)]'}`}
               >
                 {/* Generous top spacer so text enters at center reading line */}
                 <div className="h-[40vh]" />
@@ -3665,26 +3665,26 @@ export function StudioPreview({
                 onMouseLeave={() => setIsHoveringQrCode(false)}
               >
                 {/* Quick Floating Action Controls on Hover */}
-                <div className="absolute -top-7 right-0 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 backdrop-blur-md border border-slate-700/80 rounded-lg px-2 py-0.5 flex items-center gap-1.5 z-40 shadow-xl pointer-events-auto">
+                <div className="absolute -top-7 right-0 opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 backdrop-blur-md border border-[var(--line-ctl)]/80 rounded-lg px-2 py-0.5 flex items-center gap-1.5 z-40 shadow-xl pointer-events-auto">
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setQrCodeScale(prev => Math.max(0.6, Number((prev - 0.1).toFixed(1))));
                     }}
-                    className="p-0.5 hover:bg-slate-800 text-gray-400 hover:text-white rounded text-[9px] font-bold cursor-pointer"
+                    className="p-0.5 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-white rounded text-[9px] font-bold cursor-pointer"
                     title="Diminuir Escala"
                   >
                     -
                   </button>
-                  <span className="text-[8px] font-mono text-gray-300">{Math.round(qrCodeScale * 100)}%</span>
+                  <span className="text-[8px] font-mono text-[var(--text)]">{Math.round(qrCodeScale * 100)}%</span>
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setQrCodeScale(prev => Math.min(1.8, Number((prev + 0.1).toFixed(1))));
                     }}
-                    className="p-0.5 hover:bg-slate-800 text-gray-400 hover:text-white rounded text-[9px] font-bold cursor-pointer"
+                    className="p-0.5 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-white rounded text-[9px] font-bold cursor-pointer"
                     title="Aumentar Escala"
                   >
                     +
@@ -3709,7 +3709,7 @@ export function StudioPreview({
                         e.stopPropagation();
                         onToggleShowQrCode(false);
                       }}
-                      className="p-0.5 hover:bg-red-600/30 text-gray-400 hover:text-red-400 rounded cursor-pointer"
+                      className="p-0.5 hover:bg-red-600/30 text-[var(--text-lo)] hover:text-red-400 rounded cursor-pointer"
                       title="Ocultar da Tela"
                     >
                       <X size={9} />
@@ -3745,44 +3745,44 @@ export function StudioPreview({
 
                 // Card Theme classes
                 let themeClasses = {
-                  bg: 'bg-[var(--bg)]/95 text-white border-slate-800 shadow-2xl',
-                  subtext: 'text-gray-400',
+                  bg: 'bg-[var(--bg)]/95 text-[var(--text-hi)] border-[var(--line)] shadow-2xl',
+                  subtext: 'text-[var(--text-lo)]',
                   priceColor: 'text-emerald-400',
-                  border: 'border-slate-800'
+                  border: 'border-[var(--line)]'
                 };
 
                 if (effectiveConfig.cardTheme === 'light') {
                   themeClasses = {
                     bg: 'bg-white/95 text-slate-900 border-slate-200 shadow-2xl',
-                    subtext: 'text-slate-600',
+                    subtext: 'text-[var(--text-dim)]',
                     priceColor: 'text-emerald-600',
                     border: 'border-slate-300'
                   };
                 } else if (effectiveConfig.cardTheme === 'brand') {
                   themeClasses = {
-                    bg: 'bg-[var(--bg)]/95 text-white border-blue-500/40 shadow-[0_10px_30px_rgba(70,131,224,0.3)]',
+                    bg: 'bg-[var(--bg)]/95 text-[var(--text-hi)] border-blue-500/40 shadow-[0_10px_30px_rgba(70,131,224,0.3)]',
                     subtext: 'text-blue-200/70',
                     priceColor: 'text-blue-400',
                     border: 'border-blue-500/30'
                   };
                 } else if (effectiveConfig.cardTheme === 'neon') {
                   themeClasses = {
-                    bg: 'bg-[var(--well)]/95 text-white border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
+                    bg: 'bg-[var(--well)]/95 text-[var(--text-hi)] border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
                     subtext: 'text-cyan-200/80',
                     priceColor: 'text-cyan-400',
                     border: 'border-cyan-500/40'
                   };
                 } else if (effectiveConfig.cardTheme === 'gold') {
                   themeClasses = {
-                    bg: 'bg-[var(--bg)]/95 text-white border-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.25)]',
+                    bg: 'bg-[var(--bg)]/95 text-[var(--text-hi)] border-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.25)]',
                     subtext: 'text-amber-200/80',
                     priceColor: 'text-amber-400',
                     border: 'border-amber-500/40'
                   };
                 } else if (effectiveConfig.cardTheme === 'glass') {
                   themeClasses = {
-                    bg: 'bg-slate-950/75 backdrop-blur-xl text-white border-white/20 shadow-2xl',
-                    subtext: 'text-slate-300',
+                    bg: 'bg-[var(--bg)]/75 backdrop-blur-xl text-[var(--text-hi)] border-white/20 shadow-2xl',
+                    subtext: 'text-[var(--text)]',
                     priceColor: 'text-emerald-400',
                     border: 'border-white/15'
                   };
@@ -3824,7 +3824,7 @@ export function StudioPreview({
                             </span>
                           )}
                           {effectiveConfig.showPrice && effectiveConfig.originalPrice && (
-                            <span className="text-[9px] text-gray-500 line-through">
+                            <span className="text-[9px] text-[var(--text-dim)] line-through">
                               {effectiveConfig.originalPrice}
                             </span>
                           )}
@@ -3890,7 +3890,7 @@ export function StudioPreview({
                           </span>
                         )}
                         {effectiveConfig.showPrice && effectiveConfig.originalPrice && (
-                          <span className="text-[9px] text-gray-500 line-through">
+                          <span className="text-[9px] text-[var(--text-dim)] line-through">
                             {effectiveConfig.originalPrice}
                           </span>
                         )}
@@ -3947,11 +3947,11 @@ export function StudioPreview({
 
         {/* Floating Drawing Toolbar */}
         {isDrawingMode && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 bg-black/95 backdrop-blur-md border border-slate-800 rounded-full px-3.5 py-1.5 flex items-center gap-4 shadow-2xl animate-in fade-in slide-in-from-top-3 duration-200">
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 bg-black/95 backdrop-blur-md border border-[var(--line)] rounded-full px-3.5 py-1.5 flex items-center gap-4 shadow-2xl animate-in fade-in slide-in-from-top-3 duration-200">
             {/* Status light & Label */}
-            <div className="flex items-center gap-1.5 pr-2.5 border-r border-slate-800 shrink-0">
+            <div className="flex items-center gap-1.5 pr-2.5 border-r border-[var(--line)] shrink-0">
               <span className="w-2 h-2 bg-rose-500 rounded-full animate-ping"></span>
-              <span className="text-[9px] font-black tracking-wider text-slate-400 uppercase">LOUSA ATIVA</span>
+              <span className="text-[9px] font-black tracking-wider text-[var(--text-lo)] uppercase">LOUSA ATIVA</span>
             </div>
 
             {/* Quick Colors Selector */}
@@ -3975,7 +3975,7 @@ export function StudioPreview({
                   className={`w-5 h-5 rounded-full border transition-all cursor-pointer hover:scale-115 flex items-center justify-center ${
                     drawColor.toLowerCase() === colorPreset.hex.toLowerCase()
                       ? 'border-white scale-110 ring-2 ring-blue-500/50'
-                      : 'border-slate-800/80 hover:border-slate-400'
+                      : 'border-[var(--line)]/80 hover:border-slate-400'
                   }`}
                   style={{ backgroundColor: colorPreset.hex }}
                   title={colorPreset.label}
@@ -3983,7 +3983,7 @@ export function StudioPreview({
               ))}
 
               {/* Custom HTML Color Picker */}
-              <div className="relative w-5 h-5 rounded-full overflow-hidden border border-slate-700 hover:scale-115 transition-all shrink-0 cursor-pointer flex items-center justify-center">
+              <div className="relative w-5 h-5 rounded-full overflow-hidden border border-[var(--line-ctl)] hover:scale-115 transition-all shrink-0 cursor-pointer flex items-center justify-center">
                 <input
                   type="color"
                   value={drawColor}
@@ -4005,7 +4005,7 @@ export function StudioPreview({
             </div>
 
             {/* Thickness presets */}
-            <div className="flex items-center gap-1 border-l border-r border-slate-800 px-2.5 shrink-0">
+            <div className="flex items-center gap-1 border-l border-r border-[var(--line)] px-2.5 shrink-0">
               {[
                 { val: 2, label: 'Fina' },
                 { val: 5, label: 'Média' },
@@ -4023,7 +4023,7 @@ export function StudioPreview({
                   className={`px-2 py-0.5 rounded text-[8px] font-extrabold uppercase transition-all cursor-pointer ${
                     drawThickness === size.val
                       ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-slate-900/80 text-slate-400 hover:text-white border border-transparent'
+                      : 'bg-[var(--surface)]/80 text-[var(--text-lo)] hover:text-white border border-transparent'
                   }`}
                 >
                   {size.label}
@@ -4053,7 +4053,7 @@ export function StudioPreview({
               <button
                 type="button"
                 onClick={() => setIsDrawingMode(false)}
-                className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-md transition-all cursor-pointer flex items-center justify-center"
+                className="p-1 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-white rounded-md transition-all cursor-pointer flex items-center justify-center"
                 title="Sair da Lousa"
               >
                 <X size={13} />
@@ -4116,7 +4116,7 @@ export function StudioPreview({
 
       {/* Rounded Layout Selector Bar (Matches the User's Screenshot Exactly!) */}
       <div className="flex justify-center shrink-0 py-1 px-1 w-full overflow-hidden" id="minimalist-layout-selector-bar">
-        <div className="bg-[var(--bg)]/95 border border-slate-800/80 px-2 sm:px-3.5 py-1.5 rounded-xl flex flex-wrap xl:flex-nowrap items-center justify-center gap-2 md:gap-3 shadow-2xl max-w-full overflow-x-auto custom-scrollbar">
+        <div className="bg-[var(--bg)]/95 border border-[var(--line)]/80 px-2 sm:px-3.5 py-1.5 rounded-xl flex flex-wrap xl:flex-nowrap items-center justify-center gap-2 md:gap-3 shadow-2xl max-w-full overflow-x-auto custom-scrollbar">
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto max-w-full pb-0.5 custom-scrollbar shrink-0">
             {[
               { id: '1-cam', label: 'Solo', name: 'Solo' },
@@ -4136,23 +4136,23 @@ export function StudioPreview({
                   className={`w-14 h-10 rounded-xl relative transition-all duration-200 cursor-pointer flex items-center justify-center p-1 hover:scale-105 active:scale-95 ${
                     isSelected 
                       ? 'bg-blue-600/10 border-[var(--color-brand)] border-2 shadow-[0_0_12px_rgba(70,131,224,0.35)]' 
-                      : 'bg-[var(--surface)] border border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
+                      : 'bg-[var(--surface)] border border-[var(--line)] hover:border-[var(--line-ctl)] hover:bg-[var(--panel)]/40'
                   }`}
                   title={`Mudar layout para: ${l.name}`}
                 >
                   {l.id === '1-cam' && (
-                    <div className="w-full h-full bg-slate-800/40 rounded-lg border border-slate-700/40 p-1 flex items-center justify-center">
+                    <div className="w-full h-full bg-[var(--panel)]/40 rounded-lg border border-[var(--line-ctl)]/40 p-1 flex items-center justify-center">
                       <div className="w-1/2 h-full bg-slate-500/80 rounded-md" />
                     </div>
                   )}
                   {l.id === 'dual' && (
-                    <div className="w-full h-full flex gap-1 bg-slate-800/40 rounded-lg border border-slate-700/40 p-1">
+                    <div className="w-full h-full flex gap-1 bg-[var(--panel)]/40 rounded-lg border border-[var(--line-ctl)]/40 p-1">
                       <div className="flex-1 bg-slate-500/80 rounded-md" />
                       <div className="flex-1 bg-slate-500/80 rounded-md" />
                     </div>
                   )}
                   {l.id === 'presentation' && (
-                    <div className="w-full h-full flex gap-1 bg-slate-800/40 rounded-lg border border-slate-700/40 p-1">
+                    <div className="w-full h-full flex gap-1 bg-[var(--panel)]/40 rounded-lg border border-[var(--line-ctl)]/40 p-1">
                       <div className="flex-[2.5] bg-slate-500/80 rounded-md" />
                       <div className="flex-1 flex flex-col gap-0.5">
                         <div className="w-full h-[45%] bg-slate-600/50 rounded-sm" />
@@ -4161,13 +4161,13 @@ export function StudioPreview({
                     </div>
                   )}
                   {l.id === 'picture-in-picture' && (
-                    <div className="w-full h-full bg-slate-800/40 rounded-lg border border-slate-700/40 p-1 relative">
+                    <div className="w-full h-full bg-[var(--panel)]/40 rounded-lg border border-[var(--line-ctl)]/40 p-1 relative">
                       <div className="w-full h-full bg-slate-500/50 rounded-md" />
-                      <div className="absolute bottom-1 right-1 w-2/5 h-2/5 bg-slate-400 rounded-sm border border-slate-600 shadow" />
+                      <div className="absolute bottom-1 right-1 w-2/5 h-2/5 bg-slate-400 rounded-sm border border-[var(--line-ctl)] shadow" />
                     </div>
                   )}
                   {l.id === 'grid' && (
-                    <div className="w-full h-full grid grid-cols-2 gap-0.5 bg-slate-800/40 rounded-lg border border-slate-700/40 p-1">
+                    <div className="w-full h-full grid grid-cols-2 gap-0.5 bg-[var(--panel)]/40 rounded-lg border border-[var(--line-ctl)]/40 p-1">
                       <div className="bg-slate-500/80 rounded-sm" />
                       <div className="bg-slate-500/80 rounded-sm" />
                       <div className="bg-slate-500/80 rounded-sm" />
@@ -4175,7 +4175,7 @@ export function StudioPreview({
                     </div>
                   )}
                   {l.id === 'gallery' && (
-                    <div className="w-full h-full grid grid-cols-3 gap-0.5 bg-slate-800/40 rounded-lg border border-slate-700/40 p-0.5">
+                    <div className="w-full h-full grid grid-cols-3 gap-0.5 bg-[var(--panel)]/40 rounded-lg border border-[var(--line-ctl)]/40 p-0.5">
                       <div className="bg-slate-500/80 rounded-[1px]" />
                       <div className="bg-slate-500/80 rounded-[1px]" />
                       <div className="bg-slate-500/80 rounded-[1px]" />
@@ -4188,7 +4188,7 @@ export function StudioPreview({
                     </div>
                   )}
                   {l.id === 'screen-share' && (
-                    <div className="w-full h-full bg-slate-800/40 rounded-lg border border-slate-700/40 p-1">
+                    <div className="w-full h-full bg-[var(--panel)]/40 rounded-lg border border-[var(--line-ctl)]/40 p-1">
                       <div className="w-full h-full bg-slate-500/80 rounded-md" />
                     </div>
                   )}

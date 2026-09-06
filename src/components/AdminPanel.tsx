@@ -136,12 +136,12 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
     <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200" id="client-admin-dashboard">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-900 pb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--line)] pb-6">
         <div className="text-left">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-2.5">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-hi)] flex items-center gap-2.5">
             <Radio className="text-blue-500" /> Painel do Cliente Final - Gestão de Transmissão
           </h1>
-          <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">
+          <p className="text-xs text-[var(--text-lo)] mt-1.5 leading-relaxed">
             Consulte sua chave de ingestão atribuída para o OBS Studio e gerencie seus destinos de retransmissão para redes sociais.
           </p>
         </div>
@@ -149,7 +149,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
         <div className="flex items-center gap-2">
           <button 
             onClick={handleRefresh}
-            className={`p-2.5 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition-all text-gray-400 hover:text-white ${isRefreshing ? 'animate-spin' : ''}`}
+            className={`p-2.5 bg-[var(--surface)] border border-[var(--line)] rounded-xl hover:bg-[var(--panel)] transition-all text-[var(--text-lo)] hover:text-[var(--text-hi)] ${isRefreshing ? 'animate-spin' : ''}`}
             title="Atualizar dados do painel"
           >
             <RefreshCw size={16} />
@@ -164,7 +164,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
       </div>
 
       {/* Client Navigation Tabs */}
-      <div className="flex border-b border-slate-800 pb-px gap-1">
+      <div className="flex border-b border-[var(--line)] pb-px gap-1">
         {[
           { id: 'my-rtmp', label: 'Sua Chave de Ingestão OBS / Encoder', icon: Key },
           { id: 'destinations', label: 'Destinos para Redes Sociais (YouTube / Facebook / Twitch)', icon: Share2 },
@@ -177,7 +177,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
             className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
               clientTab === tab.id 
                 ? 'border-blue-500 text-white bg-blue-500/5' 
-                : 'border-transparent text-gray-400 hover:text-white'
+                : 'border-transparent text-[var(--text-lo)] hover:text-white'
             }`}
           >
             <tab.icon size={15} className={clientTab === tab.id ? 'text-blue-400' : ''} />
@@ -188,13 +188,13 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
       {/* CLIENT TAB 1: MY INGESTION STREAM KEY */}
       {clientTab === 'my-rtmp' && (
-        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
-          <div className="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
+          <div className="flex items-start justify-between gap-4 border-b border-[var(--line)] pb-4">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
                 <Lock size={18} className="text-amber-400" /> Sua Chave de Ingestão Exclusiva PwStreamer
               </h3>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-[var(--text-lo)] mt-1">
                 Insira estas credenciais no seu OBS Studio, vMix ou encoder externo para enviar seu vídeo ao vivo diretamente para a infraestrutura do PwStreamer.
               </p>
             </div>
@@ -203,9 +203,9 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
             </span>
           </div>
 
-          <div className="bg-[var(--bg)] border border-slate-800 p-5 rounded-xl space-y-4">
+          <div className="bg-[var(--bg)] border border-[var(--line)] p-5 rounded-xl space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-white uppercase tracking-wider">{primaryKey.label}</span>
+              <span className="text-xs font-bold text-[var(--text-hi)] uppercase tracking-wider">{primaryKey.label}</span>
               <div className="flex items-center gap-2">
                 <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded border border-emerald-500/20">
                   {primaryKey.active ? 'Ativa no Server' : 'Suspensa'}
@@ -218,13 +218,13 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
             <div className="space-y-4 font-mono">
               <div>
-                <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Servidor RTMP Ingest (OBS URL)</label>
+                <label className="text-[10px] text-[var(--text-lo)] font-bold uppercase block mb-1">Servidor RTMP Ingest (OBS URL)</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     readOnly
                     value={primaryKey.server}
-                    className="flex-1 bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-blue-400 font-bold focus:outline-none"
+                    className="flex-1 bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-blue-400 font-bold focus:outline-none"
                   />
                   <button
                     onClick={() => {
@@ -233,7 +233,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                       setTimeout(() => setCopiedUrl(false), 2000);
                     }}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      copiedUrl ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 hover:bg-slate-700 text-white'
+                      copiedUrl ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-[var(--panel)] hover:bg-[var(--raise)] text-white'
                     }`}
                   >
                     {copiedUrl ? 'URL Copiada!' : 'Copiar URL'}
@@ -242,13 +242,13 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Sua Chave de Stream Atribuída (Stream Key)</label>
+                <label className="text-[10px] text-[var(--text-lo)] font-bold uppercase block mb-1">Sua Chave de Stream Atribuída (Stream Key)</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     readOnly
                     value={primaryKey.key}
-                    className="flex-1 bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-amber-400 font-bold focus:outline-none"
+                    className="flex-1 bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-amber-400 font-bold focus:outline-none"
                   />
                   <button
                     onClick={() => {
@@ -266,8 +266,8 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
-              <div className="flex items-center gap-2 text-[11px] text-gray-400">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-[var(--line)]/80">
+              <div className="flex items-center gap-2 text-[11px] text-[var(--text-lo)]">
                 <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
                 <span>Chave isolada com criptografia de ponta e vinculada ao e-mail <strong>{user?.email}</strong></span>
               </div>
@@ -296,26 +296,26 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
       {/* CLIENT TAB 2: OUTBOUND DESTINATIONS */}
       {clientTab === 'destinations' && (
-        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
               <Share2 size={18} className="text-blue-500" /> Chaves RTMP dos Seus Canais (Redes Sociais)
             </h3>
-            <p className="text-xs text-gray-400 mt-1">Adicione aqui as chaves RTMP que o YouTube, Facebook ou Twitch fornecem para você ao criar uma live nessas plataformas.</p>
+            <p className="text-xs text-[var(--text-lo)] mt-1">Adicione aqui as chaves RTMP que o YouTube, Facebook ou Twitch fornecem para você ao criar uma live nessas plataformas.</p>
           </div>
 
           {/* Add destination form */}
-          <form onSubmit={handleAddClientDestination} className="bg-[var(--bg)] border border-slate-800 p-4 rounded-xl space-y-3">
-            <span className="text-xs font-bold text-white uppercase tracking-wider block">Conectar Novo Canal de Transmissão</span>
+          <form onSubmit={handleAddClientDestination} className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-3">
+            <span className="text-xs font-bold text-[var(--text-hi)] uppercase tracking-wider block">Conectar Novo Canal de Transmissão</span>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Plataforma</label>
+                <label className="text-[10px] text-[var(--text-lo)] font-bold uppercase block mb-1">Plataforma</label>
                 <select
                   value={newDestPlatform}
                   onChange={(e) => setNewDestPlatform(e.target.value)}
                   required
-                  className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                  className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--text-hi)] focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Selecione...</option>
                   <option value="YouTube Live">YouTube Live</option>
@@ -326,25 +326,25 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Chave de Transmissão Fornecida pelo Canal</label>
+                <label className="text-[10px] text-[var(--text-lo)] font-bold uppercase block mb-1">Chave de Transmissão Fornecida pelo Canal</label>
                 <input
                   type="text"
                   required
                   value={newDestKey}
                   onChange={(e) => setNewDestKey(e.target.value)}
                   placeholder="Chave do YouTube/Facebook"
-                  className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                  className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">URL Server RTMP (Opcional)</label>
+                <label className="text-[10px] text-[var(--text-lo)] font-bold uppercase block mb-1">URL Server RTMP (Opcional)</label>
                 <input
                   type="text"
                   value={newDestUrl}
                   onChange={(e) => setNewDestUrl(e.target.value)}
                   placeholder="rtmp://a.rtmp.youtube.com/live2"
-                  className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 font-mono"
+                  className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-blue-500 font-mono"
                 />
               </div>
             </div>
@@ -368,19 +368,19 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
           {/* Destinations list */}
           <div className="space-y-3">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Canais Ativos para Suas Transmissões ({clientDestinations.length})</span>
+            <span className="text-xs font-bold text-[var(--text-lo)] uppercase tracking-wider block">Canais Ativos para Suas Transmissões ({clientDestinations.length})</span>
             {clientDestinations.map(dest => (
-              <div key={dest.id} className="p-4 bg-[var(--bg)] border border-slate-800/80 rounded-xl flex items-center justify-between gap-4">
+              <div key={dest.id} className="p-4 bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl flex items-center justify-between gap-4">
                 <div className="text-left space-y-1">
-                  <p className="text-xs font-bold text-white">{dest.platform}</p>
-                  <p className="text-[11px] text-gray-400 font-mono">Server: {dest.rtmpUrl} • Chave: {dest.streamKey.substring(0, 10)}***</p>
+                  <p className="text-xs font-bold text-[var(--text-hi)]">{dest.platform}</p>
+                  <p className="text-[11px] text-[var(--text-lo)] font-mono">Server: {dest.rtmpUrl} • Chave: {dest.streamKey.substring(0, 10)}***</p>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleToggleDestinationActive(dest.id)}
                     className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border cursor-pointer ${
-                      dest.active ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-gray-800 text-gray-500'
+                      dest.active ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-[var(--panel)] text-[var(--text-dim)]'
                     }`}
                   >
                     {dest.active ? 'Ativo na Live' : 'Pausado'}
@@ -408,10 +408,10 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               { label: 'Comentários Recebidos', value: '482', desc: 'Interações no Chat Unificado', color: 'text-emerald-400' },
               { label: 'Qualidade da Ingestão', value: '1080p 60fps', desc: 'Bitrate estável em 8 Mbps', color: 'text-amber-400' }
             ].map((stat, idx) => (
-              <div key={idx} className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left shadow-lg">
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{stat.label}</p>
+              <div key={idx} className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left shadow-lg">
+                <p className="text-[10px] font-bold text-[var(--text-dim)] uppercase tracking-wider">{stat.label}</p>
                 <p className={`text-3xl font-black mt-2 ${stat.color}`}>{stat.value}</p>
-                <p className="text-xs text-gray-400 mt-1">{stat.desc}</p>
+                <p className="text-xs text-[var(--text-lo)] mt-1">{stat.desc}</p>
               </div>
             ))}
           </div>
@@ -422,7 +422,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
       {/* CLIENT TAB 4: WEBHOOKS VALIDATOR & DISPATCHER */}
       {clientTab === 'webhooks' && (
-        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <WebhookPanel 
             userId={user?.email || 'mgdlms@gmail.com'}
             isLive={false}

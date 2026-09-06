@@ -14,35 +14,35 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[10000] flex items-center justify-center p-4">
-      <div className="bg-[var(--surface)] border border-slate-800 w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
+      <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[var(--bg)]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--bg)]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
               {isPrivacy ? <Shield size={20} /> : <FileText size={20} />}
             </div>
             <div className="text-left">
-              <h3 className="text-base font-bold text-white">
+              <h3 className="text-base font-bold text-[var(--text-hi)]">
                 {isPrivacy ? 'Política de Privacidade' : 'Termos e Condições de Uso'}
               </h3>
-              <p className="text-xs text-gray-400">PW Stream Online — Atualizado em Julho de 2026</p>
+              <p className="text-xs text-[var(--text-lo)]">PW Stream Online — Atualizado em Julho de 2026</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
+            className="text-[var(--text-lo)] hover:text-[var(--text-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto text-sm text-gray-300 space-y-6 text-left leading-relaxed font-sans custom-scrollbar select-text">
+        <div className="p-6 overflow-y-auto text-sm text-[var(--text)] space-y-6 text-left leading-relaxed font-sans custom-scrollbar select-text">
           {isPrivacy ? (
             <>
               <div>
-                <p className="text-gray-400 text-xs uppercase font-extrabold tracking-wider mb-2">Introdução</p>
+                <p className="text-[var(--text-lo)] text-xs uppercase font-extrabold tracking-wider mb-2">Introdução</p>
                 <p>
                   A <strong>PW Stream Online</strong> respeita a privacidade de seus usuários e está comprometida em proteger os dados pessoais coletados por meio do site <a href="https://pwstreamer.com" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">https://pwstreamer.com</a>.
                 </p>
@@ -52,24 +52,24 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">1.</span> Quem Somos
                 </h4>
                 <p>
                   A PW Stream Online é uma plataforma especializada em serviços de streaming de vídeo, webinars, transmissões ao vivo, eventos online e soluções digitais para empresas, produtores de conteúdo e organizações.
                 </p>
-                <p className="text-xs text-slate-400 bg-slate-950/40 p-2.5 rounded-lg border border-slate-800/40 font-mono">
+                <p className="text-xs text-[var(--text-lo)] bg-[var(--bg)]/40 p-2.5 rounded-lg border border-[var(--line)]/40 font-mono">
                   Contato de privacidade:<br />
                   E-mail: <span className="text-blue-400">contact@pwstreamer.com</span>
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">2.</span> Informações Coletadas
                 </h4>
                 <p>Podemos coletar informações fornecidas diretamente pelo usuário, incluindo:</p>
-                <ul className="list-disc list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-disc list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Nome completo;</li>
                   <li>Empresa;</li>
                   <li>Endereço de e-mail;</li>
@@ -79,7 +79,7 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
                   <li>Dados enviados através de formulários de contato.</li>
                 </ul>
                 <p className="mt-2">Também coletamos automaticamente:</p>
-                <ul className="list-disc list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-disc list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Endereço IP;</li>
                   <li>Tipo de navegador;</li>
                   <li>Sistema operacional;</li>
@@ -91,11 +91,11 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">3.</span> Finalidade da Coleta
                 </h4>
                 <p>Os dados poderão ser utilizados para:</p>
-                <ul className="list-decimal list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-decimal list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Prestar nossos serviços;</li>
                   <li>Criar contas de usuários;</li>
                   <li>Processar pagamentos;</li>
@@ -108,43 +108,43 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">4.</span> Cookies
                 </h4>
                 <p>Utilizamos cookies para:</p>
-                <ul className="list-disc list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-disc list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Autenticação de identidade;</li>
                   <li>Personalização da experiência do painel;</li>
                   <li>Estatísticas agregadas de utilização;</li>
                   <li>Melhoria de desempenho e tempo de carregamento;</li>
                   <li>Segurança geral da plataforma.</li>
                 </ul>
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-[var(--text-lo)] mt-2">
                   O usuário poderá desativar os cookies diretamente em seu navegador, porém alguns recursos poderão deixar de funcionar corretamente.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">5.</span> Compartilhamento de Informações
                 </h4>
                 <p>
                   Não comercializamos dados pessoais de usuários sob nenhuma hipótese.
                 </p>
                 <p>Os dados poderão ser compartilhados apenas quando estritamente necessário com parceiros e sub-processadores autorizados:</p>
-                <ul className="list-disc list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-disc list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Processadores e gateways de pagamento (ex. Stripe);</li>
                   <li>Provedores de hospedagem em nuvem (ex. Google Cloud);</li>
                   <li>Serviços de armazenamento e infraestrutura;</li>
                   <li>Autoridades competentes quando exigido por lei ou ordem judicial.</li>
                 </ul>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-[var(--text-lo)]">
                   Todos os parceiros são contratualmente obrigados a manter padrões adequados de segurança de dados e confidencialidade estrita.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">6.</span> Segurança
                 </h4>
                 <p>
@@ -156,23 +156,23 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">7.</span> Retenção dos Dados
                 </h4>
                 <p>
                   Os dados coletados serão mantidos apenas pelo período necessário para a execução dos serviços contratados, cumprimento de obrigações fiscais ou legais, resolução de eventuais disputas ou prevenção ativa contra fraudes de sistema.
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-[var(--text-lo)]">
                   Após o fim da necessidade de manutenção, os dados serão excluídos definitivamente ou anonimizados.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">8.</span> Direitos do Usuário
                 </h4>
                 <p>O usuário possui amplos direitos sobre seus dados, podendo solicitar a qualquer momento:</p>
-                <ul className="list-disc list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-disc list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Acesso e confirmação da existência de tratamento dos dados;</li>
                   <li>Atualização imediata de informações desatualizadas;</li>
                   <li>Correção de dados incompletos ou inexatos;</li>
@@ -187,7 +187,7 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">9.</span> Conteúdo Transmitido
                 </h4>
                 <p>
@@ -196,7 +196,7 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">10.</span> Links Externos
                 </h4>
                 <p>
@@ -205,7 +205,7 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">11.</span> Alterações
                 </h4>
                 <p>
@@ -216,7 +216,7 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
           ) : (
             <>
               <div>
-                <p className="text-gray-400 text-xs uppercase font-extrabold tracking-wider mb-2">Introdução</p>
+                <p className="text-[var(--text-lo)] text-xs uppercase font-extrabold tracking-wider mb-2">Introdução</p>
                 <p>
                   Ao acessar ou utilizar a plataforma <strong>PW Stream Online</strong>, o usuário concorda integralmente com os presentes Termos e Condições de Uso.
                 </p>
@@ -226,11 +226,11 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">1.</span> Serviços
                 </h4>
                 <p>A PW Stream Online disponibiliza serviços especializados relacionados a:</p>
-                <ul className="list-disc list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-disc list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Streaming de vídeo em tempo real ou sob demanda;</li>
                   <li>Streaming de áudio e monitoramento de canais;</li>
                   <li>Webinars e painéis dinâmicos;</li>
@@ -244,26 +244,26 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">2.</span> Cadastro e Contas
                 </h4>
                 <p>
                   Alguns serviços específicos exigem cadastro de conta de usuário para acesso total. O usuário compromete-se a fornecer informações verdadeiras, atualizadas e completas.
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-[var(--text-lo)]">
                   É de responsabilidade total e exclusiva do usuário manter a confidencialidade e segurança de sua senha e credenciais de acesso.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">3.</span> Responsabilidade pelo Conteúdo
                 </h4>
                 <p>
                   Cada cliente é exclusivamente e integralmente responsável pelo conteúdo transmitido, publicado ou armazenado em sua conta.
                 </p>
                 <p>É expressamente proibido utilizar a plataforma para veicular ou gerenciar conteúdo que seja:</p>
-                <ul className="list-disc list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-disc list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Ilegal, criminoso ou em desacordo com as leis vigentes;</li>
                   <li>Fraudulento ou enganoso;</li>
                   <li>Ofensivo, preconceituoso ou incitador do ódio;</li>
@@ -274,29 +274,29 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
                   <li>Incentivador de atividades ilícitas de qualquer natureza;</li>
                   <li>Portador de vírus, códigos maliciosos ou malwares invasivos.</li>
                 </ul>
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-[var(--text-lo)] mt-2">
                   A PW Stream Online reserva-se o direito de remover sumariamente conteúdos que violem estes Termos ou a legislação aplicável, sem aviso prévio.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">4.</span> Direitos Autorais e Propriedade Intelectual
                 </h4>
                 <p>
                   O usuário declara e garante possuir todos os direitos, autorizações e licenças necessários para transmitir, publicar ou disponibilizar qualquer conteúdo na plataforma.
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-[var(--text-lo)]">
                   A PW Stream Online não assume responsabilidade por infrações de propriedade intelectual cometidas pelos usuários em suas transmissões ou salas virtuais.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">5.</span> Valores e Pagamentos
                 </h4>
                 <p>Quando aplicável aos planos pagos contratados:</p>
-                <ul className="list-disc list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-disc list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Os valores exatos dos planos serão apresentados de forma clara antes da contratação;</li>
                   <li>Assinaturas poderão ser cobradas de forma recorrente (mensal ou anual);</li>
                   <li>Impostos federais, estaduais ou municipais poderão ser adicionados conforme a legislação vigente;</li>
@@ -305,13 +305,13 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">6.</span> Disponibilidade e Nível de Serviço (SLA)
                 </h4>
                 <p>
                   Buscamos de forma ativa manter alta disponibilidade global de nossos serviços. Entretanto, poderão ocorrer interrupções inevitáveis decorrentes de:
                 </p>
-                <ul className="list-disc list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-disc list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Manutenções programadas de segurança ou expansão;</li>
                   <li>Atualizações críticas de sistema;</li>
                   <li>Instabilidades gerais da rede de internet;</li>
@@ -320,17 +320,17 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
                   <li>Ataques cibernéticos distribuídos (DDoS);</li>
                   <li>Problemas ou paralisações de provedores de infraestrutura terceirizados.</li>
                 </ul>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-[var(--text-lo)]">
                   Não garantimos e não nos responsabilizamos por perdas decorrentes de quedas pontuais, não existindo garantia de disponibilidade ininterrupta de 100%.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">7.</span> Uso Adequado da Plataforma
                 </h4>
                 <p>O usuário compromete-se rigorosamente a não:</p>
-                <ul className="list-disc list-inside space-y-1 pl-2 text-gray-400 text-xs">
+                <ul className="list-disc list-inside space-y-1 pl-2 text-[var(--text-lo)] text-xs">
                   <li>Vasculhar ou explorar vulnerabilidades de segurança dos servidores;</li>
                   <li>Tentar burlar autenticações ou acessar contas e dados de terceiros;</li>
                   <li>Utilizar robôs, scrapers ou crawlers não autorizados para coleta de dados;</li>
@@ -341,7 +341,7 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">8.</span> Suspensão e Encerramento
                 </h4>
                 <p>
@@ -350,16 +350,16 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">9.</span> Limitação de Responsabilidade
                 </h4>
-                <p className="text-xs text-gray-400 leading-relaxed">
+                <p className="text-xs text-[var(--text-lo)] leading-relaxed">
                   Na máxima extensão permitida pela legislação aplicável, a <strong>PW Stream Online não será responsável</strong> por perdas de receita, perda de audiência ao vivo, perda de dados ou arquivos por culpa de terceiros, interrupções inesperadas de rede de internet, indisponibilidade temporária de provedores externos, ou danos indiretos de qualquer natureza.
                 </p>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">10.</span> Modificações destes Termos
                 </h4>
                 <p>
@@ -368,13 +368,13 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-white font-bold text-sm flex items-center gap-2 border-b border-slate-800/80 pb-1">
+                <h4 className="text-[var(--text-hi)] font-bold text-sm flex items-center gap-2 border-b border-[var(--line)]/80 pb-1">
                   <span className="text-blue-500 font-mono text-xs">11.</span> Legislação e Contato
                 </h4>
                 <p>
                   Estes termos e regras de utilização do estúdio virtual seguem as normas e regulamentos vigentes, respeitando as leis de proteção de dados (LGPD) e o Marco Civil da Internet.
                 </p>
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-[var(--text-lo)] mt-2">
                   Dúvidas ou solicitações de esclarecimento sobre estes Termos de Uso poderão ser direcionadas para: <span className="text-blue-400 font-mono">contact@pwstreamer.com</span>.
                 </p>
               </div>
@@ -383,10 +383,10 @@ export function LegalModal({ isOpen, type, onClose }: LegalModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-[var(--bg)] border-t border-slate-800 flex justify-end">
+        <div className="px-6 py-4 bg-[var(--bg)] border-t border-[var(--line)] flex justify-end">
           <button 
             onClick={onClose}
-            className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+            className="px-5 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)] rounded-xl text-xs font-bold transition-colors cursor-pointer"
           >
             Fechar Documento
           </button>

@@ -57,7 +57,7 @@ export function StudioScenePreviewControls({
   };
 
   return (
-    <div className="w-full bg-[var(--bg)] border-b border-slate-800/80 px-2 sm:px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-inner select-none transition-all" id="studio-scene-preview-controls">
+    <div className="w-full bg-[var(--bg)] border-b border-[var(--line)]/80 px-2 sm:px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-inner select-none transition-all" id="studio-scene-preview-controls">
       
       {/* Left: Mode Toggle & View Switcher */}
       <div className="flex items-center gap-2 flex-wrap">
@@ -68,14 +68,14 @@ export function StudioScenePreviewControls({
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border ${
             isStudioPreviewMode
               ? 'bg-cyan-500/15 border-cyan-500 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.25)] ring-1 ring-cyan-500/40'
-              : 'bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+              : 'bg-[var(--panel)]/60 border-[var(--line-ctl)]/60 text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--raise)]/50'
           }`}
           title={isStudioPreviewMode ? 'Desativar modo Preview (voltar para edição ao vivo direta)' : 'Ativar modo Studio Preview (Permite editar câmeras, banners e tickers antes de publicar no ar)'}
         >
-          <Layers size={13} className={isStudioPreviewMode ? 'text-cyan-400 animate-pulse' : 'text-slate-400'} />
+          <Layers size={13} className={isStudioPreviewMode ? 'text-cyan-400 animate-pulse' : 'text-[var(--text-lo)]'} />
           <span>Preview de Cena (Studio Mode)</span>
           <span className={`text-[8px] font-black px-1 py-0.2 rounded uppercase ${
-            isStudioPreviewMode ? 'bg-cyan-500 text-slate-950' : 'bg-slate-700 text-slate-300'
+            isStudioPreviewMode ? 'bg-cyan-500 text-slate-950' : 'bg-[var(--raise)] text-[var(--text)]'
           }`}>
             {isStudioPreviewMode ? 'Ativo' : 'Off'}
           </span>
@@ -83,14 +83,14 @@ export function StudioScenePreviewControls({
 
         {/* View mode buttons (Only visible when Studio Preview Mode is Active) */}
         {isStudioPreviewMode && (
-          <div className="flex items-center bg-slate-900/90 border border-slate-800 rounded-lg p-0.5 text-[10px]">
+          <div className="flex items-center bg-[var(--surface)]/90 border border-[var(--line)] rounded-lg p-0.5 text-[10px]">
             <button
               type="button"
               onClick={() => onPreviewViewModeChange('split')}
               className={`px-2 py-0.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer ${
                 previewViewMode === 'split'
                   ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
               }`}
               title="Exibir Prévia e Ao Vivo Lado a Lado (Estilo OBS / vMix)"
             >
@@ -104,7 +104,7 @@ export function StudioScenePreviewControls({
               className={`px-2 py-0.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer ${
                 previewViewMode === 'preview-only'
                   ? 'bg-cyan-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
               }`}
               title="Focar apenas na Tela de Prévia (Edição)"
             >
@@ -118,11 +118,11 @@ export function StudioScenePreviewControls({
               className={`px-2 py-0.5 rounded-md font-bold transition-all flex items-center gap-1 cursor-pointer ${
                 previewViewMode === 'program-only'
                   ? 'bg-rose-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
               }`}
               title="Visualizar exatamente o que está No Ar (Program)"
             >
-              <Radio size={11} className={isLive ? 'animate-pulse text-white' : ''} />
+              <Radio size={11} className={isLive ? 'animate-pulse text-[var(--text-hi)]' : ''} />
               <span>Ao Vivo</span>
             </button>
           </div>
@@ -157,13 +157,13 @@ export function StudioScenePreviewControls({
             <button
               type="button"
               onClick={() => setIsTransitionsMenuOpen(prev => !prev)}
-              className="px-2 py-1 bg-slate-900 border border-slate-700/80 hover:border-slate-600 text-slate-300 hover:text-white rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-2 py-1 bg-[var(--surface)] border border-[var(--line-ctl)]/80 hover:border-[var(--line-ctl)] text-[var(--text)] hover:text-[var(--text-hi)] rounded-lg text-[10px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
               title="Configurar efeito de transição para o Push to Live"
             >
               <Zap size={11} className="text-amber-400" />
               <span>{transitionLabels[transitionType] || 'Fade'}</span>
-              <span className="text-[9px] text-slate-500 font-mono">{transitionDuration}ms</span>
-              <ChevronDown size={10} className="text-slate-400" />
+              <span className="text-[9px] text-[var(--text-dim)] font-mono">{transitionDuration}ms</span>
+              <ChevronDown size={10} className="text-[var(--text-lo)]" />
             </button>
 
             {/* Dropdown Menu */}
@@ -173,8 +173,8 @@ export function StudioScenePreviewControls({
                   className="fixed inset-0 z-40" 
                   onClick={() => setIsTransitionsMenuOpen(false)} 
                 />
-                <div className="absolute right-0 top-full mt-1 w-56 bg-[var(--surface)] border border-slate-700 rounded-xl p-2 z-50 shadow-2xl space-y-2">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-1 border-b border-slate-800 pb-1">
+                <div className="absolute right-0 top-full mt-1 w-56 bg-[var(--surface)] border border-[var(--line-ctl)] rounded-xl p-2 z-50 shadow-2xl space-y-2">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-[var(--text-lo)] px-1 border-b border-[var(--line)] pb-1">
                     Efeito de Transição
                   </div>
 
@@ -190,7 +190,7 @@ export function StudioScenePreviewControls({
                         className={`w-full text-left px-2 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center justify-between cursor-pointer ${
                           transitionType === key
                             ? 'bg-blue-600 text-white'
-                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                            : 'text-[var(--text)] hover:bg-[var(--panel)] hover:text-white'
                         }`}
                       >
                         <span>{label}</span>
@@ -200,10 +200,10 @@ export function StudioScenePreviewControls({
                   </div>
 
                   {/* Duration Slider */}
-                  <div className="pt-2 border-t border-slate-800 px-1 space-y-1">
-                    <div className="flex items-center justify-between text-[9px] text-slate-400">
+                  <div className="pt-2 border-t border-[var(--line)] px-1 space-y-1">
+                    <div className="flex items-center justify-between text-[9px] text-[var(--text-lo)]">
                       <span>Duração:</span>
-                      <span className="font-mono text-white font-bold">{transitionDuration}ms</span>
+                      <span className="font-mono text-[var(--text-hi)] font-bold">{transitionDuration}ms</span>
                     </div>
                     <input
                       type="range"
@@ -212,7 +212,7 @@ export function StudioScenePreviewControls({
                       step="50"
                       value={transitionDuration}
                       onChange={(e) => onTransitionDurationChange?.(parseInt(e.target.value, 10))}
-                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      className="w-full h-1 bg-[var(--panel)] rounded-lg appearance-none cursor-pointer accent-blue-500"
                     />
                   </div>
                 </div>
@@ -225,7 +225,7 @@ export function StudioScenePreviewControls({
             <button
               type="button"
               onClick={onRevertToLive}
-              className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all flex items-center gap-1 cursor-pointer"
+              className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--text)] hover:text-[var(--text-hi)] border border-[var(--line-ctl)]/60 transition-all flex items-center gap-1 cursor-pointer"
               title="Descartar rascunho de prévia e restaurar a cena atual do Ao Vivo"
             >
               <RotateCcw size={11} />
@@ -238,7 +238,7 @@ export function StudioScenePreviewControls({
             <button
               type="button"
               onClick={onSwapPreviewAndLive}
-              className="p-1 rounded-lg text-[10px] font-bold bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 transition-all flex items-center justify-center cursor-pointer"
+              className="p-1 rounded-lg text-[10px] font-bold bg-[var(--surface)] hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-[var(--text-hi)] border border-[var(--line)] transition-all flex items-center justify-center cursor-pointer"
               title="Inverter Prévia e Ao Vivo"
             >
               <ArrowRightLeft size={12} />
@@ -266,7 +266,7 @@ export function StudioScenePreviewControls({
               <>
                 <Sparkles size={13} className="text-slate-950" />
                 <span>Push to Live</span>
-                <span className="text-[9px] bg-slate-950/20 text-slate-950 font-black px-1.5 py-0.2 rounded ml-0.5">
+                <span className="text-[9px] bg-[var(--bg)]/20 text-slate-950 font-black px-1.5 py-0.2 rounded ml-0.5">
                   NO AR ➔
                 </span>
               </>

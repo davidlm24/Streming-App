@@ -291,39 +291,39 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             <span className="bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-amber-500/30">
               Acesso Exclusivo
             </span>
-            <h2 className="text-xl font-bold text-white mt-3">Autenticação do Admin Principal (/admin)</h2>
-            <p className="text-xs text-gray-400 mt-1">
+            <h2 className="text-xl font-bold text-[var(--text-hi)] mt-3">Autenticação do Admin Principal (/admin)</h2>
+            <p className="text-xs text-[var(--text-lo)] mt-1">
               Portal isolado de gerenciamento global. Digite as credenciais do Administrador do Sistema.
             </p>
           </div>
 
           <form onSubmit={handleUnlockPin} className="space-y-4 text-left">
             <div>
-              <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail de Admin Mestre</label>
+              <label className="text-[10px] text-[var(--text-lo)] font-bold uppercase block mb-1">E-mail de Admin Mestre</label>
               <div className="relative">
-                <Mail size={16} className="absolute left-3.5 top-3.5 text-gray-500" />
+                <Mail size={16} className="absolute left-3.5 top-3.5 text-[var(--text-dim)]" />
                 <input
                   type="email"
                   required
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="admin@pwstreamer.com"
-                  className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-all font-mono"
+                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-amber-500 transition-all font-mono"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Senha de Acesso Mestre</label>
+              <label className="text-[10px] text-[var(--text-lo)] font-bold uppercase block mb-1">Senha de Acesso Mestre</label>
               <div className="relative">
-                <Lock size={16} className="absolute left-3.5 top-3.5 text-gray-500" />
+                <Lock size={16} className="absolute left-3.5 top-3.5 text-[var(--text-dim)]" />
                 <input
                   type="password"
                   required
                   value={pinInput}
                   onChange={(e) => setPinInput(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-all font-mono"
+                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-amber-500 transition-all font-mono"
                 />
               </div>
             </div>
@@ -342,14 +342,14 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             </button>
           </form>
 
-          <div className="pt-2 border-t border-slate-800/80 flex justify-between items-center text-[11px] text-gray-400">
+          <div className="pt-2 border-t border-[var(--line)]/80 flex justify-between items-center text-[11px] text-[var(--text-lo)]">
             <span>Usuário Conectado:</span>
-            <span className="text-white font-semibold">{user?.email || 'Visitante'}</span>
+            <span className="text-[var(--text-hi)] font-semibold">{user?.email || 'Visitante'}</span>
           </div>
 
           <button
             onClick={onBack}
-            className="text-xs text-gray-400 hover:text-white underline cursor-pointer"
+            className="text-xs text-[var(--text-lo)] hover:text-[var(--text-hi)] underline cursor-pointer"
           >
             Voltar ao Dashboard Geral
           </button>
@@ -362,19 +362,19 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
     <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200" id="super-admin-dashboard">
       
       {/* Top Banner Notice */}
-      <div className="bg-gradient-to-r from-amber-950/80 via-slate-900 to-blue-950/80 border border-amber-500/30 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xl">
+      <div className="bg-gradient-to-r from-amber-950/80 via-[var(--surface)] to-blue-950/80 border border-amber-500/30 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xl">
         <div className="flex items-center gap-3 text-left">
           <div className="p-2.5 bg-amber-500/20 text-amber-300 rounded-xl border border-amber-500/30 shrink-0">
             <Crown size={22} className="animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-black text-white">ÁREA EXCLUSIVA - ADMIN PRINCIPAL (MASTER)</span>
+              <span className="text-xs font-black text-[var(--text-hi)]">ÁREA EXCLUSIVA - ADMIN PRINCIPAL (MASTER)</span>
               <span className="bg-amber-500/20 text-amber-400 text-[9px] font-black px-2 py-0.5 rounded border border-amber-500/30 uppercase">
                 Acesso Externo /admin
               </span>
             </div>
-            <p className="text-[11px] text-gray-300 font-mono mt-0.5 select-all">
+            <p className="text-[11px] text-[var(--text)] font-mono mt-0.5 select-all">
               {externalAdminUrl}
             </p>
           </div>
@@ -386,7 +386,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               copiedLink
                 ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
-                : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white'
+                : 'bg-[var(--panel)] hover:bg-[var(--raise)] border-[var(--line-ctl)] text-white'
             }`}
           >
             {copiedLink ? <Check size={14} /> : <Copy size={14} />}
@@ -396,12 +396,12 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
       </div>
 
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-900 pb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--line)] pb-6">
         <div className="text-left">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-2.5">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-hi)] flex items-center gap-2.5">
             <Crown className="text-amber-400" /> Painel de Controle Mestre - Admin Principal
           </h1>
-          <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">
+          <p className="text-xs text-[var(--text-lo)] mt-1.5 leading-relaxed">
             Gerenciamento centralizado de todos os clientes, transmissões de webinars, atribuição de chaves RTMP master e telemetria de servidores de mídia.
           </p>
         </div>
@@ -409,7 +409,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
         <div className="flex items-center gap-2">
           <button 
             onClick={handleRefresh}
-            className={`p-2.5 bg-slate-900 border border-slate-800 rounded-xl hover:bg-slate-800 transition-all text-gray-400 hover:text-white ${isRefreshing ? 'animate-spin' : ''}`}
+            className={`p-2.5 bg-[var(--surface)] border border-[var(--line)] rounded-xl hover:bg-[var(--panel)] transition-all text-[var(--text-lo)] hover:text-[var(--text-hi)] ${isRefreshing ? 'animate-spin' : ''}`}
             title="Atualizar dados do servidor"
           >
             <RefreshCw size={16} />
@@ -431,13 +431,13 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
           { label: 'Chaves RTMP Master', value: masterRtmpKeys.length.toString(), desc: masterRtmpKeys.filter(k => k.active).length + ' Ativas no Ingest', color: 'text-emerald-400', icon: Key },
           { label: 'Status da Rede Ingest', value: '100% Online', desc: 'MediaMTX / Nginx RTMP', color: 'text-indigo-400', icon: Server }
         ].map((met, i) => (
-          <div key={i} className="bg-[var(--surface)] border border-slate-800 p-5 rounded-2xl flex items-center justify-between shadow-lg">
+          <div key={i} className="bg-[var(--surface)] border border-[var(--line)] p-5 rounded-2xl flex items-center justify-between shadow-lg">
             <div className="text-left">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{met.label}</p>
+              <p className="text-[10px] font-bold text-[var(--text-lo)] uppercase tracking-wider">{met.label}</p>
               <p className={`text-2xl font-black mt-1 ${met.color}`}>{met.value}</p>
-              <p className="text-[10px] text-gray-500 mt-1">{met.desc}</p>
+              <p className="text-[10px] text-[var(--text-dim)] mt-1">{met.desc}</p>
             </div>
-            <div className="w-10 h-10 bg-[var(--bg)] rounded-xl flex items-center justify-center border border-slate-800 text-gray-400">
+            <div className="w-10 h-10 bg-[var(--bg)] rounded-xl flex items-center justify-center border border-[var(--line)] text-[var(--text-lo)]">
               <met.icon size={18} />
             </div>
           </div>
@@ -445,7 +445,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
       </div>
 
       {/* Main Tabs Navigation */}
-      <div className="flex border-b border-slate-800 pb-px gap-1 overflow-x-auto">
+      <div className="flex border-b border-[var(--line)] pb-px gap-1 overflow-x-auto">
         {[
           { id: 'analytics', label: 'Uso da Plataforma & Quotas', icon: BarChart3 },
           { id: 'clients', label: 'Lista de Clientes Final', icon: Users },
@@ -461,7 +461,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
               activeTab === tab.id 
                 ? 'border-amber-500 text-white bg-amber-500/5' 
-                : 'border-transparent text-gray-400 hover:text-white'
+                : 'border-transparent text-[var(--text-lo)] hover:text-white'
             }`}
           >
             <tab.icon size={15} className={activeTab === tab.id ? 'text-amber-400' : ''} />
@@ -477,30 +477,30 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
       {/* TAB 1: CLIENTS MANAGEMENT */}
       {activeTab === 'clients' && (
-        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
                 <Users size={18} className="text-amber-400" /> Gerenciamento Completo de Clientes
               </h3>
-              <p className="text-xs text-gray-400 mt-1">Visualize todos os usuários e clientes cadastrados no sistema, altere seus planos e controle acessos.</p>
+              <p className="text-xs text-[var(--text-lo)] mt-1">Visualize todos os usuários e clientes cadastrados no sistema, altere seus planos e controle acessos.</p>
             </div>
 
             <div className="relative w-full sm:w-64">
-              <Search size={14} className="absolute left-3 top-3 text-gray-500" />
+              <Search size={14} className="absolute left-3 top-3 text-[var(--text-dim)]" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar por cliente ou email..."
-                className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-500"
+                className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] focus:outline-none focus:border-amber-500"
               />
             </div>
           </div>
 
-          <div className="overflow-x-auto border border-slate-800 rounded-xl">
+          <div className="overflow-x-auto border border-[var(--line)] rounded-xl">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[var(--bg)] text-gray-400 font-bold uppercase text-[10px] border-b border-slate-800">
+              <thead className="bg-[var(--bg)] text-[var(--text-lo)] font-bold uppercase text-[10px] border-b border-[var(--line)]">
                 <tr>
                   <th className="p-3.5">Cliente / Nome</th>
                   <th className="p-3.5">E-mail</th>
@@ -510,10 +510,10 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
                   <th className="p-3.5 text-right">Ações de Admin</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 text-gray-300">
+              <tbody className="divide-y divide-[var(--line)]/60 text-[var(--text)]">
                 {filteredClients.map(client => (
-                  <tr key={client.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="p-3.5 font-bold text-white flex items-center gap-2">
+                  <tr key={client.id} className="hover:bg-[var(--panel)]/30 transition-colors">
+                    <td className="p-3.5 font-bold text-[var(--text-hi)] flex items-center gap-2">
                       <span>{client.name}</span>
                       {client.role === 'super-admin' && (
                         <span className="bg-amber-500/20 text-amber-300 text-[8px] font-black px-1.5 py-0.5 rounded border border-amber-500/30 uppercase">
@@ -521,12 +521,12 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
                         </span>
                       )}
                     </td>
-                    <td className="p-3.5 font-mono text-gray-400">{client.email}</td>
+                    <td className="p-3.5 font-mono text-[var(--text-lo)]">{client.email}</td>
                     <td className="p-3.5">
                       <select
                         value={client.plan}
                         onChange={(e) => handleChangeClientPlan(client.id, client.email, e.target.value as any)}
-                        className="bg-[var(--bg)] border border-slate-800 rounded-lg px-2 py-1 text-[11px] font-bold text-blue-400 focus:outline-none focus:border-amber-500"
+                        className="bg-[var(--bg)] border border-[var(--line)] rounded-lg px-2 py-1 text-[11px] font-bold text-blue-400 focus:outline-none focus:border-amber-500"
                       >
                         <option value="Standard">Standard</option>
                         <option value="Professional">Professional</option>
@@ -540,7 +540,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
                         {client.status === 'Active' ? 'Ativo' : 'Suspenso'}
                       </span>
                     </td>
-                    <td className="p-3.5 font-semibold text-white">{client.webinarsCount}</td>
+                    <td className="p-3.5 font-semibold text-[var(--text-hi)]">{client.webinarsCount}</td>
                     <td className="p-3.5 text-right">
                       <button
                         onClick={() => handleToggleClientStatus(client.id, client.email, client.status)}
@@ -563,21 +563,21 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
       {/* TAB 2: WEBINARS MANAGEMENT */}
       {activeTab === 'webinars' && (
-        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
               <Video size={18} className="text-blue-400" /> Todas as Transmissões & Webinars do Sistema ({allWebinars.length})
             </h3>
-            <p className="text-xs text-gray-400 mt-1">Visão geral e moderação global de todos os eventos criados pelos clientes.</p>
+            <p className="text-xs text-[var(--text-lo)] mt-1">Visão geral e moderação global de todos os eventos criados pelos clientes.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {allWebinars.map(webinar => (
-              <div key={webinar.id} className="p-4 bg-[var(--bg)] border border-slate-800 rounded-xl space-y-3">
+              <div key={webinar.id} className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl space-y-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h4 className="text-sm font-bold text-white">{webinar.title}</h4>
-                    <p className="text-xs text-gray-400 mt-0.5">{webinar.desc}</p>
+                    <h4 className="text-sm font-bold text-[var(--text-hi)]">{webinar.title}</h4>
+                    <p className="text-xs text-[var(--text-lo)] mt-0.5">{webinar.desc}</p>
                   </div>
                   <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${
                     webinar.type === 'live' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
@@ -586,8 +586,8 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 text-[11px] text-gray-400">
-                  <span>Canais: <strong className="text-gray-300">{webinar.channels?.join(', ') || 'Sem canais'}</strong></span>
+                <div className="flex items-center justify-between pt-2 border-t border-[var(--line)]/80 text-[11px] text-[var(--text-lo)]">
+                  <span>Canais: <strong className="text-[var(--text)]">{webinar.channels?.join(', ') || 'Sem canais'}</strong></span>
                   <span>{webinar.time}</span>
                 </div>
 
@@ -607,51 +607,51 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
       {/* TAB 3: GLOBAL MASTER RTMP KEYS */}
       {activeTab === 'master-rtmp' && (
-        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
               <Key size={18} className="text-amber-400" /> Controle Global de Chaves RTMP Master (Ingestão)
             </h3>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-[var(--text-lo)] mt-1">
               Como Admin Principal, você é o único com permissão para provisionar e alterar as chaves RTMP que os clientes usam para conectar seus encoders externos (OBS Studio/vMix) ao servidor PwStreamer.
             </p>
           </div>
 
           {/* Form to provision new key */}
-          <form onSubmit={handleGenerateMasterKey} className="bg-[var(--bg)] border border-slate-800 p-5 rounded-xl space-y-3">
+          <form onSubmit={handleGenerateMasterKey} className="bg-[var(--bg)] border border-[var(--line)] p-5 rounded-xl space-y-3">
             <span className="text-xs font-bold text-amber-300 uppercase tracking-wider block">Provisionar Nova Chave Master para Cliente</span>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Identificador / Rótulo</label>
+                <label className="text-[10px] text-[var(--text-lo)] font-bold uppercase block mb-1">Identificador / Rótulo</label>
                 <input
                   type="text"
                   required
                   value={newKeyLabel}
                   onChange={(e) => setNewKeyLabel(e.target.value)}
                   placeholder="Ex: Câmera Principal Estúdio A"
-                  className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--text-hi)] focus:outline-none focus:border-amber-500"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">E-mail do Cliente Atribuído</label>
+                <label className="text-[10px] text-[var(--text-lo)] font-bold uppercase block mb-1">E-mail do Cliente Atribuído</label>
                 <input
                   type="email"
                   required
                   value={newKeyClientEmail}
                   onChange={(e) => setNewKeyClientEmail(e.target.value)}
                   placeholder="cliente@empresa.com"
-                  className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--text-hi)] focus:outline-none focus:border-amber-500"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Limite de Bitrate Máximo</label>
+                <label className="text-[10px] text-[var(--text-lo)] font-bold uppercase block mb-1">Limite de Bitrate Máximo</label>
                 <select
                   value={newKeyBitrate}
                   onChange={(e) => setNewKeyBitrate(e.target.value)}
-                  className="w-full bg-[var(--surface)] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
+                  className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--text-hi)] focus:outline-none focus:border-amber-500"
                 >
                   <option value="4000 kbps">4000 kbps (HD 720p)</option>
                   <option value="6000 kbps">6000 kbps (Full HD 1080p)</option>
@@ -673,18 +673,18 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
           {/* Master Keys list */}
           <div className="space-y-3">
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Chaves de Ingestão Ativas no Servidor MediaMTX ({masterRtmpKeys.length})</span>
+            <span className="text-xs font-bold text-[var(--text-lo)] uppercase tracking-wider block">Chaves de Ingestão Ativas no Servidor MediaMTX ({masterRtmpKeys.length})</span>
             {masterRtmpKeys.map(key => (
-              <div key={key.id} className="p-4 bg-[var(--bg)] border border-slate-800 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div key={key.id} className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="space-y-1 text-left">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white">{key.label}</span>
+                    <span className="text-xs font-bold text-[var(--text-hi)]">{key.label}</span>
                     <span className="bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[9px] font-black px-2 py-0.5 rounded">
                       {key.clientEmail}
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-400 font-mono">
-                    <span>Server URL: <strong className="text-gray-300 select-all">{key.server}</strong></span>
+                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-[var(--text-lo)] font-mono">
+                    <span>Server URL: <strong className="text-[var(--text)] select-all">{key.server}</strong></span>
                     <span>|</span>
                     <span>Chave Ingest: <strong className="text-amber-400 select-all">{key.key}</strong></span>
                     <span>|</span>
@@ -730,8 +730,8 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
       {activeTab === 'servers' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-4">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-4">
+              <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
                 <Activity size={18} className="text-blue-500" /> Tráfego de Banda do Servidor Principal
               </h3>
 
@@ -754,8 +754,8 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
               </div>
             </div>
 
-            <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-4">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-4">
+              <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
                 <Globe size={18} className="text-blue-500" /> Cluster de Ingestão MediaMTX
               </h3>
               
@@ -765,8 +765,8 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
                   { name: 'Gateway São Paulo', status: 'Online', latency: '24ms' },
                   { name: 'CDN Edge Anycast', status: 'Online', latency: '15ms' }
                 ].map((s, i) => (
-                  <div key={i} className="p-3 bg-[var(--bg)] border border-slate-800 rounded-xl flex justify-between items-center">
-                    <span className="font-bold text-white">{s.name}</span>
+                  <div key={i} className="p-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl flex justify-between items-center">
+                    <span className="font-bold text-[var(--text-hi)]">{s.name}</span>
                     <span className="text-emerald-400 font-bold">{s.status} ({s.latency})</span>
                   </div>
                 ))}
@@ -780,13 +780,13 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
       {/* TAB 5: AUDIT LOGS */}
       {activeTab === 'logs' && (
-        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6">
+          <div className="flex items-center justify-between border-b border-[var(--line)] pb-4">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
                 <Terminal size={18} className="text-amber-400" /> Logs de Auditoria do Servidor Principal (Firestore)
               </h3>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-[var(--text-lo)] mt-1">
                 Registro imutável em tempo real de ações administrativas críticas (exclusão de webinars, regeneração de chaves RTMP, trocas de plano e acessos do Super Admin).
               </p>
             </div>
@@ -795,12 +795,12 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             </span>
           </div>
 
-          <div className="bg-[var(--bg)] border border-slate-800 rounded-xl p-4 font-mono text-[11px] leading-relaxed text-gray-300 space-y-2.5 max-h-96 overflow-y-auto">
+          <div className="bg-[var(--bg)] border border-[var(--line)] rounded-xl p-4 font-mono text-[11px] leading-relaxed text-[var(--text)] space-y-2.5 max-h-96 overflow-y-auto">
             {auditLogs.length === 0 ? (
-              <p className="text-xs text-gray-500 py-4 text-center italic">Nenhum evento crítico registrado no Firestore até o momento.</p>
+              <p className="text-xs text-[var(--text-dim)] py-4 text-center italic">Nenhum evento crítico registrado no Firestore até o momento.</p>
             ) : (
               auditLogs.map(log => (
-                <div key={log.id} className="p-3 bg-[var(--surface)] border border-slate-800/80 rounded-lg space-y-1.5 hover:border-slate-700 transition-colors">
+                <div key={log.id} className="p-3 bg-[var(--surface)] border border-[var(--line)]/80 rounded-lg space-y-1.5 hover:border-[var(--line-ctl)] transition-colors">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${
@@ -812,14 +812,14 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
                       }`}>
                         {log.action}
                       </span>
-                      <span className="text-white font-bold text-xs">{log.actorEmail}</span>
+                      <span className="text-[var(--text-hi)] font-bold text-xs">{log.actorEmail}</span>
                       {log.targetEmail && (
-                        <span className="text-gray-400 text-[10px]">➜ {log.targetEmail}</span>
+                        <span className="text-[var(--text-lo)] text-[10px]">➜ {log.targetEmail}</span>
                       )}
                     </div>
-                    <span className="text-[10px] text-gray-500 font-sans">{log.timestamp}</span>
+                    <span className="text-[10px] text-[var(--text-dim)] font-sans">{log.timestamp}</span>
                   </div>
-                  <p className="text-xs text-gray-300 pl-1 border-l-2 border-amber-500/50">{log.details}</p>
+                  <p className="text-xs text-[var(--text)] pl-1 border-l-2 border-amber-500/50">{log.details}</p>
                 </div>
               ))
             )}
@@ -829,7 +829,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
       {/* TAB 6: WEBHOOKS DISPATCHER & EVENTSUB */}
       {activeTab === 'webhooks' && (
-        <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6">
+        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6">
           <WebhookPanel 
             userId={user?.email || 'admin@pwstreamer.com'}
             isLive={false}

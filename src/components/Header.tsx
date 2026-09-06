@@ -74,13 +74,13 @@ export function Header({
   }, []);
 
   return (
-    <header className="border-b border-slate-800 bg-[var(--surface)] sticky top-0 z-50">
+    <header className="border-b border-[var(--line)] bg-[var(--surface)] sticky top-0 z-50">
       {/* 30-day Free Trial Active simulated notification bar */}
       {user && user.plan === 'Free Trial' && !user.isExpired && (
-        <div className="bg-gradient-to-r from-blue-900/60 via-slate-900 to-indigo-950/60 px-4 py-2 border-b border-blue-500/20 flex flex-col sm:flex-row items-center justify-between text-xs gap-2 select-none">
-          <div className="flex items-center gap-2 text-gray-300">
+        <div className="bg-gradient-to-r from-blue-900/60 via-[var(--surface)] to-indigo-950/60 px-4 py-2 border-b border-blue-500/20 flex flex-col sm:flex-row items-center justify-between text-xs gap-2 select-none">
+          <div className="flex items-center gap-2 text-[var(--text)]">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="font-semibold text-white">Plano de Testes Ativo</span>
+            <span className="font-semibold text-[var(--text-hi)]">Plano de Testes Ativo</span>
             <span>•</span>
             <span>Você possui <strong className="text-emerald-400 font-mono">{user.trialDays} dias</strong> restantes na sua avaliação de 30 dias do PwStreamer.</span>
           </div>
@@ -100,10 +100,10 @@ export function Header({
 
       {/* 30-day Free Trial Expired notification bar (Studio remains accessible, Live and Record are gated) */}
       {user && user.plan === 'Free Trial' && user.isExpired && (
-        <div className="bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 px-4 py-2 border-b border-amber-500/30 flex flex-col sm:flex-row items-center justify-between text-xs gap-2 select-none">
+        <div className="bg-gradient-to-r from-amber-950/80 via-[var(--surface)] to-amber-950/80 px-4 py-2 border-b border-amber-500/30 flex flex-col sm:flex-row items-center justify-between text-xs gap-2 select-none">
           <div className="flex items-center gap-2 text-amber-200">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-            <span className="font-bold text-white">Período de Testes de 30 Dias Finalizado</span>
+            <span className="font-bold text-[var(--text-hi)]">Período de Testes de 30 Dias Finalizado</span>
             <span>•</span>
             <span>Acesso ao estúdio liberado para montagem. Para <strong>Transmitir Ao Vivo</strong> ou <strong>Gravar</strong>, escolha um plano.</span>
           </div>
@@ -119,7 +119,7 @@ export function Header({
             {onRestoreTrial && (
               <button 
                 onClick={onRestoreTrial}
-                className="px-2.5 py-1 bg-slate-800 text-gray-300 hover:text-white border border-slate-700 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                className="px-2.5 py-1 bg-[var(--panel)] text-[var(--text)] hover:text-[var(--text-hi)] border border-[var(--line-ctl)] rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider cursor-pointer"
                 title="Restaurar 30 dias de teste gratuito (Demo)"
               >
                 ↺ Restaurar 30 Dias (Demo)
@@ -148,13 +148,13 @@ export function Header({
             </button>
 
             {/* Desktop Nav Links */}
-            <nav className="hidden lg:flex items-center gap-1 xl:gap-3 border-l border-slate-800 pl-3 xl:pl-6 h-8 shrink-0 min-w-0">
+            <nav className="hidden lg:flex items-center gap-1 xl:gap-3 border-l border-[var(--line)] pl-3 xl:pl-6 h-8 shrink-0 min-w-0">
               <button 
                 onClick={() => onViewChange?.('studio')}
                 className={`transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer py-1.5 px-3 rounded-lg ${
                   currentView === 'studio' 
                     ? 'text-blue-400 bg-blue-500/10 border border-blue-500/10' 
-                    : 'text-gray-400 hover:text-white'
+                    : 'text-[var(--text-lo)] hover:text-white'
                 }`}
               >
                 Estúdio de Transmissão
@@ -173,10 +173,10 @@ export function Header({
               className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-md shadow-blue-500/20 hover:shadow-blue-500/35 transition-all hover:scale-[1.02] active:scale-98 cursor-pointer border border-blue-400/30 shrink-0"
               title="Adicionar e gerenciar canais de transmissão (YouTube, Facebook, Instagram, TikTok, Twitch, Kick, LinkedIn, Rumble)"
             >
-              <Radio size={14} className="text-white animate-pulse shrink-0" />
+              <Radio size={14} className="text-[var(--text-hi)] animate-pulse shrink-0" />
               <span>Adicionar canais</span>
               {activeDestinationsCount > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black leading-none ml-0.5">
+                <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-[var(--text-hi)] text-[10px] font-black leading-none ml-0.5">
                   {activeDestinationsCount}
                 </span>
               )}
@@ -188,7 +188,7 @@ export function Header({
                 type="button"
                 onClick={() => setStreamMenuOpen(!streamMenuOpen)}
                 id="btn-stream-recording-dropdown"
-                className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[var(--bg)] hover:bg-slate-800/90 border border-slate-800 hover:border-slate-700 transition-all cursor-pointer text-left select-none group shrink-0"
+                className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[var(--bg)] hover:bg-[var(--panel)]/90 border border-[var(--line)] hover:border-[var(--line-ctl)] transition-all cursor-pointer text-left select-none group shrink-0"
                 title="Configurações de Transmissão e Gravação"
               >
                 <div className="flex flex-col justify-center leading-tight">
@@ -196,10 +196,10 @@ export function Header({
                     <span className={`text-[11px] sm:text-xs font-black tracking-wider uppercase ${isLive ? 'text-red-400' : 'text-blue-400'}`}>
                       LIVE STREAM
                     </span>
-                    <span className="text-[10px] sm:text-xs font-bold text-gray-400 font-mono">
+                    <span className="text-[10px] sm:text-xs font-bold text-[var(--text-lo)] font-mono">
                       {recordingQuality}
                     </span>
-                    <ChevronDown size={13} className={`text-gray-400 group-hover:text-white transition-transform ${streamMenuOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={13} className={`text-[var(--text-lo)] group-hover:text-[var(--text-hi)] transition-transform ${streamMenuOpen ? 'rotate-180' : ''}`} />
                   </div>
                   <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-mono font-bold tracking-wider uppercase">
                     <span className={`w-1.5 h-1.5 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-cyan-500'}`}></span>
@@ -211,9 +211,9 @@ export function Header({
               </button>
 
               {streamMenuOpen && (
-                <div className="absolute right-0 mt-2 w-64 rounded-xl bg-[var(--surface)] border border-slate-800 shadow-2xl p-3 z-50 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="pb-2 mb-2 border-b border-slate-800 flex items-center justify-between">
-                    <span className="font-extrabold text-white uppercase text-[10px] tracking-wider">Configurações de Stream</span>
+                <div className="absolute right-0 mt-2 w-64 rounded-xl bg-[var(--surface)] border border-[var(--line)] shadow-2xl p-3 z-50 text-xs animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="pb-2 mb-2 border-b border-[var(--line)] flex items-center justify-between">
+                    <span className="font-extrabold text-[var(--text-hi)] uppercase text-[10px] tracking-wider">Configurações de Stream</span>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${isLive ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-blue-500/10 text-blue-400'}`}>
                       {isLive ? 'Ao Vivo' : 'Pronto'}
                     </span>
@@ -221,7 +221,7 @@ export function Header({
 
                   {/* Resolução de Stream */}
                   <div className="mb-3">
-                    <label className="text-gray-400 text-[10px] font-bold uppercase tracking-wider block mb-1.5">
+                    <label className="text-[var(--text-lo)] text-[10px] font-bold uppercase tracking-wider block mb-1.5">
                       Resolução da Transmissão
                     </label>
                     <div className="grid grid-cols-2 gap-1.5">
@@ -231,7 +231,7 @@ export function Header({
                         className={`px-2.5 py-1.5 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center justify-center gap-1 border ${
                           recordingQuality === '720p'
                             ? 'bg-blue-600/20 border-blue-500 text-blue-300'
-                            : 'bg-slate-900 border-slate-800 text-gray-400 hover:text-white hover:border-slate-700'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-white hover:border-[var(--line-ctl)]'
                         }`}
                       >
                         {recordingQuality === '720p' && <Check size={12} className="text-blue-400" />}
@@ -243,7 +243,7 @@ export function Header({
                         className={`px-2.5 py-1.5 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center justify-center gap-1 border ${
                           recordingQuality === '1080p'
                             ? 'bg-blue-600/20 border-blue-500 text-blue-300'
-                            : 'bg-slate-900 border-slate-800 text-gray-400 hover:text-white hover:border-slate-700'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-white hover:border-[var(--line-ctl)]'
                         }`}
                       >
                         {recordingQuality === '1080p' && <Check size={12} className="text-blue-400" />}
@@ -253,8 +253,8 @@ export function Header({
                   </div>
 
                   {/* Gravação Local Toggle */}
-                  <div className="mb-3 pt-2 border-t border-slate-800/80">
-                    <label className="text-gray-400 text-[10px] font-bold uppercase tracking-wider block mb-1.5">
+                  <div className="mb-3 pt-2 border-t border-[var(--line)]/80">
+                    <label className="text-[var(--text-lo)] text-[10px] font-bold uppercase tracking-wider block mb-1.5">
                       Gravação Local
                     </label>
                     <button
@@ -265,11 +265,11 @@ export function Header({
                           ? 'bg-red-500/20 border-red-500 text-red-300'
                           : isTrialExpired
                             ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-                            : 'bg-slate-900 border-slate-800 text-gray-300 hover:bg-slate-800 hover:text-white'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-white'
                       }`}
                     >
                       <span className="flex items-center gap-2">
-                        <Disc size={14} className={isRecording ? 'text-red-400 animate-spin' : 'text-gray-400'} />
+                        <Disc size={14} className={isRecording ? 'text-red-400 animate-spin' : 'text-[var(--text-lo)]'} />
                         <span>{isRecording ? 'Parar Gravação' : 'Gravar Transmissão'}</span>
                       </span>
                       <span className="font-mono text-[10px]">
@@ -279,11 +279,11 @@ export function Header({
                   </div>
 
                   {/* Canais Conectados Link */}
-                  <div className="pt-2 border-t border-slate-800/80">
+                  <div className="pt-2 border-t border-[var(--line)]/80">
                     <button
                       type="button"
                       onClick={() => { setStreamMenuOpen(false); onOpenAddChannelsModal?.(); }}
-                      className="w-full flex items-center justify-between px-2.5 py-1.5 text-gray-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                      className="w-full flex items-center justify-between px-2.5 py-1.5 text-[var(--text)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)] rounded-lg transition-colors cursor-pointer"
                     >
                       <span className="flex items-center gap-2">
                         <Radio size={14} className="text-blue-400" />
@@ -324,7 +324,7 @@ export function Header({
             {currentView === 'studio' && (
               <button
                 onClick={onExit}
-                className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-gray-400 hover:text-red-400 border border-slate-800 hover:border-red-500/20 hover:bg-red-500/5 rounded-lg transition-all cursor-pointer h-[38px] shrink-0"
+                className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-[var(--text-lo)] hover:text-red-400 border border-[var(--line)] hover:border-red-500/20 hover:bg-red-500/5 rounded-lg transition-all cursor-pointer h-[38px] shrink-0"
               >
                 <LogOut size={14} className="shrink-0" />
                 <div className="text-left leading-none text-[8px] uppercase font-black tracking-wider shrink-0">
@@ -337,7 +337,7 @@ export function Header({
             {/* Theme Toggle Button (Light/Dark Mode) */}
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-800 hover:border-slate-700 bg-[var(--bg)] hover:bg-slate-800 text-slate-300 hover:text-white transition-all cursor-pointer shadow-sm text-xs font-bold shrink-0"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--line)] hover:border-[var(--line-ctl)] bg-[var(--bg)] hover:bg-[var(--panel)] text-[var(--text)] hover:text-[var(--text-hi)] transition-all cursor-pointer shadow-sm text-xs font-bold shrink-0"
               title={theme === 'dark' ? 'Alternar para Tema Claro' : 'Alternar para Tema Escuro'}
               aria-label="Alternar Tema Claro/Escuro"
             >
@@ -357,7 +357,7 @@ export function Header({
             <div className="relative">
               <button 
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-3 text-left hover:bg-slate-800 p-2 rounded-lg transition-all focus:outline-none cursor-pointer"
+                className="flex items-center gap-3 text-left hover:bg-[var(--panel)] p-2 rounded-lg transition-all focus:outline-none cursor-pointer"
                 id="user-menu-button"
               >
                 <img 
@@ -368,27 +368,27 @@ export function Header({
                 />
                 <div className="hidden sm:block">
                   <p className="text-xs text-[var(--text-lo)] leading-tight font-medium">Conta de</p>
-                  <p className="text-sm font-semibold text-white leading-tight flex items-center gap-1">
-                    {user ? user.name : 'Visitante'} <ChevronDown size={14} className="text-gray-400" />
+                  <p className="text-sm font-semibold text-[var(--text-hi)] leading-tight flex items-center gap-1">
+                    {user ? user.name : 'Visitante'} <ChevronDown size={14} className="text-[var(--text-lo)]" />
                   </p>
                 </div>
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-[var(--surface)] border border-slate-800 shadow-2xl py-2 z-50 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-4 py-2 border-b border-slate-800 mb-1">
-                    <p className="font-semibold text-white">{user ? user.name : 'Visitante'}</p>
+                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-[var(--surface)] border border-[var(--line)] shadow-2xl py-2 z-50 text-sm animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-4 py-2 border-b border-[var(--line)] mb-1">
+                    <p className="font-semibold text-[var(--text-hi)]">{user ? user.name : 'Visitante'}</p>
                     <p className="text-xs text-[var(--text-lo)]">{user ? user.email : 'visitante@pwstreamer.com'}</p>
                   </div>
                   <button 
                     onClick={() => { onViewChange?.('profile'); setDropdownOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-gray-200 hover:bg-slate-800 transition-colors text-left cursor-pointer"
+                    className="w-full flex items-center gap-3 px-4 py-2 text-[var(--text-hi)] hover:bg-[var(--panel)] transition-colors text-left cursor-pointer"
                   >
                     <User size={16} className="text-blue-500" /> Minha Conta
                   </button>
                   <button 
                     onClick={() => { onViewChange?.('billing'); setDropdownOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-gray-200 hover:bg-slate-800 transition-colors text-left cursor-pointer"
+                    className="w-full flex items-center gap-3 px-4 py-2 text-[var(--text-hi)] hover:bg-[var(--panel)] transition-colors text-left cursor-pointer"
                   >
                     <PlusSquare size={16} className="text-blue-500" /> Planos & Cobrança
                   </button>
@@ -396,7 +396,7 @@ export function Header({
                   {/* Theme Switcher in Dropdown */}
                   <button 
                     onClick={() => { toggleTheme(); setDropdownOpen(false); }}
-                    className="w-full flex items-center justify-between px-4 py-2 text-gray-200 hover:bg-slate-800 transition-colors text-left cursor-pointer border-t border-b border-slate-800/80 my-1"
+                    className="w-full flex items-center justify-between px-4 py-2 text-[var(--text-hi)] hover:bg-[var(--panel)] transition-colors text-left cursor-pointer border-t border-b border-[var(--line)]/80 my-1"
                   >
                     <div className="flex items-center gap-3">
                       {theme === 'dark' ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} className="text-blue-500" />}
@@ -407,7 +407,7 @@ export function Header({
                     </span>
                   </button>
 
-                  <a href="#support" className="flex items-center gap-3 px-4 py-2 text-gray-200 hover:bg-slate-800 transition-colors">
+                  <a href="#support" className="flex items-center gap-3 px-4 py-2 text-[var(--text-hi)] hover:bg-[var(--panel)] transition-colors">
                     <HelpCircle size={16} className="text-blue-500" /> Central de Ajuda
                   </a>
                   <button 
@@ -423,7 +423,7 @@ export function Header({
             {/* Mobile Menu Button */}
             <button 
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden text-white p-2 hover:bg-slate-800 rounded cursor-pointer"
+              className="md:hidden text-[var(--text-hi)] p-2 hover:bg-[var(--panel)] rounded cursor-pointer"
             >
               <Menu size={24} />
             </button>
@@ -433,22 +433,22 @@ export function Header({
 
       {/* Mobile Nav Links dropdown */}
       {menuOpen && (
-        <div className="md:hidden border-t border-slate-800 bg-[var(--surface)] px-4 pt-2 pb-4 space-y-1">
-          <button onClick={() => { onViewChange?.('dashboard'); setMenuOpen(false); }} className="block w-full text-left text-gray-300 hover:text-white px-3 py-2 rounded text-base font-medium cursor-pointer">
+        <div className="md:hidden border-t border-[var(--line)] bg-[var(--surface)] px-4 pt-2 pb-4 space-y-1">
+          <button onClick={() => { onViewChange?.('dashboard'); setMenuOpen(false); }} className="block w-full text-left text-[var(--text)] hover:text-[var(--text-hi)] px-3 py-2 rounded text-base font-medium cursor-pointer">
             Dashboard
           </button>
-          <button onClick={() => { onViewChange?.('studio'); setMenuOpen(false); }} className="block w-full text-left text-white bg-slate-800 px-3 py-2 rounded text-base font-medium cursor-pointer">
+          <button onClick={() => { onViewChange?.('studio'); setMenuOpen(false); }} className="block w-full text-left text-[var(--text-hi)] bg-[var(--panel)] px-3 py-2 rounded text-base font-medium cursor-pointer">
             Estúdio de Transmissão
           </button>
-          <button onClick={() => { onViewChange?.('profile'); setMenuOpen(false); }} className="block w-full text-left text-gray-300 hover:text-white px-3 py-2 rounded text-base font-medium cursor-pointer">
+          <button onClick={() => { onViewChange?.('profile'); setMenuOpen(false); }} className="block w-full text-left text-[var(--text)] hover:text-[var(--text-hi)] px-3 py-2 rounded text-base font-medium cursor-pointer">
             Minha Conta
           </button>
-          <button onClick={() => { onViewChange?.('billing'); setMenuOpen(false); }} className="block w-full text-left text-gray-300 hover:text-white px-3 py-2 rounded text-base font-medium cursor-pointer">
+          <button onClick={() => { onViewChange?.('billing'); setMenuOpen(false); }} className="block w-full text-left text-[var(--text)] hover:text-[var(--text-hi)] px-3 py-2 rounded text-base font-medium cursor-pointer">
             Planos & Cobrança
           </button>
           <button 
             onClick={() => { toggleTheme(); setMenuOpen(false); }} 
-            className="flex items-center justify-between w-full text-left text-gray-300 hover:text-white px-3 py-2 rounded text-base font-medium cursor-pointer border border-slate-800 my-1 bg-[var(--bg)]"
+            className="flex items-center justify-between w-full text-left text-[var(--text)] hover:text-[var(--text-hi)] px-3 py-2 rounded text-base font-medium cursor-pointer border border-[var(--line)] my-1 bg-[var(--bg)]"
           >
             <span className="flex items-center gap-2">
               {theme === 'dark' ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-blue-500" />}

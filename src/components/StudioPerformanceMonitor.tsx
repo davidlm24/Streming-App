@@ -64,14 +64,14 @@ export function StudioPerformanceMonitor() {
   }, [isUpdating]);
 
   return (
-    <div className="bg-[var(--surface)] border border-slate-800 p-6 rounded-2xl text-left space-y-6 shadow-xl">
+    <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--line)] pb-4">
         <div>
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
+          <h3 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
             <Cpu size={20} className="text-blue-400" /> Monitoramento de Saúde do Estúdio (CPU & Memória)
           </h3>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-[var(--text-lo)] mt-1">
             Telemetria em tempo real do consumo de processamento de áudio, renderização gráfica WebGL e codificação de vídeo.
           </p>
         </div>
@@ -83,7 +83,7 @@ export function StudioPerformanceMonitor() {
           </span>
           <button
             onClick={() => setIsUpdating(!isUpdating)}
-            className={`p-2 rounded-lg border border-slate-800 text-gray-400 hover:text-white transition-all text-xs cursor-pointer ${
+            className={`p-2 rounded-lg border border-[var(--line)] text-[var(--text-lo)] hover:text-white transition-all text-xs cursor-pointer ${
               isUpdating ? 'bg-blue-600/20 text-blue-400 border-blue-500/30' : 'bg-[var(--bg)]'
             }`}
             title={isUpdating ? 'Pausar Telemetria em Tempo Real' : 'Ativar Telemetria em Tempo Real'}
@@ -95,8 +95,8 @@ export function StudioPerformanceMonitor() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[var(--bg)] border border-slate-800/90 p-4 rounded-xl text-left space-y-1">
-          <div className="flex items-center justify-between text-gray-400">
+        <div className="bg-[var(--bg)] border border-[var(--line)]/90 p-4 rounded-xl text-left space-y-1">
+          <div className="flex items-center justify-between text-[var(--text-lo)]">
             <span className="text-[10px] font-bold uppercase tracking-wider">Uso do Processador (CPU)</span>
             <Cpu size={16} className="text-blue-400" />
           </div>
@@ -104,9 +104,9 @@ export function StudioPerformanceMonitor() {
             <span className={`text-2xl font-black ${currentCpu > 70 ? 'text-red-400' : currentCpu > 40 ? 'text-amber-400' : 'text-blue-400'}`}>
               {currentCpu}%
             </span>
-            <span className="text-[10px] text-gray-500 font-mono">4 Cores vCPU</span>
+            <span className="text-[10px] text-[var(--text-dim)] font-mono">4 Cores vCPU</span>
           </div>
-          <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden mt-2">
+          <div className="w-full bg-[var(--surface)] h-1.5 rounded-full overflow-hidden mt-2">
             <div 
               className={`h-full transition-all duration-500 ${currentCpu > 70 ? 'bg-red-500' : currentCpu > 40 ? 'bg-amber-500' : 'bg-blue-500'}`}
               style={{ width: `${currentCpu}%` }}
@@ -114,8 +114,8 @@ export function StudioPerformanceMonitor() {
           </div>
         </div>
 
-        <div className="bg-[var(--bg)] border border-slate-800/90 p-4 rounded-xl text-left space-y-1">
-          <div className="flex items-center justify-between text-gray-400">
+        <div className="bg-[var(--bg)] border border-[var(--line)]/90 p-4 rounded-xl text-left space-y-1">
+          <div className="flex items-center justify-between text-[var(--text-lo)]">
             <span className="text-[10px] font-bold uppercase tracking-wider">Memória RAM Alocada</span>
             <HardDrive size={16} className="text-emerald-400" />
           </div>
@@ -123,9 +123,9 @@ export function StudioPerformanceMonitor() {
             <span className="text-2xl font-black text-emerald-400">
               {currentRamGb} GB
             </span>
-            <span className="text-[10px] text-gray-500 font-mono">/ 8.00 GB ({currentMemory}%)</span>
+            <span className="text-[10px] text-[var(--text-dim)] font-mono">/ 8.00 GB ({currentMemory}%)</span>
           </div>
-          <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden mt-2">
+          <div className="w-full bg-[var(--surface)] h-1.5 rounded-full overflow-hidden mt-2">
             <div 
               className="h-full bg-emerald-500 transition-all duration-500"
               style={{ width: `${currentMemory}%` }}
@@ -133,8 +133,8 @@ export function StudioPerformanceMonitor() {
           </div>
         </div>
 
-        <div className="bg-[var(--bg)] border border-slate-800/90 p-4 rounded-xl text-left space-y-1">
-          <div className="flex items-center justify-between text-gray-400">
+        <div className="bg-[var(--bg)] border border-[var(--line)]/90 p-4 rounded-xl text-left space-y-1">
+          <div className="flex items-center justify-between text-[var(--text-lo)]">
             <span className="text-[10px] font-bold uppercase tracking-wider">Renderizador de Vídeo</span>
             <Zap size={16} className="text-amber-400" />
           </div>
@@ -142,28 +142,28 @@ export function StudioPerformanceMonitor() {
             <span className="text-2xl font-black text-amber-400">60 FPS</span>
             <span className="text-[10px] text-emerald-400 font-bold">0 Dropped</span>
           </div>
-          <p className="text-[10px] text-gray-500">Aceleração de Hardware GPU Ativa</p>
+          <p className="text-[10px] text-[var(--text-dim)]">Aceleração de Hardware GPU Ativa</p>
         </div>
 
-        <div className="bg-[var(--bg)] border border-slate-800/90 p-4 rounded-xl text-left space-y-1">
-          <div className="flex items-center justify-between text-gray-400">
+        <div className="bg-[var(--bg)] border border-[var(--line)]/90 p-4 rounded-xl text-left space-y-1">
+          <div className="flex items-center justify-between text-[var(--text-lo)]">
             <span className="text-[10px] font-bold uppercase tracking-wider">Bitrate do Encoder</span>
             <Activity size={16} className="text-indigo-400" />
           </div>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-2xl font-black text-indigo-400">8.120 kbps</span>
           </div>
-          <p className="text-[10px] text-gray-500">Cabo Ingest Ininterrupto</p>
+          <p className="text-[10px] text-[var(--text-dim)]">Cabo Ingest Ininterrupto</p>
         </div>
       </div>
 
       {/* Recharts Performance Area Chart */}
       <div className="pt-2">
-        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-3">
+        <span className="text-xs font-bold text-[var(--text-lo)] uppercase tracking-wider block mb-3">
           Histórico Telemétrico de CPU (%) vs Memória RAM (%)
         </span>
 
-        <div className="h-64 w-full bg-[var(--bg)] p-3 border border-slate-800 rounded-xl">
+        <div className="h-64 w-full bg-[var(--bg)] p-3 border border-[var(--line)] rounded-xl">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 10, right: 15, left: -20, bottom: 0 }}>
               <defs>

@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PwStream — Tratamento B · separar por geometria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   PwStream — TRATAMENTO B · "Separar por geometria"
+   Base: mockups/FINAL-direction.html. Mesmos tokens, mesma marcação de console,
+   mesmo sinal de teste, mesma tipografia. Nenhum hexadecimal novo.
+
+   VARIÁVEL ISOLADA
+   O anel do PGM não muda: 2px sólidos em --sig-fill, como despachado.
+   O que muda é a FORMA do anel do PVW e do estado ocioso. As luminâncias
+   despachadas (--n-46 e --n-22) permanecem literalmente intactas — essa é a
+   variável do Tratamento A, não desta página.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────── BLOCO 1 — PRIMITIVAS + TEMA CLARO ───────────── */
+:root{
+  color-scheme: light;
+
+  /* Rampa neutra. Croma exatamente zero: R=G=B em todos os 18 passos. */
+  --n-0:#000000;    /* Y   0,00 %  — só letterbox de vídeo */
+  --n-3:#0B0B0B;    /* Y   0,33 % */
+  --n-6:#131313;    /* Y   0,65 % */
+  --n-10:#1B1B1B;   /* Y   1,10 % */
+  --n-14:#242424;   /* Y   1,76 % */
+  --n-18:#2C2C2C;   /* Y   2,52 % */
+  --n-22:#353535;   /* Y   3,56 % */
+  --n-28:#424242;   /* Y   5,45 % */
+  --n-36:#555555;   /* Y   9,08 % */
+  --n-46:#6D6D6D;   /* Y  15,29 % */
+  --n-58:#8B8B8B;   /* Y  25,82 % */
+  --n-70:#ABABAB;   /* Y  40,72 % */
+  --n-80:#C6C6C6;   /* Y  56,47 % */
+  --n-89:#E0E0E0;   /* Y  74,54 % */
+  --n-92:#E8E8E8;   /* Y  80,70 % */
+  --n-96:#F4F4F4;   /* Y  90,47 % */
+  --n-99:#FCFCFC;   /* Y  97,34 % */
+  --n-100:#FFFFFF;  /* Y 100,00 % */
+
+  /* SINAL — a única cromia do sistema inteiro. Significa NO AR. */
+  --sig-500:#D91F2D;   /* H 355° · Y 15,92 % — preenchimento de tally */
+  --sig-700:#A81622;   /* Y  9,01 % */
+  --sig-300:#F4666A;   /* Y 29,78 % */
+  --sig-tint-l:#FCEDEE;
+  --sig-tint-d:#2C0E10;
+  --sig-tint-c:#251415;
+
+  /* VÍDEO — nunca redefinido por tema, em escopo nenhum. Vídeo é vídeo. */
+  --vid-white:#BFBFBF;  --vid-yellow:#BFBF00; --vid-cyan:#00BFBF;
+  --vid-green:#00BF00;  --vid-magenta:#BF00BF; --vid-red:#BF0000;
+  --vid-blue:#0000BF;   --vid-navy:#00214B;   --vid-purple:#32006A;
+  --vid-full:#FFFFFF;   --vid-black:#101010;  --vid-sub:#070707;
+  --vid-plus:#191919;   --vid-grat:#3C3C3C;
+  --vid-g1:#070707; --vid-g2:#1F1F1F; --vid-g3:#383838; --vid-g4:#505050;
+  --vid-g5:#696969; --vid-g6:#818181; --vid-g7:#9A9A9A; --vid-g8:#B2B2B2;
+  --vid-g9:#CBCBCB; --vid-g10:#FFFFFF;
+
+  /* ─── SEMÂNTICA · TEMA CLARO ─── */
+  --bg:var(--n-100);
+  --surface:var(--n-99);
+  --panel:var(--n-96);
+  --raise:var(--n-100);
+  --well:var(--n-96);
+  --stage:var(--n-0);
+  --text-hi:var(--n-6);
+  --text:var(--n-28);
+  --text-lo:var(--n-36);
+  --text-dim:var(--n-46);
+  --line:var(--n-89);
+  --line-strong:var(--n-80);
+  --line-ctl:var(--n-46);
+  --action:var(--n-6);
+  --on-action:var(--n-99);
+  --action-hover:var(--n-0);
+  --focus:var(--n-6);
+  --sig-fill:var(--sig-500);
+  --sig-fill-deep:var(--sig-700);
+  --on-sig:var(--n-100);
+  --sig-text:var(--sig-700);
+  --sig-tint:var(--sig-tint-l);
+  --frame-idle:var(--n-80);
+  --frame-pvw:var(--n-46);     /* Y 15,29 % — valor despachado, NÃO alterado aqui */
+  --warn-bg:var(--n-36);   --warn-fg:var(--n-99);
+  --fault-bg:var(--n-22);  --fault-fg:var(--n-99);
+  --e-0:none;
+  --e-1:0 1px 1px rgb(0 0 0 / .05), 0 10px 28px rgb(0 0 0 / .10);
+  --scrim:rgb(0 0 0 / .44);
+  --guide:rgb(255 255 255 / .07);
+  --guide-2:rgb(255 255 255 / .16);
+
+  /* ─── TIPOGRAFIA ─── */
+  --f-ui:"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-num:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --fs-11:.6875rem;  --fs-12:.75rem;    --fs-13:.8125rem;  --fs-15:.9375rem;
+  --fs-17:1.0625rem; --fs-21:1.3125rem; --fs-26:1.625rem;  --fs-34:2.125rem;
+  --fs-hero:clamp(2.25rem, 4.4vw, 3.125rem);
+  --lh-tight:1.06; --lh-snug:1.28; --lh-ui:1.45; --lh-prose:1.62;
+  --tr-caps:.085em; --tr-tight:-.01em; --tr-hero:-.028em;
+
+  /* ─── ESPAÇO · base 4 ─── */
+  --s-1:4px; --s-2:6px; --s-3:8px;  --s-4:12px; --s-5:16px;
+  --s-6:24px; --s-7:32px; --s-8:48px; --s-9:64px; --s-10:96px;
+
+  /* ─── RAIO ─── */
+  --r-0:0; --r-1:2px; --r-2:4px; --r-3:8px; --r-dot:50%;
+}
+
+/* ───────────────────────── BLOCO 2 — TEMA ESCURO ───────────────────────── */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:var(--n-3);   --surface:var(--n-6);  --panel:var(--n-10);
+    --raise:var(--n-14); --well:var(--n-3);
+    --text-hi:var(--n-96); --text:var(--n-80); --text-lo:var(--n-70); --text-dim:var(--n-58);
+    --line:var(--n-18); --line-strong:var(--n-28); --line-ctl:var(--n-46);
+    --action:var(--n-96); --on-action:var(--n-6); --action-hover:var(--n-100); --focus:var(--n-96);
+    --sig-text:var(--sig-300); --sig-tint:var(--sig-tint-d);
+    --frame-idle:var(--n-28);
+    --warn-bg:var(--n-58);   --warn-fg:var(--n-3);
+    --fault-bg:var(--n-80);  --fault-fg:var(--n-3);
+    --e-1:0 1px 1px rgb(0 0 0 / .5), 0 10px 28px rgb(0 0 0 / .6);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:var(--n-3);   --surface:var(--n-6);  --panel:var(--n-10);
+  --raise:var(--n-14); --well:var(--n-3);
+  --text-hi:var(--n-96); --text:var(--n-80); --text-lo:var(--n-70); --text-dim:var(--n-58);
+  --line:var(--n-18); --line-strong:var(--n-28); --line-ctl:var(--n-46);
+  --action:var(--n-96); --on-action:var(--n-6); --action-hover:var(--n-100); --focus:var(--n-96);
+  --sig-text:var(--sig-300); --sig-tint:var(--sig-tint-d);
+  --frame-idle:var(--n-28);
+  --warn-bg:var(--n-58);   --warn-fg:var(--n-3);
+  --fault-bg:var(--n-80);  --fault-fg:var(--n-3);
+  --e-1:0 1px 1px rgb(0 0 0 / .5), 0 10px 28px rgb(0 0 0 / .6);
+}
+
+/* ─────────────── BLOCO 3 — ESCOPO CONSOLE (invariante por tema) ───────────
+   O console nunca troca de tema. Mudar a luminância ao redor da imagem muda
+   como o operador lê a imagem. Isso é colorimetria, não preferência. */
+[data-surface="console"]{
+  color-scheme: dark;
+  --bg:var(--n-3);   --surface:var(--n-6);  --panel:var(--n-10);
+  --raise:var(--n-14); --well:var(--n-3);
+  --text-hi:var(--n-92);
+  --text:var(--n-70);
+  --text-lo:var(--n-58);
+  --text-dim:var(--n-58);
+  --line:var(--n-18);
+  --line-strong:var(--n-22);
+  --line-ctl:var(--n-46);
+  --action:var(--n-14); --on-action:var(--n-92); --action-hover:var(--n-18);
+  --focus:var(--n-96);
+  --sig-text:var(--sig-300); --sig-tint:var(--sig-tint-c);
+  --frame-idle:var(--n-22);   /* Y 3,56 % — valor despachado, NÃO alterado aqui */
+  --warn-bg:var(--n-58);   --warn-fg:var(--n-3);
+  --fault-bg:var(--n-80);  --fault-fg:var(--n-3);
+  --e-1:0 1px 1px rgb(0 0 0 / .5), 0 10px 28px rgb(0 0 0 / .6);
+}
+
+/* ═══════════════════════════════ BASE ═══════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--f-ui); font-size:var(--fs-15); line-height:var(--lh-ui);
+  font-weight:400; font-synthesis-weight:none;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+img,svg{display:block;max-width:100%}
+h1,h2,h3,h4,p,ul,ol,figure,dl,dd{margin:0}
+ul{padding:0;list-style:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+code{font-family:var(--f-num);font-size:.92em;color:var(--text-hi)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-1)}
+
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;letter-spacing:0}
+table,td,th,.tab,.num,.mon__spec,.read__v,.bmeta b{font-variant-numeric:tabular-nums}
+.caps{font-size:var(--fs-11);font-weight:600;text-transform:uppercase;
+  letter-spacing:var(--tr-caps);line-height:1.2}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.defs{position:absolute;width:0;height:0;overflow:hidden}
+.wrap{max-width:1288px;margin:0 auto;padding:0 var(--s-6)}
+
+/* ═════════════════════════ CABEÇALHO ═════════════════════════ */
+.site{background:var(--bg);border-bottom:1px solid var(--line)}
+.site__in{max-width:1288px;margin:0 auto;padding:0 var(--s-6);height:56px;
+  display:flex;align-items:center;gap:var(--s-6)}
+.brand{display:flex;align-items:center;gap:var(--s-3);color:var(--text-hi)}
+.brand__mark{width:15px;height:15px;border:1px solid currentColor;border-radius:var(--r-1);
+  display:grid;place-items:center;flex:0 0 auto}
+.brand__mark i{width:5px;height:5px;background:currentColor;border-radius:var(--r-1);display:block}
+.brand__name{font-size:var(--fs-15);font-weight:600;letter-spacing:var(--tr-tight)}
+.site__tag{margin-left:auto;font-size:var(--fs-12);color:var(--text-lo)}
+
+/* ═════════════════════════ SEÇÕES ═════════════════════════ */
+.sec{padding:var(--s-9) 0 var(--s-8)}
+.sec + .sec{border-top:1px solid var(--line)}
+.sec__hd{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-4);margin-bottom:var(--s-7)}
+@media (min-width:920px){.sec__hd{grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:var(--s-8);align-items:end}}
+.sec__eyebrow{color:var(--text-dim)}
+.sec__title{font-size:var(--fs-26);font-weight:600;color:var(--text-hi);
+  letter-spacing:var(--tr-tight);line-height:var(--lh-snug);margin-top:var(--s-3)}
+.sec__note{font-size:var(--fs-13);color:var(--text-lo);line-height:var(--lh-prose);max-width:60ch}
+.sec__note b{color:var(--text);font-weight:500}
+.sec__note + .sec__note{margin-top:var(--s-4)}
+
+.hero{padding:var(--s-9) 0 var(--s-7)}
+.hero h1{font-size:var(--fs-hero);font-weight:600;color:var(--text-hi);
+  letter-spacing:var(--tr-hero);line-height:var(--lh-tight);max-width:20ch}
+.hero p{margin-top:var(--s-5);font-size:var(--fs-15);color:var(--text-lo);
+  line-height:var(--lh-prose);max-width:64ch}
+.hero p b{color:var(--text-hi);font-weight:500}
+
+/* citação do arquivo de origem */
+.quote{margin-top:var(--s-6);border-left:2px solid var(--line-strong);padding:var(--s-3) 0 var(--s-3) var(--s-5);
+  max-width:70ch}
+.quote code{display:block;font-size:var(--fs-12);color:var(--text);line-height:1.7;white-space:pre-wrap}
+.quote small{display:block;margin-top:var(--s-3);font-size:var(--fs-11);color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:var(--tr-caps);font-weight:600}
+
+/* fichas numéricas do defeito */
+.figs{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
+  grid-template-columns:minmax(0,1fr);margin-top:var(--s-6)}
+@media (min-width:760px){.figs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.fig{background:var(--surface);padding:var(--s-5)}
+.fig b{display:block;font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-26);font-weight:500;color:var(--text-hi);letter-spacing:var(--tr-tight);line-height:1.1}
+.fig span{display:block;margin-top:var(--s-2);font-size:var(--fs-12);color:var(--text-lo);line-height:1.5}
+.fig--bad b{color:var(--sig-text)}
+
+/* ═════════════════════════ BARRA DE MODOS DE VISTA ═════════════════════════ */
+.views{position:sticky;top:0;z-index:12;background:var(--bg);
+  border-bottom:1px solid var(--line);padding:var(--s-4) 0}
+.views__in{max-width:1288px;margin:0 auto;padding:0 var(--s-6);
+  display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-3)}
+.views__lb{font-size:var(--fs-11);font-weight:600;text-transform:uppercase;
+  letter-spacing:var(--tr-caps);color:var(--text-dim);margin-right:var(--s-2)}
+.vbtn{display:inline-flex;align-items:center;gap:var(--s-2);height:30px;padding:0 var(--s-4);
+  border:1px solid var(--line-ctl);border-radius:var(--r-2);background:var(--surface);
+  color:var(--text);font-size:var(--fs-11);font-weight:600;
+  letter-spacing:var(--tr-caps);text-transform:uppercase;
+  transition:background-color 90ms linear,border-color 90ms linear,color 90ms linear}
+.vbtn:hover{color:var(--text-hi);border-color:var(--text-lo)}
+.vbtn[aria-pressed="true"]{background:var(--action);color:var(--on-action);border-color:var(--action)}
+.vbtn i{width:7px;height:7px;border-radius:var(--r-1);background:currentColor;
+  display:block;flex:0 0 auto;opacity:.55}
+.vbtn[aria-pressed="true"] i{opacity:1}
+.views__hint{margin-left:auto;font-size:var(--fs-11);color:var(--text-dim);max-width:44ch;line-height:1.4}
+
+/* ═════════════════════════ FRAGMENTO DE CONSOLE ═════════════════════════ */
+.lab{display:grid;gap:var(--s-7)}
+.frag{background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--r-3);
+  overflow:hidden;color:var(--text);font-size:var(--fs-13)}
+.frag__hd{display:flex;align-items:center;gap:var(--s-4);padding:var(--s-4) var(--s-5);
+  background:var(--surface);border-bottom:1px solid var(--line)}
+.frag__st{font-size:var(--fs-11);font-weight:600;text-transform:uppercase;
+  letter-spacing:var(--tr-caps);color:var(--text-hi)}
+.frag__d{font-size:var(--fs-12);color:var(--text-lo)}
+.frag__ix{margin-left:auto;font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-11);color:var(--text-dim)}
+
+/* barra de console, versão enxuta */
+.con__bar{height:38px;display:flex;align-items:center;gap:var(--s-4);padding:0 var(--s-4);
+  background:var(--surface);border-bottom:1px solid var(--line)}
+.con__brand{display:flex;align-items:center;gap:var(--s-3);color:var(--text-hi);
+  font-weight:600;font-size:var(--fs-12)}
+.con__brand .brand__mark i{background:var(--sig-fill)}
+.con__sess{color:var(--text-lo);font-size:var(--fs-11)}
+.con__bar-r{margin-left:auto;display:flex;align-items:center;gap:var(--s-4)}
+.tally{display:inline-flex;align-items:center;gap:var(--s-2);
+  background:var(--sig-fill);color:var(--on-sig);padding:4px var(--s-3);border-radius:var(--r-1);
+  font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;white-space:nowrap}
+.tally i{width:6px;height:6px;background:var(--on-sig);border-radius:var(--r-dot);display:block;flex:0 0 auto}
+.tally[data-air="off"]{background:var(--warn-bg);color:var(--warn-fg)}
+.tally[data-air="off"] i{background:var(--warn-fg)}
+.clock{font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-13);font-weight:500;color:var(--text-hi)}
+
+/* coluna de palco — PGM e PVW LADO A LADO, escala real do console */
+.stagecol{padding:var(--s-5);display:grid;gap:var(--s-5);background:var(--bg);
+  grid-template-columns:minmax(0,1fr)}
+@media (min-width:980px){
+  .stagecol{grid-template-columns:minmax(0,560px) minmax(0,320px);align-items:start}
+}
+.mon__hd{display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-3);min-height:22px}
+.mon__tag{font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase;
+  padding:3px var(--s-2);border-radius:var(--r-1);border:1px solid transparent}
+.mon__tag--pgm{background:var(--sig-fill);color:var(--on-sig)}
+.mon__tag--pvw{background:var(--raise);color:var(--text-hi);border-color:var(--line-ctl)}
+/* fora do ar, a etiqueta do PGM também abre: preenchida = no ar, contornada = não.
+   A mesma gramática do anel, na linha de rótulo. Sem deslocamento: a borda já existe. */
+[data-air="off"] .mon__tag--pgm{background:var(--raise);color:var(--text-hi);border-color:var(--line-ctl)}
+.mon__name{font-size:var(--fs-12);color:var(--text)}
+.mon__spec{margin-left:auto;font-size:var(--fs-11);color:var(--text-lo);
+  font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   O ANEL — TRATAMENTO B · a geometria é o canal
+
+   O anel continua vivendo FORA da imagem: 2px de padding, sempre, em todos os
+   três estados. Nada reflui quando o estado muda; o que muda é quanto do
+   backplate a imagem não cobre.
+
+   Alfabeto ordinal — COBERTURA DE PERÍMETRO:
+     ocioso      0,0 %   filete de 1px colado na imagem  (--n-22, valor despachado)
+     PVW ativo  40,7 %   colchetes de canto              (--n-46, valor despachado)
+     PGM no ar 100,0 %   selo fechado                    (--sig-fill, como despachado)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.frame{padding:2px;border-radius:var(--r-0);background:transparent;background-repeat:no-repeat}
+
+/* OCIOSO — o backplate só aparece no 1px que a imagem não cobre. */
+.frame--idle{
+  background-image:linear-gradient(var(--frame-idle) 0 0);
+  background-position:center;
+  background-size:calc(100% - 2px) calc(100% - 2px);
+}
+
+/* PVW — colchetes de canto. Oito braços, 2px, no mesmo plano de 2px.
+   16 % da largura e 28 % da altura: em 16:9 os braços saem quase iguais. */
+.frame--pvw{
+  background-image:
+    linear-gradient(var(--frame-pvw) 0 0),linear-gradient(var(--frame-pvw) 0 0),
+    linear-gradient(var(--frame-pvw) 0 0),linear-gradient(var(--frame-pvw) 0 0),
+    linear-gradient(var(--frame-pvw) 0 0),linear-gradient(var(--frame-pvw) 0 0),
+    linear-gradient(var(--frame-pvw) 0 0),linear-gradient(var(--frame-pvw) 0 0);
+  background-size:16% 2px,2px 28%,16% 2px,2px 28%,16% 2px,2px 28%,16% 2px,2px 28%;
+  background-position:
+    left top,left top, right top,right top,
+    left bottom,left bottom, right bottom,right bottom;
+}
+
+/* PGM NO AR — exatamente como despachado. Sólido, fechado, 2px. */
+.frame--pgm{background:var(--sig-fill)}
+
+.stage{position:relative;aspect-ratio:16/9;background:var(--stage);overflow:hidden;border-radius:var(--r-0)}
+
+/* Sinal de teste — barras SMPTE 75 % com PLUGE, do arquivo de origem. */
+.bars{position:absolute;inset:0;display:grid;grid-template-rows:68% 8% 24%}
+.bars__m{background:linear-gradient(90deg,
+  var(--vid-white) 0 14.2857%, var(--vid-yellow) 14.2857% 28.5714%,
+  var(--vid-cyan) 28.5714% 42.8571%, var(--vid-green) 42.8571% 57.1428%,
+  var(--vid-magenta) 57.1428% 71.4285%, var(--vid-red) 71.4285% 85.7142%,
+  var(--vid-blue) 85.7142% 100%)}
+.bars__c{background:linear-gradient(90deg,
+  var(--vid-blue) 0 14.2857%, var(--vid-black) 14.2857% 28.5714%,
+  var(--vid-magenta) 28.5714% 42.8571%, var(--vid-black) 42.8571% 57.1428%,
+  var(--vid-cyan) 57.1428% 71.4285%, var(--vid-black) 71.4285% 85.7142%,
+  var(--vid-white) 85.7142% 100%)}
+.bars__p{background:linear-gradient(90deg,
+  var(--vid-navy) 0 17.1%, var(--vid-full) 17.1% 34.2%, var(--vid-purple) 34.2% 51.3%,
+  var(--vid-black) 51.3% 68.4%, var(--vid-sub) 68.4% 74.1%, var(--vid-black) 74.1% 79.8%,
+  var(--vid-plus) 79.8% 85.5%, var(--vid-black) 85.5% 100%)}
+.gray{position:absolute;inset:0;background:linear-gradient(90deg,
+  var(--vid-g1) 0 10%, var(--vid-g2) 10% 20%, var(--vid-g3) 20% 30%, var(--vid-g4) 30% 40%,
+  var(--vid-g5) 40% 50%, var(--vid-g6) 50% 60%, var(--vid-g7) 60% 70%,
+  var(--vid-g8) 70% 80%, var(--vid-g9) 80% 90%, var(--vid-g10) 90% 100%)}
+
+.burn{position:absolute;font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-11);background:var(--scrim);padding:3px var(--s-2);border-radius:var(--r-1);
+  color:var(--n-92)}
+.burn--tl{top:var(--s-3);left:var(--s-3);letter-spacing:var(--tr-caps);text-transform:uppercase}
+.burn--tr{top:var(--s-3);right:var(--s-3)}
+.burn--br{right:var(--s-3);bottom:var(--s-3)}
+
+.gc{position:absolute;left:0;bottom:11%;display:flex;align-items:stretch;max-width:76%}
+.gc__bar{width:4px;background:var(--n-92);flex:0 0 auto}
+.gc__tx{background:var(--n-0);padding:var(--s-2) var(--s-4) var(--s-2) var(--s-3);min-width:0}
+.gc__tx b{display:block;font-size:var(--fs-13);font-weight:600;color:var(--n-92);
+  line-height:1.2;letter-spacing:var(--tr-tight);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gc__tx span{display:block;font-size:var(--fs-11);color:var(--n-70);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* legenda de estado sob cada monitor */
+.mon__ft{display:flex;align-items:baseline;gap:var(--s-3);margin-top:var(--s-3);
+  font-size:var(--fs-11);color:var(--text-lo)}
+.mon__ft b{font-family:var(--f-num);font-variant-numeric:tabular-nums;color:var(--text-hi);font-weight:500}
+
+/* ═════════════════════════ MODOS DE VISTA ═════════════════════════ */
+/* Os filtros são aplicados por fragmento, não na página inteira: as tiras de
+   borrão do bakeoff têm borrão próprio e não devem ser borradas duas vezes. */
+#lab[data-view="grey"] .frag,
+#lab[data-view="grey"] .cand__mon{filter:grayscale(1)}
+#lab[data-view="protan"] .frag,
+#lab[data-view="protan"] .cand__mon{filter:url(#protan)}
+#lab[data-view="periph"] .frag,
+#lab[data-view="periph"] .cand__mon{filter:blur(4px)}
+#lab[data-view="periph"] .frag .frag__zoom,
+#lab[data-view="periph"] .cand__mon .frame{zoom:.68}
+#lab[data-view="periph"] .frag{opacity:.92}
+
+/* ═════════════════════════ CANDIDATOS ═════════════════════════ */
+.cands{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
+  grid-template-columns:minmax(0,1fr)}
+@media (min-width:700px){.cands{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1080px){.cands{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.cand{background:var(--surface);padding:var(--s-5);display:grid;gap:var(--s-4);align-content:start}
+.cand__hd{display:flex;align-items:baseline;gap:var(--s-3)}
+.cand__id{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);
+  color:var(--text-dim);flex:0 0 auto}
+.cand__nm{font-size:var(--fs-13);font-weight:600;color:var(--text-hi);letter-spacing:var(--tr-tight)}
+.cand__mon{background:var(--n-3);padding:var(--s-4);border-radius:var(--r-2)}
+.cand__blur{background:var(--n-3);padding:var(--s-4);border-radius:var(--r-2);filter:blur(4px)}
+.cand__bl{font-size:var(--fs-11);color:var(--text-dim);text-transform:uppercase;
+  letter-spacing:var(--tr-caps);font-weight:600;margin-bottom:var(--s-2)}
+.cand__mtf{display:flex;justify-content:space-between;gap:var(--s-3);
+  font-size:var(--fs-11);padding-top:var(--s-3);border-top:1px solid var(--line)}
+.cand__mtf span:first-child{color:var(--text-lo)}
+.cand__mtf b{font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  color:var(--text-hi);font-weight:500}
+.cand__vd{font-size:var(--fs-12);color:var(--text-lo);line-height:1.55}
+.cand__vd b{font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase;
+  font-size:var(--fs-11);display:block;margin-bottom:var(--s-1)}
+.vd--pass b{color:var(--text-hi)}
+.vd--fail b{color:var(--sig-text)}
+.cand--win{background:var(--well);outline:2px solid var(--text-hi);outline-offset:-2px}
+
+/* geometrias de candidato — todas em --frame-pvw, todas no plano de 2px salvo nota */
+.fr--dash{
+  background-image:
+    repeating-linear-gradient(90deg,var(--frame-pvw) 0 6px,transparent 6px 12px),
+    repeating-linear-gradient(90deg,var(--frame-pvw) 0 6px,transparent 6px 12px),
+    repeating-linear-gradient(180deg,var(--frame-pvw) 0 6px,transparent 6px 12px),
+    repeating-linear-gradient(180deg,var(--frame-pvw) 0 6px,transparent 6px 12px);
+  background-size:100% 2px,100% 2px,2px 100%,2px 100%;
+  background-position:left top,left bottom,left top,right top;
+}
+.fr--half{
+  background-image:linear-gradient(var(--frame-pvw) 0 0),linear-gradient(var(--frame-pvw) 0 0);
+  background-size:100% 2px,100% 2px;
+  background-position:left top,left bottom;
+}
+.fr--shelf{padding:2px 2px 6px;background:var(--frame-pvw)}
+.fr--gap{padding:1px;border:2px solid var(--frame-pvw);background:transparent}
+.fr--none{background:transparent}
+
+/* tira comparativa de borrão */
+.bake{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
+  grid-template-columns:minmax(0,1fr);margin-top:var(--s-6)}
+@media (min-width:820px){.bake{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.bcell{background:var(--n-3);padding:var(--s-5)}
+.bcell--hd{background:var(--surface);display:grid;align-content:center;gap:var(--s-2)}
+.bcell--hd b{font-size:var(--fs-13);font-weight:600;color:var(--text-hi)}
+.bcell--hd span{font-size:var(--fs-11);color:var(--text-lo);line-height:1.5}
+.bblur{filter:blur(4px)}
+.bmeta{background:var(--surface);padding:var(--s-3) var(--s-5);
+  font-size:var(--fs-11);color:var(--text-lo);display:flex;justify-content:space-between;gap:var(--s-3)}
+.bmeta b{color:var(--text-hi);font-family:var(--f-num);font-weight:500}
+
+/* ═════════════════════════ TABELA DE MEDIÇÃO ═════════════════════════ */
+.tblwrap{overflow-x:auto}
+.tk__table{width:100%;border-collapse:collapse;font-size:var(--fs-13);min-width:720px}
+.tk__table th{text-align:left;font-size:var(--fs-11);font-weight:600;text-transform:uppercase;
+  letter-spacing:var(--tr-caps);color:var(--text-lo);
+  padding:var(--s-3) var(--s-4) var(--s-3) 0;border-bottom:1px solid var(--line);white-space:nowrap}
+.tk__table td{padding:var(--s-3) var(--s-4) var(--s-3) 0;border-bottom:1px solid var(--line);
+  vertical-align:top}
+.tk__table td:first-child{color:var(--text-hi);font-family:var(--f-num);font-size:var(--fs-12);white-space:nowrap}
+.tk__table .n{font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-12);white-space:nowrap;color:var(--text)}
+.tk__table .role{color:var(--text-lo);font-size:var(--fs-12)}
+.vd{font-size:var(--fs-11);font-weight:600;text-transform:uppercase;letter-spacing:var(--tr-caps);
+  white-space:nowrap}
+.vd--no{color:var(--sig-text)}
+.vd--yes{color:var(--text-hi)}
+.tk__table tbody tr.hl td{background:var(--sig-tint)}
+.tnote{margin-top:var(--s-5);font-size:var(--fs-12);color:var(--text-lo);line-height:var(--lh-prose);max-width:78ch}
+.tnote b{color:var(--text-hi);font-weight:500}
+.tnote + .tnote{margin-top:var(--s-3)}
+
+/* ═════════════════════════ FALHAS ═════════════════════════ */
+.fails{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
+  grid-template-columns:minmax(0,1fr)}
+@media (min-width:880px){.fails{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fail{background:var(--surface);padding:var(--s-5);display:grid;gap:var(--s-3);align-content:start}
+.fail h4{font-size:var(--fs-13);font-weight:600;color:var(--text-hi);letter-spacing:var(--tr-tight)}
+.fail p{font-size:var(--fs-12);color:var(--text-lo);line-height:var(--lh-prose)}
+.fail p b{color:var(--text);font-weight:500}
+.fail__n{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);
+  color:var(--text-dim)}
+.fail--hard{background:var(--sig-tint)}
+.fail--hard h4{color:var(--sig-text)}
+
+.site__ft{border-top:1px solid var(--line);padding:var(--s-6) 0 var(--s-8)}
+.site__ft p{font-size:var(--fs-11);color:var(--text-dim);line-height:1.6;max-width:80ch}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:1ms !important;animation-duration:1ms !important}
+}
+</style>
+</head>
+<body>
+
+<!-- Simulação de protanopia — matriz de Viénot, Brettel & Mollon operando em
+     LUZ LINEAR (color-interpolation-filters="linearRGB", padrão do SVG).
+     Cinzas neutros são invariantes por construção; só a carmim se move. -->
+<svg class="defs" aria-hidden="true" focusable="false" width="0" height="0">
+  <filter id="protan" color-interpolation-filters="linearRGB">
+    <feColorMatrix type="matrix" values="
+      0.11238  0.88762  0  0  0
+      0.11238  0.88762  0  0  0
+      0.00401 -0.00401  1  0  0
+      0        0        0  1  0"/>
+  </filter>
+</svg>
+
+<header class="site">
+  <div class="site__in">
+    <span class="brand">
+      <span class="brand__mark"><i></i></span>
+      <span class="brand__name">PwStream</span>
+    </span>
+    <span class="site__tag">Tratamento B · separar por geometria · A interface desaparece</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════ ABERTURA ═══════════════════════ -->
+<section class="wrap hero">
+  <h1>O anel do PGM não muda. Muda a forma do outro.</h1>
+  <p>
+    A direção despachada emoldura cada monitor com um anel externo de 2px. O anel do PGM é
+    carmim; o do PVW é <code>--n-46</code>. A linha 97 do arquivo de direção diz, com estas
+    palavras, que os dois foram <b>casados em luminância</b> de propósito. O resultado é que a
+    distinção mais crítica do console inteiro — o que está no ar contra o que está sendo
+    preparado — passou a viver <b>em matiz sozinha</b>, dentro de uma direção cuja tese publicada
+    é que a matiz não é confiável.
+  </p>
+
+  <div class="quote">
+    <code>--frame-pvw:var(--n-46);   /* Y 15,29 % — casado com o tally (15,92 %) */</code>
+    <code>"Nenhum estado por cor sozinha — sempre com palavra, forma ou valor."</code>
+    <small>FINAL-direction.html · linhas 97 e 1496</small>
+  </div>
+
+  <div class="figs">
+    <div class="fig fig--bad">
+      <b>1,031:1</b>
+      <span>PGM contra PVW hoje. Em escala de cinza os dois anéis são o mesmo cinza. O envelope
+      inteiro do sistema de tally cabe em 2,44:1 — não há três degraus de valor lá dentro.</span>
+    </div>
+    <div class="fig fig--bad">
+      <b>8,58 %</b>
+      <span>Luminância da carmim <code>#D91F2D</code> sob protanopia (Viénot, luz linear). Cai de
+      15,92 %. O anel do <b>no ar</b> fica <b>mais escuro</b> que o do PVW — o sinal inverte.</span>
+    </div>
+    <div class="fig">
+      <b>0 px</b>
+      <span>Custo de imagem do tratamento escolhido. Os colchetes ocupam o mesmo plano de 2px que
+      o anel já ocupava. Nada reflui quando o estado muda.</span>
+    </div>
+  </div>
+
+  <p style="margin-top:var(--s-7)">
+    Este tratamento não toca em valor. <code>--sig-fill</code>, <code>--n-46</code> e
+    <code>--n-22</code> ficam exatamente onde estão. A hipótese em teste é estreita:
+    <b>a forma sozinha consegue carregar três estados?</b>
+  </p>
+</section>
+
+<!-- ═══════════════════════ MODOS DE VISTA ═══════════════════════ -->
+<div class="views">
+  <div class="views__in">
+    <span class="views__lb">Vista</span>
+    <button class="vbtn" type="button" data-view="normal" aria-pressed="true"><i></i>Normal</button>
+    <button class="vbtn" type="button" data-view="grey" aria-pressed="false"><i></i>Escala de cinza</button>
+    <button class="vbtn" type="button" data-view="periph" aria-pressed="false"><i></i>Periférica</button>
+    <button class="vbtn" type="button" data-view="protan" aria-pressed="false"><i></i>Protanopia</button>
+    <span class="views__hint">Os botões filtram os consoles renderizados abaixo. Periférica =
+      <code>blur(4px)</code> com escala reduzida a 0,68×.</span>
+  </div>
+</div>
+
+<div id="lab" data-view="normal">
+
+<!-- ═══════════════════════ OS TRÊS ESTADOS ═══════════════════════ -->
+<section class="wrap sec">
+  <div class="sec__hd">
+    <div>
+      <p class="caps sec__eyebrow">01 · O alfabeto</p>
+      <h2 class="sec__title">Cobertura de perímetro, em três degraus</h2>
+    </div>
+    <div>
+      <p class="sec__note">
+        O anel continua fora da imagem — <code>padding:2px</code> no elemento pai, nos três
+        estados. O que muda é <b>quanto do backplate a imagem não cobre</b>: o filete de 1px do
+        ocioso, os colchetes de canto do PVW, o selo fechado do PGM. A escala é ordinal: mais
+        perímetro, mais ao vivo.
+      </p>
+      <p class="sec__note">
+        A linha de rótulo já falava essa gramática — etiqueta preenchida no ar, contornada fora
+        dele. Agora o monitor concorda com o próprio rótulo.
+      </p>
+    </div>
+  </div>
+
+  <div class="lab">
+
+    <!-- ── ESTADO A · OCIOSO ───────────────────────────────────────── -->
+    <div class="frag" data-surface="console" data-air="off">
+      <div class="frag__hd">
+        <span class="frag__st">A · Ocioso — fora do ar</span>
+        <span class="frag__d">Sessão aberta, nada indo para a audiência. Nenhum monitor reivindica atenção.</span>
+        <span class="frag__ix">cobertura 0,0 % / 0,0 %</span>
+      </div>
+      <div class="frag__zoom">
+        <div class="con__bar">
+          <span class="con__brand"><span class="brand__mark"><i></i></span>PwStream</span>
+          <span class="con__sess">Sessão <b>Rodada Técnica</b></span>
+          <span class="con__bar-r">
+            <span class="tally" data-air="off"><i></i>Fora do ar</span>
+            <span class="clock">00:00:00</span>
+          </span>
+        </div>
+        <div class="stagecol">
+          <div>
+            <div class="mon__hd">
+              <span class="mon__tag mon__tag--pgm">PGM</span>
+              <span class="mon__name">Abertura</span>
+              <span class="mon__spec">1920 × 1080 · 16:9 · 60p</span>
+            </div>
+            <div class="frame frame--idle">
+              <div class="stage" role="img" aria-label="Monitor de programa fora do ar: barras de teste SMPTE 75 % com PLUGE">
+                <div class="bars" aria-hidden="true">
+                  <div class="bars__m"></div><div class="bars__c"></div><div class="bars__p"></div>
+                </div>
+                <span class="burn burn--tl">PGM · Abertura</span>
+                <span class="burn burn--tr">CÂM 1 · f/2.0 · 1/60</span>
+                <span class="burn burn--br">00:00:00:00</span>
+              </div>
+            </div>
+            <p class="mon__ft"><span>anel</span><b>ocioso · filete 1px · --n-22 · Y 3,56 %</b></p>
+          </div>
+          <div>
+            <div class="mon__hd">
+              <span class="mon__tag mon__tag--pvw">PVW</span>
+              <span class="mon__name">Entrevista</span>
+            </div>
+            <div class="frame frame--idle">
+              <div class="stage" role="img" aria-label="Monitor de pré-visualização ocioso: rampa de cinzas de dez degraus">
+                <div class="gray" aria-hidden="true"></div>
+                <span class="burn burn--tl">PVW</span>
+              </div>
+            </div>
+            <p class="mon__ft"><span>anel</span><b>ocioso · filete 1px · --n-22 · Y 3,56 %</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ESTADO B · PVW ATIVO ────────────────────────────────────── -->
+    <div class="frag" data-surface="console" data-air="off">
+      <div class="frag__hd">
+        <span class="frag__st">B · PVW ativo — ainda fora do ar</span>
+        <span class="frag__d">O operador armou a próxima fonte. O PVW ganha colchetes; o PGM continua ocioso.</span>
+        <span class="frag__ix">cobertura 0,0 % / 40,7 %</span>
+      </div>
+      <div class="frag__zoom">
+        <div class="con__bar">
+          <span class="con__brand"><span class="brand__mark"><i></i></span>PwStream</span>
+          <span class="con__sess">Sessão <b>Rodada Técnica</b></span>
+          <span class="con__bar-r">
+            <span class="tally" data-air="off"><i></i>Fora do ar</span>
+            <span class="clock">00:00:00</span>
+          </span>
+        </div>
+        <div class="stagecol">
+          <div>
+            <div class="mon__hd">
+              <span class="mon__tag mon__tag--pgm">PGM</span>
+              <span class="mon__name">Abertura</span>
+              <span class="mon__spec">1920 × 1080 · 16:9 · 60p</span>
+            </div>
+            <div class="frame frame--idle">
+              <div class="stage" role="img" aria-label="Monitor de programa fora do ar: barras de teste SMPTE 75 % com PLUGE">
+                <div class="bars" aria-hidden="true">
+                  <div class="bars__m"></div><div class="bars__c"></div><div class="bars__p"></div>
+                </div>
+                <span class="burn burn--tl">PGM · Abertura</span>
+                <span class="burn burn--tr">CÂM 1 · f/2.0 · 1/60</span>
+                <span class="burn burn--br">00:00:00:00</span>
+              </div>
+            </div>
+            <p class="mon__ft"><span>anel</span><b>ocioso · filete 1px · --n-22 · Y 3,56 %</b></p>
+          </div>
+          <div>
+            <div class="mon__hd">
+              <span class="mon__tag mon__tag--pvw">PVW</span>
+              <span class="mon__name">Entrevista</span>
+            </div>
+            <div class="frame frame--pvw">
+              <div class="stage" role="img" aria-label="Monitor de pré-visualização armado, marcado por colchetes de canto: rampa de cinzas de dez degraus">
+                <div class="gray" aria-hidden="true"></div>
+                <span class="burn burn--tl">PVW</span>
+              </div>
+            </div>
+            <p class="mon__ft"><span>anel</span><b>colchetes · 8 braços 2px · --n-46 · Y 15,29 %</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ESTADO C · PGM NO AR ────────────────────────────────────── -->
+    <div class="frag" data-surface="console" data-air="on">
+      <div class="frag__hd">
+        <span class="frag__st">C · PGM no ar</span>
+        <span class="frag__d">Selo fechado contra colchetes abertos. Fechado é fechado mesmo quando a carmim escurece.</span>
+        <span class="frag__ix">cobertura 100,0 % / 40,7 %</span>
+      </div>
+      <div class="frag__zoom">
+        <div class="con__bar">
+          <span class="con__brand"><span class="brand__mark"><i></i></span>PwStream</span>
+          <span class="con__sess">Sessão <b>Rodada Técnica</b></span>
+          <span class="con__bar-r">
+            <span class="tally" data-air="on"><i></i>No ar</span>
+            <span class="clock">01:47:22</span>
+          </span>
+        </div>
+        <div class="stagecol">
+          <div>
+            <div class="mon__hd">
+              <span class="mon__tag mon__tag--pgm">PGM</span>
+              <span class="mon__name">Abertura</span>
+              <span class="mon__spec">1920 × 1080 · 16:9 · 60p</span>
+            </div>
+            <div class="frame frame--pgm">
+              <div class="stage" role="img" aria-label="Monitor de programa no ar: barras de teste SMPTE 75 % com PLUGE e gerador de caracteres">
+                <div class="bars" aria-hidden="true">
+                  <div class="bars__m"></div><div class="bars__c"></div><div class="bars__p"></div>
+                </div>
+                <span class="burn burn--tl">PGM · Abertura</span>
+                <span class="burn burn--tr">CÂM 1 · f/2.0 · 1/60</span>
+                <span class="burn burn--br">01:47:22:14</span>
+                <span class="gc">
+                  <span class="gc__bar" aria-hidden="true"></span>
+                  <span class="gc__tx">
+                    <b>Caio Mendonça</b>
+                    <span>Engenheiro de transmissão · Porto Alegre</span>
+                  </span>
+                </span>
+              </div>
+            </div>
+            <p class="mon__ft"><span>anel</span><b>selo fechado · 2px · --sig-fill · Y 15,92 %</b></p>
+          </div>
+          <div>
+            <div class="mon__hd">
+              <span class="mon__tag mon__tag--pvw">PVW</span>
+              <span class="mon__name">Entrevista</span>
+            </div>
+            <div class="frame frame--pvw">
+              <div class="stage" role="img" aria-label="Monitor de pré-visualização armado, marcado por colchetes de canto: rampa de cinzas de dez degraus">
+                <div class="gray" aria-hidden="true"></div>
+                <span class="burn burn--tl">PVW</span>
+              </div>
+            </div>
+            <p class="mon__ft"><span>anel</span><b>colchetes · 8 braços 2px · --n-46 · Y 15,29 %</b></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════ ESPAÇO PESQUISADO ═══════════════════════ -->
+<section class="wrap sec">
+  <div class="sec__hd">
+    <div>
+      <p class="caps sec__eyebrow">02 · O espaço pesquisado</p>
+      <h2 class="sec__title">Seis geometrias, julgadas primeiro pela visão periférica</h2>
+    </div>
+    <div>
+      <p class="sec__note">
+        <code>blur(4px)</code> é uma gaussiana de σ = 4px. A atenuação de um padrão de período
+        <i>T</i> é <code>exp(−2π²σ²/T²)</code>. Isso é decidido por aritmética antes de ser
+        decidido por gosto: qualquer geometria cujo período seja da ordem de <b>12–16px</b> vira
+        pasta. Só sobrevive o que varia na escala <b>do monitor inteiro</b>.
+      </p>
+      <p class="sec__note">
+        Cada cartão mostra a geometria em tamanho de PVW e, embaixo, a mesma geometria já borrada
+        a σ = 4px — borrão fixo, independente do botão de vista.
+      </p>
+    </div>
+  </div>
+
+  <div class="cands">
+
+    <div class="cand">
+      <div class="cand__hd"><span class="cand__id">G1</span><span class="cand__nm">Anel tracejado 6 / 6</span></div>
+      <div class="cand__mon">
+        <div class="frame fr--dash"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+      </div>
+      <div>
+        <p class="cand__bl">σ = 4px</p>
+        <div class="cand__blur">
+          <div class="frame fr--dash"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+        </div>
+      </div>
+      <p class="cand__mtf"><span>MTF em T = 12px</span><b>0,111</b></p>
+      <p class="cand__vd vd--fail"><b>Reprovado</b>
+        O tracejado retém 11 % da própria modulação. Ele <i>vira</i> um anel sólido — a exata
+        confusão que estamos tentando evitar. A 8 / 8 (T = 16px) sobe só para 0,291.</p>
+    </div>
+
+    <div class="cand cand--win">
+      <div class="cand__hd"><span class="cand__id">G2</span><span class="cand__nm">Colchetes de canto</span></div>
+      <div class="cand__mon">
+        <div class="frame frame--pvw"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+      </div>
+      <div>
+        <p class="cand__bl">σ = 4px</p>
+        <div class="cand__blur">
+          <div class="frame frame--pvw"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+        </div>
+      </div>
+      <p class="cand__mtf"><span>MTF em T = 320px</span><b>0,997</b></p>
+      <p class="cand__vd vd--pass"><b>Escolhido</b>
+        O vão entre colchetes é de 218px numa borda de 320px: o borrão não tem como fechá-lo.
+        Borrado, o PGM vira um halo retangular contínuo e o PVW vira quatro brilhos de canto.
+        Custo de imagem: <b>0px</b>. Procedência de broadcast: marca de corte / enquadramento.</p>
+    </div>
+
+    <div class="cand">
+      <div class="cand__hd"><span class="cand__id">G3</span><span class="cand__nm">Meia moldura — topo e base</span></div>
+      <div class="cand__mon">
+        <div class="frame fr--half"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+      </div>
+      <div>
+        <p class="cand__bl">σ = 4px</p>
+        <div class="cand__blur">
+          <div class="frame fr--half"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+        </div>
+      </div>
+      <p class="cand__mtf"><span>MTF em T = 320px</span><b>0,997</b></p>
+      <p class="cand__vd vd--fail"><b>Vice</b>
+        Sobrevive tão bem quanto o G2 e custa 0px. Recusado por semântica, não por óptica: duas
+        barras horizontais lidas de canto de olho são <i>letterbox</i>, e letterbox é uma
+        propriedade da imagem. A geometria estaria mentindo sobre o sinal.</p>
+    </div>
+
+    <div class="cand">
+      <div class="cand__hd"><span class="cand__id">G4</span><span class="cand__nm">Prateleira — base de 6px</span></div>
+      <div class="cand__mon">
+        <div class="frame fr--shelf"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+      </div>
+      <div>
+        <p class="cand__bl">σ = 4px</p>
+        <div class="cand__blur">
+          <div class="frame fr--shelf"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+        </div>
+      </div>
+      <p class="cand__mtf"><span>amplitude vs. 2px</span><b>3,00×</b></p>
+      <p class="cand__vd vd--fail"><b>Vice</b>
+        Opticamente forte: o borrão conserva energia, então 6px viram um halo 3× mais alto que
+        2px. Reprovado pelo orçamento. Estoura os 2px em <b>+4px de altura de bloco</b>; num
+        console de altura fixa isso encolhe o palco em 1,27 % de altura e <b>≈ 2,5 % de área</b>
+        de imagem. Monitor de flush-mount não paga isso.</p>
+    </div>
+
+    <div class="cand">
+      <div class="cand__hd"><span class="cand__id">G5</span><span class="cand__nm">Folga interna de 1px</span></div>
+      <div class="cand__mon">
+        <div class="frame fr--gap"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+      </div>
+      <div>
+        <p class="cand__bl">σ = 4px</p>
+        <div class="cand__blur">
+          <div class="frame fr--gap"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+        </div>
+      </div>
+      <p class="cand__mtf"><span>MTF em T = 6px</span><b>0,000155</b></p>
+      <p class="cand__vd vd--fail"><b>Reprovado</b>
+        Aniquilado. A folga retém 0,0155 % da modulação — o PVW destacado e o PGM fundido viram
+        exatamente o mesmo borrão. Ainda estoura o orçamento para 3px e some em telas de 1×.</p>
+    </div>
+
+    <div class="cand">
+      <div class="cand__hd"><span class="cand__id">G6</span><span class="cand__nm">Sem anel no PVW</span></div>
+      <div class="cand__mon">
+        <div class="frame fr--none"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+      </div>
+      <div>
+        <p class="cand__bl">σ = 4px</p>
+        <div class="cand__blur">
+          <div class="frame fr--none"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+        </div>
+      </div>
+      <p class="cand__mtf"><span>MTF — ausência</span><b>1,000</b></p>
+      <p class="cand__vd vd--fail"><b>Reprovado</b>
+        Sobrevive perfeitamente ao borrão porque não há o que borrar — e é justamente esse o
+        problema. Zera <b>PVW contra ocioso</b>: o alfabeto perde um degrau e sobram dois estados
+        para três situações. Entrega a distinção a um rótulo de 11px, ilegível a σ = 4px.</p>
+    </div>
+
+  </div>
+
+  <!-- tira comparativa direta -->
+  <h3 class="caps" style="margin-top:var(--s-8);color:var(--text-dim)">A prova que o bakeoff nunca rodou</h3>
+  <div class="bake">
+    <div class="bcell bcell--hd">
+      <b>σ = 4px, lado a lado</b>
+      <span>Se o tracejado virar sólido sob borrão, ele não é uma geometria — é um enfeite. Compare
+      as três células à direita e note qual par ainda é distinguível.</span>
+    </div>
+    <div class="bcell bblur">
+      <div class="frame frame--pgm"><div class="stage"><div class="bars" aria-hidden="true">
+        <div class="bars__m"></div><div class="bars__c"></div><div class="bars__p"></div></div></div></div>
+    </div>
+    <div class="bcell bblur">
+      <div class="frame fr--dash"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+    </div>
+    <div class="bcell bblur">
+      <div class="frame frame--pvw"><div class="stage"><div class="gray" aria-hidden="true"></div></div></div>
+    </div>
+  </div>
+  <div class="bmeta">
+    <span>Da esquerda para a direita: <b>PGM sólido</b> · <b>G1 tracejado</b> · <b>G2 colchetes</b></span>
+    <span>Retenção de amplitude de uma linha de 2px sob σ = 4px: <b>0,199</b></span>
+  </div>
+</section>
+
+</div><!-- /#lab -->
+
+<!-- ═══════════════════════ MEDIÇÃO ═══════════════════════ -->
+<section class="wrap sec">
+  <div class="sec__hd">
+    <div>
+      <p class="caps sec__eyebrow">03 · Medição</p>
+      <h2 class="sec__title">Nenhum par passa em 3:1. Em vista nenhuma.</h2>
+    </div>
+    <div>
+      <p class="sec__note">
+        Contraste como <code>(Y₁+0,05)/(Y₂+0,05)</code>, com Y em luminância relativa 0–1. A
+        coluna de escala de cinza é idêntica à normal por construção: dessaturar não muda
+        luminância. A coluna de protanopia usa Viénot em luz linear — cinzas neutros são
+        invariantes, só a carmim se move.
+      </p>
+    </div>
+  </div>
+
+  <div class="tblwrap">
+    <table class="tk__table">
+      <thead>
+        <tr>
+          <th>Par de estados</th>
+          <th>Y₁ / Y₂</th>
+          <th>Cinza</th>
+          <th>≥ 3:1</th>
+          <th>Protanopia</th>
+          <th>≥ 3:1</th>
+          <th>O que resta carregando a distinção</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="hl">
+          <td>PGM × PVW</td>
+          <td class="n">15,92 % / 15,29 %</td>
+          <td class="n">1,031:1</td>
+          <td class="vd vd--no">Reprova</td>
+          <td class="n">1,494:1 ↓</td>
+          <td class="vd vd--no">Reprova</td>
+          <td class="role"><b>Geometria.</b> Selo fechado (100 % do perímetro) contra colchetes
+            (40,7 %). A seta indica inversão: sob protanopia o PVW fica <i>mais claro</i> que o PGM.</td>
+        </tr>
+        <tr>
+          <td>PGM × ocioso</td>
+          <td class="n">15,92 % / 3,56 %</td>
+          <td class="n">2,444:1</td>
+          <td class="vd vd--no">Reprova</td>
+          <td class="n">1,586:1</td>
+          <td class="vd vd--no">Reprova</td>
+          <td class="role"><b>Geometria + palavra.</b> 100 % contra 0 % de perímetro externo, mais
+            a etiqueta preenchida e o selo <i>No ar</i> na barra.</td>
+        </tr>
+        <tr>
+          <td>PVW × ocioso</td>
+          <td class="n">15,29 % / 3,56 %</td>
+          <td class="n">2,370:1</td>
+          <td class="vd vd--no">Reprova</td>
+          <td class="n">2,370:1</td>
+          <td class="vd vd--no">Reprova</td>
+          <td class="role"><b>Geometria.</b> Colchetes (40,7 %) contra filete de 1px (0 % do plano
+            externo). Ambos acromáticos: a protanopia não altera nada.</td>
+        </tr>
+        <tr>
+          <td>PGM × palco</td>
+          <td class="n">15,92 % / 0,00 %</td>
+          <td class="n">4,184:1</td>
+          <td class="vd vd--yes">Passa</td>
+          <td class="n">2,716:1</td>
+          <td class="vd vd--no">Reprova</td>
+          <td class="role">O anel do no ar contra o letterbox. Passa a olho normal e
+            <b>reprova sob protanopia</b> — o anel encosta no preto.</td>
+        </tr>
+        <tr>
+          <td>PVW × palco</td>
+          <td class="n">15,29 % / 0,00 %</td>
+          <td class="n">4,058:1</td>
+          <td class="vd vd--yes">Passa</td>
+          <td class="n">4,058:1</td>
+          <td class="vd vd--yes">Passa</td>
+          <td class="role">Colchete acromático contra o letterbox. É o único par que passa nas
+            duas colunas.</td>
+        </tr>
+        <tr>
+          <td>ocioso × palco</td>
+          <td class="n">3,56 % / 0,00 %</td>
+          <td class="n">1,712:1</td>
+          <td class="vd vd--no">Reprova</td>
+          <td class="n">1,712:1</td>
+          <td class="vd vd--no">Reprova</td>
+          <td class="role">O filete ocioso é quase invisível contra a imagem — o que é a
+            intenção. Ocioso não deve reivindicar atenção.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="tnote">
+    <b>A conclusão aritmética, dita sem rodeio.</b> Três estados dentro de um envelope de 2,44:1
+    dão <b>1,56:1 por degrau</b> se divididos geometricamente — abaixo até do mínimo de 3:1 para
+    componentes não textuais. Mantendo a carmim e mantendo <code>--n-22</code>, a separação por
+    valor puro é <b>aritmeticamente impossível</b>. Isso não é opinião: é o que 2,44^(1/2) = 1,56
+    diz. O Tratamento A tem de mexer no envelope — escurecer o ocioso, ou dar ao PGM um filete
+    interno claro — ou aceitar que reprova. O Tratamento B aceita o envelope e move a distinção
+    para um canal onde 3:1 não é a métrica certa: <b>forma não tem razão de contraste, tem
+    presença ou ausência.</b>
+  </p>
+
+  <p class="tnote">
+    <b>Por que a vista "Escala de cinza" na tela parece diferente da tabela.</b> A função CSS
+    <code>grayscale(1)</code> opera em sRGB codificado em gama, não em luz linear. Ela leva
+    <code>#D91F2D</code> a <code>#484848</code>, cuja luminância é <b>6,48 %</b> — não 15,92 %.
+    Na tela, portanto, o par PGM × PVW mede <b>1,767:1 invertido</b> e o par PGM × ocioso mede
+    <b>1,341:1</b>. Os números da tabela são os fisicamente corretos e são os que valem para o
+    julgamento; a nota está aqui porque o botão mostra outra coisa e omitir isso seria desonesto.
+    Em nenhuma das duas contas algum par chega a 3:1.
+  </p>
+
+  <p class="tnote">
+    <b>Aritmética do borrão.</b> Uma linha de 2px sob σ = 4px retém <code>2/(σ√(2π))</code> =
+    <b>0,199</b> da amplitude. Nenhum tratamento de 2px é forte perifericamente — nem o
+    despachado. Por isso o argumento tem de ser feito em <b>forma</b>, cujo período é o do
+    monitor (MTF <b>0,997</b>), e não em <b>peso de traço</b>, cujo período é o do próprio traço.
+  </p>
+</section>
+
+<!-- ═══════════════════════ ONDE FALHA ═══════════════════════ -->
+<section class="wrap sec">
+  <div class="sec__hd">
+    <div>
+      <p class="caps sec__eyebrow">04 · Honestidade</p>
+      <h2 class="sec__title">Onde este tratamento não funciona</h2>
+    </div>
+    <div>
+      <p class="sec__note">
+        A geometria resolve <b>qual monitor é qual</b>. Ela não resolve tudo, e há um caso em que
+        ela deixa passar exatamente o erro que o console existe para evitar.
+      </p>
+    </div>
+  </div>
+
+  <div class="fails">
+
+    <div class="fail fail--hard">
+      <p class="fail__n">FALHA 01 · dura</p>
+      <h4>Sob protanopia, o monitor mais brilhante é o errado</h4>
+      <p>
+        A carmim cai de <b>Y 15,92 %</b> para <b>Y 8,58 %</b>. O anel do <i>no ar</i> fica
+        <b>1,494:1 mais escuro</b> que os colchetes do PVW. A forma ainda separa os dois — só um
+        deles é um retângulo fechado — mas a hierarquia de brilho <b>inverte</b>: de canto de
+        olho, o que puxa a atenção é o PVW. Um operador protanope que use brilho como atalho
+        olha para o monitor errado. Geometria não conserta isso; só mexer no valor da carmim
+        conserta, e valor é a variável do Tratamento A. <b>Esta página não resolve esse caso.</b>
+      </p>
+    </div>
+
+    <div class="fail">
+      <p class="fail__n">FALHA 02</p>
+      <h4>Protanopia mais borrão, juntos, apagam o anel do no ar</h4>
+      <p>
+        Sob protanopia o par <b>PGM × palco</b> mede <b>2,716:1</b> — reprova. Some σ = 4px, que
+        deixa 19,9 % da amplitude de uma linha de 2px, e o selo fechado do PGM chega perto do
+        limiar de detecção contra o letterbox. O retângulo continua fechado, mas fica fraco.
+        A leitura passa a depender da barra de console (<i>No ar</i>, em palavra) e não mais do
+        anel. Isso é aceitável como redundância; não é aceitável como canal único.
+      </p>
+    </div>
+
+    <div class="fail">
+      <p class="fail__n">FALHA 03</p>
+      <h4>O colchete perde a forma de "L" em 1× e vira ponto</h4>
+      <p>
+        A 60cm de um monitor de 1×, um braço de 2px por ~51px subtende cerca de 0,05° de
+        espessura. O braço é visível, mas o vértice em L não se resolve como L: lê-se como
+        <b>quatro pontos de canto</b>. A distinção sobrevive — quatro pontos não são um retângulo —
+        porém a procedência de marca de corte, que era metade do argumento semântico, se perde.
+        Em 2× o L aparece.
+      </p>
+    </div>
+
+    <div class="fail">
+      <p class="fail__n">FALHA 04</p>
+      <h4>PVW contra ocioso é o degrau mais frágil</h4>
+      <p>
+        A escala é ordinal — 0 %, 40,7 %, 100 % de perímetro — mas os dois primeiros degraus
+        distinguem <b>ausência de parcial</b>, que é um julgamento mais fraco que
+        <b>parcial de total</b>. Em excentricidade periférica alta o filete de 1px do ocioso e os
+        colchetes de 2px do PVW podem colapsar num só "quase nada". O par PGM × qualquer coisa
+        continua robusto; o par PVW × ocioso é o que cede primeiro.
+      </p>
+    </div>
+
+    <div class="fail">
+      <p class="fail__n">FALHA 05</p>
+      <h4>O ocioso mudou de forma — e isso é uma mudança no despachado</h4>
+      <p>
+        O arquivo despacha o ocioso como um anel contínuo de 2px em <code>--n-22</code>. Aqui ele
+        virou um filete de 1px colado na imagem. A <b>luminância não mudou</b> (<code>--n-22</code>,
+        Y 3,56 %) e o <b>layout não mudou</b> (o padding continua 2px nos três estados, nada
+        reflui), mas a forma mudou, e essa é uma decisão a ser aprovada e não um efeito colateral.
+        Sem ela o alfabeto tem só dois degraus e o PGM ocioso volta a ser um retângulo fechado
+        idêntico ao PGM no ar, separado por 2,444:1 — e por 1,586:1 sob protanopia.
+      </p>
+    </div>
+
+    <div class="fail">
+      <p class="fail__n">FALHA 06</p>
+      <h4>Os cantos ficaram concorridos</h4>
+      <p>
+        Os <i>burn-ins</i> do arquivo de origem vivem nos cantos (<code>burn--tl</code>,
+        <code>burn--tr</code>, <code>burn--br</code>). Os colchetes ficam do lado de fora da
+        imagem, então não há sobreposição — mas a região de canto passa a ter dois elementos
+        pequenos disputando a mesma leitura. No PGM, com três burn-ins e um selo fechado, o
+        problema não existe; no PVW o colchete superior esquerdo encosta no rótulo <code>PVW</code>.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<footer class="wrap site__ft">
+  <p>
+    PwStream · Tratamento B · separar por geometria. Todas as tintas vêm de tokens do arquivo
+    <code>mockups/FINAL-direction.html</code> — nenhum hexadecimal novo, nenhuma matiz nova.
+    <code>--sig-fill</code>, <code>--n-46</code> e <code>--n-22</code> permanecem nos valores
+    despachados. Zero animação infinita. Todas as cifras medidas em
+    <code>font-variant-numeric: tabular-nums</code>.
+  </p>
+</footer>
+
+<script>
+(function(){
+  var lab = document.getElementById('lab');
+  var btns = Array.prototype.slice.call(document.querySelectorAll('.vbtn'));
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.getAttribute('data-view');
+      lab.setAttribute('data-view', v);
+      btns.forEach(function(o){ o.setAttribute('aria-pressed', String(o === b)); });
+    });
+  });
+})();
+</script>
+</body>
+</html>

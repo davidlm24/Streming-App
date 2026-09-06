@@ -11,17 +11,17 @@ interface ImagePlaceholderProps {
 export function ImagePlaceholder({ onReupload, className = "", error, variant = 'default' }: ImagePlaceholderProps) {
   if (variant === 'small') {
     return (
-      <div className={`flex items-center justify-center bg-slate-800/50 border border-red-500/30 rounded-lg text-center ${className}`}>
+      <div className={`flex items-center justify-center bg-[var(--panel)]/50 border border-red-500/30 rounded-lg text-center ${className}`}>
          <AlertTriangle className="text-red-400" size={16} />
       </div>
     );
   }
 
   return (
-    <div className={`flex flex-col items-center justify-center bg-slate-800/50 border border-red-500/30 rounded-lg p-4 text-center ${className}`}>
+    <div className={`flex flex-col items-center justify-center bg-[var(--panel)]/50 border border-red-500/30 rounded-lg p-4 text-center ${className}`}>
       <AlertTriangle className="text-red-400 mb-2" size={24} />
-      <p className="text-xs text-slate-300 font-medium mb-1">Falha ao carregar imagem</p>
-      {error && <p className="text-[10px] text-slate-400 mb-3 max-w-[150px] truncate">{error}</p>}
+      <p className="text-xs text-[var(--text)] font-medium mb-1">Falha ao carregar imagem</p>
+      {error && <p className="text-[10px] text-[var(--text-lo)] mb-3 max-w-[150px] truncate">{error}</p>}
       
       {onReupload && (
         <span 

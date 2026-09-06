@@ -192,8 +192,8 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200" id="obs-integration-modal">
-      <div className="bg-[var(--bg)] border border-slate-700/60 rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col custom-scrollbar">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-[var(--bg)]/85 backdrop-blur-md animate-in fade-in duration-200" id="obs-integration-modal">
+      <div className="bg-[var(--bg)] border border-[var(--line-ctl)]/60 rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col custom-scrollbar">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[var(--bg)] sticky top-0 z-10">
           <div className="flex items-center gap-3">
@@ -202,18 +202,18 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg sm:text-xl font-black text-white leading-tight">Configuração & Ingestão RTMP - OBS Studio</h2>
+                <h2 className="text-lg sm:text-xl font-black text-[var(--text-hi)] leading-tight">Configuração & Ingestão RTMP - OBS Studio</h2>
                 <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">
                   v3.2 Edge Multi-Ingest
                 </span>
               </div>
-              <p className="text-xs text-gray-400 mt-1">Defina servidores RTMP primários/alternativos e realize testes de latência ponto a ponto.</p>
+              <p className="text-xs text-[var(--text-lo)] mt-1">Defina servidores RTMP primários/alternativos e realize testes de latência ponto a ponto.</p>
             </div>
           </div>
           <button 
             type="button"
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white cursor-pointer"
+            className="p-2 hover:bg-white/10 rounded-full transition-colors text-[var(--text-lo)] hover:text-[var(--text-hi)] cursor-pointer"
             title="Fechar Modal"
           >
             <X size={20} />
@@ -228,14 +228,14 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div className="flex items-center gap-2.5">
                 <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black">1</span>
-                <h3 className="text-base font-bold text-white">Selecione o Servidor RTMP de Ingestão (Rota com Menor Latência)</h3>
+                <h3 className="text-base font-bold text-[var(--text-hi)]">Selecione o Servidor RTMP de Ingestão (Rota com Menor Latência)</h3>
               </div>
               <div className="flex items-center gap-2">
                 {Object.keys(latencyResults).length > 0 && (
                   <button
                     type="button"
                     onClick={handleClearLatencyLogs}
-                    className="px-2.5 py-1.5 bg-slate-800 hover:bg-rose-500/20 border border-slate-700 hover:border-rose-500/30 rounded-xl text-xs font-bold text-gray-300 hover:text-rose-400 transition-all flex items-center gap-1.5 cursor-pointer"
+                    className="px-2.5 py-1.5 bg-[var(--panel)] hover:bg-rose-500/20 border border-[var(--line-ctl)] hover:border-rose-500/30 rounded-xl text-xs font-bold text-[var(--text)] hover:text-rose-400 transition-all flex items-center gap-1.5 cursor-pointer"
                     title="Limpar todos os logs e pings de latência anteriores"
                   >
                     <Trash2 size={13} />
@@ -277,21 +277,21 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
                     className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
                       isSelected
                         ? 'bg-blue-600/15 border-blue-500 ring-1 ring-blue-500/50 shadow-lg text-white'
-                        : 'bg-[var(--well)] border-white/5 text-gray-300 hover:border-white/20 hover:bg-white/5'
+                        : 'bg-[var(--well)] border-white/5 text-[var(--text)] hover:border-white/20 hover:bg-white/5'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0 pr-2">
                       <span className="text-2xl shrink-0">{server.flag}</span>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-white truncate">{server.name}</span>
+                          <span className="text-xs font-bold text-[var(--text-hi)] truncate">{server.name}</span>
                           {server.isPrimary && (
                             <span className="px-1.5 py-0.2 rounded text-[8px] font-black uppercase bg-purple-500/20 text-purple-300 border border-purple-500/30">
                               Primário
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-gray-400 font-mono truncate block mt-0.5">{server.url}</span>
+                        <span className="text-[10px] text-[var(--text-lo)] font-mono truncate block mt-0.5">{server.url}</span>
                       </div>
                     </div>
 
@@ -304,7 +304,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
                           handleTestSpecificServer(server.id, server.url);
                         }}
                         disabled={isTestingThis}
-                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-all text-xs"
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[var(--text)] hover:text-[var(--text-hi)] transition-all text-xs"
                         title="Testar Latência deste servidor"
                       >
                         {isTestingThis ? <RefreshCw size={12} className="animate-spin text-blue-400" /> : <Activity size={12} />}
@@ -318,16 +318,16 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
             {/* Custom Ingest URL Option */}
             <div className="bg-[var(--well)] rounded-2xl p-4 border border-white/5 space-y-2.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-gray-300 flex items-center gap-1.5 cursor-pointer">
+                <label className="text-xs font-bold text-[var(--text)] flex items-center gap-1.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={useCustomIngest}
                     onChange={(e) => setUseCustomIngest(e.target.checked)}
-                    className="rounded border-gray-700 text-blue-600 focus:ring-0 cursor-pointer"
+                    className="rounded border-[var(--line-ctl)] text-blue-600 focus:ring-0 cursor-pointer"
                   />
                   <span>Definir Servidor Ingest Alternativo Personalizado (Ex: Próprio VPS / Proxy RTMP)</span>
                 </label>
-                <span className="text-[10px] text-gray-500 font-mono">rtmp:// ou rtmps://</span>
+                <span className="text-[10px] text-[var(--text-dim)] font-mono">rtmp:// ou rtmps://</span>
               </div>
 
               {useCustomIngest && (
@@ -337,7 +337,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
                     value={customIngestUrl}
                     onChange={(e) => setCustomIngestUrl(e.target.value)}
                     placeholder="rtmp://ingest.meudominio.com:1935/live"
-                    className="flex-1 bg-[var(--surface)] border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 font-mono focus:outline-none focus:border-blue-500"
+                    className="flex-1 bg-[var(--surface)] border border-[var(--line-ctl)] rounded-xl px-3.5 py-2 text-xs text-[var(--text-hi)] placeholder-[var(--text-dim)] font-mono focus:outline-none focus:border-blue-500"
                   />
                   <button
                     type="button"
@@ -358,13 +358,13 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">
               <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black">2</span>
-              <h3 className="text-base font-bold text-white">Copie as credenciais prontas para o OBS</h3>
+              <h3 className="text-base font-bold text-[var(--text-hi)]">Copie as credenciais prontas para o OBS</h3>
             </div>
             
             <div className="bg-[var(--well)] rounded-2xl p-5 border border-white/5 space-y-4">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  <label className="text-xs font-semibold text-[var(--text-lo)] uppercase tracking-wider">
                     Servidor RTMP Ingest Ativo (URL)
                   </label>
                   <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
@@ -378,7 +378,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
                   <button 
                     type="button"
                     onClick={handleCopyUrl}
-                    className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-white transition-colors flex items-center gap-2 min-w-[120px] justify-center cursor-pointer"
+                    className="px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-semibold text-[var(--text-hi)] transition-colors flex items-center gap-2 min-w-[120px] justify-center cursor-pointer"
                   >
                     {copiedUrl ? <><CheckCircle2 size={15} className="text-emerald-400"/> Copiado</> : <><Copy size={15} /> Copiar URL</>}
                   </button>
@@ -386,7 +386,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-[var(--text-lo)] uppercase tracking-wider">
                   Chave de Transmissão Única (Stream Key)
                 </label>
                 <div className="flex items-center gap-2">
@@ -409,61 +409,61 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">
               <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black">3</span>
-              <h3 className="text-base font-bold text-white">Cole no OBS Studio / vMix / Streamlabs</h3>
+              <h3 className="text-base font-bold text-[var(--text-hi)]">Cole no OBS Studio / vMix / Streamlabs</h3>
             </div>
 
             <div className="grid md:grid-cols-2 gap-5">
               <div className="bg-[var(--well)] rounded-2xl p-5 border border-white/5 space-y-3.5">
-                <div className="flex items-center gap-2.5 text-gray-300">
+                <div className="flex items-center gap-2.5 text-[var(--text)]">
                   <Settings size={17} className="text-blue-400 shrink-0" />
                   <p className="text-xs">1. No OBS Studio, abra <strong>Configurações</strong> &gt; <strong>Transmissão</strong></p>
                 </div>
-                <div className="flex items-center gap-2.5 text-gray-300">
+                <div className="flex items-center gap-2.5 text-[var(--text)]">
                   <Radio size={17} className="text-emerald-400 shrink-0" />
                   <p className="text-xs">2. Selecione o Serviço: <strong>Personalizado... (Custom)</strong></p>
                 </div>
                 
                 <div className="space-y-2 pt-1 text-left">
                   <div className="bg-[var(--surface)] p-2.5 rounded-xl border border-white/5">
-                    <p className="text-[10px] text-gray-400 uppercase font-bold">Servidor:</p>
+                    <p className="text-[10px] text-[var(--text-lo)] uppercase font-bold">Servidor:</p>
                     <p className="text-xs font-mono text-blue-300 break-all">{activeIngestUrl}</p>
                   </div>
                   <div className="bg-[var(--surface)] p-2.5 rounded-xl border border-white/5">
-                    <p className="text-[10px] text-gray-400 uppercase font-bold">Chave de Transmissão:</p>
+                    <p className="text-[10px] text-[var(--text-lo)] uppercase font-bold">Chave de Transmissão:</p>
                     <p className="text-xs font-mono text-amber-300 break-all">{streamKey}</p>
                   </div>
                 </div>
               </div>
 
               {/* Visual Guide / Mockup */}
-              <div className="bg-slate-900 rounded-2xl border border-slate-700 overflow-hidden flex flex-col">
-                <div className="bg-slate-800 px-4 py-2 border-b border-slate-700 flex items-center gap-2">
+              <div className="bg-[var(--surface)] rounded-2xl border border-[var(--line-ctl)] overflow-hidden flex flex-col">
+                <div className="bg-[var(--panel)] px-4 py-2 border-b border-[var(--line-ctl)] flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
                   <div className="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
                   <div className="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
-                  <span className="text-[10px] font-bold text-slate-400 ml-1">Configurações de Transmissão - OBS</span>
+                  <span className="text-[10px] font-bold text-[var(--text-lo)] ml-1">Configurações de Transmissão - OBS</span>
                 </div>
                 <div className="p-3.5 flex flex-col gap-3 flex-1 text-left">
                   <div className="space-y-1">
-                    <label className="text-[9px] text-slate-400 font-bold uppercase">Serviço</label>
-                    <div className="h-7 rounded-lg bg-slate-950 border border-slate-700 flex items-center px-2.5">
-                      <span className="text-[10px] text-white">Personalizado...</span>
+                    <label className="text-[9px] text-[var(--text-lo)] font-bold uppercase">Serviço</label>
+                    <div className="h-7 rounded-lg bg-[var(--bg)] border border-[var(--line-ctl)] flex items-center px-2.5">
+                      <span className="text-[10px] text-[var(--text-hi)]">Personalizado...</span>
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[9px] text-slate-400 font-bold uppercase">Servidor Ingest</label>
-                    <div className="h-7 rounded-lg bg-slate-950 border border-slate-700 flex items-center px-2.5 overflow-hidden">
+                    <label className="text-[9px] text-[var(--text-lo)] font-bold uppercase">Servidor Ingest</label>
+                    <div className="h-7 rounded-lg bg-[var(--bg)] border border-[var(--line-ctl)] flex items-center px-2.5 overflow-hidden">
                       <span className="text-[10px] text-blue-400 whitespace-nowrap font-mono">{activeIngestUrl}</span>
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[9px] text-slate-400 font-bold uppercase">Chave de Transmissão</label>
+                    <label className="text-[9px] text-[var(--text-lo)] font-bold uppercase">Chave de Transmissão</label>
                     <div className="flex gap-1.5">
-                      <div className="h-7 flex-1 rounded-lg bg-slate-950 border border-slate-700 flex items-center px-2.5 overflow-hidden">
+                      <div className="h-7 flex-1 rounded-lg bg-[var(--bg)] border border-[var(--line-ctl)] flex items-center px-2.5 overflow-hidden">
                         <span className="text-[10px] text-amber-300 font-mono">••••••••••••••••••••</span>
                       </div>
-                      <div className="h-7 px-3 rounded-lg bg-slate-800 border border-slate-600 flex items-center justify-center">
-                        <span className="text-[9px] text-slate-300 font-bold">OK</span>
+                      <div className="h-7 px-3 rounded-lg bg-[var(--panel)] border border-[var(--line-ctl)] flex items-center justify-center">
+                        <span className="text-[9px] text-[var(--text)] font-bold">OK</span>
                       </div>
                     </div>
                   </div>

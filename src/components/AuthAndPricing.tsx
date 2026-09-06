@@ -256,7 +256,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between relative overflow-hidden" id="auth-pricing-panel">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text-hi)] flex flex-col justify-between relative overflow-hidden" id="auth-pricing-panel">
       {/* Background Star Lines Aesthetics (Styled like Restream Print 1 background) */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/10 rounded-full blur-[120px]" />
@@ -270,15 +270,15 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
       </div>
 
       {/* Header Logo Navbar */}
-      <header className="relative z-10 w-full border-b border-slate-900 bg-slate-950/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
+      <header className="relative z-10 w-full border-b border-[var(--line)] bg-[var(--bg)]/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <PwStreamLogo iconSize={32} textSize="sm" />
           <span className="text-[10px] font-black tracking-widest text-blue-500 uppercase px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20">RESTREAM MODE</span>
         </div>
-        <div className="flex items-center gap-4 text-xs font-semibold text-gray-400">
-          <button onClick={() => setView('landing')} className="hover:text-white transition-colors">Início</button>
-          <button onClick={() => setView('pricing')} className="hover:text-white transition-colors">Planos</button>
-          <button onClick={() => setView('login')} className="px-3.5 py-1.5 border border-slate-800 rounded-lg hover:bg-slate-900 transition-colors text-white">Log In</button>
+        <div className="flex items-center gap-4 text-xs font-semibold text-[var(--text-lo)]">
+          <button onClick={() => setView('landing')} className="hover:text-[var(--text-hi)] transition-colors">Início</button>
+          <button onClick={() => setView('pricing')} className="hover:text-[var(--text-hi)] transition-colors">Planos</button>
+          <button onClick={() => setView('login')} className="px-3.5 py-1.5 border border-[var(--line)] rounded-lg hover:bg-[var(--surface)] transition-colors text-[var(--text-hi)]">Log In</button>
           <button onClick={() => setView('register')} className="px-3.5 py-1.5 bg-[var(--color-brand)] rounded-lg hover:bg-blue-600 transition-all text-white">Sign Up</button>
         </div>
       </header>
@@ -293,11 +293,11 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold border border-blue-500/20">
                 <Sparkles size={14} /> Webinar & Streaming Dashboard de Alta Performance
               </span>
-              <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight text-white leading-none">
+              <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight text-[var(--text-hi)] leading-none">
                 One live video <br />
                 <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">30+ destinations</span>
               </h1>
-              <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto uppercase tracking-wider font-semibold leading-relaxed">
+              <p className="text-sm sm:text-base text-[var(--text-lo)] max-w-2xl mx-auto uppercase tracking-wider font-semibold leading-relaxed">
                 Restream helps you to go live on multiple platforms at the same time, and turn your streams into vertical short videos
               </p>
             </div>
@@ -309,15 +309,15 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   <div className="flex items-start gap-2.5">
                     <ShieldCheck size={18} className="text-blue-400 shrink-0 mt-0.5" />
                     <div className="space-y-1 text-xs">
-                      <p className="font-bold text-white text-sm">Autenticação Google no Ambiente Web</p>
-                      <p className="text-gray-300 leading-relaxed">
+                      <p className="font-bold text-[var(--text-hi)] text-sm">Autenticação Google no Ambiente Web</p>
+                      <p className="text-[var(--text)] leading-relaxed">
                         O Firebase Authentication requer que este domínio esteja cadastrado em <strong>Domínios Autorizados</strong> no Firebase Console para abrir o pop-up nativo.
                       </p>
                     </div>
                   </div>
 
-                  <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-mono text-gray-300 truncate select-all">{typeof window !== 'undefined' ? window.location.hostname : ''}</span>
+                  <div className="bg-[var(--bg)]/80 p-2.5 rounded-xl border border-[var(--line)] flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-mono text-[var(--text)] truncate select-all">{typeof window !== 'undefined' ? window.location.hostname : ''}</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -327,7 +327,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                           setTimeout(() => setDomainCopied(false), 2000);
                         }
                       }}
-                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-white rounded-lg flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 bg-[var(--panel)] hover:bg-[var(--raise)] text-[10px] font-bold text-[var(--text-hi)] rounded-lg flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
                     >
                       <Copy size={12} />
                       {domainCopied ? 'Copiado!' : 'Copiar'}
@@ -361,42 +361,42 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 </button>
                 <button 
                   onClick={() => setView('register')}
-                  className="w-full sm:w-auto px-8 py-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:w-auto px-8 py-4 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] text-[var(--text-hi)] font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   Criar Conta Grátis
                 </button>
               </div>
             </div>
 
-            <p className="text-xs text-gray-500 font-medium">
+            <p className="text-xs text-[var(--text-dim)] font-medium">
               Conta existente? <button onClick={() => setView('login')} className="text-blue-400 hover:underline">Entre aqui</button>
             </p>
 
             {/* Quick Pricing Preview Grid */}
-            <div className="pt-16 border-t border-slate-900/80">
-              <p className="text-xs uppercase font-extrabold text-gray-500 tracking-wider mb-6">Nossos Planos de Transmissão Profissional</p>
+            <div className="pt-16 border-t border-[var(--line)]/80">
+              <p className="text-xs uppercase font-extrabold text-[var(--text-dim)] tracking-wider mb-6">Nossos Planos de Transmissão Profissional</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
                 {[
                   { name: 'Standard', price: '$14', desc: 'Perfeito para canais independentes.', label: '3 canais simultâneos' },
                   { name: 'Professional', price: '$29', desc: 'Qualidade máxima e ferramentas pro.', label: '5 canais + Co-produtores' },
                   { name: 'Business', price: '$49', desc: 'Espaço de equipe e proteção de stream.', label: '8 canais + SRT profissional' }
                 ].map((p, i) => (
-                  <div key={i} className="bg-slate-900/60 border border-slate-800/80 p-5 rounded-2xl space-y-3 relative group hover:border-blue-500/50 transition-colors">
+                  <div key={i} className="bg-[var(--surface)]/60 border border-[var(--line)]/80 p-5 rounded-2xl space-y-3 relative group hover:border-blue-500/50 transition-colors">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-white text-base">{p.name}</h3>
+                      <h3 className="font-bold text-[var(--text-hi)] text-base">{p.name}</h3>
                       <span className="text-xs text-[var(--color-brand)] font-black">{p.label}</span>
                     </div>
                     <div>
-                      <span className="text-2xl font-black text-white">{p.price}</span>
-                      <span className="text-xs text-gray-500 font-bold"> /mês</span>
+                      <span className="text-2xl font-black text-[var(--text-hi)]">{p.price}</span>
+                      <span className="text-xs text-[var(--text-dim)] font-bold"> /mês</span>
                     </div>
-                    <p className="text-xs text-gray-400">{p.desc}</p>
+                    <p className="text-xs text-[var(--text-lo)]">{p.desc}</p>
                     <button 
                       onClick={() => {
                         setSelectedPlan(p.name as any);
                         setView('register');
                       }} 
-                      className="w-full py-2 bg-slate-950 hover:bg-[var(--color-brand)] text-xs font-bold rounded-lg border border-slate-800 group-hover:border-transparent transition-colors text-center"
+                      className="w-full py-2 bg-[var(--bg)] hover:bg-[var(--color-brand)] text-xs font-bold rounded-lg border border-[var(--line)] group-hover:border-transparent transition-colors text-center"
                     >
                       Assinar Plano
                     </button>
@@ -417,10 +417,10 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
         {/* VIEW 2: LOGIN VIEW */}
         {view === 'login' && (
-          <div className="w-full max-w-md bg-slate-900/80 border border-slate-800 p-8 rounded-3xl space-y-6 animate-in fade-in duration-200" id="login-view">
+          <div className="w-full max-w-md bg-[var(--surface)]/80 border border-[var(--line)] p-8 rounded-3xl space-y-6 animate-in fade-in duration-200" id="login-view">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-white">Bem-vindo de volta!</h2>
-              <p className="text-xs text-gray-400">Insira suas credenciais para acessar o painel de transmissões.</p>
+              <h2 className="text-2xl font-bold text-[var(--text-hi)]">Bem-vindo de volta!</h2>
+              <p className="text-xs text-[var(--text-lo)]">Insira suas credenciais para acessar o painel de transmissões.</p>
             </div>
 
             {isUnauthorizedDomain && (
@@ -428,15 +428,15 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 <div className="flex items-start gap-2.5">
                   <ShieldCheck size={18} className="text-blue-400 shrink-0 mt-0.5" />
                   <div className="space-y-1 text-xs">
-                    <p className="font-bold text-white text-sm">Autenticação Google no Ambiente Web</p>
-                    <p className="text-gray-300 leading-relaxed">
+                    <p className="font-bold text-[var(--text-hi)] text-sm">Autenticação Google no Ambiente Web</p>
+                    <p className="text-[var(--text)] leading-relaxed">
                       O Firebase Authentication requer que este domínio esteja cadastrado em <strong>Domínios Autorizados</strong> no Firebase Console para abrir o pop-up nativo.
                     </p>
                   </div>
                 </div>
 
-                <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-mono text-gray-300 truncate select-all">{typeof window !== 'undefined' ? window.location.hostname : ''}</span>
+                <div className="bg-[var(--bg)]/80 p-2.5 rounded-xl border border-[var(--line)] flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-mono text-[var(--text)] truncate select-all">{typeof window !== 'undefined' ? window.location.hostname : ''}</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -446,7 +446,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                         setTimeout(() => setDomainCopied(false), 2000);
                       }
                     }}
-                    className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-white rounded-lg flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
+                    className="px-2.5 py-1 bg-[var(--panel)] hover:bg-[var(--raise)] text-[10px] font-bold text-[var(--text-hi)] rounded-lg flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
                   >
                     <Copy size={12} />
                     {domainCopied ? 'Copiado!' : 'Copiar'}
@@ -474,7 +474,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-bold transition-all text-white flex items-center justify-center gap-2 cursor-pointer mb-4"
+              className="w-full py-3 bg-[var(--panel)] hover:bg-[var(--raise)] border border-[var(--line-ctl)] rounded-xl text-sm font-bold transition-all text-[var(--text-hi)] flex items-center justify-center gap-2 cursor-pointer mb-4"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/>
@@ -486,26 +486,26 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             </button>
 
             <div className="relative flex py-1 items-center">
-              <div className="flex-grow border-t border-slate-800"></div>
-              <span className="flex-shrink mx-3 text-[10px] text-gray-500 font-bold uppercase">ou e-mail</span>
-              <div className="flex-grow border-t border-slate-800"></div>
+              <div className="flex-grow border-t border-[var(--line)]"></div>
+              <span className="flex-shrink mx-3 text-[10px] text-[var(--text-dim)] font-bold uppercase">ou e-mail</span>
+              <div className="flex-grow border-t border-[var(--line)]"></div>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4 text-left">
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase font-bold text-gray-400">E-mail</label>
+                <label className="text-[11px] uppercase font-bold text-[var(--text-lo)]">E-mail</label>
                 <input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="mgdlms@pwstreamer.com" 
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-colors"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <label className="text-[11px] uppercase font-bold text-gray-400">Senha</label>
+                  <label className="text-[11px] uppercase font-bold text-[var(--text-lo)]">Senha</label>
                   <a href="#forgot" className="text-[10px] text-blue-400 hover:underline">Esqueceu a senha?</a>
                 </div>
                 <input 
@@ -513,7 +513,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••" 
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-colors"
                 />
               </div>
 
@@ -526,7 +526,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             </form>
 
             <div className="text-center">
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-[var(--text-lo)]">
                 Não tem uma conta? <button onClick={() => setView('register')} className="text-blue-400 hover:underline">Inscreva-se grátis</button>
               </p>
             </div>
@@ -535,10 +535,10 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
         {/* VIEW 3: REGISTER VIEW */}
         {view === 'register' && (
-          <div className="w-full max-w-md bg-slate-900/80 border border-slate-800 p-8 rounded-3xl space-y-6 animate-in fade-in duration-200" id="register-view">
+          <div className="w-full max-w-md bg-[var(--surface)]/80 border border-[var(--line)] p-8 rounded-3xl space-y-6 animate-in fade-in duration-200" id="register-view">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-white font-sans">Crie sua Conta Grátis</h2>
-              <p className="text-xs text-gray-400">Cadastre-se para aproveitar 30 dias de teste grátis com acesso total ao estúdio.</p>
+              <h2 className="text-2xl font-bold text-[var(--text-hi)] font-sans">Crie sua Conta Grátis</h2>
+              <p className="text-xs text-[var(--text-lo)]">Cadastre-se para aproveitar 30 dias de teste grátis com acesso total ao estúdio.</p>
             </div>
 
             {authError && (
@@ -550,43 +550,43 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
             <form onSubmit={handleRegister} className="space-y-4 text-left">
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase font-bold text-gray-400">Nome Completo</label>
+                <label className="text-[11px] uppercase font-bold text-[var(--text-lo)]">Nome Completo</label>
                 <input 
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Marcos Gonçalves" 
                   required
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-colors"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase font-bold text-gray-400">E-mail Corporativo ou Pessoal</label>
+                <label className="text-[11px] uppercase font-bold text-[var(--text-lo)]">E-mail Corporativo ou Pessoal</label>
                 <input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="mgdlms@pwstreamer.com" 
                   required
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-colors"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase font-bold text-gray-400">Senha</label>
+                <label className="text-[11px] uppercase font-bold text-[var(--text-lo)]">Senha</label>
                 <input 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••" 
                   required
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-colors"
                 />
               </div>
 
-              <div className="flex items-start gap-2 pt-1 text-[11px] text-gray-400">
-                <input type="checkbox" id="terms" required className="mt-0.5 rounded border-slate-800 bg-slate-950 text-blue-500 cursor-pointer" />
+              <div className="flex items-start gap-2 pt-1 text-[11px] text-[var(--text-lo)]">
+                <input type="checkbox" id="terms" required className="mt-0.5 rounded border-[var(--line)] bg-[var(--bg)] text-blue-500 cursor-pointer" />
                 <label htmlFor="terms" className="cursor-pointer">Aceito os termos de serviço e políticas de privacidade.</label>
               </div>
 
@@ -608,8 +608,8 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               </div>
             </form>
 
-            <div className="text-center pt-2 border-t border-slate-800/40">
-              <p className="text-xs text-gray-400">
+            <div className="text-center pt-2 border-t border-[var(--line)]/40">
+              <p className="text-xs text-[var(--text-lo)]">
                 Já tem uma conta? <button onClick={() => setView('login')} className="text-blue-400 hover:underline">Log In</button>
               </p>
             </div>
@@ -620,24 +620,24 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
         {view === 'pricing' && (
           <div className="w-full max-w-6xl mx-auto space-y-10 text-center animate-in fade-in duration-200" id="pricing-view">
             <div className="space-y-4">
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--text-hi)]">
                 Upgrade to grow and engage your audience
               </h2>
-              <p className="text-sm text-gray-400 max-w-xl mx-auto">
+              <p className="text-sm text-[var(--text-lo)] max-w-xl mx-auto">
                 Escolha o plano ideal para as suas transmissões. Comece com nosso plano de testes gratuito ou assine um plano pago para liberar canais adicionais.
               </p>
 
               {/* Monthly vs Annual Toggle */}
-              <div className="inline-flex items-center gap-2 p-1 bg-slate-900 border border-slate-800 rounded-xl mt-4">
+              <div className="inline-flex items-center gap-2 p-1 bg-[var(--surface)] border border-[var(--line)] rounded-xl mt-4">
                 <button 
                   onClick={() => setIsAnnual(false)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'}`}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand)] text-white' : 'text-[var(--text-lo)] hover:text-white'}`}
                 >
                   Mensal
                 </button>
                 <button 
                   onClick={() => setIsAnnual(true)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${isAnnual ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'}`}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${isAnnual ? 'bg-[var(--color-brand)] text-white' : 'text-[var(--text-lo)] hover:text-white'}`}
                 >
                   Anual <span className="text-[9px] bg-green-500/20 text-green-400 px-1 py-0.5 rounded border border-green-500/10">2 meses grátis</span>
                 </button>
@@ -653,10 +653,10 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 return (
                   <div 
                     key={plan.id}
-                    className={`bg-slate-900/60 border rounded-2xl p-6 flex flex-col justify-between relative transition-all ${
+                    className={`bg-[var(--surface)]/60 border rounded-2xl p-6 flex flex-col justify-between relative transition-all ${
                       plan.popular 
                         ? 'border-blue-500 shadow-xl shadow-blue-500/5 ring-1 ring-blue-400/20' 
-                        : 'border-slate-800 hover:border-slate-700'
+                        : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                     }`}
                   >
                     {/* Badge */}
@@ -664,7 +664,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       <span className={`absolute -top-3 right-4 px-2.5 py-1 text-[9px] font-black uppercase rounded-full border ${
                         plan.popular 
                           ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' 
-                          : 'bg-slate-800 text-gray-400 border-slate-700'
+                          : 'bg-[var(--panel)] text-[var(--text-lo)] border-[var(--line-ctl)]'
                       }`}>
                         {plan.badge}
                       </span>
@@ -672,15 +672,15 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
                     <div className="space-y-4">
                       <div>
-                        <h3 className="text-lg font-bold text-white font-sans">{plan.name}</h3>
-                        <p className="text-xs text-gray-500 mt-1 min-h-[32px]">{plan.description}</p>
+                        <h3 className="text-lg font-bold text-[var(--text-hi)] font-sans">{plan.name}</h3>
+                        <p className="text-xs text-[var(--text-dim)] mt-1 min-h-[32px]">{plan.description}</p>
                       </div>
 
-                      <div className="py-2 border-y border-slate-800/60">
-                        <span className="text-3xl font-black text-white font-mono">
+                      <div className="py-2 border-y border-[var(--line)]/60">
+                        <span className="text-3xl font-black text-[var(--text-hi)] font-mono">
                           ${price}
                         </span>
-                        <span className="text-xs text-gray-400 font-semibold"> /mês</span>
+                        <span className="text-xs text-[var(--text-lo)] font-semibold"> /mês</span>
                       </div>
 
                       {/* Action Button */}
@@ -691,7 +691,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                             ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/20'
                             : plan.popular
                               ? 'bg-[var(--color-brand)] hover:bg-blue-600 text-white shadow-lg shadow-blue-950/20'
-                              : 'bg-slate-950 hover:bg-slate-800 border border-slate-800 text-white'
+                              : 'bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-white'
                         }`}
                       >
                         {plan.id === 'Free Trial' ? 'Iniciar 30 Dias Grátis' : 'Selecionar Plano'}
@@ -699,11 +699,11 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
                       {/* Features checklist */}
                       <div className="pt-4 space-y-2.5">
-                        <p className="text-[10px] uppercase font-bold text-gray-500 tracking-wide">Recursos incluídos:</p>
+                        <p className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-wide">Recursos incluídos:</p>
                         {plan.features.map((feat, idx) => (
                           <div key={idx} className="flex items-start gap-2 text-xs">
                             <Check size={14} className="text-blue-500 mt-0.5 shrink-0" />
-                            <span className="text-gray-300 leading-tight">{feat}</span>
+                            <span className="text-[var(--text)] leading-tight">{feat}</span>
                           </div>
                         ))}
                       </div>
@@ -720,7 +720,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               })}
             </div>
 
-            <div className="pt-6 text-xs text-gray-500 flex items-center justify-center gap-1">
+            <div className="pt-6 text-xs text-[var(--text-dim)] flex items-center justify-center gap-1">
               <span>Garantia de reembolso de 7 dias • Transmita para múltiplos canais instantaneamente • Dúvidas?</span>
               <button className="text-blue-400 hover:underline flex items-center gap-0.5">Fale conosco <HelpCircle size={12} /></button>
             </div>
@@ -729,16 +729,16 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
         {/* VIEW 5: CHECKOUT / PAYMENT FORM SIMULATION */}
         {view === 'checkout' && (
-          <div className="w-full max-w-lg bg-slate-900/80 border border-slate-800 p-8 rounded-3xl space-y-6 animate-in fade-in duration-200" id="checkout-view">
+          <div className="w-full max-w-lg bg-[var(--surface)]/80 border border-[var(--line)] p-8 rounded-3xl space-y-6 animate-in fade-in duration-200" id="checkout-view">
             
             {/* Header / Step Progress */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="flex items-center justify-between border-b border-[var(--line)] pb-4">
               <div className="text-left space-y-1">
                 <span className="text-[10px] uppercase font-bold text-blue-500">Checkout Seguro</span>
-                <h2 className="text-xl font-bold text-white">Finalizar Assinatura</h2>
+                <h2 className="text-xl font-bold text-[var(--text-hi)]">Finalizar Assinatura</h2>
               </div>
               <div className="text-right">
-                <span className="text-xs text-gray-400">Plano Selecionado</span>
+                <span className="text-xs text-[var(--text-lo)]">Plano Selecionado</span>
                 <p className="text-sm font-bold text-blue-400">{selectedPlan} - {isAnnual ? 'Anual' : 'Mensal'}</p>
               </div>
             </div>
@@ -758,7 +758,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'stripe' 
                     ? 'bg-blue-500/10 border-blue-500 text-white' 
-                    : 'bg-slate-950 border-slate-800 text-gray-400 hover:text-white'
+                    : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
                 }`}
               >
                 Stripe
@@ -769,7 +769,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'paypal' 
                     ? 'bg-blue-500/10 border-blue-500 text-white' 
-                    : 'bg-slate-950 border-slate-800 text-gray-400 hover:text-white'
+                    : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
                 }`}
               >
                 PayPal
@@ -780,7 +780,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'mercadopago' 
                     ? 'bg-blue-500/10 border-blue-500 text-white' 
-                    : 'bg-slate-950 border-slate-800 text-gray-400 hover:text-white'
+                    : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
                 }`}
               >
                 Mercado Pago
@@ -793,11 +793,11 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               {selectedGateway === 'stripe' && (
                 <div className="space-y-4">
                   <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-1.5">
-                    <p className="text-[10px] text-gray-400">
+                    <p className="text-[10px] text-[var(--text-lo)]">
                       Ambiente de testes ativo. Autofácil de dados de cartão de crédito Stripe:
                     </p>
-                    <div className="flex items-center justify-between bg-slate-950 p-2 rounded-lg text-[10px] font-mono border border-slate-800/60">
-                      <span className="text-white">4242 4242 4242 4242 | MM/AA: 12/29 | CVV: 424</span>
+                    <div className="flex items-center justify-between bg-[var(--bg)] p-2 rounded-lg text-[10px] font-mono border border-[var(--line)]/60">
+                      <span className="text-[var(--text-hi)]">4242 4242 4242 4242 | MM/AA: 12/29 | CVV: 424</span>
                       <button 
                         type="button"
                         onClick={() => {
@@ -813,32 +813,32 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     </div>
                   </div>
 
-                  <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-3">
+                  <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-2xl space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-gray-500">Número do Cartão</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Número do Cartão</label>
                       <input 
                         type="text" 
                         required
                         value={cardNumber}
                         onChange={(e) => setCardNumber(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono text-white focus:outline-none"
+                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text-hi)] focus:outline-none"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase font-bold text-gray-500">Validade</label>
+                        <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Validade</label>
                         <input 
                           type="text" 
                           required
                           value={cardExpiry}
                           onChange={(e) => setCardExpiry(e.target.value)}
                           placeholder="MM/AA" 
-                          className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono text-white focus:outline-none"
+                          className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text-hi)] focus:outline-none"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase font-bold text-gray-500">CVC</label>
+                        <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">CVC</label>
                         <input 
                           type="password" 
                           required
@@ -846,20 +846,20 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                           onChange={(e) => setCardCvc(e.target.value)}
                           placeholder="424" 
                           maxLength={4}
-                          className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono text-white focus:outline-none"
+                          className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text-hi)] focus:outline-none"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-gray-500">Nome do Titular</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Nome do Titular</label>
                       <input 
                         type="text" 
                         required
                         value={cardName}
                         onChange={(e) => setCardName(e.target.value.toUpperCase())}
                         placeholder="MARCOS GONÇALVES" 
-                        className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none uppercase"
+                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--text-hi)] focus:outline-none uppercase"
                       />
                     </div>
                   </div>
@@ -869,29 +869,29 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               {/* RENDER PAYPAL GATEWAY */}
               {selectedGateway === 'paypal' && (
                 <div className="space-y-4">
-                  <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-[11px] text-gray-400">
+                  <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-[11px] text-[var(--text-lo)]">
                     Aprovação simulada na carteira PayPal. Autentique-se na conta de testes:
                   </div>
 
-                  <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-3">
+                  <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-2xl space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-gray-500">PayPal Sandbox E-mail</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">PayPal Sandbox E-mail</label>
                       <input 
                         type="email" 
                         required
                         value={paypalEmail}
                         onChange={(e) => setPaypalEmail(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none font-mono"
+                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--text-hi)] focus:outline-none font-mono"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-gray-500">Senha</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Senha</label>
                       <input 
                         type="password" 
                         required
                         value={paypalPassword}
                         onChange={(e) => setPaypalPassword(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none font-mono"
+                        className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--text-hi)] focus:outline-none font-mono"
                       />
                     </div>
 
@@ -918,12 +918,12 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 <div className="space-y-4">
                   
                   {/* Mercado Pago method tabs */}
-                  <div className="flex bg-slate-950 border border-slate-800 rounded-xl p-1">
+                  <div className="flex bg-[var(--bg)] border border-[var(--line)] rounded-xl p-1">
                     <button
                       type="button"
                       onClick={() => setMpMethod('pix')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'pix' ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'
+                        mpMethod === 'pix' ? 'bg-[var(--color-brand)] text-white' : 'text-[var(--text-lo)] hover:text-white'
                       }`}
                     >
                       PIX Nacional
@@ -932,7 +932,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       type="button"
                       onClick={() => setMpMethod('card')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'card' ? 'bg-[var(--color-brand)] text-white' : 'text-gray-400 hover:text-white'
+                        mpMethod === 'card' ? 'bg-[var(--color-brand)] text-white' : 'text-[var(--text-lo)] hover:text-white'
                       }`}
                     >
                       Cartão de Crédito
@@ -940,23 +940,23 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   </div>
 
                   {mpMethod === 'pix' ? (
-                    <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-center space-y-4">
+                    <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] text-center space-y-4">
                       <div className="flex justify-center">
                         <div className="p-2.5 bg-white rounded-xl">
                           <QrCode size={120} className="text-slate-950" />
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs font-bold text-white">Chave PIX Simulada</p>
-                        <p className="text-[10px] text-gray-500">Escaneie ou copie a chave de testes abaixo.</p>
+                        <p className="text-xs font-bold text-[var(--text-hi)]">Chave PIX Simulada</p>
+                        <p className="text-[10px] text-[var(--text-dim)]">Escaneie ou copie a chave de testes abaixo.</p>
                       </div>
 
-                      <div className="flex items-center gap-2 bg-[var(--surface)] p-2 rounded-xl border border-slate-800">
+                      <div className="flex items-center gap-2 bg-[var(--surface)] p-2 rounded-xl border border-[var(--line)]">
                         <input 
                           type="text" 
                           readOnly 
                           value="00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98" 
-                          className="bg-transparent text-[9px] text-gray-400 select-all font-mono focus:outline-none flex-1 truncate"
+                          className="bg-transparent text-[9px] text-[var(--text-lo)] select-all font-mono focus:outline-none flex-1 truncate"
                         />
                         <button
                           type="button"
@@ -974,9 +974,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   ) : (
                     <div className="space-y-4">
                       <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-1.5">
-                        <p className="text-[10px] text-gray-400">Cartão de testes do Mercado Pago:</p>
-                        <div className="flex items-center justify-between bg-slate-950 p-2 rounded-lg text-[10px] font-mono border border-slate-800/60">
-                          <span className="text-white">5031 4000 1234 5678 | CVV: 123</span>
+                        <p className="text-[10px] text-[var(--text-lo)]">Cartão de testes do Mercado Pago:</p>
+                        <div className="flex items-center justify-between bg-[var(--bg)] p-2 rounded-lg text-[10px] font-mono border border-[var(--line)]/60">
+                          <span className="text-[var(--text-hi)]">5031 4000 1234 5678 | CVV: 123</span>
                           <button 
                             type="button"
                             onClick={() => {
@@ -992,50 +992,50 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                         </div>
                       </div>
 
-                      <div className="p-4 bg-slate-950 border border-slate-800 rounded-2xl space-y-3">
+                      <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-2xl space-y-3">
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-bold text-gray-500">Número do Cartão</label>
+                          <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Número do Cartão</label>
                           <input 
                             type="text" 
                             required
                             value={cardNumber}
                             onChange={(e) => setCardNumber(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono text-white focus:outline-none"
+                            className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text-hi)] focus:outline-none"
                           />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-gray-500">Validade</label>
+                            <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Validade</label>
                             <input 
                               type="text" 
                               required
                               value={cardExpiry}
                               onChange={(e) => setCardExpiry(e.target.value)}
-                              className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono text-white focus:outline-none"
+                              className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text-hi)] focus:outline-none"
                             />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-gray-500">CVC</label>
+                            <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">CVC</label>
                             <input 
                               type="password" 
                               required
                               value={cardCvc}
                               onChange={(e) => setCardCvc(e.target.value)}
                               placeholder="123" 
-                              className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-mono text-white focus:outline-none"
+                              className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs font-mono text-[var(--text-hi)] focus:outline-none"
                             />
                           </div>
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-bold text-gray-500">Nome no Cartão</label>
+                          <label className="text-[10px] uppercase font-bold text-[var(--text-dim)]">Nome no Cartão</label>
                           <input 
                             type="text" 
                             required
                             value={cardName}
                             onChange={(e) => setCardName(e.target.value.toUpperCase())}
-                            className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none uppercase"
+                            className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--text-hi)] focus:outline-none uppercase"
                           />
                         </div>
                       </div>
@@ -1046,22 +1046,22 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               )}
 
               {/* Order total card */}
-              <div className="bg-slate-900/40 p-3.5 rounded-xl border border-slate-800/60 space-y-1.5 text-xs text-gray-300">
+              <div className="bg-[var(--surface)]/40 p-3.5 rounded-xl border border-[var(--line)]/60 space-y-1.5 text-xs text-[var(--text)]">
                 <div className="flex justify-between font-bold">
                   <span>Subtotal do plano:</span>
                   <span>${selectedPlan === 'Standard' ? '14.00' : selectedPlan === 'Professional' ? '29.00' : '49.00'}</span>
                 </div>
-                <div className="flex justify-between text-gray-500">
+                <div className="flex justify-between text-[var(--text-dim)]">
                   <span>Desconto de teste:</span>
                   <span>$0.00</span>
                 </div>
-                <div className="flex justify-between font-extrabold text-blue-400 border-t border-slate-800/60 pt-1.5 mt-1.5 text-sm">
+                <div className="flex justify-between font-extrabold text-blue-400 border-t border-[var(--line)]/60 pt-1.5 mt-1.5 text-sm">
                   <span>Total Cobrado:</span>
                   <span>${selectedPlan === 'Standard' ? '14.00' : selectedPlan === 'Professional' ? '29.00' : '49.00'} / mês</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-[11px] text-gray-400 bg-blue-950/20 p-3 rounded-xl border border-blue-500/10">
+              <div className="flex items-center gap-2 text-[11px] text-[var(--text-lo)] bg-blue-950/20 p-3 rounded-xl border border-blue-500/10">
                 <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
                 <span>Simulação segura. Clique em confirmar para ativar o plano imediatamente no dashboard.</span>
               </div>
@@ -1070,7 +1070,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 <button 
                   type="button" 
                   onClick={() => setView('pricing')}
-                  className="py-3 bg-slate-950 border border-slate-800 hover:bg-slate-900 rounded-xl text-xs font-bold transition-all text-white text-center"
+                  className="py-3 bg-[var(--bg)] border border-[var(--line)] hover:bg-[var(--surface)] rounded-xl text-xs font-bold transition-all text-[var(--text-hi)] text-center"
                 >
                   Voltar
                 </button>
@@ -1097,13 +1097,13 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
       </main>
 
       {/* Auth Footer */}
-      <footer className="relative z-10 py-6 border-t border-slate-900/60 bg-slate-950/80 text-xs text-gray-500 text-center space-y-2">
+      <footer className="relative z-10 py-6 border-t border-[var(--line)]/60 bg-[var(--bg)]/80 text-xs text-[var(--text-dim)] text-center space-y-2">
         <p>© 2026 PwStreamer Online Studio. Todos os direitos reservados.</p>
-        <div className="flex justify-center gap-4 text-gray-400">
+        <div className="flex justify-center gap-4 text-[var(--text-lo)]">
           <button 
             type="button"
             onClick={() => { setLegalModalType('terms'); setLegalModalOpen(true); }}
-            className="hover:text-white transition-colors cursor-pointer"
+            className="hover:text-[var(--text-hi)] transition-colors cursor-pointer"
           >
             Termos de Uso
           </button>
@@ -1111,7 +1111,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
           <button 
             type="button"
             onClick={() => { setLegalModalType('privacy'); setLegalModalOpen(true); }}
-            className="hover:text-white transition-colors cursor-pointer"
+            className="hover:text-[var(--text-hi)] transition-colors cursor-pointer"
           >
             Política de Privacidade
           </button>

@@ -1,0 +1,716 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PwStream Navy Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   PRIMITIVAS — rampa azul-marinho gerada com LUMINÂNCIA CASADA.
+   Cada degrau fica a ±0,2 % de Y do neutro que substitui, então TODA a
+   aritmética de contraste do estudo de tally continua valendo. O viés é
+   um desvio de matiz em luz linear para ~222°, atenuado nas duas pontas.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --n-0:#000000;    /* Y   0,00 % — só letterbox de vídeo */
+  --n-3:#0A0B0C;    /* Y   0,33 % */
+  --n-6:#111315;    /* Y   0,64 % */
+  --n-10:#181B1F;   /* Y   1,08 % */
+  --n-14:#202429;   /* Y   1,73 % */
+  --n-18:#282D31;   /* Y   2,55 % */
+  --n-22:#30363B;   /* Y   3,58 % */
+  --n-28:#3C4349;   /* Y   5,46 % */
+  --n-36:#4E565E;   /* Y   9,08 % */
+  --n-46:#656E77;   /* Y  15,25 % */
+  --n-58:#838C96;   /* Y  25,78 % */
+  --n-70:#A2ACB7;   /* Y  40,61 % */
+  --n-80:#BEC7D1;   /* Y  56,40 % */
+  --n-89:#D9E1EA;   /* Y  74,54 % */
+  --n-92:#E3E9F0;   /* Y  80,90 % */
+  --n-96:#F0F5F9;   /* Y  90,67 % */
+  --n-99:#FAFCFF;   /* Y  97,16 % */
+  --n-100:#FFFFFF;  /* Y 100,00 % */
+
+  --sig-500:#D91F2D;  /* Y 15,92 % — tally. Único matiz do sistema. */
+  --sig-700:#A81622;  /* Y  9,01 % */
+  --sig-300:#F4666A;  /* Y 29,78 % */
+
+  /* ── ALIASES — TEMA ESCURO É O PRIMÁRIO (pedido: interface azul-marinho escura) */
+  --bg:var(--n-6);  --surface:var(--n-10);  --panel:var(--n-14);
+  --raise:var(--n-18);  --well:var(--n-3);  --stage:var(--n-0);
+
+  --text-hi:var(--n-96); --text:var(--n-89); --text-lo:var(--n-58); --text-dim:var(--n-46);
+  --line:var(--n-22); --line-ctl:var(--n-28); --line-soft:var(--n-14);
+
+  --sig-fill:var(--sig-500); --on-sig:var(--n-100);
+  --frame-idle:var(--n-14);   /* teto do repouso é Y 1,9737 % — ver prova */
+  --frame-pvw:var(--n-89);    /* Y 74,54 % — SEPARADO do tally: 3,802:1 */
+  --frame-mark:var(--n-92);   /* marca de NO AR, neutra, invariante a daltonismo */
+
+  --warn-bg:var(--n-58); --fault-bg:var(--n-92);
+  --action:var(--n-92); --on-action:var(--n-6);
+
+  /* ── RAIOS — mais arredondados em botões e selos, por pedido.
+       O palco fica em 0: moldura de vídeo não arredonda (convenção de broadcast
+       e o canto arredondado comeria imagem no vértice). */
+  --r-0:0;        /* palco, monitores */
+  --r-1:8px;      /* campos, células */
+  --r-2:12px;     /* painéis, cartões */
+  --r-3:14px;     /* BOTÕES — arredondado generoso */
+  --r-pill:999px; /* SELOS — pílula completa */
+  --r-dot:50%;
+
+  --s-1:4px; --s-2:6px; --s-3:8px; --s-4:12px; --s-5:16px;
+  --s-6:24px; --s-7:32px; --s-8:48px; --s-9:64px; --s-10:96px;
+
+  --f-disp:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+
+  --fs-11:11px; --fs-12:12px; --fs-13:13px; --fs-15:15px;
+  --fs-20:20px; --fs-28:28px; --fs-40:40px;
+  --lh-tight:1.14; --lh-ui:1.35; --lh-prose:1.62;
+  --tr-caps:.085em; --tr-tight:-.015em;
+
+  --e-1:0 2px 8px rgb(0 0 0 / .28), 0 8px 28px rgb(0 0 0 / .22);
+}
+
+/* ── TEMA CLARO — só os aliases mudam. As primitivas nunca. */
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:var(--n-96); --surface:var(--n-99); --panel:var(--n-92);
+    --raise:var(--n-100); --well:var(--n-89); --stage:var(--n-0);
+    --text-hi:var(--n-6); --text:var(--n-18); --text-lo:var(--n-36); --text-dim:var(--n-46);
+    --line:var(--n-80); --line-ctl:var(--n-70); --line-soft:var(--n-89);
+    --action:var(--n-14); --on-action:var(--n-99);
+    --warn-bg:var(--n-36); --fault-bg:var(--n-22);
+    --e-1:0 2px 8px rgb(16 24 40 / .07), 0 8px 28px rgb(16 24 40 / .06);
+  }
+}
+:root[data-theme="light"]{
+  --bg:var(--n-96); --surface:var(--n-99); --panel:var(--n-92);
+  --raise:var(--n-100); --well:var(--n-89); --stage:var(--n-0);
+  --text-hi:var(--n-6); --text:var(--n-18); --text-lo:var(--n-36); --text-dim:var(--n-46);
+  --line:var(--n-80); --line-ctl:var(--n-70); --line-soft:var(--n-89);
+  --action:var(--n-14); --on-action:var(--n-99);
+  --warn-bg:var(--n-36); --fault-bg:var(--n-22);
+  --e-1:0 2px 8px rgb(16 24 40 / .07), 0 8px 28px rgb(16 24 40 / .06);
+}
+
+/* ── ESCOPO CONSOLE — invariante por construção. O entorno do vídeo NUNCA
+     troca de tema: a luminância a que o operador se adapta não pode mudar
+     porque alguém apertou um botão de tema. */
+[data-surface="console"]{
+  --bg:var(--n-3); --surface:var(--n-6); --panel:var(--n-10);
+  --raise:var(--n-14); --well:var(--n-0); --stage:var(--n-0);
+  --text-hi:var(--n-96); --text:var(--n-89); --text-lo:var(--n-58); --text-dim:var(--n-46);
+  --line:var(--n-18); --line-ctl:var(--n-28); --line-soft:var(--n-10);
+  --frame-idle:var(--n-14); --action:var(--n-92); --on-action:var(--n-6);
+  --warn-bg:var(--n-58); --fault-bg:var(--n-92);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:400 var(--fs-15)/var(--lh-prose) var(--f-body);
+  -webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--action);outline-offset:2px;border-radius:var(--r-1)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+.wrap{max-width:1340px;margin:0 auto;padding:0 var(--s-6) var(--s-10)}
+
+/* ═══════════ CABEÇALHO ═══════════ */
+.site{display:flex;align-items:center;gap:var(--s-5);padding:var(--s-4) 0;
+  border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:var(--s-3);font:700 var(--fs-15)/1 var(--f-disp);
+  color:var(--text-hi);letter-spacing:var(--tr-tight)}
+.brand i{width:16px;height:16px;background:var(--sig-fill);border-radius:var(--r-1);display:block}
+.site nav{display:flex;gap:var(--s-2);margin-left:var(--s-5)}
+.site nav a{font-size:var(--fs-13);color:var(--text-lo);text-decoration:none;
+  padding:var(--s-2) var(--s-4);border-radius:var(--r-3)}
+.site nav a[aria-current]{color:var(--text-hi);background:var(--raise)}
+.site .sp{margin-left:auto}
+
+.btn{display:inline-flex;align-items:center;gap:var(--s-2);padding:9px var(--s-5);
+  border-radius:var(--r-3);font-size:var(--fs-13);font-weight:600;
+  background:var(--action);color:var(--on-action);border:1px solid transparent;
+  transition:filter 110ms linear}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{filter:brightness(.94)}
+.btn--ghost{background:transparent;color:var(--text);border-color:var(--line-ctl)}
+.btn--ghost:hover{background:var(--raise);filter:none}
+
+/* selos — pílula completa */
+.badge{display:inline-flex;align-items:center;gap:var(--s-2);padding:3px 10px;
+  border-radius:var(--r-pill);font:600 var(--fs-11)/1.5 var(--f-body);
+  text-transform:uppercase;letter-spacing:var(--tr-caps);
+  background:var(--raise);color:var(--text-lo);border:1px solid var(--line-ctl)}
+.badge i{width:6px;height:6px;border-radius:var(--r-dot);background:currentColor;display:block}
+.badge--live{background:var(--sig-fill);color:var(--on-sig);border-color:transparent}
+.badge--ok{color:var(--text-hi)}
+
+/* ═══════════ SEÇÕES ═══════════ */
+.sec{padding-top:var(--s-9)}
+.sec__hd{display:flex;align-items:baseline;gap:var(--s-4);border-bottom:2px solid var(--text-hi);
+  padding-bottom:var(--s-3);margin-bottom:var(--s-5);flex-wrap:wrap}
+.sec__n{font:500 var(--fs-12)/1 var(--f-num);color:var(--text-dim);letter-spacing:.1em}
+.sec__hd h2{font:700 var(--fs-28)/var(--lh-tight) var(--f-disp);letter-spacing:var(--tr-tight);
+  color:var(--text-hi)}
+.sec__note{margin-left:auto;font:500 var(--fs-11)/1 var(--f-num);color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:var(--tr-caps)}
+.lede{max-width:72ch;color:var(--text-lo);font-size:var(--fs-15);margin-bottom:var(--s-5)}
+
+/* ═══════════ BARRA DE ENSAIO (filtros COMPONÍVEIS) ═══════════ */
+.rig{display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap;padding:var(--s-4);
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2);
+  margin-bottom:var(--s-4)}
+.rig__k{font:500 var(--fs-11)/1 var(--f-num);color:var(--text-dim);text-transform:uppercase;
+  letter-spacing:var(--tr-caps);margin-right:var(--s-2)}
+.tog{display:inline-flex;align-items:center;gap:var(--s-2);padding:6px 12px;border-radius:var(--r-pill);
+  border:1px solid var(--line-ctl);font-size:var(--fs-12);color:var(--text-lo);
+  background:var(--raise);user-select:none;transition:background 110ms linear}
+.tog input{appearance:none;width:11px;height:11px;border-radius:var(--r-dot);
+  border:1px solid var(--text-dim);margin:0;flex:0 0 auto}
+.tog input:checked{background:var(--text-hi);border-color:var(--text-hi)}
+.tog:has(input:checked){color:var(--text-hi);border-color:var(--text-hi)}
+.rig__note{font-size:var(--fs-12);color:var(--text-dim);margin-left:auto}
+
+/* ═══════════ CONSOLE ═══════════ */
+.con{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-2);
+  overflow:visible;box-shadow:var(--e-1)}
+.con__bar{display:flex;align-items:center;gap:var(--s-3);padding:0 var(--s-4);height:46px;
+  background:var(--surface);border-bottom:1px solid var(--line);
+  border-radius:var(--r-2) var(--r-2) 0 0}
+.con__ttl{font:600 var(--fs-13)/1 var(--f-body);color:var(--text-hi)}
+.clock{margin-left:auto;font:500 var(--fs-15)/1 var(--f-num);color:var(--text-hi);
+  font-variant-numeric:tabular-nums}
+
+/* grade de 3 colunas REDIMENSIONÁVEL — a modularidade do app original */
+.con__body{display:grid;grid-template-columns:var(--colL,212px) 6px minmax(0,1fr) 6px var(--colR,296px);
+  align-items:stretch;min-height:520px}
+@media (max-width:1100px){
+  .con__body{grid-template-columns:minmax(0,1fr)}
+  .grip{display:none}
+  .rail--l{border-right:none;border-bottom:1px solid var(--line)}
+  .rail--r{border-left:none;border-top:1px solid var(--line)}
+}
+.grip{background:var(--line-soft);cursor:col-resize;position:relative;border:none;padding:0}
+.grip::after{content:"";position:absolute;inset:0;background:var(--line-ctl);
+  width:2px;left:2px;border-radius:var(--r-pill);opacity:0;transition:opacity 110ms linear}
+.grip:hover::after,.grip:focus-visible::after{opacity:1}
+
+.rail{display:flex;flex-direction:column;min-width:0;background:var(--surface)}
+.rail--l{border-right:1px solid var(--line)}
+.rail--r{border-left:1px solid var(--line)}
+.rail__hd{font:500 var(--fs-11)/1 var(--f-num);color:var(--text-dim);text-transform:uppercase;
+  letter-spacing:var(--tr-caps);padding:var(--s-4) var(--s-4) var(--s-3)}
+
+/* abas — a estrutura de 10 abas do LeftSidebar original */
+.tabs{display:flex;gap:2px;padding:var(--s-2);background:var(--panel);
+  border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:thin}
+.tab{padding:7px 12px;border-radius:var(--r-3);font-size:var(--fs-12);font-weight:500;
+  color:var(--text-lo);white-space:nowrap;transition:background 110ms linear}
+.tab:hover{background:var(--raise)}
+.tab[aria-selected="true"]{background:var(--raise);color:var(--text-hi)}
+.pane{display:none;flex:1;min-height:0;overflow-y:auto;padding:var(--s-3)}
+.pane[data-on]{display:block}
+
+/* cenas */
+.scene{display:flex;align-items:center;gap:var(--s-3);width:100%;padding:7px var(--s-3);
+  border-radius:var(--r-1);text-align:left;transition:background 110ms linear}
+.scene:hover{background:var(--raise)}
+.scene[aria-current="true"]{background:var(--raise)}
+.scene__i{width:34px;height:20px;background:var(--well);border:1px solid var(--line-ctl);
+  border-radius:2px;flex:0 0 auto}
+.scene[aria-current="true"] .scene__i{border-color:var(--text-lo)}
+.scene__n{font-size:var(--fs-12);color:var(--text);overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;min-width:0}
+.scene[aria-current="true"] .scene__n{color:var(--text-hi);font-weight:500}
+
+/* monitores */
+.stagecol{display:flex;flex-direction:column;gap:var(--s-4);padding:var(--s-5);min-width:0;
+  background:var(--bg)}
+.mons{display:grid;grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);gap:var(--s-5);align-items:start}
+@media (max-width:720px){.mons{grid-template-columns:minmax(0,1fr)}}
+.mon{min-width:0}
+.mon__hd{display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-3)}
+.mon__tag{font:600 var(--fs-11)/1.5 var(--f-body);text-transform:uppercase;
+  letter-spacing:var(--tr-caps);padding:3px 10px;border-radius:var(--r-pill);
+  background:var(--raise);color:var(--text-lo);border:1px solid var(--line-ctl)}
+.con[data-air="on"] .mon--pgm .mon__tag{background:var(--sig-fill);color:var(--on-sig);
+  border-color:transparent}
+.mon__spec{margin-left:auto;font:400 var(--fs-11)/1 var(--f-num);color:var(--text-dim);
+  font-variant-numeric:tabular-nums}
+
+/* ── A MOLDURA. Anel de 2px POR FORA da imagem — enquadra, não sinaliza. */
+.frame{position:relative;padding:2px;background:var(--frame-idle);border-radius:var(--r-0)}
+.frame--pgm{background:var(--frame-idle)}
+.frame--pvw{background:var(--frame-pvw)}
+.con[data-air="on"] .frame--pgm{background:var(--sig-fill)}
+
+/* ── A MARCA DE NO AR. Por fora, 6px afastada, NUNCA toca a imagem.
+     Aqui mora todo o orçamento periférico: 4px de neutro = 6,774:1 borrado,
+     contra 2,120:1 de um anel carmim da mesma espessura. Custo de imagem: zero. */
+.frame::after{content:none}
+.con[data-air="on"] .frame--pgm::after{
+  content:"";position:absolute;inset:-10px;pointer-events:none;
+  --m:var(--frame-mark);--aw:13%;--ah:22%;--t:4px;
+  background:
+    linear-gradient(var(--m),var(--m)) 0 0 /var(--aw) var(--t) no-repeat,
+    linear-gradient(var(--m),var(--m)) 0 0 /var(--t) var(--ah) no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 0 /var(--aw) var(--t) no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 0 /var(--t) var(--ah) no-repeat,
+    linear-gradient(var(--m),var(--m)) 0 100% /var(--aw) var(--t) no-repeat,
+    linear-gradient(var(--m),var(--m)) 0 100% /var(--t) var(--ah) no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 100% /var(--aw) var(--t) no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 100% /var(--t) var(--ah) no-repeat}
+
+.stage{position:relative;aspect-ratio:16/9;background:var(--stage);overflow:hidden;
+  border-radius:var(--r-0)}
+
+/* sinal de teste — barras SMPTE 75 % */
+.bars{position:absolute;inset:0;display:grid;grid-template-rows:70% 8% 22%}
+.bars__m{background:linear-gradient(90deg,
+  #BFBFBF 0 14.2857%,#BFBF00 14.2857% 28.5714%,#00BFBF 28.5714% 42.8571%,
+  #00BF00 42.8571% 57.1428%,#BF00BF 57.1428% 71.4285%,#BF0000 71.4285% 85.7142%,
+  #0000BF 85.7142% 100%)}
+.bars__c{background:linear-gradient(90deg,
+  #0000BF 0 14.2857%,#131313 14.2857% 28.5714%,#BF00BF 28.5714% 42.8571%,
+  #131313 42.8571% 57.1428%,#00BFBF 57.1428% 71.4285%,#131313 71.4285% 85.7142%,
+  #BFBFBF 85.7142% 100%)}
+.bars__p{background:linear-gradient(90deg,#0A0A0A 0 33%,#000 33% 41%,#1A1A1A 41% 50%,#131313 50% 100%)}
+/* rampa de dez degraus — PVW */
+.ramp{position:absolute;inset:0;background:linear-gradient(90deg,
+  #000 0 10%,#1C1C1C 10% 20%,#333 20% 30%,#4C4C4C 30% 40%,#666 40% 50%,
+  #7F7F7F 50% 60%,#999 60% 70%,#B2B2B2 70% 80%,#CCC 80% 90%,#E5E5E5 90% 100%)}
+/* gerador de caracteres */
+.gc{position:absolute;left:5%;bottom:9%;display:flex;align-items:stretch}
+.gc__bar{width:4px;background:var(--n-92)}
+.gc__tx{background:rgb(10 11 12 / .82);padding:5px 10px}
+.gc__n{font:600 var(--fs-12)/1.2 var(--f-body);color:#F0F5F9}
+.gc__r{font:400 var(--fs-11)/1.3 var(--f-body);color:#A2ACB7}
+
+/* telemetria */
+.reads{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:var(--s-3)}
+.read{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-1);
+  padding:var(--s-3) var(--s-4);min-width:96px}
+.read__k{font:500 var(--fs-11)/1 var(--f-num);color:var(--text-lo);text-transform:uppercase;
+  letter-spacing:var(--tr-caps);margin-bottom:5px}
+.read__v{font:500 var(--fs-15)/1.1 var(--f-num);color:var(--text-hi);
+  font-variant-numeric:tabular-nums;min-height:17px}
+
+/* bandeja de controles */
+.tray{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-4);background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-2);flex-wrap:wrap}
+.ctl{display:inline-flex;align-items:center;gap:var(--s-2);height:40px;padding:0 var(--s-4);
+  border-radius:var(--r-3);background:var(--raise);border:1px solid var(--line-ctl);
+  font-size:var(--fs-12);color:var(--text);transition:background 110ms linear}
+.ctl:hover{background:var(--panel)}
+.ctl:active{filter:brightness(.93)}
+.ctl[aria-pressed="true"]{background:var(--text-hi);color:var(--bg);border-color:transparent}
+.ctl__g{width:15px;height:15px;border:1.5px solid currentColor;border-radius:4px;flex:0 0 auto}
+.ctl[aria-pressed="true"] .ctl__g{background:currentColor}
+.end{margin-left:auto;height:44px;padding:0 var(--s-6);border-radius:var(--r-3);
+  background:var(--sig-fill);color:var(--on-sig);font-weight:600;font-size:var(--fs-13);
+  border:1px solid transparent}
+.con[data-air="off"] .end{background:var(--action);color:var(--on-action)}
+.end:active{filter:brightness(.92)}
+
+/* destinos */
+.dest{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3);border-radius:var(--r-1);
+  border:1px solid var(--line);background:var(--panel);margin-bottom:var(--s-2)}
+.dest__n{font-size:var(--fs-12);color:var(--text);min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.dest__s{margin-left:auto;flex:0 0 auto;text-align:right}
+.dest__b{font:400 var(--fs-11)/1.4 var(--f-num);color:var(--text-dim);
+  font-variant-numeric:tabular-nums;display:block;margin-top:3px}
+
+/* chat */
+.msg{padding:var(--s-3) 0;border-bottom:1px solid var(--line-soft)}
+.msg__t{display:flex;align-items:baseline;gap:var(--s-2);margin-bottom:3px}
+.msg__who{font:600 var(--fs-12)/1.3 var(--f-body);color:var(--text-hi);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.msg__src{font:500 var(--fs-11)/1 var(--f-num);color:var(--text-dim);
+  border:1px solid var(--line-ctl);border-radius:var(--r-pill);padding:1px 6px;flex:0 0 auto}
+.msg__at{margin-left:auto;font:400 var(--fs-11)/1 var(--f-num);color:var(--text-dim);
+  font-variant-numeric:tabular-nums;flex:0 0 auto}
+.msg__b{font-size:var(--fs-12);color:var(--text);line-height:var(--lh-ui)}
+
+/* VU */
+.vu{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3) 0}
+.vu__k{font:500 var(--fs-11)/1 var(--f-num);color:var(--text-lo);flex:0 0 auto;width:38px}
+.vu__t{flex:1;height:8px;background:var(--well);border-radius:var(--r-pill);overflow:hidden}
+.vu__f{height:100%;border-radius:var(--r-pill);
+  background:linear-gradient(90deg,var(--text-lo) 0 68%,var(--n-80) 68% 88%,var(--fault-bg) 88% 100%);
+  background-size:calc(100% * var(--pk,.72) * 1.39) 100%;background-repeat:no-repeat;
+  width:calc(100% * var(--pk,.72))}
+
+/* ═══════════ PROVA ═══════════ */
+.grid2{display:grid;gap:var(--s-5);grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2);
+  padding:var(--s-5)}
+.card h3{font:600 var(--fs-15)/1.3 var(--f-body);color:var(--text-hi);margin-bottom:var(--s-3)}
+.card p{font-size:var(--fs-13);color:var(--text-lo);line-height:var(--lh-prose)}
+.card p+p{margin-top:var(--s-3)}
+.card b{color:var(--text-hi);font-weight:600}
+.scroller{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-2);
+  background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th{text-align:left;font:600 var(--fs-11)/1 var(--f-num);color:var(--text-lo);
+  text-transform:uppercase;letter-spacing:var(--tr-caps);padding:var(--s-3) var(--s-4);
+  border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:var(--s-3) var(--s-4);border-bottom:1px solid var(--line-soft);font-size:var(--fs-12);
+  color:var(--text);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+td.hi{color:var(--text-hi);font-weight:600}
+.sw{display:flex;flex-wrap:wrap;gap:2px;margin-top:var(--s-4)}
+.sw i{width:52px;height:44px;display:block;border-radius:var(--r-1)}
+.sw span{display:block;font:400 10px/1 var(--f-num);color:var(--text-dim);
+  margin-top:5px;text-align:center}
+
+footer{margin-top:var(--s-9);padding-top:var(--s-4);border-top:1px solid var(--line);
+  font:400 var(--fs-11)/1.6 var(--f-num);color:var(--text-dim);
+  display:flex;gap:var(--s-4);flex-wrap:wrap}
+
+/* filtros de ensaio — COMPONÍVEIS, não exclusivos */
+[data-grey="1"] .rigged{filter:grayscale(1)}
+[data-blur="1"] .rigged{filter:blur(4px)}
+[data-grey="1"][data-blur="1"] .rigged{filter:grayscale(1) blur(4px)}
+[data-cvd="p"] .rigged{filter:url(#protan)}
+[data-cvd="p"][data-grey="1"] .rigged{filter:url(#protan) grayscale(1)}
+[data-cvd="p"][data-blur="1"] .rigged{filter:url(#protan) blur(4px)}
+[data-cvd="p"][data-grey="1"][data-blur="1"] .rigged{filter:url(#protan) grayscale(1) blur(4px)}
+[data-cvd="d"] .rigged{filter:url(#deutan)}
+[data-cvd="d"][data-grey="1"] .rigged{filter:url(#deutan) grayscale(1)}
+[data-cvd="d"][data-blur="1"] .rigged{filter:url(#deutan) blur(4px)}
+[data-cvd="d"][data-grey="1"][data-blur="1"] .rigged{filter:url(#deutan) grayscale(1) blur(4px)}
+</style>
+
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <filter id="protan" color-interpolation-filters="linearRGB">
+    <feColorMatrix type="matrix" values="0.152286 1.052583 -0.204868 0 0
+                                         0.114503 0.786281  0.099216 0 0
+                                        -0.003882 -0.048116 1.051998 0 0
+                                         0 0 0 1 0"/>
+  </filter>
+  <filter id="deutan" color-interpolation-filters="linearRGB">
+    <feColorMatrix type="matrix" values="0.367322 0.860646 -0.227968 0 0
+                                         0.280085 0.672501  0.047413 0 0
+                                        -0.011820 0.042940  0.968881 0 0
+                                         0 0 0 1 0"/>
+  </filter>
+</svg>
+
+<div class="wrap">
+
+  <header class="site">
+    <span class="brand"><i></i>PwStream</span>
+    <nav>
+      <a href="#" aria-current="page">Estúdio</a>
+      <a href="#">Transmissões</a>
+      <a href="#">Faturamento</a>
+    </nav>
+    <span class="sp"></span>
+    <button class="btn btn--ghost" id="theme" type="button">Tema claro</button>
+  </header>
+
+  <section class="sec">
+    <div class="sec__hd">
+      <span class="sec__n">01</span>
+      <h2>Console em azul-marinho</h2>
+      <span class="sec__note">Redimensionável · abas ativas</span>
+    </div>
+    <p class="lede">
+      As colunas arrastam pelas alças verticais; as abas do painel direito trocam; as cenas
+      trocam o conteúdo do monitor de programa. A grade de três colunas, a pilha de abas e a
+      bandeja de controles são as do app original — nada foi simplificado para a maquete.
+      O console mantém sua própria luminância: apertar <b>Tema claro</b> muda a página inteira
+      e deixa o console como está, de propósito.
+    </p>
+
+    <div class="rig">
+      <span class="rig__k">Ensaio</span>
+      <label class="tog"><input type="checkbox" id="f-grey"> Escala de cinza</label>
+      <label class="tog"><input type="checkbox" id="f-blur"> Periférico · blur 4px</label>
+      <label class="tog"><input type="checkbox" id="f-pro"> Protanopia</label>
+      <label class="tog"><input type="checkbox" id="f-deu"> Deuteranopia</label>
+      <span class="rig__note">Componíveis — a conjunção é o cenário de acidente</span>
+    </div>
+
+    <div class="con rigged" data-surface="console" data-air="on" id="con">
+      <div class="con__bar">
+        <span class="con__ttl">Webinar de Produto · Q3</span>
+        <span class="badge badge--live" id="airchip"><i></i>No ar</span>
+        <span class="clock" id="clock">01:47:22</span>
+      </div>
+
+      <div class="con__body" id="body">
+        <div class="rail rail--l">
+          <div class="rail__hd">Cenas</div>
+          <div class="pane" data-on style="padding-top:0">
+            <button class="scene" aria-current="true" type="button"><span class="scene__i"></span><span class="scene__n">Abertura</span></button>
+            <button class="scene" type="button"><span class="scene__i"></span><span class="scene__n">Entrevista</span></button>
+            <button class="scene" type="button"><span class="scene__i"></span><span class="scene__n">Tela + Câmera</span></button>
+            <button class="scene" type="button"><span class="scene__i"></span><span class="scene__n">Encerramento</span></button>
+          </div>
+        </div>
+
+        <button class="grip" id="gripL" type="button" aria-label="Redimensionar coluna de cenas"></button>
+
+        <div class="stagecol">
+          <div class="mons">
+            <div class="mon mon--pgm">
+              <div class="mon__hd">
+                <span class="mon__tag">PGM</span>
+                <span class="mon__spec">1920×1080 · 59,94p</span>
+              </div>
+              <div class="frame frame--pgm">
+                <div class="stage">
+                  <div class="bars"><div class="bars__m"></div><div class="bars__c"></div><div class="bars__p"></div></div>
+                  <div class="gc"><span class="gc__bar"></span><span class="gc__tx">
+                    <span class="gc__n" id="gcn">Roberto Santos</span>
+                    <span class="gc__r">Diretor de Produto · PwStream</span>
+                  </span></div>
+                </div>
+              </div>
+            </div>
+            <div class="mon mon--pvw">
+              <div class="mon__hd">
+                <span class="mon__tag">PVW</span>
+                <span class="mon__spec">1280×720</span>
+              </div>
+              <div class="frame frame--pvw"><div class="stage"><div class="ramp"></div></div></div>
+            </div>
+          </div>
+
+          <div class="reads">
+            <div class="read"><div class="read__k">Taxa</div><div class="read__v">60 fps</div></div>
+            <div class="read"><div class="read__k">Bitrate</div><div class="read__v">6,2 Mbps</div></div>
+            <div class="read"><div class="read__k">RTT</div><div class="read__v">18 ms</div></div>
+            <div class="read"><div class="read__k">Perda</div><div class="read__v">0,02 %</div></div>
+          </div>
+
+          <div class="tray">
+            <button class="ctl" type="button" aria-pressed="true"><span class="ctl__g"></span>Microfone</button>
+            <button class="ctl" type="button" aria-pressed="true"><span class="ctl__g"></span>Câmera</button>
+            <button class="ctl" type="button" aria-pressed="false"><span class="ctl__g"></span>Tela</button>
+            <button class="ctl" type="button" aria-pressed="false"><span class="ctl__g"></span>Cenas</button>
+            <button class="end" id="end" type="button">Encerrar transmissão</button>
+          </div>
+        </div>
+
+        <button class="grip" id="gripR" type="button" aria-label="Redimensionar painel lateral"></button>
+
+        <div class="rail rail--r">
+          <div class="tabs" role="tablist">
+            <button class="tab" role="tab" aria-selected="true" data-p="chat" type="button">Chat</button>
+            <button class="tab" role="tab" aria-selected="false" data-p="dest" type="button">Destinos</button>
+            <button class="tab" role="tab" aria-selected="false" data-p="aud" type="button">Áudio</button>
+            <button class="tab" role="tab" aria-selected="false" data-p="conv" type="button">Convidados</button>
+          </div>
+
+          <div class="pane" data-p="chat" data-on>
+            <div class="msg"><div class="msg__t"><span class="msg__who">Fernanda Lima</span><span class="msg__src">YT</span><span class="msg__at">01:46</span></div><div class="msg__b">O SRT já está disponível no plano Business?</div></div>
+            <div class="msg"><div class="msg__t"><span class="msg__who">Ana Beatriz</span><span class="msg__src">TW</span><span class="msg__at">01:46</span></div><div class="msg__b">Áudio perfeito aqui em São Paulo.</div></div>
+            <div class="msg"><div class="msg__t"><span class="msg__who">Lucas Andrade</span><span class="msg__src">FB</span><span class="msg__at">01:47</span></div><div class="msg__b">Dá pra transmitir pro LinkedIn junto?</div></div>
+          </div>
+
+          <div class="pane" data-p="dest">
+            <div class="dest"><span class="dest__n">YouTube</span><span class="dest__s"><span class="badge badge--ok"><i></i>No ar</span><span class="dest__b">6,2 Mbps</span></span></div>
+            <div class="dest"><span class="dest__n">Facebook</span><span class="dest__s"><span class="badge badge--ok"><i></i>No ar</span><span class="dest__b">6,2 Mbps</span></span></div>
+            <div class="dest"><span class="dest__n">Twitch</span><span class="dest__s"><span class="badge">reconectando 3/8</span><span class="dest__b">— Mbps</span></span></div>
+          </div>
+
+          <div class="pane" data-p="aud">
+            <div class="vu"><span class="vu__k">Mic</span><span class="vu__t"><span class="vu__f" style="--pk:.74"></span></span></div>
+            <div class="vu"><span class="vu__k">Conv.</span><span class="vu__t"><span class="vu__f" style="--pk:.52"></span></span></div>
+            <div class="vu"><span class="vu__k">Trilha</span><span class="vu__t"><span class="vu__f" style="--pk:.21"></span></span></div>
+            <div class="vu"><span class="vu__k">Tela</span><span class="vu__t"><span class="vu__f" style="--pk:.08"></span></span></div>
+          </div>
+
+          <div class="pane" data-p="conv">
+            <div class="dest"><span class="dest__n">Roberto Santos</span><span class="dest__s"><span class="badge badge--ok"><i></i>No ar</span></span></div>
+            <div class="dest"><span class="dest__n">Marina Costa</span><span class="dest__s"><span class="badge">na sala</span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec__hd">
+      <span class="sec__n">02</span>
+      <h2>Por que o anel não engrossa</h2>
+      <span class="sec__note">σ = 4px · erf(w / 2σ√2)</span>
+    </div>
+    <p class="lede">
+      A pergunta era espessura de traço. A aritmética responde outra coisa: o problema nunca foi
+      a espessura, foi a <b>luminância</b> do carmim. Um traço retém
+      erf(w / 2σ√2) da sua amplitude sob desfoque — e a carmim, a Y 15,92 %, precisaria de
+      <b>8,02 px</b> nos quatro lados para chegar a 3:1 contra o fundo do console. Isso come imagem.
+      Um neutro claro a Y 80,90 % chega a 3:1 com <b>1,34 px</b>.
+    </p>
+
+    <div class="scroller" style="margin-bottom:var(--s-5)">
+      <table>
+        <thead><tr><th scope="col">Largura</th><th scope="col">Anel carmim · Y 15,92 %</th><th scope="col">Marca neutra · Y 80,90 %</th><th scope="col">Custo de imagem</th></tr></thead>
+        <tbody>
+          <tr><td>2 px</td><td>1,577:1</td><td>3,977:1</td><td>—</td></tr>
+          <tr><td class="hi">4 px</td><td>2,120:1</td><td class="hi">6,774:1</td><td class="hi">zero — fica por fora</td></tr>
+          <tr><td>6 px</td><td>2,599:1</td><td>9,244:1</td><td>≈ 2,5 % se no anel</td></tr>
+          <tr><td>8 px</td><td>2,997:1</td><td>11,294:1</td><td>≈ 3,4 % se no anel</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>A decisão</h3>
+        <p>O anel de 2 px <b>enquadra</b>; a marca externa de 4 px <b>sinaliza</b>. Separar as duas
+        funções resolve os dois problemas de uma vez: o anel não precisa engrossar, então nenhum
+        pixel de imagem se perde, e a marca fica em <b>6,774:1</b> borrada — melhor do que os
+        2,997:1 que um anel carmim de 8 px alcançaria comendo 3,4 % do quadro.</p>
+        <p>A marca é neutra, e é por isso que funciona: um neutro é idêntico bit a bit sob
+        protanopia, deuteranopia e escala de cinza. A carmim cai a Y 9,25 % sob protanopia — é o
+        par que o valor <b>provadamente</b> não alcança, com teto de 2,851:1 mesmo com repouso em
+        preto absoluto.</p>
+      </div>
+      <div class="card">
+        <h3>O que o marinho custou</h3>
+        <p><b>Nada mensurável.</b> A rampa foi gerada com luminância casada: cada degrau fica a
+        ±0,2 % de Y do neutro que substitui. Todas as razões de contraste do estudo anterior
+        continuam válidas — 3,802:1 no par PGM×PVW, 3,093:1 em PGM×repouso, 11,759:1 em
+        PVW×repouso.</p>
+        <p>O viés é um desvio de matiz em luz linear para ≈222°, atenuado nas duas pontas da rampa
+        para não sujar nem o preto do palco nem o branco do texto. O entorno imediato do monitor
+        continua sendo o degrau mais escuro e mais dessaturado do sistema.</p>
+      </div>
+    </div>
+
+    <div class="sw" style="margin-top:var(--s-5)" aria-hidden="true">
+      <span><i style="background:var(--n-3)"></i><span>n-3</span></span>
+      <span><i style="background:var(--n-6)"></i><span>n-6</span></span>
+      <span><i style="background:var(--n-10)"></i><span>n-10</span></span>
+      <span><i style="background:var(--n-14)"></i><span>n-14</span></span>
+      <span><i style="background:var(--n-18)"></i><span>n-18</span></span>
+      <span><i style="background:var(--n-22)"></i><span>n-22</span></span>
+      <span><i style="background:var(--n-28)"></i><span>n-28</span></span>
+      <span><i style="background:var(--n-36)"></i><span>n-36</span></span>
+      <span><i style="background:var(--n-46)"></i><span>n-46</span></span>
+      <span><i style="background:var(--n-58)"></i><span>n-58</span></span>
+      <span><i style="background:var(--n-70)"></i><span>n-70</span></span>
+      <span><i style="background:var(--n-80)"></i><span>n-80</span></span>
+      <span><i style="background:var(--n-89)"></i><span>n-89</span></span>
+      <span><i style="background:var(--n-92)"></i><span>n-92</span></span>
+      <span><i style="background:var(--sig-500)"></i><span>tally</span></span>
+    </div>
+  </section>
+
+  <footer>
+    <span>Rampa marinho · luminância casada ±0,2 % Y</span><span>·</span>
+    <span>Botões r-3 14px · selos pílula</span><span>·</span>
+    <span>Zero animação infinita</span>
+    <span style="margin-left:auto">Maquete de decisão — não é código de produção</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, con=document.getElementById('con');
+
+  document.getElementById('theme').addEventListener('click',function(){
+    var light=root.getAttribute('data-theme')==='light';
+    root.setAttribute('data-theme',light?'dark':'light');
+    this.textContent=light?'Tema claro':'Tema escuro';
+  });
+
+  function rig(){
+    root.setAttribute('data-grey',document.getElementById('f-grey').checked?'1':'0');
+    root.setAttribute('data-blur',document.getElementById('f-blur').checked?'1':'0');
+    var p=document.getElementById('f-pro'),d=document.getElementById('f-deu');
+    root.setAttribute('data-cvd',p.checked?'p':(d.checked?'d':'n'));
+  }
+  ['f-grey','f-blur','f-pro','f-deu'].forEach(function(id){
+    document.getElementById(id).addEventListener('change',function(){
+      if(id==='f-pro'&&this.checked) document.getElementById('f-deu').checked=false;
+      if(id==='f-deu'&&this.checked) document.getElementById('f-pro').checked=false;
+      rig();
+    });
+  });
+  rig();
+
+  // abas
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click',function(){
+      document.querySelectorAll('.tab').forEach(function(x){x.setAttribute('aria-selected','false')});
+      t.setAttribute('aria-selected','true');
+      document.querySelectorAll('.pane[data-p]').forEach(function(p){
+        if(p.getAttribute('data-p')===t.dataset.p) p.setAttribute('data-on','');
+        else p.removeAttribute('data-on');
+      });
+    });
+  });
+
+  // cenas trocam o PGM
+  var NAMES={'Abertura':'Roberto Santos','Entrevista':'Marina Costa',
+             'Tela + Câmera':'Compartilhando tela','Encerramento':'Obrigado por assistir'};
+  document.querySelectorAll('.scene').forEach(function(s){
+    s.addEventListener('click',function(){
+      document.querySelectorAll('.scene').forEach(function(x){x.setAttribute('aria-current','false')});
+      s.setAttribute('aria-current','true');
+      document.getElementById('gcn').textContent=NAMES[s.querySelector('.scene__n').textContent]||'';
+    });
+  });
+
+  // controles
+  document.querySelectorAll('.ctl').forEach(function(c){
+    c.addEventListener('click',function(){
+      c.setAttribute('aria-pressed',c.getAttribute('aria-pressed')==='true'?'false':'true');
+    });
+  });
+
+  // no ar / fora do ar
+  document.getElementById('end').addEventListener('click',function(){
+    var on=con.getAttribute('data-air')==='on';
+    con.setAttribute('data-air',on?'off':'on');
+    this.textContent=on?'Entrar no ar':'Encerrar transmissão';
+    var chip=document.getElementById('airchip');
+    chip.className=on?'badge':'badge badge--live';
+    chip.innerHTML='<i></i>'+(on?'Fora do ar':'No ar');
+    document.getElementById('clock').textContent=on?'00:00:00':'01:47:22';
+  });
+
+  // alças de redimensionamento
+  function drag(grip,varName,min,max,invert){
+    var body=document.getElementById('body');
+    function start(e){
+      e.preventDefault();
+      var x0=(e.touches?e.touches[0]:e).clientX;
+      var w0=parseInt(getComputedStyle(body).getPropertyValue(varName))||0;
+      function move(ev){
+        var x=(ev.touches?ev.touches[0]:ev).clientX;
+        var d=(x-x0)*(invert?-1:1);
+        body.style.setProperty(varName,Math.max(min,Math.min(max,w0+d))+'px');
+      }
+      function up(){
+        document.removeEventListener('mousemove',move);document.removeEventListener('mouseup',up);
+        document.removeEventListener('touchmove',move);document.removeEventListener('touchend',up);
+      }
+      document.addEventListener('mousemove',move);document.addEventListener('mouseup',up);
+      document.addEventListener('touchmove',move,{passive:false});document.addEventListener('touchend',up);
+    }
+    grip.addEventListener('mousedown',start);
+    grip.addEventListener('touchstart',start,{passive:false});
+    grip.addEventListener('keydown',function(e){
+      var step=e.shiftKey?32:16, cur=parseInt(getComputedStyle(body).getPropertyValue(varName))||0;
+      if(e.key==='ArrowLeft'){e.preventDefault();body.style.setProperty(varName,Math.max(min,cur-(invert?-step:step))+'px')}
+      if(e.key==='ArrowRight'){e.preventDefault();body.style.setProperty(varName,Math.min(max,cur+(invert?-step:step))+'px')}
+    });
+  }
+  var b=document.getElementById('body');
+  b.style.setProperty('--colL','212px'); b.style.setProperty('--colR','296px');
+  drag(document.getElementById('gripL'),'--colL',150,340,false);
+  drag(document.getElementById('gripR'),'--colR',220,460,true);
+})();
+</script>

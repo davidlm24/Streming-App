@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PwStream — A interface desaparece</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   PwStream — DIREÇÃO DEFINITIVA · "A interface desaparece"
+   Síntese: base d1-recede + enxertos medidos de d2 (sinal de teste),
+   d3 (escopo [data-surface], medidor acromático, selo de origem no chat) e
+   d4 (gerador de caracteres, linha de reconexão honesta).
+
+   REGRAS DO ARQUIVO
+   1. Nenhum hexadecimal fora dos três blocos de token abaixo.
+   2. Um único vocabulário semântico. O console não é um segundo namespace:
+      é o mesmo vocabulário reatribuído por [data-surface="console"].
+   3. Toda tinta é hexadecimal opaco pré-calculado — nunca color-mix nem rgba
+      sobre fundo variável — para que cada par fg/bg seja verificável por script.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────── BLOCO 1 — PRIMITIVAS + TEMA CLARO ───────────── */
+:root{
+  color-scheme: light;
+
+  /* Rampa neutra. Croma exatamente zero: R=G=B em todos os 18 passos.
+     Escolhidos por L* (CIE) e verificados por luminância relativa (Y). */
+  --n-0:#000000;    /* Y   0,00 %  — só letterbox de vídeo */
+  --n-3:#0A0B0C;    /* Y   0,33 % */
+  --n-6:#111315;    /* Y   0,65 % */
+  --n-10:#181B1F;   /* Y   1,10 % */
+  --n-14:#202429;   /* Y   1,76 % */
+  --n-18:#282D31;   /* Y   2,52 % */
+  --n-22:#30363B;   /* Y   3,56 % */
+  --n-28:#3C4349;   /* Y   5,45 % */
+  --n-36:#4E565E;   /* Y   9,08 % */
+  --n-46:#656E77;   /* Y  15,29 % */
+  --n-58:#838C96;   /* Y  25,82 % */
+  --n-70:#A2ACB7;   /* Y  40,72 % */
+  --n-80:#BEC7D1;   /* Y  56,47 % */
+  --n-89:#D9E1EA;   /* Y  74,54 % */
+  --n-92:#E3E9F0;   /* Y  80,70 % */
+  --n-96:#F0F5F9;   /* Y  90,47 % */
+  --n-99:#FAFCFF;   /* Y  97,34 % */
+  --n-100:#FFFFFF;  /* Y 100,00 % */
+
+  /* SINAL — a única cromia do sistema inteiro. Significa NO AR. */
+  --sig-500:#D91F2D;   /* H 355° · Y 15,92 % — preenchimento de tally */
+  --sig-700:#A81622;   /* Y  9,01 % — sinal como texto sobre claro / tecla de parada */
+  --sig-300:#F4666A;   /* Y 29,78 % — sinal como texto sobre grafite */
+  --sig-tint-l:#FCEDEE; /* sig 8 % sobre n-100, achatado em hex opaco  */
+  --sig-tint-d:#2C0E10; /* sig 16 % sobre n-3                          */
+  --sig-tint-c:#251415; /* sig 9 % sobre n-6 (console)                 */
+
+  /* VÍDEO — nunca redefinido por tema, em escopo nenhum. Vídeo é vídeo. */
+  --vid-white:#BFBFBF;  --vid-yellow:#BFBF00; --vid-cyan:#00BFBF;
+  --vid-green:#00BF00;  --vid-magenta:#BF00BF; --vid-red:#BF0000;
+  --vid-blue:#0000BF;   --vid-navy:#00214B;   --vid-purple:#32006A;
+  --vid-full:#FFFFFF;   --vid-black:#101010;  --vid-sub:#070707;
+  --vid-plus:#191919;   --vid-grat:#3C3C3C;
+  --vid-g1:#070707; --vid-g2:#1F1F1F; --vid-g3:#383838; --vid-g4:#505050;
+  --vid-g5:#696969; --vid-g6:#818181; --vid-g7:#9A9A9A; --vid-g8:#B2B2B2;
+  --vid-g9:#CBCBCB; --vid-g10:#FFFFFF;
+
+  /* ─── SEMÂNTICA · TEMA CLARO (":root" puro) ─── */
+  /* superfícies */
+  --bg:var(--n-100);
+  --surface:var(--n-99);
+  --panel:var(--n-96);
+  --raise:var(--n-100);
+  --well:var(--n-96);
+  --stage:var(--n-0);          /* invariante por construção: nunca reatribuído */
+  /* texto — quatro degraus, todos ≥ 4,5:1 em todas as superfícies do tema */
+  --text-hi:var(--n-6);
+  --text:var(--n-28);
+  --text-lo:var(--n-36);
+  --text-dim:var(--n-46);
+  /* fios */
+  --line:var(--n-89);          /* separador decorativo */
+  --line-strong:var(--n-80);   /* moldura de contêiner estático */
+  --line-ctl:var(--n-46);      /* limite de controle interativo — ≥ 3:1 exigido */
+  /* ação — contraste, não cor */
+  --action:var(--n-6);
+  --on-action:var(--n-99);
+  --action-hover:var(--n-0);
+  --focus:var(--n-6);
+  /* sinal aplicado */
+  --sig-fill:var(--sig-500);
+  --sig-fill-deep:var(--sig-700);
+  --on-sig:var(--n-100);
+  --sig-text:var(--sig-700);
+  --sig-tint:var(--sig-tint-l);
+  --frame-idle:var(--n-80);
+  --frame-pvw:var(--n-89);     /* Y 74,54 % — SEPARADO do tally por valor: 3,802:1.
+                                  Era --n-46 e o comentário dizia "casado com o
+                                  tally" — a luminância foi igualada de propósito,
+                                  deixando a distinção PGM×PVW em 1,031:1, por matiz
+                                  só, numa direção cuja tese é que matiz não serve. */
+  --frame-mark:var(--n-92);    /* marca de NO AR — neutra, logo idêntica sob
+                                  protanopia, deuteranopia e escala de cinza */
+  /* canal de alarme — inversão de valor, em dois níveis. Sem verde, sem âmbar. */
+  --warn-bg:var(--n-36);   --warn-fg:var(--n-99);
+  --fault-bg:var(--n-22);  --fault-fg:var(--n-99);
+  /* séries de gráfico — a rampa, não o arco-íris do Tailwind */
+  --series-1:var(--n-10); --series-2:var(--n-28); --series-3:var(--n-36);
+  --series-4:var(--n-46); --series-5:var(--n-58); --series-live:var(--sig-500);
+  /* elevação — duas, e só duas */
+  --e-0:none;
+  --e-1:0 1px 1px rgb(0 0 0 / .05), 0 10px 28px rgb(0 0 0 / .10);
+  --scrim:rgb(0 0 0 / .44);
+  --guide:rgb(255 255 255 / .07);
+  --guide-2:rgb(255 255 255 / .16);
+
+  /* ─── TIPOGRAFIA ─── */
+  --f-ui:"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-num:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --fs-11:.6875rem;  --fs-12:.75rem;    --fs-13:.8125rem;  --fs-15:.9375rem;
+  --fs-17:1.0625rem; --fs-21:1.3125rem; --fs-26:1.625rem;  --fs-34:2.125rem;
+  --fs-hero:clamp(2.25rem, 4.4vw, 3.125rem);
+  --lh-tight:1.06; --lh-snug:1.28; --lh-ui:1.45; --lh-prose:1.62;
+  --tr-caps:.085em; --tr-tight:-.01em; --tr-hero:-.028em;
+
+  /* ─── ESPAÇO · base 4. Console 4–16, editorial 16–96. ─── */
+  --s-1:4px; --s-2:6px; --s-3:8px;  --s-4:12px; --s-5:16px;
+  --s-6:24px; --s-7:32px; --s-8:48px; --s-9:64px; --s-10:96px;
+
+  /* ─── RAIO · função da altura. O quadro é reto. ─── */
+  /* Raios abertos a pedido do produto: botões e selos mais arredondados.
+     O palco continua em --r-0 — um canto arredondado numa moldura de vídeo
+     recorta imagem no vértice, e quadrado é a convenção de broadcast. */
+  --r-0:0; --r-1:8px; --r-2:12px; --r-3:14px; --r-pill:999px; --r-dot:50%;
+}
+
+/* ───────────────────────── BLOCO 2 — TEMA ESCURO ───────────────────────── */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:var(--n-3);
+    --surface:var(--n-6);
+    --panel:var(--n-10);
+    --raise:var(--n-14);
+    --well:var(--n-3);
+    --text-hi:var(--n-96);
+    --text:var(--n-80);
+    --text-lo:var(--n-70);
+    --text-dim:var(--n-58);
+    --line:var(--n-18);
+    --line-strong:var(--n-28);
+    --line-ctl:var(--n-46);
+    --action:var(--n-96);
+    --on-action:var(--n-6);
+    --action-hover:var(--n-100);
+    --focus:var(--n-96);
+    --sig-text:var(--sig-300);
+    --sig-tint:var(--sig-tint-d);
+    --frame-idle:var(--n-28);
+    --warn-bg:var(--n-58);   --warn-fg:var(--n-3);
+    --fault-bg:var(--n-80);  --fault-fg:var(--n-3);
+    --series-1:var(--n-99); --series-2:var(--n-89); --series-3:var(--n-80);
+    --series-4:var(--n-70); --series-5:var(--n-58);
+    --e-1:0 1px 1px rgb(0 0 0 / .5), 0 10px 28px rgb(0 0 0 / .6);
+  }
+  :root:not([data-theme="light"]) .tk-l{opacity:.38}
+  :root:not([data-theme="light"]) .tk-d{opacity:1}
+  :root:not([data-theme="light"]) .sw__pin{transform:translateX(10px);background:var(--text-hi)}
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:var(--n-3);
+  --surface:var(--n-6);
+  --panel:var(--n-10);
+  --raise:var(--n-14);
+  --well:var(--n-3);
+  --text-hi:var(--n-96);
+  --text:var(--n-80);
+  --text-lo:var(--n-70);
+  --text-dim:var(--n-58);
+  --line:var(--n-18);
+  --line-strong:var(--n-28);
+  --line-ctl:var(--n-46);
+  --action:var(--n-96);
+  --on-action:var(--n-6);
+  --action-hover:var(--n-100);
+  --focus:var(--n-96);
+  --sig-text:var(--sig-300);
+  --sig-tint:var(--sig-tint-d);
+  --frame-idle:var(--n-28);
+  --warn-bg:var(--n-58);   --warn-fg:var(--n-3);
+  --fault-bg:var(--n-80);  --fault-fg:var(--n-3);
+  --series-1:var(--n-99); --series-2:var(--n-89); --series-3:var(--n-80);
+  --series-4:var(--n-70); --series-5:var(--n-58);
+  --e-1:0 1px 1px rgb(0 0 0 / .5), 0 10px 28px rgb(0 0 0 / .6);
+}
+:root[data-theme="dark"] .tk-l{opacity:.38}
+:root[data-theme="dark"] .tk-d{opacity:1}
+:root[data-theme="dark"] .sw__pin{transform:translateX(10px);background:var(--text-hi)}
+:root[data-theme="light"] .tk-d{opacity:.38}
+.tk-d{opacity:.38}
+
+/* ─────────────── BLOCO 3 — ESCOPO CONSOLE (invariante por tema) ─────────────
+   Não é um segundo vocabulário: são os MESMOS nomes semânticos, fixados.
+   Mudar a luminância ao redor da imagem muda como o operador lê a imagem.
+   Isso é colorimetria, não preferência — por isso não responde ao botão de tema. */
+[data-surface="console"]{
+  color-scheme: dark;
+  --bg:var(--n-3);
+  --surface:var(--n-6);
+  --panel:var(--n-10);
+  --raise:var(--n-14);
+  --well:var(--n-3);
+  /* topo da rampa de texto um passo abaixo do tema escuro da página:
+     branco pleno ao lado de um monitor é um transiente fotométrico. */
+  --text-hi:var(--n-92);
+  --text:var(--n-70);
+  --text-lo:var(--n-58);
+  --text-dim:var(--n-58);   /* colapsa sobre text-lo: nenhum vazamento reprova AA */
+  --line:var(--n-18);
+  --line-strong:var(--n-22);
+  --line-ctl:var(--n-46);
+  --action:var(--n-14);
+  --on-action:var(--n-92);
+  --action-hover:var(--n-18);
+  --focus:var(--n-96);
+  --sig-text:var(--sig-300);
+  --sig-tint:var(--sig-tint-c);
+  --frame-idle:var(--n-14);   /* Y 1,73 % — o teto do repouso é 1,9737 %:
+                                 três estados mutuamente a 3:1 exigem
+                                 L₃/L₁ ≥ 9, e com a carmim fixa em Y 15,92 %
+                                 isso só fecha se ela for o termo do MEIO.
+                                 --n-18 (Y 2,55 %) reprova. */
+  --warn-bg:var(--n-58);   --warn-fg:var(--n-3);
+  --fault-bg:var(--n-80);  --fault-fg:var(--n-3);
+  --e-1:0 1px 1px rgb(0 0 0 / .5), 0 10px 28px rgb(0 0 0 / .6);
+}
+
+/* ═══════════════════════════════ BASE ═══════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--f-ui);
+  font-size:var(--fs-15);
+  line-height:var(--lh-ui);
+  font-weight:400;
+  font-synthesis-weight:none;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+img,svg{display:block;max-width:100%}
+h1,h2,h3,h4,p,ul,ol,figure,dl,dd{margin:0}
+ul{padding:0;list-style:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+code{font-family:var(--f-num);font-size:.92em;color:var(--text-hi)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-1)}
+
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;letter-spacing:0}
+table,td,th,.tab{font-variant-numeric:tabular-nums}
+.caps{font-size:var(--fs-11);font-weight:600;text-transform:uppercase;
+  letter-spacing:var(--tr-caps);line-height:1.2}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.wrap{max-width:1288px;margin:0 auto;padding:0 var(--s-6)}
+
+/* ═════════════════════════ CABEÇALHO DO SITE ═════════════════════════ */
+.site{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.site__in{max-width:1288px;margin:0 auto;padding:0 var(--s-6);height:56px;
+  display:flex;align-items:center;gap:var(--s-6)}
+.brand{display:flex;align-items:center;gap:var(--s-3);color:var(--text-hi)}
+.brand__mark{width:15px;height:15px;border:1px solid currentColor;border-radius:var(--r-1);
+  display:grid;place-items:center;flex:0 0 auto}
+.brand__mark i{width:5px;height:5px;background:currentColor;border-radius:var(--r-1);display:block}
+.brand__name{font-size:var(--fs-15);font-weight:600;letter-spacing:var(--tr-tight)}
+.site__nav{display:flex;gap:var(--s-5);margin-left:auto}
+.site__nav a{font-size:var(--fs-13);color:var(--text-lo);text-decoration:none;
+  padding:var(--s-2) 0;border-bottom:1px solid transparent;
+  transition:color 90ms linear,border-color 90ms linear}
+.site__nav a:hover{color:var(--text-hi);border-bottom-color:var(--line-ctl)}
+.sw-theme{display:flex;align-items:center;gap:var(--s-3);border:1px solid var(--line-ctl);
+  border-radius:var(--r-2);padding:var(--s-2) var(--s-3);color:var(--text-lo);
+  transition:color 90ms linear,background-color 90ms linear}
+.sw-theme:hover{color:var(--text-hi);background:var(--well)}
+.sw-theme:active{background:var(--panel)}
+.sw-theme__k{font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase}
+.sw-theme__t{width:24px;height:13px;border:1px solid var(--line-ctl);border-radius:var(--r-1);
+  position:relative;flex:0 0 auto}
+.sw__pin{position:absolute;top:1px;left:1px;width:9px;height:9px;background:var(--text-lo);
+  border-radius:var(--r-1);transition:transform 110ms linear,background-color 110ms linear}
+
+/* ═════════════════════════ ESTRUTURA DE SEÇÃO ═════════════════════════ */
+.sec{padding:var(--s-10) 0 var(--s-9)}
+.sec + .sec{border-top:1px solid var(--line)}
+.sec__hd{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-4);margin-bottom:var(--s-7)}
+@media (min-width:920px){.sec__hd{grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:var(--s-8);align-items:end}}
+.sec__eyebrow{color:var(--text-dim)}
+.sec__title{font-size:var(--fs-26);font-weight:600;color:var(--text-hi);
+  letter-spacing:var(--tr-tight);line-height:var(--lh-snug);margin-top:var(--s-3)}
+.sec__note{font-size:var(--fs-13);color:var(--text-lo);line-height:var(--lh-prose);max-width:58ch}
+.sec__note b{color:var(--text);font-weight:500}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SUPERFÍCIE 1 — CONSOLE DE TRANSMISSÃO
+   ═══════════════════════════════════════════════════════════════════════════ */
+.con{background:var(--bg);border:1px solid var(--line-strong);border-radius:var(--r-3);
+  overflow:hidden;color:var(--text);font-size:var(--fs-13)}
+
+.con__bar{height:42px;display:flex;align-items:center;gap:var(--s-4);padding:0 var(--s-4);
+  background:var(--surface);border-bottom:1px solid var(--line)}
+.con__brand{display:flex;align-items:center;gap:var(--s-3);color:var(--text-hi);
+  font-weight:600;font-size:var(--fs-13)}
+.con__brand .brand__mark i{background:var(--sig-fill)}
+.con__sess{color:var(--text-lo);font-size:var(--fs-12)}
+.con__sess b{color:var(--text);font-weight:500}
+.con__bar-r{margin-left:auto;display:flex;align-items:center;gap:var(--s-4)}
+
+.tally{display:inline-flex;align-items:center;gap:var(--s-2);
+  background:var(--sig-fill);color:var(--on-sig);padding:4px var(--s-4);border-radius:var(--r-pill);
+  font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;white-space:nowrap}
+.tally i{width:6px;height:6px;background:var(--on-sig);border-radius:var(--r-dot);display:block;flex:0 0 auto}
+.tally[data-air="off"]{background:var(--warn-bg);color:var(--warn-fg)}
+.tally[data-air="off"] i{background:var(--warn-fg)}
+.clock{font-size:var(--fs-15);font-weight:500;color:var(--text-hi)}
+
+.con__body{display:grid;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1120px){.con__body{grid-template-columns:210px minmax(0,1fr) 316px}}
+
+/* ── coluna esquerda: cenas + transição ── */
+.rail{background:var(--surface);border-bottom:1px solid var(--line);padding:var(--s-4) 0}
+@media (min-width:1120px){.rail{border-bottom:0;border-right:1px solid var(--line)}}
+.rail__hd{padding:0 var(--s-4) var(--s-3);color:var(--text-lo)}
+.scene{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:var(--s-3);
+  min-height:28px;padding:0 var(--s-4) 0 var(--s-3);width:100%;text-align:left;
+  border-left:2px solid transparent;color:var(--text);
+  transition:background-color 90ms linear,color 90ms linear}
+.scene:hover{background:var(--panel);color:var(--text-hi)}
+.scene:active{background:var(--raise)}
+.scene__i{font-size:var(--fs-11);color:var(--text-lo)}
+.scene__n{font-size:var(--fs-13);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scene__t{font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);color:var(--text-lo)}
+.scene[data-state="pgm"]{border-left-color:var(--sig-fill);background:var(--sig-tint);color:var(--text-hi)}
+.scene[data-state="pgm"] .scene__t{color:var(--sig-text)}
+.scene[data-state="pvw"]{border-left-color:var(--text-hi);color:var(--text-hi)}
+.scene[data-state="pvw"] .scene__t{color:var(--text-hi)}
+
+.rail__sep{margin:var(--s-4) var(--s-4) var(--s-3);border-top:1px solid var(--line)}
+.take{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);padding:0 var(--s-4)}
+.tk-btn{height:32px;display:flex;align-items:center;justify-content:center;gap:var(--s-2);
+  border:1px solid var(--line-ctl);border-radius:var(--r-2);background:var(--raise);
+  color:var(--text-hi);font-size:var(--fs-11);font-weight:600;
+  letter-spacing:var(--tr-caps);text-transform:uppercase;
+  transition:background-color 90ms linear,border-color 90ms linear}
+.tk-btn:hover{background:var(--action-hover);border-color:var(--text-lo)}
+.tk-btn:active{background:var(--panel);border-color:var(--text-hi)}
+.tk-btn small{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);
+  font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-lo)}
+.rail__meta{padding:var(--s-3) var(--s-4) 0;display:grid;gap:var(--s-2)}
+.rail__meta div{display:flex;justify-content:space-between;gap:var(--s-3);font-size:var(--fs-11)}
+.rail__meta span:first-child{color:var(--text-lo)}
+.rail__meta span:last-child{color:var(--text);font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+/* ── coluna central: monitores + telemetria ── */
+.stagecol{padding:var(--s-4);display:grid;gap:var(--s-4);min-width:0;background:var(--bg)}
+.mon__hd{display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-3)}
+.mon__tag{font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase;
+  padding:3px var(--s-2);border-radius:var(--r-1)}
+.mon__tag--pgm{background:var(--sig-fill);color:var(--on-sig)}
+.mon__tag--pvw{background:var(--raise);color:var(--text-hi);border:1px solid var(--line-ctl)}
+.mon__name{font-size:var(--fs-12);color:var(--text)}
+.mon__spec{margin-left:auto;font-size:var(--fs-11);color:var(--text-lo);
+  font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+/* A moldura de tally vive FORA da imagem: um anel externo de 2px, não um
+   inset-shadow desenhado sobre a borda do quadro. */
+/* O anel de 2px ENQUADRA. A marca externa de 4px SINALIZA.
+   Separar as duas funções resolve os dois problemas de uma vez.
+   A pergunta era espessura de traço; a aritmética responde outra coisa:
+   um traço retém erf(w / 2σ√2) da amplitude sob desfoque de σ=4px, então a
+   carmim a Y 15,92 % precisaria de 8,02 px nos quatro lados para chegar a
+   3:1 contra o fundo do console — e isso come imagem. Um neutro a Y 80,90 %
+   chega a 3:1 com 1,34 px. Em 4 px, por fora, dá 6,774:1 e custo zero. */
+.frame{position:relative;padding:2px;background:var(--frame-idle);border-radius:var(--r-0)}
+.frame--pgm{background:var(--sig-fill)}
+.frame--pvw{background:var(--frame-pvw)}
+.con[data-air="off"] .frame--pgm{background:var(--frame-idle)}
+.con[data-air="on"] .frame--pgm::after{
+  content:"";position:absolute;inset:-10px;pointer-events:none;
+  --m:var(--frame-mark);--aw:13%;--ah:22%;--t:4px;
+  background:
+    linear-gradient(var(--m),var(--m)) 0    0    /var(--aw) var(--t)  no-repeat,
+    linear-gradient(var(--m),var(--m)) 0    0    /var(--t)  var(--ah) no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 0    /var(--aw) var(--t)  no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 0    /var(--t)  var(--ah) no-repeat,
+    linear-gradient(var(--m),var(--m)) 0    100% /var(--aw) var(--t)  no-repeat,
+    linear-gradient(var(--m),var(--m)) 0    100% /var(--t)  var(--ah) no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 100% /var(--aw) var(--t)  no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 100% /var(--t)  var(--ah) no-repeat}
+.stage{position:relative;aspect-ratio:16/9;background:var(--stage);overflow:hidden;border-radius:var(--r-0)}
+
+/* Sinal de teste — enxerto de d2. É o que uma barra de barras prova:
+   que a cromia do entorno não está deslocando a leitura da imagem. */
+.bars{position:absolute;inset:0;display:grid;grid-template-rows:68% 8% 24%}
+.bars__m{background:linear-gradient(90deg,
+  var(--vid-white) 0 14.2857%, var(--vid-yellow) 14.2857% 28.5714%,
+  var(--vid-cyan) 28.5714% 42.8571%, var(--vid-green) 42.8571% 57.1428%,
+  var(--vid-magenta) 57.1428% 71.4285%, var(--vid-red) 71.4285% 85.7142%,
+  var(--vid-blue) 85.7142% 100%)}
+.bars__c{background:linear-gradient(90deg,
+  var(--vid-blue) 0 14.2857%, var(--vid-black) 14.2857% 28.5714%,
+  var(--vid-magenta) 28.5714% 42.8571%, var(--vid-black) 42.8571% 57.1428%,
+  var(--vid-cyan) 57.1428% 71.4285%, var(--vid-black) 71.4285% 85.7142%,
+  var(--vid-white) 85.7142% 100%)}
+.bars__p{background:linear-gradient(90deg,
+  var(--vid-navy) 0 17.1%, var(--vid-full) 17.1% 34.2%, var(--vid-purple) 34.2% 51.3%,
+  var(--vid-black) 51.3% 68.4%, var(--vid-sub) 68.4% 74.1%, var(--vid-black) 74.1% 79.8%,
+  var(--vid-plus) 79.8% 85.5%, var(--vid-black) 85.5% 100%)}
+.gray{position:absolute;inset:0;background:linear-gradient(90deg,
+  var(--vid-g1) 0 10%, var(--vid-g2) 10% 20%, var(--vid-g3) 20% 30%, var(--vid-g4) 30% 40%,
+  var(--vid-g5) 40% 50%, var(--vid-g6) 50% 60%, var(--vid-g7) 60% 70%,
+  var(--vid-g8) 70% 80%, var(--vid-g9) 80% 90%, var(--vid-g10) 90% 100%)}
+
+/* Guias — enxerto corrigido: desligadas por padrão, com botão na bandeja. */
+.g{position:absolute;background:var(--guide);opacity:0;transition:opacity 90ms linear}
+.g--v{top:0;bottom:0;width:1px}
+.g--h{left:0;right:0;height:1px}
+.g--safe{position:absolute;inset:7% 6%;border:1px solid var(--guide);opacity:0;transition:opacity 90ms linear}
+.g--x{position:absolute;left:50%;top:50%;width:18px;height:1px;background:var(--guide-2);
+  transform:translate(-50%,-50%);opacity:0;transition:opacity 90ms linear}
+.g--y{position:absolute;left:50%;top:50%;width:1px;height:18px;background:var(--guide-2);
+  transform:translate(-50%,-50%);opacity:0;transition:opacity 90ms linear}
+.con[data-guides="on"] .g,
+.con[data-guides="on"] .g--safe,
+.con[data-guides="on"] .g--x,
+.con[data-guides="on"] .g--y{opacity:1}
+
+.burn{position:absolute;font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-11);background:var(--scrim);padding:3px var(--s-2);border-radius:var(--r-1);
+  color:var(--n-92)}
+.burn--tl{top:var(--s-3);left:var(--s-3);letter-spacing:var(--tr-caps);text-transform:uppercase}
+.burn--tr{top:var(--s-3);right:var(--s-3)}
+.burn--br{right:var(--s-3);bottom:var(--s-3)}
+
+/* Gerador de caracteres — enxerto de d4, com a viga em neutro:
+   o vermelho não entra na imagem, porque na imagem ele significaria duas coisas. */
+.gc{position:absolute;left:0;bottom:11%;display:flex;align-items:stretch;max-width:76%}
+.gc__bar{width:4px;background:var(--n-92);flex:0 0 auto}
+.gc__tx{background:var(--n-0);padding:var(--s-2) var(--s-4) var(--s-2) var(--s-3);min-width:0}
+.gc__tx b{display:block;font-size:var(--fs-13);font-weight:600;color:var(--n-92);
+  line-height:1.2;letter-spacing:var(--tr-tight);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gc__tx span{display:block;font-size:var(--fs-11);color:var(--n-70);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.stagerow{display:grid;gap:var(--s-4);grid-template-columns:minmax(0,1fr)}
+@media (min-width:820px){.stagerow{grid-template-columns:minmax(0,320px) minmax(0,1fr)}}
+
+.telem{border:1px solid var(--line);background:var(--panel);border-radius:var(--r-3);
+  padding:var(--s-4);display:grid;gap:var(--s-4);align-content:start}
+.telem__clock{display:flex;align-items:baseline;gap:var(--s-3);
+  padding-bottom:var(--s-4);border-bottom:1px solid var(--line)}
+.telem__clock b{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-34);
+  font-weight:500;color:var(--text-hi);letter-spacing:var(--tr-tight);line-height:1}
+.telem__clock span{color:var(--text-lo)}
+.reads{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line)}
+/* célula de largura travada — enxerto de d2: o valor não pode reposicionar a
+   coluna quando o número de dígitos muda no meio do programa. */
+.read{background:var(--panel);padding:var(--s-3) var(--s-4);min-width:92px}
+.read__k{color:var(--text-lo);display:block;margin-bottom:var(--s-2)}
+.read__v{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-17);
+  font-weight:500;color:var(--text-hi);display:block;line-height:1.1;
+  min-height:1.1em;font-feature-settings:"tnum" 1}
+.read__v small{font-size:var(--fs-12);font-weight:400;color:var(--text-lo);margin-left:4px}
+.telem__enc{display:flex;align-items:baseline;gap:var(--s-4);flex-wrap:wrap;
+  padding-top:var(--s-4);border-top:1px solid var(--line)}
+.telem__enc .caps{color:var(--text-lo)}
+.telem__enc .num{font-size:var(--fs-11);color:var(--text-lo)}
+
+/* ── coluna direita: destinos, chat, áudio ── */
+.side{border-top:1px solid var(--line);background:var(--panel);
+  display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:0}
+@media (min-width:1120px){.side{border-top:0;border-left:1px solid var(--line)}}
+.side__hd{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);
+  padding:var(--s-3) var(--s-4);border-bottom:1px solid var(--line);color:var(--text-lo)}
+.dests{padding:var(--s-2) 0;border-bottom:1px solid var(--line)}
+.dest{display:grid;grid-template-columns:9px minmax(0,1fr) auto;align-items:center;gap:var(--s-3);
+  min-height:38px;padding:var(--s-2) var(--s-4);border-bottom:1px solid var(--line)}
+.dest:last-child{border-bottom:0}
+.mark{width:9px;height:9px;border-radius:var(--r-1);flex:0 0 auto}
+.mark[data-st="live"]{background:var(--sig-fill)}
+.mark[data-st="ready"]{border:1px solid var(--text-lo)}
+.mark[data-st="warn"]{background:var(--warn-bg)}
+.mark[data-st="fault"]{background:var(--fault-bg)}
+.dest__n{font-size:var(--fs-13);color:var(--text-hi)}
+/* estado em cima, vazão embaixo — e travessão, não um número velho,
+   quando não há vazão. Enxerto de d4. */
+.dest__s{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:118px}
+.dest__st{font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--text-lo)}
+/* O quadrado de sinal já carrega o carmim nesta linha. O texto de estado fica
+   em valor alto: o vermelho não se multiplica dentro de uma mesma linha. */
+.dest__st--live{color:var(--text-hi)}
+.dest__bw{font-size:var(--fs-11);color:var(--text-lo);
+  font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.chip{font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase;
+  padding:2px var(--s-2);border-radius:var(--r-1);background:var(--warn-bg);color:var(--warn-fg);
+  white-space:nowrap}
+.chip--fault{background:var(--fault-bg);color:var(--fault-fg)}
+
+.chat{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:266px;
+  border-bottom:1px solid var(--line);min-width:0}
+.chat__list{overflow-y:auto;overflow-x:hidden}
+.msg{padding:var(--s-3) var(--s-4);border-bottom:1px solid var(--line)}
+.msg:last-child{border-bottom:0}
+.msg__hd{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:baseline;
+  gap:var(--s-3);margin-bottom:2px}
+.msg__who{font-size:var(--fs-12);font-weight:600;color:var(--text-hi);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* selo de origem — enxerto de d3, sobre a lista já regrada de d1 */
+.msg__src{font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);
+  color:var(--text-lo);border:1px solid var(--line-ctl);border-radius:var(--r-1);padding:0 3px}
+.msg__t{font-size:var(--fs-11);color:var(--text-lo);
+  font-family:var(--f-num);font-variant-numeric:tabular-nums;text-align:right;min-width:38px}
+.msg__b{font-size:var(--fs-13);color:var(--text);line-height:1.5}
+.chat__in{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-4);
+  border-top:1px solid var(--line)}
+.chat__in input{flex:1;min-width:0;background:var(--well);border:1px solid var(--line-ctl);
+  border-radius:var(--r-2);padding:var(--s-2) var(--s-3);color:var(--text-hi);
+  font:inherit;font-size:var(--fs-12)}
+.chat__in input::placeholder{color:var(--text-lo)}
+.chat__in input:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+
+.vu{padding:var(--s-4)}
+.vu__hd{display:flex;align-items:baseline;gap:var(--s-3);margin-bottom:var(--s-4)}
+.vu__hd b{font-size:var(--fs-12);font-weight:600;color:var(--text-hi)}
+.vu__hd span{font-size:var(--fs-11);color:var(--text-lo);margin-left:auto;
+  font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.vu__row{display:grid;grid-template-columns:14px minmax(0,1fr) 56px;align-items:center;
+  gap:var(--s-3);margin-bottom:var(--s-2)}
+.vu__k{font-size:var(--fs-11);color:var(--text-lo);font-family:var(--f-num)}
+.vu__track{position:relative;height:8px;background:var(--raise);overflow:hidden;border-radius:var(--r-0)}
+/* Medidor acromático até deixar de ser — enxerto de d3, traduzido:
+   este sistema não tem âmbar, então a graduação é de VALOR, não de matiz.
+   cinza no nominal · claro na margem · bloco de alarme no clipe. */
+.vu__fill{position:absolute;inset:0 auto 0 0;
+  background:linear-gradient(90deg,var(--text-lo) 0 68%,var(--text-hi) 68% 88%,var(--fault-bg) 88% 100%);
+  background-size:calc(100% / var(--pk,.74)) 100%;background-repeat:no-repeat}
+.vu__seg{position:absolute;inset:0;background:repeating-linear-gradient(90deg,
+  transparent 0 7px, var(--panel) 7px 9px)}
+.vu__pk{font-size:var(--fs-11);color:var(--text-lo);text-align:right;
+  font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.vu__scale{display:flex;justify-content:space-between;margin:var(--s-3) 0 0 26px;padding-right:68px;
+  font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);color:var(--text-lo)}
+
+/* ── bandeja de controle ── */
+.tray{display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap;
+  padding:var(--s-3) var(--s-4);background:var(--surface);border-top:1px solid var(--line)}
+.ctl{display:inline-flex;align-items:center;gap:var(--s-3);height:34px;padding:0 var(--s-3);
+  border:1px solid var(--line-ctl);border-radius:var(--r-2);background:var(--raise);
+  color:var(--text);font-size:var(--fs-12);
+  transition:background-color 90ms linear,color 90ms linear,border-color 90ms linear}
+.ctl:hover{background:var(--action-hover);color:var(--text-hi)}
+.ctl:active{background:var(--panel);border-color:var(--text-hi)}
+.ctl svg{width:16px;height:16px;flex:0 0 auto}
+.ctl[aria-pressed="true"]{background:var(--action-hover);color:var(--text-hi);border-color:var(--text-lo)}
+.ctl[aria-pressed="false"]{background:var(--well);color:var(--text-lo);border-style:dashed}
+.tray__sep{width:1px;height:22px;background:var(--line-strong)}
+.tray__t{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-12);
+  color:var(--text-lo);margin-left:auto}
+
+/* A tecla de parada não é um .ctl com outra cor. É outro objeto:
+   poço recuado próprio, 44px de altura, e exige 900ms de pressão. */
+.endwell{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+  background:var(--well);border:1px solid var(--line-strong);border-radius:var(--r-2)}
+.endwell__hint{font-size:var(--fs-11);color:var(--text-lo);max-width:15ch;line-height:1.25}
+.end{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:var(--s-3);
+  height:44px;padding:0 var(--s-5);border-radius:var(--r-2);
+  background:var(--sig-fill-deep);color:var(--on-sig);
+  font-size:var(--fs-12);font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase;
+  white-space:nowrap;transition:background-color 100ms linear}
+.end:active{background:var(--sig-fill)}
+.end__chg{position:absolute;inset:0 auto 0 0;width:0;background:var(--sig-fill);pointer-events:none}
+.end__lb{position:relative;display:inline-flex;align-items:center;gap:var(--s-3)}
+.end svg{width:13px;height:13px}
+.con[data-air="off"] .end{background:var(--action);color:var(--on-action)}
+.con[data-air="off"] .end__chg{background:var(--action-hover)}
+
+.con__foot{display:grid;gap:var(--s-3);margin-top:var(--s-5);font-size:var(--fs-12);color:var(--text-lo)}
+@media (min-width:820px){.con__foot{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-6)}}
+.con__foot b{color:var(--text);font-weight:500;display:block}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SUPERFÍCIE 2 — PÁGINA PÚBLICA
+   ═══════════════════════════════════════════════════════════════════════════ */
+.hero{display:grid;gap:var(--s-8);grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:980px){.hero{grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:var(--s-9)}}
+.hero h1{font-size:var(--fs-hero);font-weight:400;color:var(--text-hi);
+  line-height:var(--lh-tight);letter-spacing:var(--tr-hero);margin:var(--s-5) 0 var(--s-6);
+  text-wrap:balance}
+.hero h1 span{display:block}
+.hero h1 em{font-style:normal;color:var(--text-lo)}
+.hero__lead{font-size:var(--fs-17);line-height:var(--lh-prose);color:var(--text);max-width:54ch}
+.hero__cta{margin-top:var(--s-7);display:flex;align-items:center;gap:var(--s-5);flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 var(--s-6);
+  border-radius:var(--r-2);background:var(--action);color:var(--on-action);
+  font-size:var(--fs-15);font-weight:500;letter-spacing:var(--tr-tight);
+  text-decoration:none;transition:background-color 100ms linear}
+.btn:hover{background:var(--action-hover)}
+.btn:active{background:var(--text)}
+.btn--ghost{background:none;color:var(--text-hi);border:1px solid var(--line-ctl);height:38px;
+  font-size:var(--fs-13);padding:0 var(--s-5)}
+.btn--ghost:hover{background:var(--well)}
+.btn--ghost:active{background:var(--panel)}
+.hero__fine{font-size:var(--fs-13);color:var(--text-lo)}
+.hero__facts{display:flex;flex-wrap:wrap;gap:var(--s-3) var(--s-6);margin-top:var(--s-8);
+  padding-top:var(--s-5);border-top:1px solid var(--line);font-size:var(--fs-13);color:var(--text-lo)}
+.hero__facts b{color:var(--text-hi);font-weight:500}
+
+.shot{border:1px solid var(--line-strong);border-radius:var(--r-3);overflow:hidden;background:var(--surface)}
+.shot__bar{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-4);
+  border-bottom:1px solid var(--line);font-size:var(--fs-11);color:var(--text-lo)}
+.shot__stage{padding:var(--s-4);background:var(--panel)}
+.shot__meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line)}
+.shot__meta div{background:var(--surface);padding:var(--s-3) var(--s-4);min-width:0}
+.shot__meta .caps{color:var(--text-lo);display:block;margin-bottom:3px}
+.shot__meta b{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-13);
+  font-weight:500;color:var(--text-hi)}
+.shot__cap{padding:var(--s-4);border-top:1px solid var(--line);font-size:var(--fs-12);
+  color:var(--text-lo);line-height:1.55}
+.shot__cap b{color:var(--text);font-weight:500}
+
+.plans{margin-top:var(--s-10)}
+.plans__hd{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-5);
+  flex-wrap:wrap;padding-bottom:var(--s-5);border-bottom:1px solid var(--line)}
+.plans__hd h3{font-size:var(--fs-21);font-weight:600;color:var(--text-hi);letter-spacing:var(--tr-tight)}
+.plans__hd p{font-size:var(--fs-13);color:var(--text-lo)}
+.tablewrap{overflow-x:auto;max-width:100%}
+.ptable{display:grid;min-width:812px;grid-template-columns:minmax(170px,1.05fr) repeat(3,minmax(166px,1fr))}
+.pc{padding:var(--s-5) var(--s-5) var(--s-5) 0;border-bottom:1px solid var(--line)}
+.pc--lab{color:var(--text-lo);font-size:var(--fs-13)}
+.pc--val{color:var(--text-hi);font-size:var(--fs-13)}
+.pc--top{border-top:2px solid transparent;padding-top:var(--s-6)}
+.pc--rec{border-top-color:var(--text-hi)}
+.pname{font-size:var(--fs-17);font-weight:600;color:var(--text-hi);letter-spacing:var(--tr-tight)}
+.prec{display:block;margin-top:var(--s-2);color:var(--text-lo)}
+.pprice{display:flex;align-items:baseline;gap:2px;flex-wrap:wrap;
+  font-family:var(--f-num);font-variant-numeric:tabular-nums;color:var(--text-hi)}
+.pprice .cur{font-size:var(--fs-13);color:var(--text-lo);margin-right:var(--s-2)}
+.pprice .amt{font-size:var(--fs-26);font-weight:500;letter-spacing:var(--tr-tight);line-height:1}
+.pprice .per{font-size:var(--fs-12);color:var(--text-lo);margin-left:var(--s-2)}
+.pnote{margin-top:var(--s-3);font-size:var(--fs-12);color:var(--text-lo)}
+.pc--act{border-bottom:0;padding-top:var(--s-6)}
+.plans__fine{margin-top:var(--s-6);font-size:var(--fs-13);color:var(--text-lo);
+  max-width:70ch;line-height:var(--lh-prose)}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SUPERFÍCIE 3 — SISTEMA DE TOKENS
+   ═══════════════════════════════════════════════════════════════════════════ */
+.tk{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-9)}
+.tk > section{min-width:0}
+.tk__h{font-size:var(--fs-15);font-weight:600;color:var(--text-hi);letter-spacing:var(--tr-tight);
+  padding-bottom:var(--s-3);border-bottom:1px solid var(--line);margin-bottom:var(--s-5)}
+.tk__sub{font-size:var(--fs-13);color:var(--text-lo);margin-bottom:var(--s-5);
+  max-width:78ch;line-height:var(--lh-prose)}
+.tk__sub b{color:var(--text);font-weight:500}
+
+.ramp{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:var(--s-3)}
+.sw{border:1px solid var(--line);border-radius:var(--r-2);overflow:hidden;background:var(--surface)}
+.sw__c{height:54px;border-bottom:1px solid var(--line)}
+.sw__m{padding:var(--s-3);display:grid;gap:2px}
+.sw__hex{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);color:var(--text-hi)}
+.sw__l{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);color:var(--text-lo)}
+
+.sigrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:var(--s-4)}
+.sigcard{border:1px solid var(--line);border-radius:var(--r-2);overflow:hidden;background:var(--surface)}
+.sigcard__c{height:66px;display:flex;align-items:flex-end;padding:var(--s-3);
+  font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11)}
+.sigcard__m{padding:var(--s-3) var(--s-4);border-top:1px solid var(--line);
+  font-size:var(--fs-12);color:var(--text-lo);line-height:1.5}
+.sigcard__m b{display:block;color:var(--text-hi);font-weight:500;font-size:var(--fs-13);margin-bottom:2px}
+
+.tk__table{width:100%;border-collapse:collapse;font-size:var(--fs-13)}
+.tk__table th{text-align:left;font-size:var(--fs-11);font-weight:600;text-transform:uppercase;
+  letter-spacing:var(--tr-caps);color:var(--text-lo);
+  padding:var(--s-3) var(--s-4) var(--s-3) 0;border-bottom:1px solid var(--line);white-space:nowrap}
+.tk__table td{padding:var(--s-3) var(--s-4) var(--s-3) 0;border-bottom:1px solid var(--line);
+  vertical-align:top}
+.tk__table td:first-child{color:var(--text-hi);font-family:var(--f-num);font-size:var(--fs-12);white-space:nowrap}
+.tk__table .hexcell{font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-12);white-space:nowrap;color:var(--text)}
+.tk__table .role{color:var(--text-lo)}
+.tk__table .ok{font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-12);color:var(--text-hi);white-space:nowrap}
+.dotc{display:inline-block;width:10px;height:10px;border-radius:var(--r-1);
+  border:1px solid var(--line-ctl);margin-right:var(--s-2);vertical-align:-1px}
+
+.spec{display:grid;gap:var(--s-5)}
+.specrow{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-2);
+  padding-bottom:var(--s-5);border-bottom:1px solid var(--line)}
+@media (min-width:860px){.specrow{grid-template-columns:196px minmax(0,1fr);gap:var(--s-6);align-items:baseline}}
+.specrow__k{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);
+  color:var(--text-lo);line-height:1.5}
+.specrow__k b{display:block;color:var(--text-lo);font-weight:400}
+.specrow__s{color:var(--text-hi);min-width:0;overflow-wrap:anywhere}
+.s-hero{font-size:var(--fs-hero);font-weight:400;letter-spacing:var(--tr-hero);line-height:var(--lh-tight)}
+.s-34{font-size:var(--fs-34);font-weight:500;letter-spacing:var(--tr-tight);line-height:1.1}
+.s-26{font-size:var(--fs-26);font-weight:600;letter-spacing:var(--tr-tight)}
+.s-21{font-size:var(--fs-21);font-weight:600;letter-spacing:var(--tr-tight)}
+.s-17{font-size:var(--fs-17);font-weight:400;line-height:var(--lh-prose)}
+.s-15{font-size:var(--fs-15);font-weight:400}
+.s-13{font-size:var(--fs-13);font-weight:400}
+.s-12{font-size:var(--fs-12);font-weight:500}
+.s-11{font-size:var(--fs-11);font-weight:600;text-transform:uppercase;letter-spacing:var(--tr-caps)}
+
+.numdemo{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:var(--s-6);margin-top:var(--s-3)}
+.numdemo ul{display:grid;gap:var(--s-2);font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-15);color:var(--text-hi);text-align:right;max-width:184px}
+.numdemo .caps{color:var(--text-lo);margin-bottom:var(--s-3);text-align:left}
+
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:var(--s-5)}
+.rule{border:1px solid var(--line);border-radius:var(--r-2);padding:var(--s-5);background:var(--surface)}
+.rule h4{font-size:var(--fs-12);font-weight:600;text-transform:uppercase;letter-spacing:var(--tr-caps);
+  color:var(--text-lo);margin-bottom:var(--s-4)}
+.rule dl{display:grid;gap:var(--s-3);font-size:var(--fs-13)}
+.rule .r{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s-4);align-items:baseline}
+.rule dt{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-12);
+  color:var(--text-hi);white-space:nowrap}
+.rule dd{color:var(--text-lo);font-size:var(--fs-12);line-height:1.5}
+.rdemo{display:flex;align-items:flex-end;gap:var(--s-3);margin-bottom:var(--s-4)}
+.rdemo i{display:block;width:34px;height:34px;background:var(--panel);border:1px solid var(--line-ctl)}
+.rdemo i:nth-child(1){border-radius:var(--r-0)}
+.rdemo i:nth-child(2){border-radius:var(--r-1)}
+.rdemo i:nth-child(3){border-radius:var(--r-2)}
+.rdemo i:nth-child(4){border-radius:var(--r-3)}
+.edemo{display:flex;gap:var(--s-4);margin-bottom:var(--s-4)}
+.edemo i{display:block;width:54px;height:34px;background:var(--surface);border:1px solid var(--line)}
+.edemo i:nth-child(2){box-shadow:var(--e-1);border-color:transparent}
+
+.serie{display:flex;gap:var(--s-3);flex-wrap:wrap;margin-bottom:var(--s-4)}
+.serie i{display:block;width:52px;height:34px;border-radius:var(--r-1)}
+.alarmdemo{display:flex;gap:var(--s-3);flex-wrap:wrap;align-items:center;margin-bottom:var(--s-4)}
+
+.code{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-2);
+  padding:var(--s-5);overflow-x:auto;font-family:var(--f-num);font-size:var(--fs-12);
+  line-height:1.65;color:var(--text);white-space:pre;
+  font-variant-numeric:tabular-nums;tab-size:2}
+.code b{color:var(--text-hi);font-weight:500}
+
+.foot{border-top:1px solid var(--line);padding:var(--s-7) 0 var(--s-9);font-size:var(--fs-12);
+  color:var(--text-lo);display:flex;gap:var(--s-5);flex-wrap:wrap;justify-content:space-between}
+.foot b{color:var(--text);font-weight:500}
+
+@media (max-width:640px){
+  .site__nav{display:none}
+  .site__in,.wrap{padding:0 var(--s-5)}
+  .con__sess{display:none}
+  .sec{padding:var(--s-9) 0 var(--s-8)}
+  .tray{gap:var(--s-2)}
+  .tray__t{margin-left:0;width:100%}
+  .endwell{width:100%;justify-content:space-between}
+  .end{flex:1 1 auto;justify-content:center}
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="site__in">
+    <span class="brand">
+      <span class="brand__mark" aria-hidden="true"><i></i></span>
+      <span class="brand__name">PwStream</span>
+    </span>
+    <nav class="site__nav" aria-label="Seções">
+      <a href="#estudio">Estúdio</a>
+      <a href="#planos">Planos</a>
+      <a href="#tokens">Tokens</a>
+    </nav>
+    <button class="sw-theme" id="themeToggle" type="button">
+      <span class="sw-theme__t" aria-hidden="true"><span class="sw__pin"></span></span>
+      <span class="sw-theme__k" id="themeLabel">Tema</span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<!-- ════════════════ SUPERFÍCIE 1 — CONSOLE ════════════════ -->
+<section class="sec wrap" id="estudio">
+  <div class="sec__hd">
+    <div>
+      <p class="caps sec__eyebrow">Superfície 01 — Console de transmissão</p>
+      <h2 class="sec__title">O entorno não tem cor, para que a imagem tenha.</h2>
+    </div>
+    <p class="sec__note">
+      A cromia do console é <b>zero</b>: todo neutro tem R=G=B exato, escolhido por L* e
+      conferido por luminância. Um cinza levemente azulado ao redor do monitor desloca a
+      leitura de tom de pele e de balanço de branco. <b>Existe uma única cor no sistema</b> e
+      ela quer dizer no ar. Falha usa inversão de valor em dois níveis — funciona também para
+      quem não distingue vermelho.
+    </p>
+  </div>
+
+  <div class="con" id="console" data-surface="console" data-air="on" data-guides="off">
+
+    <div class="con__bar">
+      <span class="con__brand">
+        <span class="brand__mark" aria-hidden="true"><i></i></span>
+        PwStream
+      </span>
+      <span class="con__sess">Sessão <b>Painel de Vendas · Ep. 41</b></span>
+      <span class="con__bar-r">
+        <span class="tally" id="tally" data-air="on"><i aria-hidden="true"></i><span id="tallyTx">No ar</span></span>
+        <span class="clock num" id="clock" aria-label="Tempo no ar">01:47:22</span>
+      </span>
+    </div>
+
+    <div class="con__body">
+
+      <!-- ── cenas + transição ── -->
+      <div class="rail">
+        <p class="caps rail__hd" id="lblCenas">Cenas</p>
+        <ul id="sceneList" aria-labelledby="lblCenas">
+          <li><button class="scene" type="button" data-state="pgm">
+            <span class="scene__i num">01</span><span class="scene__n">Abertura</span>
+            <span class="scene__t">PGM</span></button></li>
+          <li><button class="scene" type="button" data-state="pvw">
+            <span class="scene__i num">02</span><span class="scene__n">Entrevista</span>
+            <span class="scene__t">PVW</span></button></li>
+          <li><button class="scene" type="button">
+            <span class="scene__i num">03</span><span class="scene__n">Tela + Câmera</span>
+            <span class="scene__t"></span></button></li>
+          <li><button class="scene" type="button">
+            <span class="scene__i num">04</span><span class="scene__n">Encerramento</span>
+            <span class="scene__t"></span></button></li>
+        </ul>
+
+        <div class="rail__sep"></div>
+        <p class="caps rail__hd">Transição</p>
+        <div class="take">
+          <button class="tk-btn" type="button" id="btnCorte">Corte<small>0 ms</small></button>
+          <button class="tk-btn" type="button" id="btnFusao">Fusão<small>400 ms</small></button>
+        </div>
+        <div class="rail__meta">
+          <div><span>Gravando</span><span>01:47:22</span></div>
+          <div><span>Disco livre</span><span>412 GB</span></div>
+          <div><span>Convidados</span><span>2 no palco</span></div>
+        </div>
+      </div>
+
+      <!-- ── monitores + telemetria ── -->
+      <div class="stagecol">
+
+        <div>
+          <div class="mon__hd">
+            <span class="mon__tag mon__tag--pgm">PGM</span>
+            <span class="mon__name" id="pgmName">Abertura</span>
+            <span class="mon__spec">1920 × 1080 · 16:9 · 60p</span>
+          </div>
+          <div class="frame frame--pgm" id="pgmFrame">
+            <div class="stage" role="img" aria-label="Monitor de programa no ar: barras de teste SMPTE com PLUGE e gerador de caracteres">
+              <div class="bars" aria-hidden="true">
+                <div class="bars__m"></div><div class="bars__c"></div><div class="bars__p"></div>
+              </div>
+              <span class="g g--v" style="left:33.333%"></span>
+              <span class="g g--v" style="left:66.666%"></span>
+              <span class="g g--h" style="top:33.333%"></span>
+              <span class="g g--h" style="top:66.666%"></span>
+              <span class="g--safe"></span><span class="g--x"></span><span class="g--y"></span>
+              <span class="burn burn--tl">PGM · Abertura</span>
+              <span class="burn burn--tr">CÂM 1 · f/2.0 · 1/60</span>
+              <span class="burn burn--br">01:47:22:14</span>
+              <span class="gc">
+                <span class="gc__bar" aria-hidden="true"></span>
+                <span class="gc__tx">
+                  <b>Caio Mendonça</b>
+                  <span>Engenheiro de transmissão · Porto Alegre</span>
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stagerow">
+          <div>
+            <div class="mon__hd">
+              <span class="mon__tag mon__tag--pvw">PVW</span>
+              <span class="mon__name" id="pvwName">Entrevista</span>
+            </div>
+            <div class="frame frame--pvw">
+              <div class="stage" role="img" aria-label="Monitor de pré-visualização: rampa de cinzas de dez degraus">
+                <div class="gray" aria-hidden="true"></div>
+                <span class="g g--v" style="left:33.333%"></span>
+                <span class="g g--v" style="left:66.666%"></span>
+                <span class="g g--h" style="top:33.333%"></span>
+                <span class="g g--h" style="top:66.666%"></span>
+                <span class="g--safe"></span>
+                <span class="burn burn--tl">PVW</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="telem">
+            <div class="telem__clock">
+              <b class="num" id="clock2">01:47:22</b>
+              <span class="caps" id="clockLb">no ar</span>
+            </div>
+            <div class="reads">
+              <div class="read"><span class="caps read__k">Taxa</span>
+                <span class="read__v">60<small>fps</small></span></div>
+              <div class="read"><span class="caps read__k">Bitrate</span>
+                <span class="read__v">6,2<small>Mbps</small></span></div>
+              <div class="read"><span class="caps read__k">RTT</span>
+                <span class="read__v">18<small>ms</small></span></div>
+              <div class="read"><span class="caps read__k">Perda</span>
+                <span class="read__v">0,02<small>%</small></span></div>
+            </div>
+            <div class="telem__enc">
+              <span class="caps">Codificador</span>
+              <span class="num">H.264 · perfil alto · keyframe 2 s · CBR</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── destinos / chat / áudio ── -->
+      <div class="side">
+
+        <div>
+          <div class="side__hd"><span class="caps">Destinos</span><span class="caps num">3 canais</span></div>
+          <div class="dests">
+            <div class="dest">
+              <span class="mark" data-st="live" data-live="1" aria-hidden="true"></span>
+              <span class="dest__n">YouTube</span>
+              <span class="dest__s">
+                <span class="dest__st dest__st--live" data-airline="1">no ar</span>
+                <span class="dest__bw">6,2 Mbps</span>
+              </span>
+            </div>
+            <div class="dest">
+              <span class="mark" data-st="live" data-live="1" aria-hidden="true"></span>
+              <span class="dest__n">Facebook</span>
+              <span class="dest__s">
+                <span class="dest__st dest__st--live" data-airline="1">no ar</span>
+                <span class="dest__bw">4,0 Mbps</span>
+              </span>
+            </div>
+            <!-- linha de reconexão honesta — enxerto de d4: o contador de tentativa
+                 entra no texto de estado e a vazão é um travessão, não um número velho. -->
+            <div class="dest">
+              <span class="mark" data-st="warn" aria-hidden="true"></span>
+              <span class="dest__n">Twitch</span>
+              <span class="dest__s">
+                <span class="chip">reconectando 3/8</span>
+                <span class="dest__bw">— Mbps</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat">
+          <div class="side__hd"><span class="caps">Chat unificado</span><span class="caps num">4 novas</span></div>
+          <div class="chat__list">
+            <article class="msg">
+              <div class="msg__hd"><span class="msg__who">Roberto Santos</span>
+                <span class="msg__src">YT</span><span class="msg__t">01:41</span></div>
+              <p class="msg__b">O áudio hoje está impecável, dá pra ouvir cada detalhe da mesa.</p>
+            </article>
+            <article class="msg">
+              <div class="msg__hd"><span class="msg__who">Fernanda Lima</span>
+                <span class="msg__src">TW</span><span class="msg__t">01:43</span></div>
+              <p class="msg__b">Dá pra repetir a parte do orçamento? Entrei atrasada aqui.</p>
+            </article>
+            <article class="msg">
+              <div class="msg__hd"><span class="msg__who">Ana Beatriz</span>
+                <span class="msg__src">FB</span><span class="msg__t">01:45</span></div>
+              <p class="msg__b">Já compartilhei o link com o time inteiro de Fortaleza. Abraço!</p>
+            </article>
+            <article class="msg">
+              <div class="msg__hd"><span class="msg__who">Roberto Santos</span>
+                <span class="msg__src">YT</span><span class="msg__t">01:46</span></div>
+              <p class="msg__b">Vocês abrem para perguntas antes de encerrar?</p>
+            </article>
+          </div>
+          <div class="chat__in">
+            <label class="sr" for="chatmsg">Responder no chat</label>
+            <input id="chatmsg" type="text" placeholder="Responder como PwStream…">
+            <button class="ctl" type="button" style="height:30px">Enviar</button>
+          </div>
+        </div>
+
+        <div class="vu">
+          <div class="vu__hd">
+            <b>Microfone — Canal 1</b>
+            <span>Shure MV7 · 48 kHz</span>
+          </div>
+          <div class="vu__row">
+            <span class="vu__k">E</span>
+            <span class="vu__track"><span class="vu__fill" style="width:74%;--pk:.74"></span><span class="vu__seg"></span></span>
+            <span class="vu__pk">−9,4 dB</span>
+          </div>
+          <div class="vu__row">
+            <span class="vu__k">D</span>
+            <span class="vu__track"><span class="vu__fill" style="width:67%;--pk:.67"></span><span class="vu__seg"></span></span>
+            <span class="vu__pk">−11,2 dB</span>
+          </div>
+          <div class="vu__scale" aria-hidden="true">
+            <span>−60</span><span>−40</span><span>−20</span><span>−12</span><span>−6</span><span>0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── bandeja ── -->
+    <div class="tray">
+      <button class="ctl" type="button" aria-pressed="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="6" y="1.5" width="4" height="8" rx="2"/><path d="M3.5 7.6a4.5 4.5 0 0 0 9 0"/><path d="M8 12.1v2.4"/>
+        </svg>Microfone
+      </button>
+      <button class="ctl" type="button" aria-pressed="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="1.5" y="4" width="9" height="8" rx="1.5"/><path d="M10.5 7 14.5 4.6v6.8L10.5 9z"/>
+        </svg>Câmera
+      </button>
+      <button class="ctl" type="button" aria-pressed="false">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="1.5" y="2.5" width="13" height="9" rx="1.5"/><path d="M6 14.2h4"/>
+        </svg>Compartilhar tela
+      </button>
+      <span class="tray__sep" aria-hidden="true"></span>
+      <button class="ctl" type="button">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="1.5" y="5.5" width="9" height="8" rx="1.5"/>
+          <path d="M4.6 5.5v-1A1.5 1.5 0 0 1 6.1 3h6.4A1.5 1.5 0 0 1 14 4.5V11a1.5 1.5 0 0 1-1.5 1.5h-1"/>
+        </svg>Cenas
+      </button>
+      <button class="ctl" type="button" id="btnGuias" aria-pressed="false">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <rect x="1.5" y="2.5" width="13" height="11"/><path d="M5.8 2.5v11M10.2 2.5v11M1.5 6.2h13M1.5 9.8h13"/>
+        </svg>Guias
+      </button>
+      <span class="tray__t">gravando 01:47:22 · 412 GB livres</span>
+      <span class="endwell">
+        <span class="endwell__hint" id="endHint">Segure 1 s para encerrar</span>
+        <button class="end" type="button" id="endBtn">
+          <span class="end__chg" id="endChg" aria-hidden="true"></span>
+          <span class="end__lb">
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1"/></svg>
+            <span id="endTx">Encerrar transmissão</span>
+          </span>
+        </button>
+      </span>
+    </div>
+  </div>
+
+  <div class="con__foot">
+    <p><b>Regra de tema.</b> O entorno do monitor não troca de tema, em escopo nenhum. Mudar a
+      luminância ao redor da imagem muda como o operador lê a imagem — isso é colorimetria,
+      não preferência. O botão no topo alterna a página; o console fica onde está.</p>
+    <p><b>Sem pulsação.</b> Zero animação infinita neste arquivo. O tally é constante, o medidor
+      não respira e nenhum ponto pisca. Só transições de estado de até 110&nbsp;ms.</p>
+    <p><b>Parada com mecanismo.</b> Encerrar exige 900&nbsp;ms de pressão e tem poço, altura e
+      matiz próprios. Entrar no ar é um toque: só o destrutivo é guardado.</p>
+  </div>
+</section>
+
+<!-- ════════════════ SUPERFÍCIE 2 — PÁGINA PÚBLICA ════════════════ -->
+<section class="sec wrap" id="planos">
+  <div class="sec__hd">
+    <div>
+      <p class="caps sec__eyebrow">Superfície 02 — Página pública</p>
+      <h2 class="sec__title">Fora do ar, não existe vermelho.</h2>
+    </div>
+    <p class="sec__note">
+      A página de vendas não está transmitindo, então não tem direito à cor de sinal.
+      Aqui a hierarquia inteira é <b>valor e espaço</b>: a ação primária é o contraste máximo do
+      tema, não um gradiente. O único vermelho da página está dentro do quadro de produto —
+      onde ele significa alguma coisa.
+    </p>
+  </div>
+
+  <div class="hero">
+    <div>
+      <p class="caps" style="color:var(--text-dim)">Transmissão ao vivo · produto brasileiro</p>
+      <h1>
+        <span>Ao vivo em três plataformas.</span>
+        <span><em>Uma pessoa no comando.</em></span>
+      </h1>
+      <p class="hero__lead">
+        O PwStream monta as cenas, junta o chat, mede o sinal e entrega para YouTube,
+        Facebook e Twitch ao mesmo tempo — direto do navegador, sem instalar nada.
+        O painel foi desenhado para sumir: quem tem que aparecer é a imagem.
+      </p>
+      <div class="hero__cta">
+        <a class="btn" href="#planos">Criar minha primeira transmissão</a>
+        <span class="hero__fine">14 dias de teste. Sem cartão de crédito.</span>
+      </div>
+      <div class="hero__facts">
+        <span><b>Sem instalação</b> — Chrome, Edge ou Firefox</span>
+        <span><b>RTMP e SRT</b> — chave própria por destino</span>
+        <span><b>Suporte em português</b> — dias úteis, das 9h às 19h</span>
+      </div>
+    </div>
+
+    <figure class="shot">
+      <div class="shot__bar">
+        <span class="caps">Monitor de programa</span>
+        <span class="tally" style="margin-left:auto"><i aria-hidden="true"></i>No ar</span>
+      </div>
+      <div class="shot__stage" data-surface="console">
+        <div class="frame frame--pgm">
+          <div class="stage" role="img" aria-label="Quadro de programa no ar com barras de teste e gerador de caracteres">
+            <div class="bars" aria-hidden="true">
+              <div class="bars__m"></div><div class="bars__c"></div><div class="bars__p"></div>
+            </div>
+            <span class="burn burn--tl">PGM · Abertura</span>
+            <span class="burn burn--br">01:47:22:14</span>
+            <span class="gc">
+              <span class="gc__bar" aria-hidden="true"></span>
+              <span class="gc__tx"><b>Caio Mendonça</b><span>Engenheiro de transmissão</span></span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="shot__meta">
+        <div><span class="caps">Bitrate</span><b>6,2 Mbps</b></div>
+        <div><span class="caps">Taxa</span><b>60 fps</b></div>
+        <div><span class="caps">Perda</span><b>0,02 %</b></div>
+      </div>
+      <figcaption class="shot__cap">
+        <b>O único vermelho do produto.</b> Ele aparece quando você entra no ar e some quando
+        você encerra. Nenhum botão, gráfico, selo ou plano recomendado pode usá-lo.
+      </figcaption>
+    </figure>
+  </div>
+
+  <div class="plans">
+    <div class="plans__hd">
+      <h3>Planos</h3>
+      <p>Valores em reais, por mês, sem fidelidade. Troque de plano quando quiser.</p>
+    </div>
+
+    <div class="tablewrap">
+      <div class="ptable">
+
+        <div class="pc pc--lab pc--top"></div>
+        <div class="pc pc--top"><span class="pname">Standard</span><span class="caps prec">&nbsp;</span></div>
+        <div class="pc pc--top pc--rec"><span class="pname">Professional</span><span class="caps prec">Recomendado</span></div>
+        <div class="pc pc--top"><span class="pname">Business</span><span class="caps prec">&nbsp;</span></div>
+
+        <div class="pc pc--lab">Assinatura</div>
+        <div class="pc">
+          <span class="pprice"><span class="cur">R$</span><span class="amt">49,90</span><span class="per">/mês</span></span>
+          <p class="pnote">3 canais simultâneos</p>
+        </div>
+        <div class="pc">
+          <span class="pprice"><span class="cur">R$</span><span class="amt">99,90</span><span class="per">/mês</span></span>
+          <p class="pnote">5 canais + co-produtores</p>
+        </div>
+        <div class="pc">
+          <span class="pprice"><span class="cur">R$</span><span class="amt">199,90</span><span class="per">/mês</span></span>
+          <p class="pnote">8 canais + SRT profissional</p>
+        </div>
+
+        <div class="pc pc--lab">Canais simultâneos</div>
+        <div class="pc pc--val"><span class="num">3</span></div>
+        <div class="pc pc--val"><span class="num">5</span></div>
+        <div class="pc pc--val"><span class="num">8</span></div>
+
+        <div class="pc pc--lab">Resolução máxima</div>
+        <div class="pc pc--val"><span class="num">720p</span> a <span class="num">30</span> fps</div>
+        <div class="pc pc--val"><span class="num">1080p</span> a <span class="num">60</span> fps</div>
+        <div class="pc pc--val"><span class="num">1080p</span> a <span class="num">60</span> fps</div>
+
+        <div class="pc pc--lab">Gravação na nuvem</div>
+        <div class="pc pc--val"><span class="num">20</span> h</div>
+        <div class="pc pc--val"><span class="num">100</span> h</div>
+        <div class="pc pc--val"><span class="num">500</span> h</div>
+
+        <div class="pc pc--lab">Co-produtores e convidados</div>
+        <div class="pc pc--val" style="color:var(--text-lo)">—</div>
+        <div class="pc pc--val"><span class="num">4</span> no palco</div>
+        <div class="pc pc--val"><span class="num">10</span> no palco + sala verde</div>
+
+        <div class="pc pc--lab">Entrada de sinal</div>
+        <div class="pc pc--val">RTMP</div>
+        <div class="pc pc--val">RTMP</div>
+        <div class="pc pc--val">RTMP + SRT profissional</div>
+
+        <div class="pc pc--lab pc--act"></div>
+        <div class="pc pc--act"><button class="btn btn--ghost" type="button">Assinar Standard</button></div>
+        <div class="pc pc--act"><button class="btn btn--ghost" type="button">Assinar Professional</button></div>
+        <div class="pc pc--act"><button class="btn btn--ghost" type="button">Assinar Business</button></div>
+      </div>
+    </div>
+
+    <p class="plans__fine">
+      Todos os planos incluem chat unificado, cenas ilimitadas, enquetes e compartilhamento de
+      tela. A cobrança é em reais, emitida pela PwStream, e o cancelamento é imediato dentro do
+      painel — sem ligação, sem retenção.
+    </p>
+  </div>
+</section>
+
+<!-- ════════════════ SUPERFÍCIE 3 — SISTEMA ════════════════ -->
+<section class="sec wrap" id="tokens">
+  <div class="sec__hd">
+    <div>
+      <p class="caps sec__eyebrow">Superfície 03 — Sistema de tokens</p>
+      <h2 class="sec__title">Dezoito degraus medidos, uma cor, dois alarmes.</h2>
+    </div>
+    <p class="sec__note">
+      A auditoria encontrou <b>187 hexadecimais</b>, sendo 102 cinzas escuros e 39 dentro de uma
+      faixa de 8 pontos de luminância. Aqui há <b>uma rampa</b>, espaçada por L* com croma
+      exatamente zero, <b>três valores de sinal</b> e <b>um vocabulário semântico só</b> —
+      o console é esse mesmo vocabulário reatribuído por <code>[data-surface="console"]</code>,
+      não um segundo conjunto de nomes.
+    </p>
+  </div>
+
+  <div class="tk">
+
+    <section>
+      <h3 class="tk__h">Rampa neutra — croma zero (R=G=B), passos por L*</h3>
+      <p class="tk__sub">
+        Primitivas. Nenhum componente as consome diretamente: cada superfície usa um alias
+        semântico, e só os aliases mudam de escopo. O preto absoluto existe uma única vez —
+        dentro do letterbox do vídeo.
+      </p>
+      <div class="ramp">
+        <div class="sw"><div class="sw__c" style="background:var(--n-0)"></div><div class="sw__m"><span class="sw__hex">#000000</span><span class="sw__l">Y&nbsp;&nbsp;&nbsp;0,00 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-3)"></div><div class="sw__m"><span class="sw__hex">#0B0B0B</span><span class="sw__l">Y&nbsp;&nbsp;&nbsp;0,33 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-6)"></div><div class="sw__m"><span class="sw__hex">#131313</span><span class="sw__l">Y&nbsp;&nbsp;&nbsp;0,65 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-10)"></div><div class="sw__m"><span class="sw__hex">#1B1B1B</span><span class="sw__l">Y&nbsp;&nbsp;&nbsp;1,10 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-14)"></div><div class="sw__m"><span class="sw__hex">#242424</span><span class="sw__l">Y&nbsp;&nbsp;&nbsp;1,76 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-18)"></div><div class="sw__m"><span class="sw__hex">#2C2C2C</span><span class="sw__l">Y&nbsp;&nbsp;&nbsp;2,52 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-22)"></div><div class="sw__m"><span class="sw__hex">#353535</span><span class="sw__l">Y&nbsp;&nbsp;&nbsp;3,56 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-28)"></div><div class="sw__m"><span class="sw__hex">#424242</span><span class="sw__l">Y&nbsp;&nbsp;&nbsp;5,45 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-36)"></div><div class="sw__m"><span class="sw__hex">#555555</span><span class="sw__l">Y&nbsp;&nbsp;&nbsp;9,08 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-46)"></div><div class="sw__m"><span class="sw__hex">#6D6D6D</span><span class="sw__l">Y&nbsp;15,29 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-58)"></div><div class="sw__m"><span class="sw__hex">#8B8B8B</span><span class="sw__l">Y&nbsp;25,82 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-70)"></div><div class="sw__m"><span class="sw__hex">#ABABAB</span><span class="sw__l">Y&nbsp;40,72 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-80)"></div><div class="sw__m"><span class="sw__hex">#C6C6C6</span><span class="sw__l">Y&nbsp;56,47 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-89)"></div><div class="sw__m"><span class="sw__hex">#E0E0E0</span><span class="sw__l">Y&nbsp;74,54 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-92)"></div><div class="sw__m"><span class="sw__hex">#E8E8E8</span><span class="sw__l">Y&nbsp;80,70 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-96)"></div><div class="sw__m"><span class="sw__hex">#F4F4F4</span><span class="sw__l">Y&nbsp;90,47 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-99)"></div><div class="sw__m"><span class="sw__hex">#FCFCFC</span><span class="sw__l">Y&nbsp;97,34 %</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-100)"></div><div class="sw__m"><span class="sw__hex">#FFFFFF</span><span class="sw__l">Y&nbsp;100,00 %</span></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Sinal — a única cromia do sistema</h3>
+      <p class="tk__sub">
+        Carmim de tally em matiz 355°, do lado azul do vermelho para não ler como vermelhão
+        publicitário. Aparece em cinco lugares e em nenhum outro: moldura externa do PGM, selo
+        <span class="caps">no ar</span>, marcador da cena no ar, etiqueta PGM e a tecla que
+        encerra. A moldura de PVW é <b>acromática e casada em luminância</b> com o carmim
+        (15,29 % contra 15,92 %), para que trocar de programa não mude a luminância do entorno.
+      </p>
+      <div class="sigrow">
+        <div class="sigcard">
+          <div class="sigcard__c" style="background:var(--sig-500);color:var(--n-100)">#D91F2D</div>
+          <div class="sigcard__m"><b>--sig-500</b>Preenchimento de tally. Branco por cima: 5,02:1.</div>
+        </div>
+        <div class="sigcard">
+          <div class="sigcard__c" style="background:var(--sig-700);color:var(--n-100)">#A81622</div>
+          <div class="sigcard__m"><b>--sig-700</b>Sinal como texto no claro · face da tecla de parada: 7,49:1.</div>
+        </div>
+        <div class="sigcard">
+          <div class="sigcard__c" style="background:var(--sig-300);color:var(--n-3)">#F4666A</div>
+          <div class="sigcard__m"><b>--sig-300</b>Sinal como texto sobre grafite: 5,70 a 6,52:1.</div>
+        </div>
+        <div class="sigcard">
+          <div class="sigcard__c" style="background:var(--sig-tint);color:var(--sig-text)">tinta opaca</div>
+          <div class="sigcard__m"><b>--sig-tint</b>Hexadecimal achatado, nunca <code>color-mix</code>: o par é verificável.</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Canal de alarme — inversão de valor em dois níveis</h3>
+      <p class="tk__sub">
+        <b>Não há verde, âmbar nem azul no sistema.</b> Falha e atenção usam inversão de valor,
+        que continua funcionando para quem não distingue vermelho e não gasta uma segunda
+        cromia ao lado do monitor. São <b>dois níveis</b>, não um: atenção em Y&nbsp;25,8 % e
+        falha em Y&nbsp;56,5 %, para que dois defeitos simultâneos não fiquem idênticos.
+        No estado nominal do console nada acima de 26 % de luminância é aceso.
+      </p>
+      <div class="alarmdemo">
+        <span class="chip">reconectando 3/8</span>
+        <span class="chip chip--fault">sem conexão</span>
+        <span style="font-size:var(--fs-12);color:var(--text-lo)">
+          atenção 5,78:1 &nbsp;·&nbsp; falha 11,52:1
+        </span>
+      </div>
+      <p class="tk__sub" style="margin-bottom:0">
+        A moldura do tally é um <b>anel externo</b> de 2px em torno do quadro — um elemento-pai
+        com 2px de recuo — e não um <code>box-shadow: inset</code>, que seria desenhado por
+        dentro, sobre a borda da própria imagem que o operador está julgando.
+      </p>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Aliases semânticos — claro · escuro · console</h3>
+      <p class="tk__sub">
+        Um vocabulário, três atribuições. A coluna do tema ativo fica em opacidade plena;
+        a coluna do console fica sempre plena, porque ela nunca muda.
+        Todos os pares de texto abaixo foram medidos: <b>o mínimo do sistema é 4,56:1</b>.
+      </p>
+      <div class="tablewrap">
+        <table class="tk__table">
+          <thead><tr>
+            <th scope="col">Token</th>
+            <th scope="col" class="tk-l">Claro</th>
+            <th scope="col" class="tk-d">Escuro</th>
+            <th scope="col">Console (fixo)</th>
+            <th scope="col">Papel · contraste mínimo medido</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>--bg</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-100)"></span>#FFFFFF</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-3)"></span>#0B0B0B</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-3)"></span>#0B0B0B</td>
+              <td class="role">Fundo da página / poço do palco. <code>body</code> lê daqui.</td></tr>
+            <tr><td>--surface</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-99)"></span>#FCFCFC</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-6)"></span>#131313</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-6)"></span>#131313</td>
+              <td class="role">Cartão, figura, barra e trilho do console.</td></tr>
+            <tr><td>--panel</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-96)"></span>#F4F4F4</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-10)"></span>#1B1B1B</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-10)"></span>#1B1B1B</td>
+              <td class="role">Painel aninhado: telemetria, lista lateral.</td></tr>
+            <tr><td>--raise</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-100)"></span>#FFFFFF</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-14)"></span>#242424</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-14)"></span>#242424</td>
+              <td class="role">Face de tecla erguida. Hierarquia por rampa, não por sombra.</td></tr>
+            <tr><td>--well</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-96)"></span>#F4F4F4</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-3)"></span>#0B0B0B</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-3)"></span>#0B0B0B</td>
+              <td class="role">Poço recuado: campo de texto e alojamento da tecla de parada.</td></tr>
+            <tr><td>--stage</td>
+              <td class="hexcell" colspan="3"><span class="dotc" style="background:var(--n-0)"></span>#000000 — nunca reatribuído</td>
+              <td class="role">Letterbox. O único preto absoluto do sistema.</td></tr>
+            <tr><td>--text-hi</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-6)"></span>#131313</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-96)"></span>#F4F4F4</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-92)"></span>#E8E8E8</td>
+              <td class="role">Título, valor de leitura. <span class="ok">16,89 · 15,66 · 12,67</span></td></tr>
+            <tr><td>--text</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-28)"></span>#424242</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-80)"></span>#C6C6C6</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-70)"></span>#ABABAB</td>
+              <td class="role">Corpo, mensagem de chat. <span class="ok">9,14 · 10,08 · 6,76</span></td></tr>
+            <tr><td>--text-lo</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-36)"></span>#555555</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-70)"></span>#ABABAB</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-58)"></span>#8B8B8B</td>
+              <td class="role">Rótulo de telemetria, timestamp, escala. <span class="ok">6,78 · 7,50 · 4,56</span></td></tr>
+            <tr><td>--text-dim</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-46)"></span>#6D6D6D</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-58)"></span>#8B8B8B</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-58)"></span>#8B8B8B</td>
+              <td class="role">O degrau mais fraco <b>ainda passa AA</b>: 4,70 · 5,06 · 4,56.
+                No console ele colapsa sobre <code>--text-lo</code>.</td></tr>
+            <tr><td>--line</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-89)"></span>#E0E0E0</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-18)"></span>#2C2C2C</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-18)"></span>#2C2C2C</td>
+              <td class="role">Separador decorativo. Substitui 816 bordas e 7 opacidades.</td></tr>
+            <tr><td>--line-strong</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-80)"></span>#C6C6C6</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-28)"></span>#424242</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-22)"></span>#353535</td>
+              <td class="role">Moldura de contêiner estático.</td></tr>
+            <tr><td>--line-ctl</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-46)"></span>#6D6D6D</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-46)"></span>#6D6D6D</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-46)"></span>#6D6D6D</td>
+              <td class="role">Limite de controle interativo. <span class="ok">5,17 · 3,80 · 3,59</span> — WCAG 1.4.11.</td></tr>
+            <tr><td>--action / --on-action</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-6)"></span>#131313</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-96)"></span>#F4F4F4</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-14)"></span>#242424</td>
+              <td class="role">Ação primária: contraste, não cor. <span class="ok">18,11 · 16,89 · 12,67</span></td></tr>
+            <tr><td>--focus</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-6)"></span>#131313</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-96)"></span>#F4F4F4</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-96)"></span>#F4F4F4</td>
+              <td class="role">Anel 2px, offset 2px. O sinal não é gasto em foco.</td></tr>
+            <tr><td>--sig-text</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--sig-700)"></span>#A81622</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--sig-300)"></span>#F4666A</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--sig-300)"></span>#F4666A</td>
+              <td class="role">Sinal como texto. Só em contexto no ar. <span class="ok">7,30 · 6,52 · 5,70</span></td></tr>
+            <tr><td>--warn-bg / --fault-bg</td>
+              <td class="hexcell tk-l"><span class="dotc" style="background:var(--n-36)"></span>#555555 · #353535</td>
+              <td class="hexcell tk-d"><span class="dotc" style="background:var(--n-58)"></span>#8B8B8B · #C6C6C6</td>
+              <td class="hexcell"><span class="dotc" style="background:var(--n-58)"></span>#8B8B8B · #C6C6C6</td>
+              <td class="role">Alarme por inversão de valor. <span class="ok">7,27 / 11,96 · 5,78 / 11,52</span></td></tr>
+            <tr><td>--vid-*</td>
+              <td class="hexcell" colspan="3">14 valores de sinal de teste — <b>nunca redefinidos, em escopo nenhum</b></td>
+              <td class="role">Barras SMPTE, PLUGE e rampa de cinzas. Vídeo é vídeo.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Séries de dados — a rampa, não o arco-íris</h3>
+      <p class="tk__sub">
+        A auditoria encontrou a paleta de gráfico como a rampa 500 literal do Tailwind, sem
+        nenhuma relação com o produto. Aqui as séries são <b>cinco degraus de valor</b> e
+        uma sexta reservada: <code>--series-live</code> é o carmim, e só pode marcar a série
+        que está no ar agora. Um gráfico é uma leitura, não uma decoração.
+      </p>
+      <div class="serie" aria-hidden="true">
+        <i style="background:var(--series-1)"></i><i style="background:var(--series-2)"></i>
+        <i style="background:var(--series-3)"></i><i style="background:var(--series-4)"></i>
+        <i style="background:var(--series-5)"></i><i style="background:var(--series-live)"></i>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Escala tipográfica — IBM Plex Sans · IBM Plex Mono</h3>
+      <p class="tk__sub">
+        Duas famílias com métricas verticais compatíveis: uma coluna de rótulos e uma de números
+        alinham sem gambiarra. Pesos 400 / 500 / 600 — <b>não existe 700, 800 nem 900</b> neste
+        sistema (a auditoria contou 224 usos de <code>font-black</code> num peso que nenhuma das
+        famílias carregadas fornece), e <code>font-synthesis-weight: none</code> impede que o
+        navegador invente um. O título grande é 400: peso pesado grita, tamanho grande basta.
+        <b>Nove degraus substituem 1.101 tamanhos arbitrários em px</b>, e o piso é 11px — não
+        existe texto abaixo disso.
+      </p>
+      <div class="spec">
+        <div class="specrow">
+          <div class="specrow__k">--fs-hero<b>36→50px · 1.06 · −0.028em · 400</b></div>
+          <div class="specrow__s s-hero">Ao vivo em três plataformas.</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-34<b>34px · 1.10 · −0.01em · mono 500</b></div>
+          <div class="specrow__s s-34 num">01:47:22</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-26<b>26px · 1.28 · −0.01em · 600</b></div>
+          <div class="specrow__s s-26">Fora do ar, não existe vermelho</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-21<b>21px · 1.28 · −0.01em · 600</b></div>
+          <div class="specrow__s s-21">Planos e assinatura</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-17<b>17px · 1.62 · 0 · 400 · 54ch</b></div>
+          <div class="specrow__s s-17">Cenas, chat unificado e compartilhamento de tela num painel que fica quieto.</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-15<b>15px · 1.45 · 0 · 400</b></div>
+          <div class="specrow__s s-15">Corpo padrão da interface e das listas.</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-13<b>13px · 1.45 · 0 · 400</b></div>
+          <div class="specrow__s s-13">Linha de console, mensagem de chat, célula de tabela.</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-12<b>12px · 1.45 · 0 · 500</b></div>
+          <div class="specrow__s s-12">Nome no chat, rótulo de controle, aviso curto.</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-11<b>11px · 1.20 · +0.085em · 600 · caixa alta</b></div>
+          <div class="specrow__s s-11">Piso absoluto — um por cabeçalho de painel</div>
+        </div>
+        <div class="specrow" style="border-bottom:0">
+          <div class="specrow__k">tabular-nums<b>obrigatório em todo dígito</b></div>
+          <div class="specrow__s">
+            <div class="numdemo">
+              <div><p class="caps">Assinatura</p><ul><li>R$ 49,90</li><li>R$ 99,90</li><li>R$ 199,90</li></ul></div>
+              <div><p class="caps">Timecode</p><ul><li>00:04:09</li><li>01:47:22</li><li>11:08:56</li></ul></div>
+              <div><p class="caps">Telemetria</p><ul><li>6,2 Mbps</li><li>18 ms</li><li>0,02 %</li></ul></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Regras de forma e de instrumento</h3>
+      <div class="rules">
+        <div class="rule">
+          <h4>Raio</h4>
+          <div class="rdemo" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <dl>
+            <div class="r"><dt>0px</dt><dd>Imagem, palco, medidor. Nada corta o quadro que o operador julga.</dd></div>
+            <div class="r"><dt>2px</dt><dd>Abaixo de 24px: selo, chip, marcador.</dd></div>
+            <div class="r"><dt>4px</dt><dd>De 24 a 48px: botão, campo, aba.</dd></div>
+            <div class="r"><dt>8px</dt><dd>Contêiner: painel, figura, console.</dd></div>
+            <div class="r"><dt>50%</dt><dd>Só ponto de estado. Nunca um botão.</dd></div>
+          </dl>
+        </div>
+        <div class="rule">
+          <h4>Elevação</h4>
+          <div class="edemo" aria-hidden="true"><i></i><i></i></div>
+          <dl>
+            <div class="r"><dt>e-0</dt><dd>Fio de 1px. É o padrão de 97 % das superfícies — a profundidade vem da rampa.</dd></div>
+            <div class="r"><dt>e-1</dt><dd>Uma sombra, para popover e modal. Não existe e-2.</dd></div>
+            <div class="r"><dt>—</dt><dd>Zero brilho colorido, zero <code>backdrop-blur</code>, zero gradiente decorativo.</dd></div>
+          </dl>
+        </div>
+        <div class="rule">
+          <h4>Instrumento</h4>
+          <dl>
+            <div class="r"><dt>parada</dt><dd>44px, poço próprio, <b>900 ms de pressão</b>. O guarda é mecanismo, não uma frase.</dd></div>
+            <div class="r"><dt>entrada</dt><dd>Um toque. Só o destrutivo é guardado.</dd></div>
+            <div class="r"><dt>leitura</dt><dd>Célula com <code>min-width</code>: a coluna não desloca quando o dígito muda.</dd></div>
+            <div class="r"><dt>estado</dt><dd>Nenhum estado por cor sozinha — sempre com palavra, forma ou valor.</dd></div>
+          </dl>
+        </div>
+        <div class="rule">
+          <h4>Densidade e marca</h4>
+          <dl>
+            <div class="r"><dt>console</dt><dd>Ritmo 4 / 6 / 8 / 12 / 16. Linha de 28px. É um instrumento.</dd></div>
+            <div class="r"><dt>editorial</dt><dd>Ritmo 16 / 24 / 32 / 48 / 64 / 96. Prosa em 54–78ch.</dd></div>
+            <div class="r"><dt>marca</dt><dd><b>PwStream</b> — uma grafia. Nunca PwStreamer, PW&nbsp;Stream ou pwstream.</dd></div>
+            <div class="r"><dt>movimento</dt><dd>Só transições de estado, ≤ 110 ms, lineares. Zero animação infinita.</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Bloco <code>@theme</code> — Tailwind v4, pronto para colar</h3>
+      <p class="tk__sub">
+        As primitivas e as escalas vivem em <code>@theme</code>; os aliases semânticos são
+        variáveis de runtime reatribuídas em três blocos, e <code>@theme</code> as expõe como
+        utilitários (<code>bg-surface</code>, <code>text-lo</code>, <code>border-ctl</code>).
+        O console é <code>[data-surface="console"]</code> — nenhum segundo namespace.
+      </p>
+      <div class="code">@theme {
+  /* rampa neutra — croma zero */
+  --color-n-0:#000000;  --color-n-3:#0B0B0B;  --color-n-6:#131313;
+  --color-n-10:#1B1B1B; --color-n-14:#242424; --color-n-18:#2C2C2C;
+  --color-n-22:#353535; --color-n-28:#424242; --color-n-36:#555555;
+  --color-n-46:#6D6D6D; --color-n-58:#8B8B8B; --color-n-70:#ABABAB;
+  --color-n-80:#C6C6C6; --color-n-89:#E0E0E0; --color-n-92:#E8E8E8;
+  --color-n-96:#F4F4F4; --color-n-99:#FCFCFC; --color-n-100:#FFFFFF;
+
+  /* sinal — a única cromia */
+  --color-sig-300:#F4666A; --color-sig-500:#D91F2D; --color-sig-700:#A81622;
+
+  /* aliases semânticos → utilitários */
+  --color-bg:var(--bg);              --color-surface:var(--surface);
+  --color-panel:var(--panel);        --color-raise:var(--raise);
+  --color-well:var(--well);          --color-stage:var(--stage);
+  --color-text-hi:var(--text-hi);    --color-text:var(--text);
+  --color-text-lo:var(--text-lo);    --color-text-dim:var(--text-dim);
+  --color-line:var(--line);          --color-line-strong:var(--line-strong);
+  --color-line-ctl:var(--line-ctl);  --color-action:var(--action);
+  --color-on-action:var(--on-action);--color-focus:var(--focus);
+  --color-sig-fill:var(--sig-fill);  --color-sig-text:var(--sig-text);
+  --color-sig-tint:var(--sig-tint);  --color-on-sig:var(--on-sig);
+  --color-warn-bg:var(--warn-bg);    --color-warn-fg:var(--warn-fg);
+  --color-fault-bg:var(--fault-bg);  --color-fault-fg:var(--fault-fg);
+  --color-series-1:var(--series-1);  /* … 2–5 e --color-series-live */
+
+  --radius-0:0;   --radius-1:2px; --radius-2:4px; --radius-3:8px;
+  --shadow-e0:none;
+  --shadow-e1:0 1px 1px rgb(0 0 0/.05), 0 10px 28px rgb(0 0 0/.10);
+
+  --text-11:.6875rem;  --text-12:.75rem;    --text-13:.8125rem;
+  --text-15:.9375rem;  --text-17:1.0625rem; --text-21:1.3125rem;
+  --text-26:1.625rem;  --text-34:2.125rem;
+  --text-hero:clamp(2.25rem, 4.4vw, 3.125rem);
+
+  --font-ui:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-num:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}</div>
+    </section>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot wrap">
+  <p><b>PwStream</b> — transmissão ao vivo para YouTube, Facebook e Twitch.</p>
+  <p>Direção definitiva · 18 neutros medidos · 1 cor · 2 alarmes · 4 raios · 1 sombra · 0 animações infinitas.</p>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var root = document.documentElement;
+
+  /* ── tema ───────────────────────────────────────────────── */
+  var btn = document.getElementById('themeToggle'),
+      lbl = document.getElementById('themeLabel'),
+      KEY = 'pwstream-theme';
+  function stored(){ try{ return localStorage.getItem(KEY); }catch(e){ return null; } }
+  function save(v){ try{ localStorage.setItem(KEY, v); }catch(e){} }
+  function systemDark(){ return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function effective(){
+    var t = root.getAttribute('data-theme');
+    return (t === 'dark' || t === 'light') ? t : (systemDark() ? 'dark' : 'light');
+  }
+  function paintLabel(){
+    var e = effective();
+    if (lbl) lbl.textContent = (e === 'dark') ? 'Escuro' : 'Claro';
+    if (btn) btn.setAttribute('aria-label',
+      e === 'dark' ? 'Tema escuro ativo. Mudar para o tema claro.'
+                   : 'Tema claro ativo. Mudar para o tema escuro.');
+  }
+  var s = stored();
+  if (s === 'dark' || s === 'light') root.setAttribute('data-theme', s);
+  paintLabel();
+  if (btn) btn.addEventListener('click', function(){
+    var next = (effective() === 'dark') ? 'light' : 'dark';
+    root.setAttribute('data-theme', next); save(next); paintLabel();
+  });
+  if (window.matchMedia){
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onc = function(){ if (!root.getAttribute('data-theme')) paintLabel(); };
+    if (mq.addEventListener) mq.addEventListener('change', onc);
+    else if (mq.addListener) mq.addListener(onc);
+  }
+
+  /* ── console ────────────────────────────────────────────── */
+  var con = document.getElementById('console');
+  if (!con) return;
+
+  /* guias sobre a imagem: desligadas por padrão, com botão real */
+  var gb = document.getElementById('btnGuias');
+  if (gb) gb.addEventListener('click', function(){
+    var on = con.getAttribute('data-guides') === 'on';
+    con.setAttribute('data-guides', on ? 'off' : 'on');
+    gb.setAttribute('aria-pressed', on ? 'false' : 'true');
+  });
+
+  /* seleção de cena + take real (PVW → PGM) */
+  var scenes  = Array.prototype.slice.call(con.querySelectorAll('.scene'));
+  var pgmName = document.getElementById('pgmName');
+  var pvwName = document.getElementById('pvwName');
+  function nameOf(el){ var n = el.querySelector('.scene__n'); return n ? n.textContent : ''; }
+  function paintScenes(){
+    scenes.forEach(function(el){
+      var st = el.getAttribute('data-state');
+      var t  = el.querySelector('.scene__t');
+      if (t) t.textContent = st ? st.toUpperCase() : '';
+      el.setAttribute('aria-current', st === 'pgm' ? 'true' : 'false');
+    });
+    var pgm = scenes.filter(function(e){ return e.getAttribute('data-state') === 'pgm'; })[0];
+    var pvw = scenes.filter(function(e){ return e.getAttribute('data-state') === 'pvw'; })[0];
+    if (pgm && pgmName) pgmName.textContent = nameOf(pgm);
+    if (pvw && pvwName) pvwName.textContent = nameOf(pvw);
+    var burn = con.querySelector('.burn--tl');
+    if (burn && pgm) burn.textContent = 'PGM · ' + nameOf(pgm);
+  }
+  scenes.forEach(function(el){
+    el.addEventListener('click', function(){
+      if (el.getAttribute('data-state') === 'pgm') return;
+      scenes.forEach(function(o){ if (o.getAttribute('data-state') === 'pvw') o.removeAttribute('data-state'); });
+      el.setAttribute('data-state','pvw');
+      paintScenes();
+    });
+  });
+  function take(){
+    var pgm = scenes.filter(function(e){ return e.getAttribute('data-state') === 'pgm'; })[0];
+    var pvw = scenes.filter(function(e){ return e.getAttribute('data-state') === 'pvw'; })[0];
+    if (!pvw) return;
+    if (pgm) pgm.setAttribute('data-state','pvw');
+    pvw.setAttribute('data-state','pgm');
+    paintScenes();
+  }
+  ['btnCorte','btnFusao'].forEach(function(id){
+    var b = document.getElementById(id);
+    if (b) b.addEventListener('click', take);
+  });
+  paintScenes();
+
+  /* tecla de parada — 900 ms de pressão. Entrar no ar é um toque. */
+  var end   = document.getElementById('endBtn'),
+      chg   = document.getElementById('endChg'),
+      endTx = document.getElementById('endTx'),
+      hint  = document.getElementById('endHint'),
+      tally = document.getElementById('tally'),
+      tlTx  = document.getElementById('tallyTx'),
+      clkLb = document.getElementById('clockLb'),
+      pgmFr = document.getElementById('pgmFrame');
+  var HOLD = 900, raf = null, timer = null, t0 = 0;
+
+  function setAir(on){
+    con.setAttribute('data-air', on ? 'on' : 'off');
+    if (tally){ tally.setAttribute('data-air', on ? 'on' : 'off'); }
+    if (tlTx)  tlTx.textContent  = on ? 'No ar' : 'Fora do ar';
+    if (clkLb) clkLb.textContent = on ? 'no ar' : 'parado';
+    if (endTx) endTx.textContent = on ? 'Encerrar transmissão' : 'Entrar no ar';
+    if (hint)  hint.textContent  = on ? 'Segure 1 s para encerrar' : 'Um toque para entrar no ar';
+    if (end)   end.setAttribute('aria-label', on
+      ? 'Encerrar transmissão. Mantenha pressionado por um segundo.'
+      : 'Entrar no ar.');
+    Array.prototype.forEach.call(con.querySelectorAll('.mark[data-live="1"]'), function(m){
+      m.setAttribute('data-st', on ? 'live' : 'ready');
+    });
+    Array.prototype.forEach.call(con.querySelectorAll('[data-airline]'), function(t){
+      t.textContent = on ? 'no ar' : 'pronto'; t.classList.toggle('dest__st--live', on);
+    });
+    if (pgmFr) pgmFr.classList.toggle('frame--pgm', on);
+  }
+  /* O disparo é um temporizador: a barra de carga é só a leitura visível dele.
+     Assim a pressão de 900 ms vale mesmo quando o rAF está estrangulado. */
+  function reset(){
+    if (timer) clearTimeout(timer);
+    if (raf) cancelAnimationFrame(raf);
+    timer = null; raf = null;
+    if (chg) chg.style.width = '0%';
+  }
+  function tick(){
+    var p = Math.min(1, (Date.now() - t0) / HOLD);
+    if (chg) chg.style.width = (p * 100).toFixed(1) + '%';
+    if (p < 1) raf = requestAnimationFrame(tick);
+  }
+  function press(ev){
+    if (con.getAttribute('data-air') !== 'on'){ setAir(true); return; }
+    if (ev && ev.type === 'keydown' && ev.repeat) return;
+    if (timer) return;
+    t0 = Date.now();
+    timer = setTimeout(function(){ reset(); setAir(false); }, HOLD);
+    raf = requestAnimationFrame(tick);
+  }
+  if (end){
+    end.addEventListener('pointerdown', press);
+    end.addEventListener('pointerup', reset);
+    end.addEventListener('pointerleave', reset);
+    end.addEventListener('pointercancel', reset);
+    end.addEventListener('keydown', function(e){
+      if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); press(e); }
+    });
+    end.addEventListener('keyup', function(e){
+      if (e.key === ' ' || e.key === 'Enter') reset();
+    });
+    end.addEventListener('blur', reset);
+  }
+})();
+</script>
+</body>
+</html>

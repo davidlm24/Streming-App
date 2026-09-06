@@ -164,27 +164,27 @@ export function VideoQualityPanel({
   const requiredUploadMbps = ((config.bitrateKbps + parseInt(config.audioBitrateKbps)) * 1.3 / 1000).toFixed(1);
 
   return (
-    <div className="bg-[var(--surface)] border border-slate-800 rounded-2xl overflow-hidden shadow-xl text-left">
+    <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl overflow-hidden shadow-xl text-left">
       {/* Header */}
-      <div className="p-5 border-b border-slate-800 bg-[var(--bg)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-5 border-b border-[var(--line)] bg-[var(--bg)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
             <Gauge size={20} />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
               Controle de Qualidade de Vídeo & Bitrate
             </h2>
-            <p className="text-xs text-gray-400">Ajuste resolução, bitrate e encoders otimizados para seu plano de transmissão.</p>
+            <p className="text-xs text-[var(--text-lo)]">Ajuste resolução, bitrate e encoders otimizados para seu plano de transmissão.</p>
           </div>
         </div>
 
         {/* Current Plan Badge & Optimization CTA */}
         <div className="flex items-center gap-2">
-          <div className="px-3 py-1.5 rounded-lg bg-[var(--bg)] border border-slate-800 text-xs flex items-center gap-2">
+          <div className="px-3 py-1.5 rounded-lg bg-[var(--bg)] border border-[var(--line)] text-xs flex items-center gap-2">
             <Crown size={14} className="text-amber-400" />
-            <span className="text-gray-300 font-semibold">{userPlan}</span>
-            <span className="text-[10px] text-gray-500 font-mono">({planInfo.maxRes.toUpperCase()} Max)</span>
+            <span className="text-[var(--text)] font-semibold">{userPlan}</span>
+            <span className="text-[10px] text-[var(--text-dim)] font-mono">({planInfo.maxRes.toUpperCase()} Max)</span>
           </div>
 
           <button
@@ -228,7 +228,7 @@ export function VideoQualityPanel({
 
         {/* 1. Resolution Selection */}
         <div className="space-y-2.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center justify-between">
+          <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-lo)] flex items-center justify-between">
             <span>Resolução da Transmissão</span>
             <span className="text-[11px] font-normal text-blue-400 font-mono">
               Ativo: {config.resolution.toUpperCase()} @ {config.fps} FPS
@@ -243,21 +243,21 @@ export function VideoQualityPanel({
               className={`p-4 rounded-xl border text-left transition-all relative cursor-pointer ${
                 config.resolution === '720p'
                   ? 'bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/20'
-                  : 'bg-[var(--bg)] border-slate-800 hover:border-slate-700'
+                  : 'bg-[var(--bg)] border-[var(--line)] hover:border-[var(--line-ctl)]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-sm font-black text-white">720p HD</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-gray-300">
+                <span className="text-sm font-black text-[var(--text-hi)]">720p HD</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[var(--panel)] text-[var(--text)]">
                   1280x720
                 </span>
               </div>
-              <p className="text-[11px] text-gray-400 mt-2">Bitrate: 1.5 - 5 Mbps</p>
+              <p className="text-[11px] text-[var(--text-lo)] mt-2">Bitrate: 1.5 - 5 Mbps</p>
               <div className="mt-3 flex items-center justify-between text-[10px]">
                 <span className="text-emerald-400 font-semibold flex items-center gap-1">
                   <Check size={12} /> Compatível com todos os planos
                 </span>
-                <span className="text-gray-500 font-mono">30 FPS</span>
+                <span className="text-[var(--text-dim)] font-mono">30 FPS</span>
               </div>
             </button>
 
@@ -268,7 +268,7 @@ export function VideoQualityPanel({
               className={`p-4 rounded-xl border text-left transition-all relative cursor-pointer ${
                 config.resolution === '1080p'
                   ? 'bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/20'
-                  : 'bg-[var(--bg)] border-slate-800 hover:border-slate-700'
+                  : 'bg-[var(--bg)] border-[var(--line)] hover:border-[var(--line-ctl)]'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -277,7 +277,7 @@ export function VideoQualityPanel({
                   Recomendado
                 </span>
               </div>
-              <p className="text-[11px] text-gray-400 mt-2">Bitrate: 3.5 - 12 Mbps</p>
+              <p className="text-[11px] text-[var(--text-lo)] mt-2">Bitrate: 3.5 - 12 Mbps</p>
               <div className="mt-3 flex items-center justify-between text-[10px]">
                 {userPlan === 'Free Trial' ? (
                   <span className="text-amber-400 font-semibold">Standard+</span>
@@ -286,7 +286,7 @@ export function VideoQualityPanel({
                     <Check size={12} /> Liberado no seu plano
                   </span>
                 )}
-                <span className="text-gray-400 font-mono">60 FPS</span>
+                <span className="text-[var(--text-lo)] font-mono">60 FPS</span>
               </div>
             </button>
 
@@ -297,7 +297,7 @@ export function VideoQualityPanel({
               className={`p-4 rounded-xl border text-left transition-all relative cursor-pointer ${
                 config.resolution === '4k'
                   ? 'bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/20'
-                  : 'bg-[var(--bg)] border-slate-800 hover:border-slate-700'
+                  : 'bg-[var(--bg)] border-[var(--line)] hover:border-[var(--line-ctl)]'
               }`}
             >
               <div className="flex items-center justify-between">
@@ -309,7 +309,7 @@ export function VideoQualityPanel({
                   Pro & Business
                 </span>
               </div>
-              <p className="text-[11px] text-gray-400 mt-2">Bitrate: 12 - 35 Mbps</p>
+              <p className="text-[11px] text-[var(--text-lo)] mt-2">Bitrate: 12 - 35 Mbps</p>
               <div className="mt-3 flex items-center justify-between text-[10px]">
                 {(userPlan === 'Professional' || userPlan === 'Business') ? (
                   <span className="text-emerald-400 font-semibold flex items-center gap-1">
@@ -318,29 +318,29 @@ export function VideoQualityPanel({
                 ) : (
                   <span className="text-amber-400 font-bold">Requer Upgrade Pro</span>
                 )}
-                <span className="text-gray-400 font-mono">60 FPS HDR</span>
+                <span className="text-[var(--text-lo)] font-mono">60 FPS HDR</span>
               </div>
             </button>
           </div>
         </div>
 
         {/* 2. Bitrate Control Slider & Presets */}
-        <div className="p-4 bg-[var(--bg)] border border-slate-800 rounded-xl space-y-4">
+        <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-2">
                 <Sliders size={14} className="text-blue-400" /> Bitrate de Vídeo (Taxa de Trasmissão)
               </span>
-              <p className="text-[11px] text-gray-400 mt-0.5">
+              <p className="text-[11px] text-[var(--text-lo)] mt-0.5">
                 Valores maiores entregam imagem mais nítida, porém requerem conexões de internet mais rápidas.
               </p>
             </div>
 
             <div className="text-right">
-              <span className="text-xl font-black text-white font-mono">
+              <span className="text-xl font-black text-[var(--text-hi)] font-mono">
                 {(config.bitrateKbps / 1000).toFixed(1)} <span className="text-xs text-blue-400 font-normal">Mbps</span>
               </span>
-              <p className="text-[10px] text-gray-500 font-mono">{config.bitrateKbps} Kbps</p>
+              <p className="text-[10px] text-[var(--text-dim)] font-mono">{config.bitrateKbps} Kbps</p>
             </div>
           </div>
 
@@ -356,9 +356,9 @@ export function VideoQualityPanel({
                 setConfig(prev => ({ ...prev, bitrateKbps: parseInt(e.target.value) }));
                 setActivePreset('custom');
               }}
-              className="w-full accent-blue-500 h-2 bg-slate-800 rounded-lg cursor-pointer"
+              className="w-full accent-blue-500 h-2 bg-[var(--panel)] rounded-lg cursor-pointer"
             />
-            <div className="flex justify-between text-[10px] text-gray-500 font-mono">
+            <div className="flex justify-between text-[10px] text-[var(--text-dim)] font-mono">
               <span>Mínimo: {DEFAULT_CONFIGS[config.resolution].minBitrate / 1000} Mbps</span>
               <span>Recomendado: {DEFAULT_CONFIGS[config.resolution].defaultBitrate / 1000} Mbps</span>
               <span>Máximo: {DEFAULT_CONFIGS[config.resolution].maxBitrate / 1000} Mbps</span>
@@ -366,8 +366,8 @@ export function VideoQualityPanel({
           </div>
 
           {/* Presets */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
-            <span className="text-[11px] font-semibold text-gray-400">Presets Rápido:</span>
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--line)]/80">
+            <span className="text-[11px] font-semibold text-[var(--text-lo)]">Presets Rápido:</span>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -375,7 +375,7 @@ export function VideoQualityPanel({
                 className={`px-2.5 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
                   activePreset === 'eco'
                     ? 'bg-blue-500 text-white'
-                    : 'bg-slate-800 text-gray-300 hover:bg-slate-700'
+                    : 'bg-[var(--panel)] text-[var(--text)] hover:bg-[var(--raise)]'
                 }`}
               >
                 Economia de Banda (Low Latency)
@@ -386,7 +386,7 @@ export function VideoQualityPanel({
                 className={`px-2.5 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
                   activePreset === 'balanced'
                     ? 'bg-blue-500 text-white'
-                    : 'bg-slate-800 text-gray-300 hover:bg-slate-700'
+                    : 'bg-[var(--panel)] text-[var(--text)] hover:bg-[var(--raise)]'
                 }`}
               >
                 Equilibrado (Padrão)
@@ -397,7 +397,7 @@ export function VideoQualityPanel({
                 className={`px-2.5 py-1 rounded text-xs font-semibold transition-all cursor-pointer ${
                   activePreset === 'ultra'
                     ? 'bg-blue-500 text-white'
-                    : 'bg-slate-800 text-gray-300 hover:bg-slate-700'
+                    : 'bg-[var(--panel)] text-[var(--text)] hover:bg-[var(--raise)]'
                 }`}
               >
                 Ultra Qualidade (Máxima)
@@ -410,13 +410,13 @@ export function VideoQualityPanel({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {/* Frame Rate */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[11px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
               <Cpu size={12} className="text-blue-400" /> Taxa de Quadros (FPS)
             </label>
             <select
               value={config.fps}
               onChange={(e) => setConfig(prev => ({ ...prev, fps: parseInt(e.target.value) as 30 | 60 }))}
-              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
+              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--text-hi)] font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
             >
               <option value={30}>30 FPS (Padrão Suave)</option>
               <option value={60}>60 FPS (Ultra Fluidez / Games)</option>
@@ -425,13 +425,13 @@ export function VideoQualityPanel({
 
           {/* Encoder Codec */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[11px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
               <Video size={12} className="text-indigo-400" /> Encoder de Vídeo
             </label>
             <select
               value={config.encoder}
               onChange={(e) => setConfig(prev => ({ ...prev, encoder: e.target.value as EncoderOption }))}
-              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
+              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--text-hi)] font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
             >
               <option value="h264">H.264 (AVC - Maior Compatibilidade)</option>
               <option value="hevc">HEVC (H.265 - Alta Eficiência)</option>
@@ -441,13 +441,13 @@ export function VideoQualityPanel({
 
           {/* Audio Bitrate */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[11px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
               <Wifi size={12} className="text-emerald-400" /> Qualidade de Áudio
             </label>
             <select
               value={config.audioBitrateKbps}
               onChange={(e) => setConfig(prev => ({ ...prev, audioBitrateKbps: e.target.value as AudioBitrateOption }))}
-              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
+              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--text-hi)] font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
             >
               <option value="128">128 kbps (AAC Padrão)</option>
               <option value="192">192 kbps (AAC Alta Fidelidade)</option>
@@ -457,13 +457,13 @@ export function VideoQualityPanel({
 
           {/* Keyframe Interval */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[11px] font-bold text-[var(--text-lo)] uppercase tracking-wider flex items-center gap-1">
               <RefreshCw size={12} className="text-amber-400" /> Keyframe Interval
             </label>
             <select
               value={config.keyframeInterval}
               onChange={(e) => setConfig(prev => ({ ...prev, keyframeInterval: parseInt(e.target.value) }))}
-              className="w-full bg-[var(--bg)] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
+              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--text-hi)] font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
             >
               <option value={1}>1 segundo (Baixíssima latência)</option>
               <option value={2}>2 segundos (Recomendado YouTube/Twitch)</option>
@@ -473,16 +473,16 @@ export function VideoQualityPanel({
         </div>
 
         {/* 4. Bandwidth Requirements & Footer Actions */}
-        <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3 text-xs text-gray-400">
+        <div className="pt-4 border-t border-[var(--line)] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-xs text-[var(--text-lo)]">
             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
               <Wifi size={16} />
             </div>
             <div>
-              <p className="font-semibold text-gray-200">
+              <p className="font-semibold text-[var(--text-hi)]">
                 Upload Mínimo de Internet Recomendado: <span className="text-emerald-400 font-mono font-bold">{requiredUploadMbps} Mbps</span>
               </p>
-              <p className="text-[10px] text-gray-500">Calculado com margem de segurança de 30% contra oscilações de rede.</p>
+              <p className="text-[10px] text-[var(--text-dim)]">Calculado com margem de segurança de 30% contra oscilações de rede.</p>
             </div>
           </div>
 
