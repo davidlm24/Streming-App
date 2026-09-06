@@ -1114,7 +1114,10 @@ export function CustomDestinationModal({
                 <div className="flex items-center gap-2.5">
                   <button
                     type="button"
-                    onClick={handleTestConnection}
+                    // Passado direto, o React entregava o MouseEvent como
+                    // `target`: o padrão 'both' nunca valia e setTestingTarget
+                    // guardava um evento do DOM.
+                    onClick={() => handleTestConnection()}
                     disabled={isTesting || !streamUrl}
                     className={`px-3.5 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wide transition-all flex items-center gap-1.5 border cursor-pointer disabled:opacity-40 ${
                       testResult.status === 'success'

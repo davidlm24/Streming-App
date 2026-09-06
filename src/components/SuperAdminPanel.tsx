@@ -32,6 +32,25 @@ interface SuperAdminPanelProps {
   onDeleteWebinar?: (id: string) => void;
 }
 
+/**
+ * Linha da tabela de clientes.
+ *
+ * O estado era inferido do literal inicial, então cada linha ganhava um
+ * `plan` literal exato ('Business', 'Professional'…). Trocar o plano com
+ * a união larga não casava com nenhum membro dessa união inferida — e o
+ * erro só aparecia quando os tipos do React estavam instalados.
+ */
+interface ClientRow {
+  id: string;
+  name: string;
+  email: string;
+  plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial';
+  role: 'super-admin' | 'client';
+  status: 'Active' | 'Suspended';
+  webinarsCount: number;
+  joinedDate: string;
+}
+
 export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: SuperAdminPanelProps) {
   // Master Admin Auth PIN Lock state
   const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
@@ -97,7 +116,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   }, [user?.email]);
 
   // Sample Registered Clients List (Master View)
-  const [clients, setClients] = useState([
+  const [clients, setClients] = useState<ClientRow[]>([
     { 
       id: 'usr-1', 
       name: user?.name || 'Marcos Lima (Admin Master)', 
@@ -664,7 +683,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                className="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+                className="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-[var(--color-n-6)] font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus size={14} /> Gerar e Atribuir Chave Master
               </button>

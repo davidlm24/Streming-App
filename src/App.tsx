@@ -22,7 +22,7 @@ import { QrCodeModal } from './components/QrCodeModal';
 import { StudioScenePreviewControls } from './components/StudioScenePreviewControls';
 import { CLOUDFLARE_STREAM_CONFIG } from './lib/cloudflareStreamConfig';
 
-import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, QrCodeConfig, StudioTab } from './types';
+import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, QrCodeConfig, StudioTab, SceneTransitionType, isWipeTransition } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_BANNERS, INITIAL_TICKERS, INITIAL_COMMENTS, AUDIO_LIBRARY } from './data';
 import { startSynth, stopSynth, setVolume as setSynthVolume } from './audioEngine';
 import { Play, Calendar, Users, Tv, Radio, BarChart3, Plus, ArrowRight, Settings, ExternalLink, Palette, ListTodo, QrCode, FileText, MessageSquare, Music, Sliders, ShieldAlert, Sparkles, X, Maximize2, Minimize2, Server, CheckCircle2, Type, Film, Bell, Puzzle, Activity, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
@@ -74,7 +74,7 @@ export default function App() {
     plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial';
     isExpired: boolean;
     trialDays: number;
-    subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'canceled';
+    subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'canceled' | 'expired';
     trialEndsAt?: string;
   } | null>(() => {
     const saved = localStorage.getItem('pwstream_user');
@@ -457,7 +457,10 @@ export default function App() {
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
       };
 
-      const activeChannels = destinations.filter(d => d.active).map(d => d.platform);
+      // `Destination` tem `selected`, não `active`: o filtro anterior nunca
+      // casava, então activeChannels era SEMPRE vazio e o relatório caía no
+      // fallback fixo abaixo — nunca listava os destinos reais da transmissão.
+      const activeChannels = destinations.filter(d => d.selected).map(d => d.platform);
       const finalDestinations = activeChannels.length > 0 ? activeChannels : ["YouTube Live", "Facebook Live"];
 
       const report: StreamReportData = {
@@ -473,13 +476,17 @@ export default function App() {
         averageViewers: Math.max(92, Math.floor(Math.random() * 30) + 85),
         totalCommentsReceived: comments.length,
         destinations: finalDestinations,
+        // Os nomes não batiam com o tipo `Comment` (authorName / timestamp /
+        // platform), então TODO comentário exportado saía com user, time e
+        // channel indefinidos. `isHighlight` passa a refletir o comentário
+        // realmente fixado, que é o conceito que existe no app.
         comments: comments.map(c => ({
           id: c.id,
-          user: c.user,
+          user: c.authorName,
           text: c.text,
-          time: c.time,
-          channel: c.channel,
-          isHighlight: c.isHighlight
+          time: c.timestamp,
+          channel: c.platform,
+          isHighlight: c.id === pinnedComment?.id
         })),
         systemPerformance: {
           averageCpuUsage: "18.4%",
@@ -585,12 +592,10 @@ export default function App() {
         const nextClipId = playlist[nextIndex];
         const nextClip = videoClips.find(c => c.id === nextClipId);
         if (nextClip) {
-          setActiveVideoClip({
-            id: nextClip.id,
-            name: nextClip.name,
-            url: nextClip.url,
-            isPlaying: true
-          });
+          // Reconstruir o objeto campo a campo descartava `duration` e
+          // `thumbnail`, então avançar a playlist perdia os dois. O spread
+          // preserva o clipe inteiro e só troca o estado de reprodução.
+          setActiveVideoClip({ ...nextClip, isPlaying: true });
         }
       } else {
         setIsPlaylistActive(false);
@@ -601,7 +606,7 @@ export default function App() {
   };
 
   // Scene transition type
-  const [transitionType, setTransitionType] = useState<'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash'>('fade');
+  const [transitionType, setTransitionType] = useState<SceneTransitionType>('fade');
   const [transitionColor, setTransitionColor] = useState<string>('#FF3D38');
 
   // Smart Sidebar states
@@ -659,7 +664,7 @@ export default function App() {
   const [transitionDuration, setTransitionDuration] = useState<number>(300);
 
   // Scene-specific transitions state
-  const [sceneTransitions, setSceneTransitions] = useState<Record<string, { type: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash'; duration: number }>>({
+  const [sceneTransitions, setSceneTransitions] = useState<Record<string, { type: SceneTransitionType; duration: number }>>({
     'scene-1': { type: 'dip-to-color', duration: 400 },
     'scene-2': { type: 'fade', duration: 300 },
     'scene-3': { type: 'slide-wipe', duration: 400 },
@@ -669,7 +674,7 @@ export default function App() {
 
   const handleUpdateSceneTransition = (
     sceneId: string, 
-    type: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash', 
+    type: SceneTransitionType, 
     duration: number
   ) => {
     setSceneTransitions(prev => ({
@@ -881,7 +886,11 @@ export default function App() {
     }, {
       color: transitionColor,
       duration: transitionDuration,
-      type: transitionType
+      // O hook só desenha CORTINAS. As transições básicas (cut/fade/slide/
+      // zoom) são animadas pelo Motion no StudioPreview, não por sobreposição
+      // — antes a escolha do usuário era repassada inteira para uma API que
+      // não a entendia.
+      ...(isWipeTransition(transitionType) ? { type: transitionType } : {})
     });
   };
 
@@ -2253,7 +2262,7 @@ export default function App() {
                       {/* Divider */}
                       <div className="w-6 h-[1px] bg-[var(--panel)]/80 my-1" />
 
-                      {[
+                      {([
                         { id: 'seven', label: 'Chat', icon: MessageSquare, desc: 'Chat' },
                         { id: 'widgets', label: 'Widgets', icon: LayoutGrid, desc: 'Widgets e ferramentas do estúdio' },
                         { id: 'schedule', label: 'Schedule', icon: Calendar, desc: 'Agenda' },
@@ -2264,7 +2273,7 @@ export default function App() {
                         { id: 'audience', label: 'Audience', icon: Users, desc: 'Usuários' },
                         { id: 'settings', label: 'Settings', icon: Settings, desc: 'Ajustes' },
                         { id: 'apps', label: 'Apps', icon: Puzzle, desc: 'Apps' },
-                      ].filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
+                      ] as const).filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
                         const isActive = activeTab === tab.id;
                         const IconComponent = tab.icon;
                         return (
@@ -2671,7 +2680,7 @@ export default function App() {
                     {/* Divider */}
                     <div className="w-8 h-[1px] bg-[var(--panel)]/80 my-1" />
 
-                    {[
+                    {([
                       { id: 'seven', label: 'Chat', icon: MessageSquare, desc: 'Chat unificado do webinar' },
                       { id: 'widgets', label: 'Widgets', icon: LayoutGrid, desc: 'Widgets e ferramentas do estúdio' },
                       { id: 'schedule', label: 'Schedule', icon: Calendar, desc: 'Agendar e gerenciar webinars' },
@@ -2682,7 +2691,7 @@ export default function App() {
                       { id: 'audience', label: 'Audience', icon: Users, desc: 'Base de Usuários e CRM do Estúdio' },
                       { id: 'settings', label: 'Settings', icon: Settings, desc: 'Configurações de transmissão e palco' },
                       { id: 'apps', label: 'Apps', icon: Puzzle, desc: 'Integrações, QR Code e Notas' },
-                    ].filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
+                    ] as const).filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
                       const isActive = activeTab === tab.id;
                       const IconComponent = tab.icon;
                       return (

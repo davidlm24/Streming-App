@@ -1,11 +1,14 @@
 import { useState, useCallback } from 'react';
 
-export type SceneTransitionType = 'dip-to-color' | 'slide-wipe' | 'smooth-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash';
+import type { WipeTransitionType } from '../types';
+
+// Reexportado para quem já importava daqui; a definição canônica vive em types.ts.
+export type { WipeTransitionType };
 
 export interface UseSceneTransitionProps {
   defaultColor?: string;
   defaultDuration?: number;
-  defaultType?: SceneTransitionType;
+  defaultType?: WipeTransitionType;
 }
 
 export function useSceneTransition({
@@ -17,11 +20,11 @@ export function useSceneTransition({
   const [transitionStage, setTransitionStage] = useState<'idle' | 'covering' | 'revealing'>('idle');
   const [overlayColor, setOverlayColor] = useState(defaultColor);
   const [duration, setDuration] = useState(defaultDuration);
-  const [transitionType, setTransitionType] = useState<SceneTransitionType>(defaultType);
+  const [transitionType, setTransitionType] = useState<WipeTransitionType>(defaultType);
 
   const triggerTransition = useCallback((
     onSceneChange: () => void, 
-    customOptions?: { color?: string; duration?: number; type?: SceneTransitionType }
+    customOptions?: { color?: string; duration?: number; type?: WipeTransitionType }
   ) => {
     if (isTransitioning) return;
 

@@ -172,3 +172,28 @@ export type StudioTab =
   | 'audience'
   | 'settings'
   | 'apps';
+
+/**
+ * Transições de cena.
+ *
+ * Existiam QUATRO grafias desta união em cinco arquivos: o hook tinha só as
+ * seis cortinas, o App tinha nove (sem 'smooth-wipe'), a LeftSidebar tinha
+ * só as quatro básicas e o StudioPreview tinha as dez. Os erros de tipo
+ * eram exatamente as costuras entre elas.
+ *
+ * São dois conceitos, e por isso dois nomes:
+ *  - WipeTransitionType: efeitos de cortina, desenhados por sobreposição.
+ *  - SceneTransitionType: tudo que o usuário pode escolher na interface.
+ */
+export type WipeTransitionType =
+  | 'dip-to-color' | 'slide-wipe' | 'smooth-wipe'
+  | 'shutter-wipe' | 'radial-wipe' | 'flash';
+
+export type BasicTransitionType = 'cut' | 'fade' | 'slide' | 'zoom';
+
+export type SceneTransitionType = BasicTransitionType | WipeTransitionType;
+
+/** Estreita uma escolha da interface para o subconjunto que o hook aceita. */
+export const isWipeTransition = (t: SceneTransitionType): t is WipeTransitionType =>
+  t === 'dip-to-color' || t === 'slide-wipe' || t === 'smooth-wipe' ||
+  t === 'shutter-wipe' || t === 'radial-wipe' || t === 'flash';

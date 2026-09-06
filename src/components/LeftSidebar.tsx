@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { ImagePlaceholder } from './ImagePlaceholder';
-import { Destination, AudioTrack, Banner, BannerPosition, Comment, Participant, QrCodeConfig, StudioTab } from '../types';
+import { Destination, AudioTrack, Banner, BannerPosition, Comment, Participant, QrCodeConfig, StudioTab, SceneTransitionType } from '../types';
 import { AUDIO_LIBRARY, BACKGROUND_TEMPLATES, OVERLAY_TEMPLATES, LOGO_TEMPLATES } from '../data';
 import { ThumbnailEditor } from './ThumbnailEditor';
 import { AudioVUMeter } from './AudioVUMeter';
@@ -245,8 +245,8 @@ interface LeftSidebarProps {
   onLayoutChange: (l: '1-cam' | 'dual' | 'screen-share' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery') => void;
   participants: Participant[];
   onToggleParticipantActive: (id: string) => void;
-  transitionType: 'cut' | 'fade' | 'slide' | 'zoom';
-  onTransitionTypeChange: (t: 'cut' | 'fade' | 'slide' | 'zoom') => void;
+  transitionType: SceneTransitionType;
+  onTransitionTypeChange: (t: SceneTransitionType) => void;
   isPresentationOverlayActive?: boolean;
   onTogglePresentationOverlayActive?: () => void;
 
@@ -353,8 +353,8 @@ interface LeftSidebarProps {
   isPresenterSpeaking?: boolean;
 
   // Scene-specific transitions
-  sceneTransitions?: Record<string, { type: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash'; duration: number }>;
-  onUpdateSceneTransition?: (sceneId: string, type: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash', duration: number) => void;
+  sceneTransitions?: Record<string, { type: SceneTransitionType; duration: number }>;
+  onUpdateSceneTransition?: (sceneId: string, type: SceneTransitionType, duration: number) => void;
 
   // Studio Widgets props
   showWidgetChat?: boolean;
@@ -2483,7 +2483,7 @@ export function LeftSidebar({
                   <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                     {isLogoOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                     Logotipo
-                    <HelpCircle size={12} className="text-[var(--ink-dim)]" title="Exibido no canto superior direito do seu webinar. Clique no logo ativo para esconder do estúdio." />
+                    <span title="Exibido no canto superior direito do seu webinar. Clique no logo ativo para esconder do estúdio." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                   </span>
                   
                   {/* Action buttons in header */}
@@ -2642,7 +2642,7 @@ export function LeftSidebar({
                   <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                     {isWatermarkOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                     Marca D'água
-                    <HelpCircle size={12} className="text-[var(--ink-dim)]" title="Logo semitransparente fixado no canto. Clique na marca ativa para esconder do estúdio." />
+                    <span title="Logo semitransparente fixado no canto. Clique na marca ativa para esconder do estúdio." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                   </span>
 
                   {/* Header action button */}
@@ -2743,7 +2743,7 @@ export function LeftSidebar({
                   <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                     {isOverlayOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                     Overlay Transparente
-                    <HelpCircle size={12} className="text-[var(--ink-dim)]" title="Molduras e elementos transparentes que cobrem a stream inteira. Clique no overlay ativo para esconder do estúdio." />
+                    <span title="Molduras e elementos transparentes que cobrem a stream inteira. Clique no overlay ativo para esconder do estúdio." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                   </span>
 
                   {/* Header action button */}
@@ -2891,7 +2891,7 @@ export function LeftSidebar({
                     <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                       {isVideoOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                       Videoclipes (Intro/Outro)
-                      <HelpCircle size={12} className="text-[var(--ink-dim)]" title="Clipes curtos que cobrem todo o palco, como contagens e intros." />
+                      <span title="Clipes curtos que cobrem todo o palco, como contagens e intros." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                     </span>
                   </button>
 
@@ -3135,7 +3135,7 @@ export function LeftSidebar({
                     <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                       {isBgOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                       Plano de Fundo (Backdrops)
-                      <HelpCircle size={12} className="text-[var(--ink-dim)]" title="Exibido atrás das câmeras dos palestrantes. Clique no plano ativo para esconder do estúdio." />
+                      <span title="Exibido atrás das câmeras dos palestrantes. Clique no plano ativo para esconder do estúdio." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                     </span>
 
                     {/* Action buttons in header */}
@@ -3316,7 +3316,7 @@ export function LeftSidebar({
                     <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                       <Bookmark size={14} className="text-indigo-400" />
                       Banners & Terços Inferiores ({banners.length})
-                      <HelpCircle size={12} className="text-[var(--ink-dim)]" title="Crie e gerencie banners que podem ser arrastados e redimensionados na tela." />
+                      <span title="Crie e gerencie banners que podem ser arrastados e redimensionados na tela." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                     </span>
                     {isBannersOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                   </button>
@@ -3477,7 +3477,7 @@ export function LeftSidebar({
                     <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                       <Activity size={14} className="text-blue-400" />
                       Barra de Rolagem / Tickers ({tickers.length})
-                      <HelpCircle size={12} className="text-[var(--ink-dim)]" title="Crie frases ou letreiros que rolam continuamente na barra inferior do preview do studio." />
+                      <span title="Crie frases ou letreiros que rolam continuamente na barra inferior do preview do studio." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                     </span>
                     {isTickersOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                   </button>

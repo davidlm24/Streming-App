@@ -30,7 +30,8 @@ export interface UserProfile {
   isExpired: boolean;
   trialDays: number;
   role?: 'super-admin' | 'client';
-  subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'canceled';
+  // 'expired' é escrito pelo App quando o teste acaba; faltava na união.
+  subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'canceled' | 'expired';
   trialEndsAt?: string;
   stripeCustomerId?: string;
 }
@@ -233,7 +234,16 @@ export function createDirectUserProfile(email = 'mgdlms@gmail.com', name = 'Marc
   return profile;
 }
 
-export async function validateUserTrialStatus(user: UserProfile): Promise<{
+/**
+ * Só lê email, plano, dias de teste e datas — `uid` vai adiante apenas como
+ * campo do corpo do POST e tolera ausência. Pedir `UserProfile` inteiro
+ * obrigava quem chama a ter um `uid` que a função nunca exige; o estado do
+ * app guarda `uid` opcional (o localStorage antigo pode não ter).
+ */
+export async function validateUserTrialStatus(
+  user: Pick<UserProfile, 'email' | 'plan' | 'trialDays' | 'isExpired'> &
+    Partial<Pick<UserProfile, 'uid' | 'trialEndsAt'>>
+): Promise<{
   isExpired: boolean;
   trialDays: number;
   canBroadcast: boolean;

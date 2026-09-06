@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Monitor, User, Video, ShieldAlert, CheckCircle2, Pencil, Trash2, X, Sparkles, Compass, Youtube, Mail, Globe, Server, Play, Pause, ChevronLeft, ChevronRight, Activity, MessageSquare, Camera, Download, Presentation, Clock, Pin, PinOff, Move, RotateCcw, ArrowUpLeft, ArrowUpRight, ArrowDownLeft, ArrowDownRight, ArrowUp, ArrowDown, FileText, Maximize2, Check, Eye, EyeOff, Radio, RefreshCw, Columns, QrCode, ShoppingBag, Tag, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Participant, BannerPosition, StudioSceneState, Banner, TickerItem, QrCodeConfig } from '../types';
+import { Participant, BannerPosition, StudioSceneState, Banner, TickerItem, QrCodeConfig, SceneTransitionType } from '../types';
 import { AudioVUMeter } from './AudioVUMeter';
 import { useMediaManager } from '../context/MediaManagerContext';
 import { ProgramMonitorView } from './ProgramMonitorView';
@@ -25,7 +25,7 @@ interface StudioPreviewProps {
   qrCodeConfig?: QrCodeConfig;
   onToggleShowQrCode?: (show: boolean) => void;
   onOpenQrCodeModal?: () => void;
-  transitionType?: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'smooth-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash';
+  transitionType?: SceneTransitionType;
   isTransitioning?: boolean;
   transitionStage?: 'idle' | 'covering' | 'revealing';
   transitionColor?: string;
@@ -53,7 +53,7 @@ interface StudioPreviewProps {
   mirrorCamera?: boolean;
   logoAnimation?: 'none' | 'fade' | 'slide' | 'pop';
   bannerAnimation?: 'none' | 'fade' | 'slide' | 'typewriter' | 'pop';
-  onTransitionTypeChange?: (t: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'smooth-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash') => void;
+  onTransitionTypeChange?: (t: SceneTransitionType) => void;
   onTransitionDurationChange?: (duration: number) => void;
   
   // Custom video and slide props
@@ -997,19 +997,19 @@ export function StudioPreview({
       scale: 1, 
       filter: 'blur(0px)',
       transition: (bannerAnimation === 'pop' || bannerAnimation === 'slide')
-        ? { type: 'spring', damping: 24, stiffness: 280, mass: 0.85 }
-        : { duration: 0.32, ease: [0.16, 1, 0.3, 1] }
+        ? { type: 'spring' as const, damping: 24, stiffness: 280, mass: 0.85 }
+        : { duration: 0.32, ease: [0.16, 1, 0.3, 1] as const }
     };
   };
 
   const getBannerExit = () => {
     switch (bannerAnimation) {
       case 'fade':
-        return { opacity: 0, scale: 0.96, y: 12, filter: 'blur(6px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] } };
+        return { opacity: 0, scale: 0.96, y: 12, filter: 'blur(6px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] as const } };
       case 'typewriter':
         return { opacity: 0, y: 10, filter: 'blur(4px)', transition: { duration: 0.18 } };
       case 'slide':
-        return { opacity: 0, y: 24, x: -16, scale: 0.94, filter: 'blur(6px)', transition: { duration: 0.24, ease: [0.4, 0, 1, 1] } };
+        return { opacity: 0, y: 24, x: -16, scale: 0.94, filter: 'blur(6px)', transition: { duration: 0.24, ease: [0.4, 0, 1, 1] as const } };
       case 'pop':
         return { opacity: 0, scale: 0.82, y: 8, filter: 'blur(6px)', transition: { duration: 0.2 } };
       case 'none':
@@ -2972,7 +2972,7 @@ export function StudioPreview({
                   x: transitionStage === 'covering' ? '0%' : '115%',
                   skewX: -12 
                 }}
-                transition={{ duration: transitionDuration / 2000, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: transitionDuration / 2000, ease: [0.22, 1, 0.36, 1] as const }}
                 style={{ 
                   background: `linear-gradient(110deg, ${transitionColor} 0%, ${transitionColor} 85%, #ffffff 100%)`,
                   boxShadow: '0 0 60px rgba(0,0,0,0.8)'
@@ -3132,15 +3132,15 @@ export function StudioPreview({
               key="countdown-overlay"
               initial={{ opacity: 0, scale: 0.95, filter: 'blur(8px)' }}
               animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, scale: 0.95, filter: 'blur(8px)', transition: { duration: 0.25, ease: [0.4, 0, 1, 1] } }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              exit={{ opacity: 0, scale: 0.95, filter: 'blur(8px)', transition: { duration: 0.25, ease: [0.4, 0, 1, 1] as const } }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }}
               className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/70 backdrop-blur-md"
             >
               <motion.div 
                 initial={{ opacity: 0, y: 24, scale: 0.94 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 16, scale: 0.94 }}
-                transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+                transition={{ type: 'spring' as const, damping: 26, stiffness: 280 }}
                 className="bg-[var(--bg)]/95 border border-[var(--line)] p-8 rounded-2xl text-center max-w-sm w-full space-y-4 shadow-2xl"
               >
                 <div className="flex items-center justify-center gap-2 text-blue-400">
@@ -3192,8 +3192,8 @@ export function StudioPreview({
               key="presentation-preload-sandbox"
               initial={{ opacity: 0, x: 36, scale: 0.94, filter: 'blur(6px)' }}
               animate={{ opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, x: 28, scale: 0.94, filter: 'blur(4px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] } }}
-              transition={{ type: 'spring', damping: 25, stiffness: 280, mass: 0.85 }}
+              exit={{ opacity: 0, x: 28, scale: 0.94, filter: 'blur(4px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] as const } }}
+              transition={{ type: 'spring' as const, damping: 25, stiffness: 280, mass: 0.85 }}
               className="absolute top-16 right-4 z-40 w-[240px] bg-[var(--bg)]/95 backdrop-blur-md border border-blue-500/30 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5 text-left"
             >
               {/* Status indicator */}
@@ -3291,8 +3291,8 @@ export function StudioPreview({
               key={`pin-${pinnedComment.id}`}
               initial={{ opacity: 0, x: -32, y: 12, scale: 0.92, filter: 'blur(6px)' }}
               animate={{ opacity: 1, x: 0, y: 0, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, x: -24, y: 8, scale: 0.92, filter: 'blur(6px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] } }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300, mass: 0.85 }}
+              exit={{ opacity: 0, x: -24, y: 8, scale: 0.92, filter: 'blur(6px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] as const } }}
+              transition={{ type: 'spring' as const, damping: 25, stiffness: 300, mass: 0.85 }}
               className={`absolute left-4 z-30 max-w-[60%] flex gap-2.5 p-2.5 rounded-xl text-left bg-black/85 backdrop-blur-md border border-white/15 shadow-2xl transition-all duration-300 ${
                 activeTicker && isPresentationOverlayActive ? 'bottom-14 sm:bottom-16' : 'bottom-4'
               }`}
@@ -3323,8 +3323,8 @@ export function StudioPreview({
               key="floating-chat-overlay"
               initial={{ opacity: 0, y: 28, scale: 0.93, filter: 'blur(8px)' }}
               animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: 20, scale: 0.93, filter: 'blur(6px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] } }}
-              transition={{ type: 'spring', damping: 25, stiffness: 290, mass: 0.8 }}
+              exit={{ opacity: 0, y: 20, scale: 0.93, filter: 'blur(6px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] as const } }}
+              transition={{ type: 'spring' as const, damping: 25, stiffness: 290, mass: 0.8 }}
               className={`absolute right-3 z-30 w-72 sm:w-80 max-h-72 backdrop-blur-md border border-[var(--line-ctl)]/80 rounded-2xl shadow-2xl p-3 flex flex-col transition-all duration-300 ${
                 activeTicker && isPresentationOverlayActive ? 'bottom-14 sm:bottom-16' : 'bottom-3'
               }`}
@@ -3519,8 +3519,8 @@ export function StudioPreview({
               key={activeTicker.id}
               initial={{ opacity: 0, y: 36, filter: 'blur(6px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: 28, filter: 'blur(6px)', transition: { duration: 0.26, ease: [0.4, 0, 1, 1] } }}
-              transition={{ type: 'spring', damping: 28, stiffness: 280, mass: 0.9 }}
+              exit={{ opacity: 0, y: 28, filter: 'blur(6px)', transition: { duration: 0.26, ease: [0.4, 0, 1, 1] as const } }}
+              transition={{ type: 'spring' as const, damping: 28, stiffness: 280, mass: 0.9 }}
               className="absolute bottom-0 left-0 right-0 z-20 h-10 sm:h-12 bg-[var(--bg)]/95 backdrop-blur-md border-t border-[var(--line)]/80 flex items-center overflow-hidden shadow-2xl group select-none"
             >
               {/* Badge Indicator */}
@@ -3682,7 +3682,7 @@ export function StudioPreview({
                 initial={{ opacity: 0, scale: 0.9, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 15 }}
-                transition={{ type: 'spring', damping: 26, stiffness: 300 }}
+                transition={{ type: 'spring' as const, damping: 26, stiffness: 300 }}
                 style={{
                   transform: `scale(${qrCodeScale})`,
                   transformOrigin: isCardLateral ? 'center right' : 'bottom center'

@@ -4,7 +4,7 @@ import {
   Eye, Radio, Check, AlertCircle, RefreshCw, Columns, Maximize2,
   Tv, Zap, ChevronDown, CheckCircle2
 } from 'lucide-react';
-import { StudioSceneState } from '../types';
+import { StudioSceneState, SceneTransitionType } from '../types';
 
 export interface StudioScenePreviewControlsProps {
   isStudioPreviewMode: boolean;
@@ -17,8 +17,8 @@ export interface StudioScenePreviewControlsProps {
   onRevertToLive: () => void;
   onSwapPreviewAndLive?: () => void;
   isTransitioning?: boolean;
-  transitionType?: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'smooth-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash';
-  onTransitionTypeChange?: (t: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'smooth-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash') => void;
+  transitionType?: SceneTransitionType;
+  onTransitionTypeChange?: (t: SceneTransitionType) => void;
   transitionDuration?: number;
   onTransitionDurationChange?: (d: number) => void;
   isLive?: boolean;
