@@ -24,6 +24,7 @@
   --font-sans: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* ── primitivas: a rampa. Nunca mudam com o tema. ─────────────────────── */
+  /* stylelint-disable color-no-hex -- bloco de tokens: o unico lugar sancionado para hexadecimal cru */
   --color-n-0:   #000000;  /* Y   0,00 % — só letterbox de vídeo */
   --color-n-3:   #0A0B0C;  /* Y   0,33 % */
   --color-n-6:   #111315;  /* Y   0,64 % */
@@ -52,6 +53,7 @@
   --color-brand:      #4683E0;
   --color-brand-deep: #2C5FB0;
   --color-brand-lift: #7FAAEC;
+  /* stylelint-enable color-no-hex */
 
   /* ── raios: botões e selos mais arredondados (pedido do produto).
         Mudar a ESCALA, e não os ~1.300 pontos de uso, é o que torna isto
@@ -79,12 +81,11 @@
   --line:    var(--color-n-22);
   --line-ctl:var(--color-n-28);
 
-  /* n-46 reprovava em TODOS os fundos escuros (3,01–3,80:1). Um degrau acima
-     passa nos quatro: 4,57 a 5,78:1. Era o mesmo defeito que a auditoria
-     apontou na direção original — um token declarado "nunca texto essencial"
-     e usado como texto essencial. */
-  --ink-dim: var(--color-n-58);
-  --ink-lo:  var(--color-n-70);
+  /* Um degrau acima do que estava: --ink-dim em n-58 reprovava contra
+     --raise (n-18) por 4,08:1. O portão de contraste pegou — o navegador
+     não, porque esse par não chega a coexistir nas telas que amostrei. */
+  --ink-dim: var(--color-n-70);
+  --ink-lo:  var(--color-n-80);
   --ink:     var(--color-n-89);
   --ink-hi:  var(--color-n-96);
 
@@ -104,8 +105,10 @@
   --line:    var(--color-n-80);
   --line-ctl:var(--color-n-70);
 
-  --ink-dim: var(--color-n-46);
-  --ink-lo:  var(--color-n-36);
+  /* n-46 reprovava contra --well (3,93:1) e --panel (4,24:1). Um degrau
+     abaixo em cada passo resolve e mantém quatro níveis distintos. */
+  --ink-dim: var(--color-n-36);
+  --ink-lo:  var(--color-n-28);
   --ink:     var(--color-n-18);
   --ink-hi:  var(--color-n-6);
 
@@ -120,6 +123,7 @@
      Custo: 50 fundos e 17 bordas nesses tons também escurecem — o que sobre
      papel claro é a leitura correta de qualquer forma.
      Cada valor abaixo foi medido contra --bg e --surface: 4,49–7,20:1. */
+  /* stylelint-disable color-no-hex -- bloco de tokens: o unico lugar sancionado para hexadecimal cru */
   --color-amber-300:   #B45309;  --color-amber-400:   #B45309;
   --color-blue-300:    #1D4ED8;  --color-blue-400:    #1D4ED8;
   --color-cyan-300:    #0E7490;  --color-cyan-400:    #0E7490;
@@ -133,6 +137,7 @@
   --color-rose-300:    #BE123C;  --color-rose-400:    #BE123C;
   --color-sky-300:     #0369A1;  --color-sky-400:     #0369A1;
   --color-yellow-300:  #854D0E;  --color-yellow-400:  #854D0E;
+  /* stylelint-enable color-no-hex */
 
   color-scheme: light;
 }
@@ -163,6 +168,7 @@
   /* O console é escuro SEMPRE, inclusive dentro do tema claro. Então os tons
      300/400 voltam aos valores originais aqui — escurecê-los sobre grafite
      seria o erro inverso do que a regra do tema claro corrige. */
+  /* stylelint-disable color-no-hex -- bloco de tokens: o unico lugar sancionado para hexadecimal cru */
   --color-amber-300:   #FCD34D;  --color-amber-400:   #FBBF24;
   --color-blue-300:    #93C5FD;  --color-blue-400:    #60A5FA;
   --color-cyan-300:    #67E8F9;  --color-cyan-400:    #22D3EE;
@@ -176,6 +182,7 @@
   --color-rose-300:    #FDA4AF;  --color-rose-400:    #FB7185;
   --color-sky-300:     #7DD3FC;  --color-sky-400:     #38BDF8;
   --color-yellow-300:  #FDE047;  --color-yellow-400:  #FACC15;
+  /* stylelint-enable color-no-hex */
 
   color-scheme: dark;
 }
@@ -255,7 +262,7 @@ body {
    controles nativos herdavam cor de texto do tema errado (um <select> com
    texto claro sobre fundo claro). Aqui eles seguem os tokens, sem !important.
    ══════════════════════════════════════════════════════════════════════════ */
-input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="file"]),
+input:not([type="checkbox"], [type="radio"], [type="color"], [type="range"], [type="file"]),
 textarea,
 select {
   background-color: var(--well);
@@ -314,6 +321,7 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
    ANIMAÇÕES — vocabulário autoral do domínio, preservado.
    ══════════════════════════════════════════════════════════════════════════ */
 @keyframes ticker-scroll-left  { 0% { transform: translateX(100%); }  100% { transform: translateX(-100%); } }
+
 @keyframes ticker-scroll-right { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
 .animate-ticker,
@@ -344,6 +352,7 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
    ZERO provisões de `prefers-reduced-motion`. O estúdio sozinho roda 24
    delas continuamente por cima de vídeo ao vivo, durante horas.
    ══════════════════════════════════════════════════════════════════════════ */
+/* stylelint-disable declaration-no-important -- anular movimento exige !important */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -355,6 +364,7 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
   .animate-ticker-left,
   .animate-ticker-right { animation: none !important; }
 }
+/* stylelint-enable declaration-no-important */
 
 /* ══════════════════════════════════════════════════════════════════════════
    ALVOS DE TOQUE
@@ -363,6 +373,7 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
   @media (pointer: coarse) and (max-width: 991px) {
     min-height: 44px;
     min-width: 44px;
+    /* stylelint-disable-next-line declaration-no-important -- sobrepoe o padding do utilitario base no alvo de toque */
     padding: 0.75rem 1.25rem !important;
   }
 }
