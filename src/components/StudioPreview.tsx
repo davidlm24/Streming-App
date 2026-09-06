@@ -787,6 +787,10 @@ export function StudioPreview({
     window.addEventListener('touchend', handleUp);
   };
 
+  // Regime de rede simulado, pegajoso entre ticks. Ver o comentário no
+  // intervalo abaixo — existe para que o estado de aviso seja atingível.
+  const regimeRef = useRef<'nominal' | 'degraded' | 'critical'>('nominal');
+
   const [streamMetrics, setStreamMetrics] = useState({
     fps: 60,
     bitrate: 4850,
@@ -801,10 +805,39 @@ export function StudioPreview({
   useEffect(() => {
     const interval = setInterval(() => {
       const baseFps = localStream || screenStream || isLive ? 60 : 30;
-      const fpsVar = Number((baseFps - Math.random() * 0.8).toFixed(1));
+      // ── Regime de rede ───────────────────────────────────────────────────
+      // A geração anterior tornava o aviso INALCANÇÁVEL: `lossVar` ia no
+      // máximo a 0,06 contra limiares de > 2 e > 0,5, e `fpsVar` caía no
+      // mínimo a 29,2 contra < 24. `status` só podia valer 'excellent' ou
+      // 'good' — a única superfície que precisa avisar um cliente pagante de
+      // que a transmissão está degradando era incapaz de fazê-lo.
+      //
+      // Enquanto não existe telemetria real do servidor de ingestão, o regime
+      // é pegajoso (não pisca a cada 1,5 s) e percorre os três estados, de
+      // modo que o caminho de aviso existe, é atingível e pode ser testado.
+      // Ver `simulatedMetrics` abaixo: a origem simulada é declarada, não
+      // apresentada como medição.
+      const r = Math.random();
+      const prevRegime = regimeRef.current;
+      if (prevRegime === 'nominal' && r > 0.97) regimeRef.current = 'degraded';
+      else if (prevRegime === 'degraded') {
+        if (r > 0.93) regimeRef.current = 'critical';
+        else if (r < 0.45) regimeRef.current = 'nominal';
+      } else if (prevRegime === 'critical' && r < 0.35) regimeRef.current = 'degraded';
+      const regime = regimeRef.current;
+
+      const fpsVar = Number((
+        regime === 'critical' ? 20 + Math.random() * 3.5
+        : regime === 'degraded' ? baseFps - 16 - Math.random() * 6
+        : baseFps - Math.random() * 0.8
+      ).toFixed(1));
       const baseBitrate = isLive ? 6200 : (localStream || screenStream ? 4800 : 2500);
       const bitrateVar = Math.round(baseBitrate + (Math.random() * 260 - 130));
-      const lossVar = Number((Math.random() * 0.06).toFixed(2));
+      const lossVar = Number((
+        regime === 'critical' ? 2.2 + Math.random() * 2.8
+        : regime === 'degraded' ? 0.6 + Math.random() * 1.1
+        : Math.random() * 0.06
+      ).toFixed(2));
       const rttVar = Math.round(16 + Math.random() * 6);
 
       let status: 'excellent' | 'good' | 'warning' = 'excellent';

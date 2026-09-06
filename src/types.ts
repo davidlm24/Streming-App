@@ -148,3 +148,27 @@ export interface QrCodeConfig {
   x?: number;
   y?: number;
 }
+
+/**
+ * Abas do painel lateral do estúdio.
+ *
+ * Existe como união e não como `string` porque o app entrava no estúdio com
+ * `useState<string>('first')` — um id que NENHUM painel tratava, então a
+ * primeira visita abria numa barra lateral vazia. Sendo `string`, o
+ * TypeScript não tinha como perceber. Agora um id inválido é erro de
+ * compilação.
+ *
+ * Os ordinais ('seven', 'third') são herança do código atual; renomeá-los é
+ * uma migração à parte, com os mesmos riscos de qualquer renomeação ampla.
+ */
+export type StudioTab =
+  | 'seven'      // Chat — primeira aba do trilho, e o padrão
+  | 'widgets'
+  | 'schedule'
+  | 'design'
+  | 'theme'
+  | 'third'      // Prompter
+  | 'video'
+  | 'audience'
+  | 'settings'
+  | 'apps';

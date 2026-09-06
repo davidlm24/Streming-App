@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { ImagePlaceholder } from './ImagePlaceholder';
-import { Destination, AudioTrack, Banner, BannerPosition, Comment, Participant, QrCodeConfig } from '../types';
+import { Destination, AudioTrack, Banner, BannerPosition, Comment, Participant, QrCodeConfig, StudioTab } from '../types';
 import { AUDIO_LIBRARY, BACKGROUND_TEMPLATES, OVERLAY_TEMPLATES, LOGO_TEMPLATES } from '../data';
 import { ThumbnailEditor } from './ThumbnailEditor';
 import { AudioVUMeter } from './AudioVUMeter';
@@ -195,7 +195,7 @@ const DEFAULT_PRESETS: BrandPreset[] = [
 import { useMediaManager } from '../context/MediaManagerContext';
 
 interface LeftSidebarProps {
-  activeTab: string;
+  activeTab: StudioTab;
   destinations: Destination[];
   onToggleDestination: (id: string) => void;
   title: string;

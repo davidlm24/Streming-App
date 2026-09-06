@@ -22,7 +22,7 @@ import { QrCodeModal } from './components/QrCodeModal';
 import { StudioScenePreviewControls } from './components/StudioScenePreviewControls';
 import { CLOUDFLARE_STREAM_CONFIG } from './lib/cloudflareStreamConfig';
 
-import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, QrCodeConfig } from './types';
+import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, QrCodeConfig, StudioTab } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_BANNERS, INITIAL_TICKERS, INITIAL_COMMENTS, AUDIO_LIBRARY } from './data';
 import { startSynth, stopSynth, setVolume as setSynthVolume } from './audioEngine';
 import { Play, Calendar, Users, Tv, Radio, BarChart3, Plus, ArrowRight, Settings, ExternalLink, Palette, ListTodo, QrCode, FileText, MessageSquare, Music, Sliders, ShieldAlert, Sparkles, X, Maximize2, Minimize2, Server, CheckCircle2, Type, Film, Bell, Puzzle, Activity, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
@@ -234,7 +234,9 @@ export default function App() {
   const [isDrawingMode, setIsDrawingMode] = useState<boolean>(false);
 
   // Stream state
-  const [activeTab, setActiveTab] = useState<string>('first'); // Default to broadcast
+  // 'seven' é a aba Chat, a primeira do trilho. Era 'first', que não
+  // correspondia a painel nenhum — barra lateral em branco na primeira visita.
+  const [activeTab, setActiveTab] = useState<StudioTab>('seven');
   const [destinations, setDestinations] = useState<Destination[]>(INITIAL_DESTINATIONS);
   const [title, setTitle] = useState<string>('Marcos');
   const [description, setDescription] = useState<string>('Marcos');
@@ -497,6 +499,23 @@ export default function App() {
 
   // Recording state
   const [isRecording, setIsRecording] = useState(false);
+
+  // Guarda de perda de dados. `beforeunload` não aparecia NENHUMA vez no app:
+  // recarregar ou fechar a aba durante uma transmissão a derrubava em
+  // silêncio — e, com a saída do estúdio ausente entre 768 e 1279 px,
+  // recarregar era exatamente o que sobrava para o operador tentar.
+  useEffect(() => {
+    if (!isLive && !isRecording) return;
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Navegadores modernos ignoram a mensagem e mostram texto próprio;
+      // returnValue continua sendo o que dispara o diálogo.
+      e.returnValue = '';
+      return '';
+    };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [isLive, isRecording]);
   const [recordingTime, setRecordingTime] = useState(0);
 
   useEffect(() => {

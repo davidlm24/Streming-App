@@ -30,9 +30,19 @@ function walk(dir, test, out = []) {
 
 const tsx = walk(path.join(ROOT, 'src'), (n) => /\.(tsx|ts)$/.test(n));
 const readAll = (files) => files.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
-const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, '');
+// Remove blocos /* */ e linhas que começam com //. A forma ingênua contava
+// a PALAVRA em prosa: primeiro `!important` dentro do comentário que
+// explicava aquele !important, depois `confirm()` dentro do comentário que
+// explicava por que NÃO se usa confirm(). Duas vezes a catraca pegou a si
+// mesma. O `//` só é removido em início de linha para não estragar URLs.
+const stripComments = (text) =>
+  text
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .split('\n')
+    .filter((line) => !/^\s*\/\//.test(line))
+    .join('\n');
 
-const src = readAll(tsx);
+const src = stripComments(readAll(tsx));
 // Comentários são removidos antes de medir: a primeira versão contava
 // `!important` escrito em PROSA — inclusive dentro do comentário que explicava
 // por que aquele !important era legítimo. A catraca pegou a si mesma.

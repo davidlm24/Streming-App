@@ -59,6 +59,51 @@ export function Header({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [streamMenuOpen, setStreamMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // ── Guarda do GO LIVE / END LIVE ────────────────────────────────────────
+  // O botão não tinha `disabled`, nem estado pendente, nem confirmação:
+  // clicável duas vezes e irreversível. Entrar no ar continua sendo um
+  // clique; SAIR do ar passa a exigir pressão sustentada.
+  // Não se usa `confirm()` de propósito — um diálogo nativo bloqueia a
+  // thread principal, e no meio de uma transmissão isso trava vídeo, chat
+  // e encoder até alguém clicar OK.
+  const HOLD_MS = 900;
+  const [livePending, setLivePending] = useState(false);
+  const [holding, setHolding] = useState(false);
+  const holdTimer = useRef<number | null>(null);
+
+  // O pai decide quando o estado realmente virou; limpamos ao vê-lo mudar.
+  useEffect(() => {
+    setLivePending(false);
+    setHolding(false);
+    if (holdTimer.current) { clearTimeout(holdTimer.current); holdTimer.current = null; }
+  }, [isLive]);
+
+  useEffect(() => () => { if (holdTimer.current) clearTimeout(holdTimer.current); }, []);
+
+  const endHold = () => {
+    if (holdTimer.current) { clearTimeout(holdTimer.current); holdTimer.current = null; }
+    setHolding(false);
+  };
+
+  const beginHold = () => {
+    if (livePending || holdTimer.current) return;
+    setHolding(true);
+    // setTimeout + transição de CSS em vez de rAF: dois renders no total,
+    // não um por quadro.
+    holdTimer.current = window.setTimeout(() => {
+      holdTimer.current = null;
+      setHolding(false);
+      setLivePending(true);
+      onToggleLive();
+    }, HOLD_MS);
+  };
+
+  const handleGoLive = () => {
+    if (livePending || isTrialExpired) return;
+    setLivePending(true);
+    onToggleLive();
+  };
   const { theme, toggleTheme } = useTheme();
   const streamDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -299,25 +344,54 @@ export function Header({
             {/* 3. Botão GO LIVE / END LIVE */}
             <button
               type="button"
-              onClick={onToggleLive}
               id="btn-header-go-live"
-              className={`flex items-center justify-center gap-2 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full font-black text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer shadow-md hover:scale-[1.03] active:scale-95 shrink-0 ${
+              disabled={livePending}
+              aria-busy={livePending}
+              onClick={isLive ? undefined : handleGoLive}
+              onPointerDown={isLive ? beginHold : undefined}
+              onPointerUp={isLive ? endHold : undefined}
+              onPointerLeave={isLive ? endHold : undefined}
+              onPointerCancel={isLive ? endHold : undefined}
+              onKeyDown={isLive ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); beginHold(); } } : undefined}
+              onKeyUp={isLive ? endHold : undefined}
+              className={`relative overflow-hidden flex items-center justify-center gap-2 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full font-black text-xs sm:text-sm uppercase tracking-wider transition-colors cursor-pointer shadow-md active:scale-95 shrink-0 disabled:opacity-60 disabled:cursor-wait disabled:active:scale-100 [@media(hover:hover)]:hover:scale-[1.03] ${
                 isLive
-                  ? 'bg-red-600 hover:bg-red-700 text-white border-2 border-red-500 shadow-red-600/30 animate-pulse'
+                  ? 'bg-red-600 hover:bg-red-700 text-white border-2 border-red-500 shadow-red-600/30'
                   : isTrialExpired
                     ? 'border-2 border-amber-500/80 bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-white'
                     : 'border-2 border-[#D9480F] bg-[#D9480F]/15 hover:bg-[#D9480F] text-[#FF922B] hover:text-[var(--ink-hi)] shadow-orange-500/10'
               }`}
-              title={isLive ? "Encerrar transmissão ao vivo" : isTrialExpired ? "Assine um plano para transmitir ao vivo" : "Iniciar transmissão ao vivo em todos os canais"}
+              title={
+                livePending
+                  ? 'Aguardando confirmação do servidor…'
+                  : isLive
+                    ? `Segure ${HOLD_MS / 1000} s para encerrar a transmissão`
+                    : isTrialExpired
+                      ? 'Assine um plano para transmitir ao vivo'
+                      : 'Iniciar transmissão ao vivo em todos os canais'
+              }
             >
-              {isLive ? (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
-                  <span>END LIVE ({formatHeaderTime(liveTime)})</span>
-                </>
-              ) : (
-                <span>{isTrialExpired ? 'GO LIVE 🔒' : 'GO LIVE'}</span>
+              {/* Preenchimento da pressão sustentada: largura animada por CSS,
+                  não por quadro de JS. */}
+              {isLive && (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-y-0 left-0 bg-white/25 pointer-events-none"
+                  style={{ width: holding ? '100%' : '0%', transition: `width ${holding ? HOLD_MS : 140}ms linear` }}
+                />
               )}
+              <span className="relative flex items-center gap-2">
+                {livePending ? (
+                  <span>{isLive ? 'Encerrando…' : 'Entrando no ar…'}</span>
+                ) : isLive ? (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-white"></span>
+                    <span>{holding ? 'Segure…' : `END LIVE (${formatHeaderTime(liveTime)})`}</span>
+                  </>
+                ) : (
+                  <span>{isTrialExpired ? 'GO LIVE 🔒' : 'GO LIVE'}</span>
+                )}
+              </span>
             </button>
 
             {/* Sair do Webinar - Styled with two lines matching the reference */}

@@ -586,10 +586,28 @@ export function ControlTray({
 
       </div>
 
-      {/* 3. Right side: Stream Quality indicator */}
-      <div className="shrink-0 text-right hidden md:block space-y-0.5">
-        <span className="text-[10px] text-[var(--ink-dim)] font-mono tracking-widest uppercase block">HD 1080P • 60 FPS</span>
-        <span className="text-[9px] text-green-400 font-bold bg-green-500/10 px-2 py-0.5 rounded uppercase tracking-wider block">AUTO-PIPELINE SECURE</span>
+      {/* 3. Right side: saída + indicador de qualidade */}
+      <div className="shrink-0 flex items-center gap-2 md:gap-3">
+        {/* A SAÍDA. `onExit` era declarado, recebido e nunca renderizado — e a
+            navegação do cabeçalho é `hidden lg:flex`, a saída dele é
+            `hidden xl:flex` e o menu sanduíche é `md:hidden`. Entre 768 e
+            1279 px o operador não tinha nenhuma forma de sair do estúdio a
+            não ser recarregar, o que derrubava a transmissão em silêncio.
+            Por isso este botão não tem breakpoint: aparece em toda largura. */}
+        <button
+          type="button"
+          onClick={onExit}
+          title="Sair do estúdio"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-[var(--line-ctl)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--raise)] active:scale-95 transition-colors cursor-pointer touch-target-btn"
+        >
+          <LogOut size={13} />
+          <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">Sair</span>
+        </button>
+
+        <div className="text-right hidden md:block space-y-0.5">
+          <span className="text-[10px] text-[var(--ink-dim)] font-mono tracking-widest uppercase block">HD 1080P • 60 FPS</span>
+          <span className="text-[9px] text-green-400 font-bold bg-green-500/10 px-2 py-0.5 rounded uppercase tracking-wider block">AUTO-PIPELINE SECURE</span>
+        </div>
       </div>
 
     </div>
