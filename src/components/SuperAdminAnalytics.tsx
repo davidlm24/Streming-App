@@ -350,7 +350,7 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
                 className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   selectedFilter === filter 
                     ? 'bg-amber-500 text-slate-950 font-black' 
-                    : 'text-[var(--text-lo)] hover:text-white'
+                    : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                 }`}
               >
                 {filter === 'all' ? 'Todos os Clientes' : filter === 'high-usage' ? '⚠️ >75% Quota' : 'Com Webinars Ativos'}

@@ -154,7 +154,7 @@ export function Header({
                 className={`transition-colors text-xs font-semibold uppercase tracking-wider cursor-pointer py-1.5 px-3 rounded-lg ${
                   currentView === 'studio' 
                     ? 'text-blue-400 bg-blue-500/10 border border-blue-500/10' 
-                    : 'text-[var(--text-lo)] hover:text-white'
+                    : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                 }`}
               >
                 Estúdio de Transmissão
@@ -231,7 +231,7 @@ export function Header({
                         className={`px-2.5 py-1.5 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center justify-center gap-1 border ${
                           recordingQuality === '720p'
                             ? 'bg-blue-600/20 border-blue-500 text-blue-300'
-                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-white hover:border-[var(--line-ctl)]'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
                         }`}
                       >
                         {recordingQuality === '720p' && <Check size={12} className="text-blue-400" />}
@@ -243,7 +243,7 @@ export function Header({
                         className={`px-2.5 py-1.5 rounded-lg font-bold text-[11px] transition-all cursor-pointer flex items-center justify-center gap-1 border ${
                           recordingQuality === '1080p'
                             ? 'bg-blue-600/20 border-blue-500 text-blue-300'
-                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-white hover:border-[var(--line-ctl)]'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
                         }`}
                       >
                         {recordingQuality === '1080p' && <Check size={12} className="text-blue-400" />}
@@ -265,7 +265,7 @@ export function Header({
                           ? 'bg-red-500/20 border-red-500 text-red-300'
                           : isTrialExpired
                             ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-white'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       <span className="flex items-center gap-2">
@@ -306,7 +306,7 @@ export function Header({
                   ? 'bg-red-600 hover:bg-red-700 text-white border-2 border-red-500 shadow-red-600/30 animate-pulse'
                   : isTrialExpired
                     ? 'border-2 border-amber-500/80 bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-white'
-                    : 'border-2 border-[#D9480F] bg-[#D9480F]/15 hover:bg-[#D9480F] text-[#FF922B] hover:text-white shadow-orange-500/10'
+                    : 'border-2 border-[#D9480F] bg-[#D9480F]/15 hover:bg-[#D9480F] text-[#FF922B] hover:text-[var(--text-hi)] shadow-orange-500/10'
               }`}
               title={isLive ? "Encerrar transmissão ao vivo" : isTrialExpired ? "Assine um plano para transmitir ao vivo" : "Iniciar transmissão ao vivo em todos os canais"}
             >

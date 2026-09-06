@@ -1237,7 +1237,7 @@ export function LeftSidebar({
               className={`flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                 settingsSubTab === 'devices'
                   ? 'bg-[var(--color-brand-deep)] text-white shadow-md'
-                  : 'text-[var(--text-lo)] hover:text-white'
+                  : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
               }`}
             >
               <Sliders size={14} />
@@ -1249,7 +1249,7 @@ export function LeftSidebar({
               className={`flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                 settingsSubTab === 'transitions'
                   ? 'bg-[var(--color-brand-deep)] text-white shadow-md'
-                  : 'text-[var(--text-lo)] hover:text-white'
+                  : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
               }`}
             >
               <Film size={14} />
@@ -1261,7 +1261,7 @@ export function LeftSidebar({
               className={`flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                 settingsSubTab === 'transmission'
                   ? 'bg-[var(--color-brand-deep)] text-white shadow-md'
-                  : 'text-[var(--text-lo)] hover:text-white'
+                  : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
               }`}
             >
               <Tv size={14} />
@@ -1371,7 +1371,7 @@ export function LeftSidebar({
                 className={`w-full touch-action-btn py-2 px-3 rounded-xl border text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   isMuted
                     ? 'bg-red-600/10 border-red-500 text-white'
-                    : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text)] hover:text-white hover:border-[var(--line-ctl)]'
+                    : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
                 }`}
               >
                 {!isMuted ? <Mic size={14} className="text-blue-400" /> : <MicOff size={14} className="text-red-500" />}
@@ -1686,7 +1686,7 @@ export function LeftSidebar({
                   className={`py-2 px-2.5 rounded-xl border text-center transition-all flex flex-col justify-center items-center h-11 cursor-pointer touch-action-btn hover:scale-[1.02] active:scale-[0.98] ${
                     transitionType === t.id 
                       ? 'bg-blue-500/10 border-blue-500 text-blue-400 ring-1 ring-blue-500/30 font-bold' 
-                      : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:border-[var(--line-ctl)] hover:text-white'
+                      : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:border-[var(--line-ctl)] hover:text-[var(--text-hi)]'
                   }`}
                 >
                   <span className="text-xs font-extrabold tracking-wide">{t.label}</span>
@@ -1740,7 +1740,7 @@ export function LeftSidebar({
                     className={`flex-1 py-1 text-[9px] font-bold rounded transition-all cursor-pointer ${
                       selectedSceneConfigId === sc.id 
                         ? 'bg-blue-600 text-white shadow-sm' 
-                        : 'text-[var(--text-lo)] hover:text-white'
+                        : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                     }`}
                   >
                     {sc.name}
@@ -1817,7 +1817,7 @@ export function LeftSidebar({
                       className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all uppercase cursor-pointer ${
                         recordingFormat === fmt 
                           ? 'bg-blue-500 text-white shadow-md' 
-                          : 'text-[var(--text-lo)] hover:text-white'
+                          : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       {fmt}
@@ -1838,7 +1838,7 @@ export function LeftSidebar({
                       className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
                         recordingQuality === qual 
                           ? 'bg-blue-500 text-white shadow-md' 
-                          : 'text-[var(--text-lo)] hover:text-white'
+                          : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       {qual}
@@ -1913,7 +1913,7 @@ export function LeftSidebar({
                             className={`py-1.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
                               currentTransition === anim.id 
                                 ? 'bg-blue-500 text-white shadow-md' 
-                                : 'text-[var(--text-lo)] hover:text-white'
+                                : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                             }`}
                           >
                             {anim.label}
@@ -2248,7 +2248,7 @@ export function LeftSidebar({
                       className={`px-3 rounded-lg border transition-all flex items-center justify-center cursor-pointer ${
                         copiedServer 
                           ? 'bg-green-500/10 border-green-500 text-green-400' 
-                          : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-white hover:border-[var(--line-ctl)]'
+                          : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
                       }`}
                       title="Copiar URL do Servidor"
                     >
@@ -2281,7 +2281,7 @@ export function LeftSidebar({
                       className={`px-3 rounded-lg border transition-all flex items-center justify-center cursor-pointer ${
                         copiedKey 
                           ? 'bg-green-500/10 border-green-500 text-green-400' 
-                          : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-white hover:border-[var(--line-ctl)]'
+                          : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
                       }`}
                       title="Copiar Chave de Stream"
                     >
@@ -2804,7 +2804,7 @@ export function LeftSidebar({
                         className={`aspect-video rounded-lg border transition-all flex flex-col items-center justify-center text-[10px] font-bold cursor-pointer ${
                           activeOverlay === '' 
                             ? 'bg-blue-500/10 border-blue-500 text-blue-400' 
-                            : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-dim)] hover:border-[var(--line-ctl)] hover:text-white'
+                            : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-dim)] hover:border-[var(--line-ctl)] hover:text-[var(--text-hi)]'
                         }`}
                       >
                         Nenhum overlay
@@ -3363,7 +3363,7 @@ export function LeftSidebar({
                               className={`py-1.5 px-1 rounded-lg text-[10px] font-bold transition-all border cursor-pointer text-center ${
                                 bannerPosition === opt.id
                                   ? 'bg-indigo-600/30 border-indigo-500 text-indigo-200'
-                                  : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-white hover:border-[var(--line-ctl)]'
+                                  : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
                               }`}
                             >
                               {opt.label}
@@ -3522,7 +3522,7 @@ export function LeftSidebar({
                               type="button"
                               onClick={() => onSetTickerSpeed?.('slow')}
                               className={`flex-1 py-1 text-[10px] font-bold rounded transition-colors ${
-                                tickerSpeed === 'slow' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-white'
+                                tickerSpeed === 'slow' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                               }`}
                             >
                               Lenta
@@ -3531,7 +3531,7 @@ export function LeftSidebar({
                               type="button"
                               onClick={() => onSetTickerSpeed?.('normal')}
                               className={`flex-1 py-1 text-[10px] font-bold rounded transition-colors ${
-                                tickerSpeed === 'normal' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-white'
+                                tickerSpeed === 'normal' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                               }`}
                             >
                               Normal
@@ -3540,7 +3540,7 @@ export function LeftSidebar({
                               type="button"
                               onClick={() => onSetTickerSpeed?.('fast')}
                               className={`flex-1 py-1 text-[10px] font-bold rounded transition-colors ${
-                                tickerSpeed === 'fast' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-white'
+                                tickerSpeed === 'fast' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                               }`}
                             >
                               Rápida
@@ -3558,7 +3558,7 @@ export function LeftSidebar({
                               type="button"
                               onClick={() => onSetTickerDirection?.('left')}
                               className={`flex-1 py-1 text-[10px] font-bold rounded transition-colors flex items-center justify-center gap-1 ${
-                                tickerDirection === 'left' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-white'
+                                tickerDirection === 'left' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                               }`}
                               title="Rolagem da direita para a esquerda"
                             >
@@ -3568,7 +3568,7 @@ export function LeftSidebar({
                               type="button"
                               onClick={() => onSetTickerDirection?.('right')}
                               className={`flex-1 py-1 text-[10px] font-bold rounded transition-colors flex items-center justify-center gap-1 ${
-                                tickerDirection === 'right' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-white'
+                                tickerDirection === 'right' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                               }`}
                               title="Rolagem da esquerda para a direita"
                             >
@@ -3757,7 +3757,7 @@ export function LeftSidebar({
                     className={`py-1.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer ${
                       teleprompterSpeed === item.speed 
                         ? 'bg-blue-600 text-white shadow-sm' 
-                        : 'text-[var(--text-lo)] hover:text-white hover:bg-[var(--panel)]'
+                        : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)]'
                     }`}
                   >
                     {item.label}
@@ -3785,7 +3785,7 @@ export function LeftSidebar({
                       className={`flex-1 py-1 text-[10px] font-bold rounded-lg transition-colors cursor-pointer ${
                         teleprompterFontSize === item.size 
                           ? 'bg-blue-600 text-white shadow-sm' 
-                          : 'text-[var(--text-lo)] hover:text-white'
+                          : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       {item.label}
@@ -3803,7 +3803,7 @@ export function LeftSidebar({
                   className={`w-full py-1.5 px-2 rounded-xl border text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     teleprompterMirrored
                       ? 'bg-blue-500/20 border-blue-500 text-blue-400'
-                      : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
+                      : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                   }`}
                 >
                   <Move size={12} /> {teleprompterMirrored ? 'Espelhado' : 'Normal'}
@@ -3932,7 +3932,7 @@ export function LeftSidebar({
                   className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                     appsSubtab === sub.id 
                       ? 'bg-[var(--color-brand-deep)] text-white shadow-md' 
-                      : 'text-[var(--text-lo)] hover:text-white'
+                      : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                   }`}
                 >
                   <Icon size={12} />
@@ -3991,7 +3991,7 @@ export function LeftSidebar({
                         className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                           (qrCodeConfig?.orientation || 'horizontal') === 'horizontal'
                             ? 'bg-blue-600/20 border-blue-500 text-white font-bold ring-1 ring-blue-500/30'
-                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:border-[var(--line-ctl)] hover:text-white'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:border-[var(--line-ctl)] hover:text-[var(--text-hi)]'
                         }`}
                       >
                         <span className="text-xs font-bold">⇄ Centro Inferior</span>
@@ -4009,7 +4009,7 @@ export function LeftSidebar({
                         className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                           qrCodeConfig?.orientation === 'vertical' || bannerPosition === 'lateral'
                             ? 'bg-blue-600/20 border-blue-500 text-white font-bold ring-1 ring-blue-500/30'
-                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:border-[var(--line-ctl)] hover:text-white'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:border-[var(--line-ctl)] hover:text-[var(--text-hi)]'
                         }`}
                       >
                         <span className="text-xs font-bold">⇅ Lateral Direita</span>
@@ -4044,7 +4044,7 @@ export function LeftSidebar({
                           className={`px-2 py-1 rounded-lg text-[9px] font-bold border transition-colors cursor-pointer ${
                             qrCodeConfig?.storeName === store
                               ? 'bg-blue-600 text-white border-blue-500'
-                              : 'bg-[var(--surface)] text-[var(--text-lo)] border-[var(--line)] hover:text-white'
+                              : 'bg-[var(--surface)] text-[var(--text-lo)] border-[var(--line)] hover:text-[var(--text-hi)]'
                           }`}
                         >
                           {store}
@@ -4529,7 +4529,7 @@ export function LeftSidebar({
                       className={`flex items-center justify-between p-2 rounded-xl border text-xs text-left transition-all cursor-pointer ${
                         isActive 
                           ? 'bg-blue-500/10 border-blue-500 hover:border-blue-400' 
-                          : 'bg-[var(--surface)] border-[var(--line)]/80 hover:border-[var(--line-ctl)] text-[var(--text)] hover:text-white'
+                          : 'bg-[var(--surface)] border-[var(--line)]/80 hover:border-[var(--line-ctl)] text-[var(--text)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       <div className="flex items-center gap-2 min-w-0">
@@ -4578,7 +4578,7 @@ export function LeftSidebar({
                         className={`flex items-center justify-between p-2 rounded-xl border text-xs text-left transition-all cursor-pointer group relative ${
                           isActive 
                             ? 'bg-blue-500/10 border-blue-500 hover:border-blue-400' 
-                            : 'bg-[var(--surface)] border-[var(--line)]/80 hover:border-[var(--line-ctl)] text-[var(--text)] hover:text-white'
+                            : 'bg-[var(--surface)] border-[var(--line)]/80 hover:border-[var(--line-ctl)] text-[var(--text)] hover:text-[var(--text-hi)]'
                         }`}
                       >
                         <div className="flex items-center gap-2 min-w-0 pr-5">
@@ -4768,7 +4768,7 @@ export function LeftSidebar({
                       className={`py-1.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
                         logoAnimation === anim.id 
                           ? 'bg-blue-500 text-white shadow-md' 
-                          : 'text-[var(--text-lo)] hover:text-white'
+                          : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       {anim.label}
@@ -4795,7 +4795,7 @@ export function LeftSidebar({
                       className={`py-1.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
                         bannerAnimation === anim.id 
                           ? 'bg-blue-500 text-white shadow-md' 
-                          : 'text-[var(--text-lo)] hover:text-white'
+                          : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       {anim.label}
@@ -4839,7 +4839,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x < 20 && sidebarSpeakerPos.y < 20
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-[var(--text-lo)] hover:text-white hover:bg-[var(--panel)]'
+                      : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Topo Esquerdo"
                 >
@@ -4852,7 +4852,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x > 25 && sidebarSpeakerPos.x < 50 && sidebarSpeakerPos.y < 20
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-[var(--text-lo)] hover:text-white hover:bg-[var(--panel)]'
+                      : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Topo Centro"
                 >
@@ -4865,7 +4865,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x > 60 && sidebarSpeakerPos.y < 20
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-[var(--text-lo)] hover:text-white hover:bg-[var(--panel)]'
+                      : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Topo Direito"
                 >
@@ -4878,7 +4878,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x > 25 && sidebarSpeakerPos.x < 50 && sidebarSpeakerPos.y > 25 && sidebarSpeakerPos.y < 55
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-[var(--text-lo)] hover:text-white hover:bg-[var(--panel)]'
+                      : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Centro da Tela"
                 >
@@ -4891,7 +4891,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x < 20 && sidebarSpeakerPos.y > 55
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-[var(--text-lo)] hover:text-white hover:bg-[var(--panel)]'
+                      : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Base Esquerda"
                 >
@@ -4904,7 +4904,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x > 25 && sidebarSpeakerPos.x < 50 && sidebarSpeakerPos.y > 55
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-[var(--text-lo)] hover:text-white hover:bg-[var(--panel)]'
+                      : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Base Centro"
                 >
@@ -4917,7 +4917,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x > 60 && sidebarSpeakerPos.y > 55
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-[var(--text-lo)] hover:text-white hover:bg-[var(--panel)]'
+                      : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Base Direita (Padrão)"
                 >
@@ -4949,7 +4949,7 @@ export function LeftSidebar({
                     className={`py-1.5 px-2 text-[10px] font-bold rounded-md transition-all ${
                       sidebarSpeakerShape === shape.id
                         ? 'bg-blue-500 text-white shadow'
-                        : 'text-[var(--text-lo)] hover:text-white'
+                        : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                     }`}
                   >
                     {shape.label}
@@ -5110,7 +5110,7 @@ export function LeftSidebar({
                           className={`flex-1 py-1 px-1.5 rounded text-[9px] font-bold border transition-all ${
                             chromaColor.toLowerCase() === preset.hex 
                               ? 'bg-blue-500/10 border-blue-500 text-blue-400' 
-                              : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
+                              : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                           }`}
                         >
                           <div className="flex items-center gap-1 justify-center">
@@ -5285,7 +5285,7 @@ export function LeftSidebar({
                         className={`py-1.5 text-[10px] font-bold rounded border transition-all cursor-pointer ${
                           countdownDuration === preset.sec 
                             ? 'bg-blue-500 text-white border-blue-500' 
-                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                         }`}
                       >
                         {preset.label}

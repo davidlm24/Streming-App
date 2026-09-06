@@ -1889,7 +1889,13 @@ export default function App() {
   }
 
   return (
-    <div className={`bg-[var(--bg)] font-sans text-[var(--text-hi)] flex flex-col selection:bg-blue-500 selection:text-white ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
+    <div
+      /* No estúdio a tela INTEIRA é o console — cabeçalho incluído. Os chips
+         escuros do cabeçalho (LIVE STREAM, 1080p, alternador de tema) ficavam
+         fora do escopo e recebiam os tokens de texto do tema claro sobre
+         fundo escuro: 2,24–3,55:1. */
+      data-surface={currentView === 'studio' ? 'console' : undefined}
+      className={`bg-[var(--bg)] font-sans text-[var(--text-hi)] flex flex-col selection:bg-blue-500 selection:text-white ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
       
       {/* Dynamic Header */}
       <Header 
@@ -2249,7 +2255,7 @@ export default function App() {
                             className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 ${
                               isActive 
                                 ? 'bg-[var(--color-brand-deep)] text-white shadow-lg ring-1 ring-blue-400/20' 
-                                : 'text-[var(--text-lo)] hover:bg-[var(--surface)] hover:text-white'
+                                : 'text-[var(--text-lo)] hover:bg-[var(--surface)] hover:text-[var(--text-hi)]'
                             }`}
                             title={`${tab.label}: ${tab.desc}`}
                           >
@@ -2295,10 +2301,10 @@ export default function App() {
                   className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all border shadow-lg cursor-pointer touch-action-btn ${
                     isMobileScenesOpen
                       ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-[var(--surface)] text-[var(--text)] border-[var(--line)] hover:text-white'
+                      : 'bg-[var(--surface)] text-[var(--text)] border-[var(--line)] hover:text-[var(--text-hi)]'
                   }`}
                 >
-                  <Users size={16} className={isMobileScenesOpen ? 'text-white' : 'text-blue-400'} />
+                  <Users size={16} className={isMobileScenesOpen ? 'text-[var(--text-hi)]' : 'text-blue-400'} />
                   <span>Participantes ({participants.length})</span>
                 </button>
                 <button
@@ -2309,10 +2315,10 @@ export default function App() {
                   className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all border shadow-lg cursor-pointer touch-action-btn ${
                     isMobileSidebarOpen
                       ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-[var(--surface)] text-[var(--text)] border-[var(--line)] hover:text-white'
+                      : 'bg-[var(--surface)] text-[var(--text)] border-[var(--line)] hover:text-[var(--text-hi)]'
                   }`}
                 >
-                  <Sliders size={16} className={isMobileSidebarOpen ? 'text-white' : 'text-emerald-400'} />
+                  <Sliders size={16} className={isMobileSidebarOpen ? 'text-[var(--text-hi)]' : 'text-emerald-400'} />
                   <span>Painel & Ferramentas</span>
                 </button>
               </div>
@@ -2667,7 +2673,7 @@ export default function App() {
                           className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 cursor-pointer ${
                             isActive 
                               ? 'bg-[var(--color-brand-deep)] text-white shadow-lg ring-1 ring-blue-400/20' 
-                              : 'text-[var(--text-lo)] hover:bg-[var(--surface)] hover:text-white'
+                              : 'text-[var(--text-lo)] hover:bg-[var(--surface)] hover:text-[var(--text-hi)]'
                           }`}
                           title={`${tab.label}: ${tab.desc}`}
                         >
@@ -2915,7 +2921,7 @@ export default function App() {
             {/* Quick settings & support */}
             <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <h2 className="text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
                   <Settings size={18} className="text-[var(--color-brand)]" /> Configurações & Chaves
                 </h2>
                 
@@ -3196,7 +3202,7 @@ export default function App() {
                       <label 
                         key={chan} 
                         className={`flex items-center gap-2 p-2.5 bg-[var(--bg)] border rounded-xl cursor-pointer text-xs transition-all ${
-                          isChecked ? 'border-blue-500/40 bg-blue-500/5 text-white' : 'border-[var(--line)] text-[var(--text-lo)] hover:text-white'
+                          isChecked ? 'border-blue-500/40 bg-blue-500/5 text-white' : 'border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                         }`}
                       >
                         <input
@@ -3246,7 +3252,7 @@ export default function App() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--line)] bg-[var(--bg)]">
               <div className="text-left">
-                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-[var(--text-hi)] flex items-center gap-2">
                   <Sparkles size={18} className="text-emerald-400 animate-pulse" />
                   Manual de Integração, Chaves de API e Análise do SaaS
                 </h3>
@@ -3254,7 +3260,7 @@ export default function App() {
               </div>
               <button 
                 onClick={() => setIsIntegrationsModalOpen(false)}
-                className="text-[var(--text-lo)] hover:text-white p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
+                className="text-[var(--text-lo)] hover:text-[var(--text-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -3343,7 +3349,7 @@ export default function App() {
                   </div>
 
                   <div className="space-y-3 bg-[var(--bg)] border border-[var(--line)] p-5 rounded-2xl">
-                    <p className="text-xs font-bold text-white uppercase tracking-wider">Parâmetros de Conexão Ativos</p>
+                    <p className="text-xs font-bold text-[var(--text-hi)] uppercase tracking-wider">Parâmetros de Conexão Ativos</p>
                     
                     <div className="space-y-2.5">
                       <div>
@@ -3428,7 +3434,7 @@ export default function App() {
                     ].map((platform, idx) => (
                       <div key={idx} className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-2 text-left">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
-                          <p className="text-xs font-bold text-white">{platform.name}</p>
+                          <p className="text-xs font-bold text-[var(--text-hi)]">{platform.name}</p>
                           <span className="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-mono font-bold">{platform.developer}</span>
                         </div>
                         <p className="text-[10px] text-[var(--text-lo)] leading-relaxed">{platform.desc}</p>

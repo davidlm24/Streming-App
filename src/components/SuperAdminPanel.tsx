@@ -386,7 +386,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               copiedLink
                 ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
-                : 'bg-[var(--panel)] hover:bg-[var(--raise)] border-[var(--line-ctl)] text-white'
+                : 'bg-[var(--panel)] hover:bg-[var(--raise)] border-[var(--line-ctl)] text-[var(--text-hi)]'
             }`}
           >
             {copiedLink ? <Check size={14} /> : <Copy size={14} />}
@@ -461,7 +461,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
               activeTab === tab.id 
                 ? 'border-amber-500 text-white bg-amber-500/5' 
-                : 'border-transparent text-[var(--text-lo)] hover:text-white'
+                : 'border-transparent text-[var(--text-lo)] hover:text-[var(--text-hi)]'
             }`}
           >
             <tab.icon size={15} className={activeTab === tab.id ? 'text-amber-400' : ''} />

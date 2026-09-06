@@ -177,7 +177,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
             className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
               clientTab === tab.id 
                 ? 'border-blue-500 text-white bg-blue-500/5' 
-                : 'border-transparent text-[var(--text-lo)] hover:text-white'
+                : 'border-transparent text-[var(--text-lo)] hover:text-[var(--text-hi)]'
             }`}
           >
             <tab.icon size={15} className={clientTab === tab.id ? 'text-blue-400' : ''} />
@@ -233,7 +233,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                       setTimeout(() => setCopiedUrl(false), 2000);
                     }}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      copiedUrl ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-[var(--panel)] hover:bg-[var(--raise)] text-white'
+                      copiedUrl ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--text-hi)]'
                     }`}
                   >
                     {copiedUrl ? 'URL Copiada!' : 'Copiar URL'}

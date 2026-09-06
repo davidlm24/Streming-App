@@ -410,7 +410,7 @@ Suporte Técnico: suporte@pwstreamer.com
               className={`flex items-center gap-2 px-5 py-3 text-xs font-bold transition-all border-b-2 shrink-0 ${
                 isActive 
                   ? 'border-blue-500 text-blue-400 font-extrabold bg-blue-500/5 rounded-t-xl' 
-                  : 'border-transparent text-[var(--text-lo)] hover:text-white hover:border-[var(--line-ctl)]'
+                  : 'border-transparent text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
               } cursor-pointer`}
             >
               <Icon size={14} />
@@ -436,13 +436,13 @@ Suporte Técnico: suporte@pwstreamer.com
             <div className="inline-flex items-center gap-2 p-1 bg-[var(--surface)] border border-[var(--line)] rounded-xl mt-4">
               <button 
                 onClick={() => setIsAnnual(false)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'}`}
               >
                 Mensal
               </button>
               <button 
                 onClick={() => setIsAnnual(true)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'}`}
               >
                 Anual <span className="text-[9px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/10 font-bold">Economize 20%</span>
               </button>
@@ -494,7 +494,7 @@ Suporte Técnico: suporte@pwstreamer.com
                           ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 cursor-default'
                           : plan.popular
                             ? 'bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white shadow-lg shadow-blue-950/20'
-                            : 'bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-white'
+                            : 'bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-[var(--text-hi)]'
                       }`}
                     >
                       {isCurrentActivePlan ? 'Plano Atual Ativo' : 'Assinar Plano'}
@@ -839,7 +839,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       type="button"
                       onClick={() => setMpMethod('pix')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'pix' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'
+                        mpMethod === 'pix' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       PIX Instantâneo
@@ -848,7 +848,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       type="button"
                       onClick={() => setMpMethod('card')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'card' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'
+                        mpMethod === 'card' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       Cartão Mercado Pago

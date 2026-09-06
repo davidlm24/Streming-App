@@ -289,7 +289,7 @@ export function QrCodeModal({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
                 showQrCodeOnStream
                   ? 'bg-emerald-600/20 border-emerald-500 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
-                  : 'bg-[var(--panel)] border-[var(--line-ctl)] text-[var(--text-lo)] hover:text-white'
+                  : 'bg-[var(--panel)] border-[var(--line-ctl)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
               }`}
             >
               {showQrCodeOnStream ? (
@@ -398,7 +398,7 @@ export function QrCodeModal({
                           className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-1 ${
                             form.storeName === store.name
                               ? 'bg-blue-600 text-white border-blue-500 shadow-sm'
-                              : 'bg-[var(--surface)] text-[var(--text-lo)] border-[var(--line)] hover:border-[var(--line-ctl)] hover:text-white'
+                              : 'bg-[var(--surface)] text-[var(--text-lo)] border-[var(--line)] hover:border-[var(--line-ctl)] hover:text-[var(--text-hi)]'
                           }`}
                         >
                           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: store.color }} />
@@ -650,7 +650,7 @@ export function QrCodeModal({
                         className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
                           form.cardTheme === thm.id
                             ? 'border-blue-500 ring-2 ring-blue-500/40 bg-blue-500/10 font-bold'
-                            : 'border-[var(--line)] bg-[var(--surface)] text-[var(--text-lo)] hover:border-[var(--line-ctl)] hover:text-white'
+                            : 'border-[var(--line)] bg-[var(--surface)] text-[var(--text-lo)] hover:border-[var(--line-ctl)] hover:text-[var(--text-hi)]'
                         }`}
                       >
                         <div className={`w-full h-3 rounded mb-1.5 ${thm.bg}`} />

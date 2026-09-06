@@ -678,7 +678,7 @@ export function CustomDestinationModal({
                           className={`px-2 py-1 rounded text-[9px] font-black uppercase transition-all cursor-pointer ${
                             dest.selected
                               ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-[var(--panel)] text-[var(--text-lo)] hover:text-white'
+                              : 'bg-[var(--panel)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                           }`}
                           title="Alternar se este destino transmite ao vivo"
                         >
@@ -732,7 +732,7 @@ export function CustomDestinationModal({
                     className={`p-1.5 rounded-lg border text-left transition-all text-[10px] flex items-center gap-1.5 cursor-pointer ${
                       platform === preset.platform
                         ? 'bg-blue-600/20 border-blue-500 text-white font-bold'
-                        : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-white hover:border-[var(--line-ctl)]'
+                        : 'bg-[var(--surface)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
                     }`}
                   >
                     {getPlatformIcon(preset.platform)}

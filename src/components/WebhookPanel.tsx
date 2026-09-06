@@ -772,7 +772,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
               activeSubTab === 'trigger' 
                 ? 'bg-blue-600 text-white shadow-md' 
-                : 'bg-[var(--panel)] text-[var(--text)] hover:text-white'
+                : 'bg-[var(--panel)] text-[var(--text)] hover:text-[var(--text-hi)]'
             }`}
           >
             <Zap size={14} className="text-amber-300" />
@@ -785,7 +785,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer relative ${
               activeSubTab === 'history' 
                 ? 'bg-blue-600 text-white shadow-md' 
-                : 'bg-[var(--panel)] text-[var(--text)] hover:text-white'
+                : 'bg-[var(--panel)] text-[var(--text)] hover:text-[var(--text-hi)]'
             }`}
           >
             <Clock size={14} />
@@ -801,7 +801,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             className={`px-3.5 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
               activeSubTab === 'endpoints' 
                 ? 'bg-blue-600 text-white shadow-md' 
-                : 'bg-[var(--panel)] text-[var(--text)] hover:text-white'
+                : 'bg-[var(--panel)] text-[var(--text)] hover:text-[var(--text-hi)]'
             }`}
           >
             <ShieldCheck size={14} />
@@ -884,7 +884,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                     className={`text-[9px] px-2 py-0.5 rounded font-bold transition-all cursor-pointer ${
                       targetEndpointUrl === 'internal' 
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
-                        : 'text-[var(--text-lo)] hover:text-white bg-[var(--panel)]'
+                        : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] bg-[var(--panel)]'
                     }`}
                   >
                     Receptor Local
@@ -895,7 +895,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                     className={`text-[9px] px-2 py-0.5 rounded font-bold transition-all cursor-pointer ${
                       targetEndpointUrl !== 'internal' 
                         ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
-                        : 'text-[var(--text-lo)] hover:text-white bg-[var(--panel)]'
+                        : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] bg-[var(--panel)]'
                     }`}
                   >
                     Endpoint Remoto

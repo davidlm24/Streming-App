@@ -79,8 +79,12 @@
   --line:    var(--color-n-22);
   --line-ctl:var(--color-n-28);
 
-  --text-dim: var(--color-n-46);
-  --text-lo:  var(--color-n-58);
+  /* n-46 reprovava em TODOS os fundos escuros (3,01–3,80:1). Um degrau acima
+     passa nos quatro: 4,57 a 5,78:1. Era o mesmo defeito que a auditoria
+     apontou na direção original — um token declarado "nunca texto essencial"
+     e usado como texto essencial. */
+  --text-dim: var(--color-n-58);
+  --text-lo:  var(--color-n-70);
   --text:     var(--color-n-89);
   --text-hi:  var(--color-n-96);
 
@@ -124,8 +128,12 @@
   --line:    var(--color-n-18);
   --line-ctl:var(--color-n-28);
 
-  --text-dim: var(--color-n-46);
-  --text-lo:  var(--color-n-58);
+  /* n-46 reprovava em TODOS os fundos escuros (3,01–3,80:1). Um degrau acima
+     passa nos quatro: 4,57 a 5,78:1. Era o mesmo defeito que a auditoria
+     apontou na direção original — um token declarado "nunca texto essencial"
+     e usado como texto essencial. */
+  --text-dim: var(--color-n-58);
+  --text-lo:  var(--color-n-70);
   --text:     var(--color-n-89);
   --text-hi:  var(--color-n-96);
 

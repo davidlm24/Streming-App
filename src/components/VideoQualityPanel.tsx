@@ -272,7 +272,7 @@ export function VideoQualityPanel({
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-sm font-black text-white">1080p Full HD</span>
+                <span className="text-sm font-black text-[var(--text-hi)]">1080p Full HD</span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
                   Recomendado
                 </span>
@@ -302,7 +302,7 @@ export function VideoQualityPanel({
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-black text-white">4K Ultra HD</span>
+                  <span className="text-sm font-black text-[var(--text-hi)]">4K Ultra HD</span>
                   <Crown size={12} className="text-amber-400" />
                 </div>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">

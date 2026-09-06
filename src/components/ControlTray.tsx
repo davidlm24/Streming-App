@@ -288,7 +288,7 @@ export function ControlTray({
               className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                 isCamStopped 
                   ? 'bg-red-600 text-white shadow-md' 
-                  : 'text-[var(--text)] hover:text-white'
+                  : 'text-[var(--text)] hover:text-[var(--text-hi)]'
               }`}
               title={isCamStopped ? "Ativar Câmera" : "Desativar Câmera"}
             >
@@ -467,7 +467,7 @@ export function ControlTray({
               }`}
               title={isScreenSharing ? "Parar Compartilhamento" : "Escolher o que compartilhar"}
             >
-              <Monitor size={14} className={isScreenSharing ? 'text-white sm:w-4 sm:h-4' : 'text-blue-400 sm:w-4 sm:h-4'} />
+              <Monitor size={14} className={isScreenSharing ? 'text-[var(--text-hi)] sm:w-4 sm:h-4' : 'text-blue-400 sm:w-4 sm:h-4'} />
             </button>
 
             {/* Chevron trigger */}
@@ -490,7 +490,7 @@ export function ControlTray({
                   onToggleScreenShare('screen');
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-white transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--text-hi)] transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-2.5">
                   <Monitor size={15} className="text-blue-400" />
@@ -505,7 +505,7 @@ export function ControlTray({
                   onToggleScreenShare('pdf');
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--text-hi)] hover:text-white transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--text-hi)] hover:text-[var(--text-hi)] transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-2.5">
                   <Tv size={15} className="text-indigo-400" />
@@ -521,7 +521,7 @@ export function ControlTray({
                   onToggleScreenShare('video');
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--text-hi)] hover:text-white transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--text-hi)] hover:text-[var(--text-hi)] transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-2.5">
                   <Film size={15} className="text-emerald-400" />
@@ -566,7 +566,7 @@ export function ControlTray({
                 ? 'bg-red-600 border-red-500 text-white animate-pulse' 
                 : isTrialExpired
                   ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
-                  : 'bg-transparent border-[var(--line)] text-[var(--text-lo)] hover:text-white hover:border-[var(--line-ctl)]'
+                  : 'bg-transparent border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:border-[var(--line-ctl)]'
             }`}
             title={isRecording ? "Parar Gravação Local" : isTrialExpired ? "Gravação restrita - Assine um plano para gravar transmissões" : "Iniciar Gravação Local"}
           >
@@ -574,7 +574,7 @@ export function ControlTray({
               <Lock size={11} className="text-amber-400" />
             ) : (
               <div className="relative flex items-center justify-center">
-                <Disc size={13} className={isRecording ? 'animate-spin text-white' : ''} />
+                <Disc size={13} className={isRecording ? 'animate-spin text-[var(--text-hi)]' : ''} />
                 <span className={`absolute w-1 h-1 rounded-full ${isRecording ? 'bg-white' : 'bg-red-500'}`}></span>
               </div>
             )}

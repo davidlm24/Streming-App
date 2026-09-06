@@ -360,7 +360,7 @@ export function VirtualizedChat({
               className={`p-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
                 isSearchOpen || searchQuery 
                   ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' 
-                  : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
+                  : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
               }`}
               title="Buscar mensagens no chat"
             >
@@ -373,7 +373,7 @@ export function VirtualizedChat({
               className={`p-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
                 isPerformanceHUDOpen 
                   ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' 
-                  : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
+                  : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
               }`}
               title="Painel de Desempenho e Virtualização"
             >
@@ -496,7 +496,7 @@ export function VirtualizedChat({
               key={f.key}
               onClick={() => setCommentFilter(f.key as any)}
               className={`flex-1 min-w-[50px] text-center py-1 text-[11px] font-semibold rounded-lg capitalize transition-all cursor-pointer truncate ${
-                commentFilter === f.key ? 'bg-[var(--color-brand-deep)] text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-white'
+                commentFilter === f.key ? 'bg-[var(--color-brand-deep)] text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
               }`}
             >
               {f.label}
@@ -570,7 +570,7 @@ export function VirtualizedChat({
                               type="button"
                               onClick={() => onPinComment(isPinned ? null : comment.id)}
                               className={`p-1 rounded transition-colors cursor-pointer ${
-                                isPinned ? 'bg-blue-500 text-white' : 'text-[var(--text-dim)] hover:text-white hover:bg-[var(--raise)]'
+                                isPinned ? 'bg-blue-500 text-white' : 'text-[var(--text-dim)] hover:text-[var(--text-hi)] hover:bg-[var(--raise)]'
                               }`}
                               title={isPinned ? "Desafixar do estúdio" : "Fixar comentário na tela da live"}
                             >

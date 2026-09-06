@@ -1795,14 +1795,14 @@ export function StudioPreview({
               <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-[var(--color-brand)] mb-3 animate-pulse">
                 <User size={32} />
               </div>
-              <p className="text-sm font-semibold text-white">Marcos (Você)</p>
+              <p className="text-sm font-semibold text-[var(--text-hi)]">Marcos (Você)</p>
               <p className="text-[10px] text-[var(--text-lo)]">Câmera Desativada</p>
             </div>
           )}
           {/* Label Tag */}
           <div 
             style={{ backgroundColor: streamColor }}
-            className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-white tracking-wide"
+            className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-[var(--text-hi)] tracking-wide"
           >
             Marcos (Palestrante)
           </div>
@@ -1829,14 +1829,14 @@ export function StudioPreview({
               <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 mb-3 animate-pulse">
                 <Video size={32} />
               </div>
-              <p className="text-sm font-semibold text-white">Vídeo: {activeVideoClip.name}</p>
+              <p className="text-sm font-semibold text-[var(--text-hi)]">Vídeo: {activeVideoClip.name}</p>
               <p className="text-[10px] text-[var(--text-lo)]">Reproduzindo no estúdio</p>
             </div>
           )}
           {/* Label Tag */}
           <div 
             style={{ backgroundColor: streamColor }}
-            className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-white tracking-wide z-10 flex items-center gap-1"
+            className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-[var(--text-hi)] tracking-wide z-10 flex items-center gap-1"
           >
             <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
             <span>CLIPE DE VÍDEO ATIVO</span>
@@ -1868,7 +1868,7 @@ export function StudioPreview({
             {activeSlide.currentPage === 1 && (
               <div className="space-y-2 animate-in fade-in duration-300 z-10">
                 <Sparkles size={36} className="text-emerald-400 mx-auto mb-2 animate-pulse" />
-                <h2 className="text-base font-black text-white tracking-tight">Planejamento Estratégico & Metas</h2>
+                <h2 className="text-base font-black text-[var(--text-hi)] tracking-tight">Planejamento Estratégico & Metas</h2>
                 <p className="text-[11px] text-[var(--text-lo)] max-w-sm mx-auto leading-relaxed">Evolução do mercado corporativo, canais de streaming e estratégias digitais de alta performance.</p>
               </div>
             )}
@@ -1965,7 +1965,7 @@ export function StudioPreview({
                         <div className="absolute top-2 right-2 flex items-center gap-1 text-[8px] text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full font-bold">
                           <Activity size={8} /> METRICS UPDATE
                         </div>
-                        <h4 className="text-sm font-black text-white tracking-tight">Estratégias de Engajamento 2026</h4>
+                        <h4 className="text-sm font-black text-[var(--text-hi)] tracking-tight">Estratégias de Engajamento 2026</h4>
                         <p className="text-[10px] text-[var(--text-lo)] max-w-sm mx-auto leading-relaxed">
                           A evolução dos webinars corporativos e o uso de inteligência artificial generativa em tempo real.
                         </p>
@@ -2076,7 +2076,7 @@ export function StudioPreview({
                     <div className="flex justify-between items-center border-b border-orange-500/20 pb-2 mb-3">
                       <div className="flex items-center gap-2">
                         <span className="p-1 rounded bg-orange-600 text-white font-extrabold text-[9px] tracking-wide uppercase">P</span>
-                        <span className="text-xs font-bold text-white">Powerpoint - Apresentação de Vendas.pptx [Modo de Exibição]</span>
+                        <span className="text-xs font-bold text-[var(--text-hi)]">Powerpoint - Apresentação de Vendas.pptx [Modo de Exibição]</span>
                       </div>
                       <span className="text-[8px] text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 shrink-0">SLIDE {pdfCurrentPage} / 12</span>
                     </div>
@@ -2098,7 +2098,7 @@ export function StudioPreview({
                           {pdfCurrentPage === 11 && "FAQ de Suporte"}
                           {pdfCurrentPage === 12 && "Fechamento & Contato"}
                         </span>
-                        <h3 className="text-base font-extrabold text-white tracking-tight">
+                        <h3 className="text-base font-extrabold text-[var(--text-hi)] tracking-tight">
                           {pdfCurrentPage === 1 && "Estratégia de Expansão Global Vega6"}
                           {pdfCurrentPage === 2 && "Vega6: Métricas de Crescimento 2026"}
                           {pdfCurrentPage === 3 && "Retenção de Clientes e Crescimento YoY"}
@@ -2188,7 +2188,7 @@ export function StudioPreview({
                         <div className="w-10 h-10 rounded-full bg-red-600/10 flex items-center justify-center text-red-500">
                           <Play size={16} fill="currentColor" />
                         </div>
-                        <h4 className="text-[11px] font-black text-white px-4">Como funciona a tecnologia x prevenção na saúde inteligente</h4>
+                        <h4 className="text-[11px] font-black text-[var(--text-hi)] px-4">Como funciona a tecnologia x prevenção na saúde inteligente</h4>
                         <p className="text-[9px] text-[var(--text-lo)]">Vega6 Webinars & Palestras Acadêmicas</p>
                       </div>
 
@@ -2212,7 +2212,7 @@ export function StudioPreview({
                     <div className="flex justify-between items-center border-b border-orange-500/20 pb-2 mb-2">
                       <div className="flex items-center gap-2 overflow-hidden">
                         <span className="p-1 px-1.5 rounded bg-orange-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">PDF</span>
-                        <span className="text-[11px] font-bold text-white truncate max-w-sm">{selectedSharedSource.name}</span>
+                        <span className="text-[11px] font-bold text-[var(--text-hi)] truncate max-w-sm">{selectedSharedSource.name}</span>
                       </div>
                       <span className="text-[8px] text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 shrink-0">SLIDE {pdfCurrentPage} DE 12</span>
                     </div>
@@ -2343,7 +2343,7 @@ export function StudioPreview({
                         <div className="flex justify-between items-center border-b border-emerald-500/20 pb-1.5 mb-2 shrink-0">
                           <div className="flex items-center gap-1.5 overflow-hidden">
                             <span className="p-0.5 px-1.5 rounded bg-emerald-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">VIDEO</span>
-                            <span className="text-[11px] font-bold text-white truncate max-w-sm">{selectedSharedSource.name}</span>
+                            <span className="text-[11px] font-bold text-[var(--text-hi)] truncate max-w-sm">{selectedSharedSource.name}</span>
                           </div>
                           <span className="text-[8px] bg-emerald-600 text-white font-bold px-1.5 rounded uppercase animate-pulse shrink-0">REPRODUZINDO</span>
                         </div>
@@ -2353,7 +2353,7 @@ export function StudioPreview({
                             <Play size={16} fill="currentColor" />
                           </div>
                           <div className="space-y-0.5">
-                            <h4 className="text-[11px] font-extrabold text-white">Transmissão de Vídeo Digital Ativa</h4>
+                            <h4 className="text-[11px] font-extrabold text-[var(--text-hi)]">Transmissão de Vídeo Digital Ativa</h4>
                             <p className="text-[9px] text-[var(--text-lo)] max-w-xs leading-normal">
                               O reprodutor está processando áudio e vídeo integrados no palco de streaming.
                             </p>
@@ -2388,7 +2388,7 @@ export function StudioPreview({
                         <Activity size={16} />
                       </div>
                       <div className="space-y-0.5">
-                        <h4 className="text-[11px] font-extrabold text-white">Transmissão Compartilhada Ativa</h4>
+                        <h4 className="text-[11px] font-extrabold text-[var(--text-hi)]">Transmissão Compartilhada Ativa</h4>
                         <p className="text-[9px] text-[var(--text-lo)] max-w-xs mx-auto">Sua tela está sendo transmitida em tempo real para os servidores de distribuição.</p>
                       </div>
                     </div>
@@ -2404,12 +2404,12 @@ export function StudioPreview({
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-center bg-gradient-to-br from-[var(--bg)] to-[var(--surface)] p-6">
               <Monitor size={48} className="text-[var(--color-brand)] mb-3 animate-pulse" />
-              <p className="text-sm font-semibold text-white">Compartilhamento de Tela Ativo</p>
+              <p className="text-sm font-semibold text-[var(--text-hi)]">Compartilhamento de Tela Ativo</p>
               <p className="text-[11px] text-[var(--text-lo)] max-w-xs mt-1">Exibindo slides ou janelas do apresentador para os participantes.</p>
             </div>
           )}
           {/* Label Tag */}
-          <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/60 text-white tracking-wide flex items-center gap-1.5">
+          <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/60 text-[var(--text-hi)] tracking-wide flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-[var(--color-brand-deep)] rounded-full animate-ping"></span>
             <span>Tela Compartilhada</span>
             {selectedSharedSource && (
@@ -2432,13 +2432,13 @@ export function StudioPreview({
             className="w-16 h-16 rounded-full object-cover border-2 border-dashed border-[var(--line-ctl)] mb-2 animate-pulse"
             referrerPolicy="no-referrer"
           />
-          <p className="text-xs font-semibold text-white">{p.name}</p>
+          <p className="text-xs font-semibold text-[var(--text-hi)]">{p.name}</p>
           <p className="text-[9px] text-blue-400 flex items-center gap-1 mt-0.5">
             <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Convidado Conectado
           </p>
         </div>
         {/* Label Tag */}
-        <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/50 text-white tracking-wide">
+        <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/50 text-[var(--text-hi)] tracking-wide">
           {p.name}
         </div>
       </div>
@@ -2634,7 +2634,7 @@ export function StudioPreview({
       return (
         <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--bg)]/95 text-center p-6">
           <ShieldAlert size={48} className="text-[var(--color-brand)] mb-3" />
-          <p className="text-base font-semibold text-white">Transmissão Vazia</p>
+          <p className="text-base font-semibold text-[var(--text-hi)]">Transmissão Vazia</p>
           <p className="text-xs text-[var(--text-lo)] max-w-sm mt-1">Adicione o seu vídeo ou compartilhamento de tela ao palco para começar.</p>
           <button 
             onClick={() => onToggleParticipantActive('p-local')}
@@ -2817,12 +2817,12 @@ export function StudioPreview({
               <span className="bg-red-600 text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded tracking-widest text-white animate-blink">
                 AO VIVO
               </span>
-              <span className="bg-black/60 text-[8px] sm:text-[10px] font-mono font-semibold px-1.5 sm:px-2 py-0.5 rounded text-white">
+              <span className="bg-black/60 text-[8px] sm:text-[10px] font-mono font-semibold px-1.5 sm:px-2 py-0.5 rounded text-[var(--text-hi)]">
                 {formatTime(liveTime)}
               </span>
             </>
           ) : (
-            <span className="bg-[var(--raise)] text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded tracking-wide text-white">
+            <span className="bg-[var(--raise)] text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded tracking-wide text-[var(--text-hi)]">
               PREVIEW
             </span>
           )}
@@ -2835,7 +2835,7 @@ export function StudioPreview({
               className={`flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 rounded text-[7px] sm:text-[8px] font-black tracking-wider uppercase transition-all shadow-md cursor-pointer border ${
                 isFloatingChatOpen
                   ? 'bg-blue-600/30 border-blue-400 text-blue-200 hover:bg-blue-600/40 ring-1 ring-blue-500/30'
-                  : 'bg-black/60 border-white/10 text-[var(--text)] hover:text-white hover:bg-black/80'
+                  : 'bg-black/60 border-white/10 text-[var(--text)] hover:text-[var(--text-hi)] hover:bg-black/80'
               }`}
               title={isFloatingChatOpen ? "Ocultar Chat Flutuante" : "Exibir Chat Flutuante no Preview"}
             >
@@ -2857,7 +2857,7 @@ export function StudioPreview({
               className={`px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wide transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                 isDrawingMode 
                   ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' 
-                  : 'bg-black/65 hover:bg-[var(--panel)] text-[var(--text)] hover:text-white border border-[var(--line)]/80'
+                  : 'bg-black/65 hover:bg-[var(--panel)] text-[var(--text)] hover:text-[var(--text-hi)] border border-[var(--line)]/80'
               }`}
             >
               <Pencil size={11} className={isDrawingMode ? "animate-pulse" : ""} />
@@ -3184,7 +3184,7 @@ export function StudioPreview({
                 {/* Dynamic Thumbnail Content based on current page */}
                 <div className="flex-1 flex flex-col justify-center items-center text-center p-1 space-y-1">
                   <Presentation size={14} className="text-blue-400 animate-pulse" />
-                  <h4 className="text-[8px] font-extrabold text-white leading-tight truncate max-w-full">
+                  <h4 className="text-[8px] font-extrabold text-[var(--text-hi)] leading-tight truncate max-w-full">
                     {pdfCurrentPage === 1 && "Estratégia de Expansão Global Vega6"}
                     {pdfCurrentPage === 2 && (selectedSharedSource.type === 'pdf' ? "Maximização de Engajamento & Retenção" : "Vega6: Métricas de Crescimento 2026")}
                     {pdfCurrentPage === 3 && (selectedSharedSource.type === 'pdf' ? "Análise Demográfica do Público-Alvo" : "Retenção de Clientes e Crescimento YoY")}
@@ -3218,7 +3218,7 @@ export function StudioPreview({
                   type="button"
                   onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={pdfCurrentPage === 1}
-                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-white transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
+                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-[var(--text-hi)] transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
                 >
                   <ChevronLeft size={10} />
                   Anterior
@@ -3228,7 +3228,7 @@ export function StudioPreview({
                   type="button"
                   onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
                   disabled={pdfCurrentPage === 12}
-                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-white transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
+                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--text)] hover:bg-[var(--panel)] hover:text-[var(--text-hi)] transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
                 >
                   Próximo
                   <ChevronRight size={10} />
@@ -3272,7 +3272,7 @@ export function StudioPreview({
               />
               <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-bold text-white text-[10px] truncate leading-none">{pinnedComment.authorName}</span>
+                  <span className="font-bold text-[var(--text-hi)] text-[10px] truncate leading-none">{pinnedComment.authorName}</span>
                   <span className="text-[7px] text-[var(--color-brand)] uppercase px-1.5 py-0.5 rounded bg-blue-500/20 font-bold tracking-wider leading-none shadow-xs">
                     {pinnedComment.platform}
                   </span>
@@ -3304,7 +3304,7 @@ export function StudioPreview({
                     <MessageSquare size={13} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white flex items-center gap-1.5 leading-none">
+                    <h4 className="text-xs font-bold text-[var(--text-hi)] flex items-center gap-1.5 leading-none">
                       Chat Flutuante
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                     </h4>
@@ -3316,7 +3316,7 @@ export function StudioPreview({
                   <button
                     type="button"
                     onClick={() => setIsFloatingChatOpen(false)}
-                    className="p-1 hover:bg-[var(--panel)] rounded-lg text-[var(--text-lo)] hover:text-white transition-colors cursor-pointer"
+                    className="p-1 hover:bg-[var(--panel)] rounded-lg text-[var(--text-lo)] hover:text-[var(--text-hi)] transition-colors cursor-pointer"
                     title="Ocultar Chat Flutuante"
                   >
                     <X size={14} />
@@ -3355,7 +3355,7 @@ export function StudioPreview({
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1">
-                            <span className="font-semibold text-white text-[10px] truncate">{comm.authorName}</span>
+                            <span className="font-semibold text-[var(--text-hi)] text-[10px] truncate">{comm.authorName}</span>
                             <div className="flex items-center gap-1">
                               <span className="text-[7px] text-blue-400 uppercase px-1 py-0.2 rounded bg-blue-500/10 font-bold tracking-wider">
                                 {comm.platform}
@@ -3365,7 +3365,7 @@ export function StudioPreview({
                                   type="button"
                                   onClick={() => onPinComment(isPinned ? null : comm.id)}
                                   className={`p-0.5 rounded transition-colors ${
-                                    isPinned ? 'bg-blue-500 text-white' : 'text-[var(--text-lo)] hover:text-white hover:bg-[var(--raise)]'
+                                    isPinned ? 'bg-blue-500 text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--raise)]'
                                   }`}
                                   title={isPinned ? "Desafixar comentário" : "Fixar comentário na tela"}
                                 >
@@ -3422,7 +3422,7 @@ export function StudioPreview({
                 {/* Main Title / Lower pill */}
                 <div 
                   style={{ backgroundColor: activeBanner.themeColor || '#1d273b' }}
-                  className="px-4 py-2.5 sm:py-3 text-sm sm:text-base font-extrabold text-white rounded-tr-xl rounded-br-2xl rounded-bl-xl shadow-2xl border-l-4 border-lime-400 leading-snug break-words"
+                  className="px-4 py-2.5 sm:py-3 text-sm sm:text-base font-extrabold text-[var(--text-hi)] rounded-tr-xl rounded-br-2xl rounded-bl-xl shadow-2xl border-l-4 border-lime-400 leading-snug break-words"
                 >
                   {activeBanner.text}
                 </div>
@@ -3432,7 +3432,7 @@ export function StudioPreview({
               {(isHoveringBanner || isDraggingBanner || isResizingBanner) && (
                 <>
                   {/* Top toolbar */}
-                  <div className="absolute -top-8 left-0 flex items-center gap-1.5 bg-[var(--bg)]/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-[var(--line-ctl)] shadow-xl text-[10px] text-white pointer-events-auto">
+                  <div className="absolute -top-8 left-0 flex items-center gap-1.5 bg-[var(--bg)]/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-[var(--line-ctl)] shadow-xl text-[10px] text-[var(--text-hi)] pointer-events-auto">
                     <span className="text-[var(--text-lo)] font-bold text-[9px] uppercase tracking-wider flex items-center gap-1">
                       <Move size={10} className="text-indigo-400" /> Arrastar Banner
                     </span>
@@ -3493,7 +3493,7 @@ export function StudioPreview({
               {/* Badge Indicator */}
               <div 
                 style={{ backgroundColor: streamColor }}
-                className="h-full shrink-0 flex items-center justify-center px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-white shadow-md z-10 animate-ticker-badge"
+                className="h-full shrink-0 flex items-center justify-center px-3 sm:px-4 text-[10px] sm:text-xs font-black uppercase tracking-wider text-[var(--text-hi)] shadow-md z-10 animate-ticker-badge"
               >
                 {activeTicker.badgeText || 'ALERTA'}
               </div>
@@ -3563,7 +3563,7 @@ export function StudioPreview({
                   onClick={() => {
                     if (studioPrompterRef.current) studioPrompterRef.current.scrollTop = 0;
                   }}
-                  className="p-1.5 text-[var(--text-lo)] hover:text-white hover:bg-[var(--panel)] rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-[var(--text-lo)] hover:text-[var(--text-hi)] hover:bg-[var(--panel)] rounded-lg transition-colors cursor-pointer"
                   title="Voltar ao topo"
                 >
                   <RotateCcw size={13} />
@@ -3672,7 +3672,7 @@ export function StudioPreview({
                       e.stopPropagation();
                       setQrCodeScale(prev => Math.max(0.6, Number((prev - 0.1).toFixed(1))));
                     }}
-                    className="p-0.5 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-white rounded text-[9px] font-bold cursor-pointer"
+                    className="p-0.5 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-[var(--text-hi)] rounded text-[9px] font-bold cursor-pointer"
                     title="Diminuir Escala"
                   >
                     -
@@ -3684,7 +3684,7 @@ export function StudioPreview({
                       e.stopPropagation();
                       setQrCodeScale(prev => Math.min(1.8, Number((prev + 0.1).toFixed(1))));
                     }}
-                    className="p-0.5 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-white rounded text-[9px] font-bold cursor-pointer"
+                    className="p-0.5 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-[var(--text-hi)] rounded text-[9px] font-bold cursor-pointer"
                     title="Aumentar Escala"
                   >
                     +
@@ -4023,7 +4023,7 @@ export function StudioPreview({
                   className={`px-2 py-0.5 rounded text-[8px] font-extrabold uppercase transition-all cursor-pointer ${
                     drawThickness === size.val
                       ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-[var(--surface)]/80 text-[var(--text-lo)] hover:text-white border border-transparent'
+                      : 'bg-[var(--surface)]/80 text-[var(--text-lo)] hover:text-[var(--text-hi)] border border-transparent'
                   }`}
                 >
                   {size.label}
@@ -4053,7 +4053,7 @@ export function StudioPreview({
               <button
                 type="button"
                 onClick={() => setIsDrawingMode(false)}
-                className="p-1 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-white rounded-md transition-all cursor-pointer flex items-center justify-center"
+                className="p-1 hover:bg-[var(--panel)] text-[var(--text-lo)] hover:text-[var(--text-hi)] rounded-md transition-all cursor-pointer flex items-center justify-center"
                 title="Sair da Lousa"
               >
                 <X size={13} />

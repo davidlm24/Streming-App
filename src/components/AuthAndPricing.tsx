@@ -631,13 +631,13 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               <div className="inline-flex items-center gap-2 p-1 bg-[var(--surface)] border border-[var(--line)] rounded-xl mt-4">
                 <button 
                   onClick={() => setIsAnnual(false)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'}`}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'}`}
                 >
                   Mensal
                 </button>
                 <button 
                   onClick={() => setIsAnnual(true)}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'}`}
+                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'}`}
                 >
                   Anual <span className="text-[9px] bg-green-500/20 text-green-400 px-1 py-0.5 rounded border border-green-500/10">2 meses grátis</span>
                 </button>
@@ -691,7 +691,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                             ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/20'
                             : plan.popular
                               ? 'bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white shadow-lg shadow-blue-950/20'
-                              : 'bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-white'
+                              : 'bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-[var(--text-hi)]'
                         }`}
                       >
                         {plan.id === 'Free Trial' ? 'Iniciar 30 Dias Grátis' : 'Selecionar Plano'}
@@ -758,7 +758,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'stripe' 
                     ? 'bg-blue-500/10 border-blue-500 text-white' 
-                    : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
+                    : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                 }`}
               >
                 Stripe
@@ -769,7 +769,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'paypal' 
                     ? 'bg-blue-500/10 border-blue-500 text-white' 
-                    : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
+                    : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                 }`}
               >
                 PayPal
@@ -780,7 +780,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'mercadopago' 
                     ? 'bg-blue-500/10 border-blue-500 text-white' 
-                    : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-white'
+                    : 'bg-[var(--bg)] border-[var(--line)] text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                 }`}
               >
                 Mercado Pago
@@ -923,7 +923,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       type="button"
                       onClick={() => setMpMethod('pix')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'pix' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'
+                        mpMethod === 'pix' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       PIX Nacional
@@ -932,7 +932,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       type="button"
                       onClick={() => setMpMethod('card')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'card' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'
+                        mpMethod === 'card' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-[var(--text-hi)]'
                       }`}
                     >
                       Cartão de Crédito

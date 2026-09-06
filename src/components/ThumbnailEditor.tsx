@@ -218,7 +218,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
     <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-5 space-y-6" id="thumbnail-editor-container">
       <div className="flex items-center justify-between">
         <div className="text-left">
-          <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+          <h3 className="text-sm font-bold text-[var(--text-hi)] flex items-center gap-1.5">
             <Sparkles size={16} className="text-blue-500" /> Editor de Miniaturas (Capas)
           </h3>
           <p className="text-[11px] text-[var(--text-lo)]">Crie a capa perfeita e de alto impacto para engajar seus espectadores.</p>
@@ -250,7 +250,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 setIsGenerated(false);
               }}
               placeholder="Ex: Como Alavancar suas Vendas..."
-              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] focus:outline-none focus:border-blue-500 transition-colors"
             />
           </div>
 
@@ -267,7 +267,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 setIsGenerated(false);
               }}
               placeholder="Ex: WEBINAR AO VIVO"
-              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-hi)] focus:outline-none focus:border-blue-500"
             />
           </div>
 
@@ -295,7 +295,7 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                       isActive ? 'border-blue-500 ring-2 ring-blue-500/35 scale-95' : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                     }`}
                   >
-                    <span className="bg-black/70 px-1 py-0.5 rounded text-[8px] text-white leading-none truncate max-w-full block">
+                    <span className="bg-black/70 px-1 py-0.5 rounded text-[8px] text-[var(--text-hi)] leading-none truncate max-w-full block">
                       {bg.name}
                     </span>
                     {isActive && (
@@ -318,11 +318,11 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
                 value={customImageUrl}
                 onChange={(e) => setCustomImageUrl(e.target.value)}
                 placeholder="https://images.unsplash.com/photo-..." 
-                className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-[10px] text-white focus:outline-none focus:border-blue-500"
+                className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-[10px] text-[var(--text-hi)] focus:outline-none focus:border-blue-500"
               />
               <button 
                 type="submit"
-                className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[10px] font-bold rounded-lg text-white"
+                className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[10px] font-bold rounded-lg text-[var(--text-hi)]"
               >
                 Aplicar
               </button>

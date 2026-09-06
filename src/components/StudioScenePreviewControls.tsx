@@ -190,7 +190,7 @@ export function StudioScenePreviewControls({
                         className={`w-full text-left px-2 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center justify-between cursor-pointer ${
                           transitionType === key
                             ? 'bg-blue-600 text-white'
-                            : 'text-[var(--text)] hover:bg-[var(--panel)] hover:text-white'
+                            : 'text-[var(--text)] hover:bg-[var(--panel)] hover:text-[var(--text-hi)]'
                         }`}
                       >
                         <span>{label}</span>
