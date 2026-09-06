@@ -376,8 +376,15 @@ export function Header({
               {isLive && (
                 <span
                   aria-hidden="true"
-                  className="absolute inset-y-0 left-0 bg-white/25 pointer-events-none"
-                  style={{ width: holding ? '100%' : '0%', transition: `width ${holding ? HOLD_MS : 140}ms linear` }}
+                  className="absolute inset-0 origin-left bg-white/25 pointer-events-none"
+                  style={{
+                    // scaleX, não width: `width` força layout a cada quadro, e
+                    // este preenchimento corre justamente durante a transmissão,
+                    // quando a thread principal é mais cara. Transform e
+                    // opacidade são compostos na GPU.
+                    transform: holding ? 'scaleX(1)' : 'scaleX(0)',
+                    transition: `transform ${holding ? HOLD_MS : 140}ms linear`,
+                  }}
                 />
               )}
               <span className="relative flex items-center gap-2">
