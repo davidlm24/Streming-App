@@ -1,4 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+/* Montserrat foi removida: era baixada em cinco pesos a cada carregamento
+   para servir a `--font-display`, um token que NENHUM componente referenciava
+   — a única outra menção era como fallback depois de Poppins, que só entra em
+   cena se Poppins falhar. Cinco pesos de webfont por nada. */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -17,8 +21,7 @@
    ══════════════════════════════════════════════════════════════════════════ */
 
 @theme {
-  --font-sans: "Poppins", "Montserrat", system-ui, sans-serif;
-  --font-display: "Montserrat", sans-serif;
+  --font-sans: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* ── primitivas: a rampa. Nunca mudam com o tema. ─────────────────────── */
   --color-n-0:   #000000;  /* Y   0,00 % — só letterbox de vídeo */
