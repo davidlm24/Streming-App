@@ -256,7 +256,7 @@ export function WebinarPublicPage({
               {registered ? (
                 <div className="py-12 text-center space-y-4">
                   <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle2 size={36} className="animate-bounce" />
+                    <CheckCircle2 size={36} className="animate-confirm-in" />
                   </div>
                   <h3 className="text-xl font-bold text-[var(--ink-hi)]">Vaga Garantida!</h3>
                   <p className="text-xs text-[var(--ink-lo)] leading-relaxed">Sua inscrição foi confirmada. Redirecionando para a sala de transmissão...</p>

@@ -129,7 +129,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
 
         {successMessage && (
           <div className="bg-emerald-500/10 border-b border-emerald-500/20 px-6 py-3 text-emerald-300 text-xs flex items-center gap-3">
-            <CheckCircle2 size={18} className="text-emerald-400 shrink-0 animate-bounce" />
+            <CheckCircle2 size={18} className="text-emerald-400 shrink-0 animate-confirm-in" />
             <span className="font-bold text-[var(--ink-hi)]">{successMessage}</span>
           </div>
         )}

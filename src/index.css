@@ -347,6 +347,17 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
 @keyframes pulse-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 .animate-blink { animation: pulse-blink 1.5s infinite; }
 
+/* Confirmação: entra uma vez e PARA.
+   Substitui `animate-bounce` nos ícones de sucesso — um visto que quica
+   para sempre depois de "Vaga Garantida!" não confirma nada, só continua
+   se mexendo. Só transform e opacity, ambos compostos na GPU. */
+@keyframes confirm-in {
+  0%   { opacity: 0; transform: scale(0.8); }
+  60%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-confirm-in { animation: confirm-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
 /* ══════════════════════════════════════════════════════════════════════════
    MOVIMENTO REDUZIDO — a auditoria encontrou 127 animações infinitas e
    ZERO provisões de `prefers-reduced-motion`. O estúdio sozinho roda 24
