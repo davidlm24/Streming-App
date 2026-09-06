@@ -250,7 +250,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
             <button 
               onClick={handleSubscribe}
               disabled={loading}
-              className="w-full sm:w-auto px-6 py-2.5 bg-[var(--color-brand)] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-2.5 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
             >
               {loading ? 'Processando...' : `Pagar e Ativar ${selectedPlan}`}
             </button>

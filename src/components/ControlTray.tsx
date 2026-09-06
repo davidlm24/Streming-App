@@ -268,7 +268,7 @@ export function ControlTray({
       
       {/* 1. Left side: Studio Status Indicator (Hidden on small mobile screens) */}
       <div className="hidden sm:flex items-center gap-1.5 md:gap-2 shrink-0">
-        <span className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full animate-pulse ${isLive ? 'bg-red-500' : 'bg-[var(--color-brand)]'}`}></span>
+        <span className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full animate-pulse ${isLive ? 'bg-red-500' : 'bg-[var(--color-brand-deep)]'}`}></span>
         <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider text-[var(--text-lo)]">
           {isLive ? 'LIVE' : 'PRONTO'}
         </span>
@@ -462,7 +462,7 @@ export function ControlTray({
               onClick={() => onToggleScreenShare()}
               className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                 isScreenSharing 
-                  ? 'bg-[var(--color-brand)] text-white shadow-md' 
+                  ? 'bg-[var(--color-brand-deep)] text-white shadow-md' 
                   : 'bg-blue-500/10 text-white hover:bg-blue-500/20'
               }`}
               title={isScreenSharing ? "Parar Compartilhamento" : "Escolher o que compartilhar"}

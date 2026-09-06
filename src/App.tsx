@@ -1947,11 +1947,12 @@ export default function App() {
 
       {/* 2. PRODUCTION CONTROL ROOM VIEW */}
       {currentView === 'studio' ? (
-        <div 
-          className="flex-1 overflow-hidden w-full max-w-none px-0 mx-0 relative"
+        <div
+          data-surface="console"
+          className="flex-1 overflow-hidden w-full max-w-none px-0 mx-0 relative bg-[var(--bg)] text-[var(--text)]"
           style={{
             display: 'grid',
-            gridTemplateAreas: isMobile 
+            gridTemplateAreas: isMobile
               ? '"preview"' 
               : isImmersiveMode 
                 ? '"scenes preview sidebar"' 
@@ -2209,7 +2210,7 @@ export default function App() {
                         onClick={() => setIsSmartSidebarEnabled(!isSmartSidebarEnabled)}
                         className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 border relative ${
                           isSmartSidebarEnabled 
-                            ? 'bg-[var(--color-brand)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
+                            ? 'bg-[var(--color-brand-deep)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
                             : 'bg-[var(--surface)]/40 border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
                         }`}
                         title="Smart Sidebar: Durante a Live, recolhe abas inativas mantendo o foco no Chat para economizar processamento e espaço visual."
@@ -2247,7 +2248,7 @@ export default function App() {
                             onClick={() => setActiveTab(tab.id)}
                             className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 ${
                               isActive 
-                                ? 'bg-[var(--color-brand)] text-white shadow-lg ring-1 ring-blue-400/20' 
+                                ? 'bg-[var(--color-brand-deep)] text-white shadow-lg ring-1 ring-blue-400/20' 
                                 : 'text-[var(--text-lo)] hover:bg-[var(--surface)] hover:text-white'
                             }`}
                             title={`${tab.label}: ${tab.desc}`}
@@ -2627,7 +2628,7 @@ export default function App() {
                       onClick={() => setIsSmartSidebarEnabled(!isSmartSidebarEnabled)}
                       className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 border relative cursor-pointer ${
                         isSmartSidebarEnabled 
-                          ? 'bg-[var(--color-brand)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
+                          ? 'bg-[var(--color-brand-deep)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
                           : 'bg-[var(--surface)]/40 border-[var(--line)] text-[var(--text-dim)] hover:text-[var(--text)]'
                       }`}
                       title="Smart Sidebar: Durante a Live, recolhe abas inativas mantendo o foco no Chat para economizar processamento e espaço visual."
@@ -2665,7 +2666,7 @@ export default function App() {
                           onClick={() => setActiveTab(tab.id)}
                           className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 cursor-pointer ${
                             isActive 
-                              ? 'bg-[var(--color-brand)] text-white shadow-lg ring-1 ring-blue-400/20' 
+                              ? 'bg-[var(--color-brand-deep)] text-white shadow-lg ring-1 ring-blue-400/20' 
                               : 'text-[var(--text-lo)] hover:bg-[var(--surface)] hover:text-white'
                           }`}
                           title={`${tab.label}: ${tab.desc}`}
@@ -2805,7 +2806,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setIsCreateWebinarOpen(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold text-sm rounded-xl shadow-xl transition-all cursor-pointer"
+                className="flex items-center gap-2 px-6 py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white font-bold text-sm rounded-xl shadow-xl transition-all cursor-pointer"
               >
                 <Plus size={16} /> Agendar Webinar
               </button>
@@ -2901,7 +2902,7 @@ export default function App() {
                           setTitle(webinar.title);
                           setCurrentView('studio');
                         }}
-                        className="flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-brand)] hover:bg-blue-600 text-xs font-semibold rounded-lg text-white transition-all cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-xs font-semibold rounded-lg text-white transition-all cursor-pointer"
                       >
                         Acessar Estúdio <ArrowRight size={12} />
                       </button>
@@ -3220,7 +3221,7 @@ export default function App() {
               {/* Form submit button */}
               <button
                 type="submit"
-                className="w-full py-3 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-lg mt-4 cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-lg mt-4 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Plus size={14} /> Salvar e Agendar Webinar
               </button>

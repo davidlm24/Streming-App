@@ -56,7 +56,7 @@ export function InviteModal({ isOpen, onClose, inviteUrl }: InviteModalProps) {
                 className={`px-4 rounded-xl font-semibold text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
                   copiedStudio 
                     ? 'bg-green-600 text-white' 
-                    : 'bg-[var(--color-brand)] hover:bg-blue-600 text-white'
+                    : 'bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white'
                 }`}
               >
                 {copiedStudio ? (

@@ -132,35 +132,16 @@
   color-scheme: dark;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   SUPERFÍCIES CROMÁTICAS — texto sobre preenchimento colorido.
-   Substitui ~200 linhas de sobrescrita por negação
-   (`.text-white:not(.bg-blue-600 *):not(.bg-red-500 *)…`) por UMA regra que
-   funciona por HERANÇA: qualquer elemento com fundo colorido redefine os
-   tokens de texto localmente, e todo descendente herda. Isso resolve o caso
-   que a negação nunca cobriu — o ícone dentro do botão colorido.
-   ══════════════════════════════════════════════════════════════════════════ */
-[class*="bg-blue-"],   [class*="bg-red-"],    [class*="bg-green-"],
-[class*="bg-emerald-"],[class*="bg-indigo-"], [class*="bg-purple-"],
-[class*="bg-violet-"], [class*="bg-amber-"],  [class*="bg-orange-"],
-[class*="bg-pink-"],   [class*="bg-rose-"],   [class*="bg-cyan-"],
-[class*="bg-sky-"],    [class*="bg-teal-"],   [class*="bg-fuchsia-"],
-[class*="bg-lime-"],   [class*="bg-yellow-"],
-[class*="bg-gradient"],
-[class*="bg-[var(--color-brand)]"],
-[class*="bg-[var(--color-sig)]"] {
-  --text-hi: var(--color-n-100);
-  --text:    var(--color-n-100);
-  --text-lo: var(--color-n-92);
-}
-
-/* …exceto os preenchimentos tênues (`bg-blue-500/10`), que são fundos claros
-   com texto colorido, não botões. Ali o texto volta a seguir o tema. */
-[class*="/5"], [class*="/10"], [class*="/15"], [class*="/20"], [class*="/25"] {
-  --text-hi: inherit;
-  --text:    inherit;
-  --text-lo: inherit;
-}
+/* NOTA — aqui existiu uma regra que redefinia os tokens de texto em
+   `[class*="bg-blue-"]` e afins, para que texto sobre preenchimento colorido
+   herdasse branco. Ela foi REMOVIDA: `[class*=…]` casa com o PREFIXO DE
+   VARIANTE também, e a raiz do app carrega `selection:bg-blue-500` — então a
+   raiz casava, redefinia --text-hi como branco e o app inteiro herdava. No
+   tema escuro isso passava despercebido (--text-hi já é quase branco); no
+   claro derrubava 51 pares de contraste para ~1,1:1.
+   Não é preciso substituir: `color` já herda normalmente, então o ícone
+   dentro de um botão azul continua branco pelo botão. O texto sobre
+   preenchimento sólido é resolvido no próprio elemento, na migração. */
 
 /* ══════════════════════════════════════════════════════════════════════════
    BASE
@@ -172,7 +153,25 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-::selection { background: var(--color-brand); color: var(--color-n-100); }
+::selection { background: var(--color-brand-deep); color: var(--color-n-100); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CONTROLES DE FORMULÁRIO
+   O CSS antigo forçava input/textarea/select com `!important` no tema claro.
+   Isso saiu junto com a sobrescrita por hexadecimal — e sem substituto os
+   controles nativos herdavam cor de texto do tema errado (um <select> com
+   texto claro sobre fundo claro). Aqui eles seguem os tokens, sem !important.
+   ══════════════════════════════════════════════════════════════════════════ */
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]):not([type="file"]),
+textarea,
+select {
+  background-color: var(--well);
+  color: var(--text-hi);
+  border-color: var(--line-ctl);
+}
+input::placeholder,
+textarea::placeholder { color: var(--text-dim); }
+select option { background-color: var(--surface); color: var(--text-hi); }
 
 /* foco visível — a auditoria encontrou 137 `focus:outline-none` e ZERO
    substituições `focus-visible:`. Isto devolve o foco de teclado ao app

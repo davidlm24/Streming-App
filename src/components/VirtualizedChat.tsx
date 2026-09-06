@@ -496,7 +496,7 @@ export function VirtualizedChat({
               key={f.key}
               onClick={() => setCommentFilter(f.key as any)}
               className={`flex-1 min-w-[50px] text-center py-1 text-[11px] font-semibold rounded-lg capitalize transition-all cursor-pointer truncate ${
-                commentFilter === f.key ? 'bg-[var(--color-brand)] text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-white'
+                commentFilter === f.key ? 'bg-[var(--color-brand-deep)] text-white shadow-sm' : 'text-[var(--text-lo)] hover:text-white'
               }`}
             >
               {f.label}

@@ -116,7 +116,7 @@ export function ScenesPanel({
       case 'screen-share':
         return (
           <div className="w-full h-full bg-[var(--surface)] rounded p-1 flex gap-1">
-            <div className="flex-1 bg-[var(--color-brand)]/30 border border-blue-400/50 rounded flex items-center justify-center">
+            <div className="flex-1 bg-[var(--color-brand-deep)]/30 border border-blue-400/50 rounded flex items-center justify-center">
               <span className="text-[6px] font-bold text-blue-300">TELA</span>
             </div>
             <div className="w-1/3 bg-[var(--panel)] border border-[var(--line-ctl)] rounded flex items-center justify-center">

@@ -436,13 +436,13 @@ Suporte Técnico: suporte@pwstreamer.com
             <div className="inline-flex items-center gap-2 p-1 bg-[var(--surface)] border border-[var(--line)] rounded-xl mt-4">
               <button 
                 onClick={() => setIsAnnual(false)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand)] text-white' : 'text-[var(--text-lo)] hover:text-white'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'}`}
               >
                 Mensal
               </button>
               <button 
                 onClick={() => setIsAnnual(true)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${isAnnual ? 'bg-[var(--color-brand)] text-white' : 'text-[var(--text-lo)] hover:text-white'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'}`}
               >
                 Anual <span className="text-[9px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/10 font-bold">Economize 20%</span>
               </button>
@@ -493,7 +493,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         isCurrentActivePlan
                           ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 cursor-default'
                           : plan.popular
-                            ? 'bg-[var(--color-brand)] hover:bg-blue-600 text-white shadow-lg shadow-blue-950/20'
+                            ? 'bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white shadow-lg shadow-blue-950/20'
                             : 'bg-[var(--bg)] hover:bg-[var(--panel)] border border-[var(--line)] text-white'
                       }`}
                     >
@@ -669,7 +669,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 <button
                   type="button"
                   onClick={handleConfirmGateway}
-                  className="py-3 bg-[var(--color-brand)] hover:bg-blue-600 text-xs font-bold text-white rounded-xl transition-all text-center flex items-center justify-center gap-1.5"
+                  className="py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-xs font-bold text-white rounded-xl transition-all text-center flex items-center justify-center gap-1.5"
                 >
                   Prosseguir <ArrowRight size={14} />
                 </button>
@@ -839,7 +839,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       type="button"
                       onClick={() => setMpMethod('pix')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'pix' ? 'bg-[var(--color-brand)] text-white' : 'text-[var(--text-lo)] hover:text-white'
+                        mpMethod === 'pix' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'
                       }`}
                     >
                       PIX Instantâneo
@@ -848,7 +848,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       type="button"
                       onClick={() => setMpMethod('card')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
-                        mpMethod === 'card' ? 'bg-[var(--color-brand)] text-white' : 'text-[var(--text-lo)] hover:text-white'
+                        mpMethod === 'card' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--text-lo)] hover:text-white'
                       }`}
                     >
                       Cartão Mercado Pago
@@ -883,7 +883,7 @@ Suporte Técnico: suporte@pwstreamer.com
                             navigator.clipboard.writeText("00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98");
                             setTimeout(() => setPixCopied(false), 2000);
                           }}
-                          className="px-2.5 py-1 bg-[var(--color-brand)] hover:bg-blue-600 text-white rounded text-[10px] font-bold shrink-0"
+                          className="px-2.5 py-1 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded text-[10px] font-bold shrink-0"
                         >
                           {pixCopied ? 'Copiado!' : 'Copiar Chave'}
                         </button>
@@ -1062,7 +1062,7 @@ Suporte Técnico: suporte@pwstreamer.com
                     setCheckoutStep('none');
                     setActiveSubTab('plans');
                   }}
-                  className="w-full py-3 bg-[var(--color-brand)] hover:bg-blue-600 text-xs font-bold text-white rounded-xl transition-all text-center"
+                  className="w-full py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-xs font-bold text-white rounded-xl transition-all text-center"
                 >
                   Concluir e Voltar
                 </button>
@@ -1168,7 +1168,7 @@ Suporte Técnico: suporte@pwstreamer.com
             <button
               type="submit"
               disabled={isSavingProfile}
-              className="px-6 py-3 bg-[var(--color-brand)] hover:bg-blue-600 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-1.5"
+              className="px-6 py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-1.5"
             >
               {isSavingProfile ? (
                 <>
@@ -1671,7 +1671,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         <span className="hidden sm:inline">Requer upgrade para plano com mais assentos</span>
                         <button
                           onClick={() => setActiveSubTab('plans')}
-                          className="px-3 py-1.5 bg-[var(--color-brand)] hover:bg-blue-600 text-white rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer"
                         >
                           <Zap size={11} /> Desbloquear Assento (Professional)
                         </button>
@@ -1731,7 +1731,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         <span className="hidden sm:inline">Excede os assentos permitidos no seu plano atual</span>
                         <button
                           onClick={() => setActiveSubTab('plans')}
-                          className="px-3 py-1.5 bg-[var(--color-brand)] hover:bg-blue-600 text-white rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer"
                         >
                           <Zap size={11} /> Desbloquear com Plano Business
                         </button>

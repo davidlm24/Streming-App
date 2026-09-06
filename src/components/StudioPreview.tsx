@@ -2410,7 +2410,7 @@ export function StudioPreview({
           )}
           {/* Label Tag */}
           <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/60 text-white tracking-wide flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-[var(--color-brand)] rounded-full animate-ping"></span>
+            <span className="w-1.5 h-1.5 bg-[var(--color-brand-deep)] rounded-full animate-ping"></span>
             <span>Tela Compartilhada</span>
             {selectedSharedSource && (
               <span className="text-[var(--text-lo)] font-mono text-[9px] border-l border-[var(--line-ctl)] pl-1.5 ml-0.5">

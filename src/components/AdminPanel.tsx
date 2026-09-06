@@ -156,7 +156,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
           </button>
           <button
             onClick={onBack}
-            className="px-5 py-2.5 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-md cursor-pointer"
+            className="px-5 py-2.5 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-md cursor-pointer"
           >
             Voltar ao Estúdio
           </button>

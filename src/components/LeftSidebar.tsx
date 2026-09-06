@@ -1236,7 +1236,7 @@ export function LeftSidebar({
               onClick={() => setSettingsSubTab('devices')}
               className={`flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                 settingsSubTab === 'devices'
-                  ? 'bg-[var(--color-brand)] text-white shadow-md'
+                  ? 'bg-[var(--color-brand-deep)] text-white shadow-md'
                   : 'text-[var(--text-lo)] hover:text-white'
               }`}
             >
@@ -1248,7 +1248,7 @@ export function LeftSidebar({
               onClick={() => setSettingsSubTab('transitions')}
               className={`flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                 settingsSubTab === 'transitions'
-                  ? 'bg-[var(--color-brand)] text-white shadow-md'
+                  ? 'bg-[var(--color-brand-deep)] text-white shadow-md'
                   : 'text-[var(--text-lo)] hover:text-white'
               }`}
             >
@@ -1260,7 +1260,7 @@ export function LeftSidebar({
               onClick={() => setSettingsSubTab('transmission')}
               className={`flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                 settingsSubTab === 'transmission'
-                  ? 'bg-[var(--color-brand)] text-white shadow-md'
+                  ? 'bg-[var(--color-brand-deep)] text-white shadow-md'
                   : 'text-[var(--text-lo)] hover:text-white'
               }`}
             >
@@ -1299,7 +1299,7 @@ export function LeftSidebar({
               className={`w-full touch-action-btn py-2.5 px-4 rounded-xl border text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer touch-action-btn hover:scale-[1.02] active:scale-[0.98] ${
                 isScreenSharing
                   ? 'bg-red-600/10 border-red-500 text-red-400 hover:bg-red-600/20 shadow-[0_0_12px_rgba(239,68,68,0.15)]'
-                  : 'bg-[var(--color-brand)]/15 border-[var(--color-brand)]/40 text-[var(--color-brand)] hover:bg-[var(--color-brand)] hover:text-white shadow-md'
+                  : 'bg-[var(--color-brand-deep)]/15 border-[var(--color-brand)]/40 text-[var(--color-brand)] hover:bg-[var(--color-brand-deep)] hover:text-white shadow-md'
               }`}
             >
               <Monitor size={14} />
@@ -3040,7 +3040,7 @@ export function LeftSidebar({
                             onChange={(e) => setMusicLoop(e.target.checked)}
                             className="sr-only peer" 
                           />
-                          <div className="w-8 h-4.5 bg-[var(--surface)] border border-[var(--line)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[var(--text-lo)] peer-checked:after:bg-[var(--color-brand)] after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
+                          <div className="w-8 h-4.5 bg-[var(--surface)] border border-[var(--line)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[var(--text-lo)] peer-checked:after:bg-[var(--color-brand-deep)] after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
                         </label>
                       </div>
                     </div>
@@ -3931,7 +3931,7 @@ export function LeftSidebar({
                   onClick={() => setAppsSubtab(sub.id)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                     appsSubtab === sub.id 
-                      ? 'bg-[var(--color-brand)] text-white shadow-md' 
+                      ? 'bg-[var(--color-brand-deep)] text-white shadow-md' 
                       : 'text-[var(--text-lo)] hover:text-white'
                   }`}
                 >

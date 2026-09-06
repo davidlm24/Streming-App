@@ -111,7 +111,7 @@ export function Header({
             {onOpenPricing && (
               <button 
                 onClick={onOpenPricing}
-                className="px-3 py-1 bg-[var(--color-brand)] hover:bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md"
+                className="px-3 py-1 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md"
               >
                 Escolher Plano
               </button>

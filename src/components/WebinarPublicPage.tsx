@@ -298,7 +298,7 @@ export function WebinarPublicPage({
 
                   <button
                     type="submit"
-                    className="w-full py-3 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-xl hover:shadow-blue-500/10 cursor-pointer text-xs mt-2 flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-xl hover:shadow-blue-500/10 cursor-pointer text-xs mt-2 flex items-center justify-center gap-2"
                   >
                     Confirmar Minha Inscrição <ArrowRight size={14} />
                   </button>
@@ -380,7 +380,7 @@ export function WebinarPublicPage({
                   <a 
                     href="#pricing-checkout" 
                     onClick={(e) => { e.preventDefault(); onBackToDashboard(); }}
-                    className="px-4 py-2 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold text-xs rounded-lg transition-all shadow-md shrink-0 flex items-center gap-1.5"
+                    className="px-4 py-2 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white font-bold text-xs rounded-lg transition-all shadow-md shrink-0 flex items-center gap-1.5"
                   >
                     Garantir Desconto <ExternalLink size={12} />
                   </a>

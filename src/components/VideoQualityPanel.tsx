@@ -496,7 +496,7 @@ export function VideoQualityPanel({
             <button
               type="button"
               onClick={triggerSavedFeedback}
-              className="px-6 py-2.5 bg-[var(--color-brand)] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+              className="px-6 py-2.5 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
             >
               <Save size={14} />
               <span>Salvar e Aplicar no Estúdio</span>
