@@ -111,6 +111,29 @@
 
   --stage: var(--color-n-0);   /* o palco de vídeo nunca clareia */
 
+  /* ── ACENTOS CROMÁTICOS NO TEMA CLARO
+     Os tons 300/400 do Tailwind são feitos para fundo escuro. Sobre papel
+     claro davam 1,65–2,41:1 — `text-blue-400` (321 usos), `text-emerald-400`
+     (168), `text-amber-400` (78)… 883 no total.
+     Em vez de sobrescrever 883 pontos de uso, reaponta-se a VARIÁVEL que o
+     Tailwind v4 gera: `text-blue-400` compila para `var(--color-blue-400)`.
+     Custo: 50 fundos e 17 bordas nesses tons também escurecem — o que sobre
+     papel claro é a leitura correta de qualquer forma.
+     Cada valor abaixo foi medido contra --bg e --surface: 4,49–7,20:1. */
+  --color-amber-300:   #B45309;  --color-amber-400:   #B45309;
+  --color-blue-300:    #1D4ED8;  --color-blue-400:    #1D4ED8;
+  --color-cyan-300:    #0E7490;  --color-cyan-400:    #0E7490;
+  --color-emerald-300: #047857;  --color-emerald-400: #047857;
+  --color-green-300:   #15803D;  --color-green-400:   #15803D;
+  --color-indigo-300:  #4338CA;  --color-indigo-400:  #4338CA;
+  --color-orange-300:  #C2410C;  --color-orange-400:  #C2410C;
+  --color-pink-300:    #BE185D;  --color-pink-400:    #BE185D;
+  --color-purple-300:  #7E22CE;  --color-purple-400:  #7E22CE;
+  --color-red-300:     #B91C1C;  --color-red-400:     #B91C1C;
+  --color-rose-300:    #BE123C;  --color-rose-400:    #BE123C;
+  --color-sky-300:     #0369A1;  --color-sky-400:     #0369A1;
+  --color-yellow-300:  #854D0E;  --color-yellow-400:  #854D0E;
+
   color-scheme: light;
 }
 
@@ -137,6 +160,23 @@
   --ink:     var(--color-n-89);
   --ink-hi:  var(--color-n-96);
 
+  /* O console é escuro SEMPRE, inclusive dentro do tema claro. Então os tons
+     300/400 voltam aos valores originais aqui — escurecê-los sobre grafite
+     seria o erro inverso do que a regra do tema claro corrige. */
+  --color-amber-300:   #FCD34D;  --color-amber-400:   #FBBF24;
+  --color-blue-300:    #93C5FD;  --color-blue-400:    #60A5FA;
+  --color-cyan-300:    #67E8F9;  --color-cyan-400:    #22D3EE;
+  --color-emerald-300: #6EE7B7;  --color-emerald-400: #34D399;
+  --color-green-300:   #86EFAC;  --color-green-400:   #4ADE80;
+  --color-indigo-300:  #A5B4FC;  --color-indigo-400:  #818CF8;
+  --color-orange-300:  #FDBA74;  --color-orange-400:  #FB923C;
+  --color-pink-300:    #F9A8D4;  --color-pink-400:    #F472B6;
+  --color-purple-300:  #D8B4FE;  --color-purple-400:  #C084FC;
+  --color-red-300:     #FCA5A5;  --color-red-400:     #F87171;
+  --color-rose-300:    #FDA4AF;  --color-rose-400:    #FB7185;
+  --color-sky-300:     #7DD3FC;  --color-sky-400:     #38BDF8;
+  --color-yellow-300:  #FDE047;  --color-yellow-400:  #FACC15;
+
   color-scheme: dark;
 }
 
@@ -162,6 +202,51 @@ body {
 }
 
 ::selection { background: var(--color-brand-deep); color: var(--color-n-100); }
+
+/* Botões e links sem classe de cor herdam a cor do contexto. Sem isto caem no
+   padrão do agente de usuário, que segue `color-scheme` e não o tema — foi o
+   que deixou TERMOS / PRIVACIDADE e o rótulo de navegação em 2,1:1 no claro.
+
+   PRECISA estar em @layer base. Declaração SEM camada vence QUALQUER camada,
+   então a versão sem camada desta regra derrotava `.text-white` (que o
+   Tailwind emite em @layer utilities) em todo botão e link do app — era por
+   isso que os botões azuis apareciam com texto escuro. */
+@layer base {
+  button, a, [role="button"] { color: inherit; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TEXTO SOBRE PREENCHIMENTO COLORIDO SÓLIDO
+   Segunda tentativa. A primeira usava [class*="bg-blue-"], que casa também
+   com o PREFIXO DE VARIANTE: a raiz do app carrega `selection:bg-blue-500`,
+   casava, e o app inteiro herdava --ink-hi branco.
+   `~=` casa apenas com o TOKEN INTEIRO separado por espaço, então
+   `selection:bg-blue-500` e `hover:bg-blue-600` não casam — só o utilitário
+   de fundo de verdade. Preenchimentos tênues (`bg-blue-500/10`) também não
+   casam, que é o comportamento desejado: ali o texto segue o tema.
+   ══════════════════════════════════════════════════════════════════════════ */
+[class~="bg-blue-500"],    [class~="bg-blue-600"],    [class~="bg-blue-700"],
+[class~="bg-red-500"],     [class~="bg-red-600"],     [class~="bg-red-700"],
+[class~="bg-green-500"],   [class~="bg-green-600"],
+[class~="bg-emerald-500"], [class~="bg-emerald-600"],
+[class~="bg-amber-500"],   [class~="bg-amber-600"],
+[class~="bg-orange-500"],  [class~="bg-orange-600"],
+[class~="bg-purple-500"],  [class~="bg-purple-600"],
+[class~="bg-indigo-500"],  [class~="bg-indigo-600"],
+[class~="bg-violet-500"],  [class~="bg-violet-600"],
+[class~="bg-rose-500"],    [class~="bg-rose-600"],
+[class~="bg-pink-500"],    [class~="bg-pink-600"],
+[class~="bg-cyan-500"],    [class~="bg-cyan-600"],
+[class~="bg-sky-500"],     [class~="bg-sky-600"],
+[class~="bg-teal-500"],    [class~="bg-teal-600"],
+[class~="bg-[var(--color-brand)]"],
+[class~="bg-[var(--color-brand-deep)]"],
+[class~="bg-[var(--color-sig)]"] {
+  --ink-hi:  var(--color-n-100);
+  --ink:     var(--color-n-100);
+  --ink-lo:  var(--color-n-92);
+  --ink-dim: var(--color-n-92);
+}
 
 /* ══════════════════════════════════════════════════════════════════════════
    CONTROLES DE FORMULÁRIO
