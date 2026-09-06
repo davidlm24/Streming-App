@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { PwStreamLogo } from './PwStreamLogo';
 import { LegalModal } from './LegalModals';
+import { FeaturesPage } from './FeaturesPage';
 import { loginWithGoogle, createDirectUserProfile } from '../lib/firestoreService';
 
 interface AuthAndPricingProps {
@@ -22,7 +23,7 @@ interface AuthAndPricingProps {
 }
 
 export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selectedPlanForCheckout = null }: AuthAndPricingProps) {
-  const [view, setView] = useState<'landing' | 'pricing' | 'login' | 'register' | 'checkout'>(initialView);
+  const [view, setView] = useState<'landing' | 'features' | 'pricing' | 'login' | 'register' | 'checkout'>(initialView);
   const [isAnnual, setIsAnnual] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'Standard' | 'Professional' | 'Business' | 'Free Trial' | null>(selectedPlanForCheckout);
   
@@ -75,9 +76,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
     },
     {
       id: 'Standard' as const,
-      name: 'Plano Standard',
-      priceMonthly: 14,
-      priceAnnual: 11,
+      name: 'Standard',
+      priceMonthly: 49.90,
+      priceAnnual: 39.90,
       badge: 'Para Criadores',
       buttonText: 'Selecionar Plano',
       description: 'Para criadores e streamers independentes que buscam consistência.',
@@ -99,9 +100,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
     },
     {
       id: 'Professional' as const,
-      name: 'Plano Pro',
-      priceMonthly: 29,
-      priceAnnual: 24,
+      name: 'Professional',
+      priceMonthly: 99.90,
+      priceAnnual: 79.90,
       badge: 'Melhor Custo-Benefício',
       buttonText: 'Selecionar Plano',
       description: 'Melhor custo-benefício para profissionais e estúdios de gravação.',
@@ -125,8 +126,8 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
     {
       id: 'Business' as const,
       name: 'Business',
-      priceMonthly: 49,
-      priceAnnual: 40,
+      priceMonthly: 199.90,
+      priceAnnual: 159.90,
       badge: 'Corporativo',
       buttonText: 'Selecionar Plano',
       description: 'Para agências, marcas de renome e grandes empresas.',
@@ -255,19 +256,29 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
     }, 1500);
   };
 
+  // A página de Recursos traz o próprio cabeçalho e rodapé, então substitui a
+  // casca inteira em vez de ser renderizada dentro dela (senão aparecem duas
+  // barras de navegação empilhadas).
+  if (view === 'features') {
+    return (
+      <FeaturesPage
+        onBack={() => setView('landing')}
+        onGetStarted={() => setView('register')}
+        onSeePricing={() => setView('pricing')}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--ink-hi)] flex flex-col justify-between relative overflow-hidden" id="auth-pricing-panel">
-      {/* Background Star Lines Aesthetics (Styled like Restream Print 1 background) */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/10 rounded-full blur-[120px]" />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-0.5 h-[600px] bg-gradient-to-b from-blue-500/40 via-transparent to-transparent" />
-        {/* Radiant lines coming from top red dot */}
-        <div className="absolute top-36 left-1/2 -translate-x-1/2 w-4 h-4 bg-red-500 rounded-full blur-[4px]" />
-        <div className="absolute top-36 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-        <svg className="absolute top-36 left-1/2 -translate-x-1/2 w-[1200px] h-[700px] stroke-slate-800/40 stroke-[0.5] fill-none" viewBox="0 0 1200 700">
-          <path d="M600,0 L100,700 M600,0 L200,700 M600,0 L300,700 M600,0 L400,700 M600,0 L500,700 M600,0 L600,700 M600,0 L700,700 M600,0 L800,700 M600,0 L900,700 M600,0 L1000,700 M600,0 L1100,700" />
-        </svg>
-      </div>
+      {/*
+        Aqui existia um plano de fundo decorativo copiado da referência da
+        Restream: um orbe de desfoque de 800px, onze linhas radiantes em SVG
+        saindo de um ponto vermelho e um ponto branco pulsando para sempre.
+        Removido inteiro. Eram quatro marcas de design gerado por IA de uma
+        vez (orbe de desfoque, linhas de grade decorativas, ponto de status
+        decorativo, animação infinita) e nenhuma delas organizava conteúdo.
+      */}
 
       {/* Header Logo Navbar */}
       <header className="relative z-10 w-full border-b border-[var(--line)] bg-[var(--bg)]/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
@@ -278,6 +289,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
         </div>
         <div className="flex items-center gap-4 text-xs font-semibold text-[var(--ink-lo)]">
           <button onClick={() => setView('landing')} className="hover:text-[var(--ink-hi)] transition-colors">Início</button>
+          <button onClick={() => setView('features')} className="hover:text-[var(--ink-hi)] transition-colors">Recursos</button>
           <button onClick={() => setView('pricing')} className="hover:text-[var(--ink-hi)] transition-colors">Planos</button>
           <button onClick={() => setView('login')} className="px-3.5 py-1.5 border border-[var(--line)] rounded-lg hover:bg-[var(--surface)] transition-colors text-[var(--ink-hi)]">Log In</button>
           <button onClick={() => setView('register')} className="px-3.5 py-1.5 bg-[var(--color-brand-deep)] rounded-lg hover:bg-blue-600 transition-all text-white">Sign Up</button>
@@ -649,7 +661,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   onClick={() => setIsAnnual(true)}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}
                 >
-                  Anual <span className="text-[9px] bg-green-500/20 text-green-400 px-1 py-0.5 rounded border border-green-500/10">2 meses grátis</span>
+                  Anual <span className="text-[9px] bg-green-500/20 text-green-400 px-1 py-0.5 rounded border border-green-500/10">Economize 20%</span>
                 </button>
               </div>
             </div>
@@ -687,8 +699,8 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       </div>
 
                       <div className="py-2 border-y border-[var(--line)]/60">
-                        <span className="text-3xl font-black text-[var(--ink-hi)] font-mono">
-                          ${price}
+                        <span className="text-3xl font-black text-[var(--ink-hi)] font-mono tabular-nums">
+                          {price === 0 ? 'Grátis' : `R$ ${price.toFixed(2).replace('.', ',')}`}
                         </span>
                         <span className="text-xs text-[var(--ink-lo)] font-semibold"> /mês</span>
                       </div>
