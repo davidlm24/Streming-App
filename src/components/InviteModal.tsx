@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Copy, Check, Globe } from 'lucide-react';
+import { copyText } from './ui/clipboard';
 
 interface InviteModalProps {
   isOpen: boolean;
@@ -13,7 +14,7 @@ export function InviteModal({ isOpen, onClose, inviteUrl }: InviteModalProps) {
   if (!isOpen) return null;
 
   const handleCopyStudio = () => {
-    navigator.clipboard.writeText(inviteUrl);
+    copyText(inviteUrl);
     setCopiedStudio(true);
     setTimeout(() => setCopiedStudio(false), 2000);
   };

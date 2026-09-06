@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Copy, CheckCircle2, Video, Settings, Radio, Activity, RefreshCw, AlertCircle, Server, Globe2, ShieldCheck, Gauge, ArrowRight, Trash2 } from 'lucide-react';
+import { copyText } from './ui/clipboard';
 
 interface OBSIntegrationModalProps {
   isOpen: boolean;
@@ -146,13 +147,13 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
   };
 
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText(activeIngestUrl);
+    copyText(activeIngestUrl);
     setCopiedUrl(true);
     setTimeout(() => setCopiedUrl(false), 2000);
   };
 
   const handleCopyKey = () => {
-    navigator.clipboard.writeText(streamKey);
+    copyText(streamKey);
     setCopiedKey(true);
     setTimeout(() => setCopiedKey(false), 2000);
   };

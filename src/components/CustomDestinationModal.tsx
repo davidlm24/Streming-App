@@ -27,6 +27,8 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { Destination } from '../types';
+import { useConfirm } from './ui/ConfirmDialog';
+import { copyText } from './ui/clipboard';
 import { 
   saveDestinationsToFirestore, 
   addCustomDestinationToFirestore, 
@@ -161,6 +163,7 @@ export function CustomDestinationModal({
   onUpdateDestinations,
   userId
 }: CustomDestinationModalProps) {
+  const confirm = useConfirm();
   const [selectedDestId, setSelectedDestId] = useState<string>('');
   const [isCreating, setIsCreating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -438,7 +441,7 @@ export function CustomDestinationModal({
 
   const handleDeleteDestination = async (destId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (!confirm('Deseja realmente remover esta plataforma de destino RTMP?')) return;
+    if (!(await confirm({ title: 'Remover este destino?', description: 'A plataforma sai da lista de multistream. As transmissões já feitas não são afetadas.', confirmLabel: 'Remover', destructive: true }))) return;
 
     const updatedList = destinations.filter(d => d.id !== destId);
     onUpdateDestinations(updatedList);
@@ -814,7 +817,7 @@ export function CustomDestinationModal({
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(streamUrl);
+                        copyText(streamUrl);
                         setCopiedUrl(true);
                         setTimeout(() => setCopiedUrl(false), 2000);
                       }}
@@ -850,7 +853,7 @@ export function CustomDestinationModal({
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(alternativeIngestUrl);
+                        copyText(alternativeIngestUrl);
                         setCopiedAltUrl(true);
                         setTimeout(() => setCopiedAltUrl(false), 2000);
                       }}
@@ -1018,7 +1021,7 @@ export function CustomDestinationModal({
                   <button
                     type="button"
                     onClick={() => {
-                      navigator.clipboard.writeText(streamKey);
+                      copyText(streamKey);
                       setCopiedKey(true);
                       setTimeout(() => setCopiedKey(false), 2000);
                     }}

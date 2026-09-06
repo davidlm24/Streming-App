@@ -5,6 +5,7 @@ import {
   Sparkles, AlertCircle, Camera, HelpCircle, CheckCircle2, Tv, Layout, Wifi, WifiOff, Lock
 } from 'lucide-react';
 import { AudioVUMeter } from './AudioVUMeter';
+import { useToast } from './ui/Toast';
 
 interface ControlTrayProps {
   isMuted: boolean;
@@ -43,6 +44,7 @@ export function ControlTray({
   onToggleRecording: externalOnToggleRecording,
   recordingTime: externalRecordingTime
 }: ControlTrayProps) {
+  const toast = useToast();
   // Dropdown states
   const [isMicDropdownOpen, setIsMicDropdownOpen] = useState(false);
   const [isCamDropdownOpen, setIsCamDropdownOpen] = useState(false);
@@ -215,7 +217,7 @@ export function ControlTray({
   const requestBrowserAccess = async () => {
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("Acesso a dispositivos de mídia não suportado neste navegador.");
+        toast.success("Acesso a dispositivos de mídia não suportado neste navegador.");
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
@@ -226,7 +228,7 @@ export function ControlTray({
       await loadDevices();
     } catch (err) {
       console.warn("User denied permission or failed to acquire device list:", err);
-      alert("Para listar seus dispositivos reais, por favor autorize o acesso à câmera e microfone no seu navegador.");
+      toast.error("Para listar seus dispositivos reais, por favor autorize o acesso à câmera e microfone no seu navegador.");
     }
   };
 

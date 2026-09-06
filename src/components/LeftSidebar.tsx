@@ -193,6 +193,8 @@ const DEFAULT_PRESETS: BrandPreset[] = [
 ];
 
 import { useMediaManager } from '../context/MediaManagerContext';
+import { useToast } from './ui/Toast';
+import { copyText } from './ui/clipboard';
 
 interface LeftSidebarProps {
   activeTab: StudioTab;
@@ -556,6 +558,7 @@ export function LeftSidebar({
   onOpenAddChannelsModal,
   userId
 }: LeftSidebarProps) {
+  const toast = useToast();
   const { 
     activeLogo, setActiveLogo, 
     activeWatermark, setActiveWatermark,
@@ -810,7 +813,7 @@ export function LeftSidebar({
   const handleSaveCurrentSceneTemplate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSceneTemplateName.trim()) {
-      alert('Por favor, digite um nome para a cena!');
+      toast.error('Por favor, digite um nome para a cena!');
       return;
     }
     const activePartIds = participants.filter(p => p.isActive).map(p => p.id);
@@ -855,7 +858,7 @@ export function LeftSidebar({
 
   const handleSaveCurrentPreset = () => {
     if (!newPresetName.trim()) {
-      alert("Por favor, digite um nome para o preset!");
+      toast.error("Por favor, digite um nome para o preset!");
       return;
     }
     const newPreset: BrandPreset = {
@@ -920,12 +923,12 @@ export function LeftSidebar({
             isCustom: true
           };
           setCustomPresets(prev => [newPreset, ...prev]);
-          alert("Preset importado e aplicado com sucesso!");
+          toast.success("Preset importado e aplicado com sucesso!");
         } else {
-          alert("Arquivo JSON inválido. Deve conter pelo menos 'streamColor' e 'textStyle'.");
+          toast.error("Arquivo JSON inválido. Deve conter pelo menos 'streamColor' e 'textStyle'.");
         }
       } catch (err) {
-        alert("Erro ao ler o arquivo JSON.");
+        toast.error("Erro ao ler o arquivo JSON.");
       }
     };
     reader.readAsText(file);
@@ -1995,7 +1998,7 @@ export function LeftSidebar({
                             <button
                                type="button"
                                className="text-[9px] font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-2 py-1.5 rounded cursor-pointer transition-colors"
-                               onClick={() => alert(`Layout '${template.name}' carregado com sucesso!`)}
+                               onClick={() => toast.success(`Layout '${template.name}' carregado com sucesso!`)}
                             >
                                Carregar
                             </button>
@@ -2164,7 +2167,7 @@ export function LeftSidebar({
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(CLOUDFLARE_STREAM_CONFIG.whipPublishUrl);
+                        copyText(CLOUDFLARE_STREAM_CONFIG.whipPublishUrl);
                         setCopiedKey(true);
                         setTimeout(() => setCopiedKey(false), 2000);
                       }}
@@ -2180,7 +2183,7 @@ export function LeftSidebar({
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(CLOUDFLARE_STREAM_CONFIG.hlsManifestUrl);
+                        copyText(CLOUDFLARE_STREAM_CONFIG.hlsManifestUrl);
                         setCopiedServer(true);
                         setTimeout(() => setCopiedServer(false), 2000);
                       }}
@@ -2196,7 +2199,7 @@ export function LeftSidebar({
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(CLOUDFLARE_STREAM_CONFIG.embedIframeCode);
+                        copyText(CLOUDFLARE_STREAM_CONFIG.embedIframeCode);
                         setCopiedKey(true);
                         setTimeout(() => setCopiedKey(false), 2000);
                       }}
@@ -2241,7 +2244,7 @@ export function LeftSidebar({
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(rtmpServer);
+                        copyText(rtmpServer);
                         setCopiedServer(true);
                         setTimeout(() => setCopiedServer(false), 2000);
                       }}
@@ -2274,7 +2277,7 @@ export function LeftSidebar({
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(streamKey);
+                        copyText(streamKey);
                         setCopiedKey(true);
                         setTimeout(() => setCopiedKey(false), 2000);
                       }}
@@ -2453,7 +2456,7 @@ export function LeftSidebar({
             )}
 
             <button 
-              onClick={() => alert("Criar nova pasta de ativos gráficos para organizar outros webinar-packs!")}
+              onClick={() => toast.success("Criar nova pasta de ativos gráficos para organizar outros webinar-packs!")}
               className="p-1.5 rounded-lg bg-[var(--surface)] hover:bg-[var(--panel)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] border border-[var(--line)] transition-all"
               title="Nova Coleção"
             >
@@ -2463,7 +2466,7 @@ export function LeftSidebar({
 
           {/* Edit Theme wide button */}
           <button 
-            onClick={() => alert("As cores principais da marca e os estilos tipográficos dos letreiros foram movidos para a aba dedicada 'Temas' no menu vertical do painel!")}
+            onClick={() => toast.success("As cores principais da marca e os estilos tipográficos dos letreiros foram movidos para a aba dedicada 'Temas' no menu vertical do painel!")}
             className="w-full touch-action-btn py-2.5 bg-[var(--raise)] hover:bg-[var(--raise)] text-[var(--ink-hi)] text-xs font-bold rounded-xl transition-all border border-[var(--line-ctl)]/80 flex items-center justify-center gap-1.5 shadow-md"
           >
             <Settings size={14} className="text-[var(--color-brand)]" />
@@ -4326,7 +4329,7 @@ export function LeftSidebar({
                 <button
                   onClick={() => {
                     if (!scheduleTitle || !scheduleTime) {
-                      alert("Por favor, preencha o Título e a Data/Horário!");
+                      toast.error("Por favor, preencha o Título e a Data/Horário!");
                       return;
                     }
                     const newWebinar = {
@@ -4395,7 +4398,7 @@ export function LeftSidebar({
                       onClick={() => {
                         setTitle(webinar.title);
                         setDescription(webinar.desc);
-                        alert(`Estúdio configurado com os dados do Webinar:\n"${webinar.title}"! Pronto para transmitir.`);
+                        toast.success(`Estúdio configurado com os dados do Webinar:\n"${webinar.title}"! Pronto para transmitir.`);
                       }}
                       className="px-2.5 py-1 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 border border-blue-500/20 font-bold rounded-lg text-[10px] transition-all flex items-center gap-1 cursor-pointer shrink-0"
                     >

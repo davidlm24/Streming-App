@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { X, QrCode, ShoppingBag, Link as LinkIcon, Sparkles, Copy, Check, Download, Eye, EyeOff, LayoutTemplate, Layers, Palette, Tag, DollarSign, ExternalLink, RefreshCw, Smartphone, Image as ImageIcon, ArrowRight, CheckCircle2, ShieldCheck, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { QrCodeConfig } from '../types';
+import { copyText } from './ui/clipboard';
 
 interface QrCodeModalProps {
   isOpen: boolean;
@@ -155,7 +156,7 @@ export function QrCodeModal({
 
   const handleCopyLink = () => {
     if (!form.storeUrl) return;
-    navigator.clipboard.writeText(form.storeUrl);
+    copyText(form.storeUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };

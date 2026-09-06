@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Copy, CheckCircle2, Server, Save, Activity, RefreshCw, AlertCircle, Plus, Trash2, Youtube, Tv, Globe, Radio, Check, Edit3 } from 'lucide-react';
+import { copyText } from './ui/clipboard';
 
 export interface RTMPProfile {
   id: string;
@@ -118,13 +119,13 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
   if (!isOpen) return null;
 
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText(url);
+    copyText(url);
     setCopiedUrl(true);
     setTimeout(() => setCopiedUrl(false), 2000);
   };
 
   const handleCopyKey = () => {
-    navigator.clipboard.writeText(streamKey);
+    copyText(streamKey);
     setCopiedKey(true);
     setTimeout(() => setCopiedKey(false), 2000);
   };

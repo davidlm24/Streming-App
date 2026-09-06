@@ -55,9 +55,18 @@
   --color-brand-lift: #7FAAEC;
   /* stylelint-enable color-no-hex */
 
+  /* ── camadas de empilhamento.
+        Havia 11 valores avulsos de z-index escalando até z-[99999] — uma
+        guerra, não uma escala. Quatro degraus nomeados cobrem o produto. */
+  --z-sticky:  20;   /* cabeçalhos fixos */
+  --z-dropdown: 40;  /* menus ancorados */
+  --z-scrim:   60;   /* fundo escurecido de modal */
+  --z-modal:   70;   /* diálogo em si */
+  --z-toast:   80;   /* avisos, sempre acima do diálogo */
+
   /* ── raios: botões e selos mais arredondados (pedido do produto).
         Mudar a ESCALA, e não os ~1.300 pontos de uso, é o que torna isto
-        uma alteração de uma linha por degrau em vez de uma migração. ────── */
+        uma alteração de uma linha por degrau em vez de uma migração. */
   --radius-sm:  8px;
   --radius-md:  10px;
   --radius-lg:  12px;
@@ -346,6 +355,60 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
 
 @keyframes pulse-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 .animate-blink { animation: pulse-blink 1.5s infinite; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ANIMAÇÕES DE ENTRADA E SAÍDA
+   66 usos de `animate-in` em 25 arquivos eram CLASSES MORTAS: o plugin
+   `tailwindcss-animate` nunca foi instalado, não está no package.json e não
+   é registrado por `@plugin`. Somado a `if (!isOpen) return null`, isso fazia
+   TODA sobreposição do produto aparecer e sumir em corte seco.
+   Aqui está o que faltava — as mesmas variáveis que o plugin usaria, para que
+   as classes já espalhadas pelo código passem a funcionar sem tocá-las.
+   ══════════════════════════════════════════════════════════════════════════ */
+@keyframes enter {
+  from {
+    opacity: var(--enter-opacity, 1);
+    transform: translate3d(var(--enter-x, 0), var(--enter-y, 0), 0)
+               scale3d(var(--enter-scale, 1), var(--enter-scale, 1), 1);
+  }
+}
+
+@keyframes exit {
+  to {
+    opacity: var(--exit-opacity, 1);
+    transform: translate3d(var(--exit-x, 0), var(--exit-y, 0), 0)
+               scale3d(var(--exit-scale, 1), var(--exit-scale, 1), 1);
+  }
+}
+
+/* `duration-*` do Tailwind define --tw-duration; reaproveitamos, com 200 ms
+   de padrão — entradas curtas, conforme a regra de duração por distância. */
+.animate-in {
+  animation-name: enter;
+  animation-duration: var(--tw-duration, 200ms);
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+.animate-out {
+  animation-name: exit;
+  animation-duration: var(--tw-duration, 150ms);
+  animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  animation-fill-mode: both;
+}
+
+.fade-in  { --enter-opacity: 0; }
+.fade-out { --exit-opacity: 0; }
+.zoom-in-95  { --enter-scale: 0.95; }
+.zoom-out-95 { --exit-scale: 0.95; }
+
+.slide-in-from-top-1    { --enter-y: -0.25rem; }
+.slide-in-from-top-2    { --enter-y: -0.5rem; }
+.slide-in-from-top-3    { --enter-y: -0.75rem; }
+.slide-in-from-bottom-1 { --enter-y: 0.25rem; }
+.slide-in-from-bottom-2 { --enter-y: 0.5rem; }
+.slide-in-from-left     { --enter-x: -100%; }
+.slide-in-from-right    { --enter-x: 100%; }
+.slide-in-from-right-2  { --enter-x: 0.5rem; }
 
 /* Confirmação: entra uma vez e PARA.
    Substitui `animate-bounce` nos ícones de sucesso — um visto que quica

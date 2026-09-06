@@ -24,6 +24,8 @@ import {
 import { SuperAdminAnalytics } from './SuperAdminAnalytics';
 import { StudioPerformanceMonitor } from './StudioPerformanceMonitor';
 import { WebhookPanel } from './WebhookPanel';
+import { useConfirm } from './ui/ConfirmDialog';
+import { copyText } from './ui/clipboard';
 
 interface SuperAdminPanelProps {
   onBack: () => void;
@@ -52,6 +54,7 @@ interface ClientRow {
 }
 
 export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: SuperAdminPanelProps) {
+  const confirm = useConfirm();
   // Master Admin Auth PIN Lock state
   const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
     return user?.role === 'super-admin' || user?.email === 'mgdlms@gmail.com' || localStorage.getItem('pwstream_master_unlocked') === 'true';
@@ -203,7 +206,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   };
 
   const handleCopyExternalLink = () => {
-    navigator.clipboard.writeText(externalAdminUrl);
+    copyText(externalAdminUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
@@ -229,7 +232,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   };
 
   const handleRegenerateClientKey = async (key: RtmpKeyEntry) => {
-    if (!window.confirm(`Deseja regenerar a chave de transmissão do cliente ${key.clientEmail}?`)) return;
+    if (!(await confirm({ title: 'Regenerar a chave deste cliente?', description: `A chave atual de ${key.clientEmail} para de funcionar imediatamente.`, confirmLabel: 'Regenerar', destructive: true }))) return;
     await regenerateRtmpKeyInFirestore(
       key.id, 
       key.clientEmail, 
@@ -250,7 +253,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   };
 
   const handleDeleteMasterKey = async (key: RtmpKeyEntry) => {
-    if (!window.confirm(`Tem certeza de que deseja revogar permanentemente a chave '${key.label}'?`)) return;
+    if (!(await confirm({ title: 'Revogar esta chave?', description: `A chave '${key.label}' é apagada permanentemente e não pode ser recuperada.`, confirmLabel: 'Revogar', destructive: true }))) return;
     await deleteRtmpKeyFromFirestore(key.id, user?.email || 'mgdlms@gmail.com', key.clientEmail, key.label);
   };
 
@@ -276,7 +279,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   };
 
   const handleDeleteWebinarAdmin = async (webinarId: string, webinarTitle: string) => {
-    if (!window.confirm(`Tem certeza de que deseja excluir o webinar '${webinarTitle}'?`)) return;
+    if (!(await confirm({ title: 'Excluir este webinar?', description: `'${webinarTitle}' e seus dados de inscrição são apagados permanentemente.`, confirmLabel: 'Excluir', destructive: true }))) return;
     if (onDeleteWebinar) {
       onDeleteWebinar(webinarId);
     }

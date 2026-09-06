@@ -32,6 +32,9 @@ import {
   RotateCcw
 } from 'lucide-react';
 import { WebhookPlatform, WebhookEventLog, WebhookTriggerConfig } from '../types';
+import { useToast } from './ui/Toast';
+import { useConfirm } from './ui/ConfirmDialog';
+import { copyText } from './ui/clipboard';
 
 interface WebhookPanelProps {
   userId?: string;
@@ -474,6 +477,8 @@ const PLATFORM_PRESETS: Record<WebhookPlatform, {
 };
 
 export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initialLogs = [] }: WebhookPanelProps) {
+  const confirm = useConfirm();
+  const toast = useToast();
   // Navigation sub-tab inside webhook manager
   const [activeSubTab, setActiveSubTab] = useState<'trigger' | 'history' | 'endpoints' | 'docs'>('trigger');
 
@@ -606,7 +611,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
     try {
       parsedPayload = JSON.parse(payloadText);
     } catch {
-      alert("Aviso: O payload inserido não é um JSON válido. Verifique as chaves e aspas.");
+      toast.error("Aviso: O payload inserido não é um JSON válido. Verifique as chaves e aspas.");
       setIsExecuting(false);
       return;
     }
@@ -695,13 +700,13 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
       const parsed = JSON.parse(payloadText);
       setPayloadText(JSON.stringify(parsed, null, 2));
     } catch {
-      alert("JSON inválido. Não foi possível formatar.");
+      toast.error("JSON inválido. Não foi possível formatar.");
     }
   };
 
   // Copy helper
   const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
+    copyText(text);
     setCopySuccess(label);
     setTimeout(() => setCopySuccess(null), 2000);
   };
@@ -1110,8 +1115,13 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
 
               <button
                 type="button"
-                onClick={() => {
-                  if (window.confirm("Deseja limpar todo o histórico de logs de webhooks?")) {
+                onClick={async () => {
+                  if (await confirm({
+                    title: 'Limpar o histórico de logs?',
+                    description: 'Todos os registros de webhook recebidos são apagados. Não é possível recuperá-los.',
+                    confirmLabel: 'Limpar',
+                    destructive: true
+                  })) {
                     setLogs([]);
                   }
                 }}

@@ -31,6 +31,7 @@ import { ScenesPanel, Scene, DEFAULT_STUDIO_SCENES } from './components/ScenesPa
 import { LegalModal } from './components/LegalModals';
 import { useSceneTransition } from './hooks/useSceneTransition';
 import { useMediaManager } from './context/MediaManagerContext';
+import { copyText } from './components/ui/clipboard';
 import { 
   loginWithGoogle, 
   logoutFirebase, 
@@ -3411,7 +3412,7 @@ export default function App() {
                           />
                           <button 
                             type="button"
-                            onClick={() => navigator.clipboard.writeText('rtmp://stream.pwstreamer.com:1935/live')}
+                            onClick={() => copyText('rtmp://stream.pwstreamer.com:1935/live')}
                             className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
                           >
                             Copiar
@@ -3430,7 +3431,7 @@ export default function App() {
                           />
                           <button 
                             type="button"
-                            onClick={() => navigator.clipboard.writeText('live_5427901_pw_prod_99a8x72cd')}
+                            onClick={() => copyText('live_5427901_pw_prod_99a8x72cd')}
                             className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
                           >
                             Copiar

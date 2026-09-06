@@ -6,6 +6,7 @@ import {
 import { Participant } from '../types';
 import { ImagePlaceholder } from './ImagePlaceholder';
 import { AudioVUMeter } from './AudioVUMeter';
+import { copyText } from './ui/clipboard';
 
 export interface Scene {
   id: string;
@@ -62,7 +63,7 @@ export function ScenesPanel({
   });
 
   const handleCopyInvite = () => {
-    navigator.clipboard.writeText("https://stream.pwstreamer.com/guest-studio?id=5427");
+    copyText("https://stream.pwstreamer.com/guest-studio?id=5427");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

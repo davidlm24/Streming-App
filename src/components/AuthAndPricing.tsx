@@ -8,6 +8,8 @@ import { PwStreamLogo } from './PwStreamLogo';
 import { LegalModal } from './LegalModals';
 import { FeaturesPage } from './FeaturesPage';
 import { loginWithGoogle, createDirectUserProfile } from '../lib/firestoreService';
+import { useToast } from './ui/Toast';
+import { copyText } from './ui/clipboard';
 
 /** Vite remove o ramo inteiro no build de produção. */
 const IS_DEV: boolean = Boolean((import.meta as any)?.env?.DEV);
@@ -26,6 +28,7 @@ interface AuthAndPricingProps {
 }
 
 export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selectedPlanForCheckout = null }: AuthAndPricingProps) {
+  const toast = useToast();
   const [view, setView] = useState<'landing' | 'features' | 'pricing' | 'login' | 'register' | 'checkout'>(initialView);
   const [isAnnual, setIsAnnual] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'Standard' | 'Professional' | 'Business' | 'Free Trial' | null>(selectedPlanForCheckout);
@@ -354,7 +357,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       type="button"
                       onClick={() => {
                         if (typeof window !== 'undefined') {
-                          navigator.clipboard.writeText(window.location.hostname);
+                          copyText(window.location.hostname);
                           setDomainCopied(true);
                           setTimeout(() => setDomainCopied(false), 2000);
                         }
@@ -500,7 +503,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     type="button"
                     onClick={() => {
                       if (typeof window !== 'undefined') {
-                        navigator.clipboard.writeText(window.location.hostname);
+                        copyText(window.location.hostname);
                         setDomainCopied(true);
                         setTimeout(() => setDomainCopied(false), 2000);
                       }
@@ -974,7 +977,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       type="button"
                       onClick={() => {
                         setIsPaypalAuthorized(true);
-                        alert('PayPal Sandbox: Login autenticado com sucesso!');
+                        toast.success('PayPal Sandbox: Login autenticado com sucesso!');
                       }}
                       className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all text-center ${
                         isPaypalAuthorized 
@@ -1037,7 +1040,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                           type="button"
                           onClick={() => {
                             setPixCopied(true);
-                            navigator.clipboard.writeText("00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98");
+                            copyText("00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98");
                             setTimeout(() => setPixCopied(false), 2000);
                           }}
                           className="px-2.5 py-1 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded text-[0.625rem] font-bold shrink-0"

@@ -63,9 +63,12 @@ const METRICS = {
   // Tamanho de fonte fora da escala.
   'tamanho-de-fonte-avulso': count(src, /\btext-\[\d+(\.\d+)?px\]/g),
 
-  // Diálogos nativos bloqueiam a thread principal — no meio de uma
+  // Diálogos NATIVOS bloqueiam a thread principal — no meio de uma
   // transmissão isso trava vídeo, chat e encoder.
-  'dialogo-nativo-bloqueante': count(src, /\b(alert|confirm)\s*\(/g),
+  // `await confirm({...})` é a primitiva do projeto, não um diálogo nativo:
+  // a primeira versão desta métrica contava as duas coisas como uma só e
+  // marcava a própria correção como dívida.
+  'dialogo-nativo-bloqueante': count(src, /(?<!await\s)(?<!\.)\b(?:window\.)?(?:alert|confirm)\s*\(/g),
 
   // Foco removido sem substituto visível.
   'outline-none': count(src, /\bfocus:outline-none\b/g),

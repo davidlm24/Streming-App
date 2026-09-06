@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from './ui/Toast';
+import { copyText } from './ui/clipboard';
 import { 
   User, CreditCard, Shield, Check, Download, FileText, 
   CheckCircle2, AlertTriangle, ArrowLeft, ArrowRight, Lock, 
@@ -30,6 +32,7 @@ interface Invoice {
 }
 
 export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initialTab = 'billing' }: BillingDashboardProps) {
+  const toast = useToast();
   const [activeSubTab, setActiveSubTab] = useState<'profile' | 'plans' | 'billing-history' | 'metrics'>(
     initialTab === 'profile' ? 'profile' : 'plans'
   );
@@ -260,7 +263,7 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
         trialDays: 30,
         isExpired: false
       });
-      alert('Seu plano foi alterado para o Plano Gratuito (30 dias de teste)!');
+      toast.success('Seu plano foi alterado para o Plano Gratuito (30 dias de teste)!');
       return;
     }
     setSelectedUpgradePlan(planId);
@@ -529,7 +532,7 @@ Suporte Técnico: suporte@pwstreamer.com
               <button 
                 onClick={() => {
                   onUpdateUser({ ...user, plan: 'Free Trial', trialDays: 30 });
-                  alert('Sua assinatura foi alterada de volta para o Plano Gratuito.');
+                  toast.success('Sua assinatura foi alterada de volta para o Plano Gratuito.');
                 }}
                 className="px-4 py-2 border border-red-500/20 hover:border-red-500/40 text-red-400 hover:bg-red-500/5 text-xs font-bold rounded-xl transition-all"
               >
@@ -814,7 +817,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         type="button"
                         onClick={() => {
                           setIsPaypalAuthorized(true);
-                          alert('Sandbox PayPal: Conta autenticada com sucesso!');
+                          toast.success('Sandbox PayPal: Conta autenticada com sucesso!');
                         }}
                         className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all text-center ${
                           isPaypalAuthorized 
@@ -880,7 +883,7 @@ Suporte Técnico: suporte@pwstreamer.com
                           type="button"
                           onClick={() => {
                             setPixCopied(true);
-                            navigator.clipboard.writeText("00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98");
+                            copyText("00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98");
                             setTimeout(() => setPixCopied(false), 2000);
                           }}
                           className="px-2.5 py-1 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded text-[10px] font-bold shrink-0"

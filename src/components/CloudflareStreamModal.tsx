@@ -5,6 +5,7 @@ import {
   Sliders, Layers, Terminal, Check, Info, Lock
 } from 'lucide-react';
 import { CLOUDFLARE_STREAM_CONFIG } from '../lib/cloudflareStreamConfig';
+import { copyText } from './ui/clipboard';
 
 interface CloudflareStreamModalProps {
   isOpen: boolean;
@@ -28,7 +29,7 @@ export function CloudflareStreamModal({
   if (!isOpen) return null;
 
   const copyToClipboard = (text: string, fieldName: string) => {
-    navigator.clipboard.writeText(text);
+    copyText(text);
     setCopiedField(fieldName);
     setTimeout(() => setCopiedField(null), 2000);
   };

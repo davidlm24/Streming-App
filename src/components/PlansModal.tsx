@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Check, CreditCard, ShieldAlert, Activity, Radio, Disc, Sparkles, CheckCircle2 } from 'lucide-react';
+import { useToast } from './ui/Toast';
 
 interface PlansModalProps {
   onClose: () => void;
@@ -11,6 +12,7 @@ interface PlansModalProps {
 }
 
 export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, onPlanUpgraded }: PlansModalProps) {
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [method, setMethod] = useState<'card' | 'pix' | 'paypal'>('card');
   const [selectedPlan, setSelectedPlan] = useState<'Standard' | 'Professional' | 'Business'>('Professional');
@@ -51,7 +53,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
           onClose();
         }, 1200);
       } else {
-        alert('Erro ao processar pagamento');
+        toast.error('Erro ao processar pagamento');
       }
     } finally {
       setLoading(false);

@@ -13,6 +13,8 @@ import { OBSIntegrationModal } from "./OBSIntegrationModal";
 import { RTMPConfigModal } from "./RTMPConfigModal";
 import { StudioPerformanceMonitor } from './StudioPerformanceMonitor';
 import { WebhookPanel } from './WebhookPanel';
+import { useConfirm } from './ui/ConfirmDialog';
+import { copyText } from './ui/clipboard';
 
 interface AdminPanelProps {
   onBack: () => void;
@@ -21,6 +23,7 @@ interface AdminPanelProps {
 }
 
 export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelProps) {
+  const confirm = useConfirm();
   const [clientTab, setClientTab] = useState<'my-rtmp' | 'destinations' | 'stats' | 'webhooks'>('my-rtmp');
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
@@ -69,7 +72,12 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
   };
 
   const handleRegenerateKey = async (keyId: string) => {
-    if (!window.confirm('Tem certeza de que deseja regenerar sua chave de transmissão? Você precisará atualizar a nova chave no OBS Studio.')) {
+    if (!(await confirm({
+      title: 'Regenerar a chave de transmissão?',
+      description: 'A chave atual para de funcionar imediatamente. Você precisará atualizar o OBS Studio, vMix ou o encoder que estiver usando.',
+      confirmLabel: 'Regenerar',
+      destructive: true
+    }))) {
       return;
     }
     setIsRegenerating(true);
@@ -228,7 +236,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                   />
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(primaryKey.server);
+                      copyText(primaryKey.server);
                       setCopiedUrl(true);
                       setTimeout(() => setCopiedUrl(false), 2000);
                     }}
@@ -252,7 +260,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                   />
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(primaryKey.key);
+                      copyText(primaryKey.key);
                       setCopiedKey(true);
                       setTimeout(() => setCopiedKey(false), 2000);
                     }}
