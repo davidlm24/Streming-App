@@ -58,15 +58,10 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
     }
   };
 
-  const handleSimulateInstantActivation = () => {
-    if (onPlanUpgraded) {
-      setSuccessMessage(`Pagamento confirmado! Plano ${selectedPlan} ativado com sucesso.`);
-      setTimeout(() => {
-        onPlanUpgraded(selectedPlan);
-        onClose();
-      }, 1000);
-    }
-  };
+  // handleSimulateInstantActivation foi removido junto com o botão "(Demo)"
+  // que o chamava. Ele marcava "Pagamento confirmado!" e ativava o plano pago
+  // sem cobrar — deixá-lo aqui manteria o caminho vivo para o próximo botão.
+  // `onPlanUpgraded` continua sendo chamado pelo fluxo real de checkout.
 
   const plans = [
     {
@@ -235,19 +230,11 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
             Continuar no Estúdio (Modo Exploração)
           </button>
           
+          {/* Aqui existia um botão "Ativar Plano X (Demo)" — ativação imediata
+              e gratuita do plano pago — ao lado do botão que cobra. Removido:
+              é um caminho de contorno do checkout exposto em produção. */}
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
-            {onPlanUpgraded && (
-              <button 
-                type="button"
-                onClick={handleSimulateInstantActivation}
-                className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                title="Simular aprovação imediata do plano pago"
-              >
-                <Sparkles size={14} /> Ativar Plano {selectedPlan} (Demo)
-              </button>
-            )}
-            
-            <button 
+            <button
               onClick={handleSubscribe}
               disabled={loading}
               className="w-full sm:w-auto px-6 py-2.5 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"

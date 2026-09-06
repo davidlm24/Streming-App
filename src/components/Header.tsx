@@ -3,6 +3,14 @@ import { User, Key, Users, PlusSquare, HelpCircle, LogOut, ChevronDown, Menu, Sh
 import { PwStreamLogo } from './PwStreamLogo';
 import { useTheme } from '../context/ThemeContext';
 
+/**
+ * Controles de demonstração ("Simular 30 Dias Expirados", "Restaurar 30 Dias")
+ * ficavam na barra de produção, visíveis para qualquer cliente pagante.
+ * Continuam úteis em desenvolvimento, então são condicionados ao modo dev em
+ * vez de removidos — o Vite elimina o ramo inteiro no build de produção.
+ */
+const IS_DEV: boolean = Boolean((import.meta as any)?.env?.DEV);
+
 interface HeaderProps {
   onExit: () => void;
   user: { email: string; name: string; plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial'; isExpired: boolean; trialDays: number; role?: string } | null;
@@ -130,8 +138,8 @@ export function Header({
             <span>Você possui <strong className="text-emerald-400 font-mono">{user.trialDays} dias</strong> restantes na sua avaliação de 30 dias do PwStreamer.</span>
           </div>
           <div className="flex items-center gap-2">
-            {onSimulateExpiration && (
-              <button 
+            {IS_DEV && onSimulateExpiration && (
+              <button
                 onClick={onSimulateExpiration}
                 className="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg hover:bg-amber-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-wider cursor-pointer"
                 title="Simular fim do prazo de 30 dias para testar o bloqueio de live e gravação"
@@ -161,8 +169,8 @@ export function Header({
                 Escolher Plano
               </button>
             )}
-            {onRestoreTrial && (
-              <button 
+            {IS_DEV && onRestoreTrial && (
+              <button
                 onClick={onRestoreTrial}
                 className="px-2.5 py-1 bg-[var(--panel)] text-[var(--ink)] hover:text-[var(--ink-hi)] border border-[var(--line-ctl)] rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider cursor-pointer"
                 title="Restaurar 30 dias de teste gratuito (Demo)"

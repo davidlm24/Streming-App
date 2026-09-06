@@ -272,8 +272,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
       {/* Header Logo Navbar */}
       <header className="relative z-10 w-full border-b border-[var(--line)] bg-[var(--bg)]/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
+          {/* O selo "RESTREAM MODE" saiu daqui: era o nome de um concorrente
+              impresso na barra de navegação do próprio produto. */}
           <PwStreamLogo iconSize={32} textSize="sm" />
-          <span className="text-[10px] font-black tracking-widest text-blue-500 uppercase px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20">RESTREAM MODE</span>
         </div>
         <div className="flex items-center gap-4 text-xs font-semibold text-[var(--ink-lo)]">
           <button onClick={() => setView('landing')} className="hover:text-[var(--ink-hi)] transition-colors">Início</button>
@@ -286,19 +287,23 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
       {/* Main View Switcher */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-12 max-w-7xl mx-auto w-full">
         
-        {/* VIEW 1: RESTREAM LANDING PAGE (Print 1 Inspired) */}
+        {/* VIEW 1: LANDING
+            A manchete e o subtítulo eram a copy da Restream, em inglês, num
+            produto em português. Substituídos por texto original pt-BR.
+            O gradiente no título também saiu: era decorativo e o próprio
+            sistema reserva cor para significado, não para ornamento. */}
         {view === 'landing' && (
           <div className="text-center space-y-12 max-w-4xl mx-auto animate-in fade-in duration-200" id="landing-view">
             <div className="space-y-6">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold border border-blue-500/20">
-                <Sparkles size={14} /> Webinar & Streaming Dashboard de Alta Performance
+                <Sparkles size={14} /> Estúdio de webinars e transmissão ao vivo
               </span>
-              <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight text-[var(--ink-hi)] leading-none">
-                One live video <br />
-                <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">30+ destinations</span>
+              <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight text-[var(--ink-hi)] leading-none text-balance">
+                Uma transmissão.<br />Todos os seus canais.
               </h1>
-              <p className="text-sm sm:text-base text-[var(--ink-lo)] max-w-2xl mx-auto uppercase tracking-wider font-semibold leading-relaxed">
-                Restream helps you to go live on multiple platforms at the same time, and turn your streams into vertical short videos
+              <p className="text-base sm:text-lg text-[var(--ink-lo)] max-w-2xl mx-auto leading-relaxed">
+                Transmita ao vivo para YouTube, Facebook e Twitch ao mesmo tempo, direto do
+                navegador. Sem instalar nada.
               </p>
             </div>
 
@@ -376,10 +381,15 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             <div className="pt-16 border-t border-[var(--line)]/80">
               <p className="text-xs uppercase font-extrabold text-[var(--ink-dim)] tracking-wider mb-6">Nossos Planos de Transmissão Profissional</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
+                {/* Alinhado ao PlansModal, que é a tela de checkout e portanto
+                    a fonte canônica. Antes: $14/$29/$49 aqui contra
+                    R$ 49,90/99,90/199,90 lá — mesmos nomes de plano, cerca de
+                    3,5x de diferença, e contagens de canais divergentes
+                    ("3 canais" contra "até 2 destinos"). */}
                 {[
-                  { name: 'Standard', price: '$14', desc: 'Perfeito para canais independentes.', label: '3 canais simultâneos' },
-                  { name: 'Professional', price: '$29', desc: 'Qualidade máxima e ferramentas pro.', label: '5 canais + Co-produtores' },
-                  { name: 'Business', price: '$49', desc: 'Espaço de equipe e proteção de stream.', label: '8 canais + SRT profissional' }
+                  { name: 'Standard', price: 'R$ 49,90', desc: 'Para criadores e produtores autônomos.', label: 'Até 2 destinos simultâneos' },
+                  { name: 'Professional', price: 'R$ 99,90', desc: 'Para criadores profissionais e empresas.', label: 'Até 5 destinos + 1080p 60fps' },
+                  { name: 'Business', price: 'R$ 199,90', desc: 'Para emissoras, agências e estúdios.', label: 'Destinos ilimitados + 4K' }
                 ].map((p, i) => (
                   <div key={i} className="bg-[var(--surface)]/60 border border-[var(--line)]/80 p-5 rounded-2xl space-y-3 relative group hover:border-blue-500/50 transition-colors">
                     <div className="flex items-center justify-between">

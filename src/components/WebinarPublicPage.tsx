@@ -5,6 +5,7 @@ import {
   Share2, Volume2, ThumbsUp, BarChart3, Bell, Lock
 } from 'lucide-react';
 import { PwStreamLogo } from './PwStreamLogo';
+import { LegalModal } from './LegalModals';
 import { CLOUDFLARE_STREAM_CONFIG } from '../lib/cloudflareStreamConfig';
 
 interface Registration {
@@ -39,10 +40,23 @@ export function WebinarPublicPage({
   onAddComment
 }: WebinarPublicPageProps) {
   const [view, setView] = useState<'landing' | 'room'>('landing');
+  // Os links legais do formulário de inscrição eram <span> sem ação.
+  const [legalModal, setLegalModal] = useState<'terms' | 'privacy' | null>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
   const [registered, setRegistered] = useState(false);
+
+  // Contagem REAL de inscritos, do mesmo storage que o formulário grava.
+  // Antes a página mostrava '382 participando' e '1.282 assistindo' fixos —
+  // prova social inventada, exibida para a audiência do próprio cliente.
+  const [registrationCount, setRegistrationCount] = useState(0);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('webinar_registrations');
+      setRegistrationCount(saved ? (JSON.parse(saved) as unknown[]).length : 0);
+    } catch { setRegistrationCount(0); }
+  }, [registered]);
   const [chatInput, setChatInput] = useState('');
   
   // Interactive Poll State
@@ -208,7 +222,7 @@ export function WebinarPublicPage({
                   <Users size={18} className="text-blue-500" />
                   <div>
                     <p className="text-[10px] text-[var(--ink-lo)] font-bold uppercase tracking-wider">Inscritos Ativos</p>
-                    <p className="font-semibold text-[var(--ink-hi)] mt-0.5">382 participando</p>
+                    <p className="font-semibold text-[var(--ink-hi)] mt-0.5">{registrationCount === 0 ? 'Seja o primeiro' : registrationCount === 1 ? '1 inscrito' : `${registrationCount} inscritos`}</p>
                   </div>
                 </div>
               </div>
@@ -289,10 +303,32 @@ export function WebinarPublicPage({
                     />
                   </div>
 
+                  {/* Consentimento LGPD.
+                      `defaultChecked` saiu: sob o Art. 8 da LGPD o
+                      consentimento tem de ser uma manifestação AFIRMATIVA do
+                      titular — uma caixa pré-marcada não é consentimento.
+                      Os dois links eram <span> mortos, embora o componente
+                      LegalModal já existisse e estivesse pronto no projeto. */}
                   <div className="flex items-start gap-2 pt-2 text-left">
-                    <input type="checkbox" required defaultChecked id="privacy-check" className="mt-1 accent-blue-500" />
+                    <input type="checkbox" required id="privacy-check" className="mt-1 accent-blue-500" />
                     <label htmlFor="privacy-check" className="text-[10px] text-[var(--ink-lo)] leading-relaxed">
-                      Concordo em receber convites de webinars e aceito a <span className="text-blue-400 hover:underline cursor-pointer">Política de Privacidade</span> e os <span className="text-blue-400 hover:underline cursor-pointer">Termos de Uso</span> da plataforma.
+                      Concordo em receber convites de webinars e aceito a{' '}
+                      <button
+                        type="button"
+                        onClick={() => setLegalModal('privacy')}
+                        className="text-blue-400 hover:underline cursor-pointer"
+                      >
+                        Política de Privacidade
+                      </button>{' '}
+                      e os{' '}
+                      <button
+                        type="button"
+                        onClick={() => setLegalModal('terms')}
+                        className="text-blue-400 hover:underline cursor-pointer"
+                      >
+                        Termos de Uso
+                      </button>{' '}
+                      da plataforma.
                     </label>
                   </div>
 
@@ -337,7 +373,7 @@ export function WebinarPublicPage({
                         AO VIVO
                       </span>
                       <span className="bg-[var(--surface)]/90 border border-[var(--line)]/80 px-2.5 py-1 rounded-lg text-[10px] font-bold text-[var(--ink-hi)] flex items-center gap-1.5 backdrop-blur-sm pointer-events-auto">
-                        <Users size={12} className="text-blue-400" /> 1.282 assistindo
+                        <Users size={12} className="text-blue-400" /> Transmissão ao vivo
                       </span>
                     </div>
                   </div>
@@ -499,6 +535,13 @@ export function WebinarPublicPage({
         )}
 
       </main>
+
+      {/* O componente já existia e nunca era montado nesta página. */}
+      <LegalModal
+        isOpen={legalModal !== null}
+        type={legalModal ?? 'privacy'}
+        onClose={() => setLegalModal(null)}
+      />
     </div>
   );
 }

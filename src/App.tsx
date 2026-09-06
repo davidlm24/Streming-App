@@ -74,6 +74,10 @@ export default function App() {
     plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial';
     isExpired: boolean;
     trialDays: number;
+    // `role` vem do perfil gravado no login e já era lido por SuperAdminPanel,
+    // mas faltava neste tipo — então o campo existia em tempo de execução e
+    // era invisível para quem lê o código.
+    role?: 'super-admin' | 'client';
     subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'canceled' | 'expired';
     trialEndsAt?: string;
   } | null>(() => {
@@ -157,8 +161,21 @@ export default function App() {
       const hash = window.location.hash;
       const search = window.location.search;
 
+      // A rota /admin, #admin e ?mode=admin promoviam QUALQUER visitante à
+      // visão de super-admin. Agora exigem o papel do perfil.
+      //
+      // Isto é defesa em profundidade, NÃO autorização: qualquer verificação
+      // no cliente é contornável, e o PIN do painel está no bundle. A
+      // autorização de verdade tem de ser feita no servidor, a cada request
+      // — o SUPER_ADMIN_EMAILS do .env existe justamente para isso.
+      const isSuperAdmin = user?.role === 'super-admin';
       if (pathname.endsWith('/admin') || hash === '#admin' || search.includes('mode=admin')) {
-        setCurrentView('super-admin');
+        if (isSuperAdmin) {
+          setCurrentView('super-admin');
+        } else {
+          // Sem alarde: a rota simplesmente não existe para quem não é admin.
+          setCurrentView('dashboard');
+        }
       }
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -179,7 +196,10 @@ export default function App() {
       window.removeEventListener('hashchange', handleUrlRoute);
       window.removeEventListener('popstate', handleUrlRoute);
     };
-  }, []);
+    // Depende do papel: com [] o handler fechava sobre o `user` do primeiro
+    // render, e um admin que entrasse DEPOIS da montagem seria devolvido ao
+    // dashboard ao usar a própria rota.
+  }, [user?.role]);
 
   // Dynamic webinars list
   const [webinars, setWebinars] = useState([
