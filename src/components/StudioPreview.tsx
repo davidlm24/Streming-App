@@ -109,6 +109,12 @@ interface StudioPreviewProps {
 
   // Studio Preview / Push to Live mode props
   isStudioPreviewMode?: boolean;
+  /** Modo monitor: só o palco e a composição da cena, sem nenhum controle.
+   *  Serve para instanciar um segundo monitor alimentado por outro estado —
+   *  é assim que o PGM existe sem duplicar o compositor. */
+  monitorOnly?: boolean;
+  /** Qual barramento este monitor representa. Decide a moldura do tally. */
+  monitorRole?: 'pgm' | 'pvw';
   onToggleStudioPreviewMode?: () => void;
   previewViewMode?: 'split' | 'preview-only' | 'program-only';
   onPreviewViewModeChange?: (mode: 'split' | 'preview-only' | 'program-only') => void;
@@ -247,6 +253,8 @@ export function StudioPreview({
   isDrawingMode: isDrawingModeProp,
   onToggleDrawingMode,
   isStudioPreviewMode = false,
+  monitorOnly = false,
+  monitorRole = 'pvw',
   onToggleStudioPreviewMode,
   previewViewMode = 'split',
   onPreviewViewModeChange,
@@ -2785,13 +2793,39 @@ export function StudioPreview({
     }
   };
 
+  // ── MODO MONITOR ───────────────────────────────────────────────────────────
+  // Só o palco e a composição. Todos os hooks já rodaram acima, então sair
+  // aqui é legal. Reaproveitar `renderLayoutContent` é o ponto: o PGM compõe
+  // pelo MESMO caminho que o PVW, senão os dois monitores divergiriam pelo
+  // motivo mais bobo possível — duas implementações do mesmo layout.
+  if (monitorOnly) {
+    const isPgm = monitorRole === 'pgm';
+    return (
+      <div className={`pw-frame ${isPgm ? 'pw-frame--pgm' : 'pw-frame--pvw'} w-full`}
+           style={{ ['--pw-frame-radius' as string]: 'var(--radius-lg)' }}>
+        <div className="relative w-full aspect-video rounded-[var(--radius-lg)] overflow-hidden bg-[var(--stage)] flex items-center justify-center">
+          {renderLayoutContent()}
+          <span className={`absolute top-1 left-1 px-1.5 py-px rounded-[var(--radius-sm)] text-xs font-black tracking-widest tabular-nums ${
+            isPgm ? 'bg-[var(--color-sig)] text-[var(--color-n-100)]' : 'bg-[var(--raise)] text-[var(--ink-hi)]'
+          }`}>
+            {isPgm ? 'PGM' : 'PVW'}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 flex flex-col h-full w-full justify-between gap-1.5 md:gap-2 overflow-hidden min-h-0">
       {/* 1. Main Live Screen Player */}
       <div ref={containerRef} className="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden">
         {/* Tally. A moldura e as marcas de canto vivem FORA do palco:
             ele tem `overflow-hidden` e recortaria as marcas. */}
-        <div className={`pw-frame ${isStudioPreviewMode ? 'pw-frame--pvw' : 'pw-frame--pgm'}`}>
+        {/* Este palco é o PVW: ele renderiza o estado de EDIÇÃO, não o que
+            está no ar. Eu tinha marcado como PGM — errado. O vermelho do
+            tally pertence ao monitor de programa, e uma moldura que acende
+            no barramento errado é pior que nenhuma. */}
+        <div className="pw-frame pw-frame--pvw">
         <div 
           ref={stageRef}
           style={dimensions.width > 0 ? { width: `${dimensions.width}px`, height: `${dimensions.height}px` } : {}}

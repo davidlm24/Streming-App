@@ -2055,6 +2055,38 @@ export default function App() {
               }}
               className={`hidden md:flex shrink-0 overflow-hidden h-full ${isImmersiveMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
             >
+              <div className="flex flex-col h-full w-full min-h-0 gap-2">
+              {/* ── MONITOR DE PROGRAMA ──────────────────────────────────────
+                  O que o público está vendo. Até aqui o operador não tinha
+                  NENHUMA visão disso: o palco grande mostra o estado de
+                  edição, e `programSceneState` — que já existia, com take,
+                  revert e swap prontos — nunca era renderizado. Dava para
+                  editar no escuro sem saber o que estava indo ao ar. */}
+              <div className="shrink-0 px-1 pt-1">
+                <StudioPreview
+                  monitorOnly
+                  monitorRole="pgm"
+                  layout={programSceneState.layout}
+                  onLayoutChange={() => {}}
+                  streamColor={streamColor}
+                  textStyle={textStyle}
+                  activeBannerText={null}
+                  activeBanner={banners.find(b => b.id === programSceneState.activeBannerId) || null}
+                  activeTicker={tickers.find(t => t.id === programSceneState.activeTickerId) || null}
+                  pinnedComment={programSceneState.pinnedComment || null}
+                  bannerPosition={programSceneState.bannerPosition || 'bottom'}
+                  participants={participants.map(p => ({
+                    ...p,
+                    isActive: (programSceneState.activeParticipantIds || ['p-local']).includes(p.id),
+                  }))}
+                  onToggleParticipantActive={() => {}}
+                  localStream={localStream}
+                  screenStream={screenStream}
+                  isCamStopped={isCamStopped}
+                  isLive={isLive}
+                  liveTime={liveTime}
+                />
+              </div>
               <ScenesPanel
                 participants={participants}
                 onToggleParticipantActive={handleToggleParticipantActive}
@@ -2066,6 +2098,7 @@ export default function App() {
                 onSelectScene={handleSelectScene}
                 sceneTransitions={sceneTransitions}
               />
+              </div>
             </div>
           )}
 
