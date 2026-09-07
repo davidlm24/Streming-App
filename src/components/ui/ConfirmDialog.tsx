@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { Modal } from './Modal';
+import { Button } from './Button';
 
 /**
  * Confirmação, sobre a primitiva de modal.
@@ -54,24 +55,15 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
         size="sm"
         footer={
           <>
-            <button
-              type="button"
-              onClick={() => settle(false)}
-              className="px-4 py-2 rounded-xl border border-[var(--line-ctl)] text-sm font-semibold text-[var(--ink)] hover:bg-[var(--raise)] active:scale-95 transition-colors cursor-pointer"
-            >
+            <Button variant="ghost" onClick={() => settle(false)}>
               {options?.cancelLabel ?? 'Cancelar'}
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant={options?.destructive ? 'danger' : 'primary'}
               onClick={() => settle(true)}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold text-white active:scale-95 transition-colors cursor-pointer ${
-                options?.destructive
-                  ? 'bg-[var(--color-sig)] hover:brightness-110'
-                  : 'bg-[var(--color-brand-deep)] hover:brightness-110'
-              }`}
             >
               {options?.confirmLabel ?? 'Confirmar'}
-            </button>
+            </Button>
           </>
         }
       >

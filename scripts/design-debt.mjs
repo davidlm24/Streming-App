@@ -67,6 +67,13 @@ const METRICS = {
     /(?:stroke|fill|stopColor|color|backgroundColor|borderColor)\s*[=:]\s*\{?["']#[0-9A-Fa-f]{6}["']/g
   ),
 
+  // `<button>` cru, fora da primitiva. Cada um reinventa preenchimento, raio
+  // e estados — foi assim que o app chegou a 920 `hover:` contra 48 `active:`
+  // e zero `focus-visible:`. O número só desce conforme migram para <Button>.
+  // Não vai a zero: `ui/Button.tsx` contém o único `<button>` legítimo, e há
+  // controles segmentados e alternadores que não são botões de ação.
+  'botao-cru-fora-da-primitiva': count(src, /<button[\s>]/g),
+
   // Paleta de estoque em papel estrutural — deve ser token semântico.
   'paleta-slate-gray-estrutural': count(
     src,

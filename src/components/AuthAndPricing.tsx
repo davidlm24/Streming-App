@@ -1,3 +1,4 @@
+import { Button } from './ui/Button';
 import React, { useState } from 'react';
 import { 
   Check, LogIn, UserPlus, CreditCard, ArrowRight, Lock, 
@@ -582,14 +583,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 />
               </div>
 
-              <button 
-                type="submit"
-                disabled={isSubmittingAuth}
-                aria-busy={isSubmittingAuth}
-                className="w-full py-3 bg-[var(--color-brand-deep)] hover:brightness-110 active:brightness-95 rounded-xl text-sm font-bold transition-all text-white flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-wait"
-              >
+              <Button type="submit" loading={isSubmittingAuth} className="w-full">
                 {isSubmittingAuth ? 'Entrando...' : <>Entrar no Estúdio <LogIn size={16} /></>}
-              </button>
+              </Button>
             </form>
 
             <div className="text-center">
@@ -663,14 +659,13 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   agora fica na frase abaixo do botão, que é onde ele informa
                   sem competir com a ação. O rótulo é o mesmo "Criar conta"
                   usado no menu: um rótulo por intenção. */}
-              <button
-                type="submit"
-                disabled={isSubmittingAuth}
-                aria-busy={isSubmittingAuth}
-                className="w-full py-3.5 bg-[var(--color-brand-deep)] hover:brightness-110 active:brightness-95 rounded-xl text-sm font-bold transition-all text-white flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-wait [@media(hover:hover)]:hover:scale-[1.01]"
-              >
+              {/* O `hover:scale-[1.01]` que estava aqui saiu: o sistema move
+                  brilho, não geometria. Botão que cresce ao passar o mouse é
+                  o mesmo vocabulário que a passada de movimento removeu das
+                  confirmações. */}
+              <Button type="submit" loading={isSubmittingAuth} className="w-full">
                 {isSubmittingAuth ? 'Criando conta...' : <>Criar conta <ArrowRight size={16} /></>}
-              </button>
+              </Button>
               <p className="text-xs text-[var(--ink-dim)] text-center">
                 30 dias de teste. Sem cartão de crédito.
               </p>
