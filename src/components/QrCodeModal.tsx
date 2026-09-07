@@ -1,3 +1,4 @@
+import { Button } from './ui/Button';
 import React, { useState, useRef } from 'react';
 import { X, QrCode, ShoppingBag, Link as LinkIcon, Sparkles, Copy, Check, Download, Eye, EyeOff, LayoutTemplate, Layers, Palette, Tag, DollarSign, ExternalLink, RefreshCw, Smartphone, Image as ImageIcon, ArrowRight, CheckCircle2, ShieldCheck, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -895,30 +896,24 @@ export function QrCodeModal({
 
             {/* Bottom Actions inside Right Panel */}
             <div className="pt-3 border-t border-[var(--line)] space-y-2">
-              <button
-                type="button"
+              {/* O gradiente azul→índigo daqui saiu: o sistema preenche com
+                  --brand-deep sólido. Gradiente em botão de ação era um dos
+                  tiques que a auditoria marcou. */}
+              <Button
                 onClick={handleSaveAndActivate}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                icon={<Sparkles size={14} />}
+                className="w-full"
               >
-                <Sparkles size={14} />
                 {savedSuccess ? 'Salvo com Sucesso!' : 'Salvar & Ativar na Live'}
-              </button>
+              </Button>
 
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  className="flex-1 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] text-xs font-bold rounded-xl transition-colors cursor-pointer"
-                >
+                <Button variant="ghost" size="sm" onClick={handleSave} className="flex-1">
                   Salvar Sem Ativar
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 bg-transparent hover:bg-[var(--panel)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] text-xs font-bold rounded-xl transition-colors cursor-pointer"
-                >
+                </Button>
+                <Button variant="ghost" size="sm" onClick={onClose}>
                   Cancelar
-                </button>
+                </Button>
               </div>
             </div>
           </div>

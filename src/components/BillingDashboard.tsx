@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from './ui/Toast';
+import { Button } from './ui/Button';
+import { useConfirm } from './ui/ConfirmDialog';
 import { copyText } from './ui/clipboard';
 import { Modal } from './ui/Modal';
 
@@ -46,6 +48,7 @@ interface Invoice {
 
 export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initialTab = 'billing' }: BillingDashboardProps) {
   const toast = useToast();
+  const confirm = useConfirm();
   const [activeSubTab, setActiveSubTab] = useState<'profile' | 'plans' | 'billing-history' | 'metrics'>(
     initialTab === 'profile' ? 'profile' : 'plans'
   );
@@ -550,16 +553,31 @@ Suporte Técnico: suporte@pwstreamer.com
               </p>
               <p className="text-xs text-[var(--ink-dim)]">Seu plano é cobrado de forma automática e transparente. Cancele ou alterne a qualquer momento.</p>
             </div>
+            {/* Isto rebaixava o plano NA HORA, num clique, sem confirmar — a
+                ação mais destrutiva desta tela era a mais fácil de disparar
+                por engano. Agora passa pelo ConfirmDialog, que existe
+                exatamente para isto.
+                Fica `ghost` e não `danger`: cancelar não deve ser o botão mais
+                gritante da página. O peso vem da confirmação. */}
             {user?.plan !== 'Free Trial' && (
-              <button 
-                onClick={() => {
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: 'Cancelar assinatura?',
+                    description: `O plano ${user?.plan} volta para o Gratuito e os recursos pagos deixam de funcionar.`,
+                    confirmLabel: 'Cancelar assinatura',
+                    cancelLabel: 'Manter plano',
+                    destructive: true,
+                  });
+                  if (!ok) return;
                   onUpdateUser({ ...user, plan: 'Free Trial', trialDays: 30 });
                   toast.success('Sua assinatura foi alterada de volta para o Plano Gratuito.');
                 }}
-                className="px-4 py-2 border border-red-500/20 hover:border-red-500/40 text-red-400 hover:bg-red-500/5 text-xs font-bold rounded-xl transition-all"
               >
                 Cancelar Assinatura
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -1025,22 +1043,17 @@ Suporte Técnico: suporte@pwstreamer.com
                 >
                   Voltar
                 </button>
-                <button
+                {/* Era `bg-emerald-600`. O sistema tem dois matizes — marca e
+                    sinal — e verde não é um deles. Confirmar pagamento é a
+                    ação primária da tela, então ela usa a marca. O `disabled`
+                    composto continua: PayPal exige autorização antes. */}
+                <Button
                   type="submit"
-                  disabled={isProcessingPayment || (selectedGateway === 'paypal' && !isPaypalAuthorized)}
-                  className="py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-xs font-bold text-white rounded-xl transition-all text-center flex items-center justify-center gap-2"
+                  loading={isProcessingPayment}
+                  disabled={selectedGateway === 'paypal' && !isPaypalAuthorized}
                 >
-                  {isProcessingPayment ? (
-                    <>
-                      <RefreshCw size={14} className="animate-spin" />
-                      Processando...
-                    </>
-                  ) : (
-                    <>
-                      Confirmar Assinatura <Check size={14} />
-                    </>
-                  )}
-                </button>
+                  {isProcessingPayment ? 'Processando...' : <>Confirmar Assinatura <Check size={14} /></>}
+                </Button>
               </div>
             </form>
           )}
@@ -1190,22 +1203,11 @@ Suporte Técnico: suporte@pwstreamer.com
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={isSavingProfile}
-              className="px-6 py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-1.5"
-            >
-              {isSavingProfile ? (
-                <>
-                  <RefreshCw size={14} className="animate-spin" />
-                  Salvando dados...
-                </>
-              ) : (
-                <>
-                  Salvar Alterações <Check size={14} />
-                </>
-              )}
-            </button>
+            {/* O spinner manual saiu: `loading` já desenha o dele e ainda
+                marca `aria-busy`, que faltava aqui. */}
+            <Button type="submit" loading={isSavingProfile}>
+              {isSavingProfile ? 'Salvando dados...' : <>Salvar Alterações <Check size={14} /></>}
+            </Button>
           </form>
         </div>
       )}
