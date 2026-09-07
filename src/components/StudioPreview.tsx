@@ -2789,6 +2789,9 @@ export function StudioPreview({
     <div className="flex-1 flex flex-col h-full w-full justify-between gap-1.5 md:gap-2 overflow-hidden min-h-0">
       {/* 1. Main Live Screen Player */}
       <div ref={containerRef} className="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden">
+        {/* Tally. A moldura e as marcas de canto vivem FORA do palco:
+            ele tem `overflow-hidden` e recortaria as marcas. */}
+        <div className={`pw-frame ${isStudioPreviewMode ? 'pw-frame--pvw' : 'pw-frame--pgm'}`}>
         <div 
           ref={stageRef}
           style={dimensions.width > 0 ? { width: `${dimensions.width}px`, height: `${dimensions.height}px` } : {}}
@@ -4145,6 +4148,7 @@ export function StudioPreview({
           </svg>
         )}
       </div>
+        </div>
     </div>
 
       {/* Rounded Layout Selector Bar (Matches the User's Screenshot Exactly!) */}

@@ -1945,6 +1945,9 @@ export default function App() {
          fora do escopo e recebiam os tokens de texto do tema claro sobre
          fundo escuro: 2,24–3,55:1. */
       data-surface={currentView === 'studio' ? 'console' : undefined}
+      // O tally lê daqui. Ancestral de tudo, para que qualquer moldura de
+      // programa no console saiba que está no ar sem receber a prop na mão.
+      data-air={isLive ? 'on' : undefined}
       className={`bg-[var(--bg)] font-sans text-[var(--ink-hi)] flex flex-col selection:bg-blue-500 selection:text-white ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
       
       {/* Dynamic Header */}

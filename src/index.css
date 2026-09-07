@@ -319,7 +319,13 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
    mesma espessura. A marca é neutra, logo idêntica sob protanopia,
    deuteranopia e escala de cinza.
    ══════════════════════════════════════════════════════════════════════════ */
-.pw-frame { position: relative; padding: 2px; background: var(--color-n-14); border-radius: 0; }
+/* O raio nasceu 0 no comp — monitor de broadcast é quadrado. Mas o palco que
+   ela envolve é `rounded-2xl`, e moldura quadrada em volta de caixa
+   arredondada deixa a cor vazando nas quatro quinas. A moldura acompanha o
+   filho, +2px do próprio padding. O sinal de no-ar não mora no raio: mora nas
+   marcas de canto, que continuam retas. */
+.pw-frame { position: relative; padding: 2px; background: var(--color-n-14);
+  border-radius: calc(var(--pw-frame-radius, var(--radius-2xl)) + 2px); }
 .pw-frame--pvw { background: var(--color-n-89); }   /* Y 74,54 % — 3,802:1 contra o tally */
 .pw-frame--pgm { background: var(--color-n-14); }
 [data-air="on"] .pw-frame--pgm { background: var(--color-sig); }
