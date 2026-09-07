@@ -217,7 +217,7 @@ export default function App() {
     {
       id: 'webinar-2',
       title: 'Webinar de Boas-vindas para Novos Membros da Equipe',
-      desc: 'Sessão interna para novos colaboradores da VineaSX Solutions.',
+      desc: 'Sessão interna de integração para novos colaboradores.',
       time: 'Quarta-feira, às 14:00',
       channels: ['YouTube (Canal Privado)'],
       type: 'live',
@@ -2849,7 +2849,13 @@ export default function App() {
           {/* Welcome back user */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--ink-hi)]">Olá, Marcos Gonçalves</h1>
+              {/* Era "Olá, Marcos Gonçalves" fixo no código: TODO cliente que
+                  abria o painel era cumprimentado pelo nome de outra pessoa.
+                  Só o primeiro nome — o nome completo numa saudação soa a
+                  formulário, não a boas-vindas. */}
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--ink-hi)]">
+                {user?.name ? `Olá, ${user.name.split(' ')[0]}` : 'Olá'}
+              </h1>
               <p className="text-sm text-[var(--ink-lo)] mt-1">Gerencie, agende e configure seus webinares e transmissões ao vivo.</p>
             </div>
             
@@ -2871,11 +2877,18 @@ export default function App() {
 
           {/* Metrics summary widget card */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Eram quatro números inventados — 14 webinars, 4.829
+                espectadores, 1.240m, 87% — apresentados como medição real na
+                conta de todo cliente.
+                Só o primeiro tem fonte de verdade hoje: a lista de webinars.
+                Os outros três dependem de telemetria do servidor de ingestão,
+                que ainda não existe, então seguem a regra do próprio sistema:
+                valor ausente é travessão, nunca um número plausível. */}
             {[
-              { label: 'Webinares Realizados', value: '14', change: '+2 este mês', icon: Radio },
-              { label: 'Espectadores Únicos', value: '4.829', change: '+15% semana passada', icon: Users },
-              { label: 'Minutos Transmitidos', value: '1.240m', change: 'Média 90m por live', icon: Tv },
-              { label: 'Engajamento Médio', value: '87%', change: 'Altamente positivo', icon: BarChart3 }
+              { label: 'Webinares agendados', value: String(webinars.length), change: webinars.length === 0 ? 'Nenhum ainda' : 'Na sua conta', icon: Radio },
+              { label: 'Espectadores únicos', value: '—', change: 'Aguardando telemetria', icon: Users },
+              { label: 'Minutos transmitidos', value: '—', change: 'Aguardando telemetria', icon: Tv },
+              { label: 'Engajamento médio', value: '—', change: 'Aguardando telemetria', icon: BarChart3 }
             ].map((metric, i) => (
               <div key={i} className="bg-[var(--surface)] border border-[var(--line)] p-5 rounded-2xl flex items-center justify-between">
                 <div>

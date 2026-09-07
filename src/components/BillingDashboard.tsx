@@ -2,6 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from './ui/Toast';
 import { copyText } from './ui/clipboard';
 import { Modal } from './ui/Modal';
+
+/** O Vite remove o ramo inteiro no build de produção. */
+const IS_DEV: boolean = Boolean((import.meta as any)?.env?.DEV);
+
+/** Dados corporativos do próprio usuário, persistidos localmente. */
+const BILLING_KEY = 'pwstream_billing_profile';
+function loadBillingProfile() {
+  try {
+    const raw = localStorage.getItem(BILLING_KEY);
+    return raw ? JSON.parse(raw) as { companyName?: string; taxId?: string; billingAddress?: string } : {};
+  } catch { return {}; }
+}
 import { 
   User, CreditCard, Shield, Check, Download, FileText, 
   CheckCircle2, AlertTriangle, ArrowLeft, ArrowRight, Lock, 
@@ -74,9 +86,13 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
   // Profile Form States
   const [profileName, setProfileName] = useState(user?.name || '');
   const [profileEmail, setProfileEmail] = useState(user?.email || '');
-  const [companyName, setCompanyName] = useState('VineaSX Solutions Ltda');
-  const [taxId, setTaxId] = useState('12.345.678/0001-99'); // CNPJ or CPF
-  const [billingAddress, setBillingAddress] = useState('Av. Paulista, 1000 - Bela Vista, São Paulo - SP, 01310-100');
+  // Estes três eram identidade fiscal de OUTRA empresa, fixa no código e
+  // exibida na conta de todo cliente. Agora vêm do que o próprio usuário
+  // salvou, e começam vazios.
+  const savedBilling = loadBillingProfile();
+  const [companyName, setCompanyName] = useState(savedBilling.companyName ?? '');
+  const [taxId, setTaxId] = useState(savedBilling.taxId ?? '');
+  const [billingAddress, setBillingAddress] = useState(savedBilling.billingAddress ?? '');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileMessage, setProfileMessage] = useState('');
 
@@ -87,22 +103,22 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
   const [selectedGateway, setSelectedGateway] = useState<'stripe' | 'paypal' | 'mercadopago'>('stripe');
 
   // Stripe Card State
-  const [stripeCardName, setStripeCardName] = useState(user?.name.toUpperCase() || 'MARCOS GONÇALVES');
-  const [stripeCardNumber, setStripeCardNumber] = useState('4242 4242 4242 4242');
-  const [stripeExpiry, setStripeExpiry] = useState('12/29');
-  const [stripeCvc, setStripeCvc] = useState('424');
+  const [stripeCardName, setStripeCardName] = useState(user?.name?.toUpperCase() || '');
+  const [stripeCardNumber, setStripeCardNumber] = useState(IS_DEV ? '4242 4242 4242 4242' : '');
+  const [stripeExpiry, setStripeExpiry] = useState(IS_DEV ? '12/29' : '');
+  const [stripeCvc, setStripeCvc] = useState(IS_DEV ? '424' : '');
 
   // PayPal State
-  const [paypalEmail, setPaypalEmail] = useState('marcos-test@pwstreamer.com');
-  const [paypalPassword, setPaypalPassword] = useState('••••••••••');
+  const [paypalEmail, setPaypalEmail] = useState(IS_DEV ? 'marcos-test@pwstreamer.com' : '');
+  const [paypalPassword, setPaypalPassword] = useState('');
   const [isPaypalAuthorized, setIsPaypalAuthorized] = useState(false);
 
   // Mercado Pago State
   const [mpMethod, setMpMethod] = useState<'pix' | 'card'>('pix');
-  const [mpCardName, setMpCardName] = useState(user?.name.toUpperCase() || 'MARCOS GONÇALVES');
-  const [mpCardNumber, setMpCardNumber] = useState('5031 4000 1234 5678');
-  const [mpExpiry, setMpExpiry] = useState('08/28');
-  const [mpCvc, setMpCvc] = useState('123');
+  const [mpCardName, setMpCardName] = useState(user?.name?.toUpperCase() || '');
+  const [mpCardNumber, setMpCardNumber] = useState(IS_DEV ? '5031 4000 1234 5678' : '');
+  const [mpExpiry, setMpExpiry] = useState(IS_DEV ? '08/28' : '');
+  const [mpCvc, setMpCvc] = useState(IS_DEV ? '123' : '');
   const [pixCopied, setPixCopied] = useState(false);
 
   // Checkout Status
@@ -252,6 +268,11 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
         name: profileName,
         email: profileEmail
       });
+      // A mensagem dizia 'dados corporativos atualizados' e estes três campos
+      // eram DESCARTADOS: o usuário preenchia, via sucesso e perdia tudo.
+      try {
+        localStorage.setItem(BILLING_KEY, JSON.stringify({ companyName, taxId, billingAddress }));
+      } catch { /* armazenamento indisponível: a mensagem abaixo ainda cobre nome e e-mail */ }
       setProfileMessage('Perfil e dados corporativos atualizados com sucesso!');
     }, 1200);
   };

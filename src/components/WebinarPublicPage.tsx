@@ -296,7 +296,7 @@ export function WebinarPublicPage({
                     <label className="text-xs text-[var(--ink-lo)] font-semibold">Empresa / Cargo</label>
                     <input
                       type="text"
-                      placeholder="Ex: VineaSX Solutions / Diretor"
+                      placeholder="Ex: sua empresa / seu cargo"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
