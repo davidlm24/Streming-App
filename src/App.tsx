@@ -3117,7 +3117,7 @@ export default function App() {
             </div>
 
             <div className="text-center text-[var(--ink-dim)]">
-              <p>© 2026, All Rights Reserved to <span className="text-[var(--ink-hi)]">PwStreamer Online.</span> Developed and Maintained by <span className="text-blue-400">PwStreamer</span></p>
+              <p>© 2026, All Rights Reserved to <span className="text-[var(--ink-hi)]">PW Stream Online.</span> Developed and Maintained by <span className="text-blue-400">PwStreamer</span></p>
             </div>
 
             <div className="shrink-0">

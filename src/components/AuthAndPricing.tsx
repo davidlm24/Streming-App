@@ -1176,7 +1176,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
       {/* Auth Footer */}
       <footer className="relative z-10 py-6 border-t border-[var(--line)]/60 bg-[var(--bg)]/80 text-xs text-[var(--ink-dim)] text-center space-y-2">
-        <p>© 2026 PwStreamer Online Studio. Todos os direitos reservados.</p>
+        <p>© 2026 PW Stream Online. Todos os direitos reservados.</p>
         <div className="flex justify-center gap-4 text-[var(--ink-lo)]">
           <button 
             type="button"
