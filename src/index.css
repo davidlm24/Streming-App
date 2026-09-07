@@ -111,6 +111,18 @@
 
   --stage: var(--color-n-0);
 
+  /* -- graficos. A paleta de series E A RAMPA: separacao por VALOR, nao por
+        matiz. O carmim e reservado ao ar e nao entra em grafico; a auditoria
+        achou o ramp 500 do Tailwind sendo usado como paleta. Valor sobrevive
+        a protanopia, a deuteranopia e a escala de cinza. Matiz nao. -------- */
+  --chart-grid:  var(--color-n-14);
+  --chart-axis:  var(--color-n-46);
+  --chart-1:     var(--color-n-96);
+  --chart-2:     var(--color-n-80);
+  --chart-3:     var(--color-n-58);
+  --chart-4:     var(--color-n-36);
+  --chart-5:     var(--color-n-22);
+
   color-scheme: dark;
 }
 
@@ -159,6 +171,18 @@
   --color-yellow-300:  #854D0E;  --color-yellow-400:  #854D0E;
   /* stylelint-enable color-no-hex */
 
+  /* -- graficos. A paleta de series E A RAMPA: separacao por VALOR, nao por
+        matiz. O carmim e reservado ao ar e nao entra em grafico; a auditoria
+        achou o ramp 500 do Tailwind sendo usado como paleta. Valor sobrevive
+        a protanopia, a deuteranopia e a escala de cinza. Matiz nao. -------- */
+  --chart-grid:  var(--color-n-89);
+  --chart-axis:  var(--color-n-58);
+  --chart-1:     var(--color-n-6);
+  --chart-2:     var(--color-n-28);
+  --chart-3:     var(--color-n-46);
+  --chart-4:     var(--color-n-70);
+  --chart-5:     var(--color-n-80);
+
   color-scheme: light;
 }
 
@@ -203,6 +227,18 @@
   --color-sky-300:     #7DD3FC;  --color-sky-400:     #38BDF8;
   --color-yellow-300:  #FDE047;  --color-yellow-400:  #FACC15;
   /* stylelint-enable color-no-hex */
+
+  /* -- graficos. A paleta de series E A RAMPA: separacao por VALOR, nao por
+        matiz. O carmim e reservado ao ar e nao entra em grafico; a auditoria
+        achou o ramp 500 do Tailwind sendo usado como paleta. Valor sobrevive
+        a protanopia, a deuteranopia e a escala de cinza. Matiz nao. -------- */
+  --chart-grid:  var(--color-n-10);
+  --chart-axis:  var(--color-n-46);
+  --chart-1:     var(--color-n-96);
+  --chart-2:     var(--color-n-80);
+  --chart-3:     var(--color-n-58);
+  --chart-4:     var(--color-n-36);
+  --chart-5:     var(--color-n-22);
 
   color-scheme: dark;
 }

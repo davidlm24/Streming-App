@@ -762,15 +762,15 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
                   <AreaChart data={bandwidthData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorEgressSuper" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor="#F59E0B" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.2}/>
+                        <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1E222B" />
-                    <XAxis dataKey="hour" stroke="#4B5563" />
-                    <YAxis stroke="#4B5563" unit=" Mbps" />
-                    <Tooltip contentStyle={{ backgroundColor: '#11141a', borderColor: '#1E2937' }} />
-                    <Area type="monotone" dataKey="egress" name="Saída Mídia (Mbps)" stroke="#F59E0B" fillOpacity={1} fill="url(#colorEgressSuper)" strokeWidth={2.5} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                    <XAxis dataKey="hour" stroke="var(--chart-axis)" />
+                    <YAxis stroke="var(--chart-axis)" unit=" Mbps" />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--panel)', borderColor: 'var(--line)' }} />
+                    <Area type="monotone" dataKey="egress" name="Saída Mídia (Mbps)" stroke="var(--chart-1)" fillOpacity={1} fill="url(#colorEgressSuper)" strokeWidth={2.5} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>

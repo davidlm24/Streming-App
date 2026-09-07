@@ -168,21 +168,21 @@ export function StudioPerformanceMonitor() {
             <AreaChart data={data} margin={{ top: 10, right: 15, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorCpu" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="colorMemory" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E222B" />
-              <XAxis dataKey="time" stroke="#6B7280" tick={{ fontSize: 11 }} />
-              <YAxis stroke="#6B7280" unit="%" domain={[0, 100]} tick={{ fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+              <XAxis dataKey="time" stroke="var(--chart-axis)" tick={{ fontSize: 11 }} />
+              <YAxis stroke="var(--chart-axis)" unit="%" domain={[0, 100]} tick={{ fontSize: 11 }} />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#16191E', 
-                  borderColor: '#374151', 
+                  backgroundColor: 'var(--panel)', 
+                  borderColor: 'var(--line)', 
                   borderRadius: '10px',
                   color: '#fff',
                   fontSize: '12px'
@@ -193,7 +193,7 @@ export function StudioPerformanceMonitor() {
                 type="monotone" 
                 dataKey="cpu" 
                 name="Uso de CPU (%)" 
-                stroke="#3B82F6" 
+                stroke="var(--chart-1)" 
                 fillOpacity={1} 
                 fill="url(#colorCpu)" 
                 strokeWidth={2.5} 
@@ -202,7 +202,7 @@ export function StudioPerformanceMonitor() {
                 type="monotone" 
                 dataKey="memory" 
                 name="Memória RAM (%)" 
-                stroke="#10B981" 
+                stroke="var(--chart-2)" 
                 fillOpacity={1} 
                 fill="url(#colorMemory)" 
                 strokeWidth={2.5} 

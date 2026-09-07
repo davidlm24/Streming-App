@@ -32,7 +32,10 @@ interface SuperAdminAnalyticsProps {
   allWebinarsCount?: number;
 }
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+// A paleta de series E A RAMPA: separacao por valor, nao por matiz — o
+// carmim e reservado ao ar. Cinco categorias nao cabem so em valor (nenhum
+// par adjacente chega a 3:1), entao as fatias levam um traco separador.
+const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)'];
 
 export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdminAnalyticsProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -271,13 +274,13 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartStorageByClient} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" stroke="#64748B" fontSize={11} tickLine={false} />
-                <YAxis stroke="#64748B" fontSize={11} tickLine={false} />
+                <XAxis dataKey="name" stroke="var(--chart-axis)" fontSize={11} tickLine={false} />
+                <YAxis stroke="var(--chart-axis)" fontSize={11} tickLine={false} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0F1115', borderColor: '#334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }}
+                  contentStyle={{ backgroundColor: 'var(--panel)', borderColor: 'var(--line)', borderRadius: '12px', fontSize: '11px', color: '#fff' }}
                 />
-                <Bar dataKey="Ocupado" fill="#3B82F6" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="Limite" fill="#1E293B" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="Ocupado" fill="var(--chart-1)" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="Limite" fill="var(--chart-4)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -305,11 +308,11 @@ export function SuperAdminAnalytics({ clientsList, allWebinarsCount }: SuperAdmi
                   dataKey="value"
                 >
                   {chartStorageTypeDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="var(--panel)" strokeWidth={2} />
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0F1115', borderColor: '#334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }}
+                  contentStyle={{ backgroundColor: 'var(--panel)', borderColor: 'var(--line)', borderRadius: '12px', fontSize: '11px', color: '#fff' }}
                 />
               </PieChart>
             </ResponsiveContainer>
