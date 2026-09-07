@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Check, CreditCard, ShieldAlert, Activity, Radio, Disc, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useToast } from './ui/Toast';
+import { Modal } from './ui/Modal';
 
 interface PlansModalProps {
   onClose: () => void;
@@ -90,7 +91,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+    <Modal isOpen onClose={() => onClose()} bare ariaLabel="Escolha de planos">
       <div className="bg-[var(--bg)] rounded-3xl w-full max-w-4xl border border-[var(--line-ctl)]/80 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Header */}
@@ -246,6 +247,6 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
           </div>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

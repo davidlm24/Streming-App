@@ -35,6 +35,7 @@ import { WebhookPlatform, WebhookEventLog, WebhookTriggerConfig } from '../types
 import { useToast } from './ui/Toast';
 import { useConfirm } from './ui/ConfirmDialog';
 import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 
 interface WebhookPanelProps {
   userId?: string;
@@ -1332,7 +1333,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
 
       {/* DEEP INSPECTOR MODAL */}
       {inspectingLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+        <Modal isOpen onClose={() => setInspectingLog(null)} bare ariaLabel="Detalhes do webhook">
           <div className="bg-[var(--bg)] border border-[var(--line)] w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-left">
             
             {/* Modal Header */}
@@ -1525,7 +1526,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             </div>
 
           </div>
-        </div>
+        </Modal>
       )}
 
     </div>

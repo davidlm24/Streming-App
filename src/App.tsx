@@ -32,6 +32,7 @@ import { LegalModal } from './components/LegalModals';
 import { useSceneTransition } from './hooks/useSceneTransition';
 import { useMediaManager } from './context/MediaManagerContext';
 import { copyText } from './components/ui/clipboard';
+import { Modal } from './components/ui/Modal';
 import { 
   loginWithGoogle, 
   logoutFirebase, 
@@ -3040,7 +3041,7 @@ export default function App() {
 
           {/* Dashboard Capas Creator Modal */}
           {isDashboardEditorOpen && (
-            <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+            <Modal isOpen onClose={() => setIsDashboardEditorOpen(false)} bare ariaLabel="Editor do painel">
               <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--bg)]">
@@ -3068,7 +3069,7 @@ export default function App() {
                   />
                 </div>
               </div>
-            </div>
+            </Modal>
           )}
 
           {/* Custom Chrome Screen Share Picker Modal */}
@@ -3115,7 +3116,7 @@ export default function App() {
 
       {/* 4. CREATION WEBINAR / LIVE EVENT MODAL */}
       {isCreateWebinarOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[var(--bg)]/80 backdrop-blur-sm animate-in fade-in duration-200" id="create-webinar-modal">
+        <Modal isOpen onClose={() => setIsCreateWebinarOpen(false)} bare ariaLabel="Criar webinar ou evento ao vivo">
           <div className="relative w-full max-w-xl bg-[var(--bg)] border border-[var(--line)] rounded-2xl shadow-2xl overflow-hidden flex flex-col text-left">
             
             {/* Modal Header */}
@@ -3284,7 +3285,7 @@ export default function App() {
             </form>
 
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Interactive Legal Document Modals */}
@@ -3296,7 +3297,7 @@ export default function App() {
 
       {/* 5. INTERACTIVE INTEGRATIONS, API KEYS & REQUIREMENTS ANALYSIS MODAL */}
       {isIntegrationsModalOpen && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+        <Modal isOpen onClose={() => setIsIntegrationsModalOpen(false)} bare ariaLabel="Integrações e chaves">
           <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-left">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--line)] bg-[var(--bg)]">
@@ -3523,7 +3524,7 @@ export default function App() {
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Stream JSON Statistics Report Modal */}

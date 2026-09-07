@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from './ui/Toast';
 import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 import { 
   User, CreditCard, Shield, Check, Download, FileText, 
   CheckCircle2, AlertTriangle, ArrowLeft, ArrowRight, Lock, 
@@ -1254,7 +1255,7 @@ Suporte Técnico: suporte@pwstreamer.com
 
           {/* Render Invoice details overlay modal */}
           {selectedInvoiceForModal && (
-            <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[99999] flex items-center justify-center p-4">
+            <Modal isOpen onClose={() => setSelectedInvoiceForModal(null)} bare ariaLabel="Detalhes da fatura">
               <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-md rounded-2xl overflow-hidden shadow-2xl text-left">
                 <div className="bg-[var(--bg)] px-6 py-4 border-b border-[var(--line)] flex items-center justify-between">
                   <span className="text-xs font-bold text-blue-400 font-mono">Detalhes da Fatura {selectedInvoiceForModal.id}</span>
@@ -1335,7 +1336,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   </div>
                 </div>
               </div>
-            </div>
+            </Modal>
           )}
 
         </div>

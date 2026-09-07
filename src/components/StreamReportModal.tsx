@@ -1,5 +1,6 @@
 import React from 'react';
 import { Download, FileJson, CheckCircle2, X, Users, MessageSquare, Clock, ShieldCheck, Video, Radio } from 'lucide-react';
+import { Modal } from './ui/Modal';
 
 export interface StreamReportData {
   app: string;
@@ -55,7 +56,7 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
   if (!isOpen || !reportData) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[var(--bg)]/80 backdrop-blur-md animate-in fade-in duration-200">
+    <Modal isOpen onClose={() => onClose()} bare ariaLabel="Relatório da transmissão">
       <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl max-w-2xl w-full p-6 text-left shadow-2xl space-y-6 relative overflow-hidden">
         
         {/* Glow Header Accent */}
@@ -174,6 +175,6 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
         </div>
 
       </div>
-    </div>
+    </Modal>
   );
 }

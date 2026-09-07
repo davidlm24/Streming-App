@@ -195,6 +195,7 @@ const DEFAULT_PRESETS: BrandPreset[] = [
 import { useMediaManager } from '../context/MediaManagerContext';
 import { useToast } from './ui/Toast';
 import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 
 interface LeftSidebarProps {
   activeTab: StudioTab;
@@ -5346,7 +5347,7 @@ export function LeftSidebar({
 
       {/* Thumbnail Editor Modal */}
       {isThumbnailModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+        <Modal isOpen onClose={() => setIsThumbnailModalOpen(false)} bare ariaLabel="Miniatura da transmissão">
           <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--bg)]">
@@ -5374,12 +5375,12 @@ export function LeftSidebar({
               />
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Modal for Creating or Editing Banner */}
       {isAddBannerModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <Modal isOpen onClose={() => setIsAddBannerModalOpen(false)} bare ariaLabel="Adicionar banner">
           <div className="bg-[var(--bg)] border border-[var(--line-ctl)] w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4 text-left animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-2 border-b border-[var(--line)]">
               <h3 className="text-sm font-bold text-[var(--ink-hi)] flex items-center gap-2">
@@ -5479,7 +5480,7 @@ export function LeftSidebar({
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

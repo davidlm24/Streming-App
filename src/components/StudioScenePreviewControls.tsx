@@ -169,9 +169,13 @@ export function StudioScenePreviewControls({
             {/* Dropdown Menu */}
             {isTransitionsMenuOpen && (
               <>
-                <div 
-                  className="fixed inset-0 z-40" 
-                  onClick={() => setIsTransitionsMenuOpen(false)} 
+                {/* Captador de clique-fora de um menu suspenso — não é um
+                    diálogo, então NÃO virou Modal: não deve prender foco nem
+                    travar a rolagem. Só passou a usar o degrau nomeado. */}
+                <div
+                  className="fixed inset-0"
+                  style={{ zIndex: 'var(--z-dropdown)' }}
+                  onClick={() => setIsTransitionsMenuOpen(false)}
                 />
                 <div className="absolute right-0 top-full mt-1 w-56 bg-[var(--surface)] border border-[var(--line-ctl)] rounded-xl p-2 z-50 shadow-2xl space-y-2">
                   <div className="text-[10px] font-black uppercase tracking-wider text-[var(--ink-lo)] px-1 border-b border-[var(--line)] pb-1">
