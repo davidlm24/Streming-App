@@ -54,6 +54,19 @@ const METRICS = {
   // Cor crua num utilitário Tailwind — deve ser token.
   'hex-arbitrario-em-classe': count(src, /\[#[0-9A-Fa-f]{6}\]/g),
 
+  // Cor crua em atributo JSX — o ponto cego da métrica acima.
+  // A tokenização dos gráficos trocou 21 cores fixas e a catraca não se
+  // mexeu: `stroke="#3B82F6"` não é `className`, então nada contava. Eram
+  // justamente as cores de gráfico, que a auditoria achou usando o ramp 500
+  // do Tailwind como paleta.
+  // O piso não é zero de propósito: marcas de terceiros (o "G" do Google, o
+  // vermelho do YouTube) têm de ser o hexadecimal exato. A catraca impede
+  // que o número CRESÇA; não exige que chegue a zero.
+  'hex-em-atributo-jsx': count(
+    src,
+    /(?:stroke|fill|stopColor|color|backgroundColor|borderColor)\s*[=:]\s*\{?["']#[0-9A-Fa-f]{6}["']/g
+  ),
+
   // Paleta de estoque em papel estrutural — deve ser token semântico.
   'paleta-slate-gray-estrutural': count(
     src,
