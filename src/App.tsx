@@ -773,7 +773,7 @@ export default function App() {
 
   // Studio Preview Mode & Program Live state
   const [isStudioPreviewMode, setIsStudioPreviewMode] = useState<boolean>(false);
-  const [previewViewMode, setPreviewViewMode] = useState<'split' | 'preview-only' | 'program-only'>('preview-only');
+  const [previewViewMode, setPreviewViewMode] = useState<'split' | 'preview-only' | 'program-only'>('split');
   
   const [programSceneState, setProgramSceneState] = useState<StudioSceneState>(() => ({
     sceneId: 'scene-1',
@@ -2062,7 +2062,10 @@ export default function App() {
                   edição, e `programSceneState` — que já existia, com take,
                   revert e swap prontos — nunca era renderizado. Dava para
                   editar no escuro sem saber o que estava indo ao ar. */}
-              <div className="shrink-0 px-1 pt-1">
+              {/* `previewViewMode` era declarado no StudioPreview e nunca lido:
+                  os botões "Lado a Lado / Prévia / Ao Vivo" existiam e não
+                  faziam nada. Agora governam este monitor. */}
+              <div className={`shrink-0 px-1 pt-1 ${previewViewMode === 'preview-only' ? 'hidden' : ''}`}>
                 <StudioPreview
                   monitorOnly
                   monitorRole="pgm"
@@ -2087,6 +2090,32 @@ export default function App() {
                   liveTime={liveTime}
                 />
               </div>
+
+              {/* ── CONTROLES DE CORTE ────────────────────────────────────────
+                  TAKE, SWAP e reverter. Este painel ja existia INTEIRO, com
+                  os tres botoes ligados — e era importado sem nunca ser
+                  renderizado. Os handlers iam para o StudioPreview, que so
+                  desenha o "PUSH TO LIVE". `onRevertToLive` e
+                  `onSwapPreviewAndLive` eram declarados, recebidos e
+                  descartados — o mesmo que acontecia com `onExit`.
+                  Ficam entre PGM e PVW, que e o lugar deles numa mesa. */}
+              <div className="shrink-0 px-1">
+                <StudioScenePreviewControls
+                  isStudioPreviewMode={isStudioPreviewMode}
+                  onToggleStudioPreviewMode={() => setIsStudioPreviewMode(prev => !prev)}
+                  previewViewMode={previewViewMode}
+                  onPreviewViewModeChange={setPreviewViewMode}
+                  hasPendingChanges={hasPendingChanges}
+                  pendingChanges={pendingChanges}
+                  onPushToLive={handlePushToLive}
+                  onRevertToLive={handleRevertToLive}
+                  onSwapPreviewAndLive={handleSwapPreviewAndLive}
+                  isTransitioning={isTransitioning}
+                  transitionType={transitionType}
+                  isLive={isLive}
+                />
+              </div>
+
               <ScenesPanel
                 participants={participants}
                 onToggleParticipantActive={handleToggleParticipantActive}
