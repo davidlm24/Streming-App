@@ -12,10 +12,13 @@ dotenv.config();
 
 async function startServer() {
   const app = express();
-  // 3210, não 3000: todo projeto saído deste template cai no 3000 por padrão,
-  // então dois deles abertos ao mesmo tempo disputam a mesma porta e um serve
-  // o app do outro. Uma porta própria remove a disputa.
-  const PORT = Number(process.env.PORT) || 3210;
+  // 3211, e o padrão do código precisa concordar com o launch.json.
+  // Este arquivo nasceu com 3210, mas a raiz do Streming-App passou a usar
+  // 3210 e este worktree saiu para 3211. Enquanto o padrão daqui continuasse
+  // 3210, um `npm run dev` na mão — fora do painel, sem a variável — pousaria
+  // na porta da raiz e serviria um app no lugar do outro. Que é precisamente
+  // o bug que a separação de portas existe para evitar.
+  const PORT = Number(process.env.PORT) || 3211;
 
   app.use(express.json());
 
