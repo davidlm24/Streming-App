@@ -12,7 +12,10 @@ dotenv.config();
 
 async function startServer() {
   const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
+  // 3210, não 3000: todo projeto saído deste template cai no 3000 por padrão,
+  // então dois deles abertos ao mesmo tempo disputam a mesma porta e um serve
+  // o app do outro. Uma porta própria remove a disputa.
+  const PORT = Number(process.env.PORT) || 3210;
 
   app.use(express.json());
 

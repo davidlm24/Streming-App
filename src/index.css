@@ -53,6 +53,17 @@
   --color-brand:      #4683E0;
   --color-brand-deep: #2C5FB0;
   --color-brand-lift: #7FAAEC;
+
+  /* ── o gradiente da marca.
+        A marca e o logotipo tinham dois violetas diferentes no meio do mesmo
+        gradiente (#7E57C2 no símbolo, #8B5CF6 na palavra) — lado a lado.
+        As duas pontas já eram isoluminantes: Y 22,91 % ambas. Os dois meios
+        furavam isso (Y 15,15 % e 19,79 %), abrindo uma faixa escura no centro.
+        #9669F2 fecha em Y 23,00 % — o gradiente vira rotação pura de matiz,
+        sem degrau de valor. Um violeta só, nos dois lugares. */
+  --brand-grad-from: #4683E0;  /* Y 22,91 % */
+  --brand-grad-mid:  #9669F2;  /* Y 23,00 % */
+  --brand-grad-to:   #EC407A;  /* Y 22,91 % */
   /* stylelint-enable color-no-hex */
 
   /* ── camadas de empilhamento.

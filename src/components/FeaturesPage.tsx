@@ -253,7 +253,7 @@ export function FeaturesPage({ onBack, onGetStarted, onSeePricing }: FeaturesPag
 
       <footer className="border-t border-[var(--line)] px-6 py-6">
         <div className="max-w-[1200px] mx-auto flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[var(--ink-dim)]">
-          <span>PwStream</span>
+          <span>PwStreamer</span>
           <button onClick={onSeePricing} className="hover:text-[var(--ink-hi)] transition-colors">Planos</button>
           <button onClick={onBack} className="hover:text-[var(--ink-hi)] transition-colors">Início</button>
         </div>

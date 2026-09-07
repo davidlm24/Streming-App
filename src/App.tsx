@@ -3039,7 +3039,7 @@ export default function App() {
               <div className="border-t border-[var(--line)] pt-4 mt-6 text-xs text-[var(--ink-lo)] text-left space-y-1.5">
                 <p>Precisa de ajuda imediata?</p>
                 <p className="text-blue-400 hover:underline cursor-pointer font-semibold flex items-center gap-1">
-                  PWstreamer <ArrowRight size={12} />
+                  PwStreamer <ArrowRight size={12} />
                 </p>
               </div>
             </div>
@@ -3113,11 +3113,11 @@ export default function App() {
               >
                 PRIVACIDADE
               </button>
-              <a href="https://pwstreamer.com/support" target="_blank" rel="noreferrer" className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold">PWstreamer</a>
+              <a href="https://pwstreamer.com/support" target="_blank" rel="noreferrer" className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold">PwStreamer</a>
             </div>
 
             <div className="text-center text-[var(--ink-dim)]">
-              <p>© 2026, All Rights Reserved to <span className="text-[var(--ink-hi)]">PwStreamer Online.</span> Developed and Maintained by <span className="text-blue-400">PWstreamer</span></p>
+              <p>© 2026, All Rights Reserved to <span className="text-[var(--ink-hi)]">PwStreamer Online.</span> Developed and Maintained by <span className="text-blue-400">PwStreamer</span></p>
             </div>
 
             <div className="shrink-0">
@@ -3527,7 +3527,7 @@ export default function App() {
 
             {/* Footer */}
             <div className="px-6 py-4 border-t border-[var(--line)] bg-[var(--bg)] flex items-center justify-between">
-              <span className="text-[10px] text-[var(--ink-dim)]">Desenvolvido por PWstreamer Solutions - PwStreamer Cloud Integration Manual</span>
+              <span className="text-[10px] text-[var(--ink-dim)]">Desenvolvido por PwStreamer Solutions - PwStreamer Cloud Integration Manual</span>
               <button
                 type="button"
                 onClick={() => setIsIntegrationsModalOpen(false)}

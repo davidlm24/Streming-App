@@ -45,7 +45,7 @@ export function downloadStreamReportJSON(report: StreamReportData) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `PwStream_Relatorio_Live_${new Date().toISOString().slice(0, 10)}_${Date.now().toString(36)}.json`;
+  a.download = `PwStreamer_Relatorio_Live_${new Date().toISOString().slice(0, 10)}_${Date.now().toString(36)}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
