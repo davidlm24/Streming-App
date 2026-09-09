@@ -1,3 +1,4 @@
+import { Button } from './ui/Button';
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
@@ -570,23 +571,20 @@ export function CustomDestinationModal({
                     <Trash2 size={11} />
                   </button>
                 )}
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={handleBulkLatencyTest}
-                  disabled={isBulkTesting || customDestinations.length === 0}
-                  className="px-2 py-1 bg-[var(--panel)] hover:bg-[var(--raise)] text-blue-300 hover:text-[var(--ink-hi)] rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer disabled:opacity-40"
+                  loading={isBulkTesting}
+                  disabled={customDestinations.length === 0}
+                  icon={<Activity size={11} />}
                   title="Testar latência de todos os destinos"
                 >
-                  <Activity size={11} className={isBulkTesting ? "animate-spin text-blue-400" : ""} />
                   Testar Pings
-                </button>
-                <button
-                  type="button"
-                  onClick={() => startNewDestination('nginx')}
-                  className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wide transition-all flex items-center gap-1 shadow-sm cursor-pointer"
-                >
-                  <Plus size={13} /> Novo
-                </button>
+                </Button>
+                <Button size="sm" onClick={() => startNewDestination('nginx')} icon={<Plus size={13} />}>
+                  Novo
+                </Button>
               </div>
             </div>
 
@@ -619,13 +617,9 @@ export function CustomDestinationModal({
                   <Server size={28} className="mx-auto text-[var(--ink-dim)]" />
                   <p className="text-xs font-semibold text-[var(--ink)]">Nenhum destino RTMP adicional cadastrado</p>
                   <p className="text-[10px] text-[var(--ink-dim)]">Clique no botão "Novo Destino" ou escolha um modelo acima para conectar seu NGINX RTMP ou outros servidores.</p>
-                  <button
-                    type="button"
-                    onClick={() => startNewDestination('nginx')}
-                    className="mt-2 px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg cursor-pointer"
-                  >
+                  <Button size="sm" className="mt-2" onClick={() => startNewDestination('nginx')}>
                     + Criar Destino NGINX RTMP
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 customDestinations.map(dest => {
@@ -813,19 +807,19 @@ export function CustomDestinationModal({
                       placeholder="rtmp://seu-servidor-nginx:1935/live"
                       className="flex-1 bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3.5 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 font-mono transition-colors"
                     />
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => {
                         copyText(streamUrl);
                         setCopiedUrl(true);
                         setTimeout(() => setCopiedUrl(false), 2000);
                       }}
                       disabled={!streamUrl}
-                      className="px-3 py-2 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] rounded-lg text-xs font-semibold text-[var(--ink)] hover:text-[var(--ink-hi)] transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-40"
                       title="Copiar URL Primária"
                     >
                       {copiedUrl ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -849,19 +843,19 @@ export function CustomDestinationModal({
                       placeholder="rtmp://backup-ingest.servidor.com:1935/live ou rtmps://..."
                       className="flex-1 bg-[var(--surface)] border border-purple-500/20 focus:border-purple-500 rounded-lg px-3.5 py-2 text-xs text-purple-200 placeholder-[var(--ink-dim)] focus:outline-none font-mono transition-colors"
                     />
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => {
                         copyText(alternativeIngestUrl);
                         setCopiedAltUrl(true);
                         setTimeout(() => setCopiedAltUrl(false), 2000);
                       }}
                       disabled={!alternativeIngestUrl}
-                      className="px-3 py-2 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] rounded-lg text-xs font-semibold text-[var(--ink)] hover:text-[var(--ink-hi)] transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-40"
                       title="Copiar URL Alternativa"
                     >
                       {copiedAltUrl ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -877,41 +871,46 @@ export function CustomDestinationModal({
                   </div>
                   <div className="flex items-center gap-1.5">
                     {(testResult.latencyPrimary !== undefined || testResult.latencyAlternative !== undefined) && (
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setTestResult({ status: 'idle' })}
-                        className="px-2 py-1 bg-[var(--panel)] hover:bg-rose-500/20 text-[var(--ink-lo)] hover:text-rose-400 border border-[var(--line-ctl)] hover:border-rose-500/30 rounded-lg text-[9px] font-bold transition-all cursor-pointer flex items-center gap-1"
+                        icon={<Trash2 size={10} />}
                         title="Limpar resultado de latência do formulário"
                       >
-                        <Trash2 size={10} /> Limpar
-                      </button>
+                        Limpar
+                      </Button>
                     )}
-                    <button
-                      type="button"
+                    {/* As duas eram fundo entintado (bg-blue-600/20,
+                        bg-purple-600/20) — um terceiro padrão visual que a
+                        primitiva não tem, e roxo está fora dos dois matizes
+                        do sistema. Ghost é o secundário real aqui: "Testar
+                        Ambos" já é o primário da fileira. */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleTestConnection('primary')}
                       disabled={isTesting || !streamUrl}
-                      className="px-2 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-[9px] font-bold transition-all cursor-pointer disabled:opacity-40"
                     >
                       {isTesting && testingTarget === 'primary' ? 'Pingando...' : 'Testar Primário'}
-                    </button>
+                    </Button>
                     {alternativeIngestUrl && (
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleTestConnection('alternative')}
                         disabled={isTesting || !alternativeIngestUrl}
-                        className="px-2 py-1 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-lg text-[9px] font-bold transition-all cursor-pointer disabled:opacity-40"
                       >
                         {isTesting && testingTarget === 'alternative' ? 'Pingando...' : 'Testar Alternativo'}
-                      </button>
+                      </Button>
                     )}
-                    <button
-                      type="button"
+                    <Button
+                      size="sm"
                       onClick={() => handleTestConnection('both')}
                       disabled={isTesting || (!streamUrl && !alternativeIngestUrl)}
-                      className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[9px] font-black uppercase transition-all cursor-pointer disabled:opacity-40 shadow-sm"
                     >
                       {isTesting && testingTarget === 'both' ? 'Testando...' : 'Testar Ambos'}
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -992,13 +991,9 @@ export function CustomDestinationModal({
                   <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
                     Chave de Fluxo (Stream Key)
                   </label>
-                  <button
-                    type="button"
-                    onClick={handleGenerateKey}
-                    className="text-[9px] font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer"
-                  >
-                    <Key size={10} /> Gerar Chave Aleatória
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={handleGenerateKey} icon={<Key size={10} />}>
+                    Gerar Chave Aleatória
+                  </Button>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
@@ -1017,19 +1012,19 @@ export function CustomDestinationModal({
                       {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
                     </button>
                   </div>
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => {
                       copyText(streamKey);
                       setCopiedKey(true);
                       setTimeout(() => setCopiedKey(false), 2000);
                     }}
                     disabled={!streamKey}
-                    className="px-3 py-2 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] rounded-lg text-xs font-semibold text-[var(--ink)] hover:text-[var(--ink-hi)] transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-40"
                     title="Copiar Stream Key"
                   >
                     {copiedKey ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -1162,23 +1157,19 @@ export function CustomDestinationModal({
           </div>
 
           <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-xl text-xs font-bold transition-all cursor-pointer"
-            >
+            <Button variant="ghost" onClick={onClose}>
               Fechar
-            </button>
+            </Button>
 
-            <button
-              type="button"
+            {/* Era `bg-blue-600` cru — a marca tem token, e é --brand-deep. */}
+            <Button
               onClick={handleSaveDestination}
-              disabled={isSaving || !name.trim() || !streamUrl.trim()}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20 cursor-pointer"
+              loading={isSaving}
+              disabled={!name.trim() || !streamUrl.trim()}
+              icon={<Check size={14} />}
             >
-              {isSaving ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
               {isCreating ? 'Salvar Novo Destino' : 'Salvar Preferências'}
-            </button>
+            </Button>
           </div>
         </div>
 

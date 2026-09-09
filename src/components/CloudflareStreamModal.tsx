@@ -1,3 +1,4 @@
+import { Button } from './ui/Button';
 import React, { useState } from 'react';
 import { 
   X, Copy, CheckCircle2, Radio, Globe, Video, Code, ExternalLink, 
@@ -133,12 +134,9 @@ export function CloudflareStreamModal({
                     Use estes dados em seu OBS Studio, vMix, Wirecast ou encoder de hardware para transmitir em alta fidelidade.
                   </p>
                 </div>
-                <button
-                  onClick={handleApply}
-                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition-all shadow-md shrink-0 flex items-center gap-1.5 cursor-pointer hover:scale-105"
-                >
-                  <Zap size={13} /> Ativar no Estúdio
-                </button>
+                <Button size="sm" onClick={handleApply} icon={<Zap size={13} />}>
+                  Ativar no Estúdio
+                </Button>
               </div>
 
               {/* RTMPS Configuration */}
@@ -162,12 +160,9 @@ export function CloudflareStreamModal({
                       value={CLOUDFLARE_STREAM_CONFIG.rtmpsUrl} 
                       className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs font-mono text-blue-300 select-all focus:outline-none"
                     />
-                    <button 
-                      onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsUrl, 'rtmpsUrl')}
-                      className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsUrl, 'rtmpsUrl')}>
                       {copiedField === 'rtmpsUrl' ? <><Check size={14} className="text-emerald-400"/> Copiado</> : <><Copy size={14}/> Copiar</>}
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -181,12 +176,9 @@ export function CloudflareStreamModal({
                       value={CLOUDFLARE_STREAM_CONFIG.rtmpsKey} 
                       className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs font-mono text-amber-300 select-all focus:outline-none"
                     />
-                    <button 
-                      onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsKey, 'rtmpsKey')}
-                      className="px-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer shadow-lg shadow-blue-500/20"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsKey, 'rtmpsKey')}>
                       {copiedField === 'rtmpsKey' ? <><Check size={14} className="text-emerald-400"/> Copiado</> : <><Copy size={14}/> Copiar</>}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -210,12 +202,9 @@ export function CloudflareStreamModal({
                       value={CLOUDFLARE_STREAM_CONFIG.srtUrl} 
                       className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs font-mono text-indigo-300 select-all focus:outline-none"
                     />
-                    <button 
-                      onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.srtUrl, 'srtUrl')}
-                      className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.srtUrl, 'srtUrl')}>
                       {copiedField === 'srtUrl' ? <><Check size={14} className="text-emerald-400"/> Copiado</> : <><Copy size={14}/> Copiar</>}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -239,12 +228,9 @@ export function CloudflareStreamModal({
                       value={CLOUDFLARE_STREAM_CONFIG.whipPublishUrl} 
                       className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs font-mono text-purple-300 select-all focus:outline-none"
                     />
-                    <button 
-                      onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.whipPublishUrl, 'whipUrl')}
-                      className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.whipPublishUrl, 'whipUrl')}>
                       {copiedField === 'whipUrl' ? <><Check size={14} className="text-emerald-400"/> Copiado</> : <><Copy size={14}/> Copiar</>}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -255,26 +241,18 @@ export function CloudflareStreamModal({
                   <span className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block">ID de Entrada Ao Vivo (Live Input ID)</span>
                   <div className="flex items-center justify-between mt-1">
                     <span className="font-mono text-blue-400 text-xs truncate">{CLOUDFLARE_STREAM_CONFIG.liveInputId}</span>
-                    <button 
-                      onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.liveInputId, 'liveInputId')}
-                      className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-1 rounded transition-colors"
-                      title="Copiar ID"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.liveInputId, 'liveInputId')}>
                       <Copy size={13} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 <div className="bg-[var(--bg)] border border-[var(--line)] p-3 rounded-xl">
                   <span className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block">Subdomínio do Cliente</span>
                   <div className="flex items-center justify-between mt-1">
                     <span className="font-mono text-[var(--ink-hi)] text-xs truncate">{CLOUDFLARE_STREAM_CONFIG.customerSubdomain}</span>
-                    <button 
-                      onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.customerSubdomain, 'subdomain')}
-                      className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-1 rounded transition-colors"
-                      title="Copiar Subdomínio"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.customerSubdomain, 'subdomain')}>
                       <Copy size={13} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -294,14 +272,14 @@ export function CloudflareStreamModal({
                       <CheckCircle2 size={14} /> 100% Operacional
                     </span>
                   )}
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={handleTestConnection}
-                    disabled={isTesting}
-                    className="px-3 py-1.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    loading={isTesting}
                   >
-                    <RefreshCw size={13} className={isTesting ? 'animate-spin' : ''} />
                     {isTesting ? 'Testando...' : 'Testar Conexão'}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -354,12 +332,9 @@ export function CloudflareStreamModal({
                     value={CLOUDFLARE_STREAM_CONFIG.playerUrl} 
                     className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs font-mono text-blue-300 select-all focus:outline-none"
                   />
-                  <button 
-                    onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.playerUrl, 'playerUrl')}
-                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1.5 min-w-[90px] justify-center transition-colors cursor-pointer"
-                  >
-                    {copiedField === 'playerUrl' ? <><Check size={14} className="text-emerald-400"/> Copiado</> : <><Copy size={14}/> Copiar</>}
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.playerUrl, 'playerUrl')}>
+                      {copiedField === 'playerUrl' ? <><Check size={14} className="text-emerald-400"/> Copiado</> : <><Copy size={14}/> Copiar</>}
+                    </Button>
                 </div>
               </div>
 
@@ -367,12 +342,9 @@ export function CloudflareStreamModal({
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Código HTML Responsivo para Incorporar (Embed)</label>
-                  <button 
-                    onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.embedIframeCode, 'embedCode')}
-                    className="text-xs text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1 cursor-pointer"
-                  >
-                    {copiedField === 'embedCode' ? <><Check size={13} className="text-emerald-400"/> Código Copiado!</> : <><Copy size={13}/> Copiar Código Completo</>}
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.embedIframeCode, 'embedCode')}>
+                      {copiedField === 'embedCode' ? <><Check size={13} className="text-emerald-400"/> Código Copiado!</> : <><Copy size={13}/> Copiar Código Completo</>}
+                    </Button>
                 </div>
                 <div className="relative">
                   <pre className="p-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl font-mono text-[11px] text-[var(--ink)] overflow-x-auto whitespace-pre-wrap">
@@ -406,12 +378,9 @@ export function CloudflareStreamModal({
                     value={CLOUDFLARE_STREAM_CONFIG.hlsManifestUrl} 
                     className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-1.5 text-xs font-mono text-emerald-300 select-all focus:outline-none"
                   />
-                  <button 
-                    onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.hlsManifestUrl, 'hls')}
-                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
-                  >
-                    {copiedField === 'hls' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.hlsManifestUrl, 'hls')}>
+                      {copiedField === 'hls' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
+                    </Button>
                 </div>
               </div>
 
@@ -428,12 +397,9 @@ export function CloudflareStreamModal({
                     value={CLOUDFLARE_STREAM_CONFIG.dashManifestUrl} 
                     className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-1.5 text-xs font-mono text-blue-300 select-all focus:outline-none"
                   />
-                  <button 
-                    onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.dashManifestUrl, 'dash')}
-                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
-                  >
-                    {copiedField === 'dash' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.dashManifestUrl, 'dash')}>
+                      {copiedField === 'dash' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
+                    </Button>
                 </div>
               </div>
 
@@ -450,12 +416,9 @@ export function CloudflareStreamModal({
                     value={CLOUDFLARE_STREAM_CONFIG.whepPlaybackUrl} 
                     className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-1.5 text-xs font-mono text-purple-300 select-all focus:outline-none"
                   />
-                  <button 
-                    onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.whepPlaybackUrl, 'whep')}
-                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
-                  >
-                    {copiedField === 'whep' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.whepPlaybackUrl, 'whep')}>
+                      {copiedField === 'whep' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
+                    </Button>
                 </div>
               </div>
 
@@ -472,12 +435,9 @@ export function CloudflareStreamModal({
                     value={CLOUDFLARE_STREAM_CONFIG.srtPlaybackUrl} 
                     className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-1.5 text-xs font-mono text-indigo-300 select-all focus:outline-none"
                   />
-                  <button 
-                    onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.srtPlaybackUrl, 'srtPlay')}
-                    className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg text-xs font-bold flex items-center gap-1 min-w-[80px] justify-center transition-colors cursor-pointer"
-                  >
-                    {copiedField === 'srtPlay' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
-                  </button>
+                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.srtPlaybackUrl, 'srtPlay')}>
+                      {copiedField === 'srtPlay' ? <Check size={13} className="text-emerald-400"/> : <Copy size={13}/>}
+                    </Button>
                 </div>
               </div>
 
@@ -497,12 +457,9 @@ export function CloudflareStreamModal({
                         value={CLOUDFLARE_STREAM_CONFIG.rtmpsPlaybackUrl} 
                         className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded px-2.5 py-1 text-xs font-mono text-amber-300 select-all focus:outline-none truncate"
                       />
-                      <button 
-                        onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsPlaybackUrl, 'rtmpsPlayUrl')}
-                        className="px-2.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded text-xs transition-colors"
-                      >
-                        <Copy size={12}/>
-                      </button>
+                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsPlaybackUrl, 'rtmpsPlayUrl')}>
+                      <Copy size={12}/>
+                    </Button>
                     </div>
                   </div>
                   <div className="space-y-1">
@@ -514,12 +471,9 @@ export function CloudflareStreamModal({
                         value={CLOUDFLARE_STREAM_CONFIG.rtmpsPlaybackKey} 
                         className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded px-2.5 py-1 text-xs font-mono text-amber-300 select-all focus:outline-none truncate"
                       />
-                      <button 
-                        onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsPlaybackKey, 'rtmpsPlayKey')}
-                        className="px-2.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded text-xs transition-colors"
-                      >
-                        <Copy size={12}/>
-                      </button>
+                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(CLOUDFLARE_STREAM_CONFIG.rtmpsPlaybackKey, 'rtmpsPlayKey')}>
+                      <Copy size={12}/>
+                    </Button>
                     </div>
                   </div>
                 </div>
@@ -577,18 +531,15 @@ export function CloudflareStreamModal({
             <span>Infraestrutura Cloudflare Edge Global (99.99% SLA)</span>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <button
-              onClick={handleApply}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
-            >
-              <Zap size={13} /> Ativar no Studio
-            </button>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] font-semibold rounded-xl transition-colors cursor-pointer"
-            >
+            {/* A ordem aqui estava invertida em relação ao resto do produto:
+                o primário vinha à esquerda do "Fechar". Ação principal à
+                direita, como nos outros rodapés e no ConfirmDialog. */}
+            <Button variant="ghost" onClick={onClose}>
               Fechar
-            </button>
+            </Button>
+            <Button onClick={handleApply} icon={<Zap size={13} />}>
+              Ativar no Studio
+            </Button>
           </div>
         </div>
 
