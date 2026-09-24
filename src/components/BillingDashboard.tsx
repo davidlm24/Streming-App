@@ -7,7 +7,7 @@ import { copyText } from './ui/clipboard';
 import { Modal } from './ui/Modal';
 
 /** O Vite remove o ramo inteiro no build de produção. */
-const IS_DEV: boolean = Boolean((import.meta as any)?.env?.DEV);
+const IS_DEV = import.meta.env.DEV;
 
 /** Dados corporativos do próprio usuário, persistidos localmente. */
 const BILLING_KEY = 'pwstream_billing_profile';
@@ -651,8 +651,10 @@ Suporte Técnico: suporte@pwstreamer.com
               {/* RENDER STRIPE METHOD DETAILS */}
               {selectedGateway === 'stripe' && (
                 <div className="space-y-4">
-                  {/* Test credential card info box */}
-                  <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-1.5">
+                  {/* Credencial de teste é ferramenta de desenvolvimento e sai
+                      do build de produção. O aviso de que não há cobrança
+                      real continua visível para todos, logo abaixo. */}
+                  {IS_DEV && <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-1.5">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-blue-400">
                       <Sparkles size={14} />
                       <span>Dados de Cartão de Testes Stripe</span>
@@ -670,7 +672,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         Autopreencher
                       </button>
                     </div>
-                  </div>
+                  </div>}
 
                   <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3">
                     <div className="space-y-1">
@@ -841,10 +843,10 @@ Suporte Técnico: suporte@pwstreamer.com
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-1.5">
+                      {IS_DEV && <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-1.5">
                         <div className="flex items-center gap-1.5 text-xs font-bold text-blue-400">
                           <Sparkles size={14} />
-                          <span>Mercado Pago Test Card</span>
+                          <span>Cartão de teste Mercado Pago</span>
                         </div>
                         <div className="flex items-center justify-between bg-[var(--bg)] p-2 rounded-lg text-[11px] font-mono border border-[var(--line)]/80">
                           <span className="text-[var(--ink-hi)]">Nº: 5031 4000 1234 5678 | CVV: 123</span>
@@ -856,7 +858,7 @@ Suporte Técnico: suporte@pwstreamer.com
                             Autopreencher
                           </button>
                         </div>
-                      </div>
+                      </div>}
 
                       <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3">
                         <div className="space-y-1">
@@ -911,9 +913,16 @@ Suporte Técnico: suporte@pwstreamer.com
               )}
 
               {/* Secure verification alert info */}
-              <div className="flex items-start gap-2 p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/10 text-xs text-emerald-400">
-                <CheckCircle2 size={16} className="shrink-0 mt-0.5" />
-                <span>Sandbox de testes ativo. Nenhuma cobrança real será debitada do seu saldo.</span>
+              {/* Verde com tique é o vocabulário de "aprovado". Usá-lo para
+                  dizer que NÃO há cobrança faz o comprador ler o aviso como
+                  confirmação. Âmbar e triângulo dizem "atenção", que é o que
+                  esta frase é. Mesma troca feita no checkout público. */}
+              <div className="flex items-start gap-2 p-3 bg-amber-500/10 rounded-xl border border-amber-500/30 text-xs text-amber-200">
+                <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="font-bold text-[var(--ink-hi)]">Nenhuma cobrança será feita.</strong>{' '}
+                  Este fluxo ainda não processa pagamento real — nenhum valor é debitado.
+                </span>
               </div>
 
               {/* Invoice subtotal summary detail card */}

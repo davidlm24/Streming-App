@@ -14,7 +14,7 @@ import { useToast } from './ui/Toast';
 import { copyText } from './ui/clipboard';
 
 /** Vite remove o ramo inteiro no build de produção. */
-const IS_DEV: boolean = Boolean((import.meta as any)?.env?.DEV);
+const IS_DEV = import.meta.env.DEV;
 
 interface AuthAndPricingProps {
   onAuthSuccess: (user: { 
@@ -277,14 +277,19 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     </button>
                   </div>
 
-                  <button
+                  {/* Login sem credencial numa conta nomeada. A condicao era so
+                      isUnauthorizedDomain — qualquer dominio fora da lista do
+                      Firebase: preview de deploy, staging, dominio novo. Agora sai do
+                      build de producao. */}
+
+                  {IS_DEV && <button
                     type="button"
                     onClick={() => handleDirectDevLogin('mgdlms@gmail.com', 'Marcos Gonçalves')}
                     className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
                   >
                     <span>Entrar agora como Marcos Gonçalves (mgdlms@gmail.com)</span>
                     <ArrowRight size={14} />
-                  </button>
+                  </button>}
                 </div>
               )}
 
@@ -423,14 +428,19 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   </button>
                 </div>
 
-                <button
+                {/* Login sem credencial numa conta nomeada. A condicao era so
+                      isUnauthorizedDomain — qualquer dominio fora da lista do
+                      Firebase: preview de deploy, staging, dominio novo. Agora sai do
+                      build de producao. */}
+
+                {IS_DEV && <button
                   type="button"
                   onClick={() => handleDirectDevLogin('mgdlms@gmail.com', 'Marcos Gonçalves')}
                   className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
                 >
                   <span>Entrar agora como Marcos Gonçalves (mgdlms@gmail.com)</span>
                   <ArrowRight size={14} />
-                </button>
+                </button>}
               </div>
             )}
 
@@ -772,9 +782,15 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               {/* RENDER STRIPE GATEWAY */}
               {selectedGateway === 'stripe' && (
                 <div className="space-y-4">
-                  <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-1.5">
+                  {/* Credencial de teste é ferramenta de desenvolvimento, não
+                      informação de produto: sai do build de produção.
+                      O AVISO de que não há cobrança real continua visível para
+                      todo mundo — ver o rodapé do formulário. Esconder o aviso
+                      enquanto o pagamento segue simulado não corrige nada:
+                      troca uma simulação declarada por uma que finge cobrar. */}
+                  {IS_DEV && <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-1.5">
                     <p className="text-[0.625rem] text-[var(--ink-lo)]">
-                      Ambiente de testes ativo. Autofácil de dados de cartão de crédito Stripe:
+                      Ambiente de desenvolvimento. Preenchimento automático do cartão de teste Stripe:
                     </p>
                     <div className="flex items-center justify-between bg-[var(--bg)] p-2 rounded-lg text-[0.625rem] font-mono border border-[var(--line)]/60">
                       <span className="text-[var(--ink-hi)]">4242 4242 4242 4242 | MM/AA: 12/29 | CVV: 424</span>
@@ -791,7 +807,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                         Preencher
                       </button>
                     </div>
-                  </div>
+                  </div>}
 
                   <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-2xl space-y-3">
                     <div className="space-y-1">
@@ -1027,23 +1043,39 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
               {/* Order total card */}
               <div className="bg-[var(--surface)]/40 p-3.5 rounded-xl border border-[var(--line)]/60 space-y-1.5 text-xs text-[var(--ink)]">
+                {/* Este resumo imprimia $14.00 / $29.00 / $49.00 em dólar,
+                    enquanto a vitrine anunciava R$ 49,90 / 99,90 / 199,90 pelo
+                    MESMO plano. Era a quinta copia do preco, e a unica que o
+                    comprador via no momento de pagar. Agora sai da fonte. */}
                 <div className="flex justify-between font-bold">
                   <span>Subtotal do plano:</span>
-                  <span>${selectedPlan === 'Standard' ? '14.00' : selectedPlan === 'Professional' ? '29.00' : '49.00'}</span>
+                  <span className="tabular-nums">{formatPrice(getPlan(selectedPlan ?? 'Standard')!.priceMonthly)}</span>
                 </div>
                 <div className="flex justify-between text-[var(--ink-dim)]">
                   <span>Desconto de teste:</span>
-                  <span>$0.00</span>
+                  <span className="tabular-nums">{formatPrice(0)}</span>
                 </div>
                 <div className="flex justify-between font-extrabold text-blue-400 border-t border-[var(--line)]/60 pt-1.5 mt-1.5 text-sm">
                   <span>Total Cobrado:</span>
-                  <span>${selectedPlan === 'Standard' ? '14.00' : selectedPlan === 'Professional' ? '29.00' : '49.00'} / mês</span>
+                  <span className="tabular-nums">{formatPrice(getPlan(selectedPlan ?? 'Standard')!.priceMonthly)} / mês</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-[var(--ink-lo)] bg-blue-950/20 p-3 rounded-xl border border-blue-500/10">
-                <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-                <span>Simulação segura. Clique em confirmar para ativar o plano imediatamente no dashboard.</span>
+              {/* Era "Simulação segura" com um tique verde — o vocabulário de
+                  "deu certo" para avisar que NADA é cobrado. Um comprador lê
+                  tique verde como confirmação, não como ressalva.
+                  A auditoria propôs esconder este aviso em produção. O
+                  contrário: enquanto a cobrança não for real, escondê-lo
+                  transforma uma simulação declarada numa tela que finge
+                  cobrar. O aviso fica, e fica legível. Quando o pagamento for
+                  real, ele sai junto com a simulação — não antes. */}
+              <div className="flex items-start gap-2 text-xs bg-amber-500/10 border border-amber-500/30 text-amber-200 p-3 rounded-xl">
+                <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="font-bold text-[var(--ink-hi)]">Nenhuma cobrança será feita.</strong>{' '}
+                  Este checkout ainda não processa pagamento real — o plano é ativado na sua conta
+                  para demonstração e nenhum valor é debitado do seu cartão ou conta.
+                </span>
               </div>
 
               <div className="grid grid-cols-2 gap-4 pt-2">

@@ -10,7 +10,7 @@ import { useTheme } from '../context/ThemeContext';
  * Continuam úteis em desenvolvimento, então são condicionados ao modo dev em
  * vez de removidos — o Vite elimina o ramo inteiro no build de produção.
  */
-const IS_DEV: boolean = Boolean((import.meta as any)?.env?.DEV);
+const IS_DEV = import.meta.env.DEV;
 
 interface HeaderProps {
   onExit: () => void;

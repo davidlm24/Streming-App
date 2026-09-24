@@ -7,7 +7,7 @@ import { PLANS, formatPrice } from '../lib/plans';
 
 /** Vite remove o ramo inteiro no build de produção. Mesmo padrão de
  *  Header.tsx e AuthAndPricing.tsx. */
-const IS_DEV: boolean = Boolean((import.meta as any)?.env?.DEV);
+const IS_DEV = import.meta.env.DEV;
 
 interface PlansModalProps {
   onClose: () => void;
