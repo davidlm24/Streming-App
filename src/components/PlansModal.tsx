@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { X, Check, CreditCard, ShieldAlert, Activity, Radio, Disc, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useToast } from './ui/Toast';
 import { Modal } from './ui/Modal';
+import { Button } from './ui/Button';
+import { PLANS, formatPrice } from '../lib/plans';
+
+/** Vite remove o ramo inteiro no build de produção. Mesmo padrão de
+ *  Header.tsx e AuthAndPricing.tsx. */
+const IS_DEV: boolean = Boolean((import.meta as any)?.env?.DEV);
 
 interface PlansModalProps {
   onClose: () => void;
@@ -20,6 +26,10 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleSubscribe = async () => {
+    // Reentrância: sem isto, dois cliques rápidos abrem duas sessões de
+    // cobrança. `loading` já existia, mas só desabilitava o botão — o que
+    // não cobre Enter repetido nem clique durante o repintar.
+    if (loading) return;
     setLoading(true);
     try {
       const res = await fetch('/api/checkout', {
@@ -32,31 +42,37 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
           method: method === 'paypal' ? 'card' : method
         })
       });
+
+      if (!res.ok) throw new Error(`checkout respondeu ${res.status}`);
       const data = await res.json();
+
       if (data.url) {
+        // `loading` FICA ligado: a navegação leva centenas de ms e desligar
+        // aqui devolve um botão clicável em cima de um redirect em curso.
         window.location.href = data.url;
         return;
       }
-      // If no external URL or demo environment, complete upgrade directly
-      if (onPlanUpgraded) {
-        setSuccessMessage(`Plano ${selectedPlan} ativado com sucesso!`);
+
+      // Resposta sem URL é resposta malformada, não permissão para ativar.
+      // Este caminho concedia o plano pago — e era o mesmo buraco que o botão
+      // "(Demo)" tinha aberto antes de ser removido (ver nota abaixo).
+      // Em desenvolvimento a ativação direta continua útil; em produção o
+      // Vite elimina o ramo inteiro.
+      if (IS_DEV && onPlanUpgraded) {
+        setSuccessMessage(`[DEV] Plano ${selectedPlan} ativado sem cobrança`);
         setTimeout(() => {
           onPlanUpgraded(selectedPlan);
           onClose();
         }, 1200);
+        return;
       }
+      throw new Error('checkout não retornou URL de pagamento');
     } catch (err) {
-      console.warn('Checkout fallback to direct activation:', err);
-      if (onPlanUpgraded) {
-        setSuccessMessage(`Plano ${selectedPlan} ativado com sucesso!`);
-        setTimeout(() => {
-          onPlanUpgraded(selectedPlan);
-          onClose();
-        }, 1200);
-      } else {
-        toast.error('Erro ao processar pagamento');
-      }
-    } finally {
+      // Falha de rede NÃO é pagamento aprovado. Antes, todo erro aqui caía
+      // em "Plano ativado com sucesso!" e concedia o plano: offline, API
+      // ausente, CORS, 500 — qualquer um liberava o pago de graça.
+      console.error('Falha no checkout:', err);
+      toast.error('Não foi possível iniciar o pagamento. Verifique a conexão e tente de novo.');
       setLoading(false);
     }
   };
@@ -66,29 +82,9 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
   // sem cobrar — deixá-lo aqui manteria o caminho vivo para o próximo botão.
   // `onPlanUpgraded` continua sendo chamado pelo fluxo real de checkout.
 
-  const plans = [
-    {
-      id: 'Standard' as const,
-      name: 'Standard',
-      price: 'R$ 49,90',
-      desc: 'Ideal para criadores e produtores autônomos',
-      features: ['Transmissões ao vivo ilimitadas', 'Gravações locais e na nuvem em 720p/1080p', 'Até 2 destinos simultâneos (Multistream)', 'Armazenamento de 10GB', 'Suporte por e-mail']
-    },
-    {
-      id: 'Professional' as const,
-      name: 'Professional',
-      price: 'R$ 99,90',
-      desc: 'Para criadores profissionais e empresas',
-      features: ['Transmissões e gravações 1080p 60FPS ilimitadas', 'Até 5 destinos simultâneos (YouTube, FB, Twitch, RTMP)', 'Armazenamento de 50GB', 'Sem marca d\'água PwStreamer', 'Suporte técnico prioritário']
-    },
-    {
-      id: 'Business' as const,
-      name: 'Business',
-      price: 'R$ 199,90',
-      desc: 'Para emissoras, agências e grandes estúdios',
-      features: ['Transmissões e gravações em 4K Ultra HD', 'Destinos RTMP/Multistream ilimitados', 'Armazenamento ilimitado de vídeos', 'Múltiplos operadores e estúdios simultâneos', 'White Label completo & Suporte 24/7']
-    }
-  ];
+  // Quarta copia do mesmo preco, agora removida. A modal mostra so os
+  // tres planos pagos — o gratuito nao se 'assina'.
+  const plans = PLANS.filter(p => p.id !== 'Free Trial');
 
   return (
     <Modal isOpen onClose={() => onClose()} bare ariaLabel="Escolha de planos">
@@ -151,7 +147,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
               return (
                 <div 
                   key={p.id} 
-                  onClick={() => setSelectedPlan(p.id)}
+                  onClick={() => setSelectedPlan(p.id as 'Standard' | 'Professional' | 'Business')}
                   className={`relative rounded-2xl border transition-all p-5 cursor-pointer flex flex-col justify-between ${
                     isSelected 
                       ? 'border-blue-500 bg-blue-500/10 shadow-xl ring-1 ring-blue-500' 
@@ -165,9 +161,9 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
                   )}
                   <div>
                     <h4 className="text-lg font-bold text-[var(--ink-hi)]">{p.name}</h4>
-                    <p className="text-xs text-[var(--ink-lo)] mt-1 mb-3">{p.desc}</p>
+                    <p className="text-xs text-[var(--ink-lo)] mt-1 mb-3">{p.description}</p>
                     <div className="text-2xl font-black text-[var(--ink-hi)] mb-4">
-                      {p.price}<span className="text-xs text-[var(--ink-dim)] font-normal">/mês</span>
+                      {formatPrice(p.priceMonthly)}<span className="text-xs text-[var(--ink-dim)] font-normal">/mês</span>
                     </div>
                     
                     <ul className="space-y-2.5 mb-4">
@@ -184,7 +180,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelectedPlan(p.id);
+                      setSelectedPlan(p.id as 'Standard' | 'Professional' | 'Business');
                     }}
                     className={`w-full py-2 rounded-xl text-xs font-bold transition-all ${
                       isSelected 
@@ -237,13 +233,13 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
               e gratuita do plano pago — ao lado do botão que cobra. Removido:
               é um caminho de contorno do checkout exposto em produção. */}
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
-            <button
+            <Button
               onClick={handleSubscribe}
-              disabled={loading}
-              className="w-full sm:w-auto px-6 py-2.5 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+              loading={loading}
+              className="w-full sm:w-auto"
             >
               {loading ? 'Processando...' : `Pagar e Ativar ${selectedPlan}`}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { PLANS, formatPrice, getPlan } from '../lib/plans';
 import { Button } from './ui/Button';
 import React, { useState } from 'react';
 import { 
@@ -64,103 +65,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
   const [pixCopied, setPixCopied] = useState(false);
 
   // Pricing descriptions
-  const plansData = [
-    {
-      id: 'Free Trial' as const,
-      name: 'Plano Gratuito',
-      priceMonthly: 0,
-      priceAnnual: 0,
-      badge: 'Teste sem compromisso',
-      buttonText: 'Iniciar 30 Dias Grátis',
-      description: 'Experimente a potência máxima da plataforma gratuitamente.',
-      features: [
-        'Acesso completo ao estúdio de transmissão',
-        '30 dias de teste gratuito',
-        'Até 3 participantes simultâneos',
-        'Conecte o OBS, vMix, etc.',
-        'Gravação de até 15 minutos por live',
-        'Transmissão para até 2 destinos',
-        'Aviso de renovação opcional'
-      ],
-      popular: false
-    },
-    {
-      id: 'Standard' as const,
-      name: 'Standard',
-      priceMonthly: 49.90,
-      priceAnnual: 39.90,
-      badge: 'Para Criadores',
-      buttonText: 'Selecionar Plano',
-      description: 'Para criadores e streamers independentes que buscam consistência.',
-      features: [
-        'Transmissão simultânea para 3 canais',
-        'Destinos RTMP personalizados',
-        'Compartilhamento de tela',
-        'Conecte o OBS, vMix, etc.',
-        'Gravações na nuvem',
-        'Sem marca d\'água da plataforma',
-        'Logos, fontes e gráficos personalizados',
-        '3 horas da transmissão ao vivo',
-        'Até 6 participantes na tela ao vivo',
-        'Qualidade máxima 780p',
-        'Transmissão em formato Paisagem + Retrato',
-        'Teleprompter'
-      ],
-      popular: false
-    },
-    {
-      id: 'Professional' as const,
-      name: 'Professional',
-      priceMonthly: 99.90,
-      priceAnnual: 79.90,
-      badge: 'Melhor Custo-Benefício',
-      buttonText: 'Selecionar Plano',
-      description: 'Melhor custo-benefício para profissionais e estúdios de gravação.',
-      features: [
-        'Transmissão simultânea para 5 canais',
-        'Destinos RTMP personalizados',
-        'Compartilhamento de tela',
-        'Conecte o OBS, vMix, etc.',
-        'Gravações na nuvem',
-        'Sem marca d\'água da plataforma',
-        'Logos, fontes e gráficos personalizados',
-        '6 horas da transmissão ao vivo',
-        'Até 8 participantes na tela ao vivo',
-        'Qualidade máxima Full HD 1080p',
-        'Transmissão em formato Paisagem + Retrato',
-        'Teleprompter',
-        'Fluxo incorporado'
-      ],
-      popular: true
-    },
-    {
-      id: 'Business' as const,
-      name: 'Business',
-      priceMonthly: 199.90,
-      priceAnnual: 159.90,
-      badge: 'Corporativo',
-      buttonText: 'Selecionar Plano',
-      description: 'Para agências, marcas de renome e grandes empresas.',
-      features: [
-        'Transmissão simultânea para 8 canais',
-        'Destinos RTMP personalizados',
-        'Compartilhamento de tela',
-        'Conecte o OBS, vMix, etc.',
-        'Gravações na nuvem',
-        'Sem marca d\'água da plataforma',
-        'Logos, fontes e gráficos personalizados',
-        '10 horas da transmissão ao vivo',
-        'Até 12 participantes na tela ao vivo',
-        'Qualidade máxima Full HD 1080p',
-        'Transmissão em formato Paisagem + Retrato',
-        'Teleprompter',
-        'Vendas ao vivo',
-        'Fluxo incorporado',
-        'Múltiplas câmeras'
-      ],
-      popular: false
-    }
-  ];
+  // Tabela local removida: era uma das tres copias do mesmo preco.
+  // Fonte unica em lib/plans.
+  const plansData = PLANS;
 
   const handleGoogleLogin = async () => {
     try {
@@ -451,7 +358,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     <span className="text-xs font-semibold text-[var(--color-brand)] bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">Recomendado</span>
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-black text-[var(--ink-hi)] tabular-nums">R$ 99,90</span>
+                    <span className="text-4xl font-black text-[var(--ink-hi)] tabular-nums">{formatPrice(getPlan('Professional')!.priceMonthly)}</span>
                     <span className="text-sm text-[var(--ink-dim)] font-semibold">/mês</span>
                   </div>
                   <p className="text-sm text-[var(--ink-lo)] leading-relaxed">
@@ -461,8 +368,8 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 </div>
 
                 {[
-                  { name: 'Standard', price: 'R$ 49,90', desc: 'Criadores e produtores autônomos. Até 2 destinos simultâneos.' },
-                  { name: 'Business', price: 'R$ 199,90', desc: 'Emissoras, agências e estúdios. Destinos ilimitados e 4K.' }
+                  { name: 'Standard', price: formatPrice(getPlan('Standard')!.priceMonthly), desc: 'Criadores e produtores autônomos. Até 2 destinos simultâneos.' },
+                  { name: 'Business', price: formatPrice(getPlan('Business')!.priceMonthly), desc: 'Emissoras, agências e estúdios. Destinos ilimitados e 4K.' }
                 ].map(p => (
                   <div key={p.name} className="lg:col-span-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl p-5 flex flex-col gap-2">
                     <h3 className="font-bold text-[var(--ink-hi)]">{p.name}</h3>
@@ -751,7 +658,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
                       <div className="py-2 border-y border-[var(--line)]/60">
                         <span className="text-3xl font-black text-[var(--ink-hi)] font-mono tabular-nums">
-                          {price === 0 ? 'Grátis' : `R$ ${price.toFixed(2).replace('.', ',')}`}
+                          {price === 0 ? 'Grátis' : formatPrice(price)}
                         </span>
                         <span className="text-xs text-[var(--ink-lo)] font-semibold"> /mês</span>
                       </div>

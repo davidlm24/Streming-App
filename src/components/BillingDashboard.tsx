@@ -1,3 +1,4 @@
+import { PLANS, formatPrice } from '../lib/plans';
 import React, { useState, useEffect } from 'react';
 import { useToast } from './ui/Toast';
 import { Button } from './ui/Button';
@@ -146,103 +147,9 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
     localStorage.setItem('pwstream_invoices', JSON.stringify(invoices));
   }, [invoices]);
 
-  const plansData = [
-    {
-      id: 'Free Trial' as const,
-      name: 'Plano Gratuito',
-      priceMonthly: 0,
-      priceAnnual: 0,
-      badge: 'Teste sem compromisso',
-      buttonText: 'Iniciar 30 Dias Grátis',
-      description: 'Experimente a potência máxima da plataforma gratuitamente.',
-      features: [
-        'Acesso completo ao estúdio de transmissão',
-        '30 dias de teste gratuito',
-        'Até 3 participantes simultâneos',
-        'Conecte o OBS, vMix, etc.',
-        'Gravação de até 15 minutos por live',
-        'Transmissão para até 2 destinos',
-        'Aviso de renovação opcional'
-      ],
-      popular: false
-    },
-    {
-      id: 'Standard' as const,
-      name: 'Plano Standard',
-      priceMonthly: 14,
-      priceAnnual: 11,
-      badge: 'Para Criadores',
-      buttonText: 'Selecionar Plano',
-      description: 'Para criadores e streamers independentes que buscam consistência.',
-      features: [
-        'Transmissão simultânea para 3 canais',
-        'Destinos RTMP personalizados',
-        'Compartilhamento de tela',
-        'Conecte o OBS, vMix, etc.',
-        'Gravações na nuvem',
-        'Sem marca d\'água da plataforma',
-        'Logos, fontes e gráficos personalizados',
-        '3 horas da transmissão ao vivo',
-        'Até 6 participantes na tela ao vivo',
-        'Qualidade máxima 780p',
-        'Transmissão em formato Paisagem + Retrato',
-        'Teleprompter'
-      ],
-      popular: false
-    },
-    {
-      id: 'Professional' as const,
-      name: 'Plano Pro',
-      priceMonthly: 29,
-      priceAnnual: 24,
-      badge: 'Melhor Custo-Benefício',
-      buttonText: 'Selecionar Plano',
-      description: 'Melhor custo-benefício para profissionais e estúdios de gravação.',
-      features: [
-        'Transmissão simultânea para 5 canais',
-        'Destinos RTMP personalizados',
-        'Compartilhamento de tela',
-        'Conecte o OBS, vMix, etc.',
-        'Gravações na nuvem',
-        'Sem marca d\'água da plataforma',
-        'Logos, fontes e gráficos personalizados',
-        '6 horas da transmissão ao vivo',
-        'Até 8 participantes na tela ao vivo',
-        'Qualidade máxima Full HD 1080p',
-        'Transmissão em formato Paisagem + Retrato',
-        'Teleprompter',
-        'Fluxo incorporado'
-      ],
-      popular: true
-    },
-    {
-      id: 'Business' as const,
-      name: 'Business',
-      priceMonthly: 49,
-      priceAnnual: 40,
-      badge: 'Corporativo',
-      buttonText: 'Selecionar Plano',
-      description: 'Para agências, marcas de renome e grandes empresas.',
-      features: [
-        'Transmissão simultânea para 8 canais',
-        'Destinos RTMP personalizados',
-        'Compartilhamento de tela',
-        'Conecte o OBS, vMix, etc.',
-        'Gravações na nuvem',
-        'Sem marca d\'água da plataforma',
-        'Logos, fontes e gráficos personalizados',
-        '10 horas da transmissão ao vivo',
-        'Até 12 participantes na tela ao vivo',
-        'Qualidade máxima Full HD 1080p',
-        'Transmissão em formato Paisagem + Retrato',
-        'Teleprompter',
-        'Vendas ao vivo',
-        'Fluxo incorporado',
-        'Múltiplas câmeras'
-      ],
-      popular: false
-    }
-  ];
+  // A tabela local (14/29/49 em USD) foi removida: divergia da vitrine
+  // publica, que anuncia R$ 49,90/99,90/199,90. Fonte unica em lib/plans.
+  const plansData = PLANS;
 
   // Auto-fill trigger helper
   const handleUseStripeTestCard = () => {
@@ -356,7 +263,7 @@ Faturado para:
 ----------------------------------------
 Plano Assinado: ${invoice.plan}
 Meio de Pagamento: ${invoice.gateway} (Simulado em Ambiente de Testes)
-Valor Pago: $${invoice.amount.toFixed(2)} USD
+Valor Pago: ${formatPrice(invoice.amount)}
 ----------------------------------------
 Obrigado por assinar o PwStreamer Studio!
 Suporte Técnico: suporte@pwstreamer.com
@@ -509,9 +416,9 @@ Suporte Técnico: suporte@pwstreamer.com
                     </div>
 
                     <div className="py-2.5 border-y border-[var(--line)]/60">
-                      <span className="text-3xl font-black text-[var(--ink-hi)] font-mono">${price}</span>
+                      <span className="text-3xl font-black text-[var(--ink-hi)] font-mono tabular-nums">{formatPrice(price)}</span>
                       <span className="text-xs text-[var(--ink-lo)] font-semibold"> /mês</span>
-                      {isAnnual && <p className="text-[10px] text-green-400 mt-0.5">Cobrado anualmente (${price * 12}/ano)</p>}
+                      {isAnnual && <p className="text-[10px] text-green-400 mt-0.5">Cobrado anualmente ({formatPrice(price * 12)}/ano)</p>}
                     </div>
 
                     <button
@@ -1022,7 +929,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 </div>
                 <div className="flex justify-between text-[var(--ink-dim)]">
                   <span>Descontos / Promoção:</span>
-                  <span>$0.00</span>
+                  <span>{formatPrice(0)}</span>
                 </div>
                 <div className="flex justify-between text-blue-400 font-extrabold text-sm border-t border-[var(--line)] pt-1.5 mt-1.5">
                   <span>Valor Total Cobrado:</span>
@@ -1241,7 +1148,7 @@ Suporte Técnico: suporte@pwstreamer.com
                     <td className="py-3.5 px-4 font-mono font-bold text-[var(--ink-hi)]">{invoice.id}</td>
                     <td className="py-3.5 px-4">{invoice.date}</td>
                     <td className="py-3.5 px-4">{invoice.plan}</td>
-                    <td className="py-3.5 px-4 font-bold">${invoice.amount.toFixed(2)} USD</td>
+                    <td className="py-3.5 px-4 font-bold">{formatPrice(invoice.amount)}</td>
                     <td className="py-3.5 px-4">
                       <span className="px-2 py-0.5 rounded text-[10px] bg-[var(--panel)] text-[var(--ink)] border border-[var(--line-ctl)]/60">
                         {invoice.gateway}
@@ -1332,7 +1239,7 @@ Suporte Técnico: suporte@pwstreamer.com
                     <p className="text-[10px] uppercase font-bold text-[var(--ink-dim)] tracking-wider">Descrição dos Itens</p>
                     <div className="flex justify-between text-[var(--ink-hi)] font-semibold bg-[var(--bg)] p-2.5 rounded-xl border border-[var(--line)]">
                       <span>Assinatura {selectedInvoiceForModal.plan}</span>
-                      <span>${selectedInvoiceForModal.amount.toFixed(2)} USD</span>
+                      <span>{formatPrice(selectedInvoiceForModal.amount)}</span>
                     </div>
                   </div>
 
