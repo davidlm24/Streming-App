@@ -64,15 +64,24 @@ export function WebinarPublicPage({
   const [chatInput, setChatInput] = useState('');
   
   // Interactive Poll State
+  // Nascia com { optionA: 42, optionB: 28, optionC: 15 } — 85 votos que
+  // ninguém deu, mostrados à audiência do cliente como resultado da sala. Quem
+  // abria a enquete via "YouTube Live 49%" e lia isso como a opinião dos
+  // outros participantes. Prova social inventada, o mesmo defeito que já saiu
+  // do contador de inscritos desta página.
+  // Começa em zero. E os votos não são compartilhados entre visitantes — não
+  // há backend para agregá-los —, então o placar mostra só o que este
+  // navegador registrou, com a contagem absoluta sempre à vista.
   const [pollVoted, setPollVoted] = useState<string | null>(null);
-  const [pollVotes, setPollVotes] = useState({ optionA: 42, optionB: 28, optionC: 15 });
+  const [pollVotes, setPollVotes] = useState({ optionA: 0, optionB: 0, optionC: 0 });
 
-  // Q&A State
-  const [qaQuestions, setQaQuestions] = useState([
-    { id: '1', author: 'Roberto Santos', text: 'Existe previsão de disponibilizar a gravação do webinar depois?', votes: 12 },
-    { id: '2', author: 'Fernanda Lima', text: 'Quais os requisitos de banda de internet para transmitir em 1080p sem quedas?', votes: 7 }
-  ]);
-  const [newQuestionText, setNewQuestionText] = useState('');
+  // Aqui havia um estado de Perguntas & Respostas semeado com duas perguntas
+  // inventadas — "Roberto Santos" (12 votos) e "Fernanda Lima" (7) — mais
+  // handlers para enviar e votar. Nada disso era renderizado: nenhum JSX lia a
+  // lista, nenhum formulário chamava o envio. Removido em vez de esvaziado:
+  // manter o estado e os handlers só guardaria as perguntas fabricadas para o
+  // dia em que alguém ligasse uma interface e as publicasse. Uma P&R de
+  // verdade deve nascer vazia e com persistência compartilhada.
 
   // O contador partia de { hours: 2, minutes: 45, seconds: 12 } fixo no
   // código. Ele CONTAVA — havia intervalo decrementando — mas contava a
@@ -190,25 +199,6 @@ export function WebinarPublicPage({
       ...prev,
       [option]: prev[option] + 1
     }));
-  };
-
-  const handleAddQuestion = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newQuestionText.trim()) return;
-    setQaQuestions(prev => [
-      ...prev,
-      {
-        id: `q-${Date.now()}`,
-        author: name || 'Espectador Anônimo',
-        text: newQuestionText,
-        votes: 1
-      }
-    ]);
-    setNewQuestionText('');
-  };
-
-  const handleUpvoteQuestion = (id: string) => {
-    setQaQuestions(prev => prev.map(q => q.id === id ? { ...q, votes: q.votes + 1 } : q));
   };
 
   const totalVotes = pollVotes.optionA + pollVotes.optionB + pollVotes.optionC;
@@ -577,7 +567,11 @@ export function WebinarPublicPage({
                             />
                             <div className="relative flex justify-between items-center">
                               <span className="text-[var(--ink)] truncate">{opt.label}</span>
-                              <span className="font-mono text-[var(--ink-lo)]">{pct}% ({opt.count})</span>
+                              {/* Sem votos, não há placar a mostrar: "0% (0)" em
+                                  todas as linhas é ruído com cara de resultado. */}
+                              {totalVotes > 0 && (
+                                <span className="font-mono text-[var(--ink-lo)] tabular-nums">{pct}% ({opt.count})</span>
+                              )}
                             </div>
                           </button>
                         );
