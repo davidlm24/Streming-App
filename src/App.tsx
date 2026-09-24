@@ -1,3 +1,4 @@
+import { Button } from './components/ui/Button';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Header } from './components/Header';
 import { LeftSidebar } from './components/LeftSidebar';
@@ -2925,18 +2926,12 @@ export default function App() {
             </div>
             
             <div className="flex items-center gap-2.5">
-              <button
-                onClick={() => setCurrentView('admin')}
-                className="flex items-center gap-2 px-5 py-3 border border-[var(--line)] hover:bg-[var(--surface)] text-[var(--ink)] font-bold text-xs rounded-xl transition-all cursor-pointer"
-              >
-                <Server size={14} className="text-blue-500 animate-pulse" /> Painel de Administração
-              </button>
-              <button
-                onClick={() => setIsCreateWebinarOpen(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white font-bold text-sm rounded-xl shadow-xl transition-all cursor-pointer"
-              >
-                <Plus size={16} /> Agendar Webinar
-              </button>
+              <Button variant="ghost" onClick={() => setCurrentView('admin')} icon={<Server size={14} className="text-blue-500 animate-pulse" />}>
+                Painel de Administração
+              </Button>
+              <Button onClick={() => setIsCreateWebinarOpen(true)} icon={<Plus size={16} />}>
+                Agendar Webinar
+              </Button>
             </div>
           </div>
 
@@ -3009,37 +3004,50 @@ export default function App() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 shrink-0 w-full xl:w-auto">
-                      <button
+                      {/* Cor no ícone e no texto, não no fundo: "Inscrições" e
+                          "Criar Capa" continuam avisando seu destino por
+                          matiz — o fundo neutro do ghost é quem diz "ação
+                          secundária". */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => {
                           setSelectedWebinarId(webinar.id);
                           setCurrentView('public-webinar');
                         }}
-                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[var(--bg)] hover:bg-[var(--panel)] text-xs font-semibold rounded-lg text-emerald-400 border border-[var(--line)] transition-all cursor-pointer"
+                        icon={<ExternalLink size={12} />}
+                        className="text-emerald-400 hover:text-emerald-300"
                         title="Ver landing page pública de inscrição do webinar"
                       >
-                        <ExternalLink size={12} /> Inscrições
-                      </button>
+                        Inscrições
+                      </Button>
 
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => {
                           setDashboardEditorTitle(webinar.title);
                           setIsDashboardEditorOpen(true);
                         }}
-                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[var(--bg)] hover:bg-[var(--panel)] text-xs font-semibold rounded-lg text-blue-400 border border-[var(--line)] transition-all cursor-pointer"
+                        icon={<Palette size={12} />}
+                        className="text-blue-400 hover:text-blue-300"
                         title="Criar ou personalizar a thumbnail da live"
                       >
-                        <Palette size={12} /> Criar Capa
-                      </button>
-                      
-                      <button
+                        Criar Capa
+                      </Button>
+
+                      {/* Seta depois do texto no original — "ir para".
+                          O slot `icon` da primitiva é sempre líder, então a
+                          seta entra como filho, não pelo prop. */}
+                      <Button
+                        size="sm"
                         onClick={() => {
                           setTitle(webinar.title);
                           setCurrentView('studio');
                         }}
-                        className="flex items-center justify-center gap-1.5 px-4 py-2 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-xs font-semibold rounded-lg text-white transition-all cursor-pointer"
                       >
                         Acessar Estúdio <ArrowRight size={12} />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -3353,12 +3361,9 @@ export default function App() {
               </div>
 
               {/* Form submit button */}
-              <button
-                type="submit"
-                className="w-full py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-lg mt-4 cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Plus size={14} /> Salvar e Agendar Webinar
-              </button>
+              <Button type="submit" className="w-full mt-4" icon={<Plus size={14} />}>
+                Salvar e Agendar Webinar
+              </Button>
 
             </form>
 
@@ -3489,13 +3494,9 @@ export default function App() {
                             value="rtmp://stream.pwstreamer.com:1935/live" 
                             className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-1.5 font-mono text-[11px] text-blue-400 focus:outline-none"
                           />
-                          <button 
-                            type="button"
-                            onClick={() => copyText('rtmp://stream.pwstreamer.com:1935/live')}
-                            className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => copyText('rtmp://stream.pwstreamer.com:1935/live')}>
                             Copiar
-                          </button>
+                          </Button>
                         </div>
                       </div>
 
@@ -3508,13 +3509,9 @@ export default function App() {
                             value="live_5427901_pw_prod_99a8x72cd" 
                             className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-1.5 font-mono text-[11px] text-blue-400 focus:outline-none"
                           />
-                          <button 
-                            type="button"
-                            onClick={() => copyText('live_5427901_pw_prod_99a8x72cd')}
-                            className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink-hi)] rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => copyText('live_5427901_pw_prod_99a8x72cd')}>
                             Copiar
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -3593,13 +3590,9 @@ export default function App() {
             {/* Footer */}
             <div className="px-6 py-4 border-t border-[var(--line)] bg-[var(--bg)] flex items-center justify-between">
               <span className="text-[10px] text-[var(--ink-dim)]">Desenvolvido por PwStreamer Solutions - PwStreamer Cloud Integration Manual</span>
-              <button
-                type="button"
-                onClick={() => setIsIntegrationsModalOpen(false)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
-              >
+              <Button onClick={() => setIsIntegrationsModalOpen(false)}>
                 Concluído
-              </button>
+              </Button>
             </div>
           </div>
         </Modal>
