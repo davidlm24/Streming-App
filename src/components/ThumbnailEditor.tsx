@@ -239,10 +239,10 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
         <div className="lg:col-span-5 space-y-4 text-left">
           {/* 1. Title Input */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
+            <label htmlFor="thumbnaileditor-titulo-principal" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
               <Type size={12} /> Título Principal
             </label>
-            <input 
+            <input id="thumbnaileditor-titulo-principal" 
               type="text" 
               value={title}
               onChange={(e) => {
@@ -256,10 +256,10 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
 
           {/* 2. Subtitle Tag */}
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
+            <label htmlFor="thumbnaileditor-tag-subtitulo" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
               <Layers size={12} /> Tag / Subtítulo
             </label>
-            <input 
+            <input id="thumbnaileditor-tag-subtitulo" 
               type="text" 
               value={subtitle}
               onChange={(e) => {
@@ -334,10 +334,10 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
             {/* Opacity slider */}
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] text-[var(--ink-lo)] font-bold">
-                <span>Escurecimento de Fundo</span>
+                <label htmlFor="thumbnaileditor-escurecimento-de-fundo">Escurecimento de Fundo</label>
                 <span>{Math.round(overlayOpacity * 100)}%</span>
               </div>
-              <input 
+              <input id="thumbnaileditor-escurecimento-de-fundo" 
                 type="range" 
                 min="0" 
                 max="0.9" 
@@ -351,10 +351,10 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
             {/* Font size slider */}
             <div className="space-y-1">
               <div className="flex justify-between text-[10px] text-[var(--ink-lo)] font-bold">
-                <span>Tamanho da Fonte</span>
+                <label htmlFor="thumbnaileditor-tamanho-da-fonte">Tamanho da Fonte</label>
                 <span>{textSize}px</span>
               </div>
-              <input 
+              <input id="thumbnaileditor-tamanho-da-fonte" 
                 type="range" 
                 min="20" 
                 max="54" 

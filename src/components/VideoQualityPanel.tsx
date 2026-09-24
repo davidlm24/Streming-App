@@ -328,9 +328,9 @@ export function VideoQualityPanel({
         <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--ink)] flex items-center gap-2">
-                <Sliders size={14} className="text-blue-400" /> Bitrate de Vídeo (Taxa de Trasmissão)
-              </span>
+              <label htmlFor="videoqualitypanel-bitrate-de-video" className="text-xs font-bold uppercase tracking-wider text-[var(--ink)] flex items-center gap-2">
+                <Sliders size={14} className="text-blue-400" /> Bitrate de Vídeo (Taxa de Transmissão)
+              </label>
               <p className="text-[11px] text-[var(--ink-lo)] mt-0.5">
                 Valores maiores entregam imagem mais nítida, porém requerem conexões de internet mais rápidas.
               </p>
@@ -346,7 +346,7 @@ export function VideoQualityPanel({
 
           {/* Slider */}
           <div className="space-y-1">
-            <input
+            <input id="videoqualitypanel-bitrate-de-video"
               type="range"
               min={DEFAULT_CONFIGS[config.resolution].minBitrate}
               max={DEFAULT_CONFIGS[config.resolution].maxBitrate}
@@ -410,10 +410,10 @@ export function VideoQualityPanel({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {/* Frame Rate */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
+            <label htmlFor="videoqualitypanel-taxa-de-quadros-fps" className="text-[11px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
               <Cpu size={12} className="text-blue-400" /> Taxa de Quadros (FPS)
             </label>
-            <select
+            <select id="videoqualitypanel-taxa-de-quadros-fps"
               value={config.fps}
               onChange={(e) => setConfig(prev => ({ ...prev, fps: parseInt(e.target.value) as 30 | 60 }))}
               className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
@@ -425,10 +425,10 @@ export function VideoQualityPanel({
 
           {/* Encoder Codec */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
+            <label htmlFor="videoqualitypanel-encoder-de-video" className="text-[11px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
               <Video size={12} className="text-indigo-400" /> Encoder de Vídeo
             </label>
-            <select
+            <select id="videoqualitypanel-encoder-de-video"
               value={config.encoder}
               onChange={(e) => setConfig(prev => ({ ...prev, encoder: e.target.value as EncoderOption }))}
               className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
@@ -441,10 +441,10 @@ export function VideoQualityPanel({
 
           {/* Audio Bitrate */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
+            <label htmlFor="videoqualitypanel-qualidade-de-audio" className="text-[11px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
               <Wifi size={12} className="text-emerald-400" /> Qualidade de Áudio
             </label>
-            <select
+            <select id="videoqualitypanel-qualidade-de-audio"
               value={config.audioBitrateKbps}
               onChange={(e) => setConfig(prev => ({ ...prev, audioBitrateKbps: e.target.value as AudioBitrateOption }))}
               className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"
@@ -457,10 +457,10 @@ export function VideoQualityPanel({
 
           {/* Keyframe Interval */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
+            <label htmlFor="videoqualitypanel-keyframe-interval" className="text-[11px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1">
               <RefreshCw size={12} className="text-amber-400" /> Keyframe Interval
             </label>
-            <select
+            <select id="videoqualitypanel-keyframe-interval"
               value={config.keyframeInterval}
               onChange={(e) => setConfig(prev => ({ ...prev, keyframeInterval: parseInt(e.target.value) }))}
               className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] font-semibold focus:border-blue-500 focus:outline-none cursor-pointer"

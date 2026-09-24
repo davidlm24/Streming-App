@@ -368,11 +368,11 @@ export function CloudflareStreamModal({
               {/* HLS Manifest */}
               <div className="bg-[var(--bg)] border border-[var(--line)] rounded-xl p-3.5 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-400">URL do Manifesto HLS (.m3u8 LL-HLS Beta)</span>
+                  <label htmlFor="cloudflarestreammodal-url-do-manifesto-hls" className="text-xs font-bold text-emerald-400">URL do Manifesto HLS (.m3u8 LL-HLS Beta)</label>
                   <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-mono font-bold">iOS / Safari / HLS.js</span>
                 </div>
                 <div className="flex gap-2">
-                  <input 
+                  <input id="cloudflarestreammodal-url-do-manifesto-hls" 
                     type="text" 
                     readOnly 
                     value={CLOUDFLARE_STREAM_CONFIG.hlsManifestUrl} 
@@ -387,11 +387,11 @@ export function CloudflareStreamModal({
               {/* DASH Manifest */}
               <div className="bg-[var(--bg)] border border-[var(--line)] rounded-xl p-3.5 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-blue-400">URL do Manifesto DASH (.mpd)</span>
+                  <label htmlFor="cloudflarestreammodal-url-do-manifesto-dash" className="text-xs font-bold text-blue-400">URL do Manifesto DASH (.mpd)</label>
                   <span className="text-[9px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-mono font-bold">Android / Chrome / Dash.js</span>
                 </div>
                 <div className="flex gap-2">
-                  <input 
+                  <input id="cloudflarestreammodal-url-do-manifesto-dash" 
                     type="text" 
                     readOnly 
                     value={CLOUDFLARE_STREAM_CONFIG.dashManifestUrl} 
@@ -406,11 +406,11 @@ export function CloudflareStreamModal({
               {/* WHEP Playback */}
               <div className="bg-[var(--bg)] border border-[var(--line)] rounded-xl p-3.5 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-purple-400">URL de Reprodução WebRTC (WHEP)</span>
+                  <label htmlFor="cloudflarestreammodal-url-de-reproducao-webrtc" className="text-xs font-bold text-purple-400">URL de Reprodução WebRTC (WHEP)</label>
                   <span className="text-[9px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded font-mono font-bold">WebRTC Player</span>
                 </div>
                 <div className="flex gap-2">
-                  <input 
+                  <input id="cloudflarestreammodal-url-de-reproducao-webrtc" 
                     type="text" 
                     readOnly 
                     value={CLOUDFLARE_STREAM_CONFIG.whepPlaybackUrl} 
@@ -425,11 +425,11 @@ export function CloudflareStreamModal({
               {/* SRT Playback */}
               <div className="bg-[var(--bg)] border border-[var(--line)] rounded-xl p-3.5 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-indigo-400">URL de Reprodução do SRT</span>
+                  <label htmlFor="cloudflarestreammodal-url-de-reproducao-do-srt" className="text-xs font-bold text-indigo-400">URL de Reprodução do SRT</label>
                   <span className="text-[9px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded font-mono font-bold">SRT Receiver / vMix</span>
                 </div>
                 <div className="flex gap-2">
-                  <input 
+                  <input id="cloudflarestreammodal-url-de-reproducao-do-srt" 
                     type="text" 
                     readOnly 
                     value={CLOUDFLARE_STREAM_CONFIG.srtPlaybackUrl} 

@@ -332,7 +332,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
 
               {useCustomIngest && (
                 <div className="flex items-center gap-2 pt-1">
-                  <input
+                  <input aria-label="URL de ingestão personalizada"
                     type="text"
                     value={customIngestUrl}
                     onChange={(e) => setCustomIngestUrl(e.target.value)}

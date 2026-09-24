@@ -379,6 +379,7 @@ interface LeftSidebarProps {
   setIsSmartSidebarEnabled?: (val: boolean) => void;
   onBatchAddComments?: (comments: Comment[]) => void;
   onClearComments?: () => void;
+  currentUserName?: string;
   onOpenCloudflareModal?: () => void;
   onOpenCustomDestinationsModal?: () => void;
   onOpenAddChannelsModal?: () => void;
@@ -554,6 +555,7 @@ export function LeftSidebar({
   setIsSmartSidebarEnabled = () => {},
   onBatchAddComments,
   onClearComments,
+  currentUserName,
   onOpenCloudflareModal,
   onOpenCustomDestinationsModal,
   onOpenAddChannelsModal,
@@ -1151,10 +1153,10 @@ export function LeftSidebar({
               {/* Opacity Control */}
               <div className="bg-[var(--surface)] rounded-lg p-2.5 border border-[var(--line)]/50">
                 <div className="flex items-center justify-between mb-2 text-[10px]">
-                  <span className="text-[var(--ink-lo)] font-medium">Transparência do Fundo</span>
+                  <label htmlFor="leftsidebar-transparencia-do-fundo" className="text-[var(--ink-lo)] font-medium">Transparência do Fundo</label>
                   <span className="text-blue-400 font-mono font-bold">{chatWidgetOpacity}%</span>
                 </div>
-                <input
+                <input id="leftsidebar-transparencia-do-fundo"
                   type="range"
                   min="10"
                   max="100"
@@ -1417,10 +1419,10 @@ export function LeftSidebar({
             {/* Soundtrack/Synthesizer volume controller inside settings panel */}
             <div className="space-y-2 pt-2.5 border-t border-[var(--line)]/60">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Volume da Trilha Sonora</span>
+                <label htmlFor="leftsidebar-volume-da-trilha-sonora" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Volume da Trilha Sonora</label>
                 <span className="text-xs text-blue-400 font-mono font-bold">{Math.round(volume * 100)}%</span>
               </div>
-              <input
+              <input id="leftsidebar-volume-da-trilha-sonora"
                 type="range"
                 min="0"
                 max="1"
@@ -1470,10 +1472,10 @@ export function LeftSidebar({
                     {/* Volume Factor Slider */}
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="text-[var(--ink-lo)] font-medium">Volume da Música com Fala</span>
+                        <label htmlFor="leftsidebar-volume-da-musica-com-fala" className="text-[var(--ink-lo)] font-medium">Volume da Música com Fala</label>
                         <span className="font-mono text-blue-400 font-bold">{Math.round(autoFadeVolumeFactor * 100)}%</span>
                       </div>
-                      <input
+                      <input id="leftsidebar-volume-da-musica-com-fala"
                         type="range"
                         min="0"
                         max="0.8"
@@ -1487,10 +1489,10 @@ export function LeftSidebar({
                     {/* Voice Sensitivity Slider */}
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="text-[var(--ink-lo)] font-medium">Sensibilidade de Voz</span>
+                        <label htmlFor="leftsidebar-sensibilidade-de-voz" className="text-[var(--ink-lo)] font-medium">Sensibilidade de Voz</label>
                         <span className="font-mono text-blue-400 font-bold">{Math.round(autoFadeSensitivity * 100)}%</span>
                       </div>
-                      <input
+                      <input id="leftsidebar-sensibilidade-de-voz"
                         type="range"
                         min="0.1"
                         max="1"
@@ -1702,10 +1704,10 @@ export function LeftSidebar({
             {/* Slider duration */}
             <div className="space-y-2 pt-2.5 border-t border-[var(--line)]/60">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Velocidade da Transição</span>
+                <label htmlFor="leftsidebar-velocidade-da-transicao" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Velocidade da Transição</label>
                 <span className="text-xs text-blue-400 font-mono font-bold">{transitionDuration} ms</span>
               </div>
-              <input
+              <input id="leftsidebar-velocidade-da-transicao"
                 type="range"
                 min="100"
                 max="1500"
@@ -1778,10 +1780,10 @@ export function LeftSidebar({
 
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="font-bold text-[var(--ink-lo)] uppercase tracking-wider">Duração</span>
+                        <label htmlFor="leftsidebar-duracao" className="font-bold text-[var(--ink-lo)] uppercase tracking-wider">Duração</label>
                         <span className="font-mono text-blue-400 font-bold">{config.duration} ms</span>
                       </div>
-                      <input
+                      <input id="leftsidebar-duracao" aria-label="Duração da transição"
                         type="range"
                         min={config.type === 'cut' ? 0 : 100}
                         max={1500}
@@ -1929,10 +1931,10 @@ export function LeftSidebar({
 
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center">
-                      <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Duração da Transição</label>
+                      <label htmlFor="leftsidebar-duracao-da-transicao" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Duração da Transição</label>
                       <span className="text-[10px] text-blue-400 font-mono bg-blue-500/10 px-1.5 py-0.5 rounded">{sceneTransitions[selectedSceneForTransition]?.duration || 300}ms</span>
                     </div>
-                    <input 
+                    <input id="leftsidebar-duracao-da-transicao" 
                       type="range" 
                       min="100" 
                       max="2000" 
@@ -1967,7 +1969,7 @@ export function LeftSidebar({
 
                 <div className="space-y-3">
                   <div className="flex gap-2">
-                    <input 
+                    <input aria-label="Nome do template de layout" 
                       type="text" 
                       placeholder="Nome do Template..."
                       value={layoutTemplateName}
@@ -2231,11 +2233,11 @@ export function LeftSidebar({
 
                 {/* RTMP Server URL Input */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">
+                  <label htmlFor="leftsidebar-servidor-url-de-ingestao-rtmp" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">
                     Servidor / URL de Ingestão (RTMP)
                   </label>
                   <div className="flex gap-2">
-                    <input
+                    <input id="leftsidebar-servidor-url-de-ingestao-rtmp"
                       type="text"
                       value={rtmpServer}
                       onChange={(e) => setRtmpServer && setRtmpServer(e.target.value)}
@@ -2264,11 +2266,11 @@ export function LeftSidebar({
 
                 {/* Stream Key Input */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">
+                  <label htmlFor="leftsidebar-chave-de-transmissao-stream-key" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">
                     Chave de Transmissão / Stream Key
                   </label>
                   <div className="flex gap-2">
-                    <input
+                    <input id="leftsidebar-chave-de-transmissao-stream-key"
                       type="text"
                       value={streamKey}
                       onChange={(e) => setStreamKey && setStreamKey(e.target.value)}
@@ -2297,7 +2299,7 @@ export function LeftSidebar({
 
                 {/* Stream Delay Input */}
                 <div className="space-y-1.5 pt-2 border-t border-[var(--line)]/60 mt-2">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left flex items-center gap-1.5">
+                  <label htmlFor="leftsidebar-atraso-de-transmissao-stream-delay" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left flex items-center gap-1.5">
                     <Clock size={12} className="text-[var(--ink-lo)]" />
                     Atraso de Transmissão (Stream Delay)
                   </label>
@@ -2305,7 +2307,7 @@ export function LeftSidebar({
                     Adicione um atraso customizado (em segundos) para proteger sua transmissão contra "stream sniping".
                   </p>
                   <div className="flex gap-2 items-center">
-                    <input
+                    <input id="leftsidebar-atraso-de-transmissao-stream-delay"
                       type="number"
                       min="0"
                       max="300"
@@ -2368,7 +2370,7 @@ export function LeftSidebar({
                       <p className="text-[9px] text-[var(--ink-lo)]">Adicionar capa para redes sociais</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
+                      <input aria-label="Thumbnail personalizada" 
                         type="checkbox" 
                         checked={isThumbnailEnabled}
                         onChange={(e) => setIsThumbnailEnabled(e.target.checked)}
@@ -2398,7 +2400,7 @@ export function LeftSidebar({
                     <p className="text-[9px] text-[var(--ink-lo)]">Marcar horário e data de início</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
+                    <input aria-label="Agendar Webinar" 
                       type="checkbox" 
                       checked={isScheduleEnabled}
                       onChange={(e) => setIsScheduleEnabled(e.target.checked)}
@@ -3022,10 +3024,10 @@ export function LeftSidebar({
                     {/* Music Controller Block */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Volume do Áudio</span>
+                        <label htmlFor="leftsidebar-volume-do-audio" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Volume do Áudio</label>
                         <span className="text-xs text-[var(--ink-lo)] font-mono">{Math.round(volume * 100)}%</span>
                       </div>
-                      <input
+                      <input id="leftsidebar-volume-do-audio"
                         type="range"
                         min="0"
                         max="1"
@@ -3038,7 +3040,7 @@ export function LeftSidebar({
                       <div className="flex items-center justify-between pt-1">
                         <span className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Loop Contínuo</span>
                         <label className="relative inline-flex items-center cursor-pointer">
-                          <input 
+                          <input aria-label="Loop Contínuo" 
                             type="checkbox" 
                             checked={musicLoop}
                             onChange={(e) => setMusicLoop(e.target.checked)}
@@ -3491,14 +3493,14 @@ export function LeftSidebar({
                       {/* Input to add new scrolling ticker */}
                       <form onSubmit={handleTickerSubmit} className="space-y-2">
                         <div className="flex gap-2">
-                          <input
+                          <input aria-label="Selo da barra de rolagem"
                             type="text"
                             value={newTickerBadge}
                             onChange={(e) => setNewTickerBadge(e.target.value)}
                             placeholder="Selo (ex: ALERTA)"
                             className="w-1/3 bg-[var(--bg)] border border-[var(--line-ctl)]/80 rounded-xl px-2.5 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 font-bold uppercase text-center"
                           />
-                          <input
+                          <input aria-label="Texto da barra de rolagem"
                             type="text"
                             value={newTickerText}
                             onChange={(e) => setNewTickerText(e.target.value)}
@@ -3845,7 +3847,7 @@ export function LeftSidebar({
           {/* Script Editor & Preset Templates */}
           <div className="bg-[var(--bg)] border border-[var(--line)]/90 rounded-2xl p-3.5 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-1.5">
+              <h3 id="leftsidebar-editar-script-do-roteiro" className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-1.5">
                 <Edit3 size={13} className="text-blue-400" />
                 Editar Script do Roteiro
               </h3>
@@ -3856,10 +3858,10 @@ export function LeftSidebar({
 
             {/* Presets Selector Dropdown */}
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">
+              <label htmlFor="leftsidebar-carregar-modelo-de-roteiro" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">
                 Carregar Modelo de Roteiro (Preset)
               </label>
-              <select
+              <select id="leftsidebar-carregar-modelo-de-roteiro"
                 onChange={(e) => {
                   const preset = TELEPROMPTER_PRESETS.find(p => p.id === e.target.value);
                   if (preset) {
@@ -3879,7 +3881,7 @@ export function LeftSidebar({
             </div>
 
             {/* Script Text Area */}
-            <textarea
+            <textarea aria-labelledby="leftsidebar-editar-script-do-roteiro"
               value={teleprompterText}
               onChange={(e) => onTeleprompterTextChange?.(e.target.value)}
               placeholder="Digite ou cole aqui o seu roteiro completo de apresentação..."
@@ -3968,7 +3970,7 @@ export function LeftSidebar({
                       <p className="text-[9px] text-[var(--ink-lo)]">Card flutuante com QR Code e link para os espectadores</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
+                      <input aria-label="Exibir QR Code no Palco" 
                         type="checkbox" 
                         checked={showQrCode}
                         onChange={(e) => setShowQrCode(e.target.checked)}
@@ -4246,6 +4248,7 @@ export function LeftSidebar({
           isLive={isLive}
           onBatchAddComments={onBatchAddComments}
           onClearComments={onClearComments}
+          authorName={currentUserName}
         />
       )}
 
@@ -4620,7 +4623,7 @@ export function LeftSidebar({
               <div className="space-y-2 pt-1.5">
                 {isSavingPreset ? (
                   <div className="flex gap-1.5 animate-in slide-in-from-bottom-1 duration-150">
-                    <input
+                    <input aria-label="Nome da predefinição de marca"
                       type="text"
                       value={newPresetName}
                       onChange={(e) => setNewPresetName(e.target.value)}
@@ -4707,7 +4710,7 @@ export function LeftSidebar({
               
               {/* HTML custom color input */}
               <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-600 hover:scale-105 transition-all">
-                <input
+                <input aria-label="Cor da marca"
                   type="color"
                   value={streamColor}
                   onChange={(e) => onStreamColorChange(e.target.value)}
@@ -4965,10 +4968,10 @@ export function LeftSidebar({
             {/* Scale Slider */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-[var(--ink)] font-medium">Tamanho / Escala do Card</span>
+                <label htmlFor="leftsidebar-tamanho-escala-do-card" className="text-[var(--ink)] font-medium">Tamanho / Escala do Card</label>
                 <span className="font-mono text-blue-400 font-bold">{Math.round(sidebarSpeakerScale * 100)}%</span>
               </div>
-              <input
+              <input id="leftsidebar-tamanho-escala-do-card"
                 type="range"
                 min="0.6"
                 max="1.8"
@@ -5004,10 +5007,10 @@ export function LeftSidebar({
               {/* Zoom Slider */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-[var(--ink)] font-medium">Zoom (Crop)</span>
+                  <label htmlFor="leftsidebar-zoom-crop" className="text-[var(--ink)] font-medium">Zoom (Crop)</label>
                   <span className="font-mono text-blue-400 font-bold">{Math.round(cameraZoom * 100)}%</span>
                 </div>
-                <input
+                <input id="leftsidebar-zoom-crop"
                   type="range"
                   min="1"
                   max="3"
@@ -5021,12 +5024,12 @@ export function LeftSidebar({
               {/* Offset X Slider */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-[var(--ink)] font-medium">Posição Horizontal (X)</span>
+                  <label htmlFor="leftsidebar-posicao-horizontal-x" className="text-[var(--ink)] font-medium">Posição Horizontal (X)</label>
                   <span className="font-mono text-blue-400 font-bold">
                     {cameraOffsetX > 0 ? `+${cameraOffsetX}` : cameraOffsetX}%
                   </span>
                 </div>
-                <input
+                <input id="leftsidebar-posicao-horizontal-x"
                   type="range"
                   min="-100"
                   max="100"
@@ -5040,12 +5043,12 @@ export function LeftSidebar({
               {/* Offset Y Slider */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-[var(--ink)] font-medium">Posição Vertical (Y)</span>
+                  <label htmlFor="leftsidebar-posicao-vertical-y" className="text-[var(--ink)] font-medium">Posição Vertical (Y)</label>
                   <span className="font-mono text-blue-400 font-bold">
                     {cameraOffsetY > 0 ? `+${cameraOffsetY}` : cameraOffsetY}%
                   </span>
                 </div>
-                <input
+                <input id="leftsidebar-posicao-vertical-y"
                   type="range"
                   min="-100"
                   max="100"
@@ -5065,7 +5068,7 @@ export function LeftSidebar({
                   <p className="text-[9px] text-[var(--ink-lo)] leading-tight mt-0.5">Mantenha habilitado para visualização natural ou desative para que textos em slides ou no fundo fiquem legíveis.</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                  <input 
+                  <input aria-label="Espelhar Câmera (Mirror)" 
                     type="checkbox" 
                     checked={mirrorCamera}
                     onChange={(e) => onMirrorCameraChange(e.target.checked)}
@@ -5085,7 +5088,7 @@ export function LeftSidebar({
                 <p className="text-[10px] text-[var(--ink-lo)] mt-0.5 leading-normal">Remova ou substitua o fundo da sua câmera principal.</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
+                <input aria-label="Croma Key (Fundo Verde)" 
                   type="checkbox" 
                   checked={chromaKeyEnabled}
                   onChange={(e) => onChromaKeyEnabledChange(e.target.checked)}
@@ -5126,7 +5129,7 @@ export function LeftSidebar({
                     </div>
                     {/* HTML color picker */}
                     <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-gray-600 hover:scale-105 transition-all shrink-0">
-                      <input
+                      <input aria-label="Cor do chroma key"
                         type="color"
                         value={chromaColor}
                         onChange={(e) => onChromaColorChange(e.target.value)}
@@ -5146,10 +5149,10 @@ export function LeftSidebar({
                 {/* Tolerance slider */}
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-[var(--ink)] font-medium">Tolerância da Cor</span>
+                    <label htmlFor="leftsidebar-tolerancia-da-cor" className="text-[var(--ink)] font-medium">Tolerância da Cor</label>
                     <span className="font-mono text-blue-400 font-bold">{chromaTolerance}%</span>
                   </div>
-                  <input
+                  <input id="leftsidebar-tolerancia-da-cor"
                     type="range"
                     min="10"
                     max="100"
@@ -5166,10 +5169,10 @@ export function LeftSidebar({
                 {/* Edge Softness slider */}
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-[var(--ink)] font-medium">Suavização das Bordas</span>
+                    <label htmlFor="leftsidebar-suavizacao-das-bordas" className="text-[var(--ink)] font-medium">Suavização das Bordas</label>
                     <span className="font-mono text-blue-400 font-bold">{chromaEdgeSoftness}%</span>
                   </div>
-                  <input
+                  <input id="leftsidebar-suavizacao-das-bordas"
                     type="range"
                     min="0"
                     max="100"
@@ -5186,10 +5189,10 @@ export function LeftSidebar({
                 {/* Spill Suppression slider */}
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-[var(--ink)] font-medium">Descarte de Brilho (Spill)</span>
+                    <label htmlFor="leftsidebar-descarte-de-brilho-spill" className="text-[var(--ink)] font-medium">Descarte de Brilho (Spill)</label>
                     <span className="font-mono text-blue-400 font-bold">{chromaSpillSuppression}%</span>
                   </div>
-                  <input
+                  <input id="leftsidebar-descarte-de-brilho-spill"
                     type="range"
                     min="0"
                     max="100"
@@ -5219,7 +5222,7 @@ export function LeftSidebar({
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
+                <input aria-label="Cronômetro de Espera / Intervalo" 
                   type="checkbox" 
                   checked={showCountdownOnScreen}
                   onChange={(e) => setShowCountdownOnScreen && setShowCountdownOnScreen(e.target.checked)}
@@ -5301,12 +5304,12 @@ export function LeftSidebar({
                 {/* Custom Duration Slider */}
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-[var(--ink)] font-medium">Duração Personalizada</span>
+                    <label htmlFor="leftsidebar-duracao-personalizada" className="text-[var(--ink)] font-medium">Duração Personalizada</label>
                     <span className="font-mono text-blue-400 font-bold">
                       {Math.floor(countdownDuration / 60)}m {countdownDuration % 60}s
                     </span>
                   </div>
-                  <input
+                  <input id="leftsidebar-duracao-personalizada"
                     type="range"
                     min="30"
                     max="1800"
@@ -5401,10 +5404,10 @@ export function LeftSidebar({
 
             <div className="space-y-3">
               <div>
-                <label className="block text-[10px] font-bold text-[var(--ink)] uppercase tracking-wider mb-1">
+                <label htmlFor="leftsidebar-titulo-principal-banner" className="block text-[10px] font-bold text-[var(--ink)] uppercase tracking-wider mb-1">
                   Título Principal (Banner)
                 </label>
-                <input
+                <input id="leftsidebar-titulo-principal-banner"
                   type="text"
                   value={bannerInputTitle}
                   onChange={(e) => setBannerInputTitle(e.target.value)}
@@ -5415,10 +5418,10 @@ export function LeftSidebar({
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-[var(--ink)] uppercase tracking-wider mb-1">
+                <label htmlFor="leftsidebar-subtitulo-cabecalho-superior" className="block text-[10px] font-bold text-[var(--ink)] uppercase tracking-wider mb-1">
                   Subtítulo / Cabeçalho Superior
                 </label>
-                <input
+                <input id="leftsidebar-subtitulo-cabecalho-superior"
                   type="text"
                   value={bannerInputSubtitle}
                   onChange={(e) => setBannerInputSubtitle(e.target.value)}

@@ -510,7 +510,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
             <div className="relative w-full sm:w-64">
               <Search size={14} className="absolute left-3 top-3 text-[var(--ink-dim)]" />
-              <input
+              <input aria-label="Buscar clientes"
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -545,7 +545,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
                     </td>
                     <td className="p-3.5 font-mono text-[var(--ink-lo)]">{client.email}</td>
                     <td className="p-3.5">
-                      <select
+                      <select aria-label={`Plano de ${client.name}`}
                         value={client.plan}
                         onChange={(e) => handleChangeClientPlan(client.id, client.email, e.target.value as any)}
                         className="bg-[var(--bg)] border border-[var(--line)] rounded-lg px-2 py-1 text-[11px] font-bold text-blue-400 focus:outline-none focus:border-amber-500"

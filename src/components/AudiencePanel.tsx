@@ -105,7 +105,7 @@ export function AudiencePanel() {
       <div className="flex gap-2">
         <div className="relative flex-1">
           <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ink-lo)]" />
-          <input 
+          <input aria-label="Buscar espectadores" 
             type="text" 
             placeholder="Buscar espectadores..." 
             value={search}
@@ -113,7 +113,7 @@ export function AudiencePanel() {
             className="w-full bg-[var(--bg)] border border-[var(--line-ctl)] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-colors"
           />
         </div>
-        <select 
+        <select aria-label="Filtrar espectadores" 
           value={filter}
           onChange={(e) => setFilter(e.target.value as any)}
           className="bg-[var(--bg)] border border-[var(--line-ctl)] rounded-lg px-2 py-1.5 text-xs text-[var(--ink)] focus:outline-none focus:border-blue-500 cursor-pointer"

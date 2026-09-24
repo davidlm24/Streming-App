@@ -1694,7 +1694,7 @@ export default function App() {
     const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
     const newComment: Comment = {
       id: `user-comm-${Date.now()}`,
-      authorName: 'Marcos (Você)',
+      authorName: user?.name ? `${user.name.split(' ')[0]} (Você)` : 'Você',
       authorAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
       text,
       platform: 'studio',
@@ -2254,6 +2254,7 @@ export default function App() {
                       onPostComment={handlePostComment}
                       onBatchAddComments={handleBatchAddComments}
                       onClearComments={handleClearComments}
+                      currentUserName={user?.name?.split(' ')[0]}
                       isAiModerationEnabled={isAiModerationEnabled}
                       onToggleAiModeration={setIsAiModerationEnabled}
                       aiModerationMode={aiModerationMode}
@@ -2648,6 +2649,7 @@ export default function App() {
                     onPostComment={handlePostComment}
                     onBatchAddComments={handleBatchAddComments}
                     onClearComments={handleClearComments}
+                    currentUserName={user?.name?.split(' ')[0]}
                     isAiModerationEnabled={isAiModerationEnabled}
                     onToggleAiModeration={setIsAiModerationEnabled}
                     aiModerationMode={aiModerationMode}
@@ -3446,9 +3448,9 @@ export default function App() {
                     
                     <div className="space-y-2.5">
                       <div>
-                        <p className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL do Servidor RTMP Primário (Ingestion)</p>
+                        <label htmlFor="app-url-do-servidor-rtmp-primario" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL do Servidor RTMP Primário (Ingestion)</label>
                         <div className="flex gap-2 mt-1">
-                          <input 
+                          <input id="app-url-do-servidor-rtmp-primario" 
                             type="text" 
                             readOnly 
                             value="rtmp://stream.pwstreamer.com:1935/live" 
@@ -3461,9 +3463,9 @@ export default function App() {
                       </div>
 
                       <div>
-                        <p className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Chave de Transmissão (Stream Key)</p>
+                        <label htmlFor="app-chave-de-transmissao-stream-key" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Chave de Transmissão (Stream Key)</label>
                         <div className="flex gap-2 mt-1">
-                          <input 
+                          <input id="app-chave-de-transmissao-stream-key" 
                             type="password" 
                             readOnly 
                             value="live_5427901_pw_prod_99a8x72cd" 

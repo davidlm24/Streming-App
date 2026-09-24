@@ -581,7 +581,7 @@ export function WebinarPublicPage({
 
                   {/* Submission form */}
                   <form onSubmit={handleSendChat} className="flex gap-2">
-                    <input
+                    <input aria-label="Mensagem para o chat"
                       type="text"
                       required
                       placeholder="Envie uma mensagem..."

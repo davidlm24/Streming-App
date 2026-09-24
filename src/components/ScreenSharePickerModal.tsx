@@ -495,7 +495,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
               {/* Search input */}
               <div className="relative">
                 <Search size={14} className="absolute left-2.5 top-2.5 text-[var(--ink-lo)]" />
-                <input
+                <input aria-label="Pesquisar fontes"
                   type="text"
                   placeholder="Pesquisar fontes..."
                   value={searchQuery}
@@ -1189,7 +1189,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-2.5 flex flex-col gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 z-10">
                             {/* Seek slider */}
                             <div className="flex items-center gap-2">
-                              <input
+                              <input aria-label="Posição do vídeo"
                                 type="range"
                                 min={0}
                                 max={videoDuration || 100}

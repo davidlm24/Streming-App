@@ -816,7 +816,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       </div>
 
                       <div className="flex items-center gap-2 bg-[var(--surface)] p-2.5 rounded-xl border border-[var(--line)]/80">
-                        <input 
+                        <input aria-label="Chave PIX" 
                           type="text" 
                           readOnly 
                           value="00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98" 

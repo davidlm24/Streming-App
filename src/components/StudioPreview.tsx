@@ -4054,7 +4054,7 @@ export function StudioPreview({
 
               {/* Custom HTML Color Picker */}
               <div className="relative w-5 h-5 rounded-full overflow-hidden border border-[var(--line-ctl)] hover:scale-115 transition-all shrink-0 cursor-pointer flex items-center justify-center">
-                <input
+                <input aria-label="Cor do pincel"
                   type="color"
                   value={drawColor}
                   onChange={(e) => {

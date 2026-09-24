@@ -206,10 +206,10 @@ export function StudioScenePreviewControls({
                   {/* Duration Slider */}
                   <div className="pt-2 border-t border-[var(--line)] px-1 space-y-1">
                     <div className="flex items-center justify-between text-[9px] text-[var(--ink-lo)]">
-                      <span>Duração:</span>
+                      <label htmlFor="studioscenepreviewcontrols-duracao">Duração:</label>
                       <span className="font-mono text-[var(--ink-hi)] font-bold">{transitionDuration}ms</span>
                     </div>
-                    <input
+                    <input id="studioscenepreviewcontrols-duracao" aria-label="Duração da transição"
                       type="range"
                       min="100"
                       max="1000"

@@ -505,10 +505,10 @@ export function AddChannelsModal({
               {/* Form fields */}
               <div className="space-y-3.5 text-left">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)] mb-1">
+                  <label htmlFor="addchannelsmodal-nome-de-exibicao-do-canal" className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)] mb-1">
                     Nome de Exibição do Canal
                   </label>
-                  <input
+                  <input id="addchannelsmodal-nome-de-exibicao-do-canal"
                     type="text"
                     value={channelName}
                     onChange={(e) => setChannelName(e.target.value)}
@@ -518,10 +518,10 @@ export function AddChannelsModal({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)] mb-1">
+                  <label htmlFor="addchannelsmodal-url-do-servidor-rtmp-rtmps" className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)] mb-1">
                     URL do Servidor RTMP / RTMPS
                   </label>
-                  <input
+                  <input id="addchannelsmodal-url-do-servidor-rtmp-rtmps"
                     type="text"
                     value={streamUrl}
                     onChange={(e) => setStreamUrl(e.target.value)}
@@ -532,7 +532,7 @@ export function AddChannelsModal({
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)]">
+                    <label htmlFor="addchannelsmodal-chave-de-transmissao-stream-key" className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)]">
                       Chave de Transmissão (Stream Key)
                     </label>
                     <button
@@ -543,7 +543,7 @@ export function AddChannelsModal({
                       {showKey ? 'Ocultar' : 'Mostrar'}
                     </button>
                   </div>
-                  <input
+                  <input id="addchannelsmodal-chave-de-transmissao-stream-key"
                     type={showKey ? 'text' : 'password'}
                     value={streamKey}
                     onChange={(e) => setStreamKey(e.target.value)}

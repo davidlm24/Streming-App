@@ -744,10 +744,10 @@ export function CustomDestinationModal({
               {/* Row 1: Name and Platform */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
+                  <label htmlFor="customdestinationmodal-nome-rotulo-amigavel" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
                     Nome / Rótulo Amigável <span className="text-red-400">*</span>
                   </label>
-                  <input
+                  <input id="customdestinationmodal-nome-rotulo-amigavel"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -757,10 +757,10 @@ export function CustomDestinationModal({
                 </div>
 
                 <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
+                  <label htmlFor="customdestinationmodal-tipo-de-plataforma-protocol" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
                     Tipo de Plataforma / Protocolo
                   </label>
-                  <select
+                  <select id="customdestinationmodal-tipo-de-plataforma-protocol"
                     value={platform}
                     onChange={(e) => {
                       const selectedPlat = e.target.value;
@@ -790,14 +790,14 @@ export function CustomDestinationModal({
                 {/* Primary Ingest URL */}
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block flex items-center gap-1.5">
+                    <label htmlFor="customdestinationmodal-url-de-destino-ingest-rtmp" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                       URL de Destino / Ingest RTMP Primário <span className="text-red-400">*</span>
                     </label>
                     <span className="text-[9px] text-[var(--ink-dim)] font-mono">rtmp:// ou rtmps://</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <input
+                    <input id="customdestinationmodal-url-de-destino-ingest-rtmp"
                       type="text"
                       value={streamUrl}
                       onChange={(e) => {
@@ -826,14 +826,14 @@ export function CustomDestinationModal({
                 {/* Alternative / Redundant Ingest URL */}
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-purple-300 uppercase tracking-wider block flex items-center gap-1.5">
+                    <label htmlFor="customdestinationmodal-servidor-rtmp-de-ingestao-a" className="text-[10px] font-bold text-purple-300 uppercase tracking-wider block flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
                       Servidor RTMP de Ingestão Alternativo (Backup / Redundância Failover)
                     </label>
                     <span className="text-[9px] text-purple-400/80 font-mono">Opcional</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <input
+                    <input id="customdestinationmodal-servidor-rtmp-de-ingestao-a"
                       type="text"
                       value={alternativeIngestUrl}
                       onChange={(e) => {
@@ -988,7 +988,7 @@ export function CustomDestinationModal({
               {/* Row 3: Stream Key with Generator and Toggle Visibility */}
               <div className="space-y-1.5 text-left">
                 <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
+                  <label htmlFor="customdestinationmodal-chave-de-fluxo-stream-key" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
                     Chave de Fluxo (Stream Key)
                   </label>
                   <Button variant="ghost" size="sm" onClick={handleGenerateKey} icon={<Key size={10} />}>
@@ -997,7 +997,7 @@ export function CustomDestinationModal({
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
-                    <input
+                    <input id="customdestinationmodal-chave-de-fluxo-stream-key"
                       type={showKey ? 'text' : 'password'}
                       value={streamKey}
                       onChange={(e) => setStreamKey(e.target.value)}
@@ -1075,10 +1075,10 @@ export function CustomDestinationModal({
               {/* Row 5: Notes and Broadcast toggle */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                 <div className="space-y-1 text-left">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
+                  <label htmlFor="customdestinationmodal-notas-descricao-interna" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
                     Notas / Descrição Interna
                   </label>
-                  <input
+                  <input id="customdestinationmodal-notas-descricao-interna"
                     type="text"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}

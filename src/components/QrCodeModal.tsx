@@ -356,7 +356,7 @@ export function QrCodeModal({
                 {/* Store URL & Destination */}
                 <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
+                    <label htmlFor="qrcodemodal-link-da-loja-destino-do-qr-code" className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                       <LinkIcon size={14} className="text-blue-400" />
                       Link da Loja / Destino do QR Code *
                     </label>
@@ -364,7 +364,7 @@ export function QrCodeModal({
                   </div>
 
                   <div className="relative">
-                    <input
+                    <input id="qrcodemodal-link-da-loja-destino-do-qr-code"
                       type="url"
                       value={form.storeUrl}
                       onChange={(e) => setForm(prev => ({ ...prev, storeUrl: e.target.value }))}

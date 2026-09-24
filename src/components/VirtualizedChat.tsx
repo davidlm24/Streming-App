@@ -17,6 +17,8 @@ interface VirtualizedChatProps {
   isLive?: boolean;
   onBatchAddComments?: (comments: Comment[]) => void;
   onClearComments?: () => void;
+  /** Primeiro nome de quem esta logado — o autor das respostas. */
+  authorName?: string;
 }
 
 const ESTIMATED_ITEM_HEIGHT = 74; // Estimated average height of a comment card in px
@@ -33,6 +35,7 @@ export function VirtualizedChat({
   isLive = false,
   onBatchAddComments,
   onClearComments,
+  authorName,
 }: VirtualizedChatProps) {
   // State
   const [typedComment, setTypedComment] = useState('');
@@ -385,7 +388,7 @@ export function VirtualizedChat({
         {/* Search Bar (Collapsible) */}
         {isSearchOpen && (
           <div className="relative">
-            <input
+            <input aria-label="Buscar no chat"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -645,11 +648,11 @@ export function VirtualizedChat({
       {/* 3. Comment Submission Form */}
       <form onSubmit={handleCommentSubmit} className="space-y-1.5 shrink-0 pt-0.5">
         <div className="flex gap-2">
-          <input
+          <input aria-label="Mensagem para o chat"
             type="text"
             value={typedComment}
             onChange={(e) => setTypedComment(e.target.value)}
-            placeholder="Responda como Marcos..."
+            placeholder={authorName ? `Responda como ${authorName}...` : 'Escreva uma mensagem...'}
             className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all"
           />
           <button

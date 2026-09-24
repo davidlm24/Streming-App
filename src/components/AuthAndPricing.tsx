@@ -943,12 +943,12 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs font-bold text-[var(--ink-hi)]">Chave PIX Simulada</p>
+                        <label htmlFor="authandpricing-chave-pix-simulada" className="block text-xs font-bold text-[var(--ink-hi)]">Chave PIX Simulada</label>
                         <p className="text-[0.625rem] text-[var(--ink-dim)]">Escaneie ou copie a chave de testes abaixo.</p>
                       </div>
 
                       <div className="flex items-center gap-2 bg-[var(--surface)] p-2 rounded-xl border border-[var(--line)]">
-                        <input 
+                        <input id="authandpricing-chave-pix-simulada" 
                           type="text" 
                           readOnly 
                           value="00020126580014br.gov.bcb.pix0136pwstreamer-mercado-pago-sandbox-key-98" 

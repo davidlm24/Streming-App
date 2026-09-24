@@ -858,10 +858,10 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
 
             {/* Step 2: Select Event Type */}
             <div className="space-y-1.5 pt-2 border-t border-[var(--line)]/80">
-              <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
+              <label htmlFor="webhookpanel-tipo-de-evento-subscricao" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
                 2. Tipo de Evento / Subscrição
               </label>
-              <select
+              <select id="webhookpanel-tipo-de-evento-subscricao"
                 value={selectedEventTypeId}
                 onChange={(e) => setSelectedEventTypeId(e.target.value)}
                 className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 font-semibold transition-all cursor-pointer"
@@ -880,7 +880,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             {/* Step 3: Target Endpoint URL */}
             <div className="space-y-1.5 pt-2 border-t border-[var(--line)]/80">
               <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
+                <label htmlFor="webhookpanel-destino-http-endpoint" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">
                   3. Destino HTTP (Endpoint)
                 </label>
                 <div className="flex gap-1.5">
@@ -909,7 +909,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                 </div>
               </div>
 
-              <input
+              <input id="webhookpanel-destino-http-endpoint"
                 type="text"
                 value={targetEndpointUrl === 'internal' ? 'https://pwstreamer.local/api/webhooks/receiver (Receptor Local Embutido)' : targetEndpointUrl}
                 onChange={(e) => setTargetEndpointUrl(e.target.value)}
@@ -926,7 +926,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
 
             {/* Step 4: Secret Key & HMAC signing */}
             <div className="space-y-1.5 pt-2 border-t border-[var(--line)]/80">
-              <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block flex items-center justify-between">
+              <label htmlFor="webhookpanel-chave-secreta-hmac" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block flex items-center justify-between">
                 <span className="flex items-center gap-1">
                   <Key size={12} className="text-amber-400" />
                   Chave Secreta HMAC (Assinatura SHA-256)
@@ -936,7 +936,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                 </span>
               </label>
               <div className="flex gap-2">
-                <input
+                <input id="webhookpanel-chave-secreta-hmac" aria-label="Chave Secreta HMAC (Assinatura SHA-256)"
                   type="text"
                   value={secretKey}
                   onChange={(e) => setSecretKey(e.target.value)}
@@ -956,11 +956,11 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
 
             {/* Step 5: Custom Headers */}
             <div className="space-y-1.5 pt-2 border-t border-[var(--line)]/80">
-              <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block flex items-center justify-between">
+              <label htmlFor="webhookpanel-headers-http-adicionais-json" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block flex items-center justify-between">
                 <span>Headers HTTP Adicionais (JSON)</span>
                 <span className="text-[9px] text-[var(--ink-dim)] font-mono">Custom Headers</span>
               </label>
-              <textarea
+              <textarea id="webhookpanel-headers-http-adicionais-json" aria-label="Headers HTTP Adicionais (JSON)"
                 rows={2}
                 value={customHeadersJson}
                 onChange={(e) => setCustomHeadersJson(e.target.value)}
@@ -1001,9 +1001,9 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
               <div className="flex items-center justify-between border-b border-[var(--line)]/80 pb-3">
                 <div className="flex items-center gap-2">
                   <Code size={16} className="text-blue-400" />
-                  <span className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider">
+                  <label htmlFor="webhookpanel-editor-de-payload-json" className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider">
                     Editor de Payload JSON (Corpo da Requisição)
-                  </span>
+                  </label>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -1028,7 +1028,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
 
               {/* JSON Textarea with syntax feel */}
               <div className="flex-1 min-h-[260px] relative">
-                <textarea
+                <textarea id="webhookpanel-editor-de-payload-json"
                   value={payloadText}
                   onChange={(e) => setPayloadText(e.target.value)}
                   className="w-full h-full min-h-[260px] bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl p-3 font-mono text-[11px] leading-relaxed text-emerald-300 placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 resize-y"
@@ -1138,7 +1138,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             {/* Search Input */}
             <div className="relative">
               <Search size={14} className="absolute left-3 top-3 text-[var(--ink-dim)]" />
-              <input
+              <input aria-label="Buscar nos logs"
                 type="text"
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
@@ -1148,7 +1148,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             </div>
 
             {/* Platform Filter */}
-            <select
+            <select aria-label="Filtrar por plataforma"
               value={platformFilter}
               onChange={(e) => setPlatformFilter(e.target.value)}
               className="bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 cursor-pointer"
@@ -1163,7 +1163,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             </select>
 
             {/* Status Filter */}
-            <select
+            <select aria-label="Filtrar por status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 cursor-pointer"
@@ -1174,7 +1174,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
             </select>
 
             {/* Mode Filter */}
-            <select
+            <select aria-label="Filtrar por modo"
               value={modeFilter}
               onChange={(e) => setModeFilter(e.target.value)}
               className="bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 cursor-pointer"
