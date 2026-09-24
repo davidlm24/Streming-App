@@ -70,6 +70,12 @@ export function Modal({
     if (dismissible) onClose();
   }, [dismissible, onClose]);
 
+  // O efeito de foco abaixo precisa do `handleClose` ATUAL sem depender dele.
+  // Este ref é a diferença entre um diálogo que funciona e um que descarta o
+  // formulário do usuário — ver a nota no efeito.
+  const handleCloseRef = useRef(handleClose);
+  useEffect(() => { handleCloseRef.current = handleClose; }, [handleClose]);
+
   // ── trava de rolagem ────────────────────────────────────────────────────
   // Contada: com dois diálogos abertos, fechar o de cima não pode devolver a
   // rolagem enquanto o de baixo continua aberto.
@@ -85,6 +91,19 @@ export function Modal({
   }, [isOpen]);
 
   // ── foco: prende dentro, devolve ao fechar ──────────────────────────────
+  // As dependências são SÓ `isOpen`, e isso é deliberado.
+  //
+  // Antes eram `[isOpen, handleClose]`. `handleClose` deriva de `onClose`, e
+  // todo ponto de chamada passa uma arrow inline — `onClose={() => setX(false)}`
+  // — que é uma função NOVA a cada render do pai. Resultado: digitar um
+  // caractere num campo dentro do diálogo re-renderizava o pai, mudava a
+  // identidade de `handleClose`, reexecutava este efeito e a linha
+  // `(first ?? panel).focus()` jogava o foco no primeiro focável, que é o
+  // botão de fechar. A tecla seguinte o acionava: o diálogo fechava e o que
+  // tinha sido digitado ia junto.
+  //
+  // Prender o foco ao ABRIR é o comportamento certo; refazê-lo a cada tecla
+  // não. O listener continua vendo o `handleClose` atual pelo ref acima.
   useEffect(() => {
     if (!isOpen) return;
     restoreFocusRef.current = document.activeElement as HTMLElement | null;
@@ -98,7 +117,9 @@ export function Modal({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation();
-        handleClose();
+        // Pelo ref: com as dependências reduzidas a [isOpen], uma chamada
+        // direta a `handleClose` ficaria presa ao primeiro render.
+        handleCloseRef.current();
         return;
       }
       if (e.key !== 'Tab' || !panel) return;
@@ -127,7 +148,7 @@ export function Modal({
       // página, que é como se perde o lugar numa lista longa.
       restoreFocusRef.current?.focus?.();
     };
-  }, [isOpen, handleClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

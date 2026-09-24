@@ -208,7 +208,13 @@ export function Header({
           </div>
 
           {/* RIGHT CONTAINER: Control buttons, trial indicator, live triggers, and profile */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
+          {/* `shrink-0` e `min-w-0` juntos eram intenções contraditórias —
+              "nunca encolha" contra "pode encolher abaixo do conteúdo" — e
+              ganhava o shrink-0. Com 846px de controles num cabeçalho de
+              1100px, o grupo empurrava 175px para fora da tela: a página
+              inteira ganhava rolagem horizontal em qualquer laptop abaixo de
+              ~1274px. Sem o shrink-0, o flex distribui o que existe. */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
             
             {/* 1. Botão Adicionar Canais (Reduzido conforme solicitado) */}
             {/* Era gradiente azul→índigo com hover:scale — os dois tiques que
@@ -452,7 +458,10 @@ export function Header({
                   className="w-9 h-9 rounded-full border-2 border-blue-500"
                   referrerPolicy="no-referrer"
                 />
-                <div className="hidden sm:block">
+                {/* Aparecia a partir de 640px e custava 145px fixos no meio da
+                    faixa onde o cabeçalho já não cabia. O avatar identifica a
+                    conta sozinho; o nome volta quando há espaço para ele. */}
+                <div className="hidden xl:block min-w-0">
                   <p className="text-xs text-[var(--ink-lo)] leading-tight font-medium">Conta de</p>
                   <p className="text-sm font-semibold text-[var(--ink-hi)] leading-tight flex items-center gap-1">
                     {user ? user.name : 'Visitante'} <ChevronDown size={14} className="text-[var(--ink-lo)]" />
