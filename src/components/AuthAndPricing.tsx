@@ -747,7 +747,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 onClick={() => { setSelectedGateway('stripe'); setCheckoutError(''); }}
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'stripe' 
-                    ? 'bg-blue-500/10 border-blue-500 text-white' 
+                    ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)]' 
                     : 'bg-[var(--bg)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                 }`}
               >
@@ -758,7 +758,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 onClick={() => { setSelectedGateway('paypal'); setCheckoutError(''); }}
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'paypal' 
-                    ? 'bg-blue-500/10 border-blue-500 text-white' 
+                    ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)]' 
                     : 'bg-[var(--bg)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                 }`}
               >
@@ -769,7 +769,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 onClick={() => { setSelectedGateway('mercadopago'); setCheckoutError(''); }}
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'mercadopago' 
-                    ? 'bg-blue-500/10 border-blue-500 text-white' 
+                    ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)]' 
                     : 'bg-[var(--bg)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                 }`}
               >

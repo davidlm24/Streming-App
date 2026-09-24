@@ -187,7 +187,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
             onClick={() => setClientTab(tab.id as any)}
             className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
               clientTab === tab.id 
-                ? 'border-blue-500 text-white bg-blue-500/5' 
+                ? 'border-blue-500 text-[var(--ink-hi)] bg-blue-500/5' 
                 : 'border-transparent text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
             }`}
           >

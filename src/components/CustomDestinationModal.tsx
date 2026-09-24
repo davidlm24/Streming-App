@@ -632,7 +632,7 @@ export function CustomDestinationModal({
                       onClick={() => loadDestinationIntoForm(dest)}
                       className={`p-3 rounded-xl border transition-all cursor-pointer relative group flex items-center justify-between ${
                         isCurrent
-                          ? 'bg-blue-600/15 border-blue-500 ring-1 ring-blue-500/40 text-white shadow-md'
+                          ? 'bg-blue-600/15 border-blue-500 ring-1 ring-blue-500/40 text-[var(--ink-hi)] shadow-md'
                           : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink)] hover:border-[var(--line-ctl)] hover:bg-[var(--surface)]'
                       }`}
                     >
@@ -727,7 +727,7 @@ export function CustomDestinationModal({
                     onClick={() => handleApplyPreset(preset)}
                     className={`p-1.5 rounded-lg border text-left transition-all text-[10px] flex items-center gap-1.5 cursor-pointer ${
                       platform === preset.platform
-                        ? 'bg-blue-600/20 border-blue-500 text-white font-bold'
+                        ? 'bg-blue-600/20 border-blue-500 text-[var(--ink-hi)] font-bold'
                         : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:border-[var(--line-ctl)]'
                     }`}
                   >

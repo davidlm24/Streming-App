@@ -1374,7 +1374,7 @@ export function LeftSidebar({
                 onClick={onToggleMute}
                 className={`w-full touch-action-btn py-2 px-3 rounded-xl border text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   isMuted
-                    ? 'bg-red-600/10 border-red-500 text-white'
+                    ? 'bg-red-600/10 border-red-500 text-[var(--ink-hi)]'
                     : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink)] hover:text-[var(--ink-hi)] hover:border-[var(--line-ctl)]'
                 }`}
               >
@@ -1603,7 +1603,7 @@ export function LeftSidebar({
                   onClick={() => onToggleParticipantActive(p.id)}
                   className={`w-full text-left rounded-xl p-2.5 border transition-all relative flex items-center justify-between ${
                     p.isActive 
-                      ? 'bg-blue-500/10 border-blue-500 ring-1 ring-blue-500/30 text-white' 
+                      ? 'bg-blue-500/10 border-blue-500 ring-1 ring-blue-500/30 text-[var(--ink-hi)]' 
                       : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)]'
                   }`}
                 >
@@ -2052,7 +2052,7 @@ export function LeftSidebar({
                         onClick={() => onToggleDestination(dest.id)}
                         className={`w-full flex items-center justify-between p-2.5 rounded-lg border transition-all text-left group cursor-pointer ${
                           dest.selected 
-                            ? 'bg-blue-500/10 border-blue-500 text-white ring-1 ring-blue-500/20' 
+                            ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)] ring-1 ring-blue-500/20' 
                             : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)]'
                         }`}
                       >
@@ -3081,7 +3081,7 @@ export function LeftSidebar({
                               onClick={() => onPlayTrack(track.id)}
                               className={`group flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer ${
                                 isCurrent 
-                                  ? 'bg-blue-500/15 border-blue-500 text-white' 
+                                  ? 'bg-blue-500/15 border-blue-500 text-[var(--ink-hi)]' 
                                   : 'bg-[var(--bg)] border-[var(--line)] text-[var(--ink)] hover:border-[var(--line-ctl)]'
                               }`}
                             >
@@ -3994,7 +3994,7 @@ export function LeftSidebar({
                         }}
                         className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                           (qrCodeConfig?.orientation || 'horizontal') === 'horizontal'
-                            ? 'bg-blue-600/20 border-blue-500 text-white font-bold ring-1 ring-blue-500/30'
+                            ? 'bg-blue-600/20 border-blue-500 text-[var(--ink-hi)] font-bold ring-1 ring-blue-500/30'
                             : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
@@ -4012,7 +4012,7 @@ export function LeftSidebar({
                         }}
                         className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                           qrCodeConfig?.orientation === 'vertical' || bannerPosition === 'lateral'
-                            ? 'bg-blue-600/20 border-blue-500 text-white font-bold ring-1 ring-blue-500/30'
+                            ? 'bg-blue-600/20 border-blue-500 text-[var(--ink-hi)] font-bold ring-1 ring-blue-500/30'
                             : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)] hover:text-[var(--ink-hi)]'
                         }`}
                       >

@@ -370,7 +370,7 @@ export function ControlTray({
               className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                 isMuted 
                   ? 'bg-red-600 text-white hover:bg-red-500 shadow-md' 
-                  : 'bg-blue-500/10 text-white hover:bg-blue-500/20'
+                  : 'bg-blue-500/10 text-[var(--ink-hi)] hover:bg-blue-500/20'
               }`}
               title={isMuted ? "Ativar Microfone" : "Mutar Microfone"}
             >
@@ -465,7 +465,7 @@ export function ControlTray({
               className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                 isScreenSharing 
                   ? 'bg-[var(--color-brand-deep)] text-white shadow-md' 
-                  : 'bg-blue-500/10 text-white hover:bg-blue-500/20'
+                  : 'bg-blue-500/10 text-[var(--ink-hi)] hover:bg-blue-500/20'
               }`}
               title={isScreenSharing ? "Parar Compartilhamento" : "Escolher o que compartilhar"}
             >

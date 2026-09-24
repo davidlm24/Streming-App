@@ -515,10 +515,16 @@ export function Header({
               )}
             </div>
 
-            {/* Mobile Menu Button */}
-            <button 
+            {/* Mobile Menu Button
+                Sumia em `md` (768px), mas a nav de desktop só aparece em `lg`
+                (1024px). Entre 768 e 1023px — tablet em pé, laptop pequeno,
+                janela dividida — não existia navegação NENHUMA: nem a barra,
+                nem o menu. Os dois breakpoints agora se encontram em `lg`. */}
+            <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden text-[var(--ink-hi)] p-2 hover:bg-[var(--panel)] rounded cursor-pointer"
+              aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
+              aria-expanded={menuOpen}
+              className="lg:hidden text-[var(--ink-hi)] p-2 hover:bg-[var(--panel)] rounded cursor-pointer"
             >
               <Menu size={24} />
             </button>
@@ -528,7 +534,7 @@ export function Header({
 
       {/* Mobile Nav Links dropdown */}
       {menuOpen && (
-        <div className="md:hidden border-t border-[var(--line)] bg-[var(--surface)] px-4 pt-2 pb-4 space-y-1">
+        <div className="lg:hidden border-t border-[var(--line)] bg-[var(--surface)] px-4 pt-2 pb-4 space-y-1">
           <button onClick={() => { onViewChange?.('dashboard'); setMenuOpen(false); }} className="block w-full text-left text-[var(--ink)] hover:text-[var(--ink-hi)] px-3 py-2 rounded text-base font-medium cursor-pointer">
             Dashboard
           </button>

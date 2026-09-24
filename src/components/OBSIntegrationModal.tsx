@@ -276,7 +276,7 @@ export function OBSIntegrationModal({ isOpen, onClose, rtmpUrl: initialRtmpUrl, 
                     }}
                     className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
                       isSelected
-                        ? 'bg-blue-600/15 border-blue-500 ring-1 ring-blue-500/50 shadow-lg text-white'
+                        ? 'bg-blue-600/15 border-blue-500 ring-1 ring-blue-500/50 shadow-lg text-[var(--ink-hi)]'
                         : 'bg-[var(--well)] border-white/5 text-[var(--ink)] hover:border-white/20 hover:bg-white/5'
                     }`}
                   >

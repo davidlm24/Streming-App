@@ -482,7 +482,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             onClick={() => setActiveTab(tab.id as any)}
             className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
               activeTab === tab.id 
-                ? 'border-amber-500 text-white bg-amber-500/5' 
+                ? 'border-amber-500 text-[var(--ink-hi)] bg-amber-500/5' 
                 : 'border-transparent text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
             }`}
           >

@@ -554,7 +554,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           onClick={() => setSelectedItemId(item.id)}
                           className={`w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${
                             isSelected 
-                              ? 'bg-blue-500/10 border-blue-500 text-white font-bold ring-1 ring-blue-500/20' 
+                              ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)] font-bold ring-1 ring-blue-500/20' 
                               : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] text-[var(--ink)] hover:border-[var(--line-ctl)]'
                           }`}
                           id={`item-tab-${item.id}`}
@@ -590,7 +590,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             onClick={() => setSelectedItemId(item.id)}
                             className={`w-full text-left rounded-xl border transition-all cursor-pointer p-2 flex flex-col gap-2 relative group/card ${
                               isSelected 
-                                ? 'bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/25 text-white' 
+                                ? 'bg-blue-500/10 border-blue-500 ring-2 ring-blue-500/25 text-[var(--ink-hi)]' 
                                 : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] hover:border-[var(--line-ctl)] text-[var(--ink)]'
                             }`}
                             id={`item-win-expanded-${item.id}`}
@@ -628,7 +628,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           onClick={() => setSelectedItemId(item.id)}
                           className={`w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${
                             isSelected 
-                              ? 'bg-blue-500/10 border-blue-500 text-white font-bold ring-1 ring-blue-500/20' 
+                              ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)] font-bold ring-1 ring-blue-500/20' 
                               : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] text-[var(--ink)] hover:border-[var(--line-ctl)]'
                           }`}
                           id={`item-win-${item.id}`}
@@ -668,7 +668,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                             onClick={() => setSelectedItemId(item.id)}
                             className={`w-full text-left flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
                               isSelected 
-                                ? 'bg-blue-500/10 border-blue-500 text-white font-bold ring-1 ring-blue-500/20' 
+                                ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)] font-bold ring-1 ring-blue-500/20' 
                                 : 'bg-[var(--bg)] hover:bg-[var(--surface)] border-[var(--line)] text-[var(--ink)] hover:border-[var(--line-ctl)]'
                             }`}
                             id={`item-scr-${item.id}`}

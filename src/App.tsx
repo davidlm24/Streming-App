@@ -3348,7 +3348,7 @@ export default function App() {
                       <label 
                         key={chan} 
                         className={`flex items-center gap-2 p-2.5 bg-[var(--bg)] border rounded-xl cursor-pointer text-xs transition-all ${
-                          isChecked ? 'border-blue-500/40 bg-blue-500/5 text-white' : 'border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
+                          isChecked ? 'border-blue-500/40 bg-blue-500/5 text-[var(--ink-hi)]' : 'border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
                         <input

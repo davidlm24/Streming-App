@@ -201,17 +201,17 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
               Forma de Pagamento
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'card' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}>
+              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'card' ? 'border-blue-500 bg-blue-500/10 text-[var(--ink-hi)]' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}>
                 <input type="radio" name="paymethod" value="card" checked={method === 'card'} onChange={() => setMethod('card')} className="hidden" />
                 <CreditCard size={16} className="text-blue-400" />
                 <span className="text-xs font-semibold">Cartão de Crédito</span>
               </label>
-              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'pix' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}>
+              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'pix' ? 'border-blue-500 bg-blue-500/10 text-[var(--ink-hi)]' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}>
                 <input type="radio" name="paymethod" value="pix" checked={method === 'pix'} onChange={() => setMethod('pix')} className="hidden" />
                 <Sparkles size={16} className="text-emerald-400" />
                 <span className="text-xs font-semibold">PIX Instantâneo</span>
               </label>
-              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'paypal' ? 'border-blue-500 bg-blue-500/10 text-white' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}>
+              <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${method === 'paypal' ? 'border-blue-500 bg-blue-500/10 text-[var(--ink-hi)]' : 'border-[var(--line)] bg-[var(--bg)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}>
                 <input type="radio" name="paymethod" value="paypal" checked={method === 'paypal'} onChange={() => setMethod('paypal')} className="hidden" />
                 <Activity size={16} className="text-indigo-400" />
                 <span className="text-xs font-semibold">PayPal</span>

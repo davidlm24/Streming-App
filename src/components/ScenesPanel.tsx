@@ -220,7 +220,7 @@ export function ScenesPanel({
                 onClick={() => onToggleParticipantActive && onToggleParticipantActive(p.id)}
                 className={`w-full text-left rounded-xl p-2.5 border transition-all relative flex flex-col gap-2 cursor-pointer ${
                   p.isActive 
-                    ? 'bg-blue-500/10 border-blue-500 ring-1 ring-blue-500/30 text-white' 
+                    ? 'bg-blue-500/10 border-blue-500 ring-1 ring-blue-500/30 text-[var(--ink-hi)]' 
                     : 'bg-[var(--bg)]/40 border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)] hover:bg-[var(--panel)]/20'
                 }`}
               >

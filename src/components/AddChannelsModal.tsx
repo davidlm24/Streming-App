@@ -398,7 +398,7 @@ export function AddChannelsModal({
                   key={dest.id}
                   className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
                     dest.selected 
-                      ? 'bg-blue-500/10 border-blue-500/40 text-white' 
+                      ? 'bg-blue-500/10 border-blue-500/40 text-[var(--ink-hi)]' 
                       : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)]'
                   }`}
                 >
