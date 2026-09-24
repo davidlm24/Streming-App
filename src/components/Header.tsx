@@ -1,3 +1,4 @@
+import { Button } from './ui/Button';
 import React, { useState, useRef, useEffect } from 'react';
 import { User, Key, Users, PlusSquare, HelpCircle, LogOut, ChevronDown, Menu, ShieldCheck, Crown, Sun, Moon, Lock, Radio, Check, Disc } from 'lucide-react';
 import { PwStreamLogo } from './PwStreamLogo';
@@ -139,13 +140,11 @@ export function Header({
           </div>
           <div className="flex items-center gap-2">
             {IS_DEV && onSimulateExpiration && (
-              <button
-                onClick={onSimulateExpiration}
-                className="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg hover:bg-amber-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-wider cursor-pointer"
-                title="Simular fim do prazo de 30 dias para testar o bloqueio de live e gravação"
-              >
+              // Era âmbar — cor de aviso, fora dos dois matizes do sistema.
+              // Utilitário de dev, não decisão do produto: ghost.
+              <Button variant="ghost" size="sm" onClick={onSimulateExpiration} title="Simular fim do prazo de 30 dias para testar o bloqueio de live e gravação">
                 ⚡ Simular 30 Dias Expirados
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -162,21 +161,14 @@ export function Header({
           </div>
           <div className="flex items-center gap-2">
             {onOpenPricing && (
-              <button 
-                onClick={onOpenPricing}
-                className="px-3 py-1 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-md"
-              >
+              <Button size="sm" onClick={onOpenPricing}>
                 Escolher Plano
-              </button>
+              </Button>
             )}
             {IS_DEV && onRestoreTrial && (
-              <button
-                onClick={onRestoreTrial}
-                className="px-2.5 py-1 bg-[var(--panel)] text-[var(--ink)] hover:text-[var(--ink-hi)] border border-[var(--line-ctl)] rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider cursor-pointer"
-                title="Restaurar 30 dias de teste gratuito (Demo)"
-              >
+              <Button variant="ghost" size="sm" onClick={onRestoreTrial} title="Restaurar 30 dias de teste gratuito (Demo)">
                 ↺ Restaurar 30 Dias (Demo)
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -219,21 +211,21 @@ export function Header({
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 min-w-0">
             
             {/* 1. Botão Adicionar Canais (Reduzido conforme solicitado) */}
-            <button
-              type="button"
-              onClick={onOpenAddChannelsModal}
+            {/* Era gradiente azul→índigo com hover:scale — os dois tiques que
+                a auditoria marcou, no mesmo botão. */}
+            <Button
               id="btn-add-streaming-channels"
-              className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider shadow-md shadow-blue-500/20 hover:shadow-blue-500/35 transition-all hover:scale-[1.02] active:scale-98 cursor-pointer border border-blue-400/30 shrink-0"
+              onClick={onOpenAddChannelsModal}
+              icon={<Radio size={14} className="animate-pulse shrink-0" />}
               title="Adicionar e gerenciar canais de transmissão (YouTube, Facebook, Instagram, TikTok, Twitch, Kick, LinkedIn, Rumble)"
             >
-              <Radio size={14} className="text-[var(--ink-hi)] animate-pulse shrink-0" />
               <span>Adicionar canais</span>
               {activeDestinationsCount > 0 && (
                 <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-[var(--ink-hi)] text-[10px] font-black leading-none ml-0.5">
                   {activeDestinationsCount}
                 </span>
               )}
-            </button>
+            </Button>
 
             {/* 2. LIVE STREAM 720p ⌵ & RECORDING OFF/ON Menu Dropdown */}
             <div className="relative" ref={streamDropdownRef}>
@@ -411,37 +403,42 @@ export function Header({
 
             {/* Sair do Webinar - Styled with two lines matching the reference */}
             {currentView === 'studio' && (
-              <button
-                onClick={onExit}
-                className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-[var(--ink-lo)] hover:text-red-400 border border-[var(--line)] hover:border-red-500/20 hover:bg-red-500/5 rounded-lg transition-all cursor-pointer h-[38px] shrink-0"
-              >
-                <LogOut size={14} className="shrink-0" />
-                <div className="text-left leading-none text-[8px] uppercase font-black tracking-wider shrink-0">
-                  <div>Sair do</div>
-                  <div className="mt-0.5 text-[9px] font-black">Webinar</div>
-                </div>
-              </button>
+              // `.btn` não tem camada de propósito (ver Button.tsx), e CSS
+              // sem camada vence QUALQUER camada — inclusive `hidden` do
+              // Tailwind, que sai em @layer utilities. `hidden xl:flex` na
+              // própria .btn nunca escondia nada; testado no browser antes
+              // de commitar. A visibilidade responsiva vai no wrapper.
+              <div className="hidden xl:block shrink-0">
+                <Button
+                  variant="ghost"
+                  onClick={onExit}
+                  icon={<LogOut size={14} className="shrink-0" />}
+                  className="hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/5 h-[38px]"
+                >
+                  <div className="text-left leading-none text-[8px] uppercase font-black tracking-wider shrink-0">
+                    <div>Sair do</div>
+                    <div className="mt-0.5 text-[9px] font-black">Webinar</div>
+                  </div>
+                </Button>
+              </div>
             )}
 
             {/* Theme Toggle Button (Light/Dark Mode) */}
-            <button
+            {/* `hidden sm:inline` fica no <span> filho, não na .btn — .btn é
+                sem camada e venceria um `hidden` posto nela mesma. */}
+            <Button
+              variant="ghost"
               onClick={toggleTheme}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--line)] hover:border-[var(--line-ctl)] bg-[var(--bg)] hover:bg-[var(--panel)] text-[var(--ink)] hover:text-[var(--ink-hi)] transition-all cursor-pointer shadow-sm text-xs font-bold shrink-0"
+              icon={theme === 'dark' ? <Sun size={15} className="text-amber-400 animate-pulse" /> : <Moon size={15} className="text-blue-600 animate-pulse" />}
               title={theme === 'dark' ? 'Alternar para Tema Claro' : 'Alternar para Tema Escuro'}
               aria-label="Alternar Tema Claro/Escuro"
             >
               {theme === 'dark' ? (
-                <>
-                  <Sun size={15} className="text-amber-400 animate-pulse" />
-                  <span className="hidden sm:inline text-[10px] uppercase tracking-wider font-extrabold text-amber-400">Tema Claro</span>
-                </>
+                <span className="hidden sm:inline text-[10px] uppercase tracking-wider font-extrabold text-amber-400">Tema Claro</span>
               ) : (
-                <>
-                  <Moon size={15} className="text-blue-600 animate-pulse" />
-                  <span className="hidden sm:inline text-[10px] uppercase tracking-wider font-extrabold text-blue-600">Tema Escuro</span>
-                </>
+                <span className="hidden sm:inline text-[10px] uppercase tracking-wider font-extrabold text-blue-600">Tema Escuro</span>
               )}
-            </button>
+            </Button>
 
             <div className="relative">
               <button 

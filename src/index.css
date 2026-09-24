@@ -366,40 +366,51 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
    avulso que a catraca conta. E uma classe permite que um `<button>` que
    ainda não foi migrado adote o sistema acrescentando uma palavra, sem
    reescrever o componente em volta.
+
+   Em @layer base, e não solta: uma regra solta vence QUALQUER camada, sem
+   condição — foi o bug documentado acima em `button, a { color: inherit }`.
+   Testado: `.btn` solto com `hidden` aplicado ficava `display: inline-flex`
+   em qualquer largura, e `.btn--ghost` solto com `text-emerald-400` media
+   a cor de --ink. Um `className` de override na primitiva — que é o motivo
+   de ela aceitar `className` — nunca vencia. Em @layer base, a camada de
+   utilities do Tailwind (que vem depois) volta a poder sobrescrever cor,
+   fundo, borda e display quando o autor pede isso de propósito.
    ══════════════════════════════════════════════════════════════════════════ */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 9px 18px;
-  border-radius: var(--radius-xl);
-  font-size: 13px; font-weight: 600; line-height: 1.2;
-  background: var(--color-brand-deep); color: var(--color-n-100);
-  border: 1px solid transparent;
-  cursor: pointer;
-  /* Só `filter` anima: composta na GPU, não força relayout. */
-  transition: filter 110ms linear, background-color 110ms linear;
+@layer base {
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 9px 18px;
+    border-radius: var(--radius-xl);
+    font-size: 13px; font-weight: 600; line-height: 1.2;
+    background: var(--color-brand-deep); color: var(--color-n-100);
+    border: 1px solid transparent;
+    cursor: pointer;
+    /* Só `filter` anima: composta na GPU, não força relayout. */
+    transition: filter 110ms linear, background-color 110ms linear;
+  }
+  .btn:hover:not([disabled])  { filter: brightness(1.1); }
+  .btn:active:not([disabled]) { filter: brightness(0.93); }
+
+  /* Secundário. */
+  .btn--ghost { background: transparent; color: var(--ink); border-color: var(--line-ctl); }
+  .btn--ghost:hover:not([disabled]) { background: var(--raise); filter: none; }
+
+  /* Encerrar. O carmim é o do ar — e encerrar a transmissão É sobre o ar,
+     então aqui ele está no seu lugar. 5,02:1 com texto branco. */
+  .btn--danger { background: var(--color-sig); color: var(--color-n-100); }
+
+  /* Denso. O estúdio e as tabelas de faturamento não comportam 9px/18px, e
+     sem este degrau a migração pararia neles — o de sempre: a primitiva não
+     cobre o caso apertado, o caso apertado fica solto, a primitiva não pega. */
+  .btn--sm { padding: 5px 11px; font-size: 12px; border-radius: var(--radius-md); gap: 6px; }
+
+  .btn[disabled] { opacity: 0.45; cursor: not-allowed; filter: none; }
+
+  /* `Enviando…`: desabilitado E anunciado. `aria-busy` sem `disabled` deixa o
+     botão clicável duas vezes; `disabled` sem `aria-busy` não conta ao leitor
+     de tela por que ele parou de responder. */
+  .btn[aria-busy="true"] { cursor: progress; }
 }
-.btn:hover:not([disabled])  { filter: brightness(1.1); }
-.btn:active:not([disabled]) { filter: brightness(0.93); }
-
-/* Secundário. */
-.btn--ghost { background: transparent; color: var(--ink); border-color: var(--line-ctl); }
-.btn--ghost:hover:not([disabled]) { background: var(--raise); filter: none; }
-
-/* Encerrar. O carmim é o do ar — e encerrar a transmissão É sobre o ar,
-   então aqui ele está no seu lugar. 5,02:1 com texto branco. */
-.btn--danger { background: var(--color-sig); color: var(--color-n-100); }
-
-/* Denso. O estúdio e as tabelas de faturamento não comportam 9px/18px, e
-   sem este degrau a migração pararia neles — o de sempre: a primitiva não
-   cobre o caso apertado, o caso apertado fica solto, a primitiva não pega. */
-.btn--sm { padding: 5px 11px; font-size: 12px; border-radius: var(--radius-md); gap: 6px; }
-
-.btn[disabled] { opacity: 0.45; cursor: not-allowed; filter: none; }
-
-/* `Enviando…`: desabilitado E anunciado. `aria-busy` sem `disabled` deixa o
-   botão clicável duas vezes; `disabled` sem `aria-busy` não conta ao leitor
-   de tela por que ele parou de responder. */
-.btn[aria-busy="true"] { cursor: progress; }
 
 /* O raio nasceu 0 no comp — monitor de broadcast é quadrado. Mas o palco que
    ela envolve é `rounded-2xl`, e moldura quadrada em volta de caixa
