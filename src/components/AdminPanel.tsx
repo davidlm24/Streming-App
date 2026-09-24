@@ -229,9 +229,9 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
             <div className="space-y-4 font-mono">
               <div>
-                <label className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Servidor RTMP Ingest (OBS URL)</label>
+                <label htmlFor="adminpanel-servidor-rtmp-ingest-obs-url" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Servidor RTMP Ingest (OBS URL)</label>
                 <div className="flex gap-2">
-                  <input
+                  <input id="adminpanel-servidor-rtmp-ingest-obs-url"
                     type="text"
                     readOnly
                     value={primaryKey.server}
@@ -253,9 +253,9 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </div>
 
               <div>
-                <label className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Sua Chave de Stream Atribuída (Stream Key)</label>
+                <label htmlFor="adminpanel-sua-chave-de-stream-atribuida-stre" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Sua Chave de Stream Atribuída (Stream Key)</label>
                 <div className="flex gap-2">
-                  <input
+                  <input id="adminpanel-sua-chave-de-stream-atribuida-stre"
                     type="text"
                     readOnly
                     value={primaryKey.key}
@@ -321,8 +321,8 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Plataforma</label>
-                <select
+                <label htmlFor="adminpanel-plataforma" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Plataforma</label>
+                <select id="adminpanel-plataforma"
                   value={newDestPlatform}
                   onChange={(e) => setNewDestPlatform(e.target.value)}
                   required
@@ -337,8 +337,8 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </div>
 
               <div>
-                <label className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Chave de Transmissão Fornecida pelo Canal</label>
-                <input
+                <label htmlFor="adminpanel-chave-de-transmissao-fornecida-pel" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Chave de Transmissão Fornecida pelo Canal</label>
+                <input id="adminpanel-chave-de-transmissao-fornecida-pel"
                   type="text"
                   required
                   value={newDestKey}
@@ -349,8 +349,8 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </div>
 
               <div>
-                <label className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">URL Server RTMP (Opcional)</label>
-                <input
+                <label htmlFor="adminpanel-url-server-rtmp-opcional" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">URL Server RTMP (Opcional)</label>
+                <input id="adminpanel-url-server-rtmp-opcional"
                   type="text"
                   value={newDestUrl}
                   onChange={(e) => setNewDestUrl(e.target.value)}

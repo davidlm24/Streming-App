@@ -321,10 +321,10 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
           <form onSubmit={handleUnlockPin} className="space-y-4 text-left">
             <div>
-              <label className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">E-mail de Admin Mestre</label>
+              <label htmlFor="superadminpanel-e-mail-de-admin-mestre" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">E-mail de Admin Mestre</label>
               <div className="relative">
                 <Mail size={16} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
-                <input
+                <input id="superadminpanel-e-mail-de-admin-mestre"
                   type="email"
                   required
                   value={emailInput}
@@ -336,10 +336,10 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             </div>
 
             <div>
-              <label className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Senha de Acesso Mestre</label>
+              <label htmlFor="superadminpanel-senha-de-acesso-mestre" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Senha de Acesso Mestre</label>
               <div className="relative">
                 <Lock size={16} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
-                <input
+                <input id="superadminpanel-senha-de-acesso-mestre"
                   type="password"
                   required
                   value={pinInput}
@@ -645,8 +645,8 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Identificador / Rótulo</label>
-                <input
+                <label htmlFor="superadminpanel-identificador-rotulo" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Identificador / Rótulo</label>
+                <input id="superadminpanel-identificador-rotulo"
                   type="text"
                   required
                   value={newKeyLabel}
@@ -657,8 +657,8 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
               </div>
 
               <div>
-                <label className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">E-mail do Cliente Atribuído</label>
-                <input
+                <label htmlFor="superadminpanel-e-mail-do-cliente-atribuido" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">E-mail do Cliente Atribuído</label>
+                <input id="superadminpanel-e-mail-do-cliente-atribuido"
                   type="email"
                   required
                   value={newKeyClientEmail}
@@ -669,8 +669,8 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
               </div>
 
               <div>
-                <label className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Limite de Bitrate Máximo</label>
-                <select
+                <label htmlFor="superadminpanel-limite-de-bitrate-maximo" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Limite de Bitrate Máximo</label>
+                <select id="superadminpanel-limite-de-bitrate-maximo"
                   value={newKeyBitrate}
                   onChange={(e) => setNewKeyBitrate(e.target.value)}
                   className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-amber-500"

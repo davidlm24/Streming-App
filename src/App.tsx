@@ -3074,33 +3074,35 @@ export default function App() {
                 </h2>
                 
                 <div className="space-y-2">
-                  <div 
+                  <button
+                    type="button"
                     onClick={() => {
                       setIntegrationsModalTab('rtmp');
                       setIsIntegrationsModalOpen(true);
                     }}
-                    className="flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
+                    className="w-full flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
                   >
                     <div>
                       <p className="text-[var(--ink-hi)] font-semibold">Integração com OBS / RTMP Externo</p>
                       <p className="text-[10px] text-[var(--ink-lo)]">Ver chaves de ingestão, URLs de servidores e OBS</p>
                     </div>
                     <ExternalLink size={12} className="text-[var(--ink-dim)]" />
-                  </div>
+                  </button>
 
-                  <div 
+                  <button
+                    type="button"
                     onClick={() => {
                       setIntegrationsModalTab('social');
                       setIsIntegrationsModalOpen(true);
                     }}
-                    className="flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
+                    className="w-full flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
                   >
                     <div>
                       <p className="text-[var(--ink-hi)] font-semibold">Gerenciar Redes Sociais & OAuth</p>
                       <p className="text-[10px] text-[var(--ink-lo)]">Configurações para YouTube, Facebook e Twitch</p>
                     </div>
                     <ExternalLink size={12} className="text-[var(--ink-dim)]" />
-                  </div>
+                  </button>
 
                   {/* REMOVIDO — o card "Análise de Requisitos & Chaves".
                       Abria, para o cliente pagante, o quadro interno de status
@@ -3263,8 +3265,8 @@ export default function App() {
             >
               {/* Event Title */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--ink)]">Título do Webinar / Transmissão</label>
-                <input
+                <label htmlFor="app-titulo-do-webinar-transmissao" className="text-xs font-semibold text-[var(--ink)]">Título do Webinar / Transmissão</label>
+                <input id="app-titulo-do-webinar-transmissao"
                   type="text"
                   required
                   placeholder="Ex: Como dominar o tráfego pago em 2026"
@@ -3276,8 +3278,8 @@ export default function App() {
 
               {/* Event Description */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--ink)]">Descrição Detalhada</label>
-                <textarea
+                <label htmlFor="app-descricao-detalhada" className="text-xs font-semibold text-[var(--ink)]">Descrição Detalhada</label>
+                <textarea id="app-descricao-detalhada"
                   placeholder="Ex: Neste webinar exclusivo, abordaremos as novas tendências de audiência..."
                   value={newWebinarDesc}
                   onChange={(e) => setNewWebinarDesc(e.target.value)}
@@ -3289,8 +3291,8 @@ export default function App() {
               {/* Time & Type Selection Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[var(--ink)]">Data e Hora do Início</label>
-                  <input
+                  <label htmlFor="app-data-e-hora-do-inicio" className="text-xs font-semibold text-[var(--ink)]">Data e Hora do Início</label>
+                  <input id="app-data-e-hora-do-inicio"
                     type="text"
                     placeholder="Ex: Amanhã, às 20:00"
                     value={newWebinarTime}
@@ -3300,8 +3302,8 @@ export default function App() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[var(--ink)]">Tipo de Conteúdo</label>
-                  <select
+                  <label htmlFor="app-tipo-de-conteudo" className="text-xs font-semibold text-[var(--ink)]">Tipo de Conteúdo</label>
+                  <select id="app-tipo-de-conteudo"
                     value={newWebinarType}
                     onChange={(e) => setNewWebinarType(e.target.value as any)}
                     className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all"

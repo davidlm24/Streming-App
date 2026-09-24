@@ -1758,8 +1758,8 @@ export function LeftSidebar({
                 return (
                   <div className="space-y-3 bg-[var(--surface)]/40 p-3 rounded-lg border border-[var(--line)]/60 text-left animate-in fade-in duration-250">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Tipo de Transição</label>
-                      <select
+                      <label htmlFor="leftsidebar-tipo-de-transicao" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Tipo de Transição</label>
+                      <select id="leftsidebar-tipo-de-transicao"
                         value={config.type}
                         onChange={(e) => onUpdateSceneTransition(selectedSceneConfigId, e.target.value as any, config.duration)}
                         className="w-full bg-[var(--surface)] border border-[var(--line)] text-xs text-[var(--ink)] font-semibold px-2 py-1.5 rounded-lg focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
@@ -1880,8 +1880,8 @@ export function LeftSidebar({
 
                 <div className="space-y-3">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Cena Alvo</label>
-                    <select
+                    <label htmlFor="leftsidebar-cena-alvo" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Cena Alvo</label>
+                    <select id="leftsidebar-cena-alvo"
                       value={selectedSceneForTransition}
                       onChange={(e) => setSelectedSceneForTransition(e.target.value)}
                       className="w-full bg-[var(--surface)] border border-[var(--line)] text-[var(--ink-hi)] text-xs rounded-lg p-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
@@ -4282,8 +4282,8 @@ export function LeftSidebar({
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Título</label>
-                  <input
+                  <label htmlFor="leftsidebar-titulo" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Título</label>
+                  <input id="leftsidebar-titulo"
                     type="text"
                     value={scheduleTitle}
                     onChange={(e) => setScheduleTitle(e.target.value)}
@@ -4293,8 +4293,8 @@ export function LeftSidebar({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Descrição</label>
-                  <textarea
+                  <label htmlFor="leftsidebar-descricao" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Descrição</label>
+                  <textarea id="leftsidebar-descricao"
                     value={scheduleDesc}
                     onChange={(e) => setScheduleDesc(e.target.value)}
                     placeholder="Descrição do webinar..."
@@ -4304,8 +4304,8 @@ export function LeftSidebar({
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Data / Horário</label>
-                    <input
+                    <label htmlFor="leftsidebar-data-horario" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Data / Horário</label>
+                    <input id="leftsidebar-data-horario"
                       type="text"
                       value={scheduleTime}
                       onChange={(e) => setScheduleTime(e.target.value)}
@@ -4314,8 +4314,8 @@ export function LeftSidebar({
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Tipo</label>
-                    <select
+                    <label htmlFor="leftsidebar-tipo" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Tipo</label>
+                    <select id="leftsidebar-tipo"
                       value={scheduleType}
                       onChange={(e) => setScheduleType(e.target.value as any)}
                       className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-2 py-1.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"

@@ -327,8 +327,8 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Nome do Perfil</label>
-                <input
+                <label htmlFor="rtmpconfigmodal-nome-do-perfil" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Nome do Perfil</label>
+                <input id="rtmpconfigmodal-nome-do-perfil"
                   type="text"
                   value={profileName}
                   onChange={(e) => {
@@ -341,8 +341,8 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Plataforma</label>
-                <select
+                <label htmlFor="rtmpconfigmodal-plataforma" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Plataforma</label>
+                <select id="rtmpconfigmodal-plataforma"
                   value={platform}
                   onChange={(e) => {
                     const newPlat = e.target.value as RTMPProfile['platform'];
@@ -369,9 +369,9 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
 
             <div className="space-y-3 pt-1">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Servidor RTMP (URL Ingest)</label>
+                <label htmlFor="rtmpconfigmodal-servidor-rtmp-url-ingest" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Servidor RTMP (URL Ingest)</label>
                 <div className="flex items-center gap-2">
-                  <input
+                  <input id="rtmpconfigmodal-servidor-rtmp-url-ingest"
                     type="text"
                     value={url}
                     onChange={(e) => {
@@ -393,9 +393,9 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Chave de Transmissão (Stream Key)</label>
+                <label htmlFor="rtmpconfigmodal-chave-de-transmissao-stream-key" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Chave de Transmissão (Stream Key)</label>
                 <div className="flex items-center gap-2">
-                  <input
+                  <input id="rtmpconfigmodal-chave-de-transmissao-stream-key"
                     type={copiedKey ? "text" : "password"}
                     value={streamKey}
                     onChange={(e) => setStreamKey(e.target.value)}

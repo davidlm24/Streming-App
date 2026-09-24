@@ -311,9 +311,9 @@ export function ThumbnailEditor({ initialTitle = 'Como Alavancar suas Vendas com
 
           {/* 4. Custom background URL */}
           <form onSubmit={handleCustomImageSubmit} className="space-y-1">
-            <label className="text-[9px] text-[var(--ink-dim)] font-semibold">Ou insira URL de imagem customizada:</label>
+            <label htmlFor="thumbnaileditor-ou-insira-url-de-imagem-customizad" className="text-[9px] text-[var(--ink-dim)] font-semibold">Ou insira URL de imagem customizada:</label>
             <div className="flex gap-2">
-              <input 
+              <input id="thumbnaileditor-ou-insira-url-de-imagem-customizad" 
                 type="url" 
                 value={customImageUrl}
                 onChange={(e) => setCustomImageUrl(e.target.value)}

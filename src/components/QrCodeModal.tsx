@@ -419,8 +419,8 @@ export function QrCodeModal({
 
                   <div className="space-y-3">
                     <div>
-                      <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Título do Produto *</label>
-                      <input
+                      <label htmlFor="qrcodemodal-titulo-do-produto" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Título do Produto *</label>
+                      <input id="qrcodemodal-titulo-do-produto"
                         type="text"
                         value={form.title}
                         onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
@@ -430,8 +430,8 @@ export function QrCodeModal({
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Subtítulo / Chamada Curta</label>
-                      <input
+                      <label htmlFor="qrcodemodal-subtitulo-chamada-curta" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Subtítulo / Chamada Curta</label>
+                      <input id="qrcodemodal-subtitulo-chamada-curta"
                         type="text"
                         value={form.subtitle || ''}
                         onChange={(e) => setForm(prev => ({ ...prev, subtitle: e.target.value }))}
@@ -451,8 +451,8 @@ export function QrCodeModal({
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Preço Promocional</label>
-                      <input
+                      <label htmlFor="qrcodemodal-preco-promocional" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Preço Promocional</label>
+                      <input id="qrcodemodal-preco-promocional"
                         type="text"
                         value={form.price || ''}
                         onChange={(e) => setForm(prev => ({ ...prev, price: e.target.value }))}
@@ -462,8 +462,8 @@ export function QrCodeModal({
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Preço Original (De)</label>
-                      <input
+                      <label htmlFor="qrcodemodal-preco-original-de" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Preço Original (De)</label>
+                      <input id="qrcodemodal-preco-original-de"
                         type="text"
                         value={form.originalPrice || ''}
                         onChange={(e) => setForm(prev => ({ ...prev, originalPrice: e.target.value }))}
@@ -473,8 +473,8 @@ export function QrCodeModal({
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Selo / Cupom</label>
-                      <input
+                      <label htmlFor="qrcodemodal-selo-cupom" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Selo / Cupom</label>
+                      <input id="qrcodemodal-selo-cupom"
                         type="text"
                         value={form.discountBadge || ''}
                         onChange={(e) => setForm(prev => ({ ...prev, discountBadge: e.target.value }))}
@@ -494,9 +494,9 @@ export function QrCodeModal({
 
                   <div className="space-y-3">
                     <div>
-                      <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">URL da Foto do Produto</label>
+                      <label htmlFor="qrcodemodal-url-da-foto-do-produto" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">URL da Foto do Produto</label>
                       <div className="flex gap-2">
-                        <input
+                        <input id="qrcodemodal-url-da-foto-do-produto"
                           type="url"
                           value={form.imageUrl || ''}
                           onChange={(e) => setForm(prev => ({ ...prev, imageUrl: e.target.value }))}
@@ -522,8 +522,8 @@ export function QrCodeModal({
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Texto do Botão / Chamada (CTA)</label>
-                      <input
+                      <label htmlFor="qrcodemodal-texto-do-botao-chamada-cta" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Texto do Botão / Chamada (CTA)</label>
+                      <input id="qrcodemodal-texto-do-botao-chamada-cta"
                         type="text"
                         value={form.ctaLabel || 'Compre Agora'}
                         onChange={(e) => setForm(prev => ({ ...prev, ctaLabel: e.target.value }))}

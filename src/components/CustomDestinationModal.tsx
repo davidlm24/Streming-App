@@ -1040,8 +1040,8 @@ export function CustomDestinationModal({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1 text-left">
-                    <label className="text-[9px] font-semibold text-[var(--ink-dim)] block">Usuário RTMP</label>
-                    <input
+                    <label htmlFor="customdestinationmodal-usuario-rtmp" className="text-[9px] font-semibold text-[var(--ink-dim)] block">Usuário RTMP</label>
+                    <input id="customdestinationmodal-usuario-rtmp"
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
@@ -1051,9 +1051,9 @@ export function CustomDestinationModal({
                   </div>
 
                   <div className="space-y-1 text-left">
-                    <label className="text-[9px] font-semibold text-[var(--ink-dim)] block">Senha / Token de Publicação</label>
+                    <label htmlFor="customdestinationmodal-senha-token-de-publicacao" className="text-[9px] font-semibold text-[var(--ink-dim)] block">Senha / Token de Publicação</label>
                     <div className="relative">
-                      <input
+                      <input id="customdestinationmodal-senha-token-de-publicacao"
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}

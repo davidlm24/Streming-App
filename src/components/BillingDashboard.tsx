@@ -670,8 +670,8 @@ Suporte Técnico: suporte@pwstreamer.com
 
                   <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
-                      <input 
+                      <label htmlFor="billingdashboard-numero-do-cartao" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
+                      <input id="billingdashboard-numero-do-cartao" 
                         type="text" 
                         required
                         value={stripeCardNumber}
@@ -682,8 +682,8 @@ Suporte Técnico: suporte@pwstreamer.com
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
-                        <input 
+                        <label htmlFor="billingdashboard-validade" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
+                        <input id="billingdashboard-validade" 
                           type="text" 
                           required
                           value={stripeExpiry}
@@ -693,8 +693,8 @@ Suporte Técnico: suporte@pwstreamer.com
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
-                        <input 
+                        <label htmlFor="billingdashboard-cvc" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
+                        <input id="billingdashboard-cvc" 
                           type="password" 
                           required
                           value={stripeCvc}
@@ -707,8 +707,8 @@ Suporte Técnico: suporte@pwstreamer.com
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Nome do Titular</label>
-                      <input 
+                      <label htmlFor="billingdashboard-nome-do-titular" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Nome do Titular</label>
+                      <input id="billingdashboard-nome-do-titular" 
                         type="text" 
                         required
                         value={stripeCardName}
@@ -735,8 +735,8 @@ Suporte Técnico: suporte@pwstreamer.com
 
                   <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3 text-left">
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">E-mail do Sandbox PayPal</label>
-                      <input 
+                      <label htmlFor="billingdashboard-e-mail-do-sandbox-paypal" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">E-mail do Sandbox PayPal</label>
+                      <input id="billingdashboard-e-mail-do-sandbox-paypal" 
                         type="email" 
                         required
                         value={paypalEmail}
@@ -745,8 +745,8 @@ Suporte Técnico: suporte@pwstreamer.com
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Senha</label>
-                      <input 
+                      <label htmlFor="billingdashboard-senha" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Senha</label>
+                      <input id="billingdashboard-senha" 
                         type="password" 
                         required
                         value={paypalPassword}
@@ -856,8 +856,8 @@ Suporte Técnico: suporte@pwstreamer.com
 
                       <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3">
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
-                          <input 
+                          <label htmlFor="billingdashboard-numero-do-cartao-2" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
+                          <input id="billingdashboard-numero-do-cartao-2" 
                             type="text" 
                             required
                             value={mpCardNumber}
@@ -868,8 +868,8 @@ Suporte Técnico: suporte@pwstreamer.com
 
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
-                            <input 
+                            <label htmlFor="billingdashboard-validade-2" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
+                            <input id="billingdashboard-validade-2" 
                               type="text" 
                               required
                               value={mpExpiry}
@@ -878,8 +878,8 @@ Suporte Técnico: suporte@pwstreamer.com
                             />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
-                            <input 
+                            <label htmlFor="billingdashboard-cvc-2" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
+                            <input id="billingdashboard-cvc-2" 
                               type="password" 
                               required
                               value={mpCvc}
@@ -890,8 +890,8 @@ Suporte Técnico: suporte@pwstreamer.com
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Nome Completo</label>
-                          <input 
+                          <label htmlFor="billingdashboard-nome-completo" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Nome Completo</label>
+                          <input id="billingdashboard-nome-completo" 
                             type="text" 
                             required
                             value={mpCardName}
@@ -1041,9 +1041,9 @@ Suporte Técnico: suporte@pwstreamer.com
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--ink)]">Nome Completo</label>
+                <label htmlFor="billingdashboard-nome-completo-2" className="text-xs font-semibold text-[var(--ink)]">Nome Completo</label>
                 <div className="relative">
-                  <input 
+                  <input id="billingdashboard-nome-completo-2" 
                     type="text" 
                     required
                     value={profileName}
@@ -1055,9 +1055,9 @@ Suporte Técnico: suporte@pwstreamer.com
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--ink)]">Endereço de E-mail</label>
+                <label htmlFor="billingdashboard-endereco-de-e-mail" className="text-xs font-semibold text-[var(--ink)]">Endereço de E-mail</label>
                 <div className="relative">
-                  <input 
+                  <input id="billingdashboard-endereco-de-e-mail" 
                     type="email" 
                     required
                     value={profileEmail}
@@ -1074,9 +1074,9 @@ Suporte Técnico: suporte@pwstreamer.com
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[var(--ink)]">Razão Social / Nome de Faturamento</label>
+                  <label htmlFor="billingdashboard-razao-social-nome-de-faturamento" className="text-xs font-semibold text-[var(--ink)]">Razão Social / Nome de Faturamento</label>
                   <div className="relative">
-                    <input 
+                    <input id="billingdashboard-razao-social-nome-de-faturamento" 
                       type="text" 
                       placeholder="Ex: Minha Empresa de Tecnologia Ltda"
                       value={companyName}
@@ -1088,9 +1088,9 @@ Suporte Técnico: suporte@pwstreamer.com
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[var(--ink)]">CNPJ / CPF / Documento Fiscal</label>
+                  <label htmlFor="billingdashboard-cnpj-cpf-documento-fiscal" className="text-xs font-semibold text-[var(--ink)]">CNPJ / CPF / Documento Fiscal</label>
                   <div className="relative">
-                    <input 
+                    <input id="billingdashboard-cnpj-cpf-documento-fiscal" 
                       type="text" 
                       placeholder="Ex: 00.000.000/0001-00"
                       value={taxId}
@@ -1103,8 +1103,8 @@ Suporte Técnico: suporte@pwstreamer.com
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--ink)]">Endereço Completo de Cobrança</label>
-                <textarea 
+                <label htmlFor="billingdashboard-endereco-completo-de-cobranca" className="text-xs font-semibold text-[var(--ink)]">Endereço Completo de Cobrança</label>
+                <textarea id="billingdashboard-endereco-completo-de-cobranca" 
                   rows={2}
                   value={billingAddress}
                   onChange={(e) => setBillingAddress(e.target.value)}

@@ -152,9 +152,9 @@ export function CloudflareStreamModal({
 
                 {/* RTMPS URL */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL RTMPS (Servidor)</label>
+                  <label htmlFor="cloudflarestreammodal-url-rtmps-servidor" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL RTMPS (Servidor)</label>
                   <div className="flex gap-2">
-                    <input 
+                    <input id="cloudflarestreammodal-url-rtmps-servidor" 
                       type="text" 
                       readOnly 
                       value={CLOUDFLARE_STREAM_CONFIG.rtmpsUrl} 
@@ -168,9 +168,9 @@ export function CloudflareStreamModal({
 
                 {/* RTMPS Key */}
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Chave RTMPS (Stream Key)</label>
+                  <label htmlFor="cloudflarestreammodal-chave-rtmps-stream-key" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Chave RTMPS (Stream Key)</label>
                   <div className="flex gap-2">
-                    <input 
+                    <input id="cloudflarestreammodal-chave-rtmps-stream-key" 
                       type="text" 
                       readOnly 
                       value={CLOUDFLARE_STREAM_CONFIG.rtmpsKey} 
@@ -194,9 +194,9 @@ export function CloudflareStreamModal({
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL SRT Completa (Com Passphrase e StreamID)</label>
+                  <label htmlFor="cloudflarestreammodal-url-srt-completa-com-passphrase-e-" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL SRT Completa (Com Passphrase e StreamID)</label>
                   <div className="flex gap-2">
-                    <input 
+                    <input id="cloudflarestreammodal-url-srt-completa-com-passphrase-e-" 
                       type="text" 
                       readOnly 
                       value={CLOUDFLARE_STREAM_CONFIG.srtUrl} 
@@ -220,9 +220,9 @@ export function CloudflareStreamModal({
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL do WebRTC (WHIP)</label>
+                  <label htmlFor="cloudflarestreammodal-url-do-webrtc-whip" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL do WebRTC (WHIP)</label>
                   <div className="flex gap-2">
-                    <input 
+                    <input id="cloudflarestreammodal-url-do-webrtc-whip" 
                       type="text" 
                       readOnly 
                       value={CLOUDFLARE_STREAM_CONFIG.whipPublishUrl} 
@@ -324,9 +324,9 @@ export function CloudflareStreamModal({
 
               {/* Direct Player URL */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL Direta do Stream Player</label>
+                <label htmlFor="cloudflarestreammodal-url-direta-do-stream-player" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL Direta do Stream Player</label>
                 <div className="flex gap-2">
-                  <input 
+                  <input id="cloudflarestreammodal-url-direta-do-stream-player" 
                     type="text" 
                     readOnly 
                     value={CLOUDFLARE_STREAM_CONFIG.playerUrl} 
@@ -449,9 +449,9 @@ export function CloudflareStreamModal({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <label className="text-[9px] text-[var(--ink-lo)] font-bold uppercase">URL RTMPS Playback</label>
+                    <label htmlFor="cloudflarestreammodal-url-rtmps-playback" className="text-[9px] text-[var(--ink-lo)] font-bold uppercase">URL RTMPS Playback</label>
                     <div className="flex gap-1.5">
-                      <input 
+                      <input id="cloudflarestreammodal-url-rtmps-playback" 
                         type="text" 
                         readOnly 
                         value={CLOUDFLARE_STREAM_CONFIG.rtmpsPlaybackUrl} 
@@ -463,9 +463,9 @@ export function CloudflareStreamModal({
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[9px] text-[var(--ink-lo)] font-bold uppercase">Chave RTMPS Playback</label>
+                    <label htmlFor="cloudflarestreammodal-chave-rtmps-playback" className="text-[9px] text-[var(--ink-lo)] font-bold uppercase">Chave RTMPS Playback</label>
                     <div className="flex gap-1.5">
-                      <input 
+                      <input id="cloudflarestreammodal-chave-rtmps-playback" 
                         type="text" 
                         readOnly 
                         value={CLOUDFLARE_STREAM_CONFIG.rtmpsPlaybackKey} 
