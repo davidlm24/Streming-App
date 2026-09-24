@@ -5,6 +5,7 @@ import {
   Share2, Volume2, ThumbsUp, BarChart3, Bell, Lock
 } from 'lucide-react';
 import { PwStreamLogo } from './PwStreamLogo';
+import { Button } from './ui/Button';
 import { LegalModal } from './LegalModals';
 import { CLOUDFLARE_STREAM_CONFIG } from '../lib/cloudflareStreamConfig';
 
@@ -109,31 +110,67 @@ export function WebinarPublicPage({
     return () => clearInterval(interval);
   }, [hasCountdown, startsAtMs]);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registerError, setRegisterError] = useState('');
+
+  // Este handler podia falhar em silêncio absoluto. `localStorage.setItem`
+  // LANÇA com o armazenamento cheio, em aba privada do Safari ou com storage
+  // bloqueado pelo navegador — e lançando, `setRegistered(true)` nunca rodava.
+  // O visitante clicava em "Confirmar Minha Inscrição" e nada acontecia: sem
+  // pendente, sem erro, sem nada. Numa página pública, é uma inscrição perdida
+  // sem que ninguém saiba.
+  // Somava-se a isso a falta de estado pendente: dois cliques antes do
+  // redirect de 1,5 s gravavam duas inscrições.
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email) return;
+    if (isSubmitting) return;
+    setRegisterError('');
+
+    // `required` no campo barra o vazio, mas aceita só espaços.
+    const nome = name.trim();
+    const mail = email.trim();
+    if (!nome || !mail) {
+      setRegisterError('Preencha seu nome e e-mail para confirmar a inscrição.');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     const newRegistration: Registration = {
       id: `reg-${Date.now()}`,
-      name,
-      email,
-      company: company || 'Independente',
+      name: nome,
+      email: mail,
+      company: company.trim() || 'Independente',
       registeredAt: new Date().toLocaleDateString('pt-BR')
     };
 
-    // Save registration in localStorage
-    const saved = localStorage.getItem('webinar_registrations');
-    let currentRegs = [];
-    if (saved) {
-      try {
-        currentRegs = JSON.parse(saved);
-      } catch (e) {}
+    try {
+      const saved = localStorage.getItem('webinar_registrations');
+      let currentRegs: Registration[] = [];
+      if (saved) {
+        try { currentRegs = JSON.parse(saved); } catch { currentRegs = []; }
+      }
+      // Mesmo e-mail duas vezes é a mesma pessoa, não dois inscritos.
+      if (currentRegs.some(r => r.email.toLowerCase() === mail.toLowerCase())) {
+        setRegistered(true);
+        setTimeout(() => setView('room'), 1500);
+        return;
+      }
+      currentRegs.push(newRegistration);
+      localStorage.setItem('webinar_registrations', JSON.stringify(currentRegs));
+    } catch (err) {
+      console.error('Falha ao gravar inscrição:', err);
+      setRegisterError(
+        'Não foi possível salvar sua inscrição neste navegador. ' +
+        'Se estiver em uma aba anônima, tente numa janela normal.'
+      );
+      setIsSubmitting(false);
+      return;
     }
-    currentRegs.push(newRegistration);
-    localStorage.setItem('webinar_registrations', JSON.stringify(currentRegs));
 
     setRegistered(true);
-    // Auto redirect to public room
+    // `isSubmitting` fica ligado até a troca de tela: o botão não pode voltar
+    // a ficar clicável por cima de uma inscrição já confirmada.
     setTimeout(() => {
       setView('room');
     }, 1500);
@@ -361,12 +398,23 @@ export function WebinarPublicPage({
                     </label>
                   </div>
 
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-xl hover:shadow-blue-500/10 cursor-pointer text-xs mt-2 flex items-center justify-center gap-2"
-                  >
-                    Confirmar Minha Inscrição <ArrowRight size={14} />
-                  </button>
+                  {/* role="alert": o erro precisa ser ANUNCIADO. Um aviso que só
+                      aparece na tela repete o defeito original para quem usa
+                      leitor — de novo, o botão "não faz nada". */}
+                  {registerError && (
+                    // Vermelho de ERRO, não o carmim de --color-sig: o sistema
+                    // reserva o sinal para "no ar", e usá-lo aqui faria um erro
+                    // de formulário falar a mesma língua que a transmissão.
+                    // Mesmo tratamento do erro de login em AuthAndPricing.
+                    <p role="alert" className="flex items-start gap-2 text-xs text-red-400 bg-red-950/40 border border-red-500/20 rounded-xl p-2.5">
+                      <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                      <span>{registerError}</span>
+                    </p>
+                  )}
+
+                  <Button type="submit" loading={isSubmitting} className="w-full mt-2">
+                    {isSubmitting ? 'Confirmando…' : <>Confirmar Minha Inscrição <ArrowRight size={14} /></>}
+                  </Button>
 
                   <div className="pt-4 border-t border-[var(--line)]/60 flex items-center justify-center gap-4 text-[11px] text-[var(--ink-lo)]">
                     <span className="flex items-center gap-1"><Award size={12} className="text-blue-500" /> Certificado</span>

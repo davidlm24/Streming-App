@@ -174,8 +174,13 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
         </div>
       </div>
 
-      {/* Client Navigation Tabs */}
-      <div className="flex border-b border-[var(--line)] pb-px gap-1">
+      {/* Client Navigation Tabs
+          Não tinha guarda de transbordo, e os botões não tinham nowrap: com
+          rótulos como "Destinos para Redes Sociais (YouTube / Facebook /
+          Twitch)", o flex espremia cada aba e o texto quebrava em várias
+          linhas — a faixa chegava a 90px de altura. A irmã em
+          BillingDashboard já rolava na horizontal; esta agora faz o mesmo. */}
+      <div className="flex border-b border-[var(--line)] pb-px gap-1 overflow-x-auto scrollbar-none">
         {[
           { id: 'my-rtmp', label: 'Sua Chave de Ingestão OBS / Encoder', icon: Key },
           { id: 'destinations', label: 'Destinos para Redes Sociais (YouTube / Facebook / Twitch)', icon: Share2 },
@@ -185,7 +190,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
           <button
             key={tab.id}
             onClick={() => setClientTab(tab.id as any)}
-            className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+            className={`shrink-0 whitespace-nowrap flex items-center gap-2 px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
               clientTab === tab.id 
                 ? 'border-blue-500 text-[var(--ink-hi)] bg-blue-500/5' 
                 : 'border-transparent text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
@@ -277,12 +282,17 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </div>
             </div>
 
+            {/* Vira linha em `sm`, e entre 640 e ~860px o texto com o e-mail
+                mais os dois botões não cabiam: o grupo não quebrava e o texto
+                não encolhia, então "Regenerar Nova Chave RTMP" empurrava a
+                página 62px para fora da tela. `min-w-0` deixa o texto ceder,
+                `flex-wrap` deixa os botões descerem. */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-[var(--line)]/80">
-              <div className="flex items-center gap-2 text-[11px] text-[var(--ink-lo)]">
+              <div className="flex items-center gap-2 text-[11px] text-[var(--ink-lo)] min-w-0">
                 <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
-                <span>Chave isolada com criptografia de ponta e vinculada ao e-mail <strong>{user?.email}</strong></span>
+                <span className="min-w-0 break-words">Chave isolada com criptografia de ponta e vinculada ao e-mail <strong className="break-all">{user?.email}</strong></span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap justify-center sm:justify-end gap-2">
                 <button
                   onClick={() => setIsObsModalOpen(true)}
                   className="px-3.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
