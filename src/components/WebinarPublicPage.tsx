@@ -20,6 +20,8 @@ interface WebinarPublicPageProps {
   webinarTitle: string;
   webinarDesc: string;
   webinarDate: string;
+  /** ISO 8601. Sem ele nao ha contagem regressiva — de proposito. */
+  startsAt?: string;
   isLive: boolean;
   thumbnailUrl?: string;
   onBackToDashboard: () => void;
@@ -32,6 +34,7 @@ export function WebinarPublicPage({
   webinarTitle,
   webinarDesc,
   webinarDate,
+  startsAt,
   isLive,
   thumbnailUrl,
   onBackToDashboard,
@@ -70,26 +73,41 @@ export function WebinarPublicPage({
   ]);
   const [newQuestionText, setNewQuestionText] = useState('');
 
-  // Countdown timer state
-  const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 45, seconds: 12 });
+  // O contador partia de { hours: 2, minutes: 45, seconds: 12 } fixo no
+  // código. Ele CONTAVA — havia intervalo decrementando — mas contava a
+  // partir de um número inventado, sem relação com o horário do webinar:
+  // todo visitante via "2:45:12", em qualquer dia, a qualquer hora.
+  // Numa página de inscrição um contador é dispositivo de conversão. Urgência
+  // fabricada não é enfeite, é manipulação do visitante.
+  // Agora deriva de `startsAt`. Sem data processável, não há contador — e a
+  // página mostra o horário anunciado, que é o que de fato se sabe.
+  const startsAtMs = startsAt ? new Date(startsAt).getTime() : NaN;
+  const hasCountdown = Number.isFinite(startsAtMs);
 
+  const calcTimeLeft = () => {
+    const diff = startsAtMs - Date.now();
+    if (!Number.isFinite(diff) || diff <= 0) return null;
+    return {
+      hours: Math.floor(diff / 3_600_000),
+      minutes: Math.floor((diff % 3_600_000) / 60_000),
+      seconds: Math.floor((diff % 60_000) / 1000),
+    };
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calcTimeLeft);
+
+  // Recalcula do relógio em vez de decrementar o próprio estado. Decrementar
+  // acumula erro e, pior, congela quando a aba perde foco — o visitante volta
+  // e o contador está atrasado, marcando um horário que já passou.
   useEffect(() => {
+    if (!hasCountdown) return;
     const interval = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { hours: prev.hours, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        } else {
-          clearInterval(interval);
-          return prev;
-        }
-      });
+      const restante = calcTimeLeft();
+      setTimeLeft(restante);
+      if (!restante) clearInterval(interval);
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [hasCountdown, startsAtMs]);
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
@@ -235,14 +253,25 @@ export function WebinarPublicPage({
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-xs text-[var(--ink-lo)] font-bold uppercase">A transmissão começará em:</p>
-                  <div className="flex items-center gap-2 font-mono text-xl sm:text-2xl font-bold text-blue-400">
-                    <span className="bg-[var(--surface)] px-3 py-1.5 border border-[var(--line)] rounded-lg">{String(timeLeft.hours).padStart(2, '0')}h</span>
-                    <span>:</span>
-                    <span className="bg-[var(--surface)] px-3 py-1.5 border border-[var(--line)] rounded-lg">{String(timeLeft.minutes).padStart(2, '0')}m</span>
-                    <span>:</span>
-                    <span className="bg-[var(--surface)] px-3 py-1.5 border border-[var(--line)] rounded-lg text-emerald-400">{String(timeLeft.seconds).padStart(2, '0')}s</span>
-                  </div>
+                  {timeLeft ? (
+                    <>
+                      <p className="text-xs text-[var(--ink-lo)] font-bold uppercase">A transmissão começará em:</p>
+                      <div className="flex items-center gap-2 font-mono text-xl sm:text-2xl font-bold text-blue-400 tabular-nums">
+                        <span className="bg-[var(--surface)] px-3 py-1.5 border border-[var(--line)] rounded-lg">{String(timeLeft.hours).padStart(2, '0')}</span>
+                        <span>:</span>
+                        <span className="bg-[var(--surface)] px-3 py-1.5 border border-[var(--line)] rounded-lg">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                        <span>:</span>
+                        <span className="bg-[var(--surface)] px-3 py-1.5 border border-[var(--line)] rounded-lg text-emerald-400">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                      </div>
+                    </>
+                  ) : (
+                    /* Sem `startsAt` processável não se inventa contagem: a
+                       página mostra o horário que foi anunciado. */
+                    <>
+                      <p className="text-xs text-[var(--ink-lo)] font-bold uppercase">Transmissão agendada para:</p>
+                      <p className="text-lg sm:text-xl font-bold text-blue-400">{webinarDate}</p>
+                    </>
+                  )}
                 </div>
               )}
             </div>

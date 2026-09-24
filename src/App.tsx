@@ -205,7 +205,15 @@ export default function App() {
   }, [user?.role]);
 
   // Dynamic webinars list
-  const [webinars, setWebinars] = useState([
+  const [webinars, setWebinars] = useState<Array<{
+    id: string; title: string; desc: string; time: string;
+    channels: string[]; type: string; videoName: string;
+    /** Horario de inicio em ISO 8601. A contagem regressiva da pagina
+     *  publica deriva DESTE campo — sem ele, nao ha contagem. Os webinares
+     *  semeados nao tem porque sao demonstracao: a pagina entao mostra o
+     *  horario anunciado em , que e o que de fato se sabe. */
+    startsAt?: string;
+  }>>([
     {
       id: 'webinar-1',
       title: 'Como Alavancar suas Vendas com webinars interativos',
@@ -2882,6 +2890,10 @@ export default function App() {
           webinarTitle={webinars.find(w => w.id === selectedWebinarId)?.title || title}
           webinarDesc={webinars.find(w => w.id === selectedWebinarId)?.desc || description}
           webinarDate={webinars.find(w => w.id === selectedWebinarId)?.time || 'Amanhã, às 19:30'}
+          // `startsAt` é o horário em ISO, do qual a contagem regressiva
+          // deriva. Os webinares semeados não têm — e sem ele a página
+          // mostra o horário anunciado em vez de inventar uma contagem.
+          startsAt={webinars.find(w => w.id === selectedWebinarId)?.startsAt}
           isLive={isLive}
           thumbnailUrl={activeBackground}
           onBackToDashboard={() => setCurrentView('dashboard')}

@@ -60,11 +60,9 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
     if (saved) {
       try { return JSON.parse(saved); } catch {}
     }
-    return {
-      marcos: 75,
-      ana: 35,
-      lucas: 20
-    };
+    // `ana` e `lucas` saíram junto com os dois membros fabricados que os
+    // consumiam. Sobra o proprietário, único membro real.
+    return { marcos: 75 };
   });
 
   const [memberStorage, setMemberStorage] = useState<{ [key: string]: number }>(() => {
@@ -72,11 +70,7 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
     if (saved) {
       try { return JSON.parse(saved); } catch {}
     }
-    return {
-      marcos: 2.1,
-      ana: 1.2,
-      lucas: 0.7
-    };
+    return { marcos: 2.1 };
   });
 
   useEffect(() => {
@@ -1314,15 +1308,14 @@ Suporte Técnico: suporte@pwstreamer.com
 
         const activeLimits = planLimits[currentPlan] || planLimits['Free Trial'];
 
-        const anaActive = activeLimits.seats >= 2;
-        const lucasActive = activeLimits.seats >= 5;
-
-        const totalMinutesUsed = memberMinutes.marcos + (anaActive ? memberMinutes.ana : 0) + (lucasActive ? memberMinutes.lucas : 0);
-        const totalStorageUsed = Number((memberStorage.marcos + (anaActive ? memberStorage.ana : 0) + (lucasActive ? memberStorage.lucas : 0)).toFixed(1));
+        // O consumo somava o de dois colegas que não existem. Some só o do
+        // proprietário, que é o único membro real — e o único assento em uso.
+        const totalMinutesUsed = memberMinutes.marcos;
+        const totalStorageUsed = Number(memberStorage.marcos.toFixed(1));
 
         const minutesPercentage = Math.round((totalMinutesUsed / activeLimits.minutes) * 100);
         const storagePercentage = Math.round((totalStorageUsed / activeLimits.storage) * 100);
-        const seatsUsed = 1 + (anaActive ? 1 : 0) + (lucasActive ? 1 : 0);
+        const seatsUsed = 1;
 
         const getProgressColor = (pct: number) => {
           if (pct >= 95) return 'bg-red-500';
@@ -1372,17 +1365,17 @@ Suporte Técnico: suporte@pwstreamer.com
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full font-bold">
+                  {IS_DEV && <span className="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full font-bold">
                     Sandbox de Teste Ativo
-                  </span>
-                  <button
+                  </span>}
+                  {IS_DEV && <button
                     onClick={handleResetSimulations}
                     className="p-2 bg-[var(--bg)] border border-[var(--line)] hover:bg-[var(--surface)] rounded-lg text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-all text-xs flex items-center gap-1 cursor-pointer font-bold"
                     title="Restaurar consumos iniciais"
                   >
                     <Trash2 size={13} />
                     Limpar Testes
-                  </button>
+                  </button>}
                 </div>
               </div>
 
@@ -1542,8 +1535,10 @@ Suporte Técnico: suporte@pwstreamer.com
                         <p className="text-[9px] text-[var(--ink-dim)]">~{Math.round(memberStorage.marcos * 2)} arquivos salvos</p>
                       </div>
                       
-                      {/* Individual simulation buttons */}
-                      <div className="flex items-center gap-1.5">
+                      {/* Controles de simulação: deixam o usuário inflar o
+                          próprio consumo na tela de cobrança. Ferramenta de
+                          desenvolvimento, sai do build de produção. */}
+                      {IS_DEV && <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => handleSimulateMinutes('marcos', 15)}
                           className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
@@ -1558,128 +1553,26 @@ Suporte Técnico: suporte@pwstreamer.com
                         >
                           <Plus size={10} /> 0.5GB
                         </button>
-                      </div>
+                      </div>}
                     </div>
                   </div>
 
-                  {/* User 2: Ana Beatriz (Co-producer) */}
-                  <div className={`p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors ${!anaActive ? 'opacity-40 bg-[var(--bg)]/20' : 'hover:bg-[var(--surface)]/40'}`}>
-                    <div className="flex items-center gap-3 text-left">
-                      <div className={`w-9 h-9 rounded-xl font-extrabold flex items-center justify-center text-xs ${anaActive ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' : 'bg-[var(--surface)] text-[var(--ink-dim)] border border-[var(--line)]'}`}>
-                        AB
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-1.5">
-                          Ana Beatriz
-                          <span className={`text-[9px] border px-1.5 py-0.5 rounded-md font-bold uppercase ${anaActive ? 'bg-purple-500/20 text-purple-400 border-purple-500/10' : 'bg-[var(--panel)] text-[var(--ink-dim)] border-[var(--line-ctl)]'}`}>
-                            Co-Produtor
-                          </span>
-                          {!anaActive && (
-                            <span className="text-[9px] bg-red-500/20 text-red-400 border border-red-500/10 px-1.5 py-0.5 rounded font-black uppercase">
-                              Bloqueado
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-[10px] text-[var(--ink-dim)]">ana.beatriz@pwstreamer.com</p>
-                      </div>
-                    </div>
 
-                    {anaActive ? (
-                      <div className="flex flex-wrap items-center gap-6 text-xs w-full sm:w-auto justify-between sm:justify-end">
-                        <div className="text-left sm:text-right">
-                          <span className="text-[9px] text-[var(--ink-dim)] uppercase font-bold tracking-wider">Uso de Transmissão</span>
-                          <p className="text-xs font-bold text-[var(--ink-hi)] font-mono">{memberMinutes.ana} minutos</p>
-                        </div>
-                        <div className="text-left sm:text-right border-l sm:border-l-0 sm:border-r border-[var(--line)] pl-4 sm:pl-0 sm:pr-4">
-                          <span className="text-[9px] text-[var(--ink-dim)] uppercase font-bold tracking-wider">Storage de Vídeo</span>
-                          <p className="text-xs font-bold text-[var(--ink-hi)] font-mono">{memberStorage.ana} GB</p>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => handleSimulateMinutes('ana', 15)}
-                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
-                          >
-                            <Plus size={10} /> 15m
-                          </button>
-                          <button
-                            onClick={() => handleSimulateStorage('ana', 0.5)}
-                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
-                          >
-                            <Plus size={10} /> 0.5GB
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-xs text-[var(--ink-dim)] w-full sm:w-auto justify-between sm:justify-end">
-                        <span className="hidden sm:inline">Requer upgrade para plano com mais assentos</span>
-                        <button
-                          onClick={() => setActiveSubTab('plans')}
-                          className="px-3 py-1.5 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer"
-                        >
-                          <Zap size={11} /> Desbloquear Assento (Professional)
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* User 3: Lucas Lima (Moderator) */}
-                  <div className={`p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors ${!lucasActive ? 'opacity-40 bg-[var(--bg)]/20' : 'hover:bg-[var(--surface)]/40'}`}>
-                    <div className="flex items-center gap-3 text-left">
-                      <div className={`w-9 h-9 rounded-xl font-extrabold flex items-center justify-center text-xs ${lucasActive ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' : 'bg-[var(--surface)] text-[var(--ink-dim)] border border-[var(--line)]'}`}>
-                        LL
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-1.5">
-                          Lucas Lima
-                          <span className={`text-[9px] border px-1.5 py-0.5 rounded-md font-bold uppercase ${lucasActive ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' : 'bg-[var(--panel)] text-[var(--ink-dim)] border-[var(--line-ctl)]'}`}>
-                            Moderador / Equipe
-                          </span>
-                          {!lucasActive && (
-                            <span className="text-[9px] bg-red-500/20 text-red-400 border border-red-500/10 px-1.5 py-0.5 rounded font-black uppercase">
-                              Bloqueado
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-[10px] text-[var(--ink-dim)]">lucas.lima@pwstreamer.com</p>
-                      </div>
-                    </div>
-
-                    {lucasActive ? (
-                      <div className="flex flex-wrap items-center gap-6 text-xs w-full sm:w-auto justify-between sm:justify-end">
-                        <div className="text-left sm:text-right">
-                          <span className="text-[9px] text-[var(--ink-dim)] uppercase font-bold tracking-wider">Uso de Transmissão</span>
-                          <p className="text-xs font-bold text-[var(--ink-hi)] font-mono">{memberMinutes.lucas} minutos</p>
-                        </div>
-                        <div className="text-left sm:text-right border-l sm:border-l-0 sm:border-r border-[var(--line)] pl-4 sm:pl-0 sm:pr-4">
-                          <span className="text-[9px] text-[var(--ink-dim)] uppercase font-bold tracking-wider">Storage de Vídeo</span>
-                          <p className="text-xs font-bold text-[var(--ink-hi)] font-mono">{memberStorage.lucas} GB</p>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => handleSimulateMinutes('lucas', 15)}
-                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
-                          >
-                            <Plus size={10} /> 15m
-                          </button>
-                          <button
-                            onClick={() => handleSimulateStorage('lucas', 0.5)}
-                            className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg transition-all cursor-pointer flex items-center gap-0.5"
-                          >
-                            <Plus size={10} /> 0.5GB
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-xs text-[var(--ink-dim)] w-full sm:w-auto justify-between sm:justify-end">
-                        <span className="hidden sm:inline">Excede os assentos permitidos no seu plano atual</span>
-                        <button
-                          onClick={() => setActiveSubTab('plans')}
-                          className="px-3 py-1.5 bg-[var(--color-brand-deep)] hover:bg-blue-600 text-white rounded-lg font-bold text-[10px] transition-all flex items-center gap-1 cursor-pointer"
-                        >
-                          <Zap size={11} /> Desbloquear com Plano Business
-                        </button>
-                      </div>
-                    )}
+                  {/* Aqui viviam dois colegas de equipe fixos no codigo —
+                      "Ana Beatriz · Co-Produtor" e "Lucas Lima · Moderador",
+                      com e-mail @pwstreamer.com e consumo semeado — na conta
+                      de TODO cliente. Pior: quando o plano nao cobria o
+                      assento, apareciam marcados "Bloqueado" ao lado de
+                      "Desbloquear Assento (Professional)". Era prova social
+                      fabricada usada como argumento de venda: o cliente pagava
+                      para liberar pessoas que nunca existiram.
+                      Nao ha backend de equipe — so o proprietario e real. */}
+                  <div className="p-6 text-center space-y-1">
+                    <p className="text-xs font-semibold text-[var(--ink)]">Nenhum membro convidado ainda</p>
+                    <p className="text-[11px] text-[var(--ink-lo)]">
+                      Seu plano permite {activeLimits.seats} {activeLimits.seats === 1 ? 'assento' : 'assentos'}.
+                      Voce esta usando 1.
+                    </p>
                   </div>
 
                 </div>
