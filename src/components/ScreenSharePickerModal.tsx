@@ -415,7 +415,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
             </h3>
             <p className="text-[11px] text-[var(--ink-lo)] mt-0.5">Selecione uma janela física, guia ou envie um arquivo para apresentação</p>
           </div>
-          <button 
+          <button aria-label="Fechar" 
             type="button"
             onClick={onClose}
             className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)] p-1.5 rounded-lg transition-all cursor-pointer"
@@ -504,7 +504,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                   id="search-sharing-sources"
                 />
                 {searchQuery && (
-                  <button
+                  <button aria-label="Limpar busca"
                     type="button"
                     onClick={() => setSearchQuery('')}
                     className="absolute right-2.5 top-2.5 text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-colors"
@@ -1080,7 +1080,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                       </div>
 
                       <div className="flex-1 bg-[var(--bg)]/70 border border-[var(--line)]/80 rounded-lg p-3 flex flex-col justify-center text-center space-y-2 relative group overflow-hidden min-h-0">
-                        <button 
+                        <button aria-label="Página anterior" 
                           type="button"
                           onClick={() => setPdfPreviewPage(prev => Math.max(1, prev - 1))}
                           disabled={pdfPreviewPage === 1}
@@ -1091,7 +1091,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
                           <ChevronLeft size={12} />
                         </button>
 
-                        <button 
+                        <button aria-label="Próxima página" 
                           type="button"
                           onClick={() => setPdfPreviewPage(prev => Math.min(12, prev + 1))}
                           disabled={pdfPreviewPage === 12}
@@ -1236,7 +1236,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
 
                           {/* Centered play overlay on hover/paused */}
                           {!videoPlaying && (
-                            <button
+                            <button aria-label="Reproduzir vídeo"
                               type="button"
                               onClick={togglePlay}
                               className="absolute inset-0 m-auto w-12 h-12 bg-emerald-600/90 text-white rounded-full flex items-center justify-center hover:bg-emerald-500 hover:scale-105 transition-all shadow-xl shadow-emerald-950/40 z-20 cursor-pointer"

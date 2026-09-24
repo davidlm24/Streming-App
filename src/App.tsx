@@ -3147,7 +3147,7 @@ export default function App() {
                     </h3>
                     <p className="text-xs text-[var(--ink-lo)]">Desenhe e baixe capas em alta definição para as suas redes sociais e transmissões</p>
                   </div>
-                  <button 
+                  <button aria-label="Fechar gerador de capas" 
                     onClick={() => setIsDashboardEditorOpen(false)}
                     className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
                   >
@@ -3223,7 +3223,7 @@ export default function App() {
                 </h3>
                 <p className="text-xs text-[var(--ink-lo)]">Preencha os dados do webinar, canais de streaming e tipo de conteúdo.</p>
               </div>
-              <button 
+              <button aria-label="Fechar agendamento" 
                 onClick={() => setIsCreateWebinarOpen(false)}
                 className="p-1.5 hover:bg-[var(--panel)] rounded-lg text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-all cursor-pointer"
               >
@@ -3401,7 +3401,7 @@ export default function App() {
                 </h3>
                 <p className="text-xs text-[var(--ink-lo)] mt-0.5">Analise o mapeamento completo de requisitos de produção e variáveis de ambiente.</p>
               </div>
-              <button 
+              <button aria-label="Fechar integrações" 
                 onClick={() => setIsIntegrationsModalOpen(false)}
                 className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
               >

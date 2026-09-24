@@ -589,7 +589,7 @@ export function WebinarPublicPage({
                       onChange={(e) => setChatInput(e.target.value)}
                       className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
                     />
-                    <button
+                    <button aria-label="Enviar mensagem"
                       type="submit"
                       className="p-2.5 bg-blue-500 hover:bg-blue-400 text-white rounded-xl transition-all"
                     >

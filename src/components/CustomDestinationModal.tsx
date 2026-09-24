@@ -1004,7 +1004,7 @@ export function CustomDestinationModal({
                       placeholder="Chave secreta de transmissão..."
                       className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3.5 py-2 text-xs text-amber-300 placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 font-mono transition-colors pr-9"
                     />
-                    <button
+                    <button aria-label={showKey ? "Ocultar chave de transmissão" : "Mostrar chave de transmissão"} aria-pressed={showKey}
                       type="button"
                       onClick={() => setShowKey(!showKey)}
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--ink-dim)] hover:text-[var(--ink)] cursor-pointer"
@@ -1060,7 +1060,7 @@ export function CustomDestinationModal({
                         placeholder="••••••••••••"
                         className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--ink)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 font-mono pr-8"
                       />
-                      <button
+                      <button aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"} aria-pressed={showPassword}
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--ink-dim)] hover:text-[var(--ink)] cursor-pointer"

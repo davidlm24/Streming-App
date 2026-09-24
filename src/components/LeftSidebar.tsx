@@ -3106,7 +3106,7 @@ export function LeftSidebar({
                                     <Trash2 size={12} />
                                   </button>
                                 )}
-                                <button
+                                <button aria-label={isCurrent ? `Pausar ${track.name}` : `Tocar ${track.name}`} aria-pressed={isCurrent}
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); onPlayTrack(isCurrent ? null : track.id); }}
                                   className={`p-1 rounded-full transition-all shrink-0 ${
@@ -4272,7 +4272,7 @@ export function LeftSidebar({
             <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-3 shrink-0 text-left">
               <div className="flex items-center justify-between border-b border-[var(--line)] pb-2 mb-1">
                 <span className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider">Novo Agendamento</span>
-                <button
+                <button aria-label="Fechar agendamento"
                   onClick={() => setIsSchedulingFormOpen(false)}
                   className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)]"
                 >
@@ -5357,7 +5357,7 @@ export function LeftSidebar({
                 </h3>
                 <p className="text-xs text-[var(--ink-lo)]">Configure a imagem e os textos e faça o download da thumbnail final</p>
               </div>
-              <button 
+              <button aria-label="Fechar miniatura" 
                 onClick={() => setIsThumbnailModalOpen(false)}
                 className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
               >
@@ -5387,7 +5387,7 @@ export function LeftSidebar({
                 <Bookmark size={16} className="text-indigo-400" />
                 {editingBanner ? 'Editar Banner' : 'Criar Novo Banner'}
               </h3>
-              <button
+              <button aria-label="Fechar"
                 type="button"
                 onClick={() => {
                   setIsAddBannerModalOpen(false);

@@ -407,7 +407,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                     {dest.active ? 'Ativo na Live' : 'Pausado'}
                   </button>
 
-                  <button
+                  <button aria-label={`Excluir destino ${dest.platform}`}
                     onClick={() => handleDeleteClientDestination(dest.id)}
                     className="p-1.5 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white rounded-lg border border-red-500/20 transition-all cursor-pointer"
                   >

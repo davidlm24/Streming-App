@@ -81,7 +81,7 @@ export function StreamReportModal({ isOpen, onClose, reportData }: StreamReportM
             </div>
           </div>
 
-          <button 
+          <button aria-label="Fechar" 
             onClick={onClose}
             className="p-1.5 text-[var(--ink-lo)] hover:text-[var(--ink-hi)] bg-[var(--bg)] hover:bg-[var(--panel)] rounded-xl transition-all cursor-pointer"
           >

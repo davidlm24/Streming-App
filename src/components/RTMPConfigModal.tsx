@@ -238,7 +238,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
               <p className="text-xs text-[var(--ink-lo)] mt-1">Gerencie múltiplos perfis de transmissão e alterne rapidamente sem sobrescrever configurações.</p>
             </div>
           </div>
-          <button 
+          <button aria-label="Fechar" 
             onClick={onClose}
             className="p-2 hover:bg-white/5 rounded-full transition-colors text-[var(--ink-lo)] hover:text-[var(--ink-hi)] cursor-pointer"
           >

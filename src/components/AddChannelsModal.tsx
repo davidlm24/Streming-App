@@ -475,7 +475,7 @@ export function AddChannelsModal({
                     <p className="text-[11px] text-[var(--ink-lo)]">Insira os dados de transmissão da plataforma</p>
                   </div>
                 </div>
-                <button
+                <button aria-label="Fechar configuração da plataforma"
                   type="button"
                   onClick={() => setSelectedPlatform(null)}
                   className="p-1.5 rounded-lg text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]"

@@ -13,7 +13,8 @@
     "lint:contrast": "node scripts/contrast-gate.mjs",
     "lint:debt": "node scripts/design-debt.mjs",
     "debt:update": "node scripts/design-debt.mjs --update",
-    "verify": "npm run lint && npm run lint:css && npm run lint:contrast && npm run lint:debt"
+    "verify": "npm run lint && npm run lint:css && npm run lint:contrast && npm run lint:debt && npm run lint:icons",
+    "lint:icons": "node scripts/icon-buttons.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -76,7 +76,7 @@ export function CloudflareStreamModal({
               </p>
             </div>
           </div>
-          <button 
+          <button aria-label="Fechar" 
             onClick={onClose}
             className="p-2 hover:bg-[var(--panel)]/60 text-[var(--ink-lo)] hover:text-[var(--ink-hi)] rounded-xl transition-colors cursor-pointer"
           >

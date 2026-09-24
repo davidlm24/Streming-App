@@ -2259,7 +2259,7 @@ export function StudioPreview({
                     </div>
 
                     <div className="flex-1 bg-[var(--bg)]/70 border border-[var(--line)] rounded-xl p-3 flex flex-col justify-center text-center space-y-2 relative group min-h-0 overflow-hidden">
-                      <button 
+                      <button aria-label="Página anterior" 
                         onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
                         disabled={pdfCurrentPage === 1}
                         className={`absolute left-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-white transition-all shadow z-10 ${
@@ -2269,7 +2269,7 @@ export function StudioPreview({
                         <ChevronLeft size={14} />
                       </button>
 
-                      <button 
+                      <button aria-label="Próxima página" 
                         onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
                         disabled={pdfCurrentPage === 12}
                         className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--ink-hi)] transition-all shadow z-10 ${

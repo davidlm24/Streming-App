@@ -99,7 +99,7 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
               <p className="text-xs text-[var(--ink-lo)]">Ative um plano para desbloquear transmissões ao vivo e gravações</p>
             </div>
           </div>
-          <button 
+          <button aria-label="Fechar" 
             onClick={onClose} 
             className="p-2 hover:bg-[var(--panel)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] rounded-xl transition-colors cursor-pointer"
           >
