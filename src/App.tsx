@@ -391,7 +391,7 @@ export default function App() {
 
   // Quick Settings / Integrations modal state
   const [isIntegrationsModalOpen, setIsIntegrationsModalOpen] = useState(false);
-  const [integrationsModalTab, setIntegrationsModalTab] = useState<'rtmp' | 'social' | 'analysis' | 'webhooks'>('analysis');
+  const [integrationsModalTab, setIntegrationsModalTab] = useState<'rtmp' | 'social' | 'webhooks'>('rtmp');
   const [isImmersiveMode, setIsImmersiveMode] = useState(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
   const [isMobileScenesOpen, setIsMobileScenesOpen] = useState(false);
@@ -3090,22 +3090,18 @@ export default function App() {
                     <ExternalLink size={12} className="text-[var(--ink-dim)]" />
                   </div>
 
-                  <div 
-                    onClick={() => {
-                      setIntegrationsModalTab('analysis');
-                      setIsIntegrationsModalOpen(true);
-                    }}
-                    className="flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-emerald-500/10 hover:border-emerald-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
-                  >
-                    <div>
-                      <p className="text-emerald-400 font-semibold flex items-center gap-1">
-                        <Sparkles size={11} className="animate-pulse text-emerald-400" />
-                        Análise de Requisitos & Chaves
-                      </p>
-                      <p className="text-[10px] text-[var(--ink-lo)]">Mapeamento completo do SaaS e chaves do sistema</p>
-                    </div>
-                    <ExternalLink size={12} className="text-emerald-500" />
-                  </div>
+                  {/* REMOVIDO — o card "Análise de Requisitos & Chaves".
+                      Abria, para o cliente pagante, o quadro interno de status
+                      de engenharia: "Painel de Cobranças — Pronto / Simulação
+                      Premium", "Servidores de Ingestão RTMP/SRT — Requer
+                      Produção", "substituir a persistência de localStorage", e
+                      a lista dos nomes das variáveis secretas do sistema.
+                      Era o único dos três cards em esmeralda com Sparkles
+                      animado — vocabulário de novidade boa no item que
+                      confessava que o faturamento é simulado.
+                      Enquanto a ingestão não for real, o lugar de dizer isso é
+                      um estado vazio honesto na tela do recurso, não um
+                      relatório de backlog dentro do produto. */}
                 </div>
               </div>
 
@@ -3402,7 +3398,6 @@ export default function App() {
             {/* Tab Switched Header */}
             <div className="flex border-b border-[var(--line)] bg-[var(--bg)]/50 px-6 py-2 gap-2">
               {[
-                { id: 'analysis', label: 'Análise de Requisitos (SaaS)', icon: CheckCircle2 },
                 { id: 'rtmp', label: 'Ingestão OBS & RTMP', icon: Server },
                 { id: 'social', label: 'Mídias Sociais & OAuth', icon: Users },
                 { id: 'webhooks', label: 'Gerenciador de Webhooks', icon: Radio }
@@ -3425,55 +3420,6 @@ export default function App() {
 
             {/* Content Body */}
             <div className="p-6 max-h-[65vh] overflow-y-auto text-xs text-[var(--ink)] space-y-4">
-              {integrationsModalTab === 'analysis' && (
-                <div className="space-y-4">
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl">
-                    <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Mapeamento Geral do SaaS (Requisitos vs. Código)</p>
-                    <p className="text-[11px] text-[var(--ink)] leading-relaxed">Confrontamos as 45 seções e requisitos técnicos de seu plano de negócios com a implementação atual do MVP do PwStreamer. O resultado demonstra as áreas prontas e o roteiro de banco de dados e servidores para a migração para nuvem.</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                      { title: 'Estúdio Virtual do Navegador', state: 'Pronto / Implementado', desc: 'Captura de câmera, microfone, compartilhamento de tela, controle de layouts de palco e mixers de áudio real via Web Audio API.', done: true },
-                      { title: 'Gerenciador de Transição de Câmeras', state: 'Pronto / Implementado', desc: 'Transições suaves reais de vídeo (Fade, Slide, Zoom, Cut) usando animações Motion integradas diretamente nas trocas de layout.', done: true },
-                      { title: 'Moderação Automática com IA', state: 'Pronto / Integrado', desc: 'Filtro inteligente de abusos e spams conectado diretamente no backend Express com a SDK oficial @google/genai (Gemini 3.5 Flash).', done: true },
-                      { title: 'Painel de Cobranças e Faturas', state: 'Pronto / Simulação Premium', desc: 'Componente Billing completo que simula pagamentos Stripe, PayPal, Mercado Pago (PIX), gera histórico de faturamento e emite faturas em texto.', done: true },
-                      { title: 'Gerador de Capas & Captação', state: 'Pronto / Implementado', desc: 'Criação de miniaturas / thumbnails para mídias sociais diretamente pelo painel e landing pages públicas interativas de captação de leads.', done: true },
-                      { title: 'Monitoramento & Painel Admin', state: 'Pronto / Implementado', desc: 'Painel administrativo com monitoramento em tempo real de CPU do servidor, banda e egress/ingress de dados usando gráficos Recharts.', done: true },
-                      { title: 'Chroma-key (Tela Verde)', state: 'Pronto / Implementado', desc: 'Substituição em tempo real de fundos utilizando tolerância cromática configurável direto na visualização da câmera.', done: true },
-                      { title: 'Durable Database (PostgreSQL)', state: 'Requer Produção', desc: 'Substituir a persistência de LocalState/localStorage atual por tabelas relacionais do PostgreSQL (tabelas users, subscriptions, broadcasts, etc.)', done: false },
-                      { title: 'Servidores de Ingestão RTMP/SRT', state: 'Requer Produção', desc: 'Substituir as chaves simuladas por ingestão real de sinal rodando MediaMTX ou OvenMediaEngine sob Docker.', done: false },
-                      { title: 'Email Marketing & transactional SMTP', state: 'Requer Produção', desc: 'Disparo real de convites e certificados pós-transmissão utilizando chaves de API da Brevo, SendGrid ou Mailchimp.', done: false },
-                    ].map((item, idx) => (
-                      <div key={idx} className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-1.5 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-bold text-[var(--ink-hi)] text-xs">{item.title}</span>
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
-                              item.done ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                            }`}>{item.state}</span>
-                          </div>
-                          <p className="text-[10px] text-[var(--ink-lo)] leading-relaxed mt-1">{item.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-2xl space-y-2">
-                    <p className="font-bold text-blue-400 text-xs flex items-center gap-1">Chaves Necessárias para o Sistema Completo</p>
-                    <p className="text-[10px] text-[var(--ink)] leading-relaxed">As seguintes variáveis devem ser declaradas no arquivo <code className="bg-[var(--bg)] px-1 py-0.5 rounded font-mono text-[var(--ink-hi)]">.env</code> de produção para que o ecossistema SaaS opere plenamente:</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] font-mono pt-1 text-[var(--ink-lo)]">
-                      <div>• <code className="text-[var(--ink-hi)]">GEMINI_API_KEY</code> (Moderação do chat)</div>
-                      <div>• <code className="text-[var(--ink-hi)]">STRIPE_SECRET_KEY</code> (Assinaturas e planos)</div>
-                      <div>• <code className="text-[var(--ink-hi)]">MERCADO_PAGO_ACCESS_TOKEN</code> (PIX / Boleto)</div>
-                      <div>• <code className="text-[var(--ink-hi)]">AWS_ACCESS_KEY_ID</code> (Streaming AWS IVS)</div>
-                      <div>• <code className="text-[var(--ink-hi)]">CLOUDFLARE_API_TOKEN</code> (Armazenamento R2)</div>
-                      <div>• <code className="text-[var(--ink-hi)]">BREVO_SMTP_KEY</code> (Disparo de emails)</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {integrationsModalTab === 'rtmp' && (
                 <div className="space-y-4">
                   <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl">

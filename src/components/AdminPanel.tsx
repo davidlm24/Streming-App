@@ -91,11 +91,14 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
   };
 
   // Client Outbound Destinations (YouTube, Facebook, Twitch, custom RTMP)
-  const [clientDestinations, setClientDestinations] = useState([
-    { id: 'dest-yt', platform: 'YouTube Live', streamKey: 'yt_live_key_998127384', rtmpUrl: 'rtmp://a.rtmp.youtube.com/live2', active: true },
-    { id: 'dest-fb', platform: 'Facebook Live', streamKey: 'fb_stream_772100491', rtmpUrl: 'rtmps://live-api-s.facebook.com:443/rtmp/', active: true },
-    { id: 'dest-tw', platform: 'Twitch TV', streamKey: 'live_user_tw_4001923', rtmpUrl: 'rtmp://live.twitch.tv/app', active: false }
-  ]);
+  // Nascia com TRÊS canais semeados — chaves inventadas, dois marcados "Ativo
+  // na Live" — sob o título "Canais Ativos para Suas Transmissões (3)", na
+  // conta de um cliente que nunca conectou nada. Quem confiasse na tela
+  // entraria ao vivo achando que transmitia para YouTube e Facebook.
+  // Começa vazio. O vazio tem desenho próprio logo abaixo.
+  const [clientDestinations, setClientDestinations] = useState<Array<{
+    id: string; platform: string; streamKey: string; rtmpUrl: string; active: boolean;
+  }>>([]);
 
   const [newDestPlatform, setNewDestPlatform] = useState('');
   const [newDestKey, setNewDestKey] = useState('');
@@ -403,6 +406,18 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                 </div>
               </div>
             ))}
+
+            {/* O vazio precisava existir: sem ele, tirar a semente deixaria um
+                título seguido de nada, e "nenhum canal" viraria indistinguível
+                de "a tela quebrou". */}
+            {clientDestinations.length === 0 && (
+              <div className="p-6 bg-[var(--bg)] border border-dashed border-[var(--line-ctl)] rounded-xl text-center space-y-1">
+                <p className="text-xs font-semibold text-[var(--ink)]">Nenhum canal conectado ainda</p>
+                <p className="text-[11px] text-[var(--ink-lo)]">
+                  Adicione um destino acima para transmitir para YouTube, Facebook, Twitch ou um servidor RTMP próprio.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -411,14 +426,22 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
       {clientTab === 'stats' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Eram três literais — '1.240' espectadores, '482' comentários,
+                '1080p 60fps' de ingestão — renderizados com o desenho de um
+                KPI medido, na conta de todo cliente. É a recidiva do mesmo
+                defeito que a Fase 5 tirou do painel: a correção foi aplicada
+                lá e não generalizou para cá.
+                Os três dependem de telemetria do servidor de ingestão, que
+                ainda não existe. Regra do sistema: valor ausente é travessão,
+                nunca um número plausível. */}
             {[
-              { label: 'Espectadores Conectados', value: '1.240', desc: 'YouTube + Facebook simultâneos', color: 'text-blue-400' },
-              { label: 'Comentários Recebidos', value: '482', desc: 'Interações no Chat Unificado', color: 'text-emerald-400' },
-              { label: 'Qualidade da Ingestão', value: '1080p 60fps', desc: 'Bitrate estável em 8 Mbps', color: 'text-amber-400' }
+              { label: 'Espectadores Conectados', desc: 'Aguardando telemetria do servidor de ingestão' },
+              { label: 'Comentários Recebidos', desc: 'Aguardando telemetria do chat unificado' },
+              { label: 'Qualidade da Ingestão', desc: 'Aguardando telemetria do servidor de ingestão' }
             ].map((stat, idx) => (
               <div key={idx} className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left shadow-lg">
                 <p className="text-[10px] font-bold text-[var(--ink-dim)] uppercase tracking-wider">{stat.label}</p>
-                <p className={`text-3xl font-black mt-2 ${stat.color}`}>{stat.value}</p>
+                <p className="text-3xl font-black mt-2 text-[var(--ink-lo)] tabular-nums">—</p>
                 <p className="text-xs text-[var(--ink-lo)] mt-1">{stat.desc}</p>
               </div>
             ))}
