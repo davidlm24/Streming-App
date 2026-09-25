@@ -16,6 +16,7 @@ import {
   where, 
   deleteDoc,
   getDocs,
+  updateDoc,
   setDoc as setDocFs
 } from 'firebase/firestore';
 import { auth, googleAuthProvider, db, storage, disableNetwork } from './firebase.ts';
@@ -294,6 +295,67 @@ export async function validateUserTrialStatus(
   };
 }
 
+/** Por que o nome não foi salvo. A página diz cada caso com a sua saída. */
+export type FalhaAoSalvarNome = 'sem-login' | 'sem-conexao' | 'sem-confirmacao' | 'recusado';
+
+export class ErroAoSalvarNome extends Error {
+  readonly motivo: FalhaAoSalvarNome;
+  constructor(motivo: FalhaAoSalvarNome) {
+    super(motivo);
+    this.motivo = motivo;
+  }
+}
+
+/** Quanto esperar o banco confirmar antes de dizer que não deu para confirmar. */
+const ESPERA_DA_CONFIRMACAO_MS = 10_000;
+
+/** Resolve quando o Firebase termina de restaurar a sessão salva (logo depois de recarregar a página). */
+export const esperarSessao = () => auth.authStateReady();
+
+/**
+ * Troca o nome do perfil no banco (`users/{uid}.name`), de onde o login lê o
+ * nome em qualquer aparelho. Grava só `name`: plano, papel e datas não são do
+ * cliente, e o e-mail é o do login.
+ *
+ * Só resolve depois de o banco confirmar. Este Firestore guarda escritas
+ * pendentes só em memória: uma escrita feita sem conexão some quando a aba
+ * fecha, então dizer "salvo" antes da confirmação seria mentira.
+ */
+export async function salvarNomeDoPerfil(nome: string): Promise<void> {
+  // Logo depois de recarregar, `currentUser` ainda é null enquanto a sessão
+  // volta, e o app já mostra o usuário do cache: sem esperar, uma sessão
+  // válida seria dada como expirada.
+  await esperarSessao();
+  const uid = auth.currentUser?.uid;
+  if (!uid) throw new ErroAoSalvarNome('sem-login');
+  if (isQuotaExceededFlag || (typeof navigator !== 'undefined' && navigator.onLine === false)) {
+    throw new ErroAoSalvarNome('sem-conexao');
+  }
+
+  let espera: ReturnType<typeof setTimeout> | undefined;
+  const semConfirmacao = new Promise<never>((_, rejeitar) => {
+    espera = setTimeout(() => rejeitar(new ErroAoSalvarNome('sem-confirmacao')), ESPERA_DA_CONFIRMACAO_MS);
+  });
+  try {
+    await Promise.race([updateDoc(doc(db, 'users', uid), { name: nome }), semConfirmacao]);
+  } catch (err) {
+    if (err instanceof ErroAoSalvarNome) throw err;
+    if (isQuotaExceededError(err)) {
+      markQuotaExceeded();
+      throw new ErroAoSalvarNome('sem-conexao');
+    }
+    console.warn('Perfil: o nome não foi salvo:', (err as { code?: string })?.code ?? err);
+    throw new ErroAoSalvarNome('recusado');
+  } finally {
+    clearTimeout(espera);
+  }
+}
+
+/** Se a sessão atual entrou pelo Google, de onde vem o e-mail da conta. */
+export function entrouComGoogle(): boolean {
+  return auth.currentUser?.providerData.some((p) => p.providerId === 'google.com') ?? false;
+}
+
 export async function logoutFirebase(): Promise<void> {
   try {
     await signOut(auth);
@@ -331,6 +393,10 @@ export function subscribeAuth(onUser: (user: UserProfile | null) => void) {
         } else {
           profile = defaultProfile;
         }
+        // O uid e o e-mail são sempre os do login. O formulário de cadastro
+        // antigo deixava trocar o e-mail, e o valor guardado aqui passava por
+        // cima do login: o app mostrava e usava um e-mail que não era o da conta.
+        profile = { ...profile, uid: fbUser.uid, email: fbUser.email || profile.email };
 
         if (!isQuotaExceededFlag) {
           try {

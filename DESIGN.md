@@ -171,6 +171,11 @@ components:
     textColor: "{colors.navy-96}"
     typography: "{typography.body-strong}"
     padding: "16px 0"
+  record-row:
+    backgroundColor: "transparent"
+    textColor: "{colors.navy-96}"
+    typography: "{typography.body-strong}"
+    padding: "16px 0"
   master-row:
     backgroundColor: "transparent"
     textColor: "{colors.navy-96}"
@@ -188,7 +193,7 @@ components:
 
 # Design System: PwStreamer
 
-<!-- Registrado a partir do código entregue (casca do app, Painel, Canais, Webinars, Configurações, Plano e cobrança, rodapé, o modal de canais e o modal de planos). Onde o mock mockups/design-system.html e o código divergem, vale o código. Valores em hex: os do tema escuro, que é o padrão; a troca por tema está em Colors. -->
+<!-- Registrado a partir do código entregue (casca do app, Painel, Canais, Webinars, Configurações, Plano e cobrança, Dados de cadastro, rodapé, o modal de canais e o modal de planos). Onde o mock mockups/design-system.html e o código divergem, vale o código. Valores em hex: os do tema escuro, que é o padrão; a troca por tema está em Colors. -->
 
 ## Overview
 
@@ -214,7 +219,7 @@ A densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo (`[
 Uma rampa azul-marinho de luminância casada carrega quase tudo. Dois acentos cromáticos, cada um com um único lugar.
 
 ### Primary
-- **Azul da Marca Profundo** (`brand-deep`): o preenchimento do botão primário (`.btn`). É a única área cromática da casca. Texto branco sobre ele. Há um botão primário por tela: "Entrar no estúdio" (tamanho `lg`) no Painel, "Conectar canal" em Canais, "Agendar webinar" em Webinars e, no modal de canais, o envio do formulário ("Conectar canal" ou "Salvar alterações"; "Ver planos" quando a plataforma está bloqueada pelo plano). Plano e cobrança e o modal de planos não têm botão primário enquanto a assinatura não abre, e por isso não têm cor nenhuma (ver a Regra da Vitrine sem Balcão).
+- **Azul da Marca Profundo** (`brand-deep`): o preenchimento do botão primário (`.btn`). É a única área cromática da casca. Texto branco sobre ele. Há um botão primário por tela: "Entrar no estúdio" (tamanho `lg`) no Painel, "Conectar canal" em Canais, "Agendar webinar" em Webinars e, no modal de canais, o envio do formulário ("Conectar canal" ou "Salvar alterações"; "Ver planos" quando a plataforma está bloqueada pelo plano). Plano e cobrança e o modal de planos não têm botão primário enquanto a assinatura não abre, e por isso não têm cor nenhuma (ver a Regra da Vitrine sem Balcão). Dados de cadastro não tem cor em repouso: o primário "Salvar nome" só existe enquanto o nome está sendo editado.
 - **Azul da Marca** (`brand`): a cor nominal da marca e a ponta inicial do gradiente do logo. Na casca, não é superfície de nada.
 - **Azul da Marca Claro** (`brand-lift`): só o anel de foco (`:focus-visible`, 2px, afastado 2px). O foco precisa ser visível em qualquer superfície, e por isso é a exceção à regra da voz única.
 
@@ -252,7 +257,7 @@ Gráficos usam a rampa por **valor**, nunca por matiz (`--chart-1..5`, `--chart-
 
 **Regra da Vitrine sem Balcão.** Uma tela que mostra algo que ainda não se pode fazer (hoje: assinar um plano) não tem ação primária e, portanto, não tem cor. Nada de botão desabilitado, selo "em breve" ou checkout de mentira: o "em breve" é uma frase em palavras simples, em `text-sm` `--ink-lo`, junto do que ainda não abre ("A assinatura abre em breve, por aqui mesmo. Hoje nenhuma cobrança é feita."). O plano atual é dito em palavra ("· seu plano"), não por destaque, e um diálogo assim fecha com "Fechar" fantasma.
 
-**Regra do Erro em Tinta Alta.** O que precisa de atenção (pendência, erro de campo, texto não salvo) sobe para `--ink-hi` e ganha um ícone; o que está em ordem fica em `--ink-lo`. A diferença é de degrau na rampa, nunca de matiz.
+**Regra do Erro em Tinta Alta.** O que precisa de atenção (pendência, erro de campo, texto não salvo, falha ao salvar) sobe para `--ink-hi` e ganha um ícone; o que está em ordem fica em `--ink-lo`. A diferença é de degrau na rampa, nunca de matiz.
 
 **Regra da Marca Monocromática.** Ícones de plataforma (YouTube, Twitch…) ficam em `currentColor`, traço 1,75, nunca nas cores do dono da marca. Vêm do Lucide; onde o Lucide não tem a marca, o ícone é desenhado no mesmo traço (o K do Kick).
 
@@ -268,7 +273,7 @@ Gráficos usam a rampa por **valor**, nunca por matiz (`--chart-1..5`, `--chart-
 - **Display** (600, `text-3xl`, tracking-tight): uma por tela. É o `h1` das páginas (`CabecalhoDePagina`) e, no Painel, o título da próxima live, com `text-balance`.
 - **Title** (600, `text-base`): título de seção (`h2` de `SecaoDePagina`, "Canais", "Próximas lives"), título de diálogo e o cabeçalho do painel de detalhe (ícone + nome da plataforma).
 - **Body** (400 ou 500, `text-sm`): descrições (`max-w-prose`), nomes em linhas de lista (500), rótulos de campo (500, em `--ink-hi`), rótulos de botão e de chip, ações de texto, os itens de um plano aberto (em `--ink`).
-- **Label** (400, `text-xs`): a linha de metadados abaixo de um nome (plataforma · estado, horário · canais), a palavra de estado na lista mestre, dicas e erros de campo, rodapé e aviso de teste no cabeçalho.
+- **Label** (400, `text-xs`): a linha de metadados abaixo de um nome (plataforma · estado, horário · canais), a palavra de estado na lista mestre, a linha de origem de um registro ("É o e-mail com que você entra."), dicas e erros de campo, rodapé e aviso de teste no cabeçalho.
 - **Button** (600, 14px; `lg` 16px; `sm` 12px): definido em `.btn`, e os três caem sobre os degraus `sm`/`base`/`xs` da escala.
 - **Measure** (mono, tabular, na tinta `--ink`): só a hora dentro do texto livre do horário (`Horario` isola `20:00` e deixa "Hoje, às" na fonte do texto).
 - **Preço** (Poppins, `text-sm` 500, `tabular-nums`, `--ink-hi`; o total do ano abaixo em `text-xs` `--ink-lo`, também tabular): preço não é instrumento, então fica na fonte do texto, mas em algarismos tabulares para as linhas se lerem em coluna. Sempre por `formatPrice` (BRL, "R$ 39,90").
@@ -278,7 +283,7 @@ Gráficos usam a rampa por **valor**, nunca por matiz (`--chart-1..5`, `--chart-
 
 **Regra do Mono como Medida.** Mono aparece só em medidas (hora, e no estúdio bitrate e contadores), sempre com `tabular-nums`. Nunca como rótulo, sobretítulo ou enfeite. Dinheiro não é medida: preço fica em Poppins com `tabular-nums`.
 
-**Regra do Número Colado.** Entre um número e sua unidade vai um espaço inseparável (U+00A0: "3 horas", "15 min"), e o último par de palavras de um limite também ("ao vivo"), para que nenhuma linha estreita quebre em "15 | min" nem deixe uma palavra sozinha.
+**Regra do Número Colado.** Entre um número e sua unidade vai um espaço inseparável (U+00A0: "3 horas", "15 min"), e o último par de palavras de um limite também ("ao vivo"), para que nenhuma linha estreita quebre em "15 | min" nem deixe uma palavra sozinha. As frases de várias linhas em `text-xs` e `text-sm` que vão a colunas estreitas (erro e dica de campo, linha de origem, linha de falha ao salvar) levam `text-pretty`, que faz o mesmo pela última linha do parágrafo; os dois se somam, um não substitui o outro.
 
 **Regra da Caixa Normal.** Rótulos, links e ações ficam em caixa normal de frase. Caixa alta com espaçamento largo não é voz do sistema.
 
@@ -295,6 +300,7 @@ O ritmo vertical é fixo:
 - Um controle de seção (`acao` de `SecaoDePagina`, ex.: Mensal/Anual) fica à direita do título, centrado na linha dele, a pelo menos 16px; em tela estreita desce para baixo do título, a 12px. O conteúdo da seção começa 16px abaixo.
 - Chips quebram em linhas com 8px de intervalo.
 - Formulários: rótulo, campo a 8px, dica ou erro a 8px abaixo do campo; 20px entre campos; 24px entre a frase de orientação e o primeiro campo.
+- Registro (`dl` de dados da conta): 48px abaixo do cabeçalho da página; em cada linha, o valor 4px abaixo do rótulo e a linha de origem a 8px; a ação de texto à direita, a pelo menos 16px. Editando: a linha de falha 16px abaixo da dica, e as ações do formulário 20px abaixo.
 
 **Mestre-detalhe (diálogo `xl`, 896px).** A partir de `md`, duas colunas: a lista a 15rem (240px), com 16px de respiro e uma linha de 1px à direita, e o detalhe no resto, a 24px da linha. O título do detalhe desce 8px para ficar na linha do nome da primeira plataforma. Abaixo de `md`, vira dois passos no mesmo diálogo: a lista (cada linha com um chevron à direita) e, ao escolher, o formulário, com "‹ Plataformas" como ação de texto no topo para voltar. Quem abre o diálogo já num canal cai direto no formulário.
 
@@ -338,7 +344,8 @@ Firmes e sem enfeite. A aparência mora na classe `.btn` do `index.css` (em `@la
 - **Botão de ícone (`BotaoDeIcone`):** 44 × 44px, sem fundo, hover em `--raise`. O nome acessível (`rotulo`) é obrigatório na assinatura.
 
 ### Text actions (`AcaoDeTexto`)
-A voz de tudo o que é secundário: sem caixa, sem cor. Fica em `--ink-lo` e passa a `--ink-hi` com sublinhado no hover, em `text-sm` no corpo e `text-xs` no rodapé, no cabeçalho e ao lado de um rótulo de campo ("Mostrar chave"). A variante `sublinhada` serve para o link no meio de uma frase: tinta alta, sublinhado em `--line-ctl`, afastado 4px. Um ícone opcional à esquerda (ex.: `+` em "Conectar canal", `‹` em "Plataformas").
+A voz de tudo o que é secundário: sem caixa, sem cor. Fica em `--ink-lo` e passa a `--ink-hi` com sublinhado no hover, em `text-sm` no corpo e `text-xs` no rodapé, no cabeçalho e ao lado de um rótulo de campo ("Mostrar chave"). A variante `sublinhada` serve para o link no meio de uma frase: tinta alta, sublinhado em `--line-ctl`, afastado 4px. Um ícone opcional à esquerda (ex.: `+` em "Conectar canal", `‹` em "Plataformas"). `className` só acerta margem e alvo: numa linha de lista, `-my-3 min-h-11` dá o alvo de 44px sem empurrar a altura da linha.
+- **`ref` (só na forma botão):** para devolver o foco a ela quando o que ela abriu fecha ("Editar" depois de Salvar ou Cancelar).
 - **Com `onClick`** é um `<button>`. **Com `href`** é um link para fora do app (o painel oficial da plataforma): abre em outra aba (`target="_blank"`, `rel="noopener noreferrer"`) e anuncia isso ao leitor de tela com um "(abre em outra aba)" em `sr-only`. Visualmente, o ícone de link externo (12px) vai depois do rótulo, como em "Abrir o YouTube Studio ↗". As duas formas são exclusivas na assinatura.
 
 ### Chips
@@ -356,7 +363,8 @@ A casca não tem cartões. Os contêineres são a coluna (`Pagina`), a seção a
 - **Style:** campos nativos seguem os tokens globalmente: fundo `--well`, texto `--ink-hi`, borda `--line-ctl`, placeholder `--ink-dim`. Na casca redesenhada, o campo de uma linha tem 44px de altura (`h-11`), 16px de raio, 12px de respiro lateral e texto `text-sm`. O rótulo fica acima, em `text-sm` 500 `--ink-hi`, ligado por `htmlFor`; uma ação de texto `xs` pode ficar na mesma linha, à direita ("Mostrar chave").
 - **Dica:** uma frase em `text-xs` `--ink-lo`, 8px abaixo do campo, ligada por `aria-describedby`.
 - **Focus:** o anel global de 2px em `brand-lift`, com afastamento de 2px.
-- **Error:** o ícone `CircleAlert` (14px) e uma frase em `text-xs` `--ink-hi`, 8px abaixo do campo, no lugar da dica. O campo recebe `aria-invalid="true"` e `aria-describedby` apontando para a frase, e a regra global do `index.css` (`input`, `textarea` e `select` com `aria-invalid="true"`) sobe a borda para `--ink-hi`. Nunca carmim. A frase diz o que falta e como resolver ("Falta o servidor. O padrão da plataforma é …"). Ao enviar com erro, o foco vai ao primeiro campo inválido; digitar no campo limpa o erro dele.
+- **Error (`ErroDeCampo`):** a primitiva única do erro de campo, usada no modal de canais e em Dados de cadastro; nenhuma tela desenha o seu. O ícone `CircleAlert` (14px) e uma frase em `text-xs` `--ink-hi` com `text-pretty`, 8px abaixo do campo, no lugar da dica. O campo recebe `aria-invalid="true"` e `aria-describedby` apontando para a frase, e a regra global do `index.css` (`input`, `textarea` e `select` com `aria-invalid="true"`) sobe a borda para `--ink-hi`. Nunca carmim. A frase diz o que falta e como resolver ("Falta o servidor. O padrão da plataforma é …"). Ao enviar com erro, o foco vai ao primeiro campo inválido; digitar no campo limpa o erro dele.
+- **Falha ao salvar:** quando o campo passou mas o salvamento não, uma linha `role="alert"` acima das ações: `CircleAlert` (16px) e uma frase em `text-sm` `--ink-hi` com `text-pretty`. Nunca carmim. A frase diz o que aconteceu e a saída, e pode terminar com **uma** `AcaoDeTexto` sublinhada que executa a saída que ela nomeia ("Sua sessão expirou, então o nome não foi salvo. Entrar de novo"). Um novo envio apaga a linha da tentativa anterior.
 - **Endereço longo (servidor RTMP):** um `textarea` de uma linha que cresce com o conteúdo (`rows=1`, sem redimensionar, sem rolagem, quebra em qualquer caractere), com a mesma altura mínima de 44px. É um valor só: Enter envia o formulário e quebras de linha coladas são removidas. Assim o endereço inteiro fica à vista a 375px, onde a pessoa precisa conferi-lo.
 - **Switch:** trilho de 40 × 24px. Ligado é tinta cheia (`--ink-hi`) com botão em `--bg`; desligado é `--panel` com borda `--line-ctl` e botão em `--ink-lo`. Estado em `aria-checked` e na posição, nunca só na cor. O nome diz o que liga ("Transmitir para YouTube Principal").
 - **Segmentado:** grupo de poucas opções exclusivas (`role="group"` com nome), borda `--line-ctl`, 16px por fora e 10px por dentro, opções em `text-sm` a 6px × 12px. A opção ativa sobe para `--raise` e `--ink-hi`, com `aria-pressed`; as outras ficam em `--ink-lo`. Usos: tema (Configurações) e período de cobrança (`SeletorDePeriodo`: "Mensal" e "Anual, 20% menos", onde o rótulo diz a vantagem em palavras em vez de um selo de desconto).
@@ -369,6 +377,17 @@ Barra fixa de 56px em `--bg`, com linha de 1px embaixo: o logo (leva ao Painel),
 
 ### Linha de ação (`LinhaDeAcao`)
 É a unidade de Configurações: título (`text-sm` 500), uma frase do que há ali (`text-xs` `--ink-lo`) e o indicador de destino. `avancar` mostra um chevron à direita que se desloca 2px no hover. `expandir` mostra um chevron para baixo que gira 180° e abre o conteúdo logo abaixo, com `aria-expanded` e `aria-controls`. `lateral` (opcional) põe um valor curto à direita, alinhado à direita e antes do indicador (o preço de um plano); o título e a frase encolhem, o valor não.
+
+### Registro (dados da conta)
+Uma lista do que a conta é, não um formulário a preencher. É a página Dados de cadastro: um `dl` de página inteira, fechado por linha em cima e embaixo (`border-y`) e com `divide-y` em `--line`.
+- **Linha:** rótulo (`dt`, `text-sm` 500 `--ink-hi`) sobre o valor (`dd`, `text-sm` `--ink`, quebrando palavras longas como um e-mail); sem valor, "Sem nome" em `--ink-lo`. Opcionalmente, uma linha de origem (`text-xs` `--ink-lo`) que diz de onde o valor vem. No máximo **uma** ação de texto à direita ("Editar", com o objeto em `sr-only`), num `dd` próprio, com alvo de 44px pela margem negativa.
+- **Só leitura:** um valor que vem de outro sistema (o e-mail vem do login) não tem ação; a linha de origem diz de onde ele vem.
+- **Editar no lugar:** a linha editável vira o próprio campo. O rótulo fica onde estava e passa a ser o `<label>`; o valor vira o campo de 44px; a dica embaixo; depois as ações do formulário (Cancelar fantasma e o primário com verbo e objeto, "Salvar nome"), à direita a partir de `sm` e empilhadas na largura toda no celular, com o primário em cima. Abrir põe o foco no campo com o cursor no fim; fechar (Salvar, Cancelar ou Esc) devolve o foco a "Editar". Salvar sem mudança só fecha.
+- **Cor e movimento:** nenhuma cor em repouso; o azul aparece só no primário, durante a edição. Nenhum movimento: a troca de linha para campo é instantânea, e a entrada do chip continua sendo a única entrada da casca.
+
+**Regra do Salvo de Verdade.** Uma tela só diz "salvo" (o aviso "Nome salvo") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão ou sem cota, "tente de novo mais tarde"; sem confirmação em 10 s, "não deu para confirmar"; sessão expirada, "Entrar de novo"; recusa, "tente de novo". A restauração da sessão é esperada (`esperarSessao`) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de "salvo" local que o banco não viu.
+
+**Regra do Dado com Uso.** Um registro só pede o que algo no app já usa. Campo guardado "para depois" não entra; volta junto com o que o usa.
 
 ### Lista de planos (`ListaDePlanos`)
 A mesma lista na página Plano e cobrança e no modal de planos do estúdio; não existe outra tabela de preços no app.
@@ -418,7 +437,10 @@ As linhas da lista de planos mostram exatamente três limites (canais, pessoas, 
 - **Do** pôr horas e outras medidas em `font-mono tabular-nums`, e só a medida, não a frase.
 - **Do** usar `<BotaoDeIcone rotulo="…">` (44px) para qualquer botão só-ícone.
 - **Do** dizer "nenhum…" em texto quando não há dado, sem número inventado, e mostrar esqueleto `aria-busy` enquanto nada chegou.
-- **Do** marcar erro de campo com `aria-invalid` + `aria-describedby` e a frase com `CircleAlert` em `--ink-hi`; a borda sobe sozinha pela regra global.
+- **Do** marcar erro de campo com `aria-invalid` + `aria-describedby` e a frase por `<ErroDeCampo>`; a borda sobe sozinha pela regra global.
+- **Do** dizer "salvo" só depois de o banco confirmar, e dar a cada falha a sua frase com a saída, numa linha `role="alert"` em `--ink-hi` acima das ações.
+- **Do** editar um registro no lugar: o rótulo fica, o valor vira o campo, o foco vai ao campo e volta a "Editar" ao fechar, e Esc cancela.
+- **Do** pôr `text-pretty` nas frases de várias linhas em `text-xs`/`text-sm` que vão a colunas estreitas.
 - **Do** ler limites e disponibilidade por plano de `src/lib/plans.ts`, e pendências e nomes de plataforma de `src/lib/canais.ts`.
 - **Do** formatar todo preço com `formatPrice` (BRL) e, em lista, com `tabular-nums`; nunca `$`, `toFixed` nem cifra escrita à mão.
 - **Do** mostrar planos só por `<ListaDePlanos>` e abrir planos só por `abrirPlanos` (página fora do estúdio, modal dentro dele).
@@ -441,9 +463,11 @@ As linhas da lista de planos mostram exatamente três limites (canais, pessoas, 
 - **Don't** simular cobrança: sem checkout, "pagamento processado", fatura ou consumo que não existam de verdade.
 - **Don't** marcar o plano atual ou um plano "popular" com cor, borda ou selo; o atual é dito em palavra.
 - **Don't** descartar texto digitado ao trocar de plataforma ou ao salvar outra.
+- **Don't** pedir nem guardar dado que nada no app usa ainda, nem tornar editável um valor que vem de outro sistema (o e-mail do login).
+- **Don't** simular um salvamento: sem espera de enfeite, sem "atualizado com sucesso" antes da confirmação do banco.
 - **Don't** subir número nenhum de `scripts/design-debt-baseline.json`. A catraca deixa a dívida cair e nunca crescer sem um `--update` visível na revisão.
 
 ### Fora do sistema (dívida conhecida)
-Estas partes ainda carregam o visual herdado do Google AI Studio e **não** são referência: o estúdio (`Header.tsx`, `LeftSidebar`, o palco), o interior do `VideoQualityPanel` (que abre dentro de Configurações), a página de cadastro (`CadastroPagina`, movida sem redesenho para fora de Plano e cobrança; redesenho pendente), admin e super-admin, o site público e os preços, e o modal de criar webinar em `App.tsx`. A lista de canais do estúdio já mostra o ícone da plataforma no lugar da foto de banco de imagens, mas o resto do `LeftSidebar` continua fora. Os sinais típicos são tamanhos em px avulsos, `slate`/`gray`/`blue-500` crus, rótulos em caixa alta e sombras de brilho. A catraca mede essa dívida (na linha de base atual: 930 tamanhos avulsos, 425 `<button>` crus fora das primitivas, 77 usos estruturais de `slate`/`gray`, 102 `outline-none`, 7 hex arbitrários em classe, 19 em atributo JSX, 7 `z-index` avulsos e 6 `!important` no CSS; nenhum diálogo nativo bloqueante). Ao tocar numa dessas telas, migre para as primitivas e os papéis deste documento, sem copiar o que está lá.
+Estas partes ainda carregam o visual herdado do Google AI Studio e **não** são referência: o estúdio (`Header.tsx`, `LeftSidebar`, o palco), o interior do `VideoQualityPanel` (que abre dentro de Configurações), admin e super-admin, o site público e os preços, e o modal de criar webinar em `App.tsx`. A lista de canais do estúdio já mostra o ícone da plataforma no lugar da foto de banco de imagens, mas o resto do `LeftSidebar` continua fora. Os sinais típicos são tamanhos em px avulsos, `slate`/`gray`/`blue-500` crus, rótulos em caixa alta e sombras de brilho. A catraca mede essa dívida (na linha de base atual: 930 tamanhos avulsos, 425 `<button>` crus fora das primitivas, 77 usos estruturais de `slate`/`gray`, 97 `outline-none`, 7 hex arbitrários em classe, 19 em atributo JSX, 7 `z-index` avulsos e 6 `!important` no CSS; nenhum diálogo nativo bloqueante). Ao tocar numa dessas telas, migre para as primitivas e os papéis deste documento, sem copiar o que está lá.
 
 Dentro das superfícies redesenhadas, alguns desvios também ficam fora do sistema: o gatilho "⋯" do `Menu` (32px), o avatar da conta (32px) e o botão de fechar do `Modal` (cerca de 34px) estão abaixo do alvo de 44px, o chip tem 36px, o cabeçalho usa `z-30` em vez de `--z-sticky`, e o polegar da barra de rolagem fica azul no hover. A linha "ONLINE STUDIO" do logo (9px, mono, caixa alta) faz parte da marca e não é modelo de rótulo.
