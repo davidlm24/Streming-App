@@ -59,7 +59,7 @@ export async function getSecureCloudflareLiveInput(userId = 'anonymous', title =
     const res = await apiFetch('/api/cloudflare/live-inputs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, title })
+      body: JSON.stringify({ title })
     });
     
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);

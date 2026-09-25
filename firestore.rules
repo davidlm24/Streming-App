@@ -1,57 +1,126 @@
 rules_version = '2';
+
+// Regras do banco do PwStreamer.
+//
+// Premissa: "está logado" não é barreira. O cadastro é aberto (qualquer conta
+// Google entra) e a configuração do Firebase está no bundle público, então
+// qualquer pessoa fala com este banco direto pelo SDK, sem passar pela
+// interface. Cada regra responde "de QUEM é este documento" — nunca só
+// "está logado?".
+//
+// Testes: tests/firestore-rules/ (emulador, no CI).
 service cloud.firestore {
   match /databases/{database}/documents {
+
     function isSignedIn() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // E-mail confirmado pelo Firebase (login Google). Sem essa checagem,
+    // um token pode trazer um e-mail que ninguém verificou.
+    function emailVerificado() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function meuEmail() {
+      return request.auth.token.email;
+    }
+
+    // Administração. Espelha SUPER_ADMIN_EMAILS do servidor. O papel NÃO vem
+    // do documento do usuário — ali quem escreve é o próprio usuário.
+    function isAdmin() {
+      return emailVerificado() && meuEmail() in ['mgdlms@gmail.com'];
+    }
+
+    // Tudo o que não está listado abaixo é negado.
     match /{document=**} {
       allow read, write: if false;
     }
 
+    // ---------- Perfis ----------
+    // plan, role, subscriptionStatus, isExpired, trialDays, entitlementsVersion
+    // e stripeCustomerId decidem acesso e cobrança, e o servidor confia neles.
+    // Quem cria o perfil é o servidor (GET /api/auth/profile, pelo Admin SDK,
+    // que não passa por estas regras); o usuário só troca nome e foto.
+    // Apagar também é do admin: apagado, o perfil renasceria no próximo login
+    // com um teste novo de 30 dias.
     match /users/{userId} {
-      allow read: if isSignedIn();
-      allow create, update, delete: if isOwner(userId);
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if false;
+      allow update: if isAdmin()
+                    || (isOwner(userId)
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['name', 'photoURL']));
+      allow delete: if isAdmin();
 
-      match /{allSubcollections=**} {
+      // Webinars, cenas, snapshots, webhooks, audiência: só do dono.
+      // `{subcolecao}` exige ao menos um segmento abaixo do perfil. Com só
+      // `{x=**}` (rules v2: casa ZERO ou mais segmentos) o bloco casava o
+      // próprio /users/{userId} e liberava escrita livre no perfil — por
+      // cima da restrição de campos acima. O teste pegou.
+      match /{subcolecao}/{resto=**} {
         allow read, write: if isOwner(userId);
       }
     }
 
-
-    match /auditLogs/{logId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if false;
+    // ---------- Chaves de transmissão ----------
+    // O dono é quem tem o e-mail de clientEmail. Os documentos nunca tiveram
+    // userId, e é por clientEmail que o app consulta. O dono só lê: quem cria
+    // e revoga é o admin, e quem regenera é o servidor
+    // (POST /api/rtmp/keys/:id/regenerate).
+    function donoDaChave(dados) {
+      return emailVerificado() && dados.clientEmail == meuEmail();
     }
 
     match /rtmpKeys/{keyId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
+      allow read: if isAdmin() || donoDaChave(resource.data);
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ---------- Registro de auditoria ----------
+    // Só o admin lê e grava pelo app (os registros citam clientes e chaves); o
+    // servidor grava os seus pelo Admin SDK. Quem grava assina com o próprio
+    // e-mail; nada é editado nem apagado.
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin()
+                    && request.resource.data.keys().hasOnly(['id', 'timestamp', 'action', 'actorEmail', 'targetEmail', 'details'])
+                    && request.resource.data.id == logId
+                    && request.resource.data.actorEmail == meuEmail();
+      allow update, delete: if false;
+    }
+
+    // ---------- Mídia ----------
+    // O app grava ownerEmail; ownerId/userId seguem aceitos para documentos
+    // antigos. Os campos de dono não mudam depois de criados.
+    function donoDoAsset(dados) {
+      return (emailVerificado() && dados.get('ownerEmail', '') == meuEmail())
+          || dados.get('ownerId', '') == request.auth.uid
+          || dados.get('userId', '') == request.auth.uid;
+    }
+
+    function mesmoDono() {
+      return request.resource.data.get('ownerEmail', '') == resource.data.get('ownerEmail', '')
+          && request.resource.data.get('ownerId', '') == resource.data.get('ownerId', '')
+          && request.resource.data.get('userId', '') == resource.data.get('userId', '');
     }
 
     match /media_assets/{assetId} {
-      allow read: if isSignedIn() && (resource == null || resource.data.ownerId == request.auth.uid || resource.data.userId == request.auth.uid || resource.data.isPublic == true);
-      allow create: if isSignedIn() && (request.resource.data.ownerId == request.auth.uid || request.resource.data.userId == request.auth.uid);
-      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || resource.data.userId == request.auth.uid);
+      allow read: if isSignedIn()
+                  && (donoDoAsset(resource.data) || resource.data.get('isPublic', false) == true);
+      allow create: if isSignedIn() && donoDoAsset(request.resource.data);
+      allow update: if isSignedIn() && donoDoAsset(resource.data) && mesmoDono();
+      allow delete: if isSignedIn() && donoDoAsset(resource.data);
     }
 
-    match /webinars/{webinarId} {
-      allow read: if true; // Visitantes podem consultar detalhes da live pública
-      allow create, update, delete: if isSignedIn() && (resource == null || resource.data.hostId == request.auth.uid || request.resource.data.hostId == request.auth.uid);
-    }
-
-    match /webinarRegistrations/{regId} {
-      allow create: if true; // Visitantes podem registrar presença/inscrição
-      allow read: if isSignedIn();
-      allow update, delete: if isSignedIn();
-    }
-
-    match /streamSessions/{sessionId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
-    }
+    // webinars, webinarRegistrations e streamSessions (no topo) saíram: o app
+    // não usa nenhuma das três (os webinars ficam em users/{uid}/webinars), e
+    // uma delas aceitava gravação sem login. Caem na regra padrão: negado.
+    // stripeEvents (idempotência do webhook do Stripe) também: só o servidor
+    // grava ali, pelo Admin SDK.
   }
 }

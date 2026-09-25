@@ -2,43 +2,50 @@ import express from "express";
 import path from "path";
 import crypto from "crypto";
 import net from "net";
-import dns from "dns";
-import { URL } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
-import { getFirestore } from "firebase-admin/firestore";
-import {
-  BANCO_FIRESTORE,
-  PLANOS_PAGOS,
-  appAdmin,
-  avaliarAcesso,
-  cabecalhosExtras,
-  exigirLogin,
-  hostPublico,
-  lerProprioPerfil,
-  lerTextoLimitado,
-  urlDeWebhookPermitida,
-  type ReqComLogin,
-} from "./api/_lib/seguranca.js";
+import { adminDb } from "./src/lib/firebase-admin.ts";
+import { AuthRequest, isSuperAdmin, requireAuth } from "./src/middleware/auth.ts";
+import { resolvePublicAddress, safePost, validatePublicHttpUrl } from "./src/server/safe-http.ts";
 
 dotenv.config();
 
-async function startServer() {
+export async function createApiApp({ serveFrontend = false } = {}) {
   const app = express();
-  // 3211, e o padrão do código precisa concordar com o launch.json.
-  // Este arquivo nasceu com 3210, mas a raiz do Streming-App passou a usar
-  // 3210 e este worktree saiu para 3211. Enquanto o padrão daqui continuasse
-  // 3210, um `npm run dev` na mão — fora do painel, sem a variável — pousaria
-  // na porta da raiz e serviria um app no lugar do outro. Que é precisamente
-  // o bug que a separação de portas existe para evitar.
-  const PORT = Number(process.env.PORT) || 3211;
 
-  // O webhook do Stripe precisa do corpo BRUTO para conferir a assinatura;
-  // com express.json() antes dele, constructEvent falhava em toda chamada
-  // assim que STRIPE_WEBHOOK_SECRET fosse configurado.
-  const jsonParser = express.json({ limit: "256kb" });
-  app.use((req, res, next) => (req.path === "/api/webhooks/stripe" ? next() : jsonParser(req, res, next)));
+  const rateLimitBuckets = new Map<string, { count: number; resetsAt: number }>();
+  const userRateLimit = (scope: string, limit: number, windowMs = 60_000): express.RequestHandler =>
+    (request, response, next) => {
+      const req = request as AuthRequest;
+      const now = Date.now();
+      const bucketKey = `${scope}:${req.user?.uid || request.ip}`;
+      const current = rateLimitBuckets.get(bucketKey);
+      const bucket = !current || current.resetsAt <= now
+        ? { count: 0, resetsAt: now + windowMs }
+        : current;
+      bucket.count += 1;
+      rateLimitBuckets.set(bucketKey, bucket);
+      response.setHeader('RateLimit-Limit', String(limit));
+      response.setHeader('RateLimit-Remaining', String(Math.max(0, limit - bucket.count)));
+      if (bucket.count > limit) {
+        response.setHeader('Retry-After', String(Math.ceil((bucket.resetsAt - now) / 1000)));
+        return response.status(429).json({ error: 'Too many requests' });
+      }
+      next();
+    };
+  const requireJsonObject: express.RequestHandler = (request, response, next) => {
+    if (!request.is('application/json') || !request.body || typeof request.body !== 'object' || Array.isArray(request.body)) {
+      return response.status(400).json({ error: 'A JSON object body is required' });
+    }
+    next();
+  };
+
+  const jsonParser = express.json({ limit: '1mb' });
+  app.use((req, res, next) => {
+    if (req.path === '/api/webhooks/stripe') return next();
+    return jsonParser(req, res, next);
+  });
 
   // Health check endpoint
   app.get("/api/health", (req, res) => {
@@ -46,11 +53,10 @@ async function startServer() {
   });
 
   // API route for AI moderation of chat comments
-  // Exige login: cada chamada gasta a cota do Gemini.
-  app.post("/api/moderate", exigirLogin, async (req, res) => {
+  app.post("/api/moderate", requireAuth, requireJsonObject, userRateLimit('moderate', 60), async (req, res) => {
     const { text } = req.body;
-    if (!text || typeof text !== "string") {
-      return res.status(400).json({ error: "Text is required" });
+    if (typeof text !== 'string' || !text.trim() || text.length > 2000) {
+      return res.status(400).json({ error: "Text must contain between 1 and 2000 characters" });
     }
     if (text.length > 2000) {
       return res.status(413).json({ error: "Comentário longo demais para moderar." });
@@ -126,30 +132,105 @@ Retorne estritamente um JSON estruturado com:
     }
   });
 
-  // Payment Routes for Subscriptions
-  // Decide pelo perfil gravado no banco, lido com o token de quem chama. Antes
-  // devolvia o que o próprio cliente mandava no corpo (plan, isExpired...).
-  app.post("/api/validate-trial", exigirLogin, async (req: ReqComLogin, res) => {
-    try {
-      const perfil = await lerProprioPerfil(req.idToken!, req.usuario!.uid);
-      if (!perfil) {
-        return res.status(404).json({ error: "Perfil não encontrado." });
+  const paidPlans = new Set(['Standard', 'Professional', 'Business']);
+  // O papel devolvido abaixo vem de isSuperAdmin (e-mail verificado na lista),
+  // nunca de um campo do perfil: nenhuma claim é gravada no token.
+  const ensureServerManagedProfile = async (user: NonNullable<AuthRequest['user']>) => {
+    const userRef = adminDb.collection('users').doc(user.uid);
+    return adminDb.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      const existing = snapshot.data() || {};
+      const now = new Date();
+      const hasManagedEntitlements = existing.entitlementsVersion === 1;
+
+      const profile = hasManagedEntitlements ? existing : {
+        uid: user.uid,
+        email: user.email || '',
+        name: existing.name || user.name || 'Usuário PwStreamer',
+        photoURL: existing.photoURL || user.picture || '',
+        role: 'client',
+        plan: 'Free Trial',
+        subscriptionStatus: 'trial',
+        subscriptionSource: 'server',
+        entitlementsVersion: 1,
+        isExpired: false,
+        trialDays: 30,
+        trialStartedAt: now.toISOString(),
+        trialEndsAt: new Date(now.getTime() + 30 * 86_400_000).toISOString(),
+        createdAt: existing.createdAt || now.toISOString(),
+        updatedAt: now.toISOString(),
+      };
+
+      const identityUpdateRequired = profile.uid !== user.uid || profile.email !== (user.email || '');
+      if (!hasManagedEntitlements) {
+        transaction.set(userRef, profile, { merge: true });
+      } else if (identityUpdateRequired) {
+        transaction.set(userRef, {
+          uid: user.uid,
+          email: user.email || '',
+          updatedAt: now.toISOString(),
+        }, { merge: true });
       }
-      return res.json(avaliarAcesso(perfil));
-    } catch (err: any) {
-      console.error("validate-trial:", err?.message || err);
-      return res.status(503).json({ error: "Não foi possível verificar o plano agora." });
+
+      const paidPlanIsActive = paidPlans.has(profile.plan)
+        && profile.subscriptionStatus === 'active'
+        && profile.subscriptionSource === 'stripe';
+      const trialEndsAtMs = typeof profile.trialEndsAt === 'string' ? new Date(profile.trialEndsAt).getTime() : 0;
+      const trialDays = Math.max(0, Math.ceil((trialEndsAtMs - now.getTime()) / 86_400_000));
+      const inactiveStripeSubscription = profile.subscriptionSource === 'stripe'
+        && profile.subscriptionStatus !== 'active';
+      const isExpired = !paidPlanIsActive && (inactiveStripeSubscription || trialDays === 0);
+
+      return {
+        uid: user.uid,
+        email: user.email || '',
+        name: profile.name || user.name || 'Usuário PwStreamer',
+        photoURL: profile.photoURL || user.picture || '',
+        role: isSuperAdmin(user) ? 'super-admin' : 'client',
+        plan: paidPlanIsActive ? profile.plan : 'Free Trial',
+        subscriptionStatus: paidPlanIsActive ? 'active' : (isExpired ? 'canceled' : 'trial'),
+        isExpired,
+        trialDays: paidPlanIsActive ? 0 : trialDays,
+        trialEndsAt: profile.trialEndsAt || null,
+      };
+    });
+  };
+
+  app.get('/api/auth/profile', requireAuth, async (req: AuthRequest, res) => {
+    try {
+      return res.json(await ensureServerManagedProfile(req.user!));
+    } catch (error) {
+      console.error('Profile service failed:', error);
+      return res.status(503).json({ error: 'Profile service unavailable' });
     }
   });
 
-  // Quem assina é quem está logado: uid e e-mail vêm do token, não do corpo.
-  app.post("/api/checkout", exigirLogin, async (req: ReqComLogin, res) => {
-    const { planId, method } = req.body;
-    const userId = req.usuario!.uid;
-    const userEmail = req.usuario!.email;
+  // Payment Routes for Subscriptions
+  app.post("/api/validate-trial", requireAuth, async (req: AuthRequest, res) => {
+    try {
+      const profile = await ensureServerManagedProfile(req.user!);
+      const adminBypass = isSuperAdmin(req.user);
+      return res.json({
+        isExpired: adminBypass ? false : profile.isExpired,
+        trialDays: profile.trialDays,
+        canBroadcast: adminBypass || !profile.isExpired,
+        canRecord: adminBypass || !profile.isExpired,
+        trialEndsAt: profile.trialEndsAt,
+        plan: profile.plan,
+      });
+    } catch (error) {
+      console.error('Subscription validation failed:', error);
+      return res.status(503).json({ error: 'Subscription service unavailable' });
+    }
+  });
 
-    if (!(PLANOS_PAGOS as readonly string[]).includes(planId)) {
-      return res.status(400).json({ error: "Plano inválido." });
+  app.post("/api/checkout", requireAuth, requireJsonObject, userRateLimit('checkout', 10), async (req: AuthRequest, res) => {
+    const { planId, method } = req.body;
+    if (typeof planId !== 'string' || !paidPlans.has(planId)) {
+      return res.status(400).json({ error: "Invalid plan" });
+    }
+    if (method !== undefined && method !== 'card' && method !== 'pix') {
+      return res.status(400).json({ error: 'Invalid payment method' });
     }
 
     try {
@@ -162,12 +243,20 @@ Retorne estritamente um JSON estruturado com:
       const Stripe = (await import("stripe")).default;
       const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" as any });
 
-      let priceId;
+      let priceId: string | undefined;
       switch(planId) {
-        case 'Standard': priceId = process.env.STRIPE_PRICE_STANDARD || 'price_standard_mock'; break;
-        case 'Professional': priceId = process.env.STRIPE_PRICE_PRO || 'price_pro_mock'; break;
-        case 'Business': priceId = process.env.STRIPE_PRICE_BUSINESS || 'price_business_mock'; break;
-        default: priceId = 'price_standard_mock';
+        case 'Standard': priceId = process.env.STRIPE_PRICE_STANDARD; break;
+        case 'Professional': priceId = process.env.STRIPE_PRICE_PRO; break;
+        case 'Business': priceId = process.env.STRIPE_PRICE_BUSINESS; break;
+      }
+      if (!priceId) return res.status(503).json({ error: 'Stripe price is not configured for this plan' });
+
+      const configuredAppUrl = process.env.APP_URL;
+      const appUrl = configuredAppUrl || (process.env.NODE_ENV !== 'production' ? req.headers.origin : undefined);
+      if (!appUrl) return res.status(503).json({ error: 'APP_URL is not configured' });
+      const parsedAppUrl = new URL(appUrl);
+      if (!['http:', 'https:'].includes(parsedAppUrl.protocol)) {
+        return res.status(500).json({ error: 'APP_URL is invalid' });
       }
 
       const paymentMethodTypes = method === 'pix' ? ['pix'] : ['card'];
@@ -181,14 +270,20 @@ Retorne estritamente um JSON estruturado com:
           },
         ],
         mode: 'subscription',
-        success_url: `${req.headers.origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.headers.origin}/?payment=cancelled`,
-        customer_email: userEmail,
-        client_reference_id: userId,
+        success_url: `${parsedAppUrl.origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${parsedAppUrl.origin}/?payment=cancelled`,
+        customer_email: req.user!.email,
+        client_reference_id: req.user!.uid,
         metadata: {
-          userId,
+          userId: req.user!.uid,
           planId
-        }
+        },
+        subscription_data: {
+          metadata: {
+            userId: req.user!.uid,
+            planId,
+          },
+        },
       });
 
       res.json({ url: session.url });
@@ -201,6 +296,37 @@ Retorne estritamente um JSON estruturado com:
         });
       }
       return res.status(500).json({ error: err?.message || "Falha ao criar sessão de pagamento." });
+    }
+  });
+
+  app.post('/api/billing/portal', requireAuth, userRateLimit('billing-portal', 10), async (req: AuthRequest, res) => {
+    try {
+      if (!process.env.STRIPE_SECRET_KEY) {
+        return res.status(503).json({ error: 'Stripe is not configured' });
+      }
+      const snapshot = await adminDb.collection('users').doc(req.user!.uid).get();
+      const profile = snapshot.data() || {};
+      if (profile.subscriptionSource !== 'stripe' || typeof profile.stripeCustomerId !== 'string' || !profile.stripeCustomerId) {
+        return res.status(404).json({ error: 'No Stripe subscription is associated with this account' });
+      }
+
+      const appUrl = process.env.APP_URL || (process.env.NODE_ENV !== 'production' ? req.headers.origin : undefined);
+      if (!appUrl) return res.status(503).json({ error: 'APP_URL is not configured' });
+      const returnUrl = new URL(appUrl);
+      if (!['http:', 'https:'].includes(returnUrl.protocol)) {
+        return res.status(500).json({ error: 'APP_URL is invalid' });
+      }
+
+      const Stripe = (await import('stripe')).default;
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' as any });
+      const session = await stripe.billingPortal.sessions.create({
+        customer: profile.stripeCustomerId,
+        return_url: `${returnUrl.origin}/`,
+      });
+      return res.json({ url: session.url });
+    } catch (error) {
+      console.error('Stripe billing portal error:', error);
+      return res.status(503).json({ error: 'Billing portal unavailable' });
     }
   });
 
@@ -241,21 +367,38 @@ Retorne estritamente um JSON estruturado com:
   }
 
   const activeStreamSessions = new Map<string, StreamSession>();
+  const canAccessSession = (req: AuthRequest, session: StreamSession) =>
+    session.userId === req.user?.uid || isSuperAdmin(req.user);
 
   // 1. Create a stream session
-  app.post("/api/streams", exigirLogin, (req, res) => {
-    const { userId, title, resolution = '1080p', bitrateKbps = 6000, fps = 30, destinations = [], ingestProtocol = 'BrowserCanvas' } = req.body;
+  app.post("/api/streams", requireAuth, requireJsonObject, (req: AuthRequest, res) => {
+    const { title, resolution = '1080p', bitrateKbps = 6000, fps = 30, destinations = [], ingestProtocol = 'BrowserCanvas' } = req.body;
+    const parsedBitrate = Number(bitrateKbps);
+    const parsedFps = Number(fps);
+    const allowedProtocols = new Set(['RTMP', 'WHIP', 'SRT', 'BrowserCanvas']);
+    if ((title !== undefined && (typeof title !== 'string' || title.length > 200))
+      || !Number.isInteger(parsedBitrate) || parsedBitrate < 100 || parsedBitrate > 20_000
+      || ![24, 25, 30, 50, 60].includes(parsedFps)
+      || !allowedProtocols.has(ingestProtocol)
+      || !Array.isArray(destinations) || destinations.length > 10
+      || destinations.some((destination) => !destination || typeof destination !== 'object'
+        || typeof destination.platform !== 'string' || destination.platform.length > 80
+        || typeof (destination.targetUrl || destination.url || '') !== 'string'
+        || (destination.targetUrl || destination.url || '').length > 2048
+        || (destination.streamKey !== undefined && (typeof destination.streamKey !== 'string' || destination.streamKey.length > 1024)))) {
+      return res.status(400).json({ error: 'Invalid stream configuration' });
+    }
     
     const sessionId = `stream_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
     const session: StreamSession = {
       id: sessionId,
-      userId: userId || 'anonymous',
+      userId: req.user!.uid,
       title: title || 'Transmissão Ao Vivo PwStreamer',
       resolution: resolution === '720p' ? '720p' : '1080p',
-      bitrateKbps: Number(bitrateKbps) || 6000,
-      fps: Number(fps) || 30,
+      bitrateKbps: parsedBitrate,
+      fps: parsedFps,
       status: 'created',
-      ingestProtocol: ingestProtocol || 'BrowserCanvas',
+      ingestProtocol,
       startedAt: null,
       stoppedAt: null,
       durationSeconds: 0,
@@ -267,8 +410,8 @@ Retorne estritamente um JSON estruturado com:
         latencyMs: 0
       })),
       metrics: {
-        fps: Number(fps) || 30,
-        bitrateKbps: Number(bitrateKbps) || 6000,
+        fps: parsedFps,
+        bitrateKbps: parsedBitrate,
         cpuPercent: 14.5,
         droppedFrames: 0,
         totalFrames: 0,
@@ -282,42 +425,12 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // 2. Start streaming on session
-  app.post("/api/streams/:id/start", exigirLogin, (req, res) => {
-    const { id } = req.params;
+  app.post("/api/streams/:id/start", requireAuth, (req: AuthRequest, res) => {
+    const id = String(req.params.id);
     let session = activeStreamSessions.get(id);
 
-    if (!session) {
-      // Auto-create if not yet registered
-      session = {
-        id,
-        userId: req.body?.userId || 'anonymous',
-        title: req.body?.title || 'Transmissão Ao Vivo PwStreamer',
-        resolution: '1080p',
-        bitrateKbps: 6000,
-        fps: 30,
-        status: 'created',
-        ingestProtocol: 'BrowserCanvas',
-        startedAt: null,
-        stoppedAt: null,
-        durationSeconds: 0,
-        destinations: (req.body?.destinations || []).map((d: any) => ({
-          platform: d.platform || 'Custom RTMP',
-          targetUrl: d.targetUrl || d.url || '',
-          streamKey: d.streamKey || '',
-          status: 'idle'
-        })),
-        metrics: {
-          fps: 30,
-          bitrateKbps: 6000,
-          cpuPercent: 16.2,
-          droppedFrames: 0,
-          totalFrames: 0,
-          uptimeSeconds: 0,
-          memoryMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
-        }
-      };
-      activeStreamSessions.set(id, session);
-    }
+    if (!session) return res.status(404).json({ error: 'Sessão de transmissão não encontrada' });
+    if (!canAccessSession(req, session)) return res.status(403).json({ error: 'Forbidden' });
 
     session.status = 'live';
     session.startedAt = new Date().toISOString();
@@ -334,13 +447,14 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // 3. Stop streaming on session
-  app.post("/api/streams/:id/stop", exigirLogin, (req, res) => {
-    const { id } = req.params;
+  app.post("/api/streams/:id/stop", requireAuth, (req: AuthRequest, res) => {
+    const id = String(req.params.id);
     const session = activeStreamSessions.get(id);
 
     if (!session) {
       return res.json({ success: true, message: "Sessão já finalizada." });
     }
+    if (!canAccessSession(req, session)) return res.status(403).json({ error: 'Forbidden' });
 
     session.status = 'stopped';
     session.stoppedAt = new Date().toISOString();
@@ -372,13 +486,14 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // 4. Query stream status
-  app.get("/api/streams/:id/status", exigirLogin, (req, res) => {
-    const { id } = req.params;
+  app.get("/api/streams/:id/status", requireAuth, (req: AuthRequest, res) => {
+    const id = String(req.params.id);
     const session = activeStreamSessions.get(id);
 
     if (!session) {
       return res.status(404).json({ error: "Sessão de transmissão não encontrada" });
     }
+    if (!canAccessSession(req, session)) return res.status(403).json({ error: 'Forbidden' });
 
     if (session.status === 'live' && session.startedAt) {
       const startMs = new Date(session.startedAt).getTime();
@@ -398,9 +513,11 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // 5. Query stream real-time technical stats
-  app.get("/api/streams/:id/stats", exigirLogin, (req, res) => {
-    const { id } = req.params;
+  app.get("/api/streams/:id/stats", requireAuth, (req: AuthRequest, res) => {
+    const id = String(req.params.id);
     const session = activeStreamSessions.get(id);
+    if (!session) return res.status(404).json({ error: 'Sessão de transmissão não encontrada' });
+    if (!canAccessSession(req, session)) return res.status(403).json({ error: 'Forbidden' });
 
     const mem = process.memoryUsage();
     const stats = {
@@ -421,19 +538,19 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // 6. List recent stream sessions
-  app.get("/api/streams", exigirLogin, (req, res) => {
+  app.get("/api/streams", requireAuth, (req: AuthRequest, res) => {
     return res.json({
-      sessions: Array.from(activeStreamSessions.values()).slice(-10)
+      sessions: Array.from(activeStreamSessions.values())
+        .filter((session) => canAccessSession(req, session))
+        .slice(-10)
     });
   });
 
   // ==========================================
   // REAL RTMP / RTMPS SERVER CONNECTION TESTER
   // ==========================================
-  // Abre conexão TCP com o host informado: exige login, e só host público em
-  // porta de RTMP — senão servia para varrer a rede interna.
-  app.post("/api/rtmp/test", exigirLogin, async (req, res) => {
-    const { url, streamKey } = req.body;
+  app.post("/api/rtmp/test", requireAuth, requireJsonObject, userRateLimit('rtmp-test', 20), async (req, res) => {
+    const { url } = req.body;
     
     if (!url || typeof url !== 'string') {
       return res.status(400).json({ reachable: false, error: "URL RTMP/RTMPS é obrigatória." });
@@ -455,21 +572,19 @@ Retorne estritamente um JSON estruturado com:
     try {
       // Parse hostname and port
       // e.g. rtmp://live.restream.io/live or rtmps://live-api-s.facebook.com:443/rtmp/
-      const cleanUrl = trimmedUrl.replace(/^rtmps?:\/\//i, '');
-      const [hostAndPort] = cleanUrl.split('/');
-      let host = hostAndPort;
-      let port = isRtmps ? 443 : 1935;
-
-      if (hostAndPort.includes(':')) {
-        const parts = hostAndPort.split(':');
-        host = parts[0];
-        const parsedPort = parseInt(parts[1], 10);
-        if (!isNaN(parsedPort)) {
-          port = parsedPort;
-        }
+      const parsedUrl = new URL(trimmedUrl.replace(/^rtmps:/i, 'https:').replace(/^rtmp:/i, 'http:'));
+      if (parsedUrl.username || parsedUrl.password) {
+        return res.status(400).json({ reachable: false, error: 'Credenciais não são permitidas na URL RTMP.' });
+      }
+      const host = parsedUrl.hostname;
+      const port = parsedUrl.port ? Number(parsedUrl.port) : (isRtmps ? 443 : 1935);
+      if (!Number.isInteger(port) || port < 1 || port > 65535) {
+        return res.status(400).json({ reachable: false, error: 'Porta RTMP inválida.' });
       }
 
-      if (![1935, 1936, 443, 80].includes(port) || !(await hostPublico(host))) {
+      // Só portas de RTMP: sem isto o teste abria conexão TCP em qualquer
+      // porta de qualquer host público, e o servidor virava um varredor.
+      if (![1935, 1936, 443, 80].includes(port)) {
         return res.status(400).json({
           reachable: false,
           authenticated: false,
@@ -477,14 +592,11 @@ Retorne estritamente um JSON estruturado com:
         });
       }
 
-      // Step 1: DNS Lookup check
-      const lookupResult = await dns.promises.lookup(host);
+      // Step 1: DNS Lookup check. Recusa host privado ou reservado, e a
+      // conexão vai para o IP já conferido, não para o nome: entre a checagem
+      // e a conexão o DNS poderia responder outro endereço.
+      const lookupResult = await resolvePublicAddress(host);
       const ipAddress = lookupResult.address;
-      // Conecta no IP já conferido, não no nome: entre a checagem e a conexão
-      // o DNS poderia responder outro endereço.
-      if (!(await hostPublico(ipAddress))) {
-        return res.status(400).json({ reachable: false, authenticated: false, error: "Destino não permitido." });
-      }
 
       // Step 2: TCP Socket Handshake Reachability Test (Timeout 3.5s)
       const socketTestPromise = new Promise<{ reachable: boolean; latencyMs: number; error?: string }>((resolve) => {
@@ -516,7 +628,7 @@ Retorne estritamente um JSON estruturado com:
       if (socketResult.reachable) {
         return res.json({
           reachable: true,
-          authenticated: streamKey ? true : false,
+          authenticated: false,
           latency: socketResult.latencyMs || totalLatency,
           protocol: isRtmps ? 'RTMPS (SSL/TLS)' : 'RTMP',
           serverIp: ipAddress,
@@ -546,10 +658,53 @@ Retorne estritamente um JSON estruturado com:
     }
   });
 
+  app.post('/api/rtmp/keys/:id/regenerate', requireAuth, userRateLimit('rtmp-key-regenerate', 5), async (req: AuthRequest, res) => {
+    const keyId = String(req.params.id);
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(keyId)) {
+      return res.status(400).json({ error: 'Invalid RTMP key identifier' });
+    }
+
+    try {
+      const keyRef = adminDb.collection('rtmpKeys').doc(keyId);
+      const createdAt = new Date().toISOString();
+      const newStreamKey = `pw_live_${crypto.randomBytes(24).toString('hex')}`;
+      await adminDb.runTransaction(async (transaction) => {
+        const snapshot = await transaction.get(keyRef);
+        if (!snapshot.exists) {
+          throw Object.assign(new Error('RTMP key not found'), { statusCode: 404 });
+        }
+        const key = snapshot.data() || {};
+        // Dono por e-mail só com e-mail verificado (como nas regras do banco):
+        // uma conta por e-mail e senha nasce sem verificação e poderia usar o
+        // endereço de outra pessoa.
+        const donoVerificado = req.user!.email_verified === true && key.clientEmail === req.user!.email;
+        if (!isSuperAdmin(req.user) && !donoVerificado) {
+          throw Object.assign(new Error('Forbidden'), { statusCode: 403 });
+        }
+
+        transaction.update(keyRef, { key: newStreamKey, createdAt });
+        const auditRef = adminDb.collection('auditLogs').doc();
+        transaction.set(auditRef, {
+          id: auditRef.id,
+          timestamp: createdAt,
+          action: 'REGENERATE_RTMP_KEY',
+          actorEmail: req.user!.email || req.user!.uid,
+          targetEmail: key.clientEmail || '',
+          details: `Regenerada chave RTMP '${key.label || keyId}'.`,
+        });
+      });
+      return res.json({ key: newStreamKey, createdAt });
+    } catch (error: any) {
+      const statusCode = Number(error?.statusCode) || 503;
+      if (statusCode >= 500) console.error('RTMP key regeneration failed:', error);
+      return res.status(statusCode).json({ error: statusCode === 503 ? 'RTMP key service unavailable' : error.message });
+    }
+  });
+
   // ==========================================
   // CLOUDFLARE STREAM SECURE CONFIG & LIVE INPUTS
   // ==========================================
-  app.get("/api/cloudflare/config", (req, res) => {
+  app.get("/api/cloudflare/config", requireAuth, (req, res) => {
     // Return sanitized public URLs without leaking master keys
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID || 'pwstreamer-default';
     const subdomain = process.env.CLOUDFLARE_CUSTOMER_SUBDOMAIN || 'customer-stream.cloudflare.com';
@@ -563,155 +718,152 @@ Retorne estritamente um JSON estruturado com:
     });
   });
 
-  // Cria live input na conta Cloudflare com o token do servidor: exige login.
-  app.post("/api/cloudflare/live-inputs", exigirLogin, async (req: ReqComLogin, res) => {
+  app.post("/api/cloudflare/live-inputs", requireAuth, requireJsonObject, userRateLimit('cloudflare-input', 10), async (req: AuthRequest, res) => {
     const { title = 'Transmissão PwStreamer' } = req.body;
-    const userId = req.usuario!.uid;
+    if (typeof title !== 'string' || !title.trim() || title.length > 200) {
+      return res.status(400).json({ error: 'Invalid live input title' });
+    }
+    const userId = req.user!.uid;
     const token = process.env.CLOUDFLARE_STREAM_API_TOKEN;
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
 
-    // If Cloudflare API Token is configured, call Cloudflare API directly
-    if (token && accountId) {
-      try {
-        const cfRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/live_inputs`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            meta: { name: `${title} - ${userId}` },
-            recording: { mode: 'automatic', timeoutSeconds: 300 }
-          })
-        });
-
-        const cfData = await cfRes.json();
-        if (cfData.success) {
-          const result = cfData.result;
-          return res.json({
-            success: true,
-            liveInputId: result.uid,
-            rtmps: {
-              url: 'rtmps://live.cloudflare.com:443/live/',
-              key: result.rtmps?.streamKey || result.uid
-            },
-            srt: result.srt,
-            webRTC: result.webRTC,
-            playback: {
-              hls: `https://videodelivery.net/${result.uid}/manifest/video.m3u8`,
-              dash: `https://videodelivery.net/${result.uid}/manifest/video.mpd`,
-              iframe: `https://iframe.videodelivery.net/${result.uid}`
-            }
-          });
-        }
-      } catch (cfErr: any) {
-        console.error("Cloudflare Live Input API creation failed:", cfErr);
-      }
+    if (!token || !accountId) {
+      return res.status(503).json({ error: 'Cloudflare Stream is not configured' });
     }
 
-    // Dynamic session fallback generator (secured per user & session)
-    const sessionUid = crypto.randomBytes(16).toString('hex');
-    const dynamicKey = crypto.randomBytes(24).toString('hex');
-    const subdomain = process.env.CLOUDFLARE_CUSTOMER_SUBDOMAIN || 'customer-kegxbticm6x79zi0.cloudflarestream.com';
+    try {
+      const cfRes = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/live_inputs`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          meta: { name: `${title} - ${userId}` },
+          recording: { mode: 'automatic', timeoutSeconds: 300 }
+        })
+      });
 
-    return res.json({
-      success: true,
-      liveInputId: sessionUid,
-      rtmps: {
-        url: 'rtmps://live.cloudflare.com:443/live/',
-        key: `${dynamicKey}k${sessionUid}`
-      },
-      srt: {
-        url: `srt://live.cloudflare.com:778?streamid=${sessionUid}`
-      },
-      webRTC: {
-        url: `https://${subdomain}/${sessionUid}/webRTC/publish`
-      },
-      playback: {
-        hls: `https://${subdomain}/${sessionUid}/manifest/video.m3u8`,
-        dash: `https://${subdomain}/${sessionUid}/manifest/video.mpd`,
-        iframe: `https://${subdomain}/${sessionUid}/iframe`
+      const cfData: any = await cfRes.json();
+      if (!cfRes.ok || !cfData.success || !cfData.result?.uid) {
+        return res.status(502).json({ error: 'Cloudflare rejected the live input request' });
       }
-    });
+      const result = cfData.result;
+      return res.json({
+        success: true,
+        liveInputId: result.uid,
+        rtmps: {
+          url: 'rtmps://live.cloudflare.com:443/live/',
+          key: result.rtmps?.streamKey || result.uid
+        },
+        srt: result.srt,
+        webRTC: result.webRTC,
+        playback: {
+          hls: `https://videodelivery.net/${result.uid}/manifest/video.m3u8`,
+          dash: `https://videodelivery.net/${result.uid}/manifest/video.mpd`,
+          iframe: `https://iframe.videodelivery.net/${result.uid}`
+        }
+      });
+    } catch (cfErr) {
+      console.error('Cloudflare Live Input API creation failed:', cfErr);
+      return res.status(502).json({ error: 'Cloudflare Stream is unavailable' });
+    }
   });
 
-  // /api/auth/verify-role saiu: devolvia "super-admin" para qualquer e-mail
-  // enviado no corpo, sem conferir quem chamava. O papel de admin é decidido
-  // pelas regras do Firestore a partir do e-mail verificado no token.
+  // ==========================================
+  // SECURE ROLE-BASED ACCESS CONTROL (RBAC)
+  // ==========================================
+  app.post("/api/auth/verify-role", requireAuth, (req: AuthRequest, res) => {
+    const hasSuperAdminRole = isSuperAdmin(req.user);
+    return res.json({
+      uid: req.user!.uid,
+      email: req.user!.email || '',
+      role: hasSuperAdminRole ? 'super-admin' : 'client',
+      permissions: hasSuperAdminRole
+        ? ['stream.manage', 'users.manage', 'billing.manage', 'recordings.manage', 'webhooks.manage', 'settings.manage']
+        : ['stream.broadcast', 'stream.record']
+    });
+  });
 
   // ==========================================
   // STRIPE WEBHOOK RECEIVER (PRODUCTION-READY)
   // ==========================================
-  // Corpo bruto só nesta rota (o parser JSON global a pula): sem ele a
-  // assinatura nunca confere.
-  app.post("/api/webhooks/stripe", express.raw({ type: "application/json" }), async (req, res) => {
+  app.post("/api/webhooks/stripe", express.raw({ type: 'application/json', limit: '1mb' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-    // Sem o segredo não há como saber se o evento veio do Stripe: nada é
-    // processado. (Antes respondia 200 e seguia.)
-    if (!webhookSecret) {
-      return res.status(503).json({ error: "Webhook do Stripe não configurado (STRIPE_WEBHOOK_SECRET)." });
-    }
-    if (!sig) {
-      return res.status(400).send("Assinatura ausente.");
+    if (!sig || !webhookSecret) {
+      return res.status(503).json({ error: 'Stripe webhook verification is not configured' });
     }
 
     let event: any;
     try {
+      if (!process.env.STRIPE_SECRET_KEY) {
+        return res.status(503).json({ error: 'Stripe is not configured' });
+      }
       const Stripe = (await import("stripe")).default;
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: "2023-10-16" as any });
-      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" as any });
+      const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      const eventRef = adminDb.collection('stripeEvents').doc(event.id);
+      let duplicate = false;
+
+      await adminDb.runTransaction(async (transaction) => {
+        const existingEvent = await transaction.get(eventRef);
+        if (existingEvent.exists) {
+          duplicate = true;
+          return;
+        }
+
+        const object = event.data.object as any;
+        const userId = object.client_reference_id || object.metadata?.userId;
+        if (userId && event.type === 'checkout.session.completed') {
+          const planId = object.metadata?.planId;
+          if (object.payment_status === 'paid' && paidPlans.has(planId)) {
+            transaction.set(adminDb.collection('users').doc(userId), {
+              plan: planId,
+              subscriptionStatus: 'active',
+              subscriptionSource: 'stripe',
+              entitlementsVersion: 1,
+              isExpired: false,
+              stripeCustomerId: object.customer || null,
+              updatedAt: new Date().toISOString(),
+            }, { merge: true });
+          }
+        } else if (userId && event.type === 'customer.subscription.updated') {
+          const planId = object.metadata?.planId;
+          transaction.set(adminDb.collection('users').doc(userId), {
+            ...(paidPlans.has(planId) ? { plan: planId } : {}),
+            subscriptionStatus: object.status === 'active' || object.status === 'trialing' ? 'active' : 'past_due',
+            subscriptionSource: 'stripe',
+            entitlementsVersion: 1,
+            updatedAt: new Date().toISOString(),
+          }, { merge: true });
+        } else if (userId && event.type === 'customer.subscription.deleted') {
+          transaction.set(adminDb.collection('users').doc(userId), {
+            plan: 'Free Trial',
+            subscriptionStatus: 'canceled',
+            subscriptionSource: 'stripe',
+            entitlementsVersion: 1,
+            isExpired: true,
+            updatedAt: new Date().toISOString(),
+          }, { merge: true });
+        }
+
+        transaction.set(eventRef, {
+          type: event.type,
+          processedAt: new Date().toISOString(),
+        });
+      });
+
+      return res.json({ received: true, duplicate });
     } catch (err: any) {
       console.error("[STRIPE WEBHOOK] Verification failed:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
-
-    // O plano é gravado AQUI, e só aqui: as regras do Firestore não deixam o
-    // cliente mexer em plan/subscriptionStatus. Antes o webhook só logava — o
-    // pagamento nunca virava plano.
-    try {
-      const banco = getFirestore(appAdmin(), BANCO_FIRESTORE);
-      switch (event.type) {
-        case 'checkout.session.completed': {
-          const sessao = event.data.object as any;
-          const uid = sessao.client_reference_id;
-          const plano = sessao.metadata?.planId;
-          if (uid && (PLANOS_PAGOS as readonly string[]).includes(plano)) {
-            await banco.doc(`users/${uid}`).set(
-              { plan: plano, subscriptionStatus: 'active', isExpired: false, stripeCustomerId: sessao.customer || '' },
-              { merge: true }
-            );
-          }
-          break;
-        }
-        case 'customer.subscription.updated':
-        case 'customer.subscription.deleted': {
-          const assinatura = event.data.object as any;
-          const encerrada = event.type === 'customer.subscription.deleted'
-            || ['canceled', 'unpaid', 'incomplete_expired'].includes(assinatura.status);
-          const perfis = await banco.collection('users').where('stripeCustomerId', '==', assinatura.customer).get();
-          await Promise.all(perfis.docs.map((perfil) => perfil.ref.set(
-            encerrada
-              ? { plan: 'Free Trial', subscriptionStatus: assinatura.status || 'canceled' }
-              : { subscriptionStatus: assinatura.status },
-            { merge: true }
-          )));
-          break;
-        }
-      }
-      return res.json({ received: true });
-    } catch (err: any) {
-      // Sem credencial do Admin SDK a gravação falha; 500 faz o Stripe reenviar.
-      console.error("[STRIPE WEBHOOK] Falha ao gravar a assinatura:", err?.message || err);
-      return res.status(500).json({ error: "Falha ao gravar a assinatura." });
-    }
   });
 
   // Webhook Test Trigger Endpoint
-  // Faz o servidor chamar uma URL escolhida pelo usuário: exige login, e o
-  // destino tem de ser https num host público (ver urlDeWebhookPermitida).
-  app.post("/api/webhooks/test-trigger", exigirLogin, async (req, res) => {
+  app.post("/api/webhooks/test-trigger", requireAuth, requireJsonObject, userRateLimit('webhook-test', 20), async (req, res) => {
     const startTime = Date.now();
     const { 
       platform = 'twitch', 
@@ -722,7 +874,29 @@ Retorne estritamente um JSON estruturado com:
       customHeaders = {} 
     } = req.body;
 
+    if (typeof platform !== 'string' || typeof eventType !== 'string' || platform.length > 40 || eventType.length > 120) {
+      return res.status(400).json({ error: 'Invalid webhook platform or event type' });
+    }
+    if (!customHeaders || typeof customHeaders !== 'object' || Array.isArray(customHeaders)) {
+      return res.status(400).json({ error: 'Custom headers must be an object' });
+    }
+
+    const headerEntries = Object.entries(customHeaders);
+    const blockedHeaderNames = new Set(['host', 'content-length', 'connection', 'transfer-encoding', 'upgrade', 'proxy-authorization']);
+    if (headerEntries.length > 20 || headerEntries.some(([name, value]) =>
+      !/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(name) ||
+      blockedHeaderNames.has(name.toLowerCase()) ||
+      typeof value !== 'string' ||
+      value.length > 2048
+    )) {
+      return res.status(400).json({ error: 'Invalid or unsafe custom headers' });
+    }
+    const safeCustomHeaders = Object.fromEntries(headerEntries) as Record<string, string>;
+
     const payloadString = typeof payload === 'string' ? payload : JSON.stringify(payload);
+    if (Buffer.byteLength(payloadString, 'utf8') > 64 * 1024) {
+      return res.status(413).json({ error: 'Webhook payload exceeds the 64 KB limit' });
+    }
     let parsedPayload = {};
     try {
       parsedPayload = typeof payload === 'string' ? JSON.parse(payload) : payload;
@@ -730,7 +904,7 @@ Retorne estritamente um JSON estruturado com:
       parsedPayload = { raw: payload };
     }
 
-    const eventId = `wh_evt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const eventId = `wh_evt_${Date.now()}_${crypto.randomBytes(5).toString('hex')}`;
     const timestampIso = new Date().toISOString();
 
     // Compute standard platform headers
@@ -739,8 +913,15 @@ Retorne estritamente um JSON estruturado com:
       'User-Agent': `PwStreamer-Webhook-Dispatcher/2.0 (${platform})`,
       'X-PwStream-Event-Id': eventId,
       'X-PwStream-Delivery-Timestamp': timestampIso,
-      ...cabecalhosExtras(customHeaders)
+      ...safeCustomHeaders
     };
+
+    const headersForLogs = () => Object.fromEntries(
+      Object.entries(headers).map(([name, value]) => [
+        name,
+        /(authorization|api[-_]?key|cookie|secret|token)/i.test(name) ? '[REDACTED]' : value,
+      ])
+    );
 
     // Platform-specific headers & signatures
     if (platform === 'twitch') {
@@ -773,7 +954,7 @@ Retorne estritamente um JSON estruturado com:
     }
 
     // Determine target URL (defaults to internal mock receiver if empty or localhost)
-    const isInternalReceiver = !endpointUrl || endpointUrl.includes('/api/webhooks/receiver') || endpointUrl === 'internal';
+    const isInternalReceiver = !endpointUrl || endpointUrl === 'internal';
 
     if (isInternalReceiver) {
       const latencyMs = Math.floor(Math.random() * 35) + 15; // simulate real network latency 15-50ms
@@ -804,7 +985,7 @@ Retorne estritamente um JSON estruturado com:
           status: 200,
           statusText: 'OK (Simulado / Receptor Interno)',
           latencyMs,
-          requestHeaders: headers,
+          requestHeaders: headersForLogs(),
           requestPayload: parsedPayload,
           responseHeaders: {
             'content-type': 'application/json',
@@ -817,8 +998,17 @@ Retorne estritamente um JSON estruturado com:
       });
     }
 
-    const destino = await urlDeWebhookPermitida(endpointUrl);
-    if (!destino) {
+    // Recusa antes de montar a chamada, com a regra dita em palavras. O
+    // safePost confere de novo e fixa o IP (e cada redirecionamento).
+    let destinoPermitido = typeof endpointUrl === 'string';
+    if (destinoPermitido) {
+      try {
+        await validatePublicHttpUrl(endpointUrl);
+      } catch {
+        destinoPermitido = false;
+      }
+    }
+    if (!destinoPermitido) {
       const motivo = "Destino não permitido: use https:// num endereço público (porta 443 ou 8443).";
       return res.json({
         success: false,
@@ -832,7 +1022,7 @@ Retorne estritamente um JSON estruturado com:
           status: 400,
           statusText: 'Destino não permitido',
           latencyMs: Date.now() - startTime,
-          requestHeaders: headers,
+          requestHeaders: headersForLogs(),
           requestPayload: parsedPayload,
           responseBody: { error: motivo },
           mode: 'manual_test',
@@ -844,23 +1034,14 @@ Retorne estritamente um JSON estruturado com:
 
     // If an external URL is provided, perform an actual HTTP request
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
-
-      // redirect: 'manual' — um 30x não pode levar o servidor a outro destino
-      // que não passou pela checagem acima.
-      const response = await fetch(destino, {
-        method: 'POST',
-        headers,
-        body: payloadString,
-        redirect: 'manual',
-        signal: controller.signal
-      });
+      if (typeof endpointUrl !== 'string') {
+        return res.status(400).json({ error: 'A valid endpoint URL is required' });
+      }
+      const response = await safePost(endpointUrl, headers, payloadString);
 
       const latencyMs = Date.now() - startTime;
       let resBody: any;
-      const resText = await lerTextoLimitado(response);
-      clearTimeout(timeoutId);
+      const resText = response.body;
       try {
         resBody = JSON.parse(resText);
       } catch {
@@ -868,9 +1049,7 @@ Retorne estritamente um JSON estruturado com:
       }
 
       const responseHeadersObj: Record<string, string> = {};
-      response.headers.forEach((val, key) => {
-        responseHeadersObj[key] = val;
-      });
+      Object.assign(responseHeadersObj, response.headers);
 
       const isSuccess = response.status >= 200 && response.status < 300;
 
@@ -886,7 +1065,7 @@ Retorne estritamente um JSON estruturado com:
           status: response.status,
           statusText: response.statusText || (isSuccess ? 'OK' : 'Error'),
           latencyMs,
-          requestHeaders: headers,
+          requestHeaders: headersForLogs(),
           requestPayload: parsedPayload,
           responseHeaders: responseHeadersObj,
           responseBody: resBody,
@@ -908,7 +1087,7 @@ Retorne estritamente um JSON estruturado com:
           status: 504,
           statusText: 'Gateway Timeout / Connection Failed',
           latencyMs,
-          requestHeaders: headers,
+          requestHeaders: headersForLogs(),
           requestPayload: parsedPayload,
           responseBody: {
             error: fetchErr.message || 'Falha ao conectar ao endpoint externo',
@@ -923,7 +1102,7 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // Local Webhook Receiver Endpoint for testing
-  app.post("/api/webhooks/receiver", (req, res) => {
+  app.post("/api/webhooks/receiver", requireAuth, requireJsonObject, (req, res) => {
     const signature = req.headers['twitch-eventsub-message-signature'] || req.headers['x-hub-signature-256'] || req.headers['webhook-signature'];
     
     return res.status(200).json({
@@ -931,32 +1110,29 @@ Retorne estritamente um JSON estruturado com:
       signatureVerified: !!signature,
       signatureType: signature ? (req.headers['twitch-eventsub-message-signature'] ? 'Twitch EventSub SHA256' : 'Meta Graph SHA256') : 'None',
       receivedAt: new Date().toISOString(),
-      body: req.body,
-      headers: req.headers
+      bodyReceived: req.body !== undefined,
+      contentType: req.headers['content-type'] || null
     });
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ error: 'Endpoint API não encontrado' });
-      }
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+  if (serveFrontend) {
+    if (process.env.NODE_ENV !== "production") {
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+    } else {
+      const distPath = path.join(process.cwd(), 'dist');
+      app.use(express.static(distPath));
+      app.use((req, res) => {
+        if (req.path.startsWith('/api/')) {
+          return res.status(404).json({ error: 'Endpoint API não encontrado' });
+        }
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    }
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  return app;
 }
-
-startServer();

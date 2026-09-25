@@ -183,8 +183,8 @@ export function MediaManagerProvider({ children }: { children: ReactNode }) {
 
   // Subscribe to Cloud Firestore Media Assets on user login
   useEffect(() => {
-    const userEmail = auth.currentUser?.email || "mgdlms@gmail.com";
-    const unsubscribe = subscribeUserMediaAssets(userEmail, (cloudAssets) => {
+    if (!auth.currentUser) return;
+    const unsubscribe = subscribeUserMediaAssets((cloudAssets) => {
       if (!cloudAssets) return;
 
       const cloudLogos: CustomMedia[] = [];

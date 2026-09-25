@@ -2082,7 +2082,7 @@ export function StudioPreview({
                     {/* Gmail List */}
                     <div className="flex-1 p-3 bg-[var(--bg)] flex flex-col">
                       <div className="border-b border-[var(--line)]/60 pb-2 mb-2 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-[var(--ink)]">Caixa de Entrada (mgdlms@gmail.com)</span>
+                        <span className="text-[10px] font-bold text-[var(--ink)]">Caixa de Entrada (conta@exemplo.com)</span>
                         <span className="text-[8px] text-[var(--ink-dim)]">Filtrado por: Mais Recentes</span>
                       </div>
                       

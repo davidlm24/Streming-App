@@ -10,7 +10,8 @@ import {
 import { LegalModal } from './LegalModals';
 import { FeaturesPage } from './FeaturesPage';
 import { PublicHeader } from './PublicHeader';
-import { loginWithGoogle, createDirectUserProfile } from '../lib/firestoreService';
+import { loginWithGoogle, loginWithEmail, registerWithEmail } from '../lib/firestoreService';
+import { apiFetch } from '../lib/apiFetch';
 import { useToast } from './ui/Toast';
 import { copyText } from './ui/clipboard';
 
@@ -115,19 +116,13 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
     }
   };
 
-  const handleDirectDevLogin = (targetEmail = 'mgdlms@gmail.com', targetName = 'Marcos Gonçalves') => {
-    const profile = createDirectUserProfile(targetEmail, targetName);
-    onAuthSuccess(profile);
-  };
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // CONTENÇÃO. Este formulário não autentica: não chama o Firebase nem
-    // servidor nenhum, só confere se os campos estão preenchidos. Qualquer
-    // e-mail com qualquer senha entrava — e 'mgdlms@gmail.com' ganhava o
-    // papel de super-admin. Em produção o formulário nem é renderizado e só
-    // o Google (autenticação real) entra. Volta quando o login por e-mail
-    // for do Firebase (signInWithEmailAndPassword).
+    // E-mail e senha agora autenticam no Firebase (antes o formulário só
+    // conferia se os campos estavam preenchidos, e qualquer senha entrava).
+    // Seguem só em desenvolvimento: uma conta por e-mail nasce com o e-mail
+    // não verificado, e as regras do banco e o servidor só reconhecem dono e
+    // admin por e-mail verificado. Em produção, entra-se pelo Google.
     if (!IS_DEV) return;
     if (isSubmittingAuth) return;
     if (!email || !password) {
@@ -135,43 +130,38 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
       return;
     }
     setIsSubmittingAuth(true);
-    // Validação estrita de super-admin
-    const isSuperAdmin = email.trim().toLowerCase() === 'mgdlms@gmail.com';
-    const userRole = isSuperAdmin ? 'super-admin' : 'client';
-    onAuthSuccess({
-      email,
-      name: name || (isSuperAdmin ? 'Marcos Gonçalves' : email.split('@')[0]),
-      role: userRole,
-      plan: 'Free Trial',
-      isExpired: false,
-      trialDays: 30
-    });
+    try {
+      setAuthError('');
+      onAuthSuccess(await loginWithEmail(email, password));
+    } catch (err: any) {
+      setAuthError(err?.code === 'auth/invalid-credential'
+        ? 'E-mail ou senha inválidos.'
+        : (err?.message || 'Não foi possível entrar.'));
+    } finally {
+      setIsSubmittingAuth(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mesma contenção de handleLogin: este cadastro não cria conta nenhuma.
+    // Mesma regra de handleLogin: cadastro real no Firebase, só em desenvolvimento.
     if (!IS_DEV) return;
     if (isSubmittingAuth) return;
     if (!email || !password || !name) {
       setAuthError('Por favor, preencha todos os campos.');
       return;
     }
-    // Veio de um plano pago: agora que há nome e e-mail, segue para o checkout
-    if (selectedPlan && selectedPlan !== 'Free Trial') {
-      setAuthError('');
-      setView('checkout');
-      return;
-    }
     setIsSubmittingAuth(true);
-    // Entra diretamente na conta com 30 dias de teste grátis
-    onAuthSuccess({
-      email,
-      name,
-      plan: 'Free Trial',
-      isExpired: false,
-      trialDays: 30
-    });
+    try {
+      setAuthError('');
+      onAuthSuccess(await registerWithEmail(email, password, name));
+    } catch (err: any) {
+      setAuthError(err?.code === 'auth/email-already-in-use'
+        ? 'Este e-mail já possui uma conta.'
+        : (err?.message || 'Não foi possível criar a conta.'));
+    } finally {
+      setIsSubmittingAuth(false);
+    }
   };
 
   // Sem conta, o plano não é de ninguém. Era: `email || 'mgdlms@pwstreamer.com'`,
@@ -189,51 +179,32 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
       return;
     }
     if (planId === 'Free Trial') {
-      onAuthSuccess({
-        email,
-        name,
-        plan: 'Free Trial',
-        isExpired: false,
-        trialDays: 30
-      });
+      setView('register');
     } else {
-      // Paid plans require checkout simulation
       setView('checkout');
     }
   };
 
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
+  // Checkout do Stripe, pelo servidor: ele monta a sessão a partir do login
+  // (não do corpo) e o webhook grava o plano. Sem login responde 401.
+  const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (semIdentidade) {
-      setView('register');
-      return;
-    }
-    if (selectedGateway === 'stripe' && !cardName) {
-      setCheckoutError('Por favor, digite o nome impresso no cartão.');
-      return;
-    }
-    if (selectedGateway === 'paypal' && !isPaypalAuthorized) {
-      setCheckoutError('Por favor, faça login e autorize a sua conta PayPal Sandbox primeiro.');
-      return;
-    }
-    if (selectedGateway === 'mercadopago' && mpMethod === 'card' && !cardName) {
-      setCheckoutError('Por favor, digite o nome impresso no cartão.');
-      return;
-    }
-
     setIsProcessingCheckout(true);
     setCheckoutError('');
-
-    setTimeout(() => {
-      setIsProcessingCheckout(false);
-      onAuthSuccess({
-        email,
-        name,
-        plan: selectedPlan || 'Standard',
-        isExpired: false,
-        trialDays: 30 // Paid plan is unlimited, but we keep active
+    try {
+      const response = await apiFetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId: selectedPlan, method: 'card' }),
       });
-    }, 1500);
+      const result = await response.json();
+      if (!response.ok || !result.url) throw new Error(result.error || 'Falha ao iniciar pagamento.');
+      window.location.assign(result.url);
+    } catch (err: any) {
+      setCheckoutError(err?.message || 'Entre na sua conta antes de assinar um plano.');
+    } finally {
+      setIsProcessingCheckout(false);
+    }
   };
 
   // A página de Recursos traz o próprio cabeçalho e rodapé, então substitui a
@@ -324,19 +295,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     </button>
                   </div>
 
-                  {/* Login sem credencial numa conta nomeada. A condicao era so
-                      isUnauthorizedDomain — qualquer dominio fora da lista do
-                      Firebase: preview de deploy, staging, dominio novo. Agora sai do
-                      build de producao. */}
-
-                  {IS_DEV && <button
-                    type="button"
-                    onClick={() => handleDirectDevLogin('mgdlms@gmail.com', 'Marcos Gonçalves')}
-                    className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
-                  >
-                    <span>Entrar agora como Marcos Gonçalves (mgdlms@gmail.com)</span>
-                    <ArrowRight size={14} />
-                  </button>}
+                  <p className="text-xs text-[var(--ink-lo)]">
+                    Cadastre este domínio no Firebase Authentication para habilitar o login Google.
+                  </p>
                 </div>
               )}
 
@@ -475,19 +436,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   </button>
                 </div>
 
-                {/* Login sem credencial numa conta nomeada. A condicao era so
-                      isUnauthorizedDomain — qualquer dominio fora da lista do
-                      Firebase: preview de deploy, staging, dominio novo. Agora sai do
-                      build de producao. */}
-
-                {IS_DEV && <button
-                  type="button"
-                  onClick={() => handleDirectDevLogin('mgdlms@gmail.com', 'Marcos Gonçalves')}
-                  className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
-                >
-                  <span>Entrar agora como Marcos Gonçalves (mgdlms@gmail.com)</span>
-                  <ArrowRight size={14} />
-                </button>}
+                <p className="text-xs text-[var(--ink-lo)]">
+                  Cadastre este domínio no Firebase Authentication para habilitar o login Google.
+                </p>
               </div>
             )}
 
