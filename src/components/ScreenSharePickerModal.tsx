@@ -238,7 +238,7 @@ export function ScreenSharePickerModal({ isOpen, onClose, initialTab = 'pdf', on
     { id: 'tab-3', name: '(19640) PL da Misoginia: entenda os impactos reais', icon: Youtube, color: 'text-red-500', url: 'youtube.com' },
     { id: 'tab-4', name: '(57) marcos@powerstar7.com - Caixa de Correio Corporativa', icon: Mail, color: 'text-sky-400', url: 'webmail.powerstar7.com' },
     { id: 'tab-5', name: 'GoDaddy Domain Search Engine', icon: Globe, color: 'text-emerald-500', url: 'godaddy.com' },
-    { id: 'tab-6', name: 'Caixa de entrada (237) - mgdlms@gmail.com - Gmail', icon: Mail, color: 'text-red-400', url: 'mail.google.com' }
+    { id: 'tab-6', name: 'Caixa de entrada (237) - conta@exemplo.com - Gmail', icon: Mail, color: 'text-red-400', url: 'mail.google.com' }
   ];
 
   // Options for "Janela" (Simulated application windows)

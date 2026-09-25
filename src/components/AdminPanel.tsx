@@ -5,18 +5,17 @@ import {
   Crown, Share2, Eye, ShieldCheck, Lock, RefreshCw, Radio, RotateCw, Activity
 } from 'lucide-react';
 import { 
-  subscribeClientRtmpKeys,
-  gerarChaveDeTransmissao,
-  saveRtmpKeyToFirestore, 
-  regenerateRtmpKeyInFirestore, 
+  subscribeClientRtmpKeys, 
   RtmpKeyEntry 
 } from '../lib/firestoreService';
+import { apiFetch } from '../lib/apiFetch';
 import { OBSIntegrationModal } from "./OBSIntegrationModal";
 import { RTMPConfigModal } from "./RTMPConfigModal";
 import { StudioPerformanceMonitor } from './StudioPerformanceMonitor';
 import { WebhookPanel } from './WebhookPanel';
 import { useConfirm } from './ui/ConfirmDialog';
 import { copyText } from './ui/clipboard';
+import { useToast } from './ui/Toast';
 
 interface AdminPanelProps {
   onBack: () => void;
@@ -26,6 +25,7 @@ interface AdminPanelProps {
 
 export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelProps) {
   const confirm = useConfirm();
+  const toast = useToast();
   const [clientTab, setClientTab] = useState<'my-rtmp' | 'destinations' | 'stats' | 'webhooks'>('my-rtmp');
   const clienteAbas = useTabs('cliente', ['my-rtmp', 'destinations', 'stats', 'webhooks'] as const, clientTab, setClientTab);
   const [copiedKey, setCopiedKey] = useState(false);
@@ -39,26 +39,13 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
   const [clientRtmpKeys, setClientRtmpKeys] = useState<RtmpKeyEntry[]>([]);
 
   useEffect(() => {
-    const email = user?.email ?? '';
-    // Sem e-mail não há dono: nada de criar uma chave em nome de ninguém
-    if (!email) return;
+    const email = user?.email;
+    if (!email) {
+      setClientRtmpKeys([]);
+      return;
+    }
     const unsubscribe = subscribeClientRtmpKeys(email, (keys) => {
-      if (keys.length === 0) {
-        // Automatically create initial key in Firestore if none exists for this client
-        const initialKey: RtmpKeyEntry = {
-          id: `key_${email.replace(/[^a-zA-Z0-9]/g, '_')}`,
-          label: `Chave de Ingestão Exclusiva - ${user?.name || 'Cliente PwStreamer'}`,
-          clientEmail: email,
-          key: gerarChaveDeTransmissao(),
-          server: 'rtmp://stream.pwstreamer.com/live',
-          maxBitrate: '8000 kbps',
-          active: true,
-          createdAt: new Date().toISOString().split('T')[0]
-        };
-        saveRtmpKeyToFirestore(initialKey, email);
-      } else {
-        setClientRtmpKeys(keys);
-      }
+      setClientRtmpKeys(keys);
     });
 
     return () => unsubscribe();
@@ -67,14 +54,14 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
   // Enquanto a chave não chega do banco, não há chave: a de antes era
   // inventada ("…_881023a") e dava para copiar para o OBS.
   const primaryKey = clientRtmpKeys[0] || {
-    id: `key_${(user?.email ?? '').replace(/[^a-zA-Z0-9]/g, '_')}`,
-    label: `Chave de Ingestão - ${user?.name || 'Cliente PwStreamer'}`,
+    id: '',
+    label: 'Nenhuma chave de ingestão provisionada',
     server: 'rtmp://stream.pwstreamer.com/live',
     key: '',
     maxBitrate: '8000 kbps',
     clientEmail: user?.email || '',
-    active: true,
-    createdAt: new Date().toISOString().split('T')[0]
+    active: false,
+    createdAt: ''
   };
 
   const handleRegenerateKey = async (keyId: string) => {
@@ -87,13 +74,18 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
       return;
     }
     setIsRegenerating(true);
-    await regenerateRtmpKeyInFirestore(
-      keyId, 
-      user?.email ?? '', 
-      user?.email ?? '', 
-      primaryKey.label
-    );
-    setTimeout(() => setIsRegenerating(false), 600);
+    try {
+      // A chave é trocada pelo servidor: as regras do banco não deixam o
+      // cliente gravar em rtmpKeys.
+      const response = await apiFetch(`/api/rtmp/keys/${encodeURIComponent(keyId)}/regenerate`, { method: 'POST' });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.key) throw new Error(result.error || 'Não foi possível regenerar a chave.');
+      setClientRtmpKeys((keys) => keys.map((key) => key.id === keyId ? { ...key, key: result.key, createdAt: result.createdAt } : key));
+    } catch (err) {
+      toast.error('A chave não foi trocada', err instanceof Error ? err.message : 'Tente de novo em instantes.');
+    } finally {
+      setIsRegenerating(false);
+    }
   };
 
   // Client Outbound Destinations (YouTube, Facebook, Twitch, custom RTMP)
@@ -214,7 +206,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </p>
             </div>
             <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black px-2.5 py-1 rounded-lg shrink-0">
-              Isolado para: {user?.email ?? ''}
+              Isolado para: {user?.email || 'conta não identificada'}
             </span>
           </div>
 
@@ -291,7 +283,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-[var(--line)]/80">
               <div className="flex items-center gap-2 text-[11px] text-[var(--ink-lo)] min-w-0">
                 <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
-                <span className="min-w-0 break-words">Chave isolada com criptografia de ponta e vinculada ao e-mail <strong className="break-all">{user?.email}</strong></span>
+                <span className="min-w-0 break-words">Chave com acesso restrito e vinculada ao e-mail <strong className="break-all">{user?.email}</strong></span>
               </div>
               <div className="flex flex-wrap justify-center sm:justify-end gap-2">
                 <button
@@ -304,7 +296,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
                 <button
                   onClick={() => handleRegenerateKey(primaryKey.id)}
-                  disabled={isRegenerating}
+                  disabled={isRegenerating || !primaryKey.id}
                   className="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
                 >
                   <RotateCw size={14} className={isRegenerating ? 'animate-spin' : ''} />

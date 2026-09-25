@@ -255,7 +255,7 @@ export function CustomDestinationModal({
 
   const startNewDestination = (presetPlatform: string = 'nginx') => {
     const preset = PLATFORM_PRESETS.find(p => p.platform === presetPlatform) || PLATFORM_PRESETS[0];
-    const generatedKey = `stream_${Math.random().toString(36).substring(2, 10)}`;
+    const generatedKey = `stream_${crypto.randomUUID().replaceAll('-', '')}`;
     setSelectedDestId('');
     setIsCreating(true);
     setName(`Meu Destino ${preset.name}`);
@@ -283,7 +283,7 @@ export function CustomDestinationModal({
   };
 
   const handleGenerateKey = () => {
-    const randomHex = Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+    const randomHex = crypto.randomUUID().replaceAll('-', '').slice(0, 24);
     setStreamKey(`live_${platform}_${randomHex}`);
   };
 

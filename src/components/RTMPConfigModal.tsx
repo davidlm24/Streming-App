@@ -19,7 +19,7 @@ const DEFAULT_PROFILES: RTMPProfile[] = [
     name: 'Cloudflare Stream (Live Ingest RTMPS)',
     platform: 'Cloudflare Stream',
     url: 'rtmps://live.cloudflare.com:443/live/',
-    streamKey: '72eace7ef9fd7451de7e3efb6b2d07dbka739b059baae319a0ba42453c3407b42',
+    streamKey: '',
     isDefault: true,
   },
   {
@@ -27,28 +27,28 @@ const DEFAULT_PROFILES: RTMPProfile[] = [
     name: 'Canal Oficial YouTube',
     platform: 'YouTube Live',
     url: 'rtmp://a.rtmp.youtube.com/live2',
-    streamKey: 'yt_live_9812_3840_911',
+    streamKey: '',
   },
   {
     id: 'prof-twitch',
     name: 'Canal Twitch TV',
     platform: 'Twitch TV',
     url: 'rtmp://live.twitch.tv/app',
-    streamKey: 'live_tw_881902_x491',
+    streamKey: '',
   },
   {
     id: 'prof-fb',
     name: 'Página Facebook Live',
     platform: 'Facebook Live',
     url: 'rtmps://live-api-s.facebook.com:443/rtmp/',
-    streamKey: 'fb_live_key_0029318',
+    streamKey: '',
   },
   {
     id: 'prof-pwstream',
     name: 'Servidor PwStreamer Ingest',
     platform: 'Custom RTMP',
     url: 'rtmp://stream.pwstreamer.com/live',
-    streamKey: 'pw_mgdlms_2026_live',
+    streamKey: '',
   }
 ];
 
@@ -66,7 +66,9 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
       const saved = localStorage.getItem('pw_rtmp_profiles');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((profile: RTMPProfile) => ({ ...profile, streamKey: '' }));
+        }
       }
     } catch (e) {
       console.warn("Could not load RTMP profiles from localStorage", e);
@@ -85,7 +87,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
   const activeProfile = profiles.find(p => p.id === activeProfileId) || profiles[0] || DEFAULT_PROFILES[0];
 
   const [url, setUrl] = useState(activeProfile?.url || '');
-  const [streamKey, setStreamKey] = useState(activeProfile?.streamKey || '');
+  const [streamKey, setStreamKey] = useState(initialKey || activeProfile?.streamKey || '');
   const [profileName, setProfileName] = useState(activeProfile?.name || '');
   const [platform, setPlatform] = useState<RTMPProfile['platform']>(activeProfile?.platform || 'Custom RTMP');
 
@@ -109,10 +111,11 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
     }
   }, [activeProfileId]);
 
-  // Persist profiles to localStorage
+  // Persist non-sensitive profile metadata only. Stream keys remain in memory for this session.
   useEffect(() => {
     try {
-      localStorage.setItem('pw_rtmp_profiles', JSON.stringify(profiles));
+      const safeProfiles = profiles.map(profile => ({ ...profile, streamKey: '' }));
+      localStorage.setItem('pw_rtmp_profiles', JSON.stringify(safeProfiles));
     } catch (e) {
       console.warn("Could not save RTMP profiles to localStorage", e);
     }
@@ -186,7 +189,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
       name: 'Novo Destino Customizado',
       platform: 'Custom RTMP',
       url: 'rtmp://stream.pwstreamer.com/live',
-      streamKey: `key_${Math.floor(Math.random() * 899999 + 100000)}`
+      streamKey: `key_${crypto.randomUUID().replaceAll('-', '')}`
     };
     setProfiles(prev => [...prev, newProf]);
     setActiveProfileId(newId);

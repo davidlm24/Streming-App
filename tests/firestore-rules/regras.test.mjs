@@ -36,7 +36,7 @@ const como = (p, verificado = true) =>
 const anonimo = () => env.unauthenticatedContext().firestore();
 const semRegras = (fn) => env.withSecurityRulesDisabled((ctx) => fn(ctx.firestore()));
 
-// O perfil exatamente como loginWithGoogle cria.
+// O perfil como o servidor cria (GET /api/auth/profile, pelo Admin SDK).
 const perfilDeEntrada = (p, extra = {}) => ({
   uid: p.uid,
   email: p.email,
@@ -47,35 +47,27 @@ const perfilDeEntrada = (p, extra = {}) => ({
   trialDays: 30,
   role: 'client',
   subscriptionStatus: 'trial',
+  subscriptionSource: 'server',
+  entitlementsVersion: 1,
   trialEndsAt: '2026-10-25T00:00:00.000Z',
   ...extra,
 });
 
 describe('users', () => {
-  test('cria o próprio perfil com os valores de entrada', async () => {
-    await assertSucceeds(setDoc(doc(como(ANA), 'users', ANA.uid), perfilDeEntrada(ANA)));
-  });
-
-  test('não cria perfil já com plano pago, papel de admin ou campo extra', async () => {
+  test('o app não cria perfil, nem o de entrada: quem cria é o servidor', async () => {
     const db = como(ANA);
-    await assertFails(setDoc(doc(db, 'users', ANA.uid), perfilDeEntrada(ANA, { plan: 'Business' })));
+    await assertFails(setDoc(doc(db, 'users', ANA.uid), perfilDeEntrada(ANA)));
+    await assertFails(setDoc(doc(db, 'users', ANA.uid), perfilDeEntrada(ANA, { plan: 'Business', subscriptionStatus: 'active', subscriptionSource: 'stripe' })));
     await assertFails(setDoc(doc(db, 'users', ANA.uid), perfilDeEntrada(ANA, { role: 'super-admin' })));
-    await assertFails(setDoc(doc(db, 'users', ANA.uid), perfilDeEntrada(ANA, { subscriptionStatus: 'active' })));
-    await assertFails(setDoc(doc(db, 'users', ANA.uid), perfilDeEntrada(ANA, { stripeCustomerId: 'cus_x' })));
-  });
-
-  test('não cria perfil com e-mail de outra pessoa nem no uid de outra pessoa', async () => {
-    const db = como(ANA);
-    await assertFails(setDoc(doc(db, 'users', ANA.uid), perfilDeEntrada(ANA, { email: ADMIN.email })));
     await assertFails(setDoc(doc(db, 'users', BRUNO.uid), perfilDeEntrada(BRUNO)));
+    await assertFails(setDoc(doc(como(ADMIN), 'users', ADMIN.uid), perfilDeEntrada(ADMIN, { role: 'super-admin' })));
   });
 
-  test('o admin cria o próprio perfil como super-admin', async () => {
-    await assertSucceeds(setDoc(doc(como(ADMIN), 'users', ADMIN.uid), perfilDeEntrada(ADMIN, { role: 'super-admin' })));
-  });
-
-  test('e-mail do admin sem verificação não vale como admin', async () => {
-    await assertFails(setDoc(doc(como(ADMIN, false), 'users', ADMIN.uid), perfilDeEntrada(ADMIN, { role: 'super-admin' })));
+  test('só o admin apaga um perfil (apagado, ele renasceria com teste novo)', async () => {
+    await semRegras((db) => setDoc(doc(db, 'users', ANA.uid), perfilDeEntrada(ANA)));
+    await assertFails(deleteDoc(doc(como(ANA), 'users', ANA.uid)));
+    await assertFails(deleteDoc(doc(como(ADMIN, false), 'users', ANA.uid)));
+    await assertSucceeds(deleteDoc(doc(como(ADMIN), 'users', ANA.uid)));
   });
 
   test('troca nome e foto, mas não plano, papel nem status', async () => {
@@ -87,6 +79,10 @@ describe('users', () => {
     await assertFails(updateDoc(ref, { subscriptionStatus: 'active' }));
     await assertFails(updateDoc(ref, { isExpired: false, trialEndsAt: '2099-01-01T00:00:00.000Z' }));
     await assertFails(updateDoc(ref, { stripeCustomerId: 'cus_x' }));
+    // O servidor confia nestes três para reconhecer uma assinatura paga.
+    await assertFails(updateDoc(ref, { subscriptionSource: 'stripe' }));
+    await assertFails(updateDoc(ref, { entitlementsVersion: 2 }));
+    await assertFails(setDoc(ref, { plan: 'Business', subscriptionStatus: 'active', subscriptionSource: 'stripe' }, { merge: true }));
   });
 
   test('lê o próprio perfil; o de outra pessoa e a lista inteira, não', async () => {
@@ -127,12 +123,21 @@ describe('rtmpKeys', () => {
     ...extra,
   });
 
-  test('o dono cria, lê pela consulta do app e regenera a própria chave', async () => {
+  test('o dono lê a própria chave pela consulta do app, mas não grava', async () => {
+    // Quem cria e revoga é o admin; quem regenera é o servidor.
+    await semRegras((db) => setDoc(doc(db, 'rtmpKeys', 'key_ana'), chave(ANA)));
     const db = como(ANA);
     const ref = doc(db, 'rtmpKeys', 'key_ana');
-    await assertSucceeds(setDoc(ref, chave(ANA), { merge: true }));
     await assertSucceeds(getDocs(query(collection(db, 'rtmpKeys'), where('clientEmail', '==', ANA.email))));
-    await assertSucceeds(setDoc(ref, { key: 'pw_live_nova', createdAt: '2026-09-26T00:00:00.000Z' }, { merge: true }));
+    await assertSucceeds(getDoc(ref));
+    await assertFails(setDoc(doc(db, 'rtmpKeys', 'key_ana_2'), chave(ANA)));
+    await assertFails(setDoc(ref, { key: 'pw_live_nova', createdAt: '2026-09-26T00:00:00.000Z' }, { merge: true }));
+    await assertFails(deleteDoc(ref));
+  });
+
+  test('e-mail sem verificação não é dono da chave', async () => {
+    await semRegras((db) => setDoc(doc(db, 'rtmpKeys', 'key_ana'), chave(ANA)));
+    await assertFails(getDocs(query(collection(como(ANA, false), 'rtmpKeys'), where('clientEmail', '==', ANA.email))));
   });
 
   test('não cria chave em nome de outra pessoa', async () => {
@@ -176,13 +181,14 @@ describe('auditLogs', () => {
     ...extra,
   });
 
-  test('grava registro assinado com o próprio e-mail', async () => {
-    await assertSucceeds(setDoc(doc(como(ANA), 'auditLogs', 'l1'), registro('l1', ANA)));
+  test('o admin grava registro assinado com o próprio e-mail; o cliente, não', async () => {
+    await assertSucceeds(setDoc(doc(como(ADMIN), 'auditLogs', 'l1'), registro('l1', ADMIN)));
+    await assertFails(setDoc(doc(como(ANA), 'auditLogs', 'l2'), registro('l2', ANA)));
   });
 
-  test('não grava registro em nome de outra pessoa nem com id trocado', async () => {
-    await assertFails(setDoc(doc(como(ANA), 'auditLogs', 'l1'), registro('l1', ADMIN)));
-    await assertFails(setDoc(doc(como(ANA), 'auditLogs', 'l1'), registro('outro', ANA)));
+  test('nem o admin grava em nome de outra pessoa ou com id trocado', async () => {
+    await assertFails(setDoc(doc(como(ADMIN), 'auditLogs', 'l1'), registro('l1', ANA)));
+    await assertFails(setDoc(doc(como(ADMIN), 'auditLogs', 'l1'), registro('outro', ADMIN)));
   });
 
   test('só o admin lê; ninguém edita nem apaga', async () => {
@@ -202,14 +208,16 @@ describe('media_assets', () => {
     url: 'https://x/logo.png',
     type: 'logo',
     ownerEmail: dono.email,
-    storagePath: 'media/a1',
+    ownerId: dono.uid,
+    storagePath: `media_assets/${dono.uid}/logo/a1`,
     createdAt: '2026-09-25T00:00:00.000Z',
     ...extra,
   });
 
-  test('o dono cria, lista pela consulta do app, renomeia e apaga', async () => {
+  test('o dono cria, lista pela consulta do app (por ownerId), renomeia e apaga', async () => {
     const db = como(ANA);
     await assertSucceeds(setDoc(doc(db, 'media_assets', 'a1'), asset(ANA)));
+    await assertSucceeds(getDocs(query(collection(db, 'media_assets'), where('ownerId', '==', ANA.uid))));
     await assertSucceeds(getDocs(query(collection(db, 'media_assets'), where('ownerEmail', '==', ANA.email))));
     await assertSucceeds(updateDoc(doc(db, 'media_assets', 'a1'), { name: 'logo-novo.png' }));
     await assertSucceeds(deleteDoc(doc(db, 'media_assets', 'a1')));
@@ -228,6 +236,7 @@ describe('media_assets', () => {
     });
     await assertFails(getDoc(doc(como(BRUNO), 'media_assets', 'a1')));
     await assertFails(getDocs(query(collection(como(BRUNO), 'media_assets'), where('ownerEmail', '==', ANA.email))));
+    await assertFails(getDocs(query(collection(como(BRUNO), 'media_assets'), where('ownerId', '==', ANA.uid))));
     await assertFails(deleteDoc(doc(como(BRUNO), 'media_assets', 'a1')));
     await assertSucceeds(getDoc(doc(como(BRUNO), 'media_assets', 'pub')));
     await assertFails(getDoc(doc(anonimo(), 'media_assets', 'pub')));

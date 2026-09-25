@@ -42,31 +42,20 @@ service cloud.firestore {
     }
 
     // ---------- Perfis ----------
-    // plan, role, subscriptionStatus, isExpired, trialDays e stripeCustomerId
-    // decidem acesso e cobrança, e o app confia neles. O usuário cria o
-    // perfil só com os valores de entrada e depois troca apenas nome e foto.
-    // Plano pago é gravado pelo servidor (o Admin SDK não passa por aqui).
-    function perfilDeEntrada() {
-      let d = request.resource.data;
-      return d.keys().hasOnly(['uid', 'email', 'name', 'photoURL', 'plan', 'isExpired',
-                               'trialDays', 'role', 'subscriptionStatus', 'trialEndsAt'])
-        && d.uid == request.auth.uid
-        && d.email == meuEmail()
-        && d.plan == 'Free Trial'
-        && d.isExpired == false
-        && d.trialDays == 30
-        && d.subscriptionStatus == 'trial'
-        && (d.role == 'client' || (d.role == 'super-admin' && isAdmin()));
-    }
-
+    // plan, role, subscriptionStatus, isExpired, trialDays, entitlementsVersion
+    // e stripeCustomerId decidem acesso e cobrança, e o servidor confia neles.
+    // Quem cria o perfil é o servidor (GET /api/auth/profile, pelo Admin SDK,
+    // que não passa por estas regras); o usuário só troca nome e foto.
+    // Apagar também é do admin: apagado, o perfil renasceria no próximo login
+    // com um teste novo de 30 dias.
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId) && perfilDeEntrada();
+      allow create: if false;
       allow update: if isAdmin()
                     || (isOwner(userId)
                         && request.resource.data.diff(resource.data).affectedKeys()
                              .hasOnly(['name', 'photoURL']));
-      allow delete: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
 
       // Webinars, cenas, snapshots, webhooks, audiência: só do dono.
       // `{subcolecao}` exige ao menos um segmento abaixo do perfil. Com só
@@ -80,25 +69,25 @@ service cloud.firestore {
 
     // ---------- Chaves de transmissão ----------
     // O dono é quem tem o e-mail de clientEmail. Os documentos nunca tiveram
-    // userId, e é por clientEmail que o app consulta.
+    // userId, e é por clientEmail que o app consulta. O dono só lê: quem cria
+    // e revoga é o admin, e quem regenera é o servidor
+    // (POST /api/rtmp/keys/:id/regenerate).
     function donoDaChave(dados) {
       return emailVerificado() && dados.clientEmail == meuEmail();
     }
 
     match /rtmpKeys/{keyId} {
-      allow read, delete: if isAdmin() || donoDaChave(resource.data);
-      allow create: if isAdmin() || donoDaChave(request.resource.data);
-      allow update: if isAdmin()
-                    || (donoDaChave(resource.data)
-                        && request.resource.data.clientEmail == resource.data.clientEmail);
+      allow read: if isAdmin() || donoDaChave(resource.data);
+      allow create, update, delete: if isAdmin();
     }
 
     // ---------- Registro de auditoria ----------
-    // Só leitura para o admin (os registros citam clientes e chaves).
-    // Quem grava assina com o próprio e-mail; nada é editado nem apagado.
+    // Só o admin lê e grava pelo app (os registros citam clientes e chaves); o
+    // servidor grava os seus pelo Admin SDK. Quem grava assina com o próprio
+    // e-mail; nada é editado nem apagado.
     match /auditLogs/{logId} {
       allow read: if isAdmin();
-      allow create: if emailVerificado()
+      allow create: if isAdmin()
                     && request.resource.data.keys().hasOnly(['id', 'timestamp', 'action', 'actorEmail', 'targetEmail', 'details'])
                     && request.resource.data.id == logId
                     && request.resource.data.actorEmail == meuEmail();
@@ -131,5 +120,7 @@ service cloud.firestore {
     // webinars, webinarRegistrations e streamSessions (no topo) saíram: o app
     // não usa nenhuma das três (os webinars ficam em users/{uid}/webinars), e
     // uma delas aceitava gravação sem login. Caem na regra padrão: negado.
+    // stripeEvents (idempotência do webhook do Stripe) também: só o servidor
+    // grava ali, pelo Admin SDK.
   }
 }

@@ -97,17 +97,7 @@ export default function App() {
     role?: 'super-admin' | 'client';
     subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'canceled' | 'expired';
     trialEndsAt?: string;
-  } | null>(() => {
-    const saved = localStorage.getItem('pwstream_user');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
+  } | null>(null);
 
   const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
   const [isAddChannelsModalOpen, setIsAddChannelsModalOpen] = useState(false);
@@ -120,9 +110,7 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribe = subscribeAuth((userProfile) => {
-      if (userProfile) {
-        setUser(userProfile);
-      }
+      setUser(userProfile);
     });
     return () => unsubscribe();
   }, []);
@@ -130,22 +118,6 @@ export default function App() {
   const handleLogout = async () => {
     await logoutFirebase();
     setUser(null);
-  };
-
-  const handleSimulateExpiration = () => {
-    if (user) {
-      const updated = { ...user, isExpired: true, trialDays: 0 };
-      setUser(updated);
-      localStorage.setItem('pwstream_user', JSON.stringify(updated));
-    }
-  };
-
-  const handleRestoreTrial = () => {
-    if (user) {
-      const updated = { ...user, plan: 'Free Trial' as const, isExpired: false, trialDays: 30 };
-      setUser(updated);
-      localStorage.setItem('pwstream_user', JSON.stringify(updated));
-    }
   };
 
   const handleRequirePlan = (feature: 'live' | 'record') => {
@@ -157,26 +129,24 @@ export default function App() {
     user && user.plan === 'Free Trial' && (user.isExpired || (user.trialDays !== undefined && user.trialDays <= 0))
   );
 
-  const handleAuthSuccess = (newUser: { email: string; name: string; plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial'; isExpired: boolean; trialDays: number }) => {
+  const handleAuthSuccess = (newUser: { uid?: string; email: string; name: string; plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial'; isExpired: boolean; trialDays: number; role?: 'super-admin' | 'client' }) => {
     setUser(newUser);
-    localStorage.setItem('pwstream_user', JSON.stringify(newUser));
   };
 
-  // Depois de o banco confirmar o nome (Dados de cadastro): o menu, o palco e
-  // o cache do login passam a usar o nome novo sem esperar o próximo login.
+  // Depois de o banco confirmar o nome (Dados de cadastro): o menu e o palco
+  // passam a usar o nome novo sem esperar o próximo login.
   const atualizarNome = (nome: string) => {
     if (!user) return;
-    const atualizado = { ...user, name: nome };
-    setUser(atualizado);
-    localStorage.setItem('pwstream_user', JSON.stringify(atualizado));
+    setUser({ ...user, name: nome });
   };
 
-  // Dados que telas apagadas guardavam só neste navegador e que nada lê mais:
-  // os dados fiscais do cadastro antigo (razão social, CPF/CNPJ, endereço;
-  // voltam com a cobrança) e as faturas e o consumo inventados da cobrança antiga.
+  // Dados que o app guardava só neste navegador e que nada lê mais: a cópia do
+  // perfil do login antigo (o perfil agora vem do servidor), os dados fiscais do
+  // cadastro antigo (razão social, CPF/CNPJ, endereço; voltam com a cobrança) e
+  // as faturas e o consumo inventados da cobrança antiga.
   useEffect(() => {
     try {
-      ['pwstream_billing_profile', 'pwstream_invoices', 'pwstream_member_minutes', 'pwstream_member_storage'].forEach((chave) =>
+      ['pwstream_user', 'pwstream_billing_profile', 'pwstream_invoices', 'pwstream_member_minutes', 'pwstream_member_storage'].forEach((chave) =>
         localStorage.removeItem(chave)
       );
     } catch {
@@ -436,9 +406,9 @@ export default function App() {
   // Webhooks Manager states
   const [selectedWebhookPlatform, setSelectedWebhookPlatform] = useState<'youtube' | 'facebook' | 'twitch'>('youtube');
   const [webhooksConfig, setWebhooksConfig] = useState({
-    youtube: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/youtube', secret: 'whsec_yt_99b1a0f83', events: ['stream_state', 'chat_message'] },
-    facebook: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/facebook', secret: 'whsec_fb_55c3a2f11', events: ['stream_state', 'chat_message', 'new_follower'] },
-    twitch: { active: false, url: 'https://api.pwstreamer.com/v1/webhooks/twitch', secret: 'whsec_tw_77e4c1d22', events: ['stream_state'] }
+    youtube: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/youtube', secret: '', events: ['stream_state', 'chat_message'] },
+    facebook: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/facebook', secret: '', events: ['stream_state', 'chat_message', 'new_follower'] },
+    twitch: { active: false, url: 'https://api.pwstreamer.com/v1/webhooks/twitch', secret: '', events: ['stream_state'] }
   });
   const [webhookLogs, setWebhookLogs] = useState<Array<{ id: string; time: string; method: string; path: string; status: number; payload: string; platform: string }>>([
     { id: 'log-1', time: '12:01:05', method: 'POST', path: '/v1/webhooks/youtube', status: 200, payload: '{"event": "ping", "message": "Connection verification successful"}', platform: 'youtube' },
@@ -502,18 +472,17 @@ export default function App() {
               subscriptionStatus: 'expired' as const
             };
             setUser(updated);
-            localStorage.setItem('pwstream_user', JSON.stringify(updated));
             setPlansModalReason('live');
             setIsPlansModalOpen(true);
             return false;
           }
         } catch (err) {
+          // Sem a resposta do servidor não há como saber se o plano vale: não
+          // entra no ar (antes o erro liberava a live). E não abre "Seu teste
+          // acabou" — o teste não acabou, a confirmação é que falhou.
           console.warn('Erro ao validar período de testes:', err);
-          if (isTrialExpired) {
-            setPlansModalReason('live');
-            setIsPlansModalOpen(true);
-            return false;
-          }
+          toast.error('Não foi possível confirmar o seu plano', 'Confira a conexão e tente entrar no ar de novo.');
+          return false;
         }
       } else if (isTrialExpired) {
         setPlansModalReason('live');
@@ -2103,8 +2072,6 @@ export default function App() {
         onExit={() => setCurrentView('dashboard')} 
         user={user}
         onLogout={handleLogout}
-        onSimulateExpiration={handleSimulateExpiration}
-        onRestoreTrial={handleRestoreTrial}
         onOpenPricing={() => {
           setPlansModalReason('upgrade');
           setIsPlansModalOpen(true);
