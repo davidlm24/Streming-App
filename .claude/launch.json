@@ -10,6 +10,16 @@
       ],
       "port": 3211,
       "autoPort": false
+    },
+    {
+      "name": "streming-worktree-prod",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "-e",
+        "process.env.NODE_ENV=\"production\";process.env.PORT=\"3212\";require(\"./dist/server.cjs\")"
+      ],
+      "port": 3212,
+      "autoPort": false
     }
   ]
 }
