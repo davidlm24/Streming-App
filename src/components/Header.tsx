@@ -22,7 +22,8 @@ interface HeaderProps {
   onViewChange?: (view: 'dashboard' | 'studio' | 'admin' | 'super-admin' | 'public-webinar' | 'profile' | 'billing') => void;
   currentView?: 'dashboard' | 'studio' | 'admin' | 'super-admin' | 'public-webinar' | 'profile' | 'billing';
   isLive?: boolean;
-  onToggleLive?: () => void;
+  /** `false` quando a troca não acontece (teste expirado, canais além do plano). */
+  onToggleLive?: () => void | boolean | Promise<void | boolean>;
   liveTime?: number;
   isTrialExpired?: boolean;
   onOpenAddChannelsModal?: () => void;
@@ -90,6 +91,15 @@ export function Header({
 
   useEffect(() => () => { if (holdTimer.current) clearTimeout(holdTimer.current); }, []);
 
+  // O pai diz `false` quando não vai trocar (teste expirado, canais além do
+  // plano): sem isto o botão ficava preso em "Entrando no ar…", porque só
+  // voltava quando `isLive` mudava — e ali ele não muda.
+  const pedirTroca = async () => {
+    setLivePending(true);
+    const trocou = await onToggleLive?.();
+    if (trocou === false) setLivePending(false);
+  };
+
   const endHold = () => {
     if (holdTimer.current) { clearTimeout(holdTimer.current); holdTimer.current = null; }
     setHolding(false);
@@ -103,15 +113,13 @@ export function Header({
     holdTimer.current = window.setTimeout(() => {
       holdTimer.current = null;
       setHolding(false);
-      setLivePending(true);
-      onToggleLive();
+      void pedirTroca();
     }, HOLD_MS);
   };
 
   const handleGoLive = () => {
     if (livePending || isTrialExpired) return;
-    setLivePending(true);
-    onToggleLive();
+    void pedirTroca();
   };
   const { theme, toggleTheme } = useTheme();
   const streamDropdownRef = useRef<HTMLDivElement>(null);
