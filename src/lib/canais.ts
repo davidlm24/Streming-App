@@ -13,6 +13,21 @@ export function estadoDoCanal(canal: Destination): EstadoDoCanal {
 }
 
 /**
+ * O canal cabe ligado? O plano limita quantos transmitem ao mesmo tempo
+ * (`destinosSimultaneos` em plans.ts). Conta os OUTROS ligados, não o próprio
+ * canal: editar um canal que já está ligado nunca estoura o limite. Desligar
+ * é sempre permitido — a regra só é consultada para ligar. `id` indefinido é
+ * um canal novo.
+ *
+ * Uma regra só para as quatro portas: o interruptor de Canais, a lista do
+ * estúdio, o modal de canais e o modal de RTMP do estúdio. Antes só o modal
+ * de canais conferia, e as outras três ligavam além do plano.
+ */
+export function cabeLigado(canais: Destination[], id: string | undefined, limite: number): boolean {
+  return canais.filter((c) => c.selected && c.id !== id).length < limite;
+}
+
+/**
  * O que falta para o canal receber a live — ou `null` quando nada falta.
  * Faltando os dois, diz os dois: dizer só "servidor" mandava a pessoa
  * consertar um e tropeçar no outro ao salvar.

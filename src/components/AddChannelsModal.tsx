@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Check, ChevronLeft, ChevronRight, CircleAlert, ExternalLink, Info, Lock, PenLine } from 'lucide-react';
 import type { Destination } from '../types';
-import { nomeDaPlataforma, pendenciaCurta } from '../lib/canais';
+import { cabeLigado, nomeDaPlataforma, pendenciaCurta } from '../lib/canais';
 import { PLANS, getPlan, type PlanId } from '../lib/plans';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
@@ -193,7 +193,7 @@ export function AddChannelsModal({
   const rascunho = rascunhos[ativa] ?? inicialDe(ativa);
   const bloqueado = bloqueadoEm(ativa);
   // Canal novo com o limite do plano já ocupado: salva, mas desligado
-  const salvaDesligado = !existente && ligados >= plano.destinosSimultaneos;
+  const salvaDesligado = !existente && !cabeLigado(destinations, undefined, plano.destinosSimultaneos);
 
   const noPadrao = Boolean(plataforma.servidorPadrao) && rascunho.servidor.trim() === plataforma.servidorPadrao;
   const dicaDoServidor = noPadrao

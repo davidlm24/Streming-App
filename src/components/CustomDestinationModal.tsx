@@ -29,6 +29,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { Destination } from '../types';
+import { cabeLigado } from '../lib/canais';
 import { useConfirm } from './ui/ConfirmDialog';
 import { copyText } from './ui/clipboard';
 import { Modal } from './ui/Modal';
@@ -45,6 +46,10 @@ interface CustomDestinationModalProps {
   destinations: Destination[];
   onUpdateDestinations: (destinations: Destination[]) => void;
   userId?: string;
+  /** Canais ligados ao mesmo tempo que o plano permite (plans.ts). */
+  limiteDeLigados?: number;
+  /** Avisa que o canal não foi ligado por causa do limite. */
+  onLimiteDeCanais?: (nome: string) => void;
 }
 
 interface PlatformPreset {
@@ -164,7 +169,9 @@ export function CustomDestinationModal({
   onClose,
   destinations,
   onUpdateDestinations,
-  userId
+  userId,
+  limiteDeLigados,
+  onLimiteDeCanais
 }: CustomDestinationModalProps) {
   const confirm = useConfirm();
   const [selectedDestId, setSelectedDestId] = useState<string>('');
@@ -385,6 +392,15 @@ export function CustomDestinationModal({
 
     const avatarForPlatform = PLATFORM_PRESETS.find(p => p.platform === platform)?.avatarUrl || 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=100&auto=format&fit=crop&q=80';
 
+    // Marcado para transmitir, mas o plano já está no limite de canais
+    // ligados: salva desligado e avisa, em vez de ligar além do plano.
+    const cabe = limiteDeLigados === undefined || cabeLigado(destinations, isCreating ? undefined : selectedDestId, limiteDeLigados);
+    const ligar = isSelectedForBroadcast && cabe;
+    if (isSelectedForBroadcast && !cabe) {
+      setIsSelectedForBroadcast(false);
+      onLimiteDeCanais?.(name.trim());
+    }
+
     const currentLatency = testResult.latencyPrimary || bulkLatencyMap[selectedDestId]?.ms;
     const currentStatus = currentLatency 
       ? (currentLatency < 45 ? 'optimal' : currentLatency < 120 ? 'good' : currentLatency < 200 ? 'fair' : 'poor') 
@@ -395,7 +411,7 @@ export function CustomDestinationModal({
       name: name.trim(),
       platform: platform as any,
       avatarUrl: avatarForPlatform,
-      selected: isSelectedForBroadcast,
+      selected: ligar,
       streamUrl: streamUrl.trim(),
       alternativeIngestUrl: alternativeIngestUrl.trim() || undefined,
       backupStreamUrl: alternativeIngestUrl.trim() || undefined,
@@ -467,6 +483,11 @@ export function CustomDestinationModal({
 
   const handleToggleDestinationActive = async (destId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    const alvo = destinations.find(d => d.id === destId);
+    if (alvo && !alvo.selected && limiteDeLigados !== undefined && !cabeLigado(destinations, destId, limiteDeLigados)) {
+      onLimiteDeCanais?.(alvo.name);
+      return;
+    }
     const updatedList = destinations.map(d => d.id === destId ? { ...d, selected: !d.selected } : d);
     onUpdateDestinations(updatedList);
     if (selectedDestId === destId) {

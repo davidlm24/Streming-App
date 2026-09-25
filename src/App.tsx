@@ -42,6 +42,9 @@ import { useSceneTransition } from './hooks/useSceneTransition';
 import { useMediaManager } from './context/MediaManagerContext';
 import { copyText } from './components/ui/clipboard';
 import { Modal } from './components/ui/Modal';
+import { useToast } from './components/ui/Toast';
+import { limiteDeCanaisLigados } from './lib/plans';
+import { cabeLigado } from './lib/canais';
 import { 
   loginWithGoogle, 
   logoutFirebase, 
@@ -108,6 +111,7 @@ export default function App() {
   // Plataforma em que o modal de canais abre direto (o "conserta num clique").
   const [plataformaDoModalDeCanais, setPlataformaDoModalDeCanais] = useState<string | undefined>(undefined);
   const [canalDoModalDeCanais, setCanalDoModalDeCanais] = useState<string | undefined>(undefined);
+  const toast = useToast();
   const [plansModalReason, setPlansModalReason] = useState<'live' | 'record' | 'upgrade' | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'cancelled' | null>(null);
 
@@ -1438,7 +1442,28 @@ export default function App() {
   }, [isLive, webhooksConfig]);
 
   // Destinations toggler
+  // Limite de canais ligados ao mesmo tempo, do plano (plans.ts)
+  const limiteDeLigados = limiteDeCanaisLigados(user?.plan);
+  const abrirPlanos = () => {
+    setPlansModalReason('upgrade');
+    setIsPlansModalOpen(true);
+  };
+  // Ligar além do plano não liga: o canal fica como estava e o aviso diz por
+  // quê e o que fazer. Antes o interruptor de Canais e a lista do estúdio
+  // ligavam qualquer quantidade.
+  const avisarLimiteDeCanais = (nome: string) =>
+    toast.info(
+      `${nome} continua desligado`,
+      `Seu plano transmite para ${limiteDeLigados} canais ao mesmo tempo. Desligue outro antes de ligar este.`,
+      { label: 'Ver planos', onClick: abrirPlanos },
+    );
+
   const handleToggleDestination = (id: string) => {
+    const canal = destinations.find(d => d.id === id);
+    if (canal && !canal.selected && !cabeLigado(destinations, id, limiteDeLigados)) {
+      avisarLimiteDeCanais(canal.name);
+      return;
+    }
     setDestinations(prev => {
       const updated = prev.map(dest => dest.id === id ? { ...dest, selected: !dest.selected } : dest);
       if (user?.uid) {
@@ -2989,6 +3014,7 @@ export default function App() {
           onEditarCanal={editarCanal}
           onAlternarCanal={handleToggleDestination}
           onRemoverCanal={handleRemoveDestination}
+          limiteDeLigados={limiteDeLigados}
         />
       ) : currentView === 'webinars' ? (
         <WebinarsPagina
@@ -3468,6 +3494,8 @@ export default function App() {
           }
         }}
         userId={user?.uid}
+        limiteDeLigados={limiteDeLigados}
+        onLimiteDeCanais={avisarLimiteDeCanais}
       />
 
       {/* Dynamic QR Code & Live Commerce Modal */}

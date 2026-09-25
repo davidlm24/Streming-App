@@ -161,3 +161,6 @@ export const PLANS: Plan[] = [
 ];
 
 export const getPlan = (id: PlanId) => PLANS.find(p => p.id === id);
+
+/** Quantos canais o plano deixa ligados ao mesmo tempo. Sem plano, o do teste. */
+export const limiteDeCanaisLigados = (id?: PlanId) => (getPlan(id ?? 'Free Trial') ?? PLANS[0]).destinosSimultaneos;
