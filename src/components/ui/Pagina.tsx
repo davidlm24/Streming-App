@@ -26,11 +26,21 @@ export function CabecalhoDePagina({ titulo, descricao, acao }: { titulo: string;
   );
 }
 
-/** Seção de página: título pequeno, separada por uma linha — nunca por cartão. */
-export function SecaoDePagina({ id, titulo, children }: { id: string; titulo: string; children: ReactNode }) {
+/**
+ * Seção de página: título pequeno, separada por uma linha — nunca por cartão.
+ * `acao` fica à direita do título (ex.: Mensal/Anual na lista de planos).
+ */
+export function SecaoDePagina({ id, titulo, acao, children }: { id: string; titulo: string; acao?: ReactNode; children: ReactNode }) {
   return (
     <section aria-labelledby={id} className="mt-12 border-t border-[var(--line)] pt-6">
-      <h2 id={id} className="text-base font-semibold text-[var(--ink-hi)]">{titulo}</h2>
+      {acao ? (
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+          <h2 id={id} className="text-base font-semibold text-[var(--ink-hi)]">{titulo}</h2>
+          {acao}
+        </div>
+      ) : (
+        <h2 id={id} className="text-base font-semibold text-[var(--ink-hi)]">{titulo}</h2>
+      )}
       {children}
     </section>
   );

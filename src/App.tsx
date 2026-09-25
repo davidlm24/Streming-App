@@ -20,8 +20,9 @@ import { PwStreamLogo } from './components/PwStreamLogo';
 import { WebinarPublicPage } from './components/WebinarPublicPage';
 import { AdminPanel } from './components/AdminPanel';
 import { SuperAdminPanel } from './components/SuperAdminPanel';
-import { BillingDashboard } from './components/BillingDashboard';
 import { PlansModal } from './components/PlansModal';
+import { PlanoPagina } from './components/PlanoPagina';
+import { CadastroPagina } from './components/CadastroPagina';
 import { VideoQualityPanel } from './components/VideoQualityPanel';
 import { StreamReportModal, StreamReportData, downloadStreamReportJSON } from './components/StreamReportModal';
 import { CloudflareStreamModal } from './components/CloudflareStreamModal';
@@ -144,16 +145,6 @@ export default function App() {
       const updated = { ...user, plan: 'Free Trial' as const, isExpired: false, trialDays: 30 };
       setUser(updated);
       localStorage.setItem('pwstream_user', JSON.stringify(updated));
-    }
-  };
-
-  const handlePlanUpgraded = (newPlan: 'Standard' | 'Professional' | 'Business') => {
-    if (user) {
-      const updated = { ...user, plan: newPlan, isExpired: false, trialDays: 30 };
-      setUser(updated);
-      localStorage.setItem('pwstream_user', JSON.stringify(updated));
-      setIsPlansModalOpen(false);
-      setPlansModalReason(null);
     }
   };
 
@@ -455,9 +446,15 @@ export default function App() {
 
   // Limite de canais ligados ao mesmo tempo, do plano (plans.ts)
   const limiteDeLigados = limiteDeCanaisLigados(user?.plan);
+  // Fora do estúdio, "Ver planos" leva à página de plano. No estúdio, o modal
+  // por cima não tira ninguém do palco — a câmera e uma live em andamento.
   const abrirPlanos = () => {
-    setPlansModalReason('upgrade');
-    setIsPlansModalOpen(true);
+    if (currentView === 'studio') {
+      setPlansModalReason('upgrade');
+      setIsPlansModalOpen(true);
+    } else {
+      setCurrentView('billing');
+    }
   };
 
   const iniciarLive = () => {
@@ -3035,13 +3032,10 @@ export default function App() {
             setComments(prev => [...prev, newComment]);
           }}
         />
-      ) : currentView === 'profile' || currentView === 'billing' ? (
-        <BillingDashboard 
-          user={user}
-          onUpdateUser={handleAuthSuccess}
-          onBackToDashboard={() => setCurrentView('dashboard')}
-          initialTab={currentView}
-        />
+      ) : currentView === 'billing' ? (
+        <PlanoPagina user={user} />
+      ) : currentView === 'profile' ? (
+        <CadastroPagina user={user} onUpdateUser={handleAuthSuccess} />
       ) : currentView === 'channels' ? (
         <CanaisPagina
           canais={destinations}
@@ -3573,8 +3567,7 @@ export default function App() {
         currentPlan={user?.plan || 'Free Trial'}
         onOpenUpgrade={() => {
           setIsAddChannelsModalOpen(false);
-          setPlansModalReason('upgrade');
-          setIsPlansModalOpen(true);
+          abrirPlanos();
         }}
       />
 
@@ -3586,11 +3579,8 @@ export default function App() {
             setPlansModalReason(null);
             setPaymentStatus(null);
           }}
-          userEmail={user.email}
-          userId={user.uid || ''}
           currentPlan={user.plan}
           reason={plansModalReason}
-          onPlanUpgraded={handlePlanUpgraded}
         />
       )}
     </div>
