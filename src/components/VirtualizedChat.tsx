@@ -515,7 +515,7 @@ export function VirtualizedChat({
             <MessageSquare size={26} className="mb-2 text-[var(--ink-dim)] opacity-60" />
             <p className="text-xs font-semibold text-[var(--ink-lo)]">Nenhum comentário encontrado.</p>
             <p className="text-[10px] text-[var(--ink-dim)] mt-0.5">
-              {searchQuery ? 'Tente ajustar os termos da busca.' : 'As mensagens ao vivo dos espectadores aparecerão aqui.'}
+              {searchQuery ? 'Tente ajustar os termos da busca.' : 'Os comentários do YouTube, Facebook e Twitch ainda não chegam ao estúdio. Por enquanto, aparecem aqui as mensagens enviadas por você.'}
             </p>
           </div>
         ) : (

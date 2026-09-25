@@ -125,6 +125,12 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
       setAuthError('Por favor, preencha todos os campos.');
       return;
     }
+    // Veio de um plano pago: agora que há nome e e-mail, segue para o checkout
+    if (selectedPlan && selectedPlan !== 'Free Trial') {
+      setAuthError('');
+      setView('checkout');
+      return;
+    }
     setIsSubmittingAuth(true);
     // Entra diretamente na conta com 30 dias de teste grátis
     onAuthSuccess({
@@ -136,13 +142,24 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
     });
   };
 
+  // Sem conta, o plano não é de ninguém. Era: `email || 'mgdlms@pwstreamer.com'`,
+  // `name || 'Marcos Gonçalves'` — qualquer visitante que clicasse em
+  // "Iniciar 30 Dias Grátis", ou concluísse o checkout, entrava no app como o
+  // dono. Agora quem não se cadastrou vai para o cadastro, com o plano
+  // escolhido guardado; o cadastro segue para o checkout se o plano for pago.
+  const semIdentidade = !email.trim() || !name.trim();
+
   const handleSelectPlan = (planId: 'Standard' | 'Professional' | 'Business' | 'Free Trial') => {
     setSelectedPlan(planId);
+    if (semIdentidade) {
+      setAuthError('');
+      setView('register');
+      return;
+    }
     if (planId === 'Free Trial') {
-      // Free trial goes directly to studio
       onAuthSuccess({
-        email: email || 'mgdlms@pwstreamer.com',
-        name: name || 'Marcos Gonçalves',
+        email,
+        name,
         plan: 'Free Trial',
         isExpired: false,
         trialDays: 30
@@ -155,6 +172,10 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (semIdentidade) {
+      setView('register');
+      return;
+    }
     if (selectedGateway === 'stripe' && !cardName) {
       setCheckoutError('Por favor, digite o nome impresso no cartão.');
       return;
@@ -174,8 +195,8 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
     setTimeout(() => {
       setIsProcessingCheckout(false);
       onAuthSuccess({
-        email: email || 'mgdlms@pwstreamer.com',
-        name: name || 'Marcos Gonçalves',
+        email,
+        name,
         plan: selectedPlan || 'Standard',
         isExpired: false,
         trialDays: 30 // Paid plan is unlimited, but we keep active

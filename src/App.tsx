@@ -1337,10 +1337,16 @@ export default function App() {
     }));
   };
 
-  // Simulated viewer comments generation when live
+  // Plateia simulada — SÓ em desenvolvimento. Rodava em produção: com a
+  // transmissão no ar, um comentário inventado a cada 12s, atribuído ao
+  // YouTube ou ao Facebook (alguns ofensivos, para exercitar a moderação).
+  // O cliente via uma audiência que não existe e podia fixá-la na tela da
+  // live. Não há ingestão real de comentários das plataformas ainda; até
+  // haver, o chat de produção mostra só o que é enviado do estúdio.
+  // import.meta.env.DEV vira `false` no build e o bloco inteiro sai do bundle.
   useEffect(() => {
     let commentInterval: NodeJS.Timeout | null = null;
-    if (isLive) {
+    if (import.meta.env.DEV && isLive) {
       commentInterval = setInterval(() => {
         const names = ["Gabriel Lima", "Beatriz Rocha", "Lucas Mendes", "Renata Souza", "Thiago Silva", "Carla Dias", "Felipe Neto", "Patrícia Melo"];
         const avatars = [
