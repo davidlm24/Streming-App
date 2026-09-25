@@ -2,6 +2,8 @@
 // cada acesso a dado de outra pessoa tem de FALHAR.
 //
 // Roda com: firebase emulators:exec --only firestore (ver o workflow).
+// As regras entram por initializeTestEnvironment, não pelo firebase.json
+// desta pasta: o firebase-tools recusa caminho fora da pasta do config.
 import { after, before, beforeEach, describe, test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import {
