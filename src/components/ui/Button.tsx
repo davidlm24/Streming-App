@@ -19,7 +19,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   /** `primary` preenche com a marca, `ghost` é o secundário, `danger` encerra. */
   variant?: 'primary' | 'ghost' | 'danger';
   /** `sm` para superfícies densas — estúdio, tabelas de faturamento. */
-  size?: 'sm' | 'md';
+  /** `lg` só para a ação da tela (ex.: entrar no estúdio, no painel). */
+  size?: 'sm' | 'md' | 'lg';
   /**
    * Em progresso. Desabilita E anuncia: `aria-busy` sem `disabled` deixa
    * clicar duas vezes, e `disabled` sozinho não diz ao leitor de tela por
@@ -29,6 +30,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   /** Ícone à esquerda do rótulo. Suprimido enquanto `loading`. */
   icon?: React.ReactNode;
 }
+
+const SIZE = { sm: 'btn--sm', md: '', lg: 'btn--lg' } as const;
 
 const VARIANT = {
   primary: '',
@@ -49,7 +52,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
       type={type ?? 'button'}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={`btn ${VARIANT[variant]} ${size === 'sm' ? 'btn--sm' : ''} ${className}`.replace(/\s+/g, ' ').trim()}
+      className={`btn ${VARIANT[variant]} ${SIZE[size]} ${className}`.replace(/\s+/g, ' ').trim()}
       {...rest}
     >
       {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : icon}
