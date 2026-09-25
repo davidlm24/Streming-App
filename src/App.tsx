@@ -162,6 +162,28 @@ export default function App() {
     localStorage.setItem('pwstream_user', JSON.stringify(newUser));
   };
 
+  // Depois de o banco confirmar o nome (Dados de cadastro): o menu, o palco e
+  // o cache do login passam a usar o nome novo sem esperar o próximo login.
+  const atualizarNome = (nome: string) => {
+    if (!user) return;
+    const atualizado = { ...user, name: nome };
+    setUser(atualizado);
+    localStorage.setItem('pwstream_user', JSON.stringify(atualizado));
+  };
+
+  // Dados que telas apagadas guardavam só neste navegador e que nada lê mais:
+  // os dados fiscais do cadastro antigo (razão social, CPF/CNPJ, endereço;
+  // voltam com a cobrança) e as faturas e o consumo inventados da cobrança antiga.
+  useEffect(() => {
+    try {
+      ['pwstream_billing_profile', 'pwstream_invoices', 'pwstream_member_minutes', 'pwstream_member_storage'].forEach((chave) =>
+        localStorage.removeItem(chave)
+      );
+    } catch {
+      /* armazenamento indisponível: não há o que limpar */
+    }
+  }, []);
+
   // App views: 'dashboard' | 'studio' | 'admin' | 'super-admin' | 'public-webinar' | 'profile' | 'billing'
   const [currentView, setCurrentView] = useState<VisaoDoApp>('dashboard');
 
@@ -3035,7 +3057,7 @@ export default function App() {
       ) : currentView === 'billing' ? (
         <PlanoPagina user={user} />
       ) : currentView === 'profile' ? (
-        <CadastroPagina user={user} onUpdateUser={handleAuthSuccess} />
+        <CadastroPagina user={user} onNomeSalvo={atualizarNome} onSair={handleLogout} />
       ) : currentView === 'channels' ? (
         <CanaisPagina
           canais={destinations}

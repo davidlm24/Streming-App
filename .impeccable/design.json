@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-25T18:26:17.785Z",
+  "generatedAt": "2026-09-25T20:49:12.964Z",
   "title": "Design System: PwStreamer",
   "extensions": {
     "colorMeta": {
@@ -306,9 +306,11 @@
       ".github/workflows/design-system.yml"
     ],
     "fieldError": {
+      "primitive": "ErroDeCampo (src/components/ui/ErroDeCampo.tsx); única, usada no modal de canais e em Dados de cadastro",
       "border": "input/textarea/select[aria-invalid=\"true\"] { border-color: var(--ink-hi) } (index.css, global)",
-      "message": "CircleAlert 14px + frase text-xs em --ink-hi, 8px abaixo do campo, ligada por aria-describedby",
-      "purpose": "Erro de campo sem carmim."
+      "message": "CircleAlert 14px + frase text-xs em --ink-hi com text-pretty, 8px abaixo do campo, no lugar da dica, ligada por aria-describedby",
+      "saveFailure": "Linha role=\"alert\" acima das ações: CircleAlert 16px + frase text-sm em --ink-hi com text-pretty; pode terminar com uma AcaoDeTexto sublinhada que executa a saída que nomeia; um novo envio a apaga",
+      "purpose": "Erro de campo e falha ao salvar sem carmim."
     },
     "planLimits": {
       "source": "src/lib/plans.ts",
@@ -366,6 +368,17 @@
     "navigation": {
       "verPlanos": "abrirPlanos: fora do estúdio navega para Plano e cobrança (billing); no estúdio abre o PlansModal por cima do palco.",
       "entradas": "Menu da conta (\"Plano e cobrança\") e o aviso de teste no cabeçalho."
+    },
+    "truthfulSave": {
+      "confirmTimeoutMs": 10000,
+      "failures": {
+        "sem-conexao": "offline ou sem cota: \"Sem conexão com a sua conta agora. Tente de novo mais tarde.\"",
+        "sem-confirmacao": "sem confirmação em 10 s: \"Não deu para confirmar que o nome foi salvo. Confira a conexão e tente de novo.\"",
+        "sem-login": "sessão expirada (depois de esperarSessao): \"Sua sessão expirou, então o nome não foi salvo.\" + \"Entrar de novo\"",
+        "recusado": "\"Não foi possível salvar o nome. Tente de novo.\""
+      },
+      "success": "toast \"Nome salvo\" só depois de o banco confirmar",
+      "source": "src/lib/firestoreService.ts (salvarNomeDoPerfil, ErroAoSalvarNome)"
     }
   },
   "components": [
@@ -405,9 +418,9 @@
       "name": "Campo com erro",
       "kind": "input",
       "refersTo": "input-invalid",
-      "description": "Campo de 44px; erro por ícone + frase em tinta alta e borda em --ink-hi. Nunca carmim.",
+      "description": "Campo de 44px; erro por ErroDeCampo: ícone + frase em tinta alta (text-pretty) e borda em --ink-hi. Nunca carmim.",
       "html": "<div class=\"ds-field\"><label class=\"ds-field-l\" for=\"ds-chave\">Chave de transmissão</label><input id=\"ds-chave\" class=\"ds-input\" type=\"password\" placeholder=\"Cole aqui a chave de transmissão\" aria-invalid=\"true\" aria-describedby=\"ds-chave-erro\"><p id=\"ds-chave-erro\" class=\"ds-field-err\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>Falta a chave. Sem ela o canal não recebe a live.</span></p></div>",
-      "css": ".ds-field { font-family: Poppins, system-ui, sans-serif; max-width: 420px; } .ds-field-l { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-input { display: block; width: 100%; height: 44px; margin-top: 8px; padding: 0 12px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--well, #0A0B0C); color: var(--ink-hi, #F0F5F9); font: inherit; font-size: 14px; } .ds-input::placeholder { color: var(--ink-dim, #A2ACB7); } .ds-input:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-input[aria-invalid=\"true\"] { border-color: var(--ink-hi, #F0F5F9); } .ds-field-err { display: flex; align-items: flex-start; gap: 6px; margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--ink-hi, #F0F5F9); } .ds-field-err svg { flex-shrink: 0; margin-top: 1px; }"
+      "css": ".ds-field { font-family: Poppins, system-ui, sans-serif; max-width: 420px; } .ds-field-l { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-input { display: block; width: 100%; height: 44px; margin-top: 8px; padding: 0 12px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--well, #0A0B0C); color: var(--ink-hi, #F0F5F9); font: inherit; font-size: 14px; } .ds-input::placeholder { color: var(--ink-dim, #A2ACB7); } .ds-input:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-input[aria-invalid=\"true\"] { border-color: var(--ink-hi, #F0F5F9); } .ds-field-err { display: flex; align-items: flex-start; gap: 6px; margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-field-err svg { flex-shrink: 0; margin-top: 1px; }"
     },
     {
       "name": "Lista mestre (modal de canais)",
@@ -458,6 +471,22 @@
       "css": ".ds-meta { font-family: Poppins, system-ui, sans-serif; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); } .ds-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; color: var(--ink, #D9E1EA); }"
     },
     {
+      "name": "Registro (dados da conta)",
+      "kind": "custom",
+      "refersTo": "record-row",
+      "description": "dl de página inteira fechado por linhas: rótulo sobre valor, linha de origem opcional e no máximo uma ação de texto à direita (alvo de 44px). Sem cor em repouso.",
+      "html": "<dl class=\"ds-rec\"><div class=\"ds-rec-row\"><dt class=\"ds-rec-k\">Nome</dt><dd class=\"ds-rec-v\">Davi Gonçalves</dd><dd class=\"ds-rec-a\"><button type=\"button\" class=\"ds-rec-edit\">Editar<span class=\"ds-sr\"> nome</span></button></dd></div><div class=\"ds-rec-row\"><dt class=\"ds-rec-k\">E-mail</dt><dd class=\"ds-rec-v\">voce@exemplo.com</dd><dd class=\"ds-rec-src\">Vem da conta Google com que você entra.</dd></div></dl>",
+      "css": ".ds-rec { font-family: Poppins, system-ui, sans-serif; margin: 0; max-width: 768px; border-top: 1px solid var(--line, #30363B); border-bottom: 1px solid var(--line, #30363B); } .ds-rec > div + div { border-top: 1px solid var(--line, #30363B); } .ds-rec-row { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 16px; padding: 16px 0; } .ds-rec-row dd { margin: 0; } .ds-rec-row .ds-rec-a { grid-column: 2; grid-row: 1 / span 2; } .ds-rec-k { font-size: 14px; font-weight: 500; line-height: 20px; color: var(--ink-hi, #F0F5F9); } .ds-rec-v { grid-column: 1; margin-top: 4px !important; font-size: 14px; line-height: 20px; color: var(--ink, #D9E1EA); overflow-wrap: anywhere; } .ds-rec-src { grid-column: 1; margin-top: 8px !important; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); text-wrap: pretty; } .ds-rec-edit { display: inline-flex; align-items: center; min-height: 44px; margin: -12px 0; background: none; border: 0; padding: 0; font: inherit; font-size: 14px; color: var(--ink-lo, #BEC7D1); cursor: pointer; text-underline-offset: 4px; transition: color 150ms; } .ds-rec-edit:hover { color: var(--ink-hi, #F0F5F9); text-decoration: underline; } .ds-rec-edit:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; border-radius: 4px; } .ds-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }"
+    },
+    {
+      "name": "Registro editando (falha ao salvar)",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A linha do nome virou o campo no lugar: rótulo, campo de 44px, dica, a linha role=\"alert\" de falha ao salvar (tinta alta, nunca carmim) e as ações Cancelar + Salvar nome.",
+      "html": "<form class=\"ds-ed\" onsubmit=\"return false\"><label class=\"ds-ed-l\" for=\"ds-nome\">Nome</label><input id=\"ds-nome\" class=\"ds-ed-in\" type=\"text\" value=\"Davi Gonçalves\" aria-describedby=\"ds-nome-dica\"><p id=\"ds-nome-dica\" class=\"ds-ed-hint\">O primeiro nome aparece no palco do estúdio.</p><p role=\"alert\" class=\"ds-ed-fail\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>Sua sessão expirou, então o nome não foi salvo. <button type=\"button\" class=\"ds-ed-link\">Entrar de novo</button></span></p><div class=\"ds-ed-act\"><button type=\"button\" class=\"ds-ed-ghost\">Cancelar</button><button type=\"submit\" class=\"ds-ed-pri\">Salvar nome</button></div></form>",
+      "css": ".ds-ed { font-family: Poppins, system-ui, sans-serif; max-width: 768px; padding: 16px 0; border-top: 1px solid var(--line, #30363B); border-bottom: 1px solid var(--line, #30363B); } .ds-ed-l { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-ed-in { display: block; width: 100%; height: 44px; margin-top: 8px; padding: 0 12px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--well, #0A0B0C); color: var(--ink-hi, #F0F5F9); font: inherit; font-size: 14px; } .ds-ed-in:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-ed-hint { margin: 8px 0 0; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); text-wrap: pretty; } .ds-ed-fail { display: flex; align-items: flex-start; gap: 8px; margin: 16px 0 0; font-size: 14px; line-height: 20px; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-ed-fail svg { flex-shrink: 0; margin-top: 2px; } .ds-ed-link { background: none; border: 0; padding: 0; font: inherit; color: var(--ink-hi, #F0F5F9); text-decoration: underline; text-decoration-color: var(--line-ctl, #3C4349); text-underline-offset: 4px; cursor: pointer; } .ds-ed-link:hover { text-decoration-color: var(--ink-hi, #F0F5F9); } .ds-ed-act { display: flex; flex-direction: column-reverse; gap: 12px; margin-top: 20px; } @media (min-width: 640px) { .ds-ed-act { flex-direction: row; justify-content: flex-end; } } .ds-ed-ghost, .ds-ed-pri { font: inherit; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 16px; cursor: pointer; transition: filter 110ms linear, background-color 110ms linear; } .ds-ed-ghost { background: transparent; color: var(--ink, #D9E1EA); border: 1px solid var(--line-ctl, #3C4349); } .ds-ed-ghost:hover { background: var(--raise, #282D31); } .ds-ed-pri { background: var(--color-brand-deep, #2C5FB0); color: #fff; border: 0; } .ds-ed-pri:hover { filter: brightness(1.1); } .ds-ed-pri:active { filter: brightness(0.93); } .ds-ed-ghost:focus-visible, .ds-ed-pri:focus-visible, .ds-ed-link:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
       "name": "Lista de planos",
       "kind": "custom",
       "refersTo": "plan-row",
@@ -504,7 +533,7 @@
       },
       {
         "name": "Regra do Erro em Tinta Alta",
-        "body": "O que precisa de atenção (pendência, erro de campo, texto não salvo) sobe para --ink-hi e ganha um ícone; o que está em ordem fica em --ink-lo. A diferença é de degrau na rampa, nunca de matiz.",
+        "body": "O que precisa de atenção (pendência, erro de campo, texto não salvo, falha ao salvar) sobe para --ink-hi e ganha um ícone; o que está em ordem fica em --ink-lo. A diferença é de degrau na rampa, nunca de matiz.",
         "section": "colors"
       },
       {
@@ -524,7 +553,7 @@
       },
       {
         "name": "Regra do Número Colado",
-        "body": "Entre um número e sua unidade vai um espaço inseparável (U+00A0: \"3 horas\", \"15 min\"), e o último par de palavras de um limite também (\"ao vivo\"), para que nenhuma linha estreita quebre em \"15 | min\" nem deixe uma palavra sozinha.",
+        "body": "Entre um número e sua unidade vai um espaço inseparável (U+00A0: \"3 horas\", \"15 min\"), e o último par de palavras de um limite também (\"ao vivo\"), para que nenhuma linha estreita quebre em \"15 | min\" nem deixe uma palavra sozinha. As frases de várias linhas em text-xs e text-sm que vão a colunas estreitas (erro e dica de campo, linha de origem, linha de falha ao salvar) levam text-pretty, que faz o mesmo pela última linha do parágrafo; os dois se somam, um não substitui o outro.",
         "section": "typography"
       },
       {
@@ -541,6 +570,16 @@
         "name": "Regra do Chão Plano",
         "body": "Nada em repouso na página tem sombra. Sombra só em camada que flutua (menu, diálogo, aviso).",
         "section": "elevation"
+      },
+      {
+        "name": "Regra do Salvo de Verdade",
+        "body": "Uma tela só diz \"salvo\" (o aviso \"Nome salvo\") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão ou sem cota, \"tente de novo mais tarde\"; sem confirmação em 10 s, \"não deu para confirmar\"; sessão expirada, \"Entrar de novo\"; recusa, \"tente de novo\". A restauração da sessão é esperada (esperarSessao) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de \"salvo\" local que o banco não viu.",
+        "section": "components"
+      },
+      {
+        "name": "Regra do Dado com Uso",
+        "body": "Um registro só pede o que algo no app já usa. Campo guardado \"para depois\" não entra; volta junto com o que o usa.",
+        "section": "components"
       }
     ],
     "dos": [
@@ -551,7 +590,10 @@
       "Do pôr horas e outras medidas em font-mono tabular-nums, e só a medida, não a frase.",
       "Do usar <BotaoDeIcone rotulo=\"…\"> (44px) para qualquer botão só-ícone.",
       "Do dizer \"nenhum…\" em texto quando não há dado, sem número inventado, e mostrar esqueleto aria-busy enquanto nada chegou.",
-      "Do marcar erro de campo com aria-invalid + aria-describedby e a frase com CircleAlert em --ink-hi; a borda sobe sozinha pela regra global.",
+      "Do marcar erro de campo com aria-invalid + aria-describedby e a frase por <ErroDeCampo>; a borda sobe sozinha pela regra global.",
+      "Do dizer \"salvo\" só depois de o banco confirmar, e dar a cada falha a sua frase com a saída, numa linha role=\"alert\" em --ink-hi acima das ações.",
+      "Do editar um registro no lugar: o rótulo fica, o valor vira o campo, o foco vai ao campo e volta a \"Editar\" ao fechar, e Esc cancela.",
+      "Do pôr text-pretty nas frases de várias linhas em text-xs/text-sm que vão a colunas estreitas.",
       "Do ler limites e disponibilidade por plano de src/lib/plans.ts, e pendências e nomes de plataforma de src/lib/canais.ts.",
       "Do formatar todo preço com formatPrice (BRL) e, em lista, com tabular-nums; nunca $, toFixed nem cifra escrita à mão.",
       "Do mostrar planos só por <ListaDePlanos> e abrir planos só por abrirPlanos (página fora do estúdio, modal dentro dele).",
@@ -574,6 +616,8 @@
       "Don't simular cobrança: sem checkout, \"pagamento processado\", fatura ou consumo que não existam de verdade.",
       "Don't marcar o plano atual ou um plano \"popular\" com cor, borda ou selo; o atual é dito em palavra.",
       "Don't descartar texto digitado ao trocar de plataforma ou ao salvar outra.",
+      "Don't pedir nem guardar dado que nada no app usa ainda, nem tornar editável um valor que vem de outro sistema (o e-mail do login).",
+      "Don't simular um salvamento: sem espera de enfeite, sem \"atualizado com sucesso\" antes da confirmação do banco.",
       "Don't subir número nenhum de scripts/design-debt-baseline.json. A catraca deixa a dívida cair e nunca crescer sem um --update visível na revisão."
     ]
   }

@@ -1,173 +1,214 @@
-import React, { useState } from 'react';
-import { Briefcase, Check, CheckCircle2, FileText, Mail, User } from 'lucide-react';
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { CircleAlert } from 'lucide-react';
+import { ErroAoSalvarNome, entrouComGoogle, esperarSessao, salvarNomeDoPerfil, type FalhaAoSalvarNome } from '../lib/firestoreService';
+import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
+import { ErroDeCampo } from './ui/ErroDeCampo';
 import { CabecalhoDePagina, Pagina } from './ui/Pagina';
-
-/** Dados corporativos do próprio usuário, persistidos localmente. */
-const BILLING_KEY = 'pwstream_billing_profile';
-
-function loadBillingProfile() {
-  try {
-    const raw = localStorage.getItem(BILLING_KEY);
-    return raw ? (JSON.parse(raw) as { companyName?: string; taxId?: string; billingAddress?: string }) : {};
-  } catch {
-    return {};
-  }
-}
+import { useToast } from './ui/Toast';
 
 interface CadastroPaginaProps {
   user: { email: string; name: string } | null;
-  onUpdateUser: (updatedUser: any) => void;
+  /** O banco confirmou o nome novo: o app troca o nome no menu, no palco e no cache do login. */
+  onNomeSalvo: (nome: string) => void;
+  /** Sai da conta e volta à entrada: a saída do aviso de sessão expirada. */
+  onSair: () => void;
 }
 
+/** Nome colado de outro lugar vem com espaços sobrando. */
+const limparNome = (nome: string) => nome.replace(/\s+/g, ' ').trim();
+
+const O_QUE_DIZER: Record<FalhaAoSalvarNome, string> = {
+  'sem-login': 'Sua sessão expirou, então o nome não foi salvo.',
+  'sem-conexao': 'Sem conexão com a sua conta agora. Tente de novo mais tarde.',
+  'sem-confirmacao': 'Não deu para confirmar que o nome foi salvo. Confira a conexão e tente de novo.',
+  recusado: 'Não foi possível salvar o nome. Tente de novo.',
+};
+
 /**
- * Dados de cadastro, agora numa página própria: era a aba "Dados de
- * Cadastro" da tela de conta, que o menu não conseguia abrir quando a tela
- * já estava aberta em "Plano e cobrança".
+ * Dados de cadastro: como você aparece no app e com que conta entra.
  *
- * PROVISÓRIO: o formulário veio como estava, para a mudança de lugar não
- * misturar com a correção. O redesenho vem a seguir e acerta o que ele faz
- * — o "salvar" altera só este navegador (não o perfil no banco) e deixa
- * trocar o e-mail sem trocar o do login.
+ * Era um formulário de "Informações Cadastrais & Fiscais" cujo "salvar"
+ * esperava 1,2 s de enfeite, mudava só este navegador e dizia "atualizados
+ * com sucesso". O e-mail era editável sem mudar o do login (e passava por
+ * cima dele no app), e razão social, CPF/CNPJ e endereço ficavam guardados
+ * aqui sem nada que os usasse. Os dados fiscais voltam com a cobrança.
+ *
+ * Agora são duas linhas. O nome vira campo no lugar e só se diz salvo depois
+ * de o banco confirmar; o e-mail é o do login.
  */
-export function CadastroPagina({ user, onUpdateUser }: CadastroPaginaProps) {
-  const [profileName, setProfileName] = useState(user?.name || '');
-  const [profileEmail, setProfileEmail] = useState(user?.email || '');
-  const savedBilling = loadBillingProfile();
-  const [companyName, setCompanyName] = useState(savedBilling.companyName ?? '');
-  const [taxId, setTaxId] = useState(savedBilling.taxId ?? '');
-  const [billingAddress, setBillingAddress] = useState(savedBilling.billingAddress ?? '');
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [profileMessage, setProfileMessage] = useState('');
+export function CadastroPagina({ user, onNomeSalvo, onSair }: CadastroPaginaProps) {
+  const toast = useToast();
+  const nome = user?.name ?? '';
+  // De onde vem o e-mail. Logo depois de recarregar a sessão ainda não voltou;
+  // a frase se acerta quando ela volta.
+  const [google, setGoogle] = useState(entrouComGoogle);
+  useEffect(() => {
+    let ativa = true;
+    esperarSessao().then(() => {
+      if (ativa) setGoogle(entrouComGoogle());
+    });
+    return () => {
+      ativa = false;
+    };
+  }, []);
+  const [editando, setEditando] = useState(false);
+  const [rascunho, setRascunho] = useState('');
+  const [erro, setErro] = useState('');
+  const [falha, setFalha] = useState<FalhaAoSalvarNome | null>(null);
+  const [salvando, setSalvando] = useState(false);
+  const refCampo = useRef<HTMLInputElement>(null);
+  const refEditar = useRef<HTMLButtonElement>(null);
+  const devolverFoco = useRef(false);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  // Abrir põe o foco no campo, com o cursor no fim; fechar devolve o foco a "Editar".
+  useEffect(() => {
+    if (editando) {
+      const campo = refCampo.current;
+      campo?.focus();
+      campo?.setSelectionRange(campo.value.length, campo.value.length);
+    } else if (devolverFoco.current) {
+      devolverFoco.current = false;
+      refEditar.current?.focus();
+    }
+  }, [editando]);
+
+  const abrir = () => {
+    setRascunho(nome);
+    setErro('');
+    setFalha(null);
+    setEditando(true);
+  };
+
+  const fechar = () => {
+    devolverFoco.current = true;
+    setEditando(false);
+  };
+
+  const salvar = async (e: FormEvent) => {
     e.preventDefault();
-    setIsSavingProfile(true);
-    setProfileMessage('');
+    if (salvando) return;
+    // O aviso da tentativa anterior não vale para esta.
+    setFalha(null);
+    const novo = limparNome(rascunho);
+    if (!novo) {
+      setErro('Falta o nome. Escreva como você quer aparecer no estúdio.');
+      refCampo.current?.focus();
+      return;
+    }
+    if (novo === nome) {
+      fechar();
+      return;
+    }
+    setSalvando(true);
+    try {
+      await salvarNomeDoPerfil(novo);
+      onNomeSalvo(novo);
+      toast.success('Nome salvo');
+      fechar();
+    } catch (err) {
+      setFalha(err instanceof ErroAoSalvarNome ? err.motivo : 'recusado');
+    } finally {
+      setSalvando(false);
+    }
+  };
 
-    setTimeout(() => {
-      setIsSavingProfile(false);
-      onUpdateUser({
-        ...user,
-        name: profileName,
-        email: profileEmail,
-      });
-      try {
-        localStorage.setItem(BILLING_KEY, JSON.stringify({ companyName, taxId, billingAddress }));
-      } catch {
-        /* armazenamento indisponível: a mensagem abaixo ainda cobre nome e e-mail */
-      }
-      setProfileMessage('Perfil e dados corporativos atualizados com sucesso!');
-    }, 1200);
+  const cancelarComEsc = (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && !salvando) {
+      e.preventDefault();
+      fechar();
+    }
   };
 
   return (
     <Pagina>
       <CabecalhoDePagina titulo="Dados de cadastro" />
 
-      <div className="mt-12 space-y-6 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 text-left">
-        <div className="border-b border-[var(--line)] pb-4">
-          <h2 className="flex items-center gap-2 text-base font-bold text-[var(--ink-hi)]">
-            <User size={18} className="text-blue-500" /> Informações Cadastrais & Fiscais
-          </h2>
-          <p className="text-xs text-[var(--ink-lo)]">Mantenha seus dados atualizados para a correta emissão e envio de faturas e recibos de pagamento.</p>
-        </div>
-
-        {profileMessage && (
-          <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3.5 text-xs text-emerald-400">
-            <CheckCircle2 size={16} className="shrink-0" />
-            <span>{profileMessage}</span>
+      <dl className="mt-12 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+        {editando ? (
+          <div className="py-4">
+            <dt>
+              <label htmlFor="cadastro-nome" className="block text-sm font-medium text-[var(--ink-hi)]">
+                Nome
+              </label>
+            </dt>
+            <dd>
+              <form onSubmit={salvar} onKeyDown={cancelarComEsc} noValidate>
+                <input
+                  ref={refCampo}
+                  id="cadastro-nome"
+                  type="text"
+                  autoComplete="name"
+                  maxLength={80}
+                  value={rascunho}
+                  onChange={(e) => {
+                    setRascunho(e.target.value);
+                    if (erro) setErro('');
+                  }}
+                  aria-invalid={erro ? true : undefined}
+                  aria-describedby={erro ? 'cadastro-nome-erro' : 'cadastro-nome-dica'}
+                  className="mt-2 block h-11 w-full rounded-xl border px-3 text-sm"
+                />
+                {erro ? (
+                  <ErroDeCampo id="cadastro-nome-erro">{erro}</ErroDeCampo>
+                ) : (
+                  <p id="cadastro-nome-dica" className="mt-2 text-pretty text-xs text-[var(--ink-lo)]">
+                    O primeiro nome aparece no palco do estúdio.
+                  </p>
+                )}
+                {falha && (
+                  <p role="alert" className="mt-4 flex items-start gap-2 text-pretty text-sm text-[var(--ink-hi)]">
+                    <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+                    <span>
+                      {O_QUE_DIZER[falha]}
+                      {falha === 'sem-login' && (
+                        <>
+                          {' '}
+                          <AcaoDeTexto sublinhada onClick={onSair}>
+                            Entrar de novo
+                          </AcaoDeTexto>
+                        </>
+                      )}
+                    </span>
+                  </p>
+                )}
+                <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <Button variant="ghost" onClick={fechar} disabled={salvando}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" loading={salvando}>
+                    Salvar nome
+                  </Button>
+                </div>
+              </form>
+            </dd>
+          </div>
+        ) : (
+          // A ação fica num `dd` próprio (um `dl` só aceita `dt` e `dd` no grupo), depois do valor na leitura e à direita na tela.
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 py-4">
+            <dt className="text-sm font-medium text-[var(--ink-hi)]">Nome</dt>
+            <dd className="col-start-1 mt-1 break-words text-sm text-[var(--ink)]">
+              {nome || <span className="text-[var(--ink-lo)]">Sem nome</span>}
+            </dd>
+            <dd className="col-start-2 row-span-2 row-start-1">
+              {/* Alvo de 44px sem empurrar a linha: a margem negativa devolve a altura extra. */}
+              <AcaoDeTexto ref={refEditar} onClick={abrir} className="-my-3 min-h-11">
+                Editar<span className="sr-only"> nome</span>
+              </AcaoDeTexto>
+            </dd>
           </div>
         )}
 
-        <form onSubmit={handleSaveProfile} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <label htmlFor="cadastro-nome-completo" className="text-xs font-semibold text-[var(--ink)]">Nome Completo</label>
-              <div className="relative">
-                <input
-                  autoComplete="name"
-                  id="cadastro-nome-completo"
-                  type="text"
-                  required
-                  value={profileName}
-                  onChange={(e) => setProfileName(e.target.value)}
-                  className="w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] py-2.5 pl-9 pr-4 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] transition-all focus:border-blue-500 focus:outline-none"
-                />
-                <User size={14} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="cadastro-endereco-de-e-mail" className="text-xs font-semibold text-[var(--ink)]">Endereço de E-mail</label>
-              <div className="relative">
-                <input
-                  autoComplete="email"
-                  id="cadastro-endereco-de-e-mail"
-                  type="email"
-                  required
-                  value={profileEmail}
-                  onChange={(e) => setProfileEmail(e.target.value)}
-                  className="w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] py-2.5 pl-9 pr-4 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] transition-all focus:border-blue-500 focus:outline-none"
-                />
-                <Mail size={14} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4 border-t border-[var(--line)]/60 pt-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--ink-lo)]">Dados de Emissão Fiscal (Invoice / NF-e)</h3>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label htmlFor="cadastro-razao-social" className="text-xs font-semibold text-[var(--ink)]">Razão Social / Nome de Faturamento</label>
-                <div className="relative">
-                  <input
-                    autoComplete="organization"
-                    id="cadastro-razao-social"
-                    type="text"
-                    placeholder="Ex: Minha Empresa de Tecnologia Ltda"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    className="w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] py-2.5 pl-9 pr-4 text-xs text-[var(--ink-hi)] focus:border-blue-500 focus:outline-none"
-                  />
-                  <Briefcase size={14} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label htmlFor="cadastro-documento-fiscal" className="text-xs font-semibold text-[var(--ink)]">CNPJ / CPF / Documento Fiscal</label>
-                <div className="relative">
-                  <input
-                    id="cadastro-documento-fiscal"
-                    type="text"
-                    placeholder="Ex: 00.000.000/0001-00"
-                    value={taxId}
-                    onChange={(e) => setTaxId(e.target.value)}
-                    className="w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] py-2.5 pl-9 pr-4 text-xs text-[var(--ink-hi)] focus:border-blue-500 focus:outline-none"
-                  />
-                  <FileText size={14} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="cadastro-endereco-de-cobranca" className="text-xs font-semibold text-[var(--ink)]">Endereço Completo de Cobrança</label>
-              <textarea
-                id="cadastro-endereco-de-cobranca"
-                rows={2}
-                value={billingAddress}
-                onChange={(e) => setBillingAddress(e.target.value)}
-                className="w-full resize-none rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3.5 py-2.5 text-xs text-[var(--ink-hi)] focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <Button type="submit" loading={isSavingProfile}>
-            {isSavingProfile ? 'Salvando dados...' : <>Salvar Alterações <Check size={14} /></>}
-          </Button>
-        </form>
-      </div>
+        <div className="py-4">
+          <dt className="text-sm font-medium text-[var(--ink-hi)]">E-mail</dt>
+          <dd className="mt-1 break-words text-sm text-[var(--ink)]">
+            {user?.email || <span className="text-[var(--ink-lo)]">Sem e-mail</span>}
+          </dd>
+          <dd className="mt-2 text-pretty text-xs text-[var(--ink-lo)]">
+            {google ? 'Vem da conta Google com que você entra.' : 'É o e-mail com que você entra.'}
+          </dd>
+        </div>
+      </dl>
     </Pagina>
   );
 }

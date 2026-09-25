@@ -5,6 +5,7 @@ import { cabeLigado, nomeDaPlataforma, pendenciaCurta } from '../lib/canais';
 import { PLANS, getPlan, type PlanId } from '../lib/plans';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
+import { ErroDeCampo } from './ui/ErroDeCampo';
 import { Modal } from './ui/Modal';
 import { PlataformaIcone } from './ui/PlataformaIcone';
 import { useTabs } from './ui/Tabs';
@@ -453,7 +454,7 @@ export function AddChannelsModal({
                     className={`${CAMPO} resize-none overflow-hidden break-all py-[11px] leading-5`}
                   />
                   {erros.servidor ? (
-                    <Erro id="canal-servidor-erro">{erros.servidor}</Erro>
+                    <ErroDeCampo id="canal-servidor-erro">{erros.servidor}</ErroDeCampo>
                   ) : (
                     dicaDoServidor && (
                       <p id="canal-servidor-dica" className="mt-2 text-xs text-[var(--ink-lo)]">
@@ -485,7 +486,7 @@ export function AddChannelsModal({
                     aria-describedby={erros.chave ? 'canal-chave-erro' : undefined}
                     className={`${CAMPO} h-11`}
                   />
-                  {erros.chave && <Erro id="canal-chave-erro">{erros.chave}</Erro>}
+                  {erros.chave && <ErroDeCampo id="canal-chave-erro">{erros.chave}</ErroDeCampo>}
                 </div>
 
                 {salvaDesligado && (
@@ -518,15 +519,5 @@ export function AddChannelsModal({
         </section>
       </div>
     </Modal>
-  );
-}
-
-/** Erro de campo: ícone e frase na tinta alta, e a borda do campo sobe junto (index.css). */
-function Erro({ id, children }: { id: string; children: ReactNode }) {
-  return (
-    <p id={id} className="mt-2 flex items-start gap-1.5 text-xs text-[var(--ink-hi)]">
-      <CircleAlert size={14} aria-hidden="true" className="mt-px shrink-0" />
-      <span>{children}</span>
-    </p>
   );
 }

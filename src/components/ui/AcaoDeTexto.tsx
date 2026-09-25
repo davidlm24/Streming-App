@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 
 interface Base {
   children: ReactNode;
@@ -22,7 +22,9 @@ interface Base {
  * Com `onClick` é um botão; com `href` é um link para fora do app (o painel
  * oficial da plataforma), que abre em outra aba e diz isso ao leitor de tela.
  */
-type AcaoDeTextoProps = Base & ({ onClick: () => void; href?: never } | { href: string; onClick?: never });
+type AcaoDeTextoProps = Base &
+  // `ref` no botão, para devolver o foco a ele (ex.: "Editar" depois de salvar).
+  ({ onClick: () => void; href?: never; ref?: Ref<HTMLButtonElement> } | { href: string; onClick?: never; ref?: never });
 
 /**
  * Ação secundária em texto — sem caixa, sem cor. A cor da tela é da ação
@@ -30,7 +32,7 @@ type AcaoDeTextoProps = Base & ({ onClick: () => void; href?: never } | { href: 
  * tela desenhava a sua: "Ver todos" em azul, "PwStreamer →" em azul com
  * seta, links de rodapé em caixa alta.
  */
-export function AcaoDeTexto({ onClick, href, children, icone, tamanho = 'sm', sublinhada = false, className = '' }: AcaoDeTextoProps) {
+export function AcaoDeTexto({ onClick, href, ref, children, icone, tamanho = 'sm', sublinhada = false, className = '' }: AcaoDeTextoProps) {
   const classe = `inline-flex items-center gap-1.5 underline-offset-4 transition-colors duration-150 cursor-pointer ${className} ${
     tamanho === 'xs' ? 'text-xs' : 'text-sm'
   } ${
@@ -54,7 +56,7 @@ export function AcaoDeTexto({ onClick, href, children, icone, tamanho = 'sm', su
     );
   }
   return (
-    <button type="button" onClick={onClick} className={classe}>
+    <button ref={ref} type="button" onClick={onClick} className={classe}>
       {conteudo}
     </button>
   );

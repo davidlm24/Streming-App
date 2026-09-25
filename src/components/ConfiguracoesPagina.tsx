@@ -92,10 +92,10 @@ export function ConfiguracoesPagina({ plano, ehSuperAdmin, onAbrirIntegracao, on
       <SecaoDePagina id="config-conta" titulo="Conta">
         <ul className="mt-2 divide-y divide-[var(--line)]">
           <li>
-            <LinhaDeAcao titulo="Plano e cobrança" descricao="Seu plano, faturas e forma de pagamento." onClick={() => onIrPara('billing')} />
+            <LinhaDeAcao titulo="Plano e cobrança" descricao="Seu plano e o que cada plano inclui." onClick={() => onIrPara('billing')} />
           </li>
           <li>
-            <LinhaDeAcao titulo="Dados de cadastro" descricao="Nome, e-mail e dados de faturamento." onClick={() => onIrPara('profile')} />
+            <LinhaDeAcao titulo="Dados de cadastro" descricao="Seu nome e o e-mail da conta." onClick={() => onIrPara('profile')} />
           </li>
         </ul>
       </SecaoDePagina>
