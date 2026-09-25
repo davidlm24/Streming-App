@@ -8,7 +8,14 @@
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "lint:css": "stylelint \"src/**/*.css\"",
+    "lint:contrast": "node scripts/contrast-gate.mjs",
+    "lint:debt": "node scripts/design-debt.mjs",
+    "debt:update": "node scripts/design-debt.mjs --update",
+    "verify": "npm run lint && npm run lint:css && npm run lint:contrast && npm run lint:debt && npm run lint:icons && npm run lint:labels",
+    "lint:icons": "node scripts/icon-buttons.cjs",
+    "lint:labels": "node scripts/form-labels.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -40,8 +47,12 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
+    "stylelint": "^17.15.0",
+    "stylelint-config-standard": "^40.0.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",

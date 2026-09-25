@@ -1,0 +1,1415 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PwStream Console PWS-1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   PwStream — Direção D2 · "É EQUIPAMENTO DE TRANSMISSÃO, NÃO UM APLICATIVO"
+
+   Regra que governa todo o sistema:
+   COR É LUZ, NÃO SUPERFÍCIE.
+   O chassi é 100% acromático — cinza puro, canal a canal (R=G=B).
+   Nenhuma superfície tem matiz. Cor só existe onde existiria numa mesa real:
+   lâmpadas, lentes, segmentos de VU, leituras e a própria imagem de vídeo.
+   Isso é o que impede o cromo de contaminar a leitura de pele e balanço
+   de branco no monitor de programa.
+
+   TEMA CLARO ≠ INVERSÃO. É outro material:
+   escuro  = alumínio anodizado preto, serigrafia branca
+   claro   = alumínio jateado natural, serigrafia preta
+   As lentes ganham densidade no claro porque uma lente sobre painel
+   iluminado precisa de mais carga para acender.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── TOKENS · TEMA CLARO (alumínio jateado natural) ─────────────────────── */
+:root{
+  /* Material — rampa acromática de 6 degraus */
+  --chassis:#BEBFBF;      /* chassi externo, fundo da página                */
+  --rail:#C9CACA;         /* trilhos, cabeçalhos de painel, bandeja        */
+  --face:#D6D7D7;         /* face de painel — a superfície padrão          */
+  --face-hi:#E3E4E4;      /* face elevada — tecla, linha sob cursor        */
+  --recess:#C1C2C2;       /* rebaixo usinado — campos, trilhas, poços      */
+  --seam:#9DA0A0;         /* fundo do sulco gravado                        */
+  --seam-lit:#EEEFEF;     /* aresta que pega luz                           */
+  --hair:#ACAEAE;         /* fio de cabelo padrão (divisão)                */
+  --hair-hi:#8C8F8F;      /* fio forte (aro de módulo, borda do chassi)    */
+
+  /* Serigrafia e texto */
+  --text-hi:#171818;
+  --text:#3A3C3C;
+  --text-lo:#565959;
+  --text-dim:#848787;
+  --legend:#4E5151;       /* serigrafia: preta sobre alumínio claro        */
+
+  /* Lâmpadas — a única cor do sistema. Lente densa sobre painel claro.    */
+  --lamp-onair:#C4170D;
+  --lamp-ready:#136E2C;
+  --lamp-warn:#8A5900;
+  --lamp-fail:#AE2F16;
+  --lamp-sinal:#00706A;   /* marca "Sinal" — foco, seleção, lâmpada-piloto */
+  --lamp-info:#1B52B0;
+
+  --tint-onair:color-mix(in srgb, var(--lamp-onair) 13%, transparent);
+  --tint-ready:color-mix(in srgb, var(--lamp-ready) 13%, transparent);
+  --tint-warn: color-mix(in srgb, var(--lamp-warn)  15%, transparent);
+  --tint-sinal:color-mix(in srgb, var(--lamp-sinal) 13%, transparent);
+
+  /* Teclas — no hardware o botão é metal; a cor é a lente que ele acende. */
+  --key-face:#E5E6E6;
+  --key-face-hi:#F0F1F1;
+  --key-label:#1A1B1B;
+  --key-primary:#1B1D1D;         /* a única tecla anodizada preta         */
+  --key-primary-label:#F2F3F3;
+  --key-danger:#B4130A;
+  --key-danger-label:#FFF0EE;
+
+  /* Vídeo — nunca redefinido por tema. Vídeo é vídeo. */
+  --stage:#000000;
+  --vid-white:#BFBFBF;  --vid-yellow:#BFBF00; --vid-cyan:#00BFBF;
+  --vid-green:#00BF00;  --vid-magenta:#BF00BF;--vid-red:#BF0000;
+  --vid-blue:#0000BF;   --vid-navy:#00214B;   --vid-purple:#32006A;
+  --vid-full:#FFFFFF;   --vid-black:#101010;  --vid-sub:#070707;
+  --vid-plus:#191919;   --vid-grat:#3C3C3C;
+
+  /* Séries de gráfico = as lâmpadas. Um gráfico é uma leitura. */
+  --c1:var(--lamp-sinal); --c2:var(--lamp-warn); --c3:var(--lamp-info);
+  --c4:var(--lamp-ready); --c5:var(--text-lo);
+
+  /* Acabamento */
+  --brush:repeating-linear-gradient(90deg,
+          rgb(0 0 0 / .022) 0 1px, rgb(255 255 255 / .030) 1px 2px, transparent 2px 4px);
+  --scrim:rgb(0 0 0 / .38);
+  --relief:inset 0 1px 0 var(--seam-lit), inset 0 -1px 0 rgb(0 0 0 / .14), 0 1px 1px rgb(0 0 0 / .16);
+  --groove:inset 0 2px 3px rgb(0 0 0 / .20), inset 0 -1px 0 var(--seam-lit);
+  --detent:inset 0 2px 4px rgb(0 0 0 / .22), inset 0 -1px 0 var(--seam-lit);
+  --e-lift:0 6px 18px rgb(0 0 0 / .16);
+  --e-modal:0 30px 60px rgb(0 0 0 / .26);
+  --lens-bloom:0 0 0 1px rgb(0 0 0 / .22) inset;
+
+  /* Raio — hardware é apertado. Regra: filho = pai − recuo. */
+  --r-1:2px;   /* selo, chip, segmento de VU                              */
+  --r-2:4px;   /* tecla, campo, linha de lista, aba                       */
+  --r-3:8px;   /* módulo, painel, cartão                                  */
+  --r-4:11px;  /* chassi externo. Nada mais.                              */
+  --r-mon:3px; /* aro de monitor — quase reto, como um bezel real         */
+  --r-lens:999px; /* SÓ lente, ponto de estado, botão de knob             */
+
+  /* Tipo — a largura carrega a hierarquia, não o peso. */
+  --ui:"Archivo","Arial Narrow",Helvetica,Arial,sans-serif;
+  --num:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  --t-legend:0.6875rem;  /* 11px — o menor tamanho que embarca            */
+  --t-xs:0.75rem;        /* 12px */
+  --t-sm:0.8125rem;      /* 13px */
+  --t-md:0.9375rem;      /* 15px */
+  --t-lg:1.125rem;       /* 18px */
+  --t-read:1.375rem;     /* 22px — leitura mono                           */
+  --t-tc:2rem;           /* 32px — timecode                               */
+
+  --e-body:1rem;         /* 16px */
+  --e-lead:1.1875rem;    /* 19px */
+  --e-h3:1.375rem;       /* 22px */
+  --e-h2:1.875rem;       /* 30px */
+  --e-h1:clamp(2.5rem,5.4vw,4.25rem);
+  --e-price:2.25rem;     /* 36px mono tabular                             */
+
+  /* Densidade — dois ritmos calibrados, não um. */
+  --d-1:4px; --d-2:6px; --d-3:8px; --d-4:12px; --d-5:16px;   /* console   */
+  --ed-1:16px; --ed-2:24px; --ed-3:40px; --ed-4:64px; --ed-5:96px; /* site */
+
+  color-scheme:light;
+}
+
+/* ── TOKENS · TEMA ESCURO (alumínio anodizado preto) ────────────────────── */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --chassis:#0A0A0B;
+    --rail:#131315;
+    --face:#191A1B;
+    --face-hi:#232426;
+    --recess:#0E0E0F;
+    --seam:#050506;
+    --seam-lit:#303134;
+    --hair:#2A2B2D;
+    --hair-hi:#3B3C3F;
+
+    --text-hi:#F1F2F2;
+    --text:#B6B8B9;
+    --text-lo:#83868A;
+    --text-dim:#5B5E62;
+    --legend:#9A9DA1;          /* serigrafia branca sobre anodizado preto */
+
+    --lamp-onair:#FF2A1E;
+    --lamp-ready:#2FD65F;
+    --lamp-warn:#FFB01F;
+    --lamp-fail:#FF6A4D;
+    --lamp-sinal:#19E0CE;
+    --lamp-info:#6FA8FF;
+
+    --tint-onair:color-mix(in srgb, var(--lamp-onair) 12%, transparent);
+    --tint-ready:color-mix(in srgb, var(--lamp-ready) 12%, transparent);
+    --tint-warn: color-mix(in srgb, var(--lamp-warn)  12%, transparent);
+    --tint-sinal:color-mix(in srgb, var(--lamp-sinal) 12%, transparent);
+
+    --key-face:#26272A;
+    --key-face-hi:#303134;
+    --key-label:#EDEEEE;
+    --key-primary:#EDEEEE;      /* no escuro a tecla primária é metal nu  */
+    --key-primary-label:#131315;
+    --key-danger:#D31A0E;
+    --key-danger-label:#FFF0EE;
+
+    --brush:repeating-linear-gradient(90deg,
+            rgb(255 255 255 / .016) 0 1px, rgb(0 0 0 / .030) 1px 2px, transparent 2px 4px);
+    --scrim:rgb(0 0 0 / .55);
+    --relief:inset 0 1px 0 var(--seam-lit), inset 0 -1px 0 rgb(0 0 0 / .50), 0 1px 1px rgb(0 0 0 / .40);
+    --groove:inset 0 2px 4px rgb(0 0 0 / .70), inset 0 -1px 0 var(--seam-lit);
+    --detent:inset 0 2px 5px rgb(0 0 0 / .75), inset 0 -1px 0 var(--seam-lit);
+    --e-lift:0 8px 22px rgb(0 0 0 / .55);
+    --e-modal:0 30px 64px rgb(0 0 0 / .70);
+    --lens-bloom:0 0 0 1px rgb(255 255 255 / .10) inset;
+
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --chassis:#0A0A0B;
+  --rail:#131315;
+  --face:#191A1B;
+  --face-hi:#232426;
+  --recess:#0E0E0F;
+  --seam:#050506;
+  --seam-lit:#303134;
+  --hair:#2A2B2D;
+  --hair-hi:#3B3C3F;
+
+  --text-hi:#F1F2F2;
+  --text:#B6B8B9;
+  --text-lo:#83868A;
+  --text-dim:#5B5E62;
+  --legend:#9A9DA1;
+
+  --lamp-onair:#FF2A1E;
+  --lamp-ready:#2FD65F;
+  --lamp-warn:#FFB01F;
+  --lamp-fail:#FF6A4D;
+  --lamp-sinal:#19E0CE;
+  --lamp-info:#6FA8FF;
+
+  --tint-onair:color-mix(in srgb, var(--lamp-onair) 12%, transparent);
+  --tint-ready:color-mix(in srgb, var(--lamp-ready) 12%, transparent);
+  --tint-warn: color-mix(in srgb, var(--lamp-warn)  12%, transparent);
+  --tint-sinal:color-mix(in srgb, var(--lamp-sinal) 12%, transparent);
+
+  --key-face:#26272A;
+  --key-face-hi:#303134;
+  --key-label:#EDEEEE;
+  --key-primary:#EDEEEE;
+  --key-primary-label:#131315;
+  --key-danger:#D31A0E;
+  --key-danger-label:#FFF0EE;
+
+  --brush:repeating-linear-gradient(90deg,
+          rgb(255 255 255 / .016) 0 1px, rgb(0 0 0 / .030) 1px 2px, transparent 2px 4px);
+  --scrim:rgb(0 0 0 / .55);
+  --relief:inset 0 1px 0 var(--seam-lit), inset 0 -1px 0 rgb(0 0 0 / .50), 0 1px 1px rgb(0 0 0 / .40);
+  --groove:inset 0 2px 4px rgb(0 0 0 / .70), inset 0 -1px 0 var(--seam-lit);
+  --detent:inset 0 2px 5px rgb(0 0 0 / .75), inset 0 -1px 0 var(--seam-lit);
+  --e-lift:0 8px 22px rgb(0 0 0 / .55);
+  --e-modal:0 30px 64px rgb(0 0 0 / .70);
+  --lens-bloom:0 0 0 1px rgb(255 255 255 / .10) inset;
+
+  color-scheme:dark;
+}
+
+/* ── BASE ───────────────────────────────────────────────────────────────── */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background-color:var(--chassis);
+  background-image:var(--brush);
+  color:var(--text);
+  font-family:var(--ui);
+  font-size:var(--t-sm);
+  font-weight:450;
+  font-stretch:96%;
+  font-synthesis-weight:none;   /* denuncia qualquer peso não carregado */
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,p,ul,ol,figure{margin:0}
+ul{padding:0;list-style:none}
+button{font:inherit;color:inherit;background:none;border:0;margin:0}
+a{color:inherit}
+img,svg{display:block}
+
+/* Números: o produto é feito de números. Um único lugar declara isso. */
+.num,.tc,.price,.readout__v,.meter__scale,.chat__t,.plan__price,.spec b,.stat b,
+.plateline__n,.panelhead__n,.plate__model,.scene__n,.monbar__src,.dest__r,.vu__db,
+.chip__t,.chip__h,.rule__cap,.specrows dd,table{
+  font-family:var(--num);
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1;
+  letter-spacing:-0.01em;
+}
+
+/* Serigrafia — uma legenda por painel. Orçamento, não hábito. */
+.legend{
+  font-size:var(--t-legend);
+  font-weight:600;
+  font-stretch:82%;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:var(--legend);
+  line-height:1.1;
+}
+
+/* Sulco gravado — 1px escuro + 1px de luz. Só em costuras estruturais. */
+.seam{height:2px;background:linear-gradient(var(--seam) 0 1px, var(--seam-lit) 1px 2px);flex:none}
+.seam--v{width:2px;height:auto;align-self:stretch;
+  background:linear-gradient(90deg,var(--seam) 0 1px,var(--seam-lit) 1px 2px)}
+
+/* Foco: uma receita, em todo lugar. Contorno, nunca troca de cor de borda. */
+:focus-visible{
+  outline:2px solid var(--lamp-sinal);
+  outline-offset:2px;
+  border-radius:var(--r-2);
+}
+.skip{
+  position:absolute;left:-9999px;top:8px;z-index:99;
+  background:var(--face-hi);color:var(--text-hi);
+  padding:8px 14px;border:1px solid var(--hair-hi);border-radius:var(--r-2);
+}
+.skip:focus{left:8px}
+
+/* Lente. Núcleo aceso + aro. Nada de halo na página. */
+.lamp{
+  width:8px;height:8px;border-radius:var(--r-lens);flex:none;
+  background:var(--text-dim);box-shadow:var(--lens-bloom);
+}
+.lamp--onair{background:var(--lamp-onair)}
+.lamp--ready{background:var(--lamp-ready)}
+.lamp--warn{background:var(--lamp-warn)}
+.lamp--fail{background:var(--lamp-fail)}
+.lamp--sinal{background:var(--lamp-sinal)}
+.lamp--off{background:var(--text-dim);opacity:.45}
+
+/* Tecla — face metálica com relevo de 1px. Não é bisel, é aresta usinada. */
+.key{
+  display:inline-flex;align-items:center;gap:var(--d-2);
+  background:var(--key-face);color:var(--key-label);
+  border:1px solid var(--hair-hi);border-radius:var(--r-2);
+  padding:7px 12px;min-height:30px;
+  font-size:var(--t-xs);font-weight:600;font-stretch:88%;
+  letter-spacing:.04em;text-transform:uppercase;
+  box-shadow:var(--relief);
+  cursor:pointer;text-decoration:none;
+  transition:background-color 110ms linear, transform 90ms linear, box-shadow 110ms linear;
+}
+.key:hover{background:var(--key-face-hi)}
+.key:active{transform:translateY(1px);box-shadow:var(--detent)}
+.key--ghost{background:transparent;box-shadow:none;border-color:var(--hair);color:var(--text)}
+.key--ghost:hover{background:var(--face-hi);color:var(--text-hi)}
+.key--primary{
+  background:var(--key-primary);color:var(--key-primary-label);
+  border-color:var(--key-primary);
+  box-shadow:var(--e-lift);
+}
+.key--primary:hover{background:var(--key-primary);filter:brightness(1.12)}
+.key--danger{background:var(--key-danger);color:var(--key-danger-label);border-color:var(--key-danger)}
+.key--lg{min-height:44px;padding:12px 22px;font-size:var(--t-sm);letter-spacing:.06em}
+
+/* ── CABEÇALHO / PLACA DE IDENTIFICAÇÃO ─────────────────────────────────── */
+.topbar{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;gap:var(--d-5);
+  padding:var(--d-3) var(--d-5);
+  background:var(--rail);background-image:var(--brush);
+  border-bottom:1px solid var(--hair-hi);
+}
+.plate{display:flex;align-items:center;gap:10px}
+.plate__mark{width:20px;height:20px;color:var(--text-hi)}
+.plate__name{
+  font-size:var(--t-md);font-weight:600;font-stretch:78%;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--text-hi);
+}
+.plate__model{
+  font-family:var(--num);font-size:var(--t-legend);color:var(--text-lo);
+  border-left:1px solid var(--hair);padding-left:10px;margin-left:2px;letter-spacing:.02em;
+}
+.topbar__nav{display:flex;gap:2px;margin-left:auto}
+.topbar__nav a{
+  padding:6px 11px;border-radius:var(--r-2);text-decoration:none;
+  font-size:var(--t-legend);font-weight:600;font-stretch:82%;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--text-lo);
+}
+.topbar__nav a:hover{background:var(--face);color:var(--text-hi)}
+
+/* Divisor de superfície — placa de especificação */
+.plateline{
+  display:flex;align-items:center;gap:var(--d-4);
+  padding:var(--ed-1) var(--d-5) var(--d-4);
+  max-width:1440px;margin:0 auto;
+}
+.plateline::after{content:"";flex:1;height:2px;
+  background:linear-gradient(var(--seam) 0 1px,var(--seam-lit) 1px 2px)}
+.plateline__n{
+  font-family:var(--num);font-size:var(--t-legend);color:var(--text-dim);
+  letter-spacing:.08em;
+}
+
+/* ══ SUPERFÍCIE 1 · CONSOLE ═══════════════════════════════════════════════ */
+.wrap{max-width:1440px;margin:0 auto;padding:0 var(--d-5) var(--ed-3)}
+
+.chassis{
+  background:var(--rail);background-image:var(--brush);
+  border:1px solid var(--hair-hi);border-radius:var(--r-4);
+  box-shadow:var(--e-lift);
+  overflow:hidden;
+}
+
+/* Barra de transporte */
+.transport{
+  display:grid;grid-template-columns:minmax(220px,1fr) auto minmax(220px,1fr);
+  align-items:center;gap:var(--d-4);padding:var(--d-3) var(--d-4);
+}
+.transport__l{display:flex;align-items:center;gap:var(--d-4);min-width:0}
+.transport__r{display:flex;align-items:center;justify-content:flex-end;gap:var(--d-4);flex-wrap:wrap}
+.tally{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--tint-onair);border:1px solid var(--lamp-onair);border-radius:var(--r-1);
+  padding:5px 10px;
+}
+.tally__lamp{width:9px;height:9px;border-radius:var(--r-lens);background:var(--lamp-onair);box-shadow:var(--lens-bloom)}
+.tally__txt{font-size:var(--t-legend);font-weight:600;font-stretch:80%;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--lamp-onair)}
+.tc{font-size:var(--t-tc);font-weight:500;color:var(--text-hi);line-height:1;letter-spacing:-.02em}
+.tc__sub{font-size:var(--t-legend);color:var(--text-lo);letter-spacing:.1em}
+.transport__center{display:flex;align-items:center;gap:var(--d-4)}
+
+/* Leituras */
+.readouts{display:flex;align-items:stretch;gap:0;border:1px solid var(--hair);
+  border-radius:var(--r-2);background:var(--recess);box-shadow:var(--groove);overflow:hidden}
+.readout{padding:5px 12px;min-width:82px;border-right:1px solid var(--hair)}
+.readout:last-child{border-right:0}
+.readout__k{display:block;font-size:var(--t-legend);font-weight:600;font-stretch:82%;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--text-lo)}
+.readout__v{display:block;font-size:var(--t-md);color:var(--text-hi);line-height:1.25}
+.readout__v.is-warn{color:var(--lamp-warn)}
+
+/* Corpo do console */
+.body{display:grid;grid-template-columns:18px 210px 1fr 300px;align-items:stretch}
+.rail-ruler{
+  background:var(--recess);border-right:1px solid var(--hair);
+  background-image:repeating-linear-gradient(180deg,
+    var(--hair) 0 1px, transparent 1px 12px);
+  background-position:0 8px;
+}
+.col{padding:var(--d-4);min-width:0;display:flex;flex-direction:column;gap:var(--d-4)}
+.col--scenes{background:var(--face);border-right:1px solid var(--hair)}
+.col--stage{background:var(--rail);padding:var(--d-4)}
+.col--aux{background:var(--face);border-left:1px solid var(--hair)}
+
+.panelhead{display:flex;align-items:center;justify-content:space-between;gap:var(--d-3);
+  padding-bottom:var(--d-2);border-bottom:1px solid var(--hair)}
+.panelhead__n{font-family:var(--num);font-size:var(--t-legend);color:var(--text-dim)}
+
+/* Lista de cenas — cada item tem detente física */
+.scenes{display:flex;flex-direction:column;gap:var(--d-1)}
+.scene{
+  display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:var(--d-3);
+  padding:7px 8px;border-radius:var(--r-2);border:1px solid transparent;
+  background:var(--face-hi);box-shadow:var(--relief);
+  cursor:pointer;width:100%;text-align:left;
+  transition:background-color 110ms linear;
+}
+.scene:hover{background:var(--key-face-hi)}
+.scene__n{font-family:var(--num);font-size:var(--t-legend);color:var(--text-dim)}
+.scene__t{font-size:var(--t-sm);color:var(--text);font-stretch:92%;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.scene__tag{font-size:var(--t-legend);font-weight:600;font-stretch:78%;letter-spacing:.12em;
+  text-transform:uppercase;padding:2px 5px;border-radius:var(--r-1);border:1px solid transparent}
+.scene.is-pgm{background:var(--recess);box-shadow:var(--detent);border-color:var(--lamp-onair)}
+.scene.is-pgm .scene__t{color:var(--text-hi);font-weight:600}
+.scene.is-pgm .scene__tag{color:var(--lamp-onair);border-color:var(--lamp-onair);background:var(--tint-onair)}
+.scene.is-pvw{background:var(--recess);box-shadow:var(--detent);border-color:var(--lamp-ready)}
+.scene.is-pvw .scene__t{color:var(--text-hi)}
+.scene.is-pvw .scene__tag{color:var(--lamp-ready);border-color:var(--lamp-ready);background:var(--tint-ready)}
+
+/* ── MONITORES ──────────────────────────────────────────────────────────── */
+.monitor{
+  background:var(--stage);border-radius:var(--r-mon);
+  border:1px solid var(--hair-hi);
+  padding:3px;position:relative;
+}
+.monitor--pgm{border:3px solid var(--lamp-onair);padding:1px}
+.monitor--pvw{border:2px solid var(--lamp-ready);padding:1px}
+.screen{position:relative;aspect-ratio:16/9;background:var(--stage);overflow:hidden;border-radius:1px}
+
+/* Barras SMPTE 75% — o marcador honesto de "aqui entra vídeo".
+   Máxima croma DENTRO do quadro prova que o cromo em volta é neutro.   */
+.bars{position:absolute;inset:0;display:grid;grid-template-rows:67% 8% 25%}
+.bars__main{background:linear-gradient(90deg,
+  var(--vid-white) 0 14.2857%, var(--vid-yellow) 14.2857% 28.5714%,
+  var(--vid-cyan) 28.5714% 42.857%, var(--vid-green) 42.857% 57.142%,
+  var(--vid-magenta) 57.142% 71.428%, var(--vid-red) 71.428% 85.714%,
+  var(--vid-blue) 85.714% 100%)}
+.bars__chroma{background:linear-gradient(90deg,
+  var(--vid-blue) 0 14.2857%, var(--vid-black) 14.2857% 28.5714%,
+  var(--vid-magenta) 28.5714% 42.857%, var(--vid-black) 42.857% 57.142%,
+  var(--vid-cyan) 57.142% 71.428%, var(--vid-black) 71.428% 85.714%,
+  var(--vid-white) 85.714% 100%)}
+.bars__pluge{background:linear-gradient(90deg,
+  var(--vid-navy) 0 17.1%, var(--vid-full) 17.1% 34.2%, var(--vid-purple) 34.2% 51.3%,
+  var(--vid-black) 51.3% 68.4%, var(--vid-sub) 68.4% 74.1%, var(--vid-black) 74.1% 79.8%,
+  var(--vid-plus) 79.8% 85.5%, var(--vid-black) 85.5% 100%)}
+/* Rampa de cinza — a prévia carrega um sinal acromático. */
+.ramp{position:absolute;inset:0;background:linear-gradient(90deg,
+  var(--vid-sub) 0 9%,
+  color-mix(in srgb, var(--vid-full) 12%, var(--vid-sub)) 9% 18%,
+  color-mix(in srgb, var(--vid-full) 24%, var(--vid-sub)) 18% 27%,
+  color-mix(in srgb, var(--vid-full) 36%, var(--vid-sub)) 27% 36%,
+  color-mix(in srgb, var(--vid-full) 48%, var(--vid-sub)) 36% 45%,
+  color-mix(in srgb, var(--vid-full) 60%, var(--vid-sub)) 45% 55%,
+  color-mix(in srgb, var(--vid-full) 72%, var(--vid-sub)) 55% 64%,
+  color-mix(in srgb, var(--vid-full) 84%, var(--vid-sub)) 64% 73%,
+  color-mix(in srgb, var(--vid-full) 92%, var(--vid-sub)) 73% 82%,
+  var(--vid-full) 82% 100%)}
+
+/* Grade de área segura — retículo, não decoração */
+.grat{position:absolute;inset:0;pointer-events:none}
+.grat span{position:absolute;width:16px;height:16px;border:1px solid var(--vid-grat)}
+.grat span:nth-child(1){top:6%;left:5%;border-right:0;border-bottom:0}
+.grat span:nth-child(2){top:6%;right:5%;border-left:0;border-bottom:0}
+.grat span:nth-child(3){bottom:6%;left:5%;border-right:0;border-top:0}
+.grat span:nth-child(4){bottom:6%;right:5%;border-left:0;border-top:0}
+
+/* Faixa de identificação do monitor — colada no aro, como num rack */
+.monbar{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--d-3);
+  padding:5px 8px;background:var(--rail);border:1px solid var(--hair);border-top:0;
+  border-radius:0 0 var(--r-2) var(--r-2);
+}
+.monbar__src{font-family:var(--num);font-size:var(--t-legend);color:var(--text-lo)}
+.mongroup{display:flex;flex-direction:column}
+
+.stage-row{display:grid;grid-template-columns:302px 1fr;gap:var(--d-4);align-items:start}
+
+/* ── VU SEGMENTADO ──────────────────────────────────────────────────────── */
+.module{background:var(--face);border:1px solid var(--hair);border-radius:var(--r-3);
+  padding:var(--d-4);display:flex;flex-direction:column;gap:var(--d-3)}
+.vu{display:flex;flex-direction:column;gap:var(--d-2)}
+.vu__row{display:grid;grid-template-columns:104px 1fr 52px;align-items:center;gap:var(--d-3)}
+.vu__ch{font-size:var(--t-legend);font-weight:600;font-stretch:80%;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text-lo);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vu__db{font-family:var(--num);font-size:var(--t-legend);color:var(--text);text-align:right}
+.meter{position:relative;height:14px;background:var(--recess);border:1px solid var(--hair);
+  border-radius:var(--r-1);box-shadow:var(--groove);overflow:hidden}
+.meter__lit{position:absolute;inset:0;
+  background:linear-gradient(90deg,
+    var(--lamp-ready) 0 68%, var(--lamp-warn) 68% 87%, var(--lamp-onair) 87% 100%);
+  clip-path:inset(0 calc(100% - var(--lvl)) 0 0);
+}
+.meter__seg{position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg, transparent 0 5px, var(--face) 5px 7px)}
+.meter__peak{position:absolute;top:0;bottom:0;width:2px;background:var(--text-hi);left:var(--peak)}
+.meter__scale{display:grid;grid-template-columns:104px 1fr 52px;gap:var(--d-3);
+  font-size:var(--t-legend);color:var(--text-dim)}
+.meter__ticks{display:flex;justify-content:space-between}
+
+/* Bloco de estado no pé do trilho de cenas — como num rack real */
+.linkmod{margin-top:auto;display:flex;flex-direction:column;gap:var(--d-3)}
+.meter--link .meter__lit{background:var(--lamp-ready)}
+.specrows{display:flex;flex-direction:column;border:1px solid var(--hair);
+  border-radius:var(--r-2);background:var(--recess);box-shadow:var(--groove);overflow:hidden}
+.specrows > div{display:flex;justify-content:space-between;align-items:baseline;gap:var(--d-3);
+  padding:5px 8px;border-bottom:1px solid var(--hair)}
+.specrows > div:last-child{border-bottom:0}
+.specrows dt{font-size:var(--t-legend);font-weight:600;font-stretch:82%;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--text-lo)}
+.specrows dd{margin:0;font-size:var(--t-xs);color:var(--text-hi)}
+
+/* ── DESTINOS ───────────────────────────────────────────────────────────── */
+.dests{display:flex;flex-direction:column;gap:var(--d-1)}
+.dest{display:grid;grid-template-columns:8px 1fr auto;align-items:center;gap:var(--d-3);
+  padding:8px;border-radius:var(--r-2);background:var(--face-hi);box-shadow:var(--relief)}
+.dest__n{font-size:var(--t-sm);font-stretch:88%;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--text-hi)}
+.dest__s{font-size:var(--t-legend);color:var(--text-lo);letter-spacing:.06em;text-transform:uppercase;
+  font-stretch:84%;font-weight:600}
+.dest__s.is-warn{color:var(--lamp-warn)}
+.dest__r{font-family:var(--num);font-size:var(--t-xs);color:var(--text);text-align:right}
+
+/* ── CHAT ───────────────────────────────────────────────────────────────── */
+.chat{flex:1;display:flex;flex-direction:column;gap:var(--d-3);min-height:0}
+.chat__well{background:var(--recess);border:1px solid var(--hair);border-radius:var(--r-2);
+  box-shadow:var(--groove);padding:var(--d-3);display:flex;flex-direction:column;gap:var(--d-3);
+  overflow:auto;flex:1;min-height:170px}
+.msg{display:grid;grid-template-columns:1fr auto;gap:2px var(--d-3);align-items:baseline;
+  padding-bottom:var(--d-3);border-bottom:1px solid var(--hair)}
+.msg:last-child{border-bottom:0;padding-bottom:0}
+.msg__a{font-size:var(--t-xs);font-weight:600;font-stretch:88%;color:var(--text-hi);letter-spacing:.02em}
+.chat__t{font-size:var(--t-legend);color:var(--text-dim)}
+.msg__b{grid-column:1/-1;font-size:var(--t-sm);color:var(--text);line-height:1.5}
+.chat__in{display:grid;grid-template-columns:1fr auto;gap:var(--d-2)}
+.chat__in input{
+  background:var(--recess);border:1px solid var(--hair);border-radius:var(--r-2);
+  box-shadow:var(--groove);padding:8px 10px;color:var(--text-hi);
+  font:inherit;font-size:var(--t-sm);min-width:0;
+}
+.chat__in input::placeholder{color:var(--text-dim)}
+
+/* ── BANDEJA DE CONTROLE ────────────────────────────────────────────────── */
+.tray{display:flex;align-items:flex-end;gap:var(--d-5);padding:var(--d-4) var(--d-5);
+  background:var(--rail);background-image:var(--brush);flex-wrap:wrap}
+.bank{display:flex;gap:var(--d-3)}
+.ctl{display:flex;flex-direction:column;align-items:center;gap:5px;width:66px}
+.ctl__key{
+  width:100%;height:46px;display:grid;place-items:center;position:relative;
+  background:var(--key-face);border:1px solid var(--hair-hi);border-radius:var(--r-2);
+  box-shadow:var(--relief);color:var(--text-hi);cursor:pointer;
+  transition:background-color 110ms linear, transform 90ms linear, box-shadow 110ms linear;
+}
+.ctl__key:hover{background:var(--key-face-hi)}
+.ctl__key:active{transform:translateY(1px);box-shadow:var(--detent)}
+.ctl__key.is-off{background:var(--recess);box-shadow:var(--detent);color:var(--text-dim)}
+.ctl__lamp{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:var(--r-lens);
+  box-shadow:var(--lens-bloom)}
+.ctl__lbl{font-size:var(--t-legend);font-weight:600;font-stretch:78%;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--legend);text-align:center;line-height:1.15}
+.master{margin-left:auto;display:flex;align-items:center;gap:var(--d-4)}
+.master__meta{text-align:right;display:flex;flex-direction:column;gap:2px}
+.master__key{
+  display:flex;align-items:center;gap:10px;padding:0 22px;height:58px;
+  background:var(--key-danger);color:var(--key-danger-label);
+  border:1px solid var(--key-danger);border-radius:var(--r-2);
+  box-shadow:var(--relief);cursor:pointer;
+  font-size:var(--t-md);font-weight:700;font-stretch:84%;letter-spacing:.1em;text-transform:uppercase;
+  transition:transform 90ms linear, box-shadow 110ms linear;
+}
+.master__key:active{transform:translateY(2px);box-shadow:var(--detent)}
+.master__lens{width:12px;height:12px;border-radius:var(--r-lens);background:var(--key-danger-label);
+  box-shadow:var(--lens-bloom)}
+
+/* ══ SUPERFÍCIE 2 · SITE ══════════════════════════════════════════════════ */
+.site{max-width:1440px;margin:0 auto;padding:0 var(--d-5) var(--ed-4)}
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:var(--ed-3);align-items:center;
+  padding:var(--ed-3) var(--ed-3);
+  background:var(--face);background-image:var(--brush);
+  border:1px solid var(--hair-hi);border-radius:var(--r-4);box-shadow:var(--e-lift)}
+.hero__eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:var(--ed-1)}
+h1{
+  font-size:var(--e-h1);font-weight:600;font-stretch:112%;
+  letter-spacing:-.028em;line-height:1.02;color:var(--text-hi);
+  max-width:15ch;
+}
+.hero__sub{font-size:var(--e-lead);line-height:1.55;color:var(--text);max-width:52ch;
+  margin-top:var(--ed-2);font-stretch:100%;font-weight:400}
+.hero__cta{display:flex;align-items:center;gap:var(--ed-1);margin-top:var(--ed-3);flex-wrap:wrap}
+.hero__fine{font-size:var(--t-sm);color:var(--text-lo)}
+.spec{display:flex;flex-wrap:wrap;gap:0;margin-top:var(--ed-3);
+  border:1px solid var(--hair);border-radius:var(--r-2);background:var(--recess);
+  box-shadow:var(--groove);overflow:hidden}
+.spec div{padding:8px 14px;border-right:1px solid var(--hair)}
+.spec div:last-child{border-right:0}
+.spec span{display:block;font-size:var(--t-legend);font-weight:600;font-stretch:82%;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--text-lo)}
+.spec b{display:block;font-size:var(--t-sm);font-weight:500;color:var(--text-hi)}
+
+/* Fragmento de console no herói */
+.frag{background:var(--rail);border:1px solid var(--hair-hi);border-radius:var(--r-3);
+  box-shadow:var(--e-lift);overflow:hidden}
+.frag__head{display:flex;align-items:center;justify-content:space-between;
+  padding:var(--d-3) var(--d-4)}
+.frag__body{padding:var(--d-4);display:flex;flex-direction:column;gap:var(--d-4);background:var(--face)}
+.frag__grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--d-3)}
+.stat{background:var(--recess);border:1px solid var(--hair);border-radius:var(--r-2);
+  box-shadow:var(--groove);padding:8px 10px}
+.stat span{display:block;font-size:var(--t-legend);font-weight:600;font-stretch:82%;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--text-lo)}
+.stat b{display:block;font-family:var(--num);font-variant-numeric:tabular-nums;
+  font-size:var(--t-read);font-weight:500;color:var(--text-hi);line-height:1.2}
+
+/* Preços — um chassi, três baias. Não três cartões soltos. */
+.pricing{margin-top:var(--ed-3);background:var(--rail);background-image:var(--brush);
+  border:1px solid var(--hair-hi);border-radius:var(--r-4);overflow:hidden;box-shadow:var(--e-lift)}
+.pricing__rail{display:flex;align-items:center;justify-content:space-between;gap:var(--d-4);
+  padding:var(--d-4) var(--ed-1);flex-wrap:wrap}
+.bays{display:grid;grid-template-columns:repeat(3,1fr)}
+.bay{padding:var(--ed-2);background:var(--face);
+  border-left:2px solid var(--seam);
+  box-shadow:inset 1px 0 0 var(--seam-lit);
+  display:flex;flex-direction:column;gap:var(--ed-1)}
+.bay:first-child{border-left:0;box-shadow:none}
+.bay.is-rec{background:var(--recess);box-shadow:var(--detent)}
+.bay__top{display:flex;align-items:center;justify-content:space-between;gap:var(--d-3)}
+.bay__name{font-size:var(--t-md);font-weight:600;font-stretch:78%;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--text-hi)}
+.plan__price{font-size:var(--e-price);font-weight:500;color:var(--text-hi);line-height:1;
+  letter-spacing:-.03em}
+.plan__per{font-family:var(--ui);font-size:var(--t-sm);color:var(--text-lo);font-stretch:92%;
+  letter-spacing:0}
+.plan__lead{font-size:var(--e-body);line-height:1.5;color:var(--text);min-height:3em;max-width:34ch}
+.plan__f{display:flex;flex-direction:column;gap:7px;padding-top:var(--ed-1);
+  border-top:1px solid var(--hair)}
+.plan__f li{display:grid;grid-template-columns:16px 1fr;gap:10px;align-items:start;
+  font-size:var(--e-body);line-height:1.45;color:var(--text)}
+.plan__f svg{width:16px;height:16px;margin-top:3px;color:var(--text-lo)}
+.bay .key{justify-content:center;margin-top:auto}
+
+/* ══ SUPERFÍCIE 3 · SISTEMA ═══════════════════════════════════════════════ */
+.sys{max-width:1440px;margin:0 auto;padding:0 var(--d-5) var(--ed-4)}
+.sysgrid{display:grid;gap:var(--d-5)}
+.card{background:var(--face);border:1px solid var(--hair);border-radius:var(--r-3);
+  padding:var(--ed-1);display:flex;flex-direction:column;gap:var(--d-4)}
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:var(--d-3)}
+.chip{border:1px solid var(--hair);border-radius:var(--r-2);overflow:hidden;background:var(--face-hi)}
+.chip__f{height:52px;box-shadow:var(--relief)}
+.chip__m{padding:7px 8px;display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--hair)}
+.chip__t{font-family:var(--num);font-size:var(--t-legend);color:var(--text-hi);letter-spacing:0}
+.chip__r{font-size:var(--t-legend);color:var(--text-lo);font-stretch:88%}
+.chip__h{font-family:var(--num);font-variant-numeric:tabular-nums;font-size:var(--t-legend);
+  color:var(--text-dim);display:flex;gap:8px}
+
+.widths{display:flex;flex-direction:column;gap:var(--d-3)}
+.widths div{display:grid;grid-template-columns:96px 1fr;gap:var(--d-4);align-items:baseline;
+  padding-bottom:var(--d-3);border-bottom:1px solid var(--hair)}
+.widths div:last-child{border-bottom:0;padding-bottom:0}
+.widths p{font-size:1.5rem;color:var(--text-hi);line-height:1.1;margin:0}
+
+table{width:100%;border-collapse:collapse;font-size:var(--t-sm)}
+th{text-align:left;font-size:var(--t-legend);font-weight:600;font-stretch:82%;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--text-lo);
+  padding:0 10px 7px 0;border-bottom:1px solid var(--hair);font-family:var(--ui)}
+td{padding:7px 10px 7px 0;border-bottom:1px solid var(--hair);color:var(--text);vertical-align:baseline}
+td:last-child,th:last-child{padding-right:0}
+td.r,th.r{text-align:right}
+tbody tr:last-child td{border-bottom:0}
+.sp{color:var(--text-hi);font-family:var(--ui);font-stretch:100%;font-weight:450}
+
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--d-4)}
+.rule{display:flex;flex-direction:column;gap:var(--d-3)}
+.rule__demo{display:flex;align-items:flex-end;gap:var(--d-3);height:64px}
+.rd{width:52px;height:52px;background:var(--face-hi);border:1px solid var(--hair-hi)}
+.rd--1{border-radius:var(--r-1)} .rd--2{border-radius:var(--r-2)}
+.rd--3{border-radius:var(--r-3)} .rd--4{border-radius:var(--r-4)}
+.rd--flat{box-shadow:none;border-radius:var(--r-3)}
+.rd--relief{box-shadow:var(--relief);border-radius:var(--r-2)}
+.rd--groove{box-shadow:var(--groove);background:var(--recess);border-radius:var(--r-2)}
+.rd--lift{box-shadow:var(--e-lift);border-radius:var(--r-3)}
+.rule__cap{font-family:var(--num);font-size:var(--t-legend);color:var(--text-dim)}
+
+.foot{max-width:1440px;margin:0 auto;padding:var(--ed-2) var(--d-5) var(--ed-3);
+  border-top:2px solid var(--seam);box-shadow:inset 0 1px 0 var(--seam-lit);
+  display:flex;justify-content:space-between;gap:var(--d-4);flex-wrap:wrap}
+
+/* ── RESPONSIVO ─────────────────────────────────────────────────────────── */
+@media (max-width:1180px){
+  .body{grid-template-columns:18px 190px 1fr}
+  .col--aux{grid-column:1/-1;border-left:0;border-top:1px solid var(--hair)}
+  .hero{grid-template-columns:1fr;gap:var(--ed-2)}
+  h1{max-width:none}
+}
+@media (max-width:860px){
+  .body{grid-template-columns:1fr}
+  .rail-ruler{display:none}
+  .col--scenes{border-right:0;border-bottom:1px solid var(--hair)}
+  .stage-row{grid-template-columns:1fr}
+  .bays{grid-template-columns:1fr}
+  .bay{border-left:0;border-top:2px solid var(--seam);box-shadow:inset 0 1px 0 var(--seam-lit)}
+  .bay:first-child{border-top:0}
+  .transport{grid-template-columns:1fr}
+  .topbar{flex-wrap:wrap;gap:var(--d-3)}
+  /* 16 px evita o zoom-no-foco do iOS em campo de texto */
+  .chat__in input{font-size:var(--e-body)}
+  .linkmod{margin-top:0}
+}
+
+/* Movimento: o console não pulsa. Só há transição no toque do operador. */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:1ms !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#s1">Pular para o console</a>
+
+<header class="topbar">
+  <div class="plate">
+    <svg class="plate__mark" viewBox="0 0 20 20" aria-hidden="true">
+      <rect x="1.5" y="12" width="3" height="6" fill="currentColor"/>
+      <rect x="6.3" y="8.5" width="3" height="9.5" fill="currentColor"/>
+      <rect x="11.1" y="5" width="3" height="13" fill="currentColor"/>
+      <rect x="15.9" y="1.5" width="3" height="3" rx="1.5" style="fill:var(--lamp-sinal)"/>
+      <rect x="15.9" y="6.5" width="3" height="11.5" fill="currentColor"/>
+    </svg>
+    <span class="plate__name">PwStream</span>
+    <span class="plate__model">CONSOLE PWS&#8209;1</span>
+  </div>
+  <nav class="topbar__nav" aria-label="Superfícies">
+    <a href="#s1">Console</a>
+    <a href="#s2">Site</a>
+    <a href="#s3">Sistema</a>
+  </nav>
+  <button class="key" id="themeToggle" aria-pressed="false">
+    <span class="lamp lamp--sinal" aria-hidden="true"></span>
+    <span>Tema&nbsp;·&nbsp;<b id="themeName">Sistema</b></span>
+  </button>
+</header>
+
+<!-- ══════ SUPERFÍCIE 1 · CONSOLE ══════════════════════════════════════ -->
+<div class="plateline">
+  <span class="plateline__n">SUP&nbsp;01</span>
+  <span class="legend">Console de transmissão · em operação</span>
+</div>
+
+<main class="wrap" id="s1">
+  <section class="chassis" aria-label="Console de transmissão">
+
+    <!-- BARRA DE TRANSPORTE -->
+    <div class="transport">
+      <div class="transport__l">
+        <span class="tally"><span class="tally__lamp" aria-hidden="true"></span><span class="tally__txt">No ar</span></span>
+        <div>
+          <div class="tc">01:47:22</div>
+          <div class="tc__sub">TEMPO DE PROGRAMA</div>
+        </div>
+      </div>
+
+      <div class="transport__center">
+        <div class="readouts" role="group" aria-label="Leituras do enlace">
+          <div class="readout"><span class="readout__k">Taxa</span><span class="readout__v">60 fps</span></div>
+          <div class="readout"><span class="readout__k">Bitrate</span><span class="readout__v">6,2 Mbps</span></div>
+          <div class="readout"><span class="readout__k">RTT</span><span class="readout__v">18 ms</span></div>
+          <div class="readout"><span class="readout__k">Perda</span><span class="readout__v is-warn">0,02 %</span></div>
+        </div>
+      </div>
+
+      <div class="transport__r">
+        <span class="legend">Operador · Marcos G.</span>
+        <span class="seam--v" style="height:22px" aria-hidden="true"></span>
+        <span class="legend">Região SP&#8209;1</span>
+      </div>
+    </div>
+
+    <div class="seam" aria-hidden="true"></div>
+
+    <!-- CORPO -->
+    <div class="body">
+      <div class="rail-ruler" aria-hidden="true"></div>
+
+      <!-- CENAS -->
+      <div class="col col--scenes">
+        <div class="panelhead">
+          <span class="legend">Cenas</span>
+          <span class="panelhead__n">04</span>
+        </div>
+        <div class="scenes">
+          <button class="scene is-pgm">
+            <span class="scene__n">01</span>
+            <span class="scene__t">Abertura</span>
+            <span class="scene__tag">PGM</span>
+          </button>
+          <button class="scene is-pvw">
+            <span class="scene__n">02</span>
+            <span class="scene__t">Entrevista</span>
+            <span class="scene__tag">PVW</span>
+          </button>
+          <button class="scene">
+            <span class="scene__n">03</span>
+            <span class="scene__t">Tela + Câmera</span>
+            <span class="lamp lamp--off" aria-hidden="true"></span>
+          </button>
+          <button class="scene">
+            <span class="scene__n">04</span>
+            <span class="scene__t">Encerramento</span>
+            <span class="lamp lamp--off" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="panelhead" style="margin-top:4px">
+          <span class="legend">Transição</span>
+          <span class="panelhead__n">CUT</span>
+        </div>
+        <div class="bank" style="gap:var(--d-2)">
+          <button class="key key--ghost" style="flex:1;justify-content:center">Cut</button>
+          <button class="key key--ghost" style="flex:1;justify-content:center">Fade</button>
+        </div>
+
+        <div class="linkmod">
+          <div class="panelhead">
+            <span class="legend">Enlace</span>
+            <span class="panelhead__n">98 %</span>
+          </div>
+          <div class="meter meter--link" style="--lvl:98%;--peak:0%" role="img" aria-label="Margem do enlace: 98 por cento">
+            <div class="meter__lit"></div>
+            <div class="meter__seg"></div>
+          </div>
+          <dl class="specrows">
+            <div><dt>Codec</dt><dd>H.264 High</dd></div>
+            <div><dt>Keyframe</dt><dd>2,0 s</dd></div>
+            <div><dt>Buffer</dt><dd>4,0 s</dd></div>
+            <div><dt>Quedas</dt><dd>0</dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- PALCO -->
+      <div class="col col--stage">
+        <div class="mongroup">
+          <div class="monitor monitor--pgm">
+            <div class="screen">
+              <div class="bars" aria-hidden="true">
+                <div class="bars__main"></div>
+                <div class="bars__chroma"></div>
+                <div class="bars__pluge"></div>
+              </div>
+              <div class="grat" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            </div>
+          </div>
+          <div class="monbar">
+            <span class="legend" style="color:var(--lamp-onair)">Programa</span>
+            <span class="monbar__src">FONTE: BARRAS 75% · 1920×1080p60 · REC.709</span>
+          </div>
+        </div>
+
+        <div class="stage-row">
+          <div class="mongroup">
+            <div class="monitor monitor--pvw">
+              <div class="screen">
+                <div class="ramp" aria-hidden="true"></div>
+                <div class="grat" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+              </div>
+            </div>
+            <div class="monbar">
+              <span class="legend" style="color:var(--lamp-ready)">Prévia</span>
+              <span class="monbar__src">RAMPA · CENA 02</span>
+            </div>
+          </div>
+
+          <div class="module">
+            <div class="panelhead">
+              <span class="legend">Áudio · Mixagem</span>
+              <span class="panelhead__n">−6,0 dBFS</span>
+            </div>
+            <div class="vu">
+              <div class="vu__row">
+                <span class="vu__ch">CH1 · Microfone</span>
+                <div class="meter" style="--lvl:71%;--peak:78%" role="img" aria-label="Canal 1, pico em menos 6,0 decibéis">
+                  <div class="meter__lit"></div>
+                  <div class="meter__seg"></div>
+                  <div class="meter__peak"></div>
+                </div>
+                <span class="vu__db">−6,0</span>
+              </div>
+              <div class="vu__row">
+                <span class="vu__ch">CH2 · Sistema</span>
+                <div class="meter" style="--lvl:44%;--peak:49%" role="img" aria-label="Canal 2, pico em menos 18,4 decibéis">
+                  <div class="meter__lit"></div>
+                  <div class="meter__seg"></div>
+                  <div class="meter__peak"></div>
+                </div>
+                <span class="vu__db">−18,4</span>
+              </div>
+              <div class="vu__row">
+                <span class="vu__ch">CH3 · Convidado</span>
+                <div class="meter" style="--lvl:58%;--peak:64%" role="img" aria-label="Canal 3, pico em menos 11,2 decibéis">
+                  <div class="meter__lit"></div>
+                  <div class="meter__seg"></div>
+                  <div class="meter__peak"></div>
+                </div>
+                <span class="vu__db">−11,2</span>
+              </div>
+              <div class="meter__scale" aria-hidden="true">
+                <span></span>
+                <span class="meter__ticks"><span>−40</span><span>−30</span><span>−20</span><span>−12</span><span>−6</span><span>−3</span><span>0</span></span>
+                <span style="text-align:right">dBFS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUXILIAR -->
+      <div class="col col--aux">
+        <div class="panelhead">
+          <span class="legend">Destinos</span>
+          <span class="panelhead__n">3/5</span>
+        </div>
+        <div class="dests">
+          <div class="dest">
+            <span class="lamp lamp--ready" aria-hidden="true"></span>
+            <span>
+              <span class="dest__n">YouTube</span><br>
+              <span class="dest__s">Conectado</span>
+            </span>
+            <span class="dest__r">6,2 Mbps</span>
+          </div>
+          <div class="dest">
+            <span class="lamp lamp--ready" aria-hidden="true"></span>
+            <span>
+              <span class="dest__n">Facebook</span><br>
+              <span class="dest__s">Conectado</span>
+            </span>
+            <span class="dest__r">4,1 Mbps</span>
+          </div>
+          <div class="dest">
+            <span class="lamp lamp--warn" aria-hidden="true"></span>
+            <span>
+              <span class="dest__n">Twitch</span><br>
+              <span class="dest__s is-warn">Reconectando</span>
+            </span>
+            <span class="dest__r">2,8 Mbps</span>
+          </div>
+        </div>
+
+        <div class="panelhead">
+          <span class="legend">Chat ao vivo</span>
+          <span class="panelhead__n">3 canais</span>
+        </div>
+        <div class="chat">
+          <div class="chat__well">
+            <div class="msg">
+              <span class="msg__a">Roberto Santos</span>
+              <span class="chat__t">21:14</span>
+              <span class="msg__b">O áudio do convidado tá um pouco baixo aqui, dá pra subir?</span>
+            </div>
+            <div class="msg">
+              <span class="msg__a">Fernanda Lima</span>
+              <span class="chat__t">21:15</span>
+              <span class="msg__b">Consegue repetir a parte do orçamento? Entrei atrasada.</span>
+            </div>
+            <div class="msg">
+              <span class="msg__a">Ana Beatriz</span>
+              <span class="chat__t">21:16</span>
+              <span class="msg__b">Assistindo de Recife, imagem impecável e sem travar.</span>
+            </div>
+            <div class="msg">
+              <span class="msg__a">Roberto Santos</span>
+              <span class="chat__t">21:18</span>
+              <span class="msg__b">Agora equilibrou o áudio, valeu demais.</span>
+            </div>
+          </div>
+          <form class="chat__in" onsubmit="return false">
+            <input type="text" placeholder="Responder como PwStream…" aria-label="Responder no chat">
+            <button class="key key--ghost" type="submit">Enviar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="seam" aria-hidden="true"></div>
+
+    <!-- BANDEJA -->
+    <div class="tray">
+      <div class="bank">
+        <div class="ctl">
+          <button class="ctl__key" aria-pressed="true" aria-label="Microfone ativo">
+            <span class="ctl__lamp" style="background:var(--lamp-ready)" aria-hidden="true"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+              <rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5v4"/>
+            </svg>
+          </button>
+          <span class="ctl__lbl">Microfone</span>
+        </div>
+        <div class="ctl">
+          <button class="ctl__key" aria-pressed="true" aria-label="Câmera ativa">
+            <span class="ctl__lamp" style="background:var(--lamp-ready)" aria-hidden="true"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2.5" y="6" width="13" height="12" rx="2"/><path d="M15.5 10.5 21.5 7v10l-6-3.5z"/>
+            </svg>
+          </button>
+          <span class="ctl__lbl">Câmera</span>
+        </div>
+        <div class="ctl">
+          <button class="ctl__key is-off" aria-pressed="false" aria-label="Compartilhamento de tela desligado">
+            <span class="ctl__lamp lamp--off" aria-hidden="true"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+              <rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8.5 20.5h7"/><path d="M12 16.5v4"/>
+            </svg>
+          </button>
+          <span class="ctl__lbl">Tela</span>
+        </div>
+        <div class="ctl">
+          <button class="ctl__key" aria-label="Cenas">
+            <span class="ctl__lamp" style="background:var(--lamp-sinal)" aria-hidden="true"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <rect x="2.5" y="3.5" width="8.5" height="7" rx="1"/><rect x="13" y="3.5" width="8.5" height="7" rx="1"/>
+              <rect x="2.5" y="13.5" width="8.5" height="7" rx="1"/><rect x="13" y="13.5" width="8.5" height="7" rx="1"/>
+            </svg>
+          </button>
+          <span class="ctl__lbl">Cenas</span>
+        </div>
+      </div>
+
+      <span class="seam--v" style="height:64px" aria-hidden="true"></span>
+
+      <div class="bank">
+        <div class="ctl" style="width:88px">
+          <button class="ctl__key" aria-label="Enquete">
+            <span class="ctl__lamp lamp--off" aria-hidden="true"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+              <path d="M5 20V11"/><path d="M12 20V4"/><path d="M19 20v-6"/>
+            </svg>
+          </button>
+          <span class="ctl__lbl">Enquete</span>
+        </div>
+        <div class="ctl" style="width:88px">
+          <button class="ctl__key" aria-label="Gravação local">
+            <span class="ctl__lamp" style="background:var(--lamp-onair)" aria-hidden="true"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor" stroke="none"/>
+            </svg>
+          </button>
+          <span class="ctl__lbl">Gravando</span>
+        </div>
+      </div>
+
+      <div class="master">
+        <div class="master__meta">
+          <span class="legend">Transmissão ativa · 01:47:22</span>
+          <span class="legend" style="color:var(--text-dim)">Mantenha pressionado 2 s</span>
+        </div>
+        <button class="master__key">
+          <span class="master__lens" aria-hidden="true"></span>
+          Encerrar transmissão
+        </button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ══════ SUPERFÍCIE 2 · SITE ═════════════════════════════════════════ -->
+<div class="plateline">
+  <span class="plateline__n">SUP&nbsp;02</span>
+  <span class="legend">Site público · herói e planos</span>
+</div>
+
+<section class="site" id="s2">
+  <div class="hero">
+    <div>
+      <div class="hero__eyebrow">
+        <span class="lamp lamp--sinal" aria-hidden="true"></span>
+        <span class="legend">Transmissão simultânea · YouTube · Facebook · Twitch</span>
+      </div>
+      <h1>A mesa de corte agora abre no navegador.</h1>
+      <p class="hero__sub">
+        PwStream coloca você no ar em três plataformas ao mesmo tempo, com troca de cena,
+        chat unificado e leitura de bitrate, latência e perda de pacotes na mesma tela.
+        Feito no Brasil, em português, para quem transmite todo dia.
+      </p>
+      <div class="hero__cta">
+        <a class="key key--primary key--lg" href="#s1">Abrir o console</a>
+        <span class="hero__fine">Cobrança em reais. Cancele quando quiser.</span>
+      </div>
+      <div class="spec">
+        <div><span>Saída</span><b>1080p · 60 fps</b></div>
+        <div><span>Protocolo</span><b>RTMPS · SRT</b></div>
+        <div><span>Canais</span><b>até 8</b></div>
+        <div><span>Região</span><b>São Paulo</b></div>
+      </div>
+    </div>
+
+    <div class="frag" aria-label="Fragmento do console">
+      <div class="frag__head">
+        <span class="tally"><span class="tally__lamp" aria-hidden="true"></span><span class="tally__txt">No ar</span></span>
+        <span class="plate__model" style="border:0;padding:0;margin:0">PWS&#8209;1 · PGM</span>
+      </div>
+      <div class="frag__body">
+        <div class="monitor monitor--pgm">
+          <div class="screen">
+            <div class="bars" aria-hidden="true">
+              <div class="bars__main"></div>
+              <div class="bars__chroma"></div>
+              <div class="bars__pluge"></div>
+            </div>
+            <div class="grat" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+          </div>
+        </div>
+        <div class="frag__grid">
+          <div class="stat"><span>Bitrate</span><b>6,2 Mbps</b></div>
+          <div class="stat"><span>Latência</span><b>18 ms</b></div>
+          <div class="stat"><span>Perda</span><b>0,02 %</b></div>
+          <div class="stat"><span>No ar há</span><b>01:47:22</b></div>
+        </div>
+        <div class="vu" aria-hidden="true">
+          <div class="vu__row">
+            <span class="vu__ch">CH1 · Microfone</span>
+            <div class="meter" style="--lvl:71%;--peak:78%">
+              <div class="meter__lit"></div><div class="meter__seg"></div><div class="meter__peak"></div>
+            </div>
+            <span class="vu__db">−6,0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANOS: um chassi, três baias -->
+  <div class="pricing" aria-label="Planos">
+    <div class="pricing__rail">
+      <span class="legend">Planos · assinatura mensal · BRL</span>
+      <span class="legend" style="color:var(--text-dim)">Todos os preços em reais, sem taxa de instalação</span>
+    </div>
+    <div class="seam" aria-hidden="true"></div>
+    <div class="bays">
+
+      <div class="bay">
+        <div class="bay__top">
+          <span class="bay__name">Standard</span>
+          <span class="lamp lamp--off" aria-hidden="true"></span>
+        </div>
+        <div>
+          <span class="plan__price">R$&nbsp;49,90</span>
+          <span class="plan__per">/mês</span>
+        </div>
+        <p class="plan__lead">Para quem transmite sozinho e precisa estar em três lugares ao mesmo tempo.</p>
+        <ul class="plan__f">
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>3 canais simultâneos</span></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>Chat unificado das 3 plataformas</span></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>Gravação local em 1080p</span></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>4 cenas por transmissão</span></li>
+        </ul>
+        <button class="key">Assinar Standard</button>
+      </div>
+
+      <div class="bay is-rec">
+        <div class="bay__top">
+          <span class="bay__name">Professional</span>
+          <span class="legend" style="display:flex;align-items:center;gap:7px;color:var(--lamp-sinal)">
+            <span class="lamp lamp--sinal" aria-hidden="true"></span>Recomendado
+          </span>
+        </div>
+        <div>
+          <span class="plan__price">R$&nbsp;99,90</span>
+          <span class="plan__per">/mês</span>
+        </div>
+        <p class="plan__lead">Para programas com convidados: mais canais e uma sala de controle compartilhada.</p>
+        <ul class="plan__f">
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>5 canais simultâneos</span></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>Co-produtores no mesmo console</span></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>Enquetes e destaque de comentário</span></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>Marca própria nas cenas</span></li>
+        </ul>
+        <button class="key">Assinar Professional</button>
+      </div>
+
+      <div class="bay">
+        <div class="bay__top">
+          <span class="bay__name">Business</span>
+          <span class="lamp lamp--off" aria-hidden="true"></span>
+        </div>
+        <div>
+          <span class="plan__price">R$&nbsp;199,90</span>
+          <span class="plan__per">/mês</span>
+        </div>
+        <p class="plan__lead">Para agências e equipes que entregam transmissão como serviço, com contribuição SRT.</p>
+        <ul class="plan__f">
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>8 canais simultâneos</span></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>Entrada e saída SRT profissional</span></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>Chaves de stream separadas por cliente</span></li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8.5 6.3 12 13 4.6"/></svg><span>Suporte com fila prioritária</span></li>
+        </ul>
+        <button class="key">Assinar Business</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ SUPERFÍCIE 3 · SISTEMA ══════════════════════════════════════ -->
+<div class="plateline">
+  <span class="plateline__n">SUP&nbsp;03</span>
+  <span class="legend">Sistema · material, luz e tipo</span>
+</div>
+
+<section class="sys" id="s3">
+  <div class="sysgrid">
+
+    <div class="card">
+      <div class="panelhead">
+        <span class="legend">Material · rampa acromática (R=G=B)</span>
+        <span class="panelhead__n">CLARO / ESCURO</span>
+      </div>
+      <p style="font-size:var(--t-sm);color:var(--text-lo);max-width:78ch;margin:0">
+        Nenhuma superfície do sistema tem matiz. Claro é alumínio jateado natural com serigrafia preta;
+        escuro é alumínio anodizado preto com serigrafia branca. Não é inversão — é outro acabamento.
+      </p>
+      <div class="sw">
+        <div class="chip"><div class="chip__f" style="background:var(--chassis)"></div><div class="chip__m"><span class="chip__t">--chassis</span><span class="chip__r">Chassi / fundo</span><span class="chip__h"><span>C&nbsp;#BEBFBF</span><span>E&nbsp;#0A0A0B</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--rail)"></div><div class="chip__m"><span class="chip__t">--rail</span><span class="chip__r">Trilho / bandeja</span><span class="chip__h"><span>C&nbsp;#C9CACA</span><span>E&nbsp;#131315</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--face)"></div><div class="chip__m"><span class="chip__t">--face</span><span class="chip__r">Face de painel</span><span class="chip__h"><span>C&nbsp;#D6D7D7</span><span>E&nbsp;#191A1B</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--face-hi)"></div><div class="chip__m"><span class="chip__t">--face-hi</span><span class="chip__r">Face elevada</span><span class="chip__h"><span>C&nbsp;#E3E4E4</span><span>E&nbsp;#232426</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--recess)"></div><div class="chip__m"><span class="chip__t">--recess</span><span class="chip__r">Rebaixo usinado</span><span class="chip__h"><span>C&nbsp;#C1C2C2</span><span>E&nbsp;#0E0E0F</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--seam)"></div><div class="chip__m"><span class="chip__t">--seam</span><span class="chip__r">Fundo do sulco</span><span class="chip__h"><span>C&nbsp;#9DA0A0</span><span>E&nbsp;#050506</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--seam-lit)"></div><div class="chip__m"><span class="chip__t">--seam-lit</span><span class="chip__r">Aresta com luz</span><span class="chip__h"><span>C&nbsp;#EEEFEF</span><span>E&nbsp;#303134</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--hair)"></div><div class="chip__m"><span class="chip__t">--hair</span><span class="chip__r">Fio padrão</span><span class="chip__h"><span>C&nbsp;#ACAEAE</span><span>E&nbsp;#2A2B2D</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--hair-hi)"></div><div class="chip__m"><span class="chip__t">--hair-hi</span><span class="chip__r">Fio forte</span><span class="chip__h"><span>C&nbsp;#8C8F8F</span><span>E&nbsp;#3B3C3F</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--stage)"></div><div class="chip__m"><span class="chip__t">--stage</span><span class="chip__r">Letterbox de vídeo</span><span class="chip__h"><span>C&nbsp;#000000</span><span>E&nbsp;#000000</span></span></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="panelhead">
+        <span class="legend">Serigrafia e texto</span>
+        <span class="panelhead__n">5 PAPÉIS</span>
+      </div>
+      <div class="sw">
+        <div class="chip"><div class="chip__f" style="background:var(--text-hi)"></div><div class="chip__m"><span class="chip__t">--text-hi</span><span class="chip__r">Valor / título</span><span class="chip__h"><span>C&nbsp;#171818</span><span>E&nbsp;#F1F2F2</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--text)"></div><div class="chip__m"><span class="chip__t">--text</span><span class="chip__r">Corpo</span><span class="chip__h"><span>C&nbsp;#3A3C3C</span><span>E&nbsp;#B6B8B9</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--text-lo)"></div><div class="chip__m"><span class="chip__t">--text-lo</span><span class="chip__r">Metadado</span><span class="chip__h"><span>C&nbsp;#565959</span><span>E&nbsp;#83868A</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--text-dim)"></div><div class="chip__m"><span class="chip__t">--text-dim</span><span class="chip__r">Desabilitado</span><span class="chip__h"><span>C&nbsp;#848787</span><span>E&nbsp;#5B5E62</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--legend)"></div><div class="chip__m"><span class="chip__t">--legend</span><span class="chip__r">Serigrafia 11 px</span><span class="chip__h"><span>C&nbsp;#4E5151</span><span>E&nbsp;#9A9DA1</span></span></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="panelhead">
+        <span class="legend">Luz · lentes e lâmpadas</span>
+        <span class="panelhead__n">6 LENTES</span>
+      </div>
+      <p style="font-size:var(--t-sm);color:var(--text-lo);max-width:78ch;margin:0">
+        Cor é luz, não superfície. Estas seis lentes são o único cromatismo do sistema fora da imagem de vídeo.
+        No tema claro elas ganham densidade — uma lente sobre painel iluminado precisa de mais carga para acender.
+        Vermelho, verde e âmbar pertencem ao tally e nunca representam a marca; <b>Sinal</b> nunca representa estado.
+      </p>
+      <div class="sw">
+        <div class="chip"><div class="chip__f" style="background:var(--lamp-sinal)"></div><div class="chip__m"><span class="chip__t">--lamp-sinal</span><span class="chip__r">Marca · foco · seleção</span><span class="chip__h"><span>C&nbsp;#00706A</span><span>E&nbsp;#19E0CE</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--lamp-onair)"></div><div class="chip__m"><span class="chip__t">--lamp-onair</span><span class="chip__r">Tally programa</span><span class="chip__h"><span>C&nbsp;#C4170D</span><span>E&nbsp;#FF2A1E</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--lamp-ready)"></div><div class="chip__m"><span class="chip__t">--lamp-ready</span><span class="chip__r">Tally prévia / pronto</span><span class="chip__h"><span>C&nbsp;#136E2C</span><span>E&nbsp;#2FD65F</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--lamp-warn)"></div><div class="chip__m"><span class="chip__t">--lamp-warn</span><span class="chip__r">Degradado</span><span class="chip__h"><span>C&nbsp;#8A5900</span><span>E&nbsp;#FFB01F</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--lamp-fail)"></div><div class="chip__m"><span class="chip__t">--lamp-fail</span><span class="chip__r">Falha / desconectado</span><span class="chip__h"><span>C&nbsp;#AE2F16</span><span>E&nbsp;#FF6A4D</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--lamp-info)"></div><div class="chip__m"><span class="chip__t">--lamp-info</span><span class="chip__r">Aviso neutro · série 3</span><span class="chip__h"><span>C&nbsp;#1B52B0</span><span>E&nbsp;#6FA8FF</span></span></div></div>
+      </div>
+      <div class="panelhead" style="border:0;padding-top:var(--d-2)">
+        <span class="legend">Teclas · o botão é metal, a cor é a lente</span>
+      </div>
+      <div class="sw">
+        <div class="chip"><div class="chip__f" style="background:var(--key-face)"></div><div class="chip__m"><span class="chip__t">--key-face</span><span class="chip__r">Tecla padrão</span><span class="chip__h"><span>C&nbsp;#E5E6E6</span><span>E&nbsp;#26272A</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--key-primary)"></div><div class="chip__m"><span class="chip__t">--key-primary</span><span class="chip__r">Ação primária</span><span class="chip__h"><span>C&nbsp;#1B1D1D</span><span>E&nbsp;#EDEEEE</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--key-danger)"></div><div class="chip__m"><span class="chip__t">--key-danger</span><span class="chip__r">Tecla mestre (no ar)</span><span class="chip__h"><span>C&nbsp;#B4130A</span><span>E&nbsp;#D31A0E</span></span></div></div>
+        <div class="chip"><div class="chip__f" style="background:var(--tint-sinal)"></div><div class="chip__m"><span class="chip__t">--tint-*</span><span class="chip__r">Única receita: 12-15 %</span><span class="chip__h"><span>color-mix</span></span></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="panelhead">
+        <span class="legend">Tipo · a largura carrega a hierarquia, não o peso</span>
+        <span class="panelhead__n">2 FAMÍLIAS</span>
+      </div>
+      <p style="font-size:var(--t-sm);color:var(--text-lo);max-width:78ch;margin:0">
+        Archivo variável (eixo de largura 62–125) e IBM Plex Mono. Pesos ficam entre 400 e 600;
+        700 existe só na tecla mestre. Quem separa serigrafia de leitura de título é a largura,
+        do jeito que um painel real separa legenda gravada de nomenclatura de módulo.
+        Nada embarca abaixo de 11 px.
+      </p>
+      <div class="widths">
+        <div><span class="legend">wdth 78 · 600</span><p style="font-stretch:78%;font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:1.05rem">Professional</p></div>
+        <div><span class="legend">wdth 92 · 500</span><p style="font-stretch:92%;font-weight:500">Trocar de cena sem sair do ar</p></div>
+        <div><span class="legend">wdth 100 · 400</span><p style="font-stretch:100%;font-weight:400">Trocar de cena sem sair do ar</p></div>
+        <div><span class="legend">wdth 112 · 600</span><p style="font-stretch:112%;font-weight:600;letter-spacing:-.028em">Trocar de cena sem sair do ar</p></div>
+        <div><span class="legend">Plex Mono 500</span><p style="font-family:var(--num);font-variant-numeric:tabular-nums">01:47:22 · 6,2 Mbps · R$ 199,90</p></div>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Token</th><th class="r">rem / px</th><th>Entrelinha</th><th>Uso</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>--t-legend</td><td class="r">0.6875 / 11</td><td>1.10</td><td class="sp">Serigrafia. Caixa alta, +0,13 em, wdth 82. Uma por painel.</td></tr>
+          <tr><td>--t-xs</td><td class="r">0.75 / 12</td><td>1.35</td><td class="sp">Chips, metadados, rótulos de tecla</td></tr>
+          <tr><td>--t-sm</td><td class="r">0.8125 / 13</td><td>1.45</td><td class="sp">Corpo do console, linhas de lista, chat</td></tr>
+          <tr><td>--t-md</td><td class="r">0.9375 / 15</td><td>1.25</td><td class="sp">Título de módulo, leitura ativa</td></tr>
+          <tr><td>--t-lg</td><td class="r">1.125 / 18</td><td>1.30</td><td class="sp">Cabeçalho de seção do console</td></tr>
+          <tr><td>--t-read</td><td class="r">1.375 / 22</td><td>1.20</td><td class="sp">Leitura mono tabular</td></tr>
+          <tr><td>--t-tc</td><td class="r">2.00 / 32</td><td>1.00</td><td class="sp">Timecode. Mono, tabular, −0,02 em</td></tr>
+          <tr><td>--e-body</td><td class="r">1.00 / 16</td><td>1.55</td><td class="sp">Prosa editorial, medida 52–66 ch</td></tr>
+          <tr><td>--e-lead</td><td class="r">1.1875 / 19</td><td>1.55</td><td class="sp">Subtítulo do herói</td></tr>
+          <tr><td>--e-h3</td><td class="r">1.375 / 22</td><td>1.25</td><td class="sp">Título de baia</td></tr>
+          <tr><td>--e-h2</td><td class="r">1.875 / 30</td><td>1.15</td><td class="sp">Título de seção</td></tr>
+          <tr><td>--e-h1</td><td class="r">clamp 40→68</td><td>1.02</td><td class="sp">Um por página. wdth 112, −0,028 em</td></tr>
+          <tr><td>--e-price</td><td class="r">2.25 / 36</td><td>1.00</td><td class="sp">Preço. Mono tabular — preço é número</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="panelhead">
+        <span class="legend">Raio, relevo, borda e densidade</span>
+        <span class="panelhead__n">4 / 4 / 3</span>
+      </div>
+      <div class="rules">
+        <div class="rule">
+          <span class="legend">Raio · filho = pai − recuo</span>
+          <div class="rule__demo">
+            <div class="rd rd--1"></div><div class="rd rd--2"></div><div class="rd rd--3"></div><div class="rd rd--4"></div>
+          </div>
+          <span class="rule__cap">2 px selo · 4 px tecla · 8 px módulo · 11 px chassi<br>3 px aro de monitor · pill só em lente</span>
+        </div>
+        <div class="rule">
+          <span class="legend">Relevo · quatro acabamentos</span>
+          <div class="rule__demo">
+            <div class="rd rd--flat"></div><div class="rd rd--relief"></div><div class="rd rd--groove"></div><div class="rd rd--lift"></div>
+          </div>
+          <span class="rule__cap">plano (painel) · relevo 1 px (tecla) · sulco (rebaixo) · elevação (chassi, modal)<br>zero brilho colorido, zero blur</span>
+        </div>
+        <div class="rule">
+          <span class="legend">Borda · três receitas</span>
+          <div class="rule__demo" style="align-items:center">
+            <div style="flex:1;display:flex;flex-direction:column;gap:9px">
+              <div style="height:14px;border:1px solid var(--hair);border-radius:var(--r-2)"></div>
+              <div style="height:14px;border:1px solid var(--hair-hi);border-radius:var(--r-2)"></div>
+              <div style="height:14px;border:1px solid var(--lamp-sinal);background:var(--tint-sinal);border-radius:var(--r-2)"></div>
+            </div>
+          </div>
+          <span class="rule__cap">--hair · --hair-hi · seleção (lente + tinta 12 %)<br>o foco é contorno, nunca troca de borda</span>
+        </div>
+        <div class="rule">
+          <span class="legend">Densidade · dois ritmos</span>
+          <div class="rule__demo" style="align-items:center">
+            <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:4px"><span style="height:12px;flex:1;background:var(--recess)"></span><span style="height:12px;flex:1;background:var(--recess)"></span><span style="height:12px;flex:1;background:var(--recess)"></span><span style="height:12px;flex:1;background:var(--recess)"></span><span style="height:12px;flex:1;background:var(--recess)"></span></div>
+              <div style="display:flex;gap:16px"><span style="height:12px;flex:1;background:var(--recess)"></span><span style="height:12px;flex:1;background:var(--recess)"></span></div>
+            </div>
+          </div>
+          <span class="rule__cap">console 4/6/8/12/16 · linha 30 px<br>editorial 16/24/40/64/96 · baia 24 px</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="foot">
+  <span class="legend">PwStream · Console PWS-1 · Direção D2</span>
+  <span class="legend" style="color:var(--text-dim)">Archivo variável + IBM Plex Mono · 25 tokens de cor · 4 raios · 4 relevos</span>
+</footer>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeToggle');
+  var name = document.getElementById('themeName');
+  var order = ['system','light','dark'];
+  var labels = {system:'Sistema', light:'Claro', dark:'Escuro'};
+  var i = 0;
+  function apply(){
+    var mode = order[i];
+    if(mode === 'system'){ root.removeAttribute('data-theme'); }
+    else { root.setAttribute('data-theme', mode); }
+    name.textContent = labels[mode];
+    btn.setAttribute('aria-pressed', mode === 'dark' ? 'true' : 'false');
+    btn.setAttribute('aria-label', 'Tema atual: ' + labels[mode] + '. Trocar para ' + labels[order[(i+1)%order.length]] + '.');
+  }
+  btn.addEventListener('click', function(){ i = (i+1) % order.length; apply(); });
+  apply();
+})();
+</script>
+</body>
+</html>

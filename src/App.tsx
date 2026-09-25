@@ -1,3 +1,5 @@
+import { Button } from './components/ui/Button';
+import { useTabs } from './components/ui/Tabs';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Header } from './components/Header';
 import { LeftSidebar } from './components/LeftSidebar';
@@ -22,7 +24,7 @@ import { QrCodeModal } from './components/QrCodeModal';
 import { StudioScenePreviewControls } from './components/StudioScenePreviewControls';
 import { CLOUDFLARE_STREAM_CONFIG } from './lib/cloudflareStreamConfig';
 
-import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, QrCodeConfig } from './types';
+import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, QrCodeConfig, StudioTab, SceneTransitionType, isWipeTransition } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_BANNERS, INITIAL_TICKERS, INITIAL_COMMENTS, AUDIO_LIBRARY } from './data';
 import { startSynth, stopSynth, setVolume as setSynthVolume } from './audioEngine';
 import { Play, Calendar, Users, Tv, Radio, BarChart3, Plus, ArrowRight, Settings, ExternalLink, Palette, ListTodo, QrCode, FileText, MessageSquare, Music, Sliders, ShieldAlert, Sparkles, X, Maximize2, Minimize2, Server, CheckCircle2, Type, Film, Bell, Puzzle, Activity, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
@@ -31,6 +33,8 @@ import { ScenesPanel, Scene, DEFAULT_STUDIO_SCENES } from './components/ScenesPa
 import { LegalModal } from './components/LegalModals';
 import { useSceneTransition } from './hooks/useSceneTransition';
 import { useMediaManager } from './context/MediaManagerContext';
+import { copyText } from './components/ui/clipboard';
+import { Modal } from './components/ui/Modal';
 import { 
   loginWithGoogle, 
   logoutFirebase, 
@@ -74,7 +78,11 @@ export default function App() {
     plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial';
     isExpired: boolean;
     trialDays: number;
-    subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'canceled';
+    // `role` vem do perfil gravado no login e já era lido por SuperAdminPanel,
+    // mas faltava neste tipo — então o campo existia em tempo de execução e
+    // era invisível para quem lê o código.
+    role?: 'super-admin' | 'client';
+    subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'canceled' | 'expired';
     trialEndsAt?: string;
   } | null>(() => {
     const saved = localStorage.getItem('pwstream_user');
@@ -157,8 +165,21 @@ export default function App() {
       const hash = window.location.hash;
       const search = window.location.search;
 
+      // A rota /admin, #admin e ?mode=admin promoviam QUALQUER visitante à
+      // visão de super-admin. Agora exigem o papel do perfil.
+      //
+      // Isto é defesa em profundidade, NÃO autorização: qualquer verificação
+      // no cliente é contornável, e o PIN do painel está no bundle. A
+      // autorização de verdade tem de ser feita no servidor, a cada request
+      // — o SUPER_ADMIN_EMAILS do .env existe justamente para isso.
+      const isSuperAdmin = user?.role === 'super-admin';
       if (pathname.endsWith('/admin') || hash === '#admin' || search.includes('mode=admin')) {
-        setCurrentView('super-admin');
+        if (isSuperAdmin) {
+          setCurrentView('super-admin');
+        } else {
+          // Sem alarde: a rota simplesmente não existe para quem não é admin.
+          setCurrentView('dashboard');
+        }
       }
 
       const urlParams = new URLSearchParams(window.location.search);
@@ -179,10 +200,21 @@ export default function App() {
       window.removeEventListener('hashchange', handleUrlRoute);
       window.removeEventListener('popstate', handleUrlRoute);
     };
-  }, []);
+    // Depende do papel: com [] o handler fechava sobre o `user` do primeiro
+    // render, e um admin que entrasse DEPOIS da montagem seria devolvido ao
+    // dashboard ao usar a própria rota.
+  }, [user?.role]);
 
   // Dynamic webinars list
-  const [webinars, setWebinars] = useState([
+  const [webinars, setWebinars] = useState<Array<{
+    id: string; title: string; desc: string; time: string;
+    channels: string[]; type: string; videoName: string;
+    /** Horario de inicio em ISO 8601. A contagem regressiva da pagina
+     *  publica deriva DESTE campo — sem ele, nao ha contagem. Os webinares
+     *  semeados nao tem porque sao demonstracao: a pagina entao mostra o
+     *  horario anunciado em , que e o que de fato se sabe. */
+    startsAt?: string;
+  }>>([
     {
       id: 'webinar-1',
       title: 'Como Alavancar suas Vendas com webinars interativos',
@@ -195,7 +227,7 @@ export default function App() {
     {
       id: 'webinar-2',
       title: 'Webinar de Boas-vindas para Novos Membros da Equipe',
-      desc: 'Sessão interna para novos colaboradores da VineaSX Solutions.',
+      desc: 'Sessão interna de integração para novos colaboradores.',
       time: 'Quarta-feira, às 14:00',
       channels: ['YouTube (Canal Privado)'],
       type: 'live',
@@ -234,10 +266,12 @@ export default function App() {
   const [isDrawingMode, setIsDrawingMode] = useState<boolean>(false);
 
   // Stream state
-  const [activeTab, setActiveTab] = useState<string>('first'); // Default to broadcast
+  // 'seven' é a aba Chat, a primeira do trilho. Era 'first', que não
+  // correspondia a painel nenhum — barra lateral em branco na primeira visita.
+  const [activeTab, setActiveTab] = useState<StudioTab>('seven');
   const [destinations, setDestinations] = useState<Destination[]>(INITIAL_DESTINATIONS);
-  const [title, setTitle] = useState<string>('Marcos');
-  const [description, setDescription] = useState<string>('Marcos');
+  const [title, setTitle] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
   const [isThumbnailEnabled, setIsThumbnailEnabled] = useState(false);
   const [isScheduleEnabled, setIsScheduleEnabled] = useState(false);
 
@@ -366,7 +400,8 @@ export default function App() {
 
   // Quick Settings / Integrations modal state
   const [isIntegrationsModalOpen, setIsIntegrationsModalOpen] = useState(false);
-  const [integrationsModalTab, setIntegrationsModalTab] = useState<'rtmp' | 'social' | 'analysis' | 'webhooks'>('analysis');
+  const [integrationsModalTab, setIntegrationsModalTab] = useState<'rtmp' | 'social' | 'webhooks'>('rtmp');
+  const integracoesAbas = useTabs('integracoes', ['rtmp', 'social', 'webhooks'] as const, integrationsModalTab, setIntegrationsModalTab);
   const [isImmersiveMode, setIsImmersiveMode] = useState(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
   const [isMobileScenesOpen, setIsMobileScenesOpen] = useState(false);
@@ -455,7 +490,10 @@ export default function App() {
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
       };
 
-      const activeChannels = destinations.filter(d => d.active).map(d => d.platform);
+      // `Destination` tem `selected`, não `active`: o filtro anterior nunca
+      // casava, então activeChannels era SEMPRE vazio e o relatório caía no
+      // fallback fixo abaixo — nunca listava os destinos reais da transmissão.
+      const activeChannels = destinations.filter(d => d.selected).map(d => d.platform);
       const finalDestinations = activeChannels.length > 0 ? activeChannels : ["YouTube Live", "Facebook Live"];
 
       const report: StreamReportData = {
@@ -471,13 +509,17 @@ export default function App() {
         averageViewers: Math.max(92, Math.floor(Math.random() * 30) + 85),
         totalCommentsReceived: comments.length,
         destinations: finalDestinations,
+        // Os nomes não batiam com o tipo `Comment` (authorName / timestamp /
+        // platform), então TODO comentário exportado saía com user, time e
+        // channel indefinidos. `isHighlight` passa a refletir o comentário
+        // realmente fixado, que é o conceito que existe no app.
         comments: comments.map(c => ({
           id: c.id,
-          user: c.user,
+          user: c.authorName,
           text: c.text,
-          time: c.time,
-          channel: c.channel,
-          isHighlight: c.isHighlight
+          time: c.timestamp,
+          channel: c.platform,
+          isHighlight: c.id === pinnedComment?.id
         })),
         systemPerformance: {
           averageCpuUsage: "18.4%",
@@ -497,6 +539,23 @@ export default function App() {
 
   // Recording state
   const [isRecording, setIsRecording] = useState(false);
+
+  // Guarda de perda de dados. `beforeunload` não aparecia NENHUMA vez no app:
+  // recarregar ou fechar a aba durante uma transmissão a derrubava em
+  // silêncio — e, com a saída do estúdio ausente entre 768 e 1279 px,
+  // recarregar era exatamente o que sobrava para o operador tentar.
+  useEffect(() => {
+    if (!isLive && !isRecording) return;
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Navegadores modernos ignoram a mensagem e mostram texto próprio;
+      // returnValue continua sendo o que dispara o diálogo.
+      e.returnValue = '';
+      return '';
+    };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [isLive, isRecording]);
   const [recordingTime, setRecordingTime] = useState(0);
 
   useEffect(() => {
@@ -566,12 +625,10 @@ export default function App() {
         const nextClipId = playlist[nextIndex];
         const nextClip = videoClips.find(c => c.id === nextClipId);
         if (nextClip) {
-          setActiveVideoClip({
-            id: nextClip.id,
-            name: nextClip.name,
-            url: nextClip.url,
-            isPlaying: true
-          });
+          // Reconstruir o objeto campo a campo descartava `duration` e
+          // `thumbnail`, então avançar a playlist perdia os dois. O spread
+          // preserva o clipe inteiro e só troca o estado de reprodução.
+          setActiveVideoClip({ ...nextClip, isPlaying: true });
         }
       } else {
         setIsPlaylistActive(false);
@@ -582,7 +639,7 @@ export default function App() {
   };
 
   // Scene transition type
-  const [transitionType, setTransitionType] = useState<'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash'>('fade');
+  const [transitionType, setTransitionType] = useState<SceneTransitionType>('fade');
   const [transitionColor, setTransitionColor] = useState<string>('#FF3D38');
 
   // Smart Sidebar states
@@ -640,7 +697,7 @@ export default function App() {
   const [transitionDuration, setTransitionDuration] = useState<number>(300);
 
   // Scene-specific transitions state
-  const [sceneTransitions, setSceneTransitions] = useState<Record<string, { type: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash'; duration: number }>>({
+  const [sceneTransitions, setSceneTransitions] = useState<Record<string, { type: SceneTransitionType; duration: number }>>({
     'scene-1': { type: 'dip-to-color', duration: 400 },
     'scene-2': { type: 'fade', duration: 300 },
     'scene-3': { type: 'slide-wipe', duration: 400 },
@@ -650,7 +707,7 @@ export default function App() {
 
   const handleUpdateSceneTransition = (
     sceneId: string, 
-    type: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash', 
+    type: SceneTransitionType, 
     duration: number
   ) => {
     setSceneTransitions(prev => ({
@@ -727,7 +784,7 @@ export default function App() {
 
   // Studio Preview Mode & Program Live state
   const [isStudioPreviewMode, setIsStudioPreviewMode] = useState<boolean>(false);
-  const [previewViewMode, setPreviewViewMode] = useState<'split' | 'preview-only' | 'program-only'>('preview-only');
+  const [previewViewMode, setPreviewViewMode] = useState<'split' | 'preview-only' | 'program-only'>('split');
   
   const [programSceneState, setProgramSceneState] = useState<StudioSceneState>(() => ({
     sceneId: 'scene-1',
@@ -788,7 +845,8 @@ export default function App() {
   const [participants, setParticipants] = useState<Participant[]>([
     {
       id: 'p-local',
-      name: 'Marcos (Você)',
+      // Placeholder até a sessão carregar — o efeito abaixo põe o nome real.
+      name: 'Apresentador',
       avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
       isLocal: true,
       isActive: true,
@@ -806,6 +864,16 @@ export default function App() {
       hasAudio: false
     }
   ]);
+
+  // O participante local é quem está logado. Era 'Marcos (Você)' fixo no
+  // código: todo cliente aparecia no palco, na gravação e na lista de
+  // participantes como Marcos. Nome puro aqui; o "(Você)" é das telas do
+  // operador, não do que vai ao ar.
+  useEffect(() => {
+    const nome = user?.name?.trim().split(/\s+/)[0];
+    if (!nome) return;
+    setParticipants(prev => prev.map(p => (p.id === 'p-local' ? { ...p, name: nome } : p)));
+  }, [user?.name]);
 
   // Track pending changes between Studio Preview (editing stage) and Program (Live On Air output)
   const pendingChanges = useMemo(() => {
@@ -862,7 +930,11 @@ export default function App() {
     }, {
       color: transitionColor,
       duration: transitionDuration,
-      type: transitionType
+      // O hook só desenha CORTINAS. As transições básicas (cut/fade/slide/
+      // zoom) são animadas pelo Motion no StudioPreview, não por sobreposição
+      // — antes a escolha do usuário era repassada inteira para uma API que
+      // não a entendia.
+      ...(isWipeTransition(transitionType) ? { type: transitionType } : {})
     });
   };
 
@@ -1171,7 +1243,7 @@ export default function App() {
       return;
     }
 
-    // Auto-active Marcos and Ana on stage when automation is enabled
+    // Automação ligada: apresentador e convidado entram no palco
     setParticipants(prev => prev.map(p => {
       if (p.id === 'p-local' || p.id === 'p-guest') {
         return { ...p, isActive: true };
@@ -1265,10 +1337,16 @@ export default function App() {
     }));
   };
 
-  // Simulated viewer comments generation when live
+  // Plateia simulada — SÓ em desenvolvimento. Rodava em produção: com a
+  // transmissão no ar, um comentário inventado a cada 12s, atribuído ao
+  // YouTube ou ao Facebook (alguns ofensivos, para exercitar a moderação).
+  // O cliente via uma audiência que não existe e podia fixá-la na tela da
+  // live. Não há ingestão real de comentários das plataformas ainda; até
+  // haver, o chat de produção mostra só o que é enviado do estúdio.
+  // import.meta.env.DEV vira `false` no build e o bloco inteiro sai do bundle.
   useEffect(() => {
     let commentInterval: NodeJS.Timeout | null = null;
-    if (isLive) {
+    if (import.meta.env.DEV && isLive) {
       commentInterval = setInterval(() => {
         const names = ["Gabriel Lima", "Beatriz Rocha", "Lucas Mendes", "Renata Souza", "Thiago Silva", "Carla Dias", "Felipe Neto", "Patrícia Melo"];
         const avatars = [
@@ -1635,7 +1713,7 @@ export default function App() {
     const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
     const newComment: Comment = {
       id: `user-comm-${Date.now()}`,
-      authorName: 'Marcos (Você)',
+      authorName: user?.name ? `${user.name.split(' ')[0]} (Você)` : 'Você',
       authorAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
       text,
       platform: 'studio',
@@ -1889,7 +1967,16 @@ export default function App() {
   }
 
   return (
-    <div className={`bg-[#0F1115] font-sans text-gray-100 flex flex-col selection:bg-blue-500 selection:text-white ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
+    <div
+      /* No estúdio a tela INTEIRA é o console — cabeçalho incluído. Os chips
+         escuros do cabeçalho (LIVE STREAM, 1080p, alternador de tema) ficavam
+         fora do escopo e recebiam os tokens de texto do tema claro sobre
+         fundo escuro: 2,24–3,55:1. */
+      data-surface={currentView === 'studio' ? 'console' : undefined}
+      // O tally lê daqui. Ancestral de tudo, para que qualquer moldura de
+      // programa no console saiba que está no ar sem receber a prop na mão.
+      data-air={isLive ? 'on' : undefined}
+      className={`bg-[var(--bg)] font-sans text-[var(--ink-hi)] flex flex-col selection:bg-blue-500 selection:text-white ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
       
       {/* Dynamic Header */}
       <Header 
@@ -1947,11 +2034,12 @@ export default function App() {
 
       {/* 2. PRODUCTION CONTROL ROOM VIEW */}
       {currentView === 'studio' ? (
-        <div 
-          className="flex-1 overflow-hidden w-full max-w-none px-0 mx-0 relative"
+        <main
+          data-surface="console"
+          className="flex-1 overflow-hidden w-full max-w-none px-0 mx-0 relative bg-[var(--bg)] text-[var(--ink)]"
           style={{
             display: 'grid',
-            gridTemplateAreas: isMobile 
+            gridTemplateAreas: isMobile
               ? '"preview"' 
               : isImmersiveMode 
                 ? '"scenes preview sidebar"' 
@@ -1970,14 +2058,14 @@ export default function App() {
             <>
               <button
                 onClick={() => setIsImmersiveMode(false)}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-50 bg-[#16191E]/95 hover:bg-blue-600 hover:text-white text-slate-400 p-2 rounded-r-xl border-y border-r border-slate-800/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-50 bg-[var(--surface)]/95 hover:bg-blue-600 hover:text-white text-[var(--ink-lo)] p-2 rounded-r-xl border-y border-r border-[var(--line)]/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
                 title="Expandir Painel de Participantes"
               >
                 <ChevronRight size={16} className="transition-transform group-hover:scale-110" />
               </button>
               <button
                 onClick={() => setIsImmersiveMode(false)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-50 bg-[#16191E]/95 hover:bg-blue-600 hover:text-white text-slate-400 p-2 rounded-l-xl border-y border-l border-slate-800/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-50 bg-[var(--surface)]/95 hover:bg-blue-600 hover:text-white text-[var(--ink-lo)] p-2 rounded-l-xl border-y border-l border-[var(--line)]/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
                 title="Expandir Painel de Configurações"
               >
                 <ChevronLeft size={16} className="transition-transform group-hover:scale-110" />
@@ -1995,6 +2083,67 @@ export default function App() {
               }}
               className={`hidden md:flex shrink-0 overflow-hidden h-full ${isImmersiveMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
             >
+              <div className="flex flex-col h-full w-full min-h-0 gap-2">
+              {/* ── MONITOR DE PROGRAMA ──────────────────────────────────────
+                  O que o público está vendo. Até aqui o operador não tinha
+                  NENHUMA visão disso: o palco grande mostra o estado de
+                  edição, e `programSceneState` — que já existia, com take,
+                  revert e swap prontos — nunca era renderizado. Dava para
+                  editar no escuro sem saber o que estava indo ao ar. */}
+              {/* `previewViewMode` era declarado no StudioPreview e nunca lido:
+                  os botões "Lado a Lado / Prévia / Ao Vivo" existiam e não
+                  faziam nada. Agora governam este monitor. */}
+              <div className={`shrink-0 px-1 pt-1 ${previewViewMode === 'preview-only' ? 'hidden' : ''}`}>
+                <StudioPreview
+                  monitorOnly
+                  monitorRole="pgm"
+                  layout={programSceneState.layout}
+                  onLayoutChange={() => {}}
+                  streamColor={streamColor}
+                  textStyle={textStyle}
+                  activeBannerText={null}
+                  activeBanner={banners.find(b => b.id === programSceneState.activeBannerId) || null}
+                  activeTicker={tickers.find(t => t.id === programSceneState.activeTickerId) || null}
+                  pinnedComment={programSceneState.pinnedComment || null}
+                  bannerPosition={programSceneState.bannerPosition || 'bottom'}
+                  participants={participants.map(p => ({
+                    ...p,
+                    isActive: (programSceneState.activeParticipantIds || ['p-local']).includes(p.id),
+                  }))}
+                  onToggleParticipantActive={() => {}}
+                  localStream={localStream}
+                  screenStream={screenStream}
+                  isCamStopped={isCamStopped}
+                  isLive={isLive}
+                  liveTime={liveTime}
+                />
+              </div>
+
+              {/* ── CONTROLES DE CORTE ────────────────────────────────────────
+                  TAKE, SWAP e reverter. Este painel ja existia INTEIRO, com
+                  os tres botoes ligados — e era importado sem nunca ser
+                  renderizado. Os handlers iam para o StudioPreview, que so
+                  desenha o "PUSH TO LIVE". `onRevertToLive` e
+                  `onSwapPreviewAndLive` eram declarados, recebidos e
+                  descartados — o mesmo que acontecia com `onExit`.
+                  Ficam entre PGM e PVW, que e o lugar deles numa mesa. */}
+              <div className="shrink-0 px-1">
+                <StudioScenePreviewControls
+                  isStudioPreviewMode={isStudioPreviewMode}
+                  onToggleStudioPreviewMode={() => setIsStudioPreviewMode(prev => !prev)}
+                  previewViewMode={previewViewMode}
+                  onPreviewViewModeChange={setPreviewViewMode}
+                  hasPendingChanges={hasPendingChanges}
+                  pendingChanges={pendingChanges}
+                  onPushToLive={handlePushToLive}
+                  onRevertToLive={handleRevertToLive}
+                  onSwapPreviewAndLive={handleSwapPreviewAndLive}
+                  isTransitioning={isTransitioning}
+                  transitionType={transitionType}
+                  isLive={isLive}
+                />
+              </div>
+
               <ScenesPanel
                 participants={participants}
                 onToggleParticipantActive={handleToggleParticipantActive}
@@ -2006,6 +2155,7 @@ export default function App() {
                 onSelectScene={handleSelectScene}
                 sceneTransitions={sceneTransitions}
               />
+              </div>
             </div>
           )}
 
@@ -2017,7 +2167,7 @@ export default function App() {
                 onClick={() => setIsMobileScenesOpen(false)}
                 className="absolute inset-0 bg-black/60 z-[98] backdrop-blur-sm transition-all"
               />
-              <div className="absolute inset-y-0 left-0 w-[280px] z-[99] bg-[#16191E] shadow-2xl border-r border-slate-800 flex flex-col h-full animate-in slide-in-from-left duration-300">
+              <div className="absolute inset-y-0 left-0 w-[280px] z-[99] bg-[var(--surface)] shadow-2xl border-r border-[var(--line)] flex flex-col h-full animate-in slide-in-from-left duration-300">
                 <ScenesPanel
                   participants={participants}
                   onToggleParticipantActive={handleToggleParticipantActive}
@@ -2041,11 +2191,11 @@ export default function App() {
                 onClick={() => setIsMobileSidebarOpen(false)}
                 className="absolute inset-0 bg-black/60 z-[98] backdrop-blur-sm transition-all"
               />
-              <div className="absolute inset-y-0 right-0 w-[330px] z-[99] bg-[#16191E] shadow-2xl border-l border-slate-800 flex flex-col h-full animate-in slide-in-from-right duration-300">
-                <div className="flex w-full bg-[#16191E] h-full shrink-0">
+              <div className="absolute inset-y-0 right-0 w-[330px] z-[99] bg-[var(--surface)] shadow-2xl border-l border-[var(--line)] flex flex-col h-full animate-in slide-in-from-right duration-300">
+                <div className="flex w-full bg-[var(--surface)] h-full shrink-0">
                   
                   {/* LeftSidebar Content container */}
-                  <div className="flex-1 h-full min-h-0 border-r border-slate-800/60 overflow-y-auto">
+                  <div className="flex-1 h-full min-h-0 border-r border-[var(--line)]/60 overflow-y-auto">
                     <LeftSidebar
                       activeTab={activeTab}
                       destinations={destinations}
@@ -2123,6 +2273,7 @@ export default function App() {
                       onPostComment={handlePostComment}
                       onBatchAddComments={handleBatchAddComments}
                       onClearComments={handleClearComments}
+                      currentUserName={user?.name?.split(' ')[0]}
                       isAiModerationEnabled={isAiModerationEnabled}
                       onToggleAiModeration={setIsAiModerationEnabled}
                       aiModerationMode={aiModerationMode}
@@ -2202,15 +2353,15 @@ export default function App() {
                   </div>
 
                   {/* Vertical Tabs Bar on the far right of the overlay */}
-                  <div className="w-[60px] bg-[#0F1115] flex flex-col items-center py-4 border-l border-slate-800/60 gap-2 h-full shrink-0 justify-between">
+                  <div className="w-[60px] bg-[var(--bg)] flex flex-col items-center py-4 border-l border-[var(--line)]/60 gap-2 h-full shrink-0 justify-between">
                     <div className="flex flex-col gap-2 items-center w-full overflow-y-auto flex-1 no-scrollbar">
                       {/* Smart Sidebar Toggle */}
                       <button
                         onClick={() => setIsSmartSidebarEnabled(!isSmartSidebarEnabled)}
                         className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 border relative ${
                           isSmartSidebarEnabled 
-                            ? 'bg-[#4683E0]/15 border-[#4683E0]/35 text-[#4683E0]' 
-                            : 'bg-slate-900/40 border-slate-800 text-slate-500 hover:text-slate-300'
+                            ? 'bg-[var(--color-brand-deep)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
+                            : 'bg-[var(--surface)]/40 border-[var(--line)] text-[var(--ink-dim)] hover:text-[var(--ink)]'
                         }`}
                         title="Smart Sidebar: Durante a Live, recolhe abas inativas mantendo o foco no Chat para economizar processamento e espaço visual."
                       >
@@ -2225,9 +2376,9 @@ export default function App() {
                       </button>
 
                       {/* Divider */}
-                      <div className="w-6 h-[1px] bg-slate-800/80 my-1" />
+                      <div className="w-6 h-[1px] bg-[var(--panel)]/80 my-1" />
 
-                      {[
+                      {([
                         { id: 'seven', label: 'Chat', icon: MessageSquare, desc: 'Chat' },
                         { id: 'widgets', label: 'Widgets', icon: LayoutGrid, desc: 'Widgets e ferramentas do estúdio' },
                         { id: 'schedule', label: 'Schedule', icon: Calendar, desc: 'Agenda' },
@@ -2238,7 +2389,7 @@ export default function App() {
                         { id: 'audience', label: 'Audience', icon: Users, desc: 'Usuários' },
                         { id: 'settings', label: 'Settings', icon: Settings, desc: 'Ajustes' },
                         { id: 'apps', label: 'Apps', icon: Puzzle, desc: 'Apps' },
-                      ].filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
+                      ] as const).filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
                         const isActive = activeTab === tab.id;
                         const IconComponent = tab.icon;
                         return (
@@ -2247,8 +2398,8 @@ export default function App() {
                             onClick={() => setActiveTab(tab.id)}
                             className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 ${
                               isActive 
-                                ? 'bg-[#4683E0] text-white shadow-lg ring-1 ring-blue-400/20' 
-                                : 'text-gray-400 hover:bg-[#16191E] hover:text-white'
+                                ? 'bg-[var(--color-brand-deep)] text-white shadow-lg ring-1 ring-blue-400/20' 
+                                : 'text-[var(--ink-lo)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)]'
                             }`}
                             title={`${tab.label}: ${tab.desc}`}
                           >
@@ -2260,10 +2411,10 @@ export default function App() {
                     </div>
 
                     {/* Close overlay button */}
-                    <div className="pt-2 border-t border-slate-800/60 w-full flex justify-center shrink-0">
+                    <div className="pt-2 border-t border-[var(--line)]/60 w-full flex justify-center shrink-0">
                       <button
                         onClick={() => setIsMobileSidebarOpen(false)}
-                        className="w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 text-slate-500 hover:bg-[#16191E] hover:text-white cursor-pointer"
+                        className="w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 text-[var(--ink-dim)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)] cursor-pointer"
                         title="Fechar Painel"
                       >
                         <X size={14} />
@@ -2294,10 +2445,10 @@ export default function App() {
                   className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all border shadow-lg cursor-pointer touch-action-btn ${
                     isMobileScenesOpen
                       ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-[#16191E] text-slate-300 border-slate-800 hover:text-white'
+                      : 'bg-[var(--surface)] text-[var(--ink)] border-[var(--line)] hover:text-[var(--ink-hi)]'
                   }`}
                 >
-                  <Users size={16} className={isMobileScenesOpen ? 'text-white' : 'text-blue-400'} />
+                  <Users size={16} className={isMobileScenesOpen ? 'text-[var(--ink-hi)]' : 'text-blue-400'} />
                   <span>Participantes ({participants.length})</span>
                 </button>
                 <button
@@ -2308,10 +2459,10 @@ export default function App() {
                   className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all border shadow-lg cursor-pointer touch-action-btn ${
                     isMobileSidebarOpen
                       ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-[#16191E] text-slate-300 border-slate-800 hover:text-white'
+                      : 'bg-[var(--surface)] text-[var(--ink)] border-[var(--line)] hover:text-[var(--ink-hi)]'
                   }`}
                 >
-                  <Sliders size={16} className={isMobileSidebarOpen ? 'text-white' : 'text-emerald-400'} />
+                  <Sliders size={16} className={isMobileSidebarOpen ? 'text-[var(--ink-hi)]' : 'text-emerald-400'} />
                   <span>Painel & Ferramentas</span>
                 </button>
               </div>
@@ -2448,15 +2599,15 @@ export default function App() {
                 width: isImmersiveMode ? 0 : sidebarWidth,
                 transition: (isResizingScenes || isResizingSidebar) ? 'none' : 'width 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms'
               }}
-              className={`flex shrink-0 overflow-hidden h-full ${isImmersiveMode ? 'opacity-0 pointer-events-none border-l-0' : 'border-l border-slate-800'}`}
+              className={`flex shrink-0 overflow-hidden h-full ${isImmersiveMode ? 'opacity-0 pointer-events-none border-l-0' : 'border-l border-[var(--line)]'}`}
             >
               <div 
                 style={{ width: sidebarWidth }}
-                className="flex bg-[#16191E] h-full shrink-0"
+                className="flex bg-[var(--surface)] h-full shrink-0"
               >
                 
                 {/* 1. Subpanel container (takes full width of sidebar, minus tab bar width) */}
-                <div className="flex-1 h-full min-h-0 border-r border-slate-800/60 overflow-y-auto">
+                <div className="flex-1 h-full min-h-0 border-r border-[var(--line)]/60 overflow-y-auto">
                   <LeftSidebar
                     activeTab={activeTab}
                     destinations={destinations}
@@ -2517,6 +2668,7 @@ export default function App() {
                     onPostComment={handlePostComment}
                     onBatchAddComments={handleBatchAddComments}
                     onClearComments={handleClearComments}
+                    currentUserName={user?.name?.split(' ')[0]}
                     isAiModerationEnabled={isAiModerationEnabled}
                     onToggleAiModeration={setIsAiModerationEnabled}
                     aiModerationMode={aiModerationMode}
@@ -2620,15 +2772,15 @@ export default function App() {
                 </div>
 
                 {/* 2. Vertical Tabs Bar on the far right (styled like Restream vertical menu) */}
-                <div className="w-[75px] bg-[#0F1115] flex flex-col items-center py-4 border-l border-slate-800/60 gap-2.5 h-full shrink-0 justify-between">
+                <div className="w-[75px] bg-[var(--bg)] flex flex-col items-center py-4 border-l border-[var(--line)]/60 gap-2.5 h-full shrink-0 justify-between">
                   <div className="flex flex-col gap-2.5 items-center w-full overflow-y-auto flex-1 no-scrollbar">
                     {/* Smart Sidebar Toggle */}
                     <button
                       onClick={() => setIsSmartSidebarEnabled(!isSmartSidebarEnabled)}
                       className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 border relative cursor-pointer ${
                         isSmartSidebarEnabled 
-                          ? 'bg-[#4683E0]/15 border-[#4683E0]/35 text-[#4683E0]' 
-                          : 'bg-slate-900/40 border-slate-800 text-slate-500 hover:text-slate-300'
+                          ? 'bg-[var(--color-brand-deep)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
+                          : 'bg-[var(--surface)]/40 border-[var(--line)] text-[var(--ink-dim)] hover:text-[var(--ink)]'
                       }`}
                       title="Smart Sidebar: Durante a Live, recolhe abas inativas mantendo o foco no Chat para economizar processamento e espaço visual."
                     >
@@ -2643,9 +2795,9 @@ export default function App() {
                     </button>
 
                     {/* Divider */}
-                    <div className="w-8 h-[1px] bg-slate-800/80 my-1" />
+                    <div className="w-8 h-[1px] bg-[var(--panel)]/80 my-1" />
 
-                    {[
+                    {([
                       { id: 'seven', label: 'Chat', icon: MessageSquare, desc: 'Chat unificado do webinar' },
                       { id: 'widgets', label: 'Widgets', icon: LayoutGrid, desc: 'Widgets e ferramentas do estúdio' },
                       { id: 'schedule', label: 'Schedule', icon: Calendar, desc: 'Agendar e gerenciar webinars' },
@@ -2656,7 +2808,7 @@ export default function App() {
                       { id: 'audience', label: 'Audience', icon: Users, desc: 'Base de Usuários e CRM do Estúdio' },
                       { id: 'settings', label: 'Settings', icon: Settings, desc: 'Configurações de transmissão e palco' },
                       { id: 'apps', label: 'Apps', icon: Puzzle, desc: 'Integrações, QR Code e Notas' },
-                    ].filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
+                    ] as const).filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
                       const isActive = activeTab === tab.id;
                       const IconComponent = tab.icon;
                       return (
@@ -2665,8 +2817,8 @@ export default function App() {
                           onClick={() => setActiveTab(tab.id)}
                           className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 cursor-pointer ${
                             isActive 
-                              ? 'bg-[#4683E0] text-white shadow-lg ring-1 ring-blue-400/20' 
-                              : 'text-gray-400 hover:bg-[#16191E] hover:text-white'
+                              ? 'bg-[var(--color-brand-deep)] text-white shadow-lg ring-1 ring-blue-400/20' 
+                              : 'text-[var(--ink-lo)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)]'
                           }`}
                           title={`${tab.label}: ${tab.desc}`}
                         >
@@ -2678,10 +2830,10 @@ export default function App() {
                   </div>
 
                   {/* Fixed bottom collapse button */}
-                  <div className="pt-2 border-t border-slate-800/60 w-full flex justify-center shrink-0">
+                  <div className="pt-2 border-t border-[var(--line)]/60 w-full flex justify-center shrink-0">
                     <button
                       onClick={() => setIsImmersiveMode(true)}
-                      className="w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 text-slate-500 hover:bg-[#16191E] hover:text-white cursor-pointer"
+                      className="w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 text-[var(--ink-dim)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)] cursor-pointer"
                       title="Recuar Painel Lateral"
                     >
                       <ChevronRight size={18} className="transition-transform group-hover:translate-x-0.5" />
@@ -2711,10 +2863,10 @@ export default function App() {
                 className="absolute top-0 bottom-0 w-2 cursor-col-resize z-40 group select-none flex items-center justify-center transition-all"
                 title="Arraste para redimensionar"
               >
-                <div className={`w-[2px] h-full transition-colors duration-200 ${isResizingScenes ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-slate-800/80 group-hover:bg-blue-500/80 group-hover:shadow-[0_0_4px_#3b82f6]'}`} />
+                <div className={`w-[2px] h-full transition-colors duration-200 ${isResizingScenes ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-[var(--panel)]/80 group-hover:bg-blue-500/80 group-hover:shadow-[0_0_4px_#3b82f6]'}`} />
                 
                 {/* Visual grab dot accent indicator */}
-                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-full bg-[#1e2330] border border-slate-700 flex flex-col gap-0.5 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl pointer-events-none">
+                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-full bg-[var(--panel)] border border-[var(--line-ctl)] flex flex-col gap-0.5 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl pointer-events-none">
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
@@ -2728,10 +2880,10 @@ export default function App() {
                 className="absolute top-0 bottom-0 w-2 cursor-col-resize z-40 group select-none flex items-center justify-center transition-all"
                 title="Arraste para redimensionar"
               >
-                <div className={`w-[2px] h-full transition-colors duration-200 ${isResizingSidebar ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-slate-800/80 group-hover:bg-blue-500/80 group-hover:shadow-[0_0_4px_#3b82f6]'}`} />
+                <div className={`w-[2px] h-full transition-colors duration-200 ${isResizingSidebar ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-[var(--panel)]/80 group-hover:bg-blue-500/80 group-hover:shadow-[0_0_4px_#3b82f6]'}`} />
                 
                 {/* Visual grab dot accent indicator */}
-                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-full bg-[#1e2330] border border-slate-700 flex flex-col gap-0.5 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl pointer-events-none">
+                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-full bg-[var(--panel)] border border-[var(--line-ctl)] flex flex-col gap-0.5 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl pointer-events-none">
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
                   <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
@@ -2740,7 +2892,7 @@ export default function App() {
             </>
           )}
 
-        </div>
+        </main>
       ) : currentView === 'super-admin' ? (
         <SuperAdminPanel 
           onBack={() => setCurrentView('dashboard')} 
@@ -2759,6 +2911,10 @@ export default function App() {
           webinarTitle={webinars.find(w => w.id === selectedWebinarId)?.title || title}
           webinarDesc={webinars.find(w => w.id === selectedWebinarId)?.desc || description}
           webinarDate={webinars.find(w => w.id === selectedWebinarId)?.time || 'Amanhã, às 19:30'}
+          // `startsAt` é o horário em ISO, do qual a contagem regressiva
+          // deriva. Os webinares semeados não têm — e sem ele a página
+          // mostra o horário anunciado em vez de inventar uma contagem.
+          startsAt={webinars.find(w => w.id === selectedWebinarId)?.startsAt}
           isLive={isLive}
           thumbnailUrl={activeBackground}
           onBackToDashboard={() => setCurrentView('dashboard')}
@@ -2787,46 +2943,53 @@ export default function App() {
         />
       ) : (
         /* 3. BUSINESS DASHBOARD VIEW */
-        <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200">
+        <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200">
           
           {/* Welcome back user */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Olá, Marcos Gonçalves</h1>
-              <p className="text-sm text-[#a59ebf] mt-1">Gerencie, agende e configure seus webinares e transmissões ao vivo.</p>
+              {/* Era "Olá, Marcos Gonçalves" fixo no código: TODO cliente que
+                  abria o painel era cumprimentado pelo nome de outra pessoa.
+                  Só o primeiro nome — o nome completo numa saudação soa a
+                  formulário, não a boas-vindas. */}
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--ink-hi)]">
+                {user?.name ? `Olá, ${user.name.split(' ')[0]}` : 'Olá'}
+              </h1>
+              <p className="text-sm text-[var(--ink-lo)] mt-1">Gerencie, agende e configure seus webinares e transmissões ao vivo.</p>
             </div>
             
             <div className="flex items-center gap-2.5">
-              <button
-                onClick={() => setCurrentView('admin')}
-                className="flex items-center gap-2 px-5 py-3 border border-slate-800 hover:bg-[#16191E] text-gray-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
-              >
-                <Server size={14} className="text-blue-500 animate-pulse" /> Painel de Administração
-              </button>
-              <button
-                onClick={() => setIsCreateWebinarOpen(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-[#4683E0] hover:bg-blue-600 text-white font-bold text-sm rounded-xl shadow-xl transition-all cursor-pointer"
-              >
-                <Plus size={16} /> Agendar Webinar
-              </button>
+              <Button variant="ghost" onClick={() => setCurrentView('admin')} icon={<Server size={14} className="text-blue-500 animate-pulse" />}>
+                Painel de Administração
+              </Button>
+              <Button onClick={() => setIsCreateWebinarOpen(true)} icon={<Plus size={16} />}>
+                Agendar Webinar
+              </Button>
             </div>
           </div>
 
           {/* Metrics summary widget card */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Eram quatro números inventados — 14 webinars, 4.829
+                espectadores, 1.240m, 87% — apresentados como medição real na
+                conta de todo cliente.
+                Só o primeiro tem fonte de verdade hoje: a lista de webinars.
+                Os outros três dependem de telemetria do servidor de ingestão,
+                que ainda não existe, então seguem a regra do próprio sistema:
+                valor ausente é travessão, nunca um número plausível. */}
             {[
-              { label: 'Webinares Realizados', value: '14', change: '+2 este mês', icon: Radio },
-              { label: 'Espectadores Únicos', value: '4.829', change: '+15% semana passada', icon: Users },
-              { label: 'Minutos Transmitidos', value: '1.240m', change: 'Média 90m por live', icon: Tv },
-              { label: 'Engajamento Médio', value: '87%', change: 'Altamente positivo', icon: BarChart3 }
+              { label: 'Webinares agendados', value: String(webinars.length), change: webinars.length === 0 ? 'Nenhum ainda' : 'Na sua conta', icon: Radio },
+              { label: 'Espectadores únicos', value: '—', change: 'Aguardando telemetria', icon: Users },
+              { label: 'Minutos transmitidos', value: '—', change: 'Aguardando telemetria', icon: Tv },
+              { label: 'Engajamento médio', value: '—', change: 'Aguardando telemetria', icon: BarChart3 }
             ].map((metric, i) => (
-              <div key={i} className="bg-[#16191E] border border-slate-800 p-5 rounded-2xl flex items-center justify-between">
+              <div key={i} className="bg-[var(--surface)] border border-[var(--line)] p-5 rounded-2xl flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-[#a59ebf] font-semibold">{metric.label}</p>
-                  <p className="text-2xl font-bold text-white mt-1.5">{metric.value}</p>
+                  <p className="text-xs text-[var(--ink-lo)] font-semibold">{metric.label}</p>
+                  <p className="text-2xl font-bold text-[var(--ink-hi)] mt-1.5">{metric.value}</p>
                   <p className="text-[10px] text-blue-400 mt-1">{metric.change}</p>
                 </div>
-                <div className="w-11 h-11 bg-[#0F1115] border border-slate-800 rounded-xl flex items-center justify-center text-[#4683E0]">
+                <div className="w-11 h-11 bg-[var(--bg)] border border-[var(--line)] rounded-xl flex items-center justify-center text-[var(--color-brand)]">
                   <metric.icon size={20} />
                 </div>
               </div>
@@ -2837,20 +3000,20 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             {/* Stream room launcher trigger */}
-            <div className="lg:col-span-2 bg-[#16191E] border border-slate-800 rounded-2xl overflow-hidden flex flex-col">
-              <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <Calendar size={18} className="text-[#4683E0]" /> Próximos Webinares Agendados
+            <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--line)] rounded-2xl overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-[var(--line)] flex items-center justify-between">
+                <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
+                  <Calendar size={18} className="text-[var(--color-brand)]" /> Próximos Webinares Agendados
                 </h2>
                 <span className="text-xs text-blue-400 hover:underline cursor-pointer">Ver todos</span>
               </div>
 
-              <div className="p-6 flex-1 divide-y divide-slate-800/40 space-y-4">
+              <div className="p-6 flex-1 divide-y divide-[var(--line)]/40 space-y-4">
                 {webinars.map((webinar, i) => (
                   <div key={webinar.id || i} className={`pt-4 first:pt-0 flex flex-col xl:flex-row justify-between items-start gap-4`}>
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-bold text-white hover:text-[#4683E0] transition-colors cursor-pointer text-left">
+                        <p className="text-sm font-bold text-[var(--ink-hi)] hover:text-[var(--color-brand)] transition-colors cursor-pointer text-left">
                           {webinar.title}
                         </p>
                         <span className={`text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
@@ -2859,8 +3022,8 @@ export default function App() {
                           {webinar.type === 'pre-recorded' ? 'Vídeo Gravado' : 'Transmissão Ao Vivo'}
                         </span>
                       </div>
-                      <p className="text-xs text-[#a59ebf] text-left">{webinar.desc}</p>
-                      <div className="flex flex-wrap items-center gap-2 text-[10px] text-gray-400 pt-1">
+                      <p className="text-xs text-[var(--ink-lo)] text-left">{webinar.desc}</p>
+                      <div className="flex flex-wrap items-center gap-2 text-[10px] text-[var(--ink-lo)] pt-1">
                         <span className="font-semibold text-blue-400">{webinar.time}</span>
                         <span>•</span>
                         <span>Canais: {webinar.channels.join(', ')}</span>
@@ -2874,37 +3037,50 @@ export default function App() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 shrink-0 w-full xl:w-auto">
-                      <button
+                      {/* Cor no ícone e no texto, não no fundo: "Inscrições" e
+                          "Criar Capa" continuam avisando seu destino por
+                          matiz — o fundo neutro do ghost é quem diz "ação
+                          secundária". */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => {
                           setSelectedWebinarId(webinar.id);
                           setCurrentView('public-webinar');
                         }}
-                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#0F1115] hover:bg-slate-800 text-xs font-semibold rounded-lg text-emerald-400 border border-slate-800 transition-all cursor-pointer"
+                        icon={<ExternalLink size={12} />}
+                        className="text-emerald-400 hover:text-emerald-300"
                         title="Ver landing page pública de inscrição do webinar"
                       >
-                        <ExternalLink size={12} /> Inscrições
-                      </button>
+                        Inscrições
+                      </Button>
 
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => {
                           setDashboardEditorTitle(webinar.title);
                           setIsDashboardEditorOpen(true);
                         }}
-                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#0F1115] hover:bg-slate-800 text-xs font-semibold rounded-lg text-blue-400 border border-slate-800 transition-all cursor-pointer"
+                        icon={<Palette size={12} />}
+                        className="text-blue-400 hover:text-blue-300"
                         title="Criar ou personalizar a thumbnail da live"
                       >
-                        <Palette size={12} /> Criar Capa
-                      </button>
-                      
-                      <button
+                        Criar Capa
+                      </Button>
+
+                      {/* Seta depois do texto no original — "ir para".
+                          O slot `icon` da primitiva é sempre líder, então a
+                          seta entra como filho, não pelo prop. */}
+                      <Button
+                        size="sm"
                         onClick={() => {
                           setTitle(webinar.title);
                           setCurrentView('studio');
                         }}
-                        className="flex items-center justify-center gap-1.5 px-4 py-2 bg-[#4683E0] hover:bg-blue-600 text-xs font-semibold rounded-lg text-white transition-all cursor-pointer"
                       >
                         Acessar Estúdio <ArrowRight size={12} />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -2912,64 +3088,62 @@ export default function App() {
             </div>
 
             {/* Quick settings & support */}
-            <div className="bg-[#16191E] border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+            <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 flex flex-col justify-between">
               <div className="space-y-4">
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <Settings size={18} className="text-[#4683E0]" /> Configurações & Chaves
+                <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
+                  <Settings size={18} className="text-[var(--color-brand)]" /> Configurações & Chaves
                 </h2>
                 
                 <div className="space-y-2">
-                  <div 
+                  <button
+                    type="button"
                     onClick={() => {
                       setIntegrationsModalTab('rtmp');
                       setIsIntegrationsModalOpen(true);
                     }}
-                    className="flex items-center justify-between p-3 bg-[#0F1115] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-slate-800/40 cursor-pointer transition-all text-xs text-left"
+                    className="w-full flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
                   >
                     <div>
-                      <p className="text-gray-200 font-semibold">Integração com OBS / RTMP Externo</p>
-                      <p className="text-[10px] text-gray-400">Ver chaves de ingestão, URLs de servidores e OBS</p>
+                      <p className="text-[var(--ink-hi)] font-semibold">Integração com OBS / RTMP Externo</p>
+                      <p className="text-[10px] text-[var(--ink-lo)]">Ver chaves de ingestão, URLs de servidores e OBS</p>
                     </div>
-                    <ExternalLink size={12} className="text-gray-500" />
-                  </div>
+                    <ExternalLink size={12} className="text-[var(--ink-dim)]" />
+                  </button>
 
-                  <div 
+                  <button
+                    type="button"
                     onClick={() => {
                       setIntegrationsModalTab('social');
                       setIsIntegrationsModalOpen(true);
                     }}
-                    className="flex items-center justify-between p-3 bg-[#0F1115] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-slate-800/40 cursor-pointer transition-all text-xs text-left"
+                    className="w-full flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
                   >
                     <div>
-                      <p className="text-gray-200 font-semibold">Gerenciar Redes Sociais & OAuth</p>
-                      <p className="text-[10px] text-gray-400">Configurações para YouTube, Facebook e Twitch</p>
+                      <p className="text-[var(--ink-hi)] font-semibold">Gerenciar Redes Sociais & OAuth</p>
+                      <p className="text-[10px] text-[var(--ink-lo)]">Configurações para YouTube, Facebook e Twitch</p>
                     </div>
-                    <ExternalLink size={12} className="text-gray-500" />
-                  </div>
+                    <ExternalLink size={12} className="text-[var(--ink-dim)]" />
+                  </button>
 
-                  <div 
-                    onClick={() => {
-                      setIntegrationsModalTab('analysis');
-                      setIsIntegrationsModalOpen(true);
-                    }}
-                    className="flex items-center justify-between p-3 bg-[#0F1115] hover:bg-emerald-500/10 hover:border-emerald-500/20 rounded-xl border border-slate-800/40 cursor-pointer transition-all text-xs text-left"
-                  >
-                    <div>
-                      <p className="text-emerald-400 font-semibold flex items-center gap-1">
-                        <Sparkles size={11} className="animate-pulse text-emerald-400" />
-                        Análise de Requisitos & Chaves
-                      </p>
-                      <p className="text-[10px] text-gray-400">Mapeamento completo do SaaS e chaves do sistema</p>
-                    </div>
-                    <ExternalLink size={12} className="text-emerald-500" />
-                  </div>
+                  {/* REMOVIDO — o card "Análise de Requisitos & Chaves".
+                      Abria, para o cliente pagante, o quadro interno de status
+                      de engenharia: "Painel de Cobranças — Pronto / Simulação
+                      Premium", "Servidores de Ingestão RTMP/SRT — Requer
+                      Produção", "substituir a persistência de localStorage", e
+                      a lista dos nomes das variáveis secretas do sistema.
+                      Era o único dos três cards em esmeralda com Sparkles
+                      animado — vocabulário de novidade boa no item que
+                      confessava que o faturamento é simulado.
+                      Enquanto a ingestão não for real, o lugar de dizer isso é
+                      um estado vazio honesto na tela do recurso, não um
+                      relatório de backlog dentro do produto. */}
                 </div>
               </div>
 
-              <div className="border-t border-slate-800 pt-4 mt-6 text-xs text-gray-400 text-left space-y-1.5">
+              <div className="border-t border-[var(--line)] pt-4 mt-6 text-xs text-[var(--ink-lo)] text-left space-y-1.5">
                 <p>Precisa de ajuda imediata?</p>
                 <p className="text-blue-400 hover:underline cursor-pointer font-semibold flex items-center gap-1">
-                  PWstreamer <ArrowRight size={12} />
+                  PwStreamer <ArrowRight size={12} />
                 </p>
               </div>
             </div>
@@ -2984,19 +3158,19 @@ export default function App() {
 
           {/* Dashboard Capas Creator Modal */}
           {isDashboardEditorOpen && (
-            <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[9999] flex items-center justify-center p-4 overflow-y-auto">
-              <div className="bg-[#16191E] border border-slate-800 w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+            <Modal isOpen onClose={() => setIsDashboardEditorOpen(false)} bare ariaLabel="Editor do painel">
+              <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F1115]">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--bg)]">
                   <div className="text-left">
-                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-[var(--ink-hi)] flex items-center gap-2">
                       <Palette size={16} className="text-blue-500 animate-pulse" /> Gerador de Capas & Miniaturas (Thumbnail Editor)
                     </h3>
-                    <p className="text-xs text-gray-400">Desenhe e baixe capas em alta definição para as suas redes sociais e transmissões</p>
+                    <p className="text-xs text-[var(--ink-lo)]">Desenhe e baixe capas em alta definição para as suas redes sociais e transmissões</p>
                   </div>
-                  <button 
+                  <button aria-label="Fechar gerador de capas" 
                     onClick={() => setIsDashboardEditorOpen(false)}
-                    className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
+                    className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
                   >
                     <X size={18} />
                   </button>
@@ -3012,7 +3186,7 @@ export default function App() {
                   />
                 </div>
               </div>
-            </div>
+            </Modal>
           )}
 
           {/* Custom Chrome Screen Share Picker Modal */}
@@ -3023,31 +3197,31 @@ export default function App() {
             onSelectShare={handleConfirmScreenShare}
           />
 
-        </div>
+        </main>
       )}
 
       {/* Styled Footer - Visible only on main page / dashboard */}
       {currentView !== 'studio' && (
-        <footer className="bg-[#0F1115] border-t border-slate-800 py-6 text-xs text-gray-400">
+        <footer className="bg-[var(--bg)] border-t border-[var(--line)] py-6 text-xs text-[var(--ink-lo)]">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex gap-6">
               <button 
                 onClick={() => { setLegalModalType('terms'); setLegalModalOpen(true); }}
-                className="hover:text-white transition-colors uppercase font-semibold cursor-pointer"
+                className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold cursor-pointer"
               >
                 TERMOS
               </button>
               <button 
                 onClick={() => { setLegalModalType('privacy'); setLegalModalOpen(true); }}
-                className="hover:text-white transition-colors uppercase font-semibold cursor-pointer"
+                className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold cursor-pointer"
               >
                 PRIVACIDADE
               </button>
-              <a href="https://pwstreamer.com/support" target="_blank" rel="noreferrer" className="hover:text-white transition-colors uppercase font-semibold">PWstreamer</a>
+              <a href="https://pwstreamer.com/support" target="_blank" rel="noreferrer" className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold">PwStreamer</a>
             </div>
 
-            <div className="text-center text-gray-500">
-              <p>© 2026, All Rights Reserved to <span className="text-white">PwStreamer Online.</span> Developed and Maintained by <span className="text-blue-400">PWstreamer</span></p>
+            <div className="text-center text-[var(--ink-dim)]">
+              <p>© 2026, All Rights Reserved to <span className="text-[var(--ink-hi)]">PW Stream Online.</span> Developed and Maintained by <span className="text-blue-400">PwStreamer</span></p>
             </div>
 
             <div className="shrink-0">
@@ -3059,20 +3233,20 @@ export default function App() {
 
       {/* 4. CREATION WEBINAR / LIVE EVENT MODAL */}
       {isCreateWebinarOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200" id="create-webinar-modal">
-          <div className="relative w-full max-w-xl bg-[#11141a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-left">
+        <Modal isOpen onClose={() => setIsCreateWebinarOpen(false)} bare ariaLabel="Criar webinar ou evento ao vivo">
+          <div className="relative w-full max-w-xl bg-[var(--bg)] border border-[var(--line)] rounded-2xl shadow-2xl overflow-hidden flex flex-col text-left">
             
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+            <div className="p-5 border-b border-[var(--line)] flex items-center justify-between">
               <div className="space-y-0.5">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <h3 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
                   <Calendar size={18} className="text-blue-500" /> Agendar Nova Transmissão
                 </h3>
-                <p className="text-xs text-gray-400">Preencha os dados do webinar, canais de streaming e tipo de conteúdo.</p>
+                <p className="text-xs text-[var(--ink-lo)]">Preencha os dados do webinar, canais de streaming e tipo de conteúdo.</p>
               </div>
-              <button 
+              <button aria-label="Fechar agendamento" 
                 onClick={() => setIsCreateWebinarOpen(false)}
-                className="p-1.5 hover:bg-slate-800 rounded-lg text-gray-400 hover:text-white transition-all cursor-pointer"
+                className="p-1.5 hover:bg-[var(--panel)] rounded-lg text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-all cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -3112,48 +3286,48 @@ export default function App() {
             >
               {/* Event Title */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-300">Título do Webinar / Transmissão</label>
-                <input
+                <label htmlFor="app-titulo-do-webinar-transmissao" className="text-xs font-semibold text-[var(--ink)]">Título do Webinar / Transmissão</label>
+                <input id="app-titulo-do-webinar-transmissao"
                   type="text"
                   required
                   placeholder="Ex: Como dominar o tráfego pago em 2026"
                   value={newWebinarTitle}
                   onChange={(e) => setNewWebinarTitle(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
+                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all"
                 />
               </div>
 
               {/* Event Description */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-300">Descrição Detalhada</label>
-                <textarea
+                <label htmlFor="app-descricao-detalhada" className="text-xs font-semibold text-[var(--ink)]">Descrição Detalhada</label>
+                <textarea id="app-descricao-detalhada"
                   placeholder="Ex: Neste webinar exclusivo, abordaremos as novas tendências de audiência..."
                   value={newWebinarDesc}
                   onChange={(e) => setNewWebinarDesc(e.target.value)}
                   rows={3}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all resize-none"
+                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all resize-none"
                 />
               </div>
 
               {/* Time & Type Selection Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-gray-300">Data e Hora do Início</label>
-                  <input
+                  <label htmlFor="app-data-e-hora-do-inicio" className="text-xs font-semibold text-[var(--ink)]">Data e Hora do Início</label>
+                  <input id="app-data-e-hora-do-inicio"
                     type="text"
                     placeholder="Ex: Amanhã, às 20:00"
                     value={newWebinarTime}
                     onChange={(e) => setNewWebinarTime(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-gray-300">Tipo de Conteúdo</label>
-                  <select
+                  <label htmlFor="app-tipo-de-conteudo" className="text-xs font-semibold text-[var(--ink)]">Tipo de Conteúdo</label>
+                  <select id="app-tipo-de-conteudo"
                     value={newWebinarType}
                     onChange={(e) => setNewWebinarType(e.target.value as any)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all"
+                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all"
                   >
                     <option value="webinar">Webinar Interativo (Ao Vivo)</option>
                     <option value="live">Stream Convencional (Ao Vivo)</option>
@@ -3166,9 +3340,9 @@ export default function App() {
               {newWebinarType === 'pre-recorded' && (
                 <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-3">
                   <label className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Upload do Vídeo Pré-gravado</label>
-                  <p className="text-[10px] text-gray-400 leading-relaxed">Arraste e solte o arquivo de vídeo (.mp4, .mov) para que nossos servidores façam o transcoding automático e iniciem o fluxo RTMP no horário programado.</p>
+                  <p className="text-[10px] text-[var(--ink-lo)] leading-relaxed">Arraste e solte o arquivo de vídeo (.mp4, .mov) para que nossos servidores façam o transcoding automático e iniciem o fluxo RTMP no horário programado.</p>
                   
-                  <div className="border border-dashed border-slate-700 hover:border-blue-500/50 rounded-lg p-5 text-center transition-all cursor-pointer bg-[#0F1115]">
+                  <div className="border border-dashed border-[var(--line-ctl)] hover:border-blue-500/50 rounded-lg p-5 text-center transition-all cursor-pointer bg-[var(--bg)]">
                     {newWebinarVideoName ? (
                       <div className="text-xs text-emerald-400 font-semibold flex items-center justify-center gap-1.5">
                         <CheckCircle2 size={16} /> {newWebinarVideoName}
@@ -3176,7 +3350,7 @@ export default function App() {
                     ) : (
                       <div 
                         onClick={() => setNewWebinarVideoName('aula_introducao_marketing_v2.mp4')}
-                        className="text-xs text-gray-400 hover:text-white transition-colors"
+                        className="text-xs text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-colors"
                       >
                         Clique para simular o upload de <span className="text-blue-400 font-semibold underline">aula_introducao_marketing_v2.mp4</span>
                       </div>
@@ -3187,15 +3361,15 @@ export default function App() {
 
               {/* Destination channels checkbox selections */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-gray-300">Canais de Transmissão Simultânea</label>
+                <label className="text-xs font-semibold text-[var(--ink)]">Canais de Transmissão Simultânea</label>
                 <div className="grid grid-cols-3 gap-2.5">
                   {['YouTube', 'Facebook', 'Instagram', 'Twitch', 'LinkedIn', 'X / Twitter'].map(chan => {
                     const isChecked = newWebinarChannels.includes(chan);
                     return (
                       <label 
                         key={chan} 
-                        className={`flex items-center gap-2 p-2.5 bg-slate-950 border rounded-xl cursor-pointer text-xs transition-all ${
-                          isChecked ? 'border-blue-500/40 bg-blue-500/5 text-white' : 'border-slate-800 text-gray-400 hover:text-white'
+                        className={`flex items-center gap-2 p-2.5 bg-[var(--bg)] border rounded-xl cursor-pointer text-xs transition-all ${
+                          isChecked ? 'border-blue-500/40 bg-blue-500/5 text-[var(--ink-hi)]' : 'border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
                         <input
@@ -3218,17 +3392,14 @@ export default function App() {
               </div>
 
               {/* Form submit button */}
-              <button
-                type="submit"
-                className="w-full py-3 bg-[#4683E0] hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-lg mt-4 cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Plus size={14} /> Salvar e Agendar Webinar
-              </button>
+              <Button type="submit" className="w-full mt-4" icon={<Plus size={14} />}>
+                Salvar e Agendar Webinar
+              </Button>
 
             </form>
 
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Interactive Legal Document Modals */}
@@ -3240,29 +3411,28 @@ export default function App() {
 
       {/* 5. INTERACTIVE INTEGRATIONS, API KEYS & REQUIREMENTS ANALYSIS MODAL */}
       {isIntegrationsModalOpen && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-[9999] flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#16191E] border border-slate-800 w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-left">
+        <Modal isOpen onClose={() => setIsIntegrationsModalOpen(false)} bare ariaLabel="Integrações e chaves">
+          <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-left">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800 bg-[#0F1115]">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--line)] bg-[var(--bg)]">
               <div className="text-left">
-                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
                   <Sparkles size={18} className="text-emerald-400 animate-pulse" />
                   Manual de Integração, Chaves de API e Análise do SaaS
                 </h3>
-                <p className="text-xs text-gray-400 mt-0.5">Analise o mapeamento completo de requisitos de produção e variáveis de ambiente.</p>
+                <p className="text-xs text-[var(--ink-lo)] mt-0.5">Analise o mapeamento completo de requisitos de produção e variáveis de ambiente.</p>
               </div>
-              <button 
+              <button aria-label="Fechar integrações" 
                 onClick={() => setIsIntegrationsModalOpen(false)}
-                className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
+                className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* Tab Switched Header */}
-            <div className="flex border-b border-slate-800 bg-[#0F1115]/50 px-6 py-2 gap-2">
+            <div {...integracoesAbas.tablist} aria-label="Integrações" className="flex border-b border-[var(--line)] bg-[var(--bg)]/50 px-6 py-2 gap-2">
               {[
-                { id: 'analysis', label: 'Análise de Requisitos (SaaS)', icon: CheckCircle2 },
                 { id: 'rtmp', label: 'Ingestão OBS & RTMP', icon: Server },
                 { id: 'social', label: 'Mídias Sociais & OAuth', icon: Users },
                 { id: 'webhooks', label: 'Gerenciador de Webhooks', icon: Radio }
@@ -3272,9 +3442,10 @@ export default function App() {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setIntegrationsModalTab(tab.id as any)}
+                    {...integracoesAbas.tab(tab.id as typeof integrationsModalTab)}
+                    onClick={() => setIntegrationsModalTab(tab.id as typeof integrationsModalTab)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                      active ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-gray-400 hover:text-gray-200'
+                      active ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                     }`}
                   >
                     <Icon size={14} /> {tab.label}
@@ -3284,110 +3455,53 @@ export default function App() {
             </div>
 
             {/* Content Body */}
-            <div className="p-6 max-h-[65vh] overflow-y-auto text-xs text-gray-300 space-y-4">
-              {integrationsModalTab === 'analysis' && (
-                <div className="space-y-4">
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl">
-                    <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-1">Mapeamento Geral do SaaS (Requisitos vs. Código)</p>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">Confrontamos as 45 seções e requisitos técnicos de seu plano de negócios com a implementação atual do MVP do PwStreamer. O resultado demonstra as áreas prontas e o roteiro de banco de dados e servidores para a migração para nuvem.</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                      { title: 'Estúdio Virtual do Navegador', state: 'Pronto / Implementado', desc: 'Captura de câmera, microfone, compartilhamento de tela, controle de layouts de palco e mixers de áudio real via Web Audio API.', done: true },
-                      { title: 'Gerenciador de Transição de Câmeras', state: 'Pronto / Implementado', desc: 'Transições suaves reais de vídeo (Fade, Slide, Zoom, Cut) usando animações Motion integradas diretamente nas trocas de layout.', done: true },
-                      { title: 'Moderação Automática com IA', state: 'Pronto / Integrado', desc: 'Filtro inteligente de abusos e spams conectado diretamente no backend Express com a SDK oficial @google/genai (Gemini 3.5 Flash).', done: true },
-                      { title: 'Painel de Cobranças e Faturas', state: 'Pronto / Simulação Premium', desc: 'Componente Billing completo que simula pagamentos Stripe, PayPal, Mercado Pago (PIX), gera histórico de faturamento e emite faturas em texto.', done: true },
-                      { title: 'Gerador de Capas & Captação', state: 'Pronto / Implementado', desc: 'Criação de miniaturas / thumbnails para mídias sociais diretamente pelo painel e landing pages públicas interativas de captação de leads.', done: true },
-                      { title: 'Monitoramento & Painel Admin', state: 'Pronto / Implementado', desc: 'Painel administrativo com monitoramento em tempo real de CPU do servidor, banda e egress/ingress de dados usando gráficos Recharts.', done: true },
-                      { title: 'Chroma-key (Tela Verde)', state: 'Pronto / Implementado', desc: 'Substituição em tempo real de fundos utilizando tolerância cromática configurável direto na visualização da câmera.', done: true },
-                      { title: 'Durable Database (PostgreSQL)', state: 'Requer Produção', desc: 'Substituir a persistência de LocalState/localStorage atual por tabelas relacionais do PostgreSQL (tabelas users, subscriptions, broadcasts, etc.)', done: false },
-                      { title: 'Servidores de Ingestão RTMP/SRT', state: 'Requer Produção', desc: 'Substituir as chaves simuladas por ingestão real de sinal rodando MediaMTX ou OvenMediaEngine sob Docker.', done: false },
-                      { title: 'Email Marketing & transactional SMTP', state: 'Requer Produção', desc: 'Disparo real de convites e certificados pós-transmissão utilizando chaves de API da Brevo, SendGrid ou Mailchimp.', done: false },
-                    ].map((item, idx) => (
-                      <div key={idx} className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-1.5 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-bold text-white text-xs">{item.title}</span>
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
-                              item.done ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                            }`}>{item.state}</span>
-                          </div>
-                          <p className="text-[10px] text-gray-400 leading-relaxed mt-1">{item.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-2xl space-y-2">
-                    <p className="font-bold text-blue-400 text-xs flex items-center gap-1">Chaves Necessárias para o Sistema Completo</p>
-                    <p className="text-[10px] text-gray-300 leading-relaxed">As seguintes variáveis devem ser declaradas no arquivo <code className="bg-slate-950 px-1 py-0.5 rounded font-mono text-gray-200">.env</code> de produção para que o ecossistema SaaS opere plenamente:</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] font-mono pt-1 text-gray-400">
-                      <div>• <code className="text-gray-200">GEMINI_API_KEY</code> (Moderação do chat)</div>
-                      <div>• <code className="text-gray-200">STRIPE_SECRET_KEY</code> (Assinaturas e planos)</div>
-                      <div>• <code className="text-gray-200">MERCADO_PAGO_ACCESS_TOKEN</code> (PIX / Boleto)</div>
-                      <div>• <code className="text-gray-200">AWS_ACCESS_KEY_ID</code> (Streaming AWS IVS)</div>
-                      <div>• <code className="text-gray-200">CLOUDFLARE_API_TOKEN</code> (Armazenamento R2)</div>
-                      <div>• <code className="text-gray-200">BREVO_SMTP_KEY</code> (Disparo de emails)</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
+            <div {...integracoesAbas.panel(integrationsModalTab)} className="p-6 max-h-[65vh] overflow-y-auto text-xs text-[var(--ink)] space-y-4">
               {integrationsModalTab === 'rtmp' && (
                 <div className="space-y-4">
                   <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl">
                     <p className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Configuração de Transmissão Externa (OBS / Streamlabs)</p>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">Você pode conectar encoders físicos ou softwares externos (como OBS Studio, vMix ou Streamlabs) ao PwStreamer. O servidor de ingestão recebe seu sinal em alta definição e faz o multicast simultâneo.</p>
+                    <p className="text-[11px] text-[var(--ink)] leading-relaxed">Você pode conectar encoders físicos ou softwares externos (como OBS Studio, vMix ou Streamlabs) ao PwStreamer. O servidor de ingestão recebe seu sinal em alta definição e faz o multicast simultâneo.</p>
                   </div>
 
-                  <div className="space-y-3 bg-[#0F1115] border border-slate-800 p-5 rounded-2xl">
-                    <p className="text-xs font-bold text-white uppercase tracking-wider">Parâmetros de Conexão Ativos</p>
+                  <div className="space-y-3 bg-[var(--bg)] border border-[var(--line)] p-5 rounded-2xl">
+                    <p className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider">Parâmetros de Conexão Ativos</p>
                     
                     <div className="space-y-2.5">
                       <div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">URL do Servidor RTMP Primário (Ingestion)</p>
+                        <label htmlFor="app-url-do-servidor-rtmp-primario" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL do Servidor RTMP Primário (Ingestion)</label>
                         <div className="flex gap-2 mt-1">
-                          <input 
+                          <input id="app-url-do-servidor-rtmp-primario" 
                             type="text" 
                             readOnly 
                             value="rtmp://stream.pwstreamer.com:1935/live" 
-                            className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 font-mono text-[11px] text-blue-400 focus:outline-none"
+                            className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-1.5 font-mono text-[11px] text-blue-400 focus:outline-none"
                           />
-                          <button 
-                            type="button"
-                            onClick={() => navigator.clipboard.writeText('rtmp://stream.pwstreamer.com:1935/live')}
-                            className="px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => copyText('rtmp://stream.pwstreamer.com:1935/live')}>
                             Copiar
-                          </button>
+                          </Button>
                         </div>
                       </div>
 
                       <div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Chave de Transmissão (Stream Key)</p>
+                        <label htmlFor="app-chave-de-transmissao-stream-key" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Chave de Transmissão (Stream Key)</label>
                         <div className="flex gap-2 mt-1">
-                          <input 
+                          <input id="app-chave-de-transmissao-stream-key" 
                             type="password" 
                             readOnly 
                             value="live_5427901_pw_prod_99a8x72cd" 
-                            className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 font-mono text-[11px] text-blue-400 focus:outline-none"
+                            className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-1.5 font-mono text-[11px] text-blue-400 focus:outline-none"
                           />
-                          <button 
-                            type="button"
-                            onClick={() => navigator.clipboard.writeText('live_5427901_pw_prod_99a8x72cd')}
-                            className="px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-[10px] font-bold cursor-pointer"
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => copyText('live_5427901_pw_prod_99a8x72cd')}>
                             Copiar
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
-                    <p className="text-xs font-bold text-gray-200">Requisitos Recomendados para o OBS:</p>
-                    <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-400 text-[10px] leading-relaxed">
+                  <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl">
+                    <p className="text-xs font-bold text-[var(--ink-hi)]">Requisitos Recomendados para o OBS:</p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1 text-[var(--ink-lo)] text-[10px] leading-relaxed">
                       <li><strong>Encoder de Vídeo:</strong> NVIDIA NVENC H.264 ou x264</li>
                       <li><strong>Taxa de Bits (Bitrate):</strong> 3500 kbps a 6000 kbps (para 720p / 1080p a 30fps)</li>
                       <li><strong>Intervalo de Keyframe:</strong> 2 segundos (Obrigatório para Facebook e YouTube)</li>
@@ -3401,7 +3515,7 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-2xl">
                     <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Social Media APIs & Conexão por OAuth</p>
-                    <p className="text-[11px] text-gray-300 leading-relaxed">Para habilitar a retransmissão direta de um clique para canais e páginas, a plataforma utiliza o padrão de autenticação OAuth 2.0. Abaixo listamos as configurações necessárias para os portais de desenvolvedores de cada rede.</p>
+                    <p className="text-[11px] text-[var(--ink)] leading-relaxed">Para habilitar a retransmissão direta de um clique para canais e páginas, a plataforma utiliza o padrão de autenticação OAuth 2.0. Abaixo listamos as configurações necessárias para os portais de desenvolvedores de cada rede.</p>
                   </div>
 
                   <div className="space-y-3">
@@ -3425,14 +3539,14 @@ export default function App() {
                         desc: 'Habilita o envio de chaves de transmissão e monitoramento dinâmico de status técnico do canal do streamer, bem como integração direta com chats IRC.'
                       }
                     ].map((platform, idx) => (
-                      <div key={idx} className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-2 text-left">
+                      <div key={idx} className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-2 text-left">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
-                          <p className="text-xs font-bold text-white">{platform.name}</p>
+                          <p className="text-xs font-bold text-[var(--ink-hi)]">{platform.name}</p>
                           <span className="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-mono font-bold">{platform.developer}</span>
                         </div>
-                        <p className="text-[10px] text-gray-400 leading-relaxed">{platform.desc}</p>
-                        <div className="p-2.5 bg-slate-950 rounded-lg">
-                          <p className="text-[9px] font-bold text-gray-500 uppercase tracking-wider">Escopos e Permissões OAuth Requeridas:</p>
+                        <p className="text-[10px] text-[var(--ink-lo)] leading-relaxed">{platform.desc}</p>
+                        <div className="p-2.5 bg-[var(--bg)] rounded-lg">
+                          <p className="text-[9px] font-bold text-[var(--ink-dim)] uppercase tracking-wider">Escopos e Permissões OAuth Requeridas:</p>
                           <code className="text-[9px] text-indigo-300 block font-mono break-all mt-1">{platform.scopes}</code>
                         </div>
                       </div>
@@ -3456,18 +3570,14 @@ export default function App() {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-slate-800 bg-[#0F1115] flex items-center justify-between">
-              <span className="text-[10px] text-gray-500">Desenvolvido por PWstreamer Solutions - PwStreamer Cloud Integration Manual</span>
-              <button
-                type="button"
-                onClick={() => setIsIntegrationsModalOpen(false)}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
-              >
+            <div className="px-6 py-4 border-t border-[var(--line)] bg-[var(--bg)] flex items-center justify-between">
+              <span className="text-[10px] text-[var(--ink-dim)]">Desenvolvido por PwStreamer Solutions - PwStreamer Cloud Integration Manual</span>
+              <Button onClick={() => setIsIntegrationsModalOpen(false)}>
                 Concluído
-              </button>
+              </Button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Stream JSON Statistics Report Modal */}

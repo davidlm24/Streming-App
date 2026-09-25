@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PwStream — A interface desaparece</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   PwStream — Direção "A interface desaparece"
+   Todo valor cromático vive nos blocos de token abaixo. Nada de hex solto.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root{
+  color-scheme: light;
+
+  /* ---- PRIMITIVAS: rampa neutra medida. Croma zero: R=G=B em todos. ----
+     Passos escolhidos por L* (CIE), não por "parece mais escuro".        */
+  --n-0:#000000;   /* L*  0  — apenas letterbox de vídeo            */
+  --n-3:#0B0B0B;   /* L*  3 */
+  --n-6:#131313;   /* L*  6 */
+  --n-10:#1B1B1B;  /* L* 10 */
+  --n-14:#242424;  /* L* 14 */
+  --n-18:#2C2C2C;  /* L* 18 */
+  --n-22:#353535;  /* L* 22 */
+  --n-28:#424242;  /* L* 28 */
+  --n-36:#555555;  /* L* 36 */
+  --n-46:#6D6D6D;  /* L* 46 */
+  --n-58:#8B8B8B;  /* L* 58 */
+  --n-70:#ABABAB;  /* L* 70 */
+  --n-80:#C6C6C6;  /* L* 80 */
+  --n-89:#E0E0E0;  /* L* 89 */
+  --n-92:#E8E8E8;  /* L* 92 */
+  --n-96:#F4F4F4;  /* L* 96 */
+  --n-99:#FCFCFC;  /* L* 99 */
+  --n-100:#FFFFFF; /* L*100 */
+
+  /* ---- SINAL: a única croma do sistema. Significa NO AR. ---- */
+  --sig:#D91F2D;          /* carmim de tally — H 355°, não vermelhão */
+  --sig-deep:#A81622;     /* texto de sinal sobre claro             */
+  --sig-lift:#F4666A;     /* texto de sinal sobre grafite           */
+  --sig-fg:#FFFFFF;
+  --sig-tint:rgba(217,31,45,.08);
+  --sig-tint-dark:rgba(217,31,45,.16);
+  --sig-tint-soft:rgba(217,31,45,.09);
+
+  /* ---- CONSOLE: invariável por tema (ver nota de colorimetria). ---- */
+  --con-void:var(--n-3);
+  --con-rail:var(--n-6);
+  --con-panel:var(--n-10);
+  --con-raise:var(--n-14);
+  --con-line:var(--n-18);
+  --con-line-2:var(--n-22);
+  --con-track:var(--n-28);
+  --con-stage:var(--n-0);
+  --con-hi:var(--n-92);
+  --con-tx:var(--n-70);
+  --con-lo:var(--n-58);
+  --con-dim:var(--n-46);
+  --con-focus:var(--n-96);
+  --con-sig:var(--sig);
+  --con-sig-tx:var(--sig-lift);
+  --con-sig-tint:var(--sig-tint-dark);
+  --con-sig-soft:var(--sig-tint-soft);
+  --con-alarm-bg:var(--n-92);   /* canal de alarme = inversão de valor */
+  --con-alarm-fg:var(--n-3);
+  --con-guide:rgba(255,255,255,.07);
+  --con-guide-2:rgba(255,255,255,.14);
+  --con-scrim:rgba(0,0,0,.42);
+
+  /* ---- SEMÂNTICA DE TEMA — claro (":root" puro) ---- */
+  --bg:var(--n-100);
+  --surface:var(--n-99);
+  --sunken:var(--n-96);
+  --line:var(--n-89);
+  --line-strong:var(--n-80);
+  --tx-hi:var(--n-6);
+  --tx:var(--n-28);
+  --tx-lo:var(--n-46);
+  --tx-dim:var(--n-58);
+  --invert-bg:var(--n-6);
+  --invert-fg:var(--n-99);
+  --invert-bg-hover:var(--n-0);
+  --focus:var(--n-6);
+  --sig-tx:var(--sig-deep);
+  --tint:var(--sig-tint);
+  --e-1:0 1px 1px rgba(0,0,0,.04), 0 10px 28px rgba(0,0,0,.10);
+
+  /* ---- TIPOGRAFIA ---- */
+  --f-ui:"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-num:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  --fs-11:.6875rem;  --fs-12:.75rem;    --fs-13:.8125rem;  --fs-15:.9375rem;
+  --fs-17:1.0625rem; --fs-21:1.3125rem; --fs-26:1.625rem;  --fs-34:2.125rem;
+  --fs-hero:clamp(2.25rem, 4.4vw, 3.125rem);
+
+  --lh-tight:1.06; --lh-snug:1.28; --lh-ui:1.45; --lh-prose:1.62;
+  --tr-caps:.085em; --tr-tight:-.01em; --tr-hero:-.028em;
+
+  /* ---- ESPAÇO: base 4. Console usa 4–16, editorial usa 16–96. ---- */
+  --s-1:4px; --s-2:6px; --s-3:8px;  --s-4:12px; --s-5:16px;
+  --s-6:24px; --s-7:32px; --s-8:48px; --s-9:64px; --s-10:96px;
+
+  /* ---- RAIO: função da altura do elemento. O palco é reto. ---- */
+  --r-0:0;    /* imagem, palco, medidores — nada corta o quadro */
+  --r-1:2px;  /* < 24px: selo, chip, célula */
+  --r-2:4px;  /* 24–48px: botão, campo, linha */
+  --r-3:8px;  /* contêiner: painel, cartão, console */
+  --r-dot:50%;
+}
+
+/* ---- SEMÂNTICA DE TEMA — escuro (sistema) ---- */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:var(--n-3);
+    --surface:var(--n-6);
+    --sunken:var(--n-10);
+    --line:var(--n-18);
+    --line-strong:var(--n-28);
+    --tx-hi:var(--n-96);
+    --tx:var(--n-70);
+    --tx-lo:var(--n-58);
+    --tx-dim:var(--n-46);
+    --invert-bg:var(--n-96);
+    --invert-fg:var(--n-6);
+    --invert-bg-hover:var(--n-100);
+    --focus:var(--n-96);
+    --sig-tx:var(--sig-lift);
+    --tint:var(--sig-tint-dark);
+    --e-1:0 1px 1px rgba(0,0,0,.5), 0 10px 28px rgba(0,0,0,.6);
+  }
+  :root:not([data-theme="light"]) .tk-col--light{opacity:.42}
+  :root:not([data-theme="light"]) .tk-col--dark{opacity:1}
+}
+
+/* ---- SEMÂNTICA DE TEMA — escuro (escolha explícita) ---- */
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:var(--n-3);
+  --surface:var(--n-6);
+  --sunken:var(--n-10);
+  --line:var(--n-18);
+  --line-strong:var(--n-28);
+  --tx-hi:var(--n-96);
+  --tx:var(--n-70);
+  --tx-lo:var(--n-58);
+  --tx-dim:var(--n-46);
+  --invert-bg:var(--n-96);
+  --invert-fg:var(--n-6);
+  --invert-bg-hover:var(--n-100);
+  --focus:var(--n-96);
+  --sig-tx:var(--sig-lift);
+  --tint:var(--sig-tint-dark);
+  --e-1:0 1px 1px rgba(0,0,0,.5), 0 10px 28px rgba(0,0,0,.6);
+}
+:root[data-theme="dark"] .tk-col--light{opacity:.42}
+:root[data-theme="dark"] .tk-col--dark{opacity:1}
+:root[data-theme="light"] .tk-col--dark{opacity:.42}
+.tk-col--dark{opacity:.42}
+
+/* ═══════════════════ base ═══════════════════ */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--tx);
+  font-family:var(--f-ui);
+  font-size:var(--fs-15);
+  line-height:var(--lh-ui);
+  font-weight:400;
+  font-synthesis-weight:none;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+img,svg{display:block;max-width:100%}
+h1,h2,h3,h4,p,ul,ol,figure{margin:0}
+ul{padding:0;list-style:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+hr{border:0;border-top:1px solid var(--line);margin:0}
+code{font-family:var(--f-num);font-size:.92em;color:var(--tx-hi)}
+
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-1)}
+.con :focus-visible{outline-color:var(--con-focus)}
+
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;letter-spacing:0}
+.caps{
+  font-size:var(--fs-11);font-weight:600;text-transform:uppercase;
+  letter-spacing:var(--tr-caps);line-height:1.2;
+}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.wrap{max-width:1264px;margin:0 auto;padding:0 var(--s-6)}
+
+/* ═══════════════════ cabeçalho do site ═══════════════════ */
+.site{
+  position:sticky;top:0;z-index:20;
+  background:var(--bg);
+  border-bottom:1px solid var(--line);
+}
+.site__in{
+  max-width:1264px;margin:0 auto;padding:0 var(--s-6);
+  height:56px;display:flex;align-items:center;gap:var(--s-6);
+}
+.brand{display:flex;align-items:center;gap:var(--s-3);color:var(--tx-hi)}
+.brand__mark{width:14px;height:14px;border:1px solid var(--tx-hi);border-radius:var(--r-1);
+  display:grid;place-items:center;flex:0 0 auto}
+.brand__mark i{width:4px;height:4px;background:var(--tx-hi);border-radius:var(--r-1);display:block}
+.brand__name{font-size:var(--fs-15);font-weight:600;letter-spacing:var(--tr-tight)}
+.site__nav{display:flex;gap:var(--s-5);margin-left:auto}
+.site__nav a{
+  font-size:var(--fs-13);color:var(--tx-lo);text-decoration:none;
+  padding:var(--s-2) 0;border-bottom:1px solid transparent;transition:color 90ms linear,border-color 90ms linear;
+}
+.site__nav a:hover{color:var(--tx-hi);border-bottom-color:var(--line-strong)}
+.toggle{
+  display:flex;align-items:center;gap:var(--s-2);
+  border:1px solid var(--line);border-radius:var(--r-2);
+  padding:var(--s-2) var(--s-3);color:var(--tx-lo);
+  transition:border-color 90ms linear,color 90ms linear;
+}
+.toggle:hover{border-color:var(--line-strong);color:var(--tx-hi)}
+.toggle__k{font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase}
+.toggle__sw{width:22px;height:12px;border:1px solid var(--line-strong);border-radius:var(--r-1);position:relative;flex:0 0 auto}
+.toggle__sw::after{content:"";position:absolute;top:1px;left:1px;width:8px;height:8px;background:var(--tx-lo);
+  border-radius:var(--r-1);transition:transform 110ms linear,background-color 110ms linear}
+:root[data-theme="dark"] .toggle__sw::after{transform:translateX(10px);background:var(--tx-hi)}
+@media (max-width:600px){
+  .site__in{gap:var(--s-4);padding:0 var(--s-5)}
+  .site__nav{display:none}
+  .wrap{padding:0 var(--s-5)}
+  .con__sess{display:none}
+  .sec{padding:var(--s-9) 0 var(--s-8)}
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .toggle__sw::after{transform:translateX(10px);background:var(--tx-hi)}
+}
+
+/* ═══════════════════ estrutura de seção ═══════════════════ */
+.sec{padding:var(--s-10) 0 var(--s-9)}
+.sec + .sec{border-top:1px solid var(--line)}
+.sec__hd{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-4);margin-bottom:var(--s-7)}
+@media (min-width:900px){
+  .sec__hd{grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:var(--s-8);align-items:end}
+}
+.sec__eyebrow{color:var(--tx-dim)}
+.sec__title{
+  font-size:var(--fs-26);font-weight:600;color:var(--tx-hi);
+  letter-spacing:var(--tr-tight);line-height:var(--lh-snug);margin-top:var(--s-3);
+}
+.sec__note{font-size:var(--fs-13);color:var(--tx-lo);line-height:var(--lh-prose);max-width:56ch}
+.sec__note b{color:var(--tx);font-weight:500}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SUPERFÍCIE 1 — CONSOLE DE ESTÚDIO
+   ═══════════════════════════════════════════════════════════════════════ */
+.con{
+  background:var(--con-void);
+  border:1px solid var(--con-line-2);
+  border-radius:var(--r-3);
+  overflow:hidden;
+  color:var(--con-tx);
+  font-size:var(--fs-13);
+}
+.con__bar{
+  height:40px;display:flex;align-items:center;gap:var(--s-4);
+  padding:0 var(--s-4);background:var(--con-rail);
+  border-bottom:1px solid var(--con-line);
+}
+.con__brand{display:flex;align-items:center;gap:var(--s-3);color:var(--con-hi);font-weight:600;font-size:var(--fs-13)}
+.con__brand .brand__mark{border-color:var(--con-hi)}
+.con__brand .brand__mark i{background:var(--con-sig)}
+.con__sess{color:var(--con-lo);font-size:var(--fs-12)}
+.con__sess b{color:var(--con-tx);font-weight:500}
+.con__bar-r{margin-left:auto;display:flex;align-items:center;gap:var(--s-4)}
+
+.tally{
+  display:inline-flex;align-items:center;gap:var(--s-2);
+  background:var(--con-sig);color:var(--sig-fg);
+  padding:3px var(--s-2);border-radius:var(--r-1);
+  font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase;
+  white-space:nowrap;
+}
+.tally i{width:5px;height:5px;background:var(--sig-fg);border-radius:var(--r-dot);display:block;flex:0 0 auto}
+.clock{font-size:var(--fs-15);font-weight:500;color:var(--con-hi)}
+
+.con__body{display:grid;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1060px){
+  .con__body{grid-template-columns:196px minmax(0,1fr) 304px}
+}
+
+/* --- coluna: cenas --- */
+.rail{background:var(--con-rail);border-bottom:1px solid var(--con-line);padding:var(--s-4) 0}
+@media (min-width:1060px){.rail{border-bottom:0;border-right:1px solid var(--con-line)}}
+.rail__hd{padding:0 var(--s-4) var(--s-3);color:var(--con-lo)}
+.scene{
+  display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:center;gap:var(--s-3);
+  min-height:26px;padding:0 var(--s-4) 0 var(--s-3);width:100%;text-align:left;
+  border-left:2px solid transparent;color:var(--con-tx);
+  transition:background-color 90ms linear,color 90ms linear;
+}
+.scene:hover{background:var(--con-panel);color:var(--con-hi)}
+.scene__i{font-size:var(--fs-11);color:var(--con-dim)}
+.scene__n{font-size:var(--fs-13);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scene__t{font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);color:var(--con-dim)}
+.scene[data-state="live"]{border-left-color:var(--con-sig);background:var(--con-sig-soft);color:var(--con-hi)}
+.scene[data-state="live"] .scene__t{color:var(--con-sig-tx)}
+.scene[data-state="pvw"]{border-left-color:var(--con-hi);color:var(--con-hi)}
+.scene[data-state="pvw"] .scene__t{color:var(--con-lo)}
+
+.rail__sep{margin:var(--s-4) var(--s-4) var(--s-3);border-top:1px solid var(--con-line)}
+.rail__meta{padding:0 var(--s-4);display:grid;gap:var(--s-2)}
+.rail__meta div{display:flex;justify-content:space-between;gap:var(--s-3);font-size:var(--fs-11)}
+.rail__meta dt,.rail__meta span:first-child{color:var(--con-dim)}
+.rail__meta span:last-child{color:var(--con-tx)}
+
+/* --- coluna: monitores --- */
+.stagecol{padding:var(--s-4);display:grid;gap:var(--s-4);min-width:0;background:var(--con-void)}
+.mon__hd{
+  display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-2);
+}
+.mon__tag{
+  font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase;
+  padding:2px var(--s-2);border-radius:var(--r-1);
+}
+.mon__tag--pgm{background:var(--con-sig);color:var(--sig-fg)}
+.mon__tag--pvw{background:var(--con-raise);color:var(--con-hi);border:1px solid var(--con-line-2)}
+.mon__name{font-size:var(--fs-12);color:var(--con-tx)}
+.mon__spec{margin-left:auto;font-size:var(--fs-11);color:var(--con-dim)}
+
+.stage{
+  position:relative;aspect-ratio:16/9;background:var(--con-stage);
+  border-radius:var(--r-0);
+  box-shadow:inset 0 0 0 1px var(--con-line-2);
+}
+.stage--live{box-shadow:inset 0 0 0 2px var(--con-sig)}
+.stage--pvw{box-shadow:inset 0 0 0 2px var(--con-hi)}
+.g{position:absolute;background:var(--con-guide)}
+.g--v{top:0;bottom:0;width:1px}
+.g--h{left:0;right:0;height:1px}
+.g--safe{position:absolute;inset:7% 6%;border:1px solid var(--con-guide);background:none}
+.g--x{position:absolute;left:50%;top:50%;width:16px;height:1px;background:var(--con-guide-2);transform:translate(-50%,-50%)}
+.g--y{position:absolute;left:50%;top:50%;width:1px;height:16px;background:var(--con-guide-2);transform:translate(-50%,-50%)}
+.burn{
+  position:absolute;font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-11);background:var(--con-scrim);padding:2px var(--s-2);border-radius:var(--r-1);
+}
+.burn--tl{top:var(--s-3);left:var(--s-3);color:var(--con-hi);letter-spacing:var(--tr-caps);text-transform:uppercase}
+.burn--br{right:var(--s-3);bottom:var(--s-3);color:var(--con-hi)}
+.burn--bl{left:var(--s-3);bottom:var(--s-3);color:var(--con-tx)}
+
+.stagerow{display:grid;gap:var(--s-4);grid-template-columns:minmax(0,1fr)}
+@media (min-width:760px){.stagerow{grid-template-columns:minmax(0,300px) minmax(0,1fr)}}
+
+/* telemetria */
+.telem{
+  border:1px solid var(--con-line);background:var(--con-panel);border-radius:var(--r-3);
+  padding:var(--s-4);display:grid;gap:var(--s-4);align-content:start;
+}
+.telem__clock{display:flex;align-items:baseline;gap:var(--s-3);padding-bottom:var(--s-4);border-bottom:1px solid var(--con-line)}
+.telem__clock b{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-34);
+  font-weight:500;color:var(--con-hi);letter-spacing:var(--tr-tight);line-height:1}
+.telem__clock span{color:var(--con-lo)}
+.telem__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--con-line)}
+.read{background:var(--con-panel);padding:var(--s-3) var(--s-4)}
+.read:nth-child(2n+1){padding-left:0}
+.read__k{color:var(--con-dim);display:block;margin-bottom:var(--s-2)}
+.read__v{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-17);
+  font-weight:500;color:var(--con-hi);display:block;line-height:1.1}
+.read__v small{font-size:var(--fs-12);font-weight:400;color:var(--con-lo);margin-left:3px}
+.telem__enc{display:flex;align-items:baseline;gap:var(--s-4);flex-wrap:wrap;
+  padding-top:var(--s-4);border-top:1px solid var(--con-line)}
+.telem__enc .caps{color:var(--con-dim)}
+.telem__enc .num{font-size:var(--fs-11);color:var(--con-lo)}
+
+/* --- coluna: destinos, chat, áudio --- */
+.side{border-top:1px solid var(--con-line);background:var(--con-panel);display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;min-height:0}
+@media (min-width:1060px){.side{border-top:0;border-left:1px solid var(--con-line)}}
+.side__hd{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);
+  padding:var(--s-3) var(--s-4);border-bottom:1px solid var(--con-line);color:var(--con-lo);
+}
+.dest{padding:var(--s-2) 0;border-bottom:1px solid var(--con-line)}
+.dest__row{
+  display:grid;grid-template-columns:8px minmax(0,1fr) auto;align-items:center;gap:var(--s-3);
+  min-height:26px;padding:0 var(--s-4);
+}
+.mark{width:8px;height:8px;border-radius:var(--r-1)}
+.mark--live{background:var(--con-sig)}
+.mark--ready{border:1px solid var(--con-hi);background:none}
+.mark--alarm{background:var(--con-alarm-bg)}
+.dest__n{font-size:var(--fs-13);color:var(--con-hi)}
+.dest__s{font-size:var(--fs-11);color:var(--con-lo);font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.chip{
+  font-size:var(--fs-11);font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase;
+  padding:2px var(--s-2);border-radius:var(--r-1);background:var(--con-alarm-bg);color:var(--con-alarm-fg);
+}
+
+.chat{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:248px;border-bottom:1px solid var(--con-line)}
+.chat__list{overflow:auto;padding:var(--s-2) 0}
+.msg{padding:var(--s-3) var(--s-4);border-bottom:1px solid var(--con-line)}
+.msg:last-child{border-bottom:0}
+.msg__hd{display:flex;align-items:baseline;gap:var(--s-3);margin-bottom:2px}
+.msg__who{font-size:var(--fs-12);font-weight:600;color:var(--con-hi)}
+.msg__t{font-size:var(--fs-11);color:var(--con-dim);font-family:var(--f-num);font-variant-numeric:tabular-nums;margin-left:auto}
+.msg__b{font-size:var(--fs-13);color:var(--con-tx);line-height:1.5}
+.chat__in{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-4);border-top:1px solid var(--con-line)}
+.chat__in input{
+  flex:1;min-width:0;background:var(--con-raise);border:1px solid var(--con-line-2);
+  border-radius:var(--r-2);padding:var(--s-2) var(--s-3);color:var(--con-hi);
+  font:inherit;font-size:var(--fs-12);
+}
+.chat__in input::placeholder{color:var(--con-dim)}
+.chat__in input:focus{outline:2px solid var(--con-focus);outline-offset:1px;border-color:var(--con-line-2)}
+
+.vu{padding:var(--s-4)}
+.vu__hd{display:flex;align-items:baseline;gap:var(--s-3);margin-bottom:var(--s-4)}
+.vu__hd b{font-size:var(--fs-12);font-weight:600;color:var(--con-hi)}
+.vu__hd span{font-size:var(--fs-11);color:var(--con-dim);margin-left:auto;
+  font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.vu__ch{display:grid;grid-template-columns:14px minmax(0,1fr);align-items:center;gap:var(--s-3);margin-bottom:var(--s-2)}
+.vu__k{font-size:var(--fs-11);color:var(--con-dim);font-family:var(--f-num)}
+.vu__track{position:relative;height:6px;background:var(--con-raise);border-radius:var(--r-0);overflow:hidden}
+.vu__fill{position:absolute;inset:0 auto 0 0;background:var(--con-hi)}
+.vu__clip{position:absolute;top:0;bottom:0;left:92%;width:1px;background:var(--con-track)}
+.vu__peak{position:absolute;top:0;bottom:0;width:1px;background:var(--con-hi)}
+.vu__scale{display:flex;justify-content:space-between;margin:var(--s-3) 0 0 22px;
+  font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);color:var(--con-dim)}
+
+/* --- bandeja de controle --- */
+.tray{
+  display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap;
+  padding:var(--s-3) var(--s-4);background:var(--con-rail);border-top:1px solid var(--con-line);
+}
+.ctl{
+  display:inline-flex;align-items:center;gap:var(--s-3);height:32px;padding:0 var(--s-3);
+  border:1px solid var(--con-line-2);border-radius:var(--r-2);background:var(--con-panel);
+  color:var(--con-tx);font-size:var(--fs-12);
+  transition:background-color 90ms linear,color 90ms linear,border-color 90ms linear;
+}
+.ctl:hover{background:var(--con-raise);color:var(--con-hi)}
+.ctl svg{width:16px;height:16px;flex:0 0 auto}
+.ctl[aria-pressed="true"]{background:var(--con-raise);color:var(--con-hi);border-color:var(--con-track)}
+.ctl[data-off="true"]{color:var(--con-dim);border-style:dashed}
+.tray__sep{width:1px;height:20px;background:var(--con-line-2)}
+.tray__sp{margin-left:auto}
+.end{
+  display:inline-flex;align-items:center;gap:var(--s-3);height:32px;padding:0 var(--s-4);
+  background:var(--con-sig);color:var(--sig-fg);border-radius:var(--r-2);
+  font-size:var(--fs-12);font-weight:600;letter-spacing:var(--tr-caps);text-transform:uppercase;
+  transition:background-color 90ms linear;
+}
+.end:hover{background:var(--sig-deep)}
+.end svg{width:12px;height:12px}
+.tray__t{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-12);color:var(--con-lo)}
+
+.con__foot{
+  display:flex;gap:var(--s-4);flex-wrap:wrap;justify-content:space-between;
+  margin-top:var(--s-4);font-size:var(--fs-12);color:var(--tx-lo);
+}
+.con__foot b{color:var(--tx);font-weight:500}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SUPERFÍCIE 2 — LANDING + PLANOS
+   ═══════════════════════════════════════════════════════════════════════ */
+.hero{display:grid;gap:var(--s-8);grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:960px){.hero{grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:var(--s-9)}}
+.hero h1{
+  font-size:var(--fs-hero);font-weight:400;color:var(--tx-hi);
+  line-height:var(--lh-tight);letter-spacing:var(--tr-hero);margin:var(--s-5) 0 var(--s-6);
+  text-wrap:pretty;
+}
+.hero h1 span{display:block}
+.hero h1 em{font-style:normal;color:var(--tx-lo)}
+.hero__lead{font-size:var(--fs-17);line-height:var(--lh-prose);color:var(--tx);max-width:52ch}
+.hero__cta{margin-top:var(--s-7);display:flex;align-items:center;gap:var(--s-5);flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:44px;padding:0 var(--s-6);border-radius:var(--r-2);
+  background:var(--invert-bg);color:var(--invert-fg);
+  font-size:var(--fs-15);font-weight:500;letter-spacing:var(--tr-tight);
+  text-decoration:none;transition:background-color 100ms linear;
+}
+.btn:hover{background:var(--invert-bg-hover)}
+.btn--ghost{
+  background:none;color:var(--tx-hi);border:1px solid var(--line-strong);height:38px;
+  font-size:var(--fs-13);padding:0 var(--s-5);
+}
+.btn--ghost:hover{background:var(--sunken)}
+.hero__fine{font-size:var(--fs-13);color:var(--tx-lo)}
+.hero__facts{
+  display:flex;flex-wrap:wrap;gap:var(--s-3) var(--s-6);margin-top:var(--s-8);
+  padding-top:var(--s-5);border-top:1px solid var(--line);font-size:var(--fs-13);color:var(--tx-lo);
+}
+.hero__facts b{color:var(--tx-hi);font-weight:500}
+
+.shot{border:1px solid var(--line);border-radius:var(--r-3);overflow:hidden;background:var(--surface)}
+.shot__bar{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-4);
+  border-bottom:1px solid var(--line);font-size:var(--fs-11);color:var(--tx-lo)}
+.shot__bar .caps{color:var(--tx-dim)}
+.shot__stage{padding:var(--s-4);background:var(--sunken)}
+.shot__cap{padding:var(--s-4);border-top:1px solid var(--line);font-size:var(--fs-12);color:var(--tx-lo);line-height:1.5}
+.shot__cap b{color:var(--tx);font-weight:500}
+.shot__meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line)}
+.shot__meta div{background:var(--surface);padding:var(--s-3) var(--s-4)}
+.shot__meta .caps{color:var(--tx-dim);display:block;margin-bottom:2px}
+.shot__meta b{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-13);
+  font-weight:500;color:var(--tx-hi)}
+
+/* planos */
+.plans{margin-top:var(--s-10)}
+.plans__hd{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-5);flex-wrap:wrap;
+  padding-bottom:var(--s-5);border-bottom:1px solid var(--line)}
+.plans__hd h2{font-size:var(--fs-21);font-weight:600;color:var(--tx-hi);letter-spacing:var(--tr-tight)}
+.plans__hd p{font-size:var(--fs-13);color:var(--tx-lo)}
+.tablewrap{overflow-x:auto}
+.ptable{
+  display:grid;min-width:772px;
+  grid-template-columns:minmax(158px,1.05fr) repeat(3,minmax(158px,1fr));
+}
+.pc{padding:var(--s-5) var(--s-5) var(--s-5) 0;border-bottom:1px solid var(--line)}
+.pc--lab{color:var(--tx-lo);font-size:var(--fs-13)}
+.pc--val{color:var(--tx-hi);font-size:var(--fs-13)}
+.pc--val .num{font-size:var(--fs-13)}
+.pc--top{border-top:2px solid transparent;padding-top:var(--s-6)}
+.pc--rec{border-top-color:var(--tx-hi)}
+.pname{font-size:var(--fs-17);font-weight:600;color:var(--tx-hi);letter-spacing:var(--tr-tight)}
+.prec{display:block;margin-top:var(--s-2);color:var(--tx-lo)}
+.pprice{display:flex;align-items:baseline;gap:2px;flex-wrap:wrap;font-family:var(--f-num);
+  font-variant-numeric:tabular-nums;color:var(--tx-hi)}
+.pprice .cur{font-size:var(--fs-13);color:var(--tx-lo);margin-right:var(--s-2)}
+.pprice .amt{font-size:var(--fs-26);font-weight:500;letter-spacing:var(--tr-tight);line-height:1}
+.pprice .per{font-size:var(--fs-12);color:var(--tx-lo);margin-left:var(--s-2)}
+.pnote{margin-top:var(--s-3);font-size:var(--fs-12);color:var(--tx-lo)}
+.pc--act{border-bottom:0;padding-top:var(--s-6)}
+.plans__fine{margin-top:var(--s-6);font-size:var(--fs-13);color:var(--tx-lo);max-width:64ch;line-height:var(--lh-prose)}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SUPERFÍCIE 3 — TOKENS
+   ═══════════════════════════════════════════════════════════════════════ */
+.tk{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-9)}
+.tk > section{min-width:0}
+.tablewrap{max-width:100%}
+.tk__h{font-size:var(--fs-15);font-weight:600;color:var(--tx-hi);letter-spacing:var(--tr-tight);
+  padding-bottom:var(--s-3);border-bottom:1px solid var(--line);margin-bottom:var(--s-5)}
+.tk__sub{font-size:var(--fs-13);color:var(--tx-lo);margin-bottom:var(--s-5);max-width:70ch;line-height:var(--lh-prose)}
+
+.ramp{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:var(--s-3)}
+.sw{border:1px solid var(--line);border-radius:var(--r-2);overflow:hidden;background:var(--surface)}
+.sw__c{height:52px;border-bottom:1px solid var(--line)}
+.sw__m{padding:var(--s-3);display:grid;gap:2px}
+.sw__hex{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);color:var(--tx-hi)}
+.sw__l{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);color:var(--tx-dim)}
+
+.sigrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s-4)}
+.sigcard{border:1px solid var(--line);border-radius:var(--r-2);overflow:hidden}
+.sigcard__c{height:64px;display:flex;align-items:flex-end;padding:var(--s-3);
+  font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11)}
+.sigcard__m{padding:var(--s-3) var(--s-4);border-top:1px solid var(--line);font-size:var(--fs-12);color:var(--tx-lo)}
+.sigcard__m b{display:block;color:var(--tx-hi);font-weight:500;font-size:var(--fs-13);margin-bottom:2px}
+
+.tk__table{width:100%;border-collapse:collapse;font-size:var(--fs-13)}
+.tk__table th{
+  text-align:left;font-size:var(--fs-11);font-weight:600;text-transform:uppercase;letter-spacing:var(--tr-caps);
+  color:var(--tx-dim);padding:var(--s-3) var(--s-4) var(--s-3) 0;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+.tk__table td{padding:var(--s-3) var(--s-4) var(--s-3) 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tk__table td:first-child{color:var(--tx-hi);font-family:var(--f-num);font-size:var(--fs-12)}
+.tk__table .hexcell{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-12);white-space:nowrap}
+.tk__table .role{color:var(--tx-lo)}
+.dotc{display:inline-block;width:9px;height:9px;border-radius:var(--r-1);border:1px solid var(--line-strong);
+  margin-right:var(--s-2);vertical-align:-1px}
+
+.spec{display:grid;gap:var(--s-5)}
+.specrow{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-2);
+  padding-bottom:var(--s-5);border-bottom:1px solid var(--line)}
+@media (min-width:820px){.specrow{grid-template-columns:180px minmax(0,1fr);gap:var(--s-6);align-items:baseline}}
+.specrow__k{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-11);color:var(--tx-dim);line-height:1.5}
+.specrow__k b{display:block;color:var(--tx-lo);font-weight:400}
+.specrow__s{color:var(--tx-hi);min-width:0;overflow-wrap:anywhere}
+.s-hero{font-size:var(--fs-hero);font-weight:400;letter-spacing:var(--tr-hero);line-height:var(--lh-tight)}
+.s-34{font-size:var(--fs-34);font-weight:400;letter-spacing:var(--tr-hero);line-height:1.1}
+.s-26{font-size:var(--fs-26);font-weight:600;letter-spacing:var(--tr-tight)}
+.s-21{font-size:var(--fs-21);font-weight:600;letter-spacing:var(--tr-tight)}
+.s-17{font-size:var(--fs-17);font-weight:400;line-height:var(--lh-prose)}
+.s-15{font-size:var(--fs-15);font-weight:400}
+.s-13{font-size:var(--fs-13);font-weight:400}
+.s-12{font-size:var(--fs-12);font-weight:500}
+.s-11{font-size:var(--fs-11);font-weight:600;text-transform:uppercase;letter-spacing:var(--tr-caps)}
+
+.numdemo{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s-6);margin-top:var(--s-3)}
+.numdemo ul{display:grid;gap:var(--s-2);font-family:var(--f-num);font-variant-numeric:tabular-nums;
+  font-size:var(--fs-15);color:var(--tx-hi);text-align:right;max-width:180px}
+.numdemo .caps{color:var(--tx-dim);margin-bottom:var(--s-3);text-align:left}
+
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:var(--s-5)}
+.rule{border:1px solid var(--line);border-radius:var(--r-2);padding:var(--s-5)}
+.rule h4{font-size:var(--fs-12);font-weight:600;text-transform:uppercase;letter-spacing:var(--tr-caps);
+  color:var(--tx-dim);margin-bottom:var(--s-4)}
+.rule dl{display:grid;gap:var(--s-3);margin:0;font-size:var(--fs-13)}
+.rule .r{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s-4);align-items:baseline}
+.rule dt{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:var(--fs-12);color:var(--tx-hi);white-space:nowrap}
+.rule dd{margin:0;color:var(--tx-lo);font-size:var(--fs-12);line-height:1.5}
+.rdemo{display:flex;align-items:flex-end;gap:var(--s-3);margin-bottom:var(--s-4)}
+.rdemo i{display:block;width:34px;height:34px;background:var(--sunken);border:1px solid var(--line-strong)}
+.rdemo i:nth-child(1){border-radius:var(--r-0)}
+.rdemo i:nth-child(2){border-radius:var(--r-1)}
+.rdemo i:nth-child(3){border-radius:var(--r-2)}
+.rdemo i:nth-child(4){border-radius:var(--r-3)}
+.edemo{display:flex;gap:var(--s-4);margin-bottom:var(--s-4)}
+.edemo i{display:block;width:52px;height:34px;background:var(--surface);border:1px solid var(--line)}
+.edemo i:nth-child(2){box-shadow:var(--e-1);border-color:transparent}
+
+/* rodapé */
+.foot{border-top:1px solid var(--line);padding:var(--s-7) 0 var(--s-9);
+  font-size:var(--fs-12);color:var(--tx-lo);display:flex;gap:var(--s-5);flex-wrap:wrap;justify-content:space-between}
+.foot b{color:var(--tx);font-weight:500}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="site__in">
+    <span class="brand">
+      <span class="brand__mark" aria-hidden="true"><i></i></span>
+      <span class="brand__name">PwStream</span>
+    </span>
+    <nav class="site__nav" aria-label="Seções">
+      <a href="#estudio">Estúdio</a>
+      <a href="#planos">Planos</a>
+      <a href="#tokens">Tokens</a>
+    </nav>
+    <button class="toggle" id="themeToggle" type="button" aria-label="Alternar entre tema claro e escuro">
+      <span class="toggle__sw" aria-hidden="true"></span>
+      <span class="toggle__k" id="themeLabel">Tema</span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════════ SUPERFÍCIE 1 — CONSOLE ══════════════ -->
+<section class="sec wrap" id="estudio">
+  <div class="sec__hd">
+    <div>
+      <p class="caps sec__eyebrow">Superfície 01 — Console de transmissão</p>
+      <h2 class="sec__title">O entorno não tem cor, para que a imagem tenha.</h2>
+    </div>
+    <p class="sec__note">
+      Toda a cromia do console é <b>zero</b>: cada neutro tem R=G=B exato, escolhido por L*
+      e não por aparência. Um cinza levemente azulado ao redor do monitor desloca a leitura de
+      tom de pele e de balanço de branco do operador. <b>Existe uma única cor no sistema</b> e
+      ela quer dizer no ar. O canal de alerta é inversão de valor, não uma segunda cor —
+      funciona também para quem não distingue vermelho.
+    </p>
+  </div>
+
+  <div class="con">
+
+    <div class="con__bar">
+      <span class="con__brand">
+        <span class="brand__mark" aria-hidden="true"><i></i></span>
+        PwStream
+      </span>
+      <span class="con__sess">Sessão <b>Painel de Vendas · Ep. 41</b></span>
+      <span class="con__bar-r">
+        <span class="tally"><i aria-hidden="true"></i>No ar</span>
+        <span class="clock num" aria-label="Tempo no ar">01:47:22</span>
+      </span>
+    </div>
+
+    <div class="con__body">
+
+      <!-- cenas -->
+      <div class="rail">
+        <p class="caps rail__hd">Cenas</p>
+        <ul>
+          <li><button class="scene" type="button" data-state="live">
+            <span class="scene__i num">01</span><span class="scene__n">Abertura</span>
+            <span class="scene__t">PGM</span></button></li>
+          <li><button class="scene" type="button" data-state="pvw">
+            <span class="scene__i num">02</span><span class="scene__n">Entrevista</span>
+            <span class="scene__t">PVW</span></button></li>
+          <li><button class="scene" type="button">
+            <span class="scene__i num">03</span><span class="scene__n">Tela + Câmera</span>
+            <span class="scene__t"></span></button></li>
+          <li><button class="scene" type="button">
+            <span class="scene__i num">04</span><span class="scene__n">Encerramento</span>
+            <span class="scene__t"></span></button></li>
+        </ul>
+        <div class="rail__sep"></div>
+        <p class="caps rail__hd">Transição</p>
+        <div class="rail__meta">
+          <div><span>Corte</span><span class="num">0 ms</span></div>
+          <div><span>Fusão</span><span class="num">400 ms</span></div>
+          <div><span>Gravando</span><span class="num">01:47:22</span></div>
+          <div><span>Disco livre</span><span class="num">412 GB</span></div>
+        </div>
+      </div>
+
+      <!-- monitores + telemetria -->
+      <div class="stagecol">
+
+        <div>
+          <div class="mon__hd">
+            <span class="mon__tag mon__tag--pgm">PGM</span>
+            <span class="mon__name">Abertura</span>
+            <span class="mon__spec num">1920 × 1080 · 16:9</span>
+          </div>
+          <div class="stage stage--live" role="img" aria-label="Monitor de programa, no ar, cena Abertura">
+            <span class="g g--v" style="left:33.333%"></span>
+            <span class="g g--v" style="left:66.666%"></span>
+            <span class="g g--h" style="top:33.333%"></span>
+            <span class="g g--h" style="top:66.666%"></span>
+            <span class="g--safe"></span>
+            <span class="g--x"></span><span class="g--y"></span>
+            <span class="burn burn--tl">PGM · Abertura</span>
+            <span class="burn burn--bl">Câmera 1 · f/2.0 · 1/60</span>
+            <span class="burn burn--br">01:47:22:14</span>
+          </div>
+        </div>
+
+        <div class="stagerow">
+          <div>
+            <div class="mon__hd">
+              <span class="mon__tag mon__tag--pvw">PVW</span>
+              <span class="mon__name">Entrevista</span>
+            </div>
+            <div class="stage stage--pvw" role="img" aria-label="Monitor de pré-visualização, cena Entrevista">
+              <span class="g g--v" style="left:33.333%"></span>
+              <span class="g g--v" style="left:66.666%"></span>
+              <span class="g g--h" style="top:33.333%"></span>
+              <span class="g g--h" style="top:66.666%"></span>
+              <span class="g--safe"></span>
+              <span class="burn burn--tl">PVW</span>
+            </div>
+          </div>
+
+          <div class="telem">
+            <div class="telem__clock">
+              <b class="num">01:47:22</b>
+              <span class="caps">no ar</span>
+            </div>
+            <div class="telem__grid">
+              <div class="read">
+                <span class="caps read__k">Taxa</span>
+                <span class="read__v num">60<small>fps</small></span>
+              </div>
+              <div class="read">
+                <span class="caps read__k">Bitrate</span>
+                <span class="read__v num">6,2<small>Mbps</small></span>
+              </div>
+              <div class="read">
+                <span class="caps read__k">RTT</span>
+                <span class="read__v num">18<small>ms</small></span>
+              </div>
+              <div class="read">
+                <span class="caps read__k">Perda</span>
+                <span class="read__v num">0,02<small>%</small></span>
+              </div>
+            </div>
+            <div class="telem__enc">
+              <span class="caps">Codificador</span>
+              <span class="num">H.264 · perfil alto · keyframe 2 s · CBR</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- destinos / chat / áudio -->
+      <div class="side">
+
+        <div>
+          <div class="side__hd"><span class="caps">Destinos</span><span class="caps num">3 canais</span></div>
+          <div class="dest">
+            <div class="dest__row">
+              <span class="mark mark--live" aria-hidden="true"></span>
+              <span class="dest__n">YouTube</span>
+              <span class="dest__s">no ar · 6,2 Mbps</span>
+            </div>
+            <div class="dest__row">
+              <span class="mark mark--live" aria-hidden="true"></span>
+              <span class="dest__n">Facebook</span>
+              <span class="dest__s">no ar · 4,0 Mbps</span>
+            </div>
+            <div class="dest__row">
+              <span class="mark mark--alarm" aria-hidden="true"></span>
+              <span class="dest__n">Twitch</span>
+              <span class="chip">reconectando</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat">
+          <div class="side__hd"><span class="caps">Chat unificado</span><span class="caps num">4 novas</span></div>
+          <div class="chat__list">
+            <article class="msg">
+              <div class="msg__hd"><span class="msg__who">Roberto Santos</span><span class="msg__t">01:41</span></div>
+              <p class="msg__b">O áudio hoje está impecável, dá pra ouvir cada detalhe da mesa.</p>
+            </article>
+            <article class="msg">
+              <div class="msg__hd"><span class="msg__who">Fernanda Lima</span><span class="msg__t">01:43</span></div>
+              <p class="msg__b">Dá pra repetir a parte do orçamento? Entrei atrasada aqui.</p>
+            </article>
+            <article class="msg">
+              <div class="msg__hd"><span class="msg__who">Ana Beatriz</span><span class="msg__t">01:45</span></div>
+              <p class="msg__b">Já compartilhei o link com o time inteiro de Fortaleza. Abraço!</p>
+            </article>
+            <article class="msg">
+              <div class="msg__hd"><span class="msg__who">Roberto Santos</span><span class="msg__t">01:46</span></div>
+              <p class="msg__b">Vocês abrem para perguntas antes de encerrar?</p>
+            </article>
+          </div>
+          <div class="chat__in">
+            <label class="sr" for="chatmsg">Responder no chat</label>
+            <input id="chatmsg" type="text" placeholder="Responder como PwStream…">
+            <button class="ctl" type="button" style="height:28px">Enviar</button>
+          </div>
+        </div>
+
+        <div class="vu">
+          <div class="vu__hd">
+            <b>Microfone — Canal 1</b>
+            <span>pico −3,1 dB</span>
+          </div>
+          <div class="vu__ch">
+            <span class="vu__k">E</span>
+            <div class="vu__track">
+              <span class="vu__fill" style="right:26%"></span>
+              <span class="vu__peak" style="left:80%"></span>
+              <span class="vu__clip"></span>
+            </div>
+          </div>
+          <div class="vu__ch">
+            <span class="vu__k">D</span>
+            <div class="vu__track">
+              <span class="vu__fill" style="right:34%"></span>
+              <span class="vu__peak" style="left:73%"></span>
+              <span class="vu__clip"></span>
+            </div>
+          </div>
+          <div class="vu__scale" aria-hidden="true">
+            <span>−60</span><span>−40</span><span>−20</span><span>−12</span><span>−6</span><span>0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- bandeja -->
+    <div class="tray">
+      <button class="ctl" type="button" aria-pressed="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="6" y="1.5" width="4" height="8" rx="2"/><path d="M3.5 7.6a4.5 4.5 0 0 0 9 0"/><path d="M8 12.1v2.4"/>
+        </svg>
+        Microfone
+      </button>
+      <button class="ctl" type="button" aria-pressed="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="1.5" y="4" width="9" height="8" rx="1.5"/><path d="M10.5 7 14.5 4.6v6.8L10.5 9z"/>
+        </svg>
+        Câmera
+      </button>
+      <button class="ctl" type="button" data-off="true">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="1.5" y="2.5" width="13" height="9" rx="1.5"/><path d="M6 14.2h4"/>
+        </svg>
+        Compartilhar tela
+      </button>
+      <span class="tray__sep" aria-hidden="true"></span>
+      <button class="ctl" type="button">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="1.5" y="5.5" width="9" height="8" rx="1.5"/><path d="M4.6 5.5v-1A1.5 1.5 0 0 1 6.1 3h6.4A1.5 1.5 0 0 1 14 4.5V11a1.5 1.5 0 0 1-1.5 1.5h-1"/>
+        </svg>
+        Cenas
+      </button>
+      <span class="tray__t tray__sp">gravando 01:47:22 · 412 GB livres</span>
+      <button class="end" type="button">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1"/></svg>
+        Encerrar transmissão
+      </button>
+    </div>
+  </div>
+
+  <div class="con__foot">
+    <p><b>Regra de tema.</b> O entorno do monitor não troca de tema. Mudar a luminância ao redor da imagem muda como o operador lê a imagem — isso é colorimetria, não preferência.</p>
+    <p><b>Sem pulsação.</b> O tally é constante. Nada nesta tela pisca, brilha ou respira durante duas horas de programa.</p>
+  </div>
+</section>
+
+<!-- ══════════════ SUPERFÍCIE 2 — LANDING + PLANOS ══════════════ -->
+<section class="sec wrap" id="planos">
+  <div class="sec__hd">
+    <div>
+      <p class="caps sec__eyebrow">Superfície 02 — Página pública</p>
+      <h2 class="sec__title">Fora do ar, não existe vermelho.</h2>
+    </div>
+    <p class="sec__note">
+      A página de vendas não está transmitindo, então não tem direito à cor de sinal.
+      Toda a hierarquia aqui é <b>valor e espaço</b>: o botão primário é o contraste máximo do tema.
+      O único vermelho da página está dentro do quadro de produto — onde ele significa alguma coisa.
+    </p>
+  </div>
+
+  <div class="hero">
+    <div>
+      <p class="caps" style="color:var(--tx-dim)">Transmissão ao vivo · feito no Brasil</p>
+      <h1><span>Três plataformas ao vivo.</span><span><em>Um operador.</em></span></h1>
+      <p class="hero__lead">
+        O PwStream leva sua transmissão para YouTube, Facebook e Twitch ao mesmo tempo,
+        direto do navegador. Cenas, chat unificado, enquetes e compartilhamento de tela
+        em um painel que fica quieto para você enxergar a imagem.
+      </p>
+      <div class="hero__cta">
+        <a class="btn" href="#planos">Começar a transmitir</a>
+        <span class="hero__fine">Teste de 14 dias. Sem cartão.</span>
+      </div>
+      <div class="hero__facts">
+        <span><b>Sem instalação</b> — Chrome, Edge ou Firefox</span>
+        <span><b>RTMP e SRT</b> — chave própria por destino</span>
+        <span><b>Suporte em português</b> — dias úteis, 9h às 19h</span>
+      </div>
+    </div>
+
+    <figure class="shot">
+      <div class="shot__bar">
+        <span class="caps">Monitor de programa</span>
+        <span class="tally" style="margin-left:auto"><i aria-hidden="true"></i>No ar</span>
+      </div>
+      <div class="shot__stage">
+        <div class="stage stage--live" role="img" aria-label="Quadro de programa no ar dentro do estúdio PwStream">
+          <span class="g g--v" style="left:33.333%"></span>
+          <span class="g g--v" style="left:66.666%"></span>
+          <span class="g g--h" style="top:33.333%"></span>
+          <span class="g g--h" style="top:66.666%"></span>
+          <span class="g--safe"></span>
+          <span class="g--x"></span><span class="g--y"></span>
+          <span class="burn burn--tl">PGM · Abertura</span>
+          <span class="burn burn--br">01:47:22:14</span>
+        </div>
+      </div>
+      <div class="shot__meta">
+        <div><span class="caps">Bitrate</span><b>6,2 Mbps</b></div>
+        <div><span class="caps">Taxa</span><b>60 fps</b></div>
+        <div><span class="caps">Perda</span><b>0,02 %</b></div>
+      </div>
+      <figcaption class="shot__cap">
+        <b>O único vermelho do produto.</b> Ele aparece quando você está no ar e some quando você
+        encerra. Nenhum botão, gráfico ou selo pode usá-lo.
+      </figcaption>
+    </figure>
+  </div>
+
+  <div class="plans">
+    <div class="plans__hd">
+      <h2>Planos</h2>
+      <p>Valores em reais, por mês, sem fidelidade. Troque de plano quando quiser.</p>
+    </div>
+
+    <div class="tablewrap">
+      <div class="ptable">
+
+        <div class="pc pc--lab pc--top"></div>
+        <div class="pc pc--top">
+          <span class="pname">Standard</span>
+          <span class="caps prec">&nbsp;</span>
+        </div>
+        <div class="pc pc--top pc--rec">
+          <span class="pname">Professional</span>
+          <span class="caps prec">Recomendado</span>
+        </div>
+        <div class="pc pc--top">
+          <span class="pname">Business</span>
+          <span class="caps prec">&nbsp;</span>
+        </div>
+
+        <div class="pc pc--lab">Assinatura</div>
+        <div class="pc">
+          <span class="pprice"><span class="cur">R$</span><span class="amt">49,90</span><span class="per">/mês</span></span>
+          <p class="pnote">3 canais simultâneos</p>
+        </div>
+        <div class="pc">
+          <span class="pprice"><span class="cur">R$</span><span class="amt">99,90</span><span class="per">/mês</span></span>
+          <p class="pnote">5 canais + co-produtores</p>
+        </div>
+        <div class="pc">
+          <span class="pprice"><span class="cur">R$</span><span class="amt">199,90</span><span class="per">/mês</span></span>
+          <p class="pnote">8 canais + SRT profissional</p>
+        </div>
+
+        <div class="pc pc--lab">Canais simultâneos</div>
+        <div class="pc pc--val"><span class="num">3</span></div>
+        <div class="pc pc--val"><span class="num">5</span></div>
+        <div class="pc pc--val"><span class="num">8</span></div>
+
+        <div class="pc pc--lab">Resolução máxima</div>
+        <div class="pc pc--val"><span class="num">720p</span> a <span class="num">30</span> fps</div>
+        <div class="pc pc--val"><span class="num">1080p</span> a <span class="num">60</span> fps</div>
+        <div class="pc pc--val"><span class="num">1080p</span> a <span class="num">60</span> fps</div>
+
+        <div class="pc pc--lab">Gravação na nuvem</div>
+        <div class="pc pc--val"><span class="num">20</span> h</div>
+        <div class="pc pc--val"><span class="num">100</span> h</div>
+        <div class="pc pc--val"><span class="num">500</span> h</div>
+
+        <div class="pc pc--lab">Co-produtores e convidados</div>
+        <div class="pc pc--val" style="color:var(--tx-dim)">—</div>
+        <div class="pc pc--val"><span class="num">4</span> no palco</div>
+        <div class="pc pc--val"><span class="num">10</span> no palco + sala verde</div>
+
+        <div class="pc pc--lab">Entrada de sinal</div>
+        <div class="pc pc--val">RTMP</div>
+        <div class="pc pc--val">RTMP</div>
+        <div class="pc pc--val">RTMP + SRT profissional</div>
+
+        <div class="pc pc--lab pc--act"></div>
+        <div class="pc pc--act"><button class="btn btn--ghost" type="button">Assinar Standard</button></div>
+        <div class="pc pc--act"><button class="btn btn--ghost" type="button">Assinar Professional</button></div>
+        <div class="pc pc--act"><button class="btn btn--ghost" type="button">Assinar Business</button></div>
+      </div>
+    </div>
+
+    <p class="plans__fine">
+      Todos os planos incluem chat unificado, cenas ilimitadas, enquetes e compartilhamento de tela.
+      A cobrança é em reais, emitida pela PwStream, e o cancelamento é imediato dentro do painel.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════ SUPERFÍCIE 3 — TOKENS ══════════════ -->
+<section class="sec wrap" id="tokens">
+  <div class="sec__hd">
+    <div>
+      <p class="caps sec__eyebrow">Superfície 03 — Sistema</p>
+      <h2 class="sec__title">Dezoito degraus medidos, uma cor.</h2>
+    </div>
+    <p class="sec__note">
+      A auditoria encontrou <b>187 hexadecimais</b>, sendo 102 cinzas escuros e 39 dentro de uma
+      faixa de 8 pontos de luminância. Aqui há uma rampa só, espaçada por L*, com croma exatamente
+      zero — e três valores de sinal. Nada mais.
+    </p>
+  </div>
+
+  <div class="tk">
+
+    <section>
+      <h3 class="tk__h">Rampa neutra — croma zero (R=G=B), passos por L*</h3>
+      <p class="tk__sub">
+        Primitivas. Nenhum componente as consome diretamente: cada superfície usa um alias
+        semântico, e só os aliases mudam de tema. É por isso que o tema inteiro cabe em treze linhas.
+        O preto absoluto — L*&nbsp;0 — existe uma única vez: dentro do letterbox do vídeo.
+      </p>
+      <div class="ramp">
+        <div class="sw"><div class="sw__c" style="background:var(--n-0)"></div><div class="sw__m"><span class="sw__hex">#000000</span><span class="sw__l">L*&nbsp;&nbsp;&nbsp;0</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-3)"></div><div class="sw__m"><span class="sw__hex">#0B0B0B</span><span class="sw__l">L*&nbsp;&nbsp;3</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-6)"></div><div class="sw__m"><span class="sw__hex">#131313</span><span class="sw__l">L*&nbsp;&nbsp;6</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-10)"></div><div class="sw__m"><span class="sw__hex">#1B1B1B</span><span class="sw__l">L*&nbsp;10</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-14)"></div><div class="sw__m"><span class="sw__hex">#242424</span><span class="sw__l">L*&nbsp;14</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-18)"></div><div class="sw__m"><span class="sw__hex">#2C2C2C</span><span class="sw__l">L*&nbsp;18</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-22)"></div><div class="sw__m"><span class="sw__hex">#353535</span><span class="sw__l">L*&nbsp;22</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-28)"></div><div class="sw__m"><span class="sw__hex">#424242</span><span class="sw__l">L*&nbsp;28</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-36)"></div><div class="sw__m"><span class="sw__hex">#555555</span><span class="sw__l">L*&nbsp;36</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-46)"></div><div class="sw__m"><span class="sw__hex">#6D6D6D</span><span class="sw__l">L*&nbsp;46</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-58)"></div><div class="sw__m"><span class="sw__hex">#8B8B8B</span><span class="sw__l">L*&nbsp;58</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-70)"></div><div class="sw__m"><span class="sw__hex">#ABABAB</span><span class="sw__l">L*&nbsp;70</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-80)"></div><div class="sw__m"><span class="sw__hex">#C6C6C6</span><span class="sw__l">L*&nbsp;80</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-89)"></div><div class="sw__m"><span class="sw__hex">#E0E0E0</span><span class="sw__l">L*&nbsp;89</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-92)"></div><div class="sw__m"><span class="sw__hex">#E8E8E8</span><span class="sw__l">L*&nbsp;92</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-96)"></div><div class="sw__m"><span class="sw__hex">#F4F4F4</span><span class="sw__l">L*&nbsp;96</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-99)"></div><div class="sw__m"><span class="sw__hex">#FCFCFC</span><span class="sw__l">L*&nbsp;99</span></div></div>
+        <div class="sw"><div class="sw__c" style="background:var(--n-100)"></div><div class="sw__m"><span class="sw__hex">#FFFFFF</span><span class="sw__l">L*&nbsp;100</span></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Sinal — a única cromia do sistema</h3>
+      <p class="tk__sub">
+        Carmim de tally em matiz 355°, deliberadamente do lado azul do vermelho para não ler como
+        vermelhão publicitário. Aparece em quatro lugares e em nenhum outro: moldura do PGM,
+        selo <span class="caps" style="letter-spacing:var(--tr-caps)">no ar</span>, marcador da cena
+        no ar e o botão que encerra a transmissão.
+      </p>
+      <div class="sigrow">
+        <div class="sigcard">
+          <div class="sigcard__c" style="background:var(--sig);color:var(--sig-fg)">#D91F2D</div>
+          <div class="sigcard__m"><b>--sig</b>Preenchimento. Branco por cima: 5,02:1.</div>
+        </div>
+        <div class="sigcard">
+          <div class="sigcard__c" style="background:var(--sig-deep);color:var(--sig-fg)">#A81622</div>
+          <div class="sigcard__m"><b>--sig-deep</b>Sinal como texto sobre claro: 7,49:1.</div>
+        </div>
+        <div class="sigcard">
+          <div class="sigcard__c" style="background:var(--sig-lift);color:var(--n-3)">#F4666A</div>
+          <div class="sigcard__m"><b>--sig-lift</b>Sinal como texto sobre grafite: 5,70:1.</div>
+        </div>
+        <div class="sigcard">
+          <div class="sigcard__c" style="background:var(--tint);color:var(--sig-tx)">tint 8% / 16%</div>
+          <div class="sigcard__m"><b>--tint</b>Uma receita de tinta. Substitui 473 pílulas tingidas.</div>
+        </div>
+      </div>
+      <p class="tk__sub" style="margin-top:var(--s-5);margin-bottom:0">
+        <b style="color:var(--tx-hi);font-weight:500">Não há verde, âmbar nem azul no sistema.</b>
+        Falha e atenção usam o canal de alarme — inversão de valor: um bloco de L*&nbsp;92 sobre
+        grafite de L*&nbsp;10. Em um console onde tudo vive numa faixa estreita de valor, o branco
+        cheio grita mais do que qualquer matiz, e continua gritando para quem não distingue vermelho.
+      </p>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Aliases semânticos — claro · escuro</h3>
+      <p class="tk__sub">A coluna do tema ativo fica em opacidade plena. Use o botão no topo para trocar.</p>
+      <div class="tablewrap">
+        <table class="tk__table">
+          <thead>
+            <tr>
+              <th scope="col">Token</th>
+              <th scope="col" class="tk-col--light">Claro</th>
+              <th scope="col" class="tk-col--dark">Escuro</th>
+              <th scope="col">Papel</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>--bg</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-100)"></span>#FFFFFF</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-3)"></span>#0B0B0B</td>
+              <td class="role">Fundo da página. <code>body</code> lê daqui.</td></tr>
+            <tr><td>--surface</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-99)"></span>#FCFCFC</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-6)"></span>#131313</td>
+              <td class="role">Cartão, figura, painel elevado.</td></tr>
+            <tr><td>--sunken</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-96)"></span>#F4F4F4</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-10)"></span>#1B1B1B</td>
+              <td class="role">Poço, faixa alternada, campo.</td></tr>
+            <tr><td>--line</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-89)"></span>#E0E0E0</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-18)"></span>#2C2C2C</td>
+              <td class="role">Fio único. Substitui 816 bordas e 8 opacidades.</td></tr>
+            <tr><td>--line-strong</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-80)"></span>#C6C6C6</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-28)"></span>#424242</td>
+              <td class="role">Borda de contêiner, moldura de palco.</td></tr>
+            <tr><td>--tx-hi</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-6)"></span>#131313</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-96)"></span>#F4F4F4</td>
+              <td class="role">Título, valor ativo. 16,8:1 · 15,9:1.</td></tr>
+            <tr><td>--tx</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-28)"></span>#424242</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-70)"></span>#ABABAB</td>
+              <td class="role">Corpo. 10,0:1 · 7,5:1.</td></tr>
+            <tr><td>--tx-lo</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-46)"></span>#6D6D6D</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-58)"></span>#8B8B8B</td>
+              <td class="role">Metadado, legenda. 5,2:1 · 5,1:1.</td></tr>
+            <tr><td>--tx-dim</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-58)"></span>#8B8B8B</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-46)"></span>#6D6D6D</td>
+              <td class="role">Desativado, régua de escala. Nunca texto essencial.</td></tr>
+            <tr><td>--invert-bg</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-6)"></span>#131313</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-96)"></span>#F4F4F4</td>
+              <td class="role">Ação primária. Contraste, não cor.</td></tr>
+            <tr><td>--focus</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--n-6)"></span>#131313</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--n-96)"></span>#F4F4F4</td>
+              <td class="role">Anel de foco 2px, offset 2px. Valor, não sinal.</td></tr>
+            <tr><td>--sig-tx</td>
+              <td class="hexcell tk-col--light"><span class="dotc" style="background:var(--sig-deep)"></span>#A81622</td>
+              <td class="hexcell tk-col--dark"><span class="dotc" style="background:var(--sig-lift)"></span>#F4666A</td>
+              <td class="role">Sinal como texto. Só em contexto no ar.</td></tr>
+            <tr><td>--con-*</td>
+              <td class="hexcell tk-col--light" colspan="2" style="opacity:1;color:var(--tx-lo)">
+                idêntico nos dois temas — <span style="color:var(--tx-hi)">#0B0B0B → #E8E8E8</span></td>
+              <td class="role">Console: o entorno do vídeo não troca de tema.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Escala tipográfica — IBM Plex Sans · IBM Plex Mono</h3>
+      <p class="tk__sub">
+        Duas famílias com métricas verticais compatíveis: uma coluna de rótulos e uma coluna de
+        números alinham sem gambiarra. Pesos 400 / 500 / 600 — <b>não existe 700, 800 nem 900</b>
+        neste sistema, e <code>font-synthesis-weight: none</code> garante que nenhum peso seja
+        inventado pelo navegador. O título grande é 400: peso pesado grita, tamanho grande basta.
+      </p>
+      <div class="spec">
+        <div class="specrow">
+          <div class="specrow__k">--fs-hero<b>36→50px · 1.06 · −0.028em · 400</b></div>
+          <div class="specrow__s s-hero">Três plataformas ao vivo.</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-34<b>34px · 1.10 · −0.028em · mono 500</b></div>
+          <div class="specrow__s s-34 num">01:47:22</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-26<b>26px · 1.28 · −0.01em · 600</b></div>
+          <div class="specrow__s s-26">Fora do ar, não existe vermelho</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-21<b>21px · 1.28 · −0.01em · 600</b></div>
+          <div class="specrow__s s-21">Planos e assinatura</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-17<b>17px · 1.62 · 0 · 400 · 52ch</b></div>
+          <div class="specrow__s s-17">Cenas, chat unificado e compartilhamento de tela em um painel que fica quieto.</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-15<b>15px · 1.45 · 0 · 400</b></div>
+          <div class="specrow__s s-15">Corpo padrão da interface e das listas.</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-13<b>13px · 1.45 · 0 · 400</b></div>
+          <div class="specrow__s s-13">Linha de console, mensagem de chat, célula de tabela.</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-12<b>12px · 1.45 · 0 · 500</b></div>
+          <div class="specrow__s s-12">Nome no chat, rótulo de controle, aviso curto.</div>
+        </div>
+        <div class="specrow">
+          <div class="specrow__k">--fs-11<b>11px · 1.20 · +0.085em · 600 · caixa alta</b></div>
+          <div class="specrow__s s-11">Piso absoluto — um por cabeçalho de painel</div>
+        </div>
+        <div class="specrow" style="border-bottom:0">
+          <div class="specrow__k">tabular-nums<b>obrigatório em todo dígito</b></div>
+          <div class="specrow__s">
+            <div class="numdemo">
+              <div><p class="caps">Assinatura</p><ul><li>R$ 49,90</li><li>R$ 99,90</li><li>R$ 199,90</li></ul></div>
+              <div><p class="caps">Timecode</p><ul><li>00:04:09</li><li>01:47:22</li><li>11:08:56</li></ul></div>
+              <div><p class="caps">Telemetria</p><ul><li>6,2 Mbps</li><li>18 ms</li><li>0,02 %</li></ul></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="tk__h">Regras de forma</h3>
+      <div class="rules">
+        <div class="rule">
+          <h4>Raio</h4>
+          <div class="rdemo" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <dl>
+            <div class="r"><dt>0px</dt><dd>Imagem, palco, medidor. Nada corta o quadro que o operador julga.</dd></div>
+            <div class="r"><dt>2px</dt><dd>Elemento abaixo de 24px: selo, chip, marcador.</dd></div>
+            <div class="r"><dt>4px</dt><dd>24 a 48px: botão, campo, linha, aba.</dd></div>
+            <div class="r"><dt>8px</dt><dd>Contêiner: painel, figura, console.</dd></div>
+            <div class="r"><dt>50%</dt><dd>Só ponto de estado e botão de rolagem. Nunca botão.</dd></div>
+          </dl>
+        </div>
+        <div class="rule">
+          <h4>Elevação</h4>
+          <div class="edemo" aria-hidden="true"><i></i><i></i></div>
+          <dl>
+            <div class="r"><dt>e-0</dt><dd>Fio de 1px. É o padrão de 97% das superfícies — a profundidade vem da rampa, não da sombra.</dd></div>
+            <div class="r"><dt>e-1</dt><dd>Uma sombra, para popover e modal. Não existe e-2.</dd></div>
+            <div class="r"><dt>—</dt><dd>Zero brilho colorido, zero <code>backdrop-blur</code>, zero gradiente decorativo.</dd></div>
+          </dl>
+        </div>
+        <div class="rule">
+          <h4>Borda e foco</h4>
+          <dl>
+            <div class="r"><dt>fio</dt><dd><code>1px solid var(--line)</code>. Um valor, sem variantes de opacidade.</dd></div>
+            <div class="r"><dt>forte</dt><dd><code>var(--line-strong)</code> para moldura de contêiner.</dd></div>
+            <div class="r"><dt>foco</dt><dd><code>outline 2px var(--focus)</code>, offset 2px. Contraste máximo do tema — o sinal não é gasto em foco.</dd></div>
+            <div class="r"><dt>tally</dt><dd><code>inset 0 0 0 2px</code> — sinal no PGM, valor alto no PVW.</dd></div>
+          </dl>
+        </div>
+        <div class="rule">
+          <h4>Densidade</h4>
+          <dl>
+            <div class="r"><dt>console</dt><dd>Ritmo 4 / 6 / 8 / 12 / 16. Linha de 26px, painel com 12–16 de recuo. É um instrumento.</dd></div>
+            <div class="r"><dt>editorial</dt><dd>Ritmo 16 / 24 / 32 / 48 / 64 / 96. Seção com 96 de respiro, prosa em 52–70ch.</dd></div>
+            <div class="r"><dt>marca</dt><dd><b style="color:var(--tx-hi);font-weight:500">PwStream</b> — uma grafia. Nunca PwStreamer, PW Stream ou pwstream.</dd></div>
+            <div class="r"><dt>movimento</dt><dd>Só transições de estado, ≤ 110ms, lineares. Nada pulsa, brilha ou respira.</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot wrap">
+  <p><b>PwStream</b> — transmissão ao vivo para YouTube, Facebook e Twitch.</p>
+  <p>Direção <b>“A interface desaparece”</b> · 18 neutros medidos · 1 cor · 3 raios · 1 sombra.</p>
+</footer>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeToggle');
+  var lbl  = document.getElementById('themeLabel');
+  var KEY  = 'pwstream-theme';
+
+  function stored(){ try { return localStorage.getItem(KEY); } catch(e){ return null; } }
+  function save(v){ try { localStorage.setItem(KEY, v); } catch(e){} }
+
+  function systemDark(){
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function effective(){
+    var t = root.getAttribute('data-theme');
+    if (t === 'dark' || t === 'light') return t;
+    return systemDark() ? 'dark' : 'light';
+  }
+  function label(){
+    var e = effective();
+    if (lbl) lbl.textContent = (e === 'dark') ? 'Escuro' : 'Claro';
+    if (btn) btn.setAttribute('aria-label',
+      e === 'dark' ? 'Tema escuro ativo. Mudar para o tema claro.'
+                   : 'Tema claro ativo. Mudar para o tema escuro.');
+  }
+
+  var s = stored();
+  if (s === 'dark' || s === 'light') root.setAttribute('data-theme', s);
+  label();
+
+  if (btn) btn.addEventListener('click', function(){
+    var next = (effective() === 'dark') ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    save(next);
+    label();
+  });
+
+  if (window.matchMedia){
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    var onChange = function(){ if (!root.getAttribute('data-theme')) label(); };
+    if (mq.addEventListener) mq.addEventListener('change', onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+  }
+})();
+</script>
+</body>
+</html>

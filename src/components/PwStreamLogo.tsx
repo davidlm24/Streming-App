@@ -33,9 +33,9 @@ export function PwStreamLogo({
       >
         <defs>
           <linearGradient id="pwStreamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#4683E0" />
-            <stop offset="50%" stopColor="#7E57C2" />
-            <stop offset="100%" stopColor="#EC407A" />
+            <stop offset="0%" stopColor="var(--brand-grad-from)" />
+            <stop offset="50%" stopColor="var(--brand-grad-mid)" />
+            <stop offset="100%" stopColor="var(--brand-grad-to)" />
           </linearGradient>
           <linearGradient id="innerGlow" x1="100%" y1="100%" x2="0%" y2="0%">
             <stop offset="0%" stopColor="#1E293B" />
@@ -70,13 +70,13 @@ export function PwStreamLogo({
       {/* Brand Typographic Text */}
       {showText && (
         <div className="flex flex-col text-left">
-          <div className={`${textSizes[textSize]} font-black tracking-tight leading-none text-white flex items-center`}>
+          <div className={`${textSizes[textSize]} font-black tracking-tight leading-none text-[var(--ink-hi)] flex items-center`}>
             <span>Pw</span>
-            <span className="bg-gradient-to-r from-[#4683E0] via-[#8B5CF6] to-[#EC407A] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[var(--brand-grad-from)] via-[var(--brand-grad-mid)] to-[var(--brand-grad-to)] bg-clip-text text-transparent">
               Streamer
             </span>
           </div>
-          <span className="text-[9px] font-mono tracking-widest text-slate-400 uppercase font-bold leading-none mt-1">
+          <span className="text-[9px] font-mono tracking-widest text-[var(--ink-lo)] uppercase font-bold leading-none mt-1">
             online studio
           </span>
         </div>

@@ -1,0 +1,1289 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concretismo — PwStream</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Azeret+Mono:wght@300..700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   PWSTREAM — DIREÇÃO 04 · CONCRETISMO
+   Todo valor de cor vive dentro de um bloco de tokens. Nada de hex solto.
+   Neutros: R = G = B em todos eles. Croma zero, por medição e não por gosto.
+   ========================================================================= */
+
+/* ---------- TOKENS · TEMA CLARO (base) ---------------------------------- */
+:root{
+  /* superfícies da página */
+  --sup-0:#EDEDED;          /* chão: pó de concreto */
+  --sup-1:#FFFFFF;          /* cal: painel, cartão */
+  --sup-2:#F5F5F5;          /* recuo: campo, linha em hover */
+  --sup-3:#E4E4E4;          /* bloco: preenchimento inerte, trilho */
+  --linha:#D6D6D6;          /* fio padrão */
+  --linha-forte:#B4B4B4;    /* fio estrutural */
+
+  /* texto */
+  --txt-1:#101010;
+  --txt-2:#3A3A3A;
+  --txt-3:#6B6B6B;
+  --txt-4:#9A9A9A;
+  --txt-inv:#FFFFFF;
+
+  /* cromática — vive no site e no painel, nunca no console */
+  --vermelho:#C42A1E;       /* vermelho estrutural (viga pintada) */
+  --vermelho-forte:#A32016;
+  --vermelho-txt:#A32016;
+  --azulejo:#1F49A6;
+  --verde:#1E7A45;
+  --ambar:#8A5A00;
+
+  --foco:#101010;           /* foco é valor, nunca matiz */
+
+  --tile-a:#E4E4E4;
+  --tile-b:#D6D6D6;
+
+  --sombra-1:0 6px 18px rgb(0 0 0 / .10), 0 0 0 1px var(--linha);
+  --sombra-2:0 28px 70px rgb(0 0 0 / .18), 0 0 0 1px var(--linha-forte);
+
+  --dado-1:#C42A1E; --dado-2:#1F49A6; --dado-3:#1E7A45;
+  --dado-4:#8A5A00; --dado-5:#6B6B6B;
+
+  /* ---------- TOKENS DO CONSOLE — declarados uma vez, nunca redefinidos.
+     Uma ilha de edição não troca de tema. Isso é regra, não esquecimento. */
+  --stu-000:#0B0B0B;
+  --stu-050:#131313;
+  --stu-100:#1A1A1A;
+  --stu-150:#232323;
+  --stu-200:#2E2E2E;
+  --stu-300:#3D3D3D;
+  --stu-tela:#000000;       /* o único preto puro do sistema */
+  --stu-txt-1:#F2F2F2;
+  --stu-txt-2:#B5B5B5;
+  --stu-txt-3:#858585;
+  --stu-txt-4:#5E5E5E;
+  --stu-programa:#D42E22;
+  --stu-programa-cl:#F0574C;
+  --stu-previa:#35C46F;
+  --stu-degradado:#E0A32B;
+  --stu-foco:#F2F2F2;
+  --stu-sombra:0 10px 30px rgb(0 0 0 / .7);
+
+  /* ---------- DERIVADOS (seguem o tema sozinhos) ---------- */
+  --tinta-vermelho:color-mix(in oklab, var(--vermelho) 12%, transparent);
+  --tinta-verde:color-mix(in oklab, var(--verde) 12%, transparent);
+  --tinta-ambar:color-mix(in oklab, var(--ambar) 14%, transparent);
+  --tinta-azulejo:color-mix(in oklab, var(--azulejo) 12%, transparent);
+  --stu-tinta-programa:color-mix(in oklab, var(--stu-programa) 16%, transparent);
+  --stu-tinta-previa:color-mix(in oklab, var(--stu-previa) 14%, transparent);
+  --stu-tinta-degradado:color-mix(in oklab, var(--stu-degradado) 14%, transparent);
+
+  /* ---------- TIPOGRAFIA ---------- */
+  --f-txt:"Archivo","Archivo Fallback",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-num:"Azeret Mono","Azeret Mono Fallback",ui-monospace,"Cascadia Mono","Consolas",monospace;
+
+  /* escala do console (rem) */
+  --c1:.6875rem;  /* 11 · rótulo micro em caixa-alta */
+  --c2:.75rem;    /* 12 · etiqueta, chip */
+  --c3:.8125rem;  /* 13 · corpo de painel, linha de lista */
+  --c4:.9375rem;  /* 15 · título de painel */
+  --c5:1.125rem;  /* 18 · cabeçalho de bloco */
+  --c-num:.8125rem;   /* 13 · leitura numérica */
+  --c-num-g:1.625rem; /* 26 · cronômetro */
+
+  /* escala editorial (rem) */
+  --e1:1rem;          /* 16 · corpo */
+  --e2:1.1875rem;     /* 19 · linha de apoio */
+  --e3:1.625rem;      /* 26 · título de bloco */
+  --e4:2.25rem;       /* 36 · título de seção */
+  --e5:clamp(2.5rem,5.2vw,4.5rem); /* cartaz · um por página */
+  --e-preco:2.75rem;  /* 44 · o preço é um número */
+
+  /* ---------- FORMA ---------- */
+  --r-0:0;      /* estrutura: painel, monitor, palco, modal */
+  --r-1:2px;    /* o que se toca: botão, campo, chip */
+  --r-2:4px;    /* teto absoluto do sistema */
+  --r-dot:999px;/* apenas ponto de estado e avatar */
+
+  /* ---------- RITMO ---------- */
+  --k1:4px; --k2:6px; --k3:8px; --k4:12px; --k5:16px;      /* console */
+  --d1:8px; --d2:16px; --d3:24px; --d4:32px; --d5:48px;
+  --d6:72px; --d7:104px;                                    /* editorial */
+}
+
+/* ---------- TOKENS · TEMA ESCURO (sistema) ---------------------------- */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --sup-0:#0B0B0B;
+    --sup-1:#141414;
+    --sup-2:#1F1F1F;
+    --sup-3:#282828;
+    --linha:#2E2E2E;
+    --linha-forte:#3D3D3D;
+    --txt-1:#F2F2F2;
+    --txt-2:#B5B5B5;
+    --txt-3:#858585;
+    --txt-4:#5E5E5E;
+    --txt-inv:#FFFFFF;
+    --vermelho:#D42E22;
+    --vermelho-forte:#F0574C;
+    --vermelho-txt:#F0574C;
+    --azulejo:#6E93F0;
+    --verde:#35C46F;
+    --ambar:#E0A32B;
+    --foco:#F2F2F2;
+    --tile-a:#141414;
+    --tile-b:#1F1F1F;
+    --sombra-1:0 8px 24px rgb(0 0 0 / .60), 0 0 0 1px var(--linha);
+    --sombra-2:0 32px 80px rgb(0 0 0 / .78), 0 0 0 1px var(--linha-forte);
+    --dado-1:#F0574C; --dado-2:#6E93F0; --dado-3:#35C46F;
+    --dado-4:#E0A32B; --dado-5:#9A9A9A;
+  }
+}
+
+/* ---------- TOKENS · TEMA ESCURO (escolha explícita) ------------------- */
+:root[data-theme="dark"]{
+  --sup-0:#0B0B0B;
+  --sup-1:#141414;
+  --sup-2:#1F1F1F;
+  --sup-3:#282828;
+  --linha:#2E2E2E;
+  --linha-forte:#3D3D3D;
+  --txt-1:#F2F2F2;
+  --txt-2:#B5B5B5;
+  --txt-3:#858585;
+  --txt-4:#5E5E5E;
+  --txt-inv:#FFFFFF;
+  --vermelho:#D42E22;
+  --vermelho-forte:#F0574C;
+  --vermelho-txt:#F0574C;
+  --azulejo:#6E93F0;
+  --verde:#35C46F;
+  --ambar:#E0A32B;
+  --foco:#F2F2F2;
+  --tile-a:#141414;
+  --tile-b:#1F1F1F;
+  --sombra-1:0 8px 24px rgb(0 0 0 / .60), 0 0 0 1px var(--linha);
+  --sombra-2:0 32px 80px rgb(0 0 0 / .78), 0 0 0 1px var(--linha-forte);
+  --dado-1:#F0574C; --dado-2:#6E93F0; --dado-3:#35C46F;
+  --dado-4:#E0A32B; --dado-5:#9A9A9A;
+}
+
+/* ---------- BASE ------------------------------------------------------- */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--sup-0);
+  color:var(--txt-2);
+  font-family:var(--f-txt);
+  font-size:var(--e1);
+  font-weight:500;                 /* 500 é o padrão. Não 700. */
+  font-synthesis-weight:none;      /* denuncia qualquer peso não carregado */
+  font-stretch:100%;
+  line-height:1.55;
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,p,ul,ol,figure,dl,dd{margin:0}
+ul,ol{padding:0;list-style:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:.22em}
+table{border-collapse:collapse;width:100%}
+svg{display:block}
+
+:focus-visible{outline:2px solid var(--foco);outline-offset:2px;border-radius:var(--r-1)}
+.console :focus-visible{outline-color:var(--stu-foco)}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
+/* números: o produto é feito deles */
+.num,td.num,.leitura b,.preco,.cron{
+  font-family:var(--f-num);
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1,"zero" 1;
+  letter-spacing:-.01em;
+}
+
+/* eixo de largura da Archivo — variação serial de uma só forma */
+.rot{                         /* rótulo micro, caixa-alta, estreitado */
+  font-size:var(--c1);
+  font-weight:600;
+  font-stretch:88%;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:var(--txt-3);
+}
+.console .rot{color:var(--stu-txt-3)}
+
+.wrap{max-width:1240px;margin:0 auto;padding:0 var(--d3)}
+
+/* ---------- MASTRO ------------------------------------------------------ */
+.mastro{
+  position:sticky;top:0;z-index:40;
+  background:var(--sup-1);
+  border-bottom:1px solid var(--linha);
+}
+.mastro-in{
+  max-width:1240px;margin:0 auto;padding:var(--d2) var(--d3);
+  display:flex;align-items:center;gap:var(--d3);
+}
+.marca{display:flex;align-items:center;gap:10px;min-width:0}
+.viga{width:4px;height:26px;background:var(--vermelho);flex:none}
+.marca h1{
+  font-size:1.0625rem;font-weight:800;font-stretch:112%;
+  letter-spacing:-.015em;color:var(--txt-1);white-space:nowrap;
+}
+.marca span{display:block;margin-top:1px}
+.mastro nav{display:flex;gap:var(--d2);margin-left:auto}
+.mastro nav a{
+  font-size:var(--c3);font-weight:600;color:var(--txt-3);
+  text-decoration:none;padding:4px 0;border-bottom:2px solid transparent;
+}
+.mastro nav a:hover{color:var(--txt-1);border-bottom-color:var(--vermelho)}
+.btn-tema{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 12px;border:1px solid var(--linha-forte);border-radius:var(--r-1);
+  font-size:var(--c2);font-weight:600;color:var(--txt-1);background:var(--sup-1);
+}
+.btn-tema:hover{background:var(--sup-2)}
+.btn-tema svg{width:15px;height:15px}
+
+/* ---------- CABEÇALHO DE SEÇÃO (rigor concretista: número, fio, bloco) -- */
+.sec{padding:var(--d6) 0 var(--d5)}
+.sec-cab{display:grid;grid-template-columns:56px 1fr;gap:var(--d3);align-items:start;
+  padding-top:var(--d2);border-top:2px solid var(--txt-1)}
+.sec-num{
+  font-family:var(--f-num);font-size:var(--c5);font-weight:600;
+  color:var(--vermelho-txt);font-variant-numeric:tabular-nums;line-height:1.2;
+}
+.sec-cab h2{
+  font-size:var(--e4);font-weight:800;font-stretch:112%;letter-spacing:-.025em;
+  line-height:1.06;color:var(--txt-1);margin-bottom:var(--d2);
+}
+.deck{max-width:64ch;font-size:var(--e1);line-height:1.62;color:var(--txt-2)}
+.deck + .deck{margin-top:.7em}
+
+/* ========================================================================
+   SUPERFÍCIE 1 — CONSOLE
+   Concreto sem matiz. Toda a cor é gasta em três estados de broadcast.
+   ===================================================================== */
+.console{
+  margin-top:var(--d4);
+  background:var(--stu-000);
+  color:var(--stu-txt-2);
+  border:1px solid var(--stu-300);
+  border-radius:var(--r-0);
+  font-size:var(--c3);
+  box-shadow:var(--sombra-2);
+  overflow:hidden;
+}
+
+/* barra superior */
+.con-topo{
+  display:flex;align-items:center;gap:var(--k4);
+  padding:var(--k3) var(--k4);
+  background:var(--stu-050);
+  border-bottom:1px solid var(--stu-200);
+}
+.con-marca{display:flex;align-items:center;gap:8px}
+.con-marca .viga{height:16px;background:var(--stu-programa)}
+.con-marca b{font-size:var(--c2);font-weight:800;font-stretch:112%;letter-spacing:-.01em;color:var(--stu-txt-1)}
+.con-sessao{display:flex;align-items:baseline;gap:8px;min-width:0}
+.con-sessao span{color:var(--stu-txt-1);font-weight:600;font-size:var(--c3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.con-topo-dir{margin-left:auto;display:flex;align-items:center;gap:var(--k4)}
+
+.pilula-live{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 10px;border-radius:var(--r-1);
+  background:var(--stu-tinta-programa);
+  border:1px solid var(--stu-programa);
+}
+.pilula-live b{
+  font-size:var(--c1);font-weight:700;font-stretch:88%;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--stu-programa-cl);
+}
+.ponto{width:7px;height:7px;border-radius:var(--r-dot);background:var(--stu-programa);flex:none}
+.ponto.vivo{animation:respira 2.4s steps(2,end) infinite}
+@keyframes respira{0%,49%{opacity:1}50%,100%{opacity:.35}}
+.cron{font-size:var(--c-num);color:var(--stu-txt-1);font-weight:500}
+
+/* corpo em três colunas */
+.con-corpo{display:grid;grid-template-columns:232px minmax(0,1fr) 296px}
+.con-corpo > *{min-width:0}
+.col-cenas{background:var(--stu-050);border-right:1px solid var(--stu-200)}
+.col-dir{background:var(--stu-050);border-left:1px solid var(--stu-200);display:flex;flex-direction:column}
+
+.pnl-cab{
+  display:flex;align-items:center;gap:8px;
+  padding:var(--k2) var(--k4);
+  border-bottom:1px solid var(--stu-200);
+  background:var(--stu-100);
+}
+.pnl-cab .rot{flex:1}
+.pnl-cab .cont{font-family:var(--f-num);font-size:var(--c1);color:var(--stu-txt-3);font-variant-numeric:tabular-nums}
+
+/* lista de cenas */
+.cenas li{display:flex;align-items:center;gap:var(--k3);padding:var(--k2) var(--k4);
+  border-bottom:1px solid var(--stu-200);border-left:3px solid transparent}
+.cenas li:hover{background:var(--stu-100)}
+.cena-n{font-family:var(--f-num);font-size:var(--c1);color:var(--stu-txt-4);font-variant-numeric:tabular-nums}
+.cena-mini{
+  width:40px;height:23px;flex:none;border:1px solid var(--stu-300);
+  background-color:var(--stu-150);
+  background-image:
+    linear-gradient(45deg, var(--stu-200) 50%, transparent 50%),
+    linear-gradient(-45deg, var(--stu-200) 50%, transparent 50%);
+  background-size:14px 14px;background-position:0 0,7px 7px;
+}
+.cena-nome{font-size:var(--c3);color:var(--stu-txt-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cenas li[data-estado="programa"]{border-left-color:var(--stu-programa);background:var(--stu-100)}
+.cenas li[data-estado="programa"] .cena-nome{color:var(--stu-txt-1);font-weight:600}
+.cenas li[data-estado="previa"]{border-left-color:var(--stu-previa)}
+.cenas li[data-estado="previa"] .cena-nome{color:var(--stu-txt-1)}
+.marca-estado{margin-left:auto;font-size:var(--c1);font-weight:700;font-stretch:88%;
+  letter-spacing:.09em;text-transform:uppercase}
+.marca-estado.pgm{color:var(--stu-programa-cl)}
+.marca-estado.pvw{color:var(--stu-previa)}
+
+.transicao{padding:var(--k4);border-top:1px solid var(--stu-200)}
+.transicao .rot{margin-bottom:var(--k2)}
+.trans-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--k1)}
+.trans-btns button{
+  padding:6px 0;border:1px solid var(--stu-300);border-radius:var(--r-1);
+  font-size:var(--c1);font-weight:600;font-stretch:88%;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--stu-txt-2);background:var(--stu-100);
+}
+.trans-btns button[aria-pressed="true"]{background:var(--stu-200);color:var(--stu-txt-1);border-color:var(--stu-txt-4)}
+.trans-btns button:hover{color:var(--stu-txt-1)}
+
+/* palco */
+.col-palco{padding:var(--k4);display:flex;flex-direction:column;gap:var(--k4);background:var(--stu-000)}
+.monitor{position:relative;border:1px solid var(--stu-300);background:var(--stu-tela)}
+.monitor .quadro{position:absolute;inset:0;pointer-events:none;border:3px solid transparent}
+.monitor[data-tally="programa"] .quadro{border-color:var(--stu-programa)}
+.monitor[data-tally="previa"] .quadro{border-color:var(--stu-previa)}
+.tela{
+  aspect-ratio:16/9;
+  background:
+    radial-gradient(118% 96% at 50% 30%, var(--stu-150), var(--stu-050) 46%, var(--stu-tela) 82%);
+  position:relative;overflow:hidden;
+}
+.tela::after{ /* módulo de azulejo, aqui reduzido a sombra de cenário */
+  content:"";position:absolute;inset:auto 0 0 0;height:38%;
+  background-image:
+    linear-gradient(45deg, var(--stu-000) 50%, transparent 50%),
+    linear-gradient(-45deg, var(--stu-000) 50%, transparent 50%);
+  background-size:52px 52px;background-position:0 0,26px 26px;opacity:.5;
+}
+.mon-rot{
+  position:absolute;top:0;left:0;z-index:2;
+  display:flex;align-items:center;gap:7px;
+  padding:5px 9px;background:var(--stu-000);
+}
+.mon-rot b{font-size:var(--c1);font-weight:700;font-stretch:88%;letter-spacing:.11em;text-transform:uppercase}
+.mon-rot.pgm b{color:var(--stu-programa-cl)}
+.mon-rot.pvw b{color:var(--stu-previa)}
+.mon-fonte{
+  position:absolute;top:0;right:0;z-index:2;padding:5px 9px;background:var(--stu-000);
+  font-family:var(--f-num);font-size:var(--c1);color:var(--stu-txt-3);font-variant-numeric:tabular-nums;
+}
+.gc{ /* gerador de caracteres — a única sobreposição sobre o vídeo */
+  position:absolute;left:0;bottom:11%;z-index:2;display:flex;align-items:stretch;
+}
+.gc-viga{width:5px;background:var(--stu-programa)}
+.gc-txt{background:var(--stu-000);padding:7px 14px 7px 11px}
+.gc-txt b{display:block;font-size:var(--c4);font-weight:700;font-stretch:106%;letter-spacing:-.01em;color:var(--stu-txt-1);line-height:1.15}
+.gc-txt span{display:block;font-size:var(--c2);color:var(--stu-txt-3)}
+
+.palco-baixo{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:var(--k4)}
+.previa-comp{display:flex;flex-direction:column;gap:var(--k2)}
+.tela-previa{
+  aspect-ratio:16/9;position:relative;overflow:hidden;
+  background:linear-gradient(to right, var(--stu-100) 0 62%, var(--stu-050) 62% 100%);
+}
+.tp-doc{position:absolute;left:6%;top:14%;width:50%;height:64%;background:var(--stu-150);border:1px solid var(--stu-200)}
+.tp-doc i{display:block;height:4px;margin:9px 10px;background:var(--stu-200)}
+.tp-doc i:nth-child(2){width:74%}
+.tp-doc i:nth-child(3){width:88%}
+.tp-doc i:nth-child(4){width:52%}
+.tp-cam{position:absolute;right:5%;bottom:12%;width:29%;aspect-ratio:16/9;
+  background:radial-gradient(120% 110% at 50% 25%, var(--stu-200), var(--stu-tela));
+  border:1px solid var(--stu-300)}
+
+/* leituras */
+.leituras{border:1px solid var(--stu-200);background:var(--stu-100);display:flex;flex-direction:column}
+.leituras .pnl-cab{background:var(--stu-150)}
+.crono{padding:var(--k4) var(--k4) var(--k3);border-bottom:1px solid var(--stu-200)}
+.crono .rot{margin-bottom:2px}
+.crono b{display:block;font-family:var(--f-num);font-size:var(--c-num-g);font-weight:500;
+  color:var(--stu-txt-1);font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
+.grade-leit{display:grid;grid-template-columns:1fr 1fr}
+.leitura{padding:var(--k3) var(--k4);border-bottom:1px solid var(--stu-200)}
+.leitura:nth-child(odd){border-right:1px solid var(--stu-200)}
+.leitura .rot{margin-bottom:2px}
+.leitura b{display:block;font-size:var(--c-num);font-weight:500;color:var(--stu-txt-1)}
+.leitura b u{text-decoration:none;color:var(--stu-txt-3);font-size:var(--c2)}
+.leitura[data-est="ok"] b{color:var(--stu-previa)}
+.leitura[data-est="alerta"] b{color:var(--stu-degradado)}
+
+/* destinos */
+.destinos li{display:flex;align-items:center;gap:var(--k3);padding:var(--k3) var(--k4);
+  border-bottom:1px solid var(--stu-200)}
+.dest-sigla{
+  width:26px;height:26px;flex:none;display:grid;place-items:center;
+  border:1px solid var(--stu-300);background:var(--stu-100);border-radius:var(--r-1);
+  font-family:var(--f-num);font-size:var(--c1);font-weight:600;color:var(--stu-txt-2);
+}
+.dest-corpo{min-width:0;flex:1}
+.dest-corpo b{display:block;font-size:var(--c3);font-weight:600;color:var(--stu-txt-1)}
+.dest-est{display:flex;align-items:center;gap:6px;font-size:var(--c2);color:var(--stu-txt-3)}
+.dest-est .ponto{width:6px;height:6px}
+.dest-est[data-est="conectado"] .ponto{background:var(--stu-previa)}
+.dest-est[data-est="conectado"]{color:var(--stu-previa)}
+.dest-est[data-est="religando"] .ponto{background:var(--stu-degradado)}
+.dest-est[data-est="religando"]{color:var(--stu-degradado)}
+.dest-taxa{font-family:var(--f-num);font-size:var(--c1);color:var(--stu-txt-3);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* chat */
+.chat{flex:1;display:flex;flex-direction:column;min-height:0;border-top:1px solid var(--stu-200)}
+.chat-lista{flex:1;overflow:auto;padding:var(--k3) 0}
+.msg{display:grid;grid-template-columns:auto 1fr;gap:var(--k3);padding:var(--k2) var(--k4)}
+.msg-org{
+  width:22px;height:22px;display:grid;place-items:center;border-radius:var(--r-1);
+  border:1px solid var(--stu-300);background:var(--stu-100);
+  font-family:var(--f-num);font-size:.625rem;font-weight:600;color:var(--stu-txt-3);
+}
+.msg-cab{display:flex;align-items:baseline;gap:7px}
+.msg-cab b{font-size:var(--c2);font-weight:700;color:var(--stu-txt-1)}
+.msg-cab time{font-family:var(--f-num);font-size:var(--c1);color:var(--stu-txt-4);font-variant-numeric:tabular-nums;margin-left:auto}
+.msg p{font-size:var(--c3);color:var(--stu-txt-2);line-height:1.45}
+.chat-campo{display:flex;gap:var(--k2);padding:var(--k3) var(--k4);border-top:1px solid var(--stu-200);background:var(--stu-100)}
+.chat-campo input{
+  flex:1;min-width:0;background:var(--stu-150);border:1px solid var(--stu-300);border-radius:var(--r-1);
+  padding:7px 9px;font:inherit;font-size:var(--c3);color:var(--stu-txt-1);
+}
+.chat-campo input::placeholder{color:var(--stu-txt-4)}
+.chat-campo button{padding:0 12px;border:1px solid var(--stu-300);border-radius:var(--r-1);
+  background:var(--stu-150);color:var(--stu-txt-1);font-size:var(--c2);font-weight:600}
+
+/* VU */
+.vu{border-top:1px solid var(--stu-200);background:var(--stu-100);padding:var(--k3) var(--k4) var(--k4)}
+.vu-cab{display:flex;align-items:baseline;gap:8px;margin-bottom:var(--k3)}
+.vu-cab .rot{flex:1;color:var(--stu-txt-2)}
+.vu-pico{font-family:var(--f-num);font-size:var(--c-num);color:var(--stu-txt-1);font-variant-numeric:tabular-nums}
+.vu-linha{display:grid;grid-template-columns:14px 1fr;gap:var(--k3);align-items:center;margin-bottom:5px}
+.vu-linha span{font-family:var(--f-num);font-size:var(--c1);color:var(--stu-txt-3)}
+.vu-trilho{height:9px;background:var(--stu-000);border:1px solid var(--stu-300);position:relative;overflow:hidden}
+.vu-trilho::before{ /* zona de headroom marcada na régua, não no sinal */
+  content:"";position:absolute;top:0;bottom:0;left:78%;right:0;background:var(--stu-150)}
+.vu-nivel{position:absolute;inset:0 auto 0 0;width:var(--n);background:var(--stu-previa)}
+.vu-nivel[data-est="alerta"]{background:var(--stu-degradado)}
+.vu-pico-marca{position:absolute;top:0;bottom:0;width:2px;left:var(--p);background:var(--stu-txt-1)}
+.vu-escala{display:flex;justify-content:space-between;margin-top:6px;padding-left:22px}
+.vu-escala span{font-family:var(--f-num);font-size:.625rem;color:var(--stu-txt-4);font-variant-numeric:tabular-nums}
+
+/* bandeja de controle */
+.con-bandeja{
+  display:flex;align-items:center;gap:var(--k3);
+  padding:var(--k3) var(--k4);
+  background:var(--stu-050);border-top:1px solid var(--stu-200);
+}
+.ctrl{
+  display:flex;align-items:center;gap:8px;
+  height:34px;padding:0 12px;border:1px solid var(--stu-300);border-radius:var(--r-1);
+  background:var(--stu-100);color:var(--stu-txt-2);font-size:var(--c2);font-weight:600;
+}
+.ctrl:hover{color:var(--stu-txt-1);background:var(--stu-150)}
+.ctrl svg{width:16px;height:16px}
+.ctrl[aria-pressed="false"]{color:var(--stu-txt-4);border-style:dashed}
+.ctrl-sep{width:1px;height:26px;background:var(--stu-200);margin:0 var(--k1)}
+.ctrl-fim{
+  margin-left:auto;height:34px;padding:0 20px;border:1px solid var(--stu-programa);
+  border-radius:var(--r-1);background:var(--stu-programa);color:var(--txt-inv);
+  font-size:var(--c2);font-weight:700;font-stretch:96%;letter-spacing:.09em;text-transform:uppercase;
+  display:flex;align-items:center;gap:9px;
+}
+.ctrl-fim svg{width:13px;height:13px}
+.ctrl-fim:hover{background:var(--stu-programa-cl);border-color:var(--stu-programa-cl)}
+.con-nota{
+  padding:var(--k3) var(--k4);background:var(--stu-000);border-top:1px solid var(--stu-200);
+  font-size:var(--c2);color:var(--stu-txt-3);
+}
+.con-nota b{color:var(--stu-txt-2);font-weight:600}
+
+@media (max-width:1100px){
+  .con-corpo{grid-template-columns:1fr}
+  .col-cenas,.col-dir{border:0;border-bottom:1px solid var(--stu-200)}
+  .palco-baixo{grid-template-columns:1fr}
+  .con-bandeja{flex-wrap:wrap}
+  .ctrl-fim{margin-left:0;width:100%;justify-content:center}
+}
+
+/* ========================================================================
+   SUPERFÍCIE 2 — SITE PÚBLICO
+   Aqui a direção respira: cartaz, malha ortogonal, viga vermelha.
+   Nada aqui encosta em uma imagem de vídeo.
+   ===================================================================== */
+.site{background:var(--sup-1);border:1px solid var(--linha);margin-top:var(--d4)}
+
+/* topo do site simulado */
+.site-topo{display:flex;align-items:center;gap:var(--d2);padding:var(--d2) var(--d3);
+  border-bottom:1px solid var(--linha)}
+.marca .wordmark{font-size:1rem;font-weight:800;font-stretch:112%;letter-spacing:-.015em;color:var(--txt-1)}
+.site-topo ul{display:flex;gap:var(--d2);margin-left:auto}
+.site-topo a{font-size:var(--c3);font-weight:600;color:var(--txt-3);text-decoration:none}
+.site-topo a:hover{color:var(--txt-1)}
+
+/* herói */
+.heroi{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:var(--d5);padding:var(--d6) var(--d3) var(--d6)}
+.heroi-txt{border-left:5px solid var(--vermelho);padding-left:var(--d3)}
+.sobrancelha{font-size:var(--c1);font-weight:700;font-stretch:88%;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--vermelho-txt);margin-bottom:var(--d2)}
+.cartaz{
+  font-size:var(--e5);line-height:.92;color:var(--txt-1);
+  font-weight:800;font-stretch:118%;letter-spacing:-.035em;
+  margin-bottom:var(--d3);
+}
+.cartaz .l1{display:block;font-weight:900;font-stretch:125%;text-transform:uppercase;letter-spacing:-.04em}
+.cartaz .l2{display:block;font-weight:600;font-stretch:100%;letter-spacing:-.028em}
+.cartaz .l3{display:block;font-weight:800;font-stretch:112%;letter-spacing:-.032em}
+.heroi p.sub{font-size:var(--e2);line-height:1.5;color:var(--txt-2);max-width:52ch;margin-bottom:var(--d3)}
+.heroi-acao{display:flex;align-items:center;gap:var(--d2);flex-wrap:wrap}
+.btn-1{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:15px 26px;border-radius:var(--r-1);
+  background:var(--vermelho);color:var(--txt-inv);border:1px solid var(--vermelho);
+  font-size:var(--e1);font-weight:700;font-stretch:104%;letter-spacing:-.005em;text-decoration:none;
+}
+.btn-1:hover{background:var(--vermelho-forte);border-color:var(--vermelho-forte)}
+.heroi-nota{font-size:var(--c3);color:var(--txt-3)}
+.heroi-selo{display:flex;gap:var(--d3);margin-top:var(--d4);padding-top:var(--d2);
+  border-top:1px solid var(--linha);flex-wrap:wrap}
+.heroi-selo div{font-size:var(--c3);color:var(--txt-3)}
+.heroi-selo b{display:block;color:var(--txt-1);font-weight:700;font-size:var(--c4)}
+
+/* fragmento real de produto no herói — sem métrica inventada */
+.frag{background:var(--stu-000);border:1px solid var(--stu-300);align-self:start;
+  box-shadow:var(--sombra-1)}
+.frag-topo{display:flex;align-items:center;gap:8px;padding:var(--k3) var(--k4);
+  background:var(--stu-050);border-bottom:1px solid var(--stu-200)}
+.frag-topo .rot{color:var(--stu-txt-3)}
+.frag-corpo{padding:var(--k4);display:flex;flex-direction:column;gap:var(--k4)}
+.frag-crono{display:flex;align-items:baseline;justify-content:space-between;gap:var(--k3)}
+.frag-crono > b{font-family:var(--f-num);font-size:1.75rem;font-weight:500;color:var(--stu-txt-1);
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
+.frag-dest{border:1px solid var(--stu-200);background:var(--stu-100)}
+.frag-dest li{display:flex;align-items:center;gap:var(--k3);padding:9px var(--k4);
+  border-bottom:1px solid var(--stu-200);font-size:var(--c3);color:var(--stu-txt-2)}
+.frag-dest li:last-child{border-bottom:0}
+.frag-dest b{color:var(--stu-txt-1);font-weight:600;flex:1}
+.frag-leit{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid var(--stu-200);background:var(--stu-100)}
+.frag-leit div{padding:var(--k3) var(--k4);border-right:1px solid var(--stu-200)}
+.frag-leit div:last-child{border-right:0}
+.frag-leit b{display:block;font-family:var(--f-num);font-size:var(--c-num);color:var(--stu-txt-1);
+  font-variant-numeric:tabular-nums;font-weight:500}
+
+/* faixa de azulejo — módulo de Bulcão, achromático */
+.faixa-tile{
+  height:88px;border-top:1px solid var(--linha);border-bottom:1px solid var(--linha);
+  background-color:var(--tile-a);
+  background-image:
+    linear-gradient(45deg, var(--tile-b) 50%, transparent 50%),
+    linear-gradient(-45deg, var(--tile-b) 50%, transparent 50%);
+  background-size:44px 44px;background-position:0 0,22px 22px;
+  position:relative;
+}
+.faixa-tile::after{content:"";position:absolute;left:12%;top:0;bottom:0;width:5px;background:var(--vermelho)}
+
+/* preços */
+.precos{padding:var(--d6) var(--d3)}
+.precos-cab{max-width:60ch;margin-bottom:var(--d4)}
+.precos-cab h3{font-size:var(--e4);font-weight:800;font-stretch:112%;letter-spacing:-.025em;
+  line-height:1.06;color:var(--txt-1);margin-bottom:var(--d1)}
+.precos-cab p{font-size:var(--e1);color:var(--txt-2)}
+.planos{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--linha-forte);background:var(--sup-1)}
+.plano{padding:var(--d3);border-right:1px solid var(--linha);display:flex;flex-direction:column}
+.plano:last-child{border-right:0}
+.plano-marca{height:5px;margin:calc(var(--d3) * -1) calc(var(--d3) * -1) var(--d3);background:transparent}
+.plano[data-rec="sim"] .plano-marca{background:var(--vermelho)}
+.plano[data-rec="sim"]{background:var(--sup-2)}
+.plano-topo{display:flex;align-items:baseline;gap:8px;margin-bottom:var(--d2)}
+.plano h4{font-size:var(--e3);font-weight:700;font-stretch:106%;letter-spacing:-.02em;color:var(--txt-1)}
+.rec{font-size:var(--c1);font-weight:700;font-stretch:88%;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--vermelho-txt);margin-left:auto}
+.preco{font-size:var(--e-preco);font-weight:500;color:var(--txt-1);line-height:1;letter-spacing:-.05em}
+.preco small{font-family:var(--f-txt);font-size:var(--e1);font-weight:600;color:var(--txt-3);letter-spacing:0}
+.plano-linha{font-size:var(--c4);color:var(--txt-1);font-weight:600;margin:var(--d2) 0 var(--d2);
+  padding-bottom:var(--d2);border-bottom:1px solid var(--linha)}
+.plano ul{display:flex;flex-direction:column;gap:10px;margin-bottom:var(--d3)}
+.plano li{display:grid;grid-template-columns:16px 1fr;gap:10px;font-size:var(--c3);color:var(--txt-2);line-height:1.4}
+.plano li svg{width:14px;height:14px;margin-top:3px;color:var(--vermelho-txt)}
+.btn-2{
+  margin-top:auto;display:block;width:100%;text-align:center;
+  padding:12px 16px;border:1px solid var(--linha-forte);border-radius:var(--r-1);
+  background:var(--sup-1);color:var(--txt-1);font-size:var(--c4);font-weight:600;
+}
+.btn-2:hover{border-color:var(--txt-1);background:var(--sup-2)}
+.precos-nota{margin-top:var(--d3);font-size:var(--c3);color:var(--txt-3);max-width:70ch}
+
+@media (max-width:940px){
+  .heroi{grid-template-columns:1fr;gap:var(--d4);padding:var(--d5) var(--d3)}
+  .planos{grid-template-columns:1fr}
+  .plano{border-right:0;border-bottom:1px solid var(--linha)}
+  .plano-marca{margin-bottom:var(--d2)}
+}
+
+/* ========================================================================
+   SUPERFÍCIE 3 — SISTEMA
+   ===================================================================== */
+.bloco{border:1px solid var(--linha);background:var(--sup-1);margin-top:var(--d3)}
+.bloco-cab{display:flex;align-items:baseline;gap:var(--d2);padding:var(--d2) var(--d3);
+  border-bottom:1px solid var(--linha);background:var(--sup-2)}
+.bloco-cab h3{font-size:var(--c5);font-weight:700;font-stretch:106%;letter-spacing:-.015em;color:var(--txt-1)}
+.bloco-cab p{font-size:var(--c3);color:var(--txt-3);margin-left:auto;text-align:right}
+.bloco-corpo{padding:var(--d3)}
+
+.tira{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:0;
+  border-top:1px solid var(--linha);border-left:1px solid var(--linha)}
+.amostra{border-right:1px solid var(--linha);border-bottom:1px solid var(--linha);padding:0}
+.chip{height:62px;border-bottom:1px solid var(--linha);box-shadow:inset 0 0 0 1px var(--linha)}
+.amostra-txt{padding:9px 11px 11px}
+.amostra-txt code{display:block;font-family:var(--f-num);font-size:var(--c2);color:var(--txt-1);
+  font-weight:600;letter-spacing:-.01em}
+.amostra-txt .papel{display:block;font-size:var(--c1);color:var(--txt-3);margin:3px 0 5px;line-height:1.3}
+.hexes{display:flex;flex-wrap:wrap;gap:3px 7px;font-family:var(--f-num);font-size:.625rem;color:var(--txt-3);
+  font-variant-numeric:tabular-nums}
+.hexes b{color:var(--txt-4);font-weight:500}
+
+/* espécime tipográfico */
+.eixo{border-top:1px solid var(--linha)}
+.eixo div{display:grid;grid-template-columns:120px 1fr;gap:var(--d2);align-items:baseline;
+  padding:var(--d2) 0;border-bottom:1px solid var(--linha)}
+.eixo .rot{align-self:center}
+.eixo span.esp{font-size:2rem;font-weight:700;color:var(--txt-1);letter-spacing:-.02em;line-height:1}
+.tab-escala{font-size:var(--c3)}
+.tab-escala th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--linha-forte);
+  font-size:var(--c1);font-weight:700;font-stretch:88%;letter-spacing:.09em;text-transform:uppercase;color:var(--txt-3)}
+.tab-escala td{padding:9px 10px;border-bottom:1px solid var(--linha);color:var(--txt-2);vertical-align:baseline}
+.tab-escala td.num{color:var(--txt-1);white-space:nowrap}
+.tab-escala td.mostra{color:var(--txt-1)}
+.tab-escala tr:last-child td{border-bottom:0}
+.grade2{display:grid;grid-template-columns:1fr 1fr;gap:var(--d3)}
+.escalas{display:grid;grid-template-columns:1fr;gap:var(--d4)}
+.tab-escala th:first-child,.tab-escala td:first-child{width:34%}
+.tab-escala th:nth-child(2),.tab-escala td:nth-child(2){width:17%}
+.regra{border:1px solid var(--linha);padding:var(--d2)}
+.regra .rot{margin-bottom:var(--d1)}
+.regra p{font-size:var(--c3);color:var(--txt-2);line-height:1.5}
+.regra ul{display:flex;flex-direction:column;gap:7px;margin-top:var(--d1)}
+.regra li{font-size:var(--c3);color:var(--txt-2);display:grid;grid-template-columns:96px 1fr;gap:var(--d1);align-items:baseline}
+.regra li b{font-family:var(--f-num);font-size:var(--c2);color:var(--txt-1);font-weight:600}
+.demo-forma{display:flex;gap:var(--d2);align-items:flex-end;margin-top:var(--d2);flex-wrap:wrap}
+.demo-forma i{display:grid;place-items:end center;width:64px;height:46px;background:var(--sup-3);
+  border:1px solid var(--linha-forte);font-family:var(--f-num);font-size:.625rem;
+  font-style:normal;color:var(--txt-3);padding-bottom:3px}
+.numerais{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:1.25rem;
+  color:var(--txt-1);letter-spacing:-.01em;line-height:1.5}
+.numerais em{display:block;font-style:normal;color:var(--txt-3);font-size:var(--c2)}
+
+code{font-family:var(--f-num);font-size:.9em;color:var(--txt-1);letter-spacing:-.01em}
+strong{font-weight:700;color:var(--txt-1)}
+.deck b{font-weight:700;color:var(--txt-1)}
+
+.rodape{border-top:1px solid var(--linha);margin-top:var(--d6);padding:var(--d3) 0 var(--d6)}
+.rodape p{font-size:var(--c3);color:var(--txt-3);max-width:72ch}
+.rodape b{color:var(--txt-1)}
+
+@media (max-width:760px){
+  .grade2{grid-template-columns:1fr}
+  .sec-cab{grid-template-columns:1fr;gap:var(--d1)}
+  .wrap{padding:0 var(--d2)}
+  .mastro-in{flex-wrap:wrap;gap:var(--d2);padding:var(--d2)}
+  .mastro nav{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== MASTRO ===================== -->
+<header class="mastro">
+  <div class="mastro-in">
+    <div class="marca">
+      <span class="viga" aria-hidden="true"></span>
+      <h1>PWSTREAM<span class="rot">Direção 04 · Concretismo</span></h1>
+    </div>
+    <nav aria-label="Superfícies">
+      <a href="#console">01 Console</a>
+      <a href="#site">02 Site</a>
+      <a href="#sistema">03 Sistema</a>
+    </nav>
+    <button class="btn-tema" id="btnTema" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.2 5.2l1.9 1.9M16.9 16.9l1.9 1.9M18.8 5.2l-1.9 1.9M7.1 16.9l-1.9 1.9"/></svg>
+      <span id="temaRot">Tema claro</span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ===================== 01 · CONSOLE ===================== -->
+<section class="sec" id="console">
+  <div class="sec-cab">
+    <div class="sec-num">01</div>
+    <div>
+      <h2>Console de transmissão</h2>
+      <p class="deck">Esta é a superfície difícil: o console cerca o vídeo. Aqui a expressão da marca desaparece por decisão, não por timidez. Todo cinza do console tem <strong>R, G e B iguais</strong> — croma zero, medido, não “quase neutro”. Um chrome azulado é uma mentira colorimétrica ao lado de uma imagem que o operador está enquadrando e balanceando.</p>
+      <p class="deck">A cor que sobra é gasta em três estados de broadcast e em mais nada: <strong>programa</strong>, <strong>prévia</strong>, <strong>degradado</strong>. Sem brilho, sem vidro fosco, sem gradiente decorativo, sem pílula tingida. E o console não troca de tema — nenhuma ilha de edição troca. Isso é regra escrita, não esquecimento.</p>
+    </div>
+  </div>
+
+  <div class="console">
+
+    <div class="con-topo">
+      <div class="con-marca"><span class="viga" aria-hidden="true"></span><b>PWSTREAM</b></div>
+      <div class="con-sessao">
+        <span class="rot">Sessão</span>
+        <span>Podcast Sinal Aberto · ep. 41</span>
+      </div>
+      <div class="con-topo-dir">
+        <span class="cron" aria-label="Tempo no ar">01:47:22</span>
+        <span class="pilula-live"><span class="ponto vivo" aria-hidden="true"></span><b>Ao vivo</b></span>
+      </div>
+    </div>
+
+    <div class="con-corpo">
+
+      <!-- CENAS -->
+      <aside class="col-cenas" aria-label="Cenas">
+        <div class="pnl-cab"><span class="rot">Cenas</span><span class="cont">4</span></div>
+        <ul class="cenas">
+          <li><span class="cena-n">01</span><span class="cena-mini" aria-hidden="true"></span><span class="cena-nome">Abertura</span></li>
+          <li data-estado="programa"><span class="cena-n">02</span><span class="cena-mini" aria-hidden="true"></span><span class="cena-nome">Entrevista</span><span class="marca-estado pgm">PGM</span></li>
+          <li data-estado="previa"><span class="cena-n">03</span><span class="cena-mini" aria-hidden="true"></span><span class="cena-nome">Tela + Câmera</span><span class="marca-estado pvw">PVW</span></li>
+          <li><span class="cena-n">04</span><span class="cena-mini" aria-hidden="true"></span><span class="cena-nome">Encerramento</span></li>
+        </ul>
+        <div class="transicao">
+          <div class="rot">Transição</div>
+          <div class="trans-btns">
+            <button type="button" aria-pressed="true">Corte</button>
+            <button type="button" aria-pressed="false">Fusão</button>
+            <button type="button" aria-pressed="false">Auto</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- PALCO -->
+      <div class="col-palco">
+        <div class="monitor" data-tally="programa">
+          <div class="tela">
+            <div class="mon-rot pgm"><span class="ponto" aria-hidden="true"></span><b>Programa</b></div>
+            <div class="mon-fonte">CÂM 1 · 1920×1080 · 60p</div>
+            <div class="gc">
+              <span class="gc-viga" aria-hidden="true"></span>
+              <span class="gc-txt"><b>Caio Mendonça</b><span>Engenheiro de transmissão · Porto Alegre</span></span>
+            </div>
+          </div>
+          <div class="quadro" aria-hidden="true"></div>
+        </div>
+
+        <div class="palco-baixo">
+          <div class="previa-comp">
+            <div class="monitor" data-tally="previa">
+              <div class="tela-previa">
+                <div class="mon-rot pvw"><span class="ponto" style="background:var(--stu-previa)" aria-hidden="true"></span><b>Prévia</b></div>
+                <div class="tp-doc" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                <div class="tp-cam" aria-hidden="true"></div>
+              </div>
+              <div class="quadro" aria-hidden="true"></div>
+            </div>
+            <div class="rot">Próxima cena · Tela + Câmera</div>
+          </div>
+
+          <div class="leituras">
+            <div class="pnl-cab"><span class="rot">Saúde do sinal</span></div>
+            <div class="crono">
+              <div class="rot">No ar</div>
+              <b class="num">01:47:22</b>
+            </div>
+            <div class="grade-leit">
+              <div class="leitura"><div class="rot">Quadros</div><b class="num">60 <u>fps</u></b></div>
+              <div class="leitura"><div class="rot">Taxa</div><b class="num">6,2 <u>Mbps</u></b></div>
+              <div class="leitura" data-est="ok"><div class="rot">RTT</div><b class="num">18 <u>ms</u></b></div>
+              <div class="leitura" data-est="ok"><div class="rot">Perda</div><b class="num">0,02 <u>%</u></b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIREITA -->
+      <aside class="col-dir" aria-label="Destinos, chat e áudio">
+        <div class="pnl-cab"><span class="rot">Destinos</span><span class="cont">3</span></div>
+        <ul class="destinos">
+          <li>
+            <span class="dest-sigla" aria-hidden="true">YT</span>
+            <span class="dest-corpo"><b>YouTube</b>
+              <span class="dest-est" data-est="conectado"><span class="ponto" aria-hidden="true"></span>Conectado</span></span>
+            <span class="dest-taxa">6,2 Mbps</span>
+          </li>
+          <li>
+            <span class="dest-sigla" aria-hidden="true">FB</span>
+            <span class="dest-corpo"><b>Facebook</b>
+              <span class="dest-est" data-est="conectado"><span class="ponto" aria-hidden="true"></span>Conectado</span></span>
+            <span class="dest-taxa">6,2 Mbps</span>
+          </li>
+          <li>
+            <span class="dest-sigla" aria-hidden="true">TW</span>
+            <span class="dest-corpo"><b>Twitch</b>
+              <span class="dest-est" data-est="religando"><span class="ponto" aria-hidden="true"></span>Reconectando · tentativa 2 de 5</span></span>
+            <span class="dest-taxa">—</span>
+          </li>
+        </ul>
+
+        <div class="chat">
+          <div class="pnl-cab"><span class="rot">Chat unificado</span><span class="cont">3 origens</span></div>
+          <div class="chat-lista">
+            <article class="msg">
+              <span class="msg-org" aria-label="YouTube">YT</span>
+              <div><div class="msg-cab"><b>Roberto Santos</b><time datetime="PT1H44M">01:44</time></div>
+              <p>O áudio ficou muito melhor depois que você trocou o microfone.</p></div>
+            </article>
+            <article class="msg">
+              <span class="msg-org" aria-label="Twitch">TW</span>
+              <div><div class="msg-cab"><b>Fernanda Lima</b><time datetime="PT1H45M">01:45</time></div>
+              <p>Dá pra repetir a parte do SRT? Entrei atrasada e perdi o começo.</p></div>
+            </article>
+            <article class="msg">
+              <span class="msg-org" aria-label="Facebook">FB</span>
+              <div><div class="msg-cab"><b>Ana Beatriz</b><time datetime="PT1H46M">01:46</time></div>
+              <p>Chegando agora de Recife. Os slides estão aparecendo certinho aqui.</p></div>
+            </article>
+            <article class="msg">
+              <span class="msg-org" aria-label="YouTube">YT</span>
+              <div><div class="msg-cab"><b>Roberto Santos</b><time datetime="PT1H47M">01:47</time></div>
+              <p>Respondi a enquete. O formato de hoje ficou bem melhor que o da semana passada.</p></div>
+            </article>
+          </div>
+          <div class="chat-campo">
+            <label class="rot" for="chatMsg" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Mensagem</label>
+            <input id="chatMsg" type="text" placeholder="Responder como PwStream…">
+            <button type="button">Enviar</button>
+          </div>
+        </div>
+
+        <div class="vu">
+          <div class="vu-cab">
+            <span class="rot">MIC 1 · Rode NT-USB</span>
+            <span class="vu-pico">−8,2 dBFS</span>
+          </div>
+          <div class="vu-linha"><span>E</span><span class="vu-trilho"><span class="vu-nivel" style="--n:71%"></span><span class="vu-pico-marca" style="--p:76%"></span></span></div>
+          <div class="vu-linha"><span>D</span><span class="vu-trilho"><span class="vu-nivel" style="--n:66%"></span><span class="vu-pico-marca" style="--p:72%"></span></span></div>
+          <div class="vu-escala"><span>−60</span><span>−40</span><span>−20</span><span>−12</span><span>0</span></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- BANDEJA -->
+    <div class="con-bandeja">
+      <button class="ctrl" type="button" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="9" y="2.8" width="6" height="11" rx="3"/><path d="M5.5 11.2a6.5 6.5 0 0 0 13 0M12 17.8V21M8.6 21h6.8"/></svg>
+        Microfone
+      </button>
+      <button class="ctrl" type="button" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2.8" y="6" width="12.6" height="12" rx="1"/><path d="M15.4 11.2 21.2 7.6v8.8l-5.8-3.6z"/></svg>
+        Câmera
+      </button>
+      <button class="ctrl" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2.8" y="4" width="18.4" height="12.4" rx="1"/><path d="M8.5 20.4h7M12 16.4v4"/></svg>
+        Tela
+      </button>
+      <button class="ctrl" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3.4" width="7.6" height="7.6"/><rect x="13.4" y="3.4" width="7.6" height="7.6"/><rect x="3" y="13.4" width="7.6" height="7.6"/><rect x="13.4" y="13.4" width="7.6" height="7.6"/></svg>
+        Cenas
+      </button>
+      <span class="ctrl-sep" aria-hidden="true"></span>
+      <button class="ctrl" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 19V9.5M10 19V4.4M16 19v-7.2M4 21.2h16"/></svg>
+        Enquete
+      </button>
+      <button class="ctrl-fim" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="6" width="12" height="12"/></svg>
+        Encerrar transmissão
+      </button>
+    </div>
+
+    <p class="con-nota"><b>Regra do console:</b> nenhum matiz fora de programa · prévia · degradado. Nenhuma sombra colorida. Nenhum desfoque. Toda profundidade vem da rampa de concreto — <span class="num">#0B0B0B → #131313 → #1A1A1A → #232323</span> — e de fios de 1px.</p>
+  </div>
+</section>
+
+<!-- ===================== 02 · SITE PÚBLICO ===================== -->
+<section class="sec" id="site">
+  <div class="sec-cab">
+    <div class="sec-num">02</div>
+    <div>
+      <h2>Site público e planos</h2>
+      <p class="deck">O produto para de plagiar aqui. Nada nesta página é tradução: nem a manchete, nem a tabela, nem a moeda. A herança visual é o concretismo brasileiro — a malha ortogonal do Grupo Ruptura, a economia de preto, branco e vermelho da poesia concreta, o módulo de azulejo repetido, a viga estrutural pintada de vermelho sobre concreto aparente.</p>
+      <p class="deck">Por isso o cartaz é composto no eixo de largura de uma única família, e não com três fontes; por isso o único preenchimento colorido da superfície é um botão. Vale em tema claro e escuro — use o botão no alto da página.</p>
+    </div>
+  </div>
+
+  <div class="site">
+    <div class="site-topo">
+      <div class="marca">
+        <span class="viga" aria-hidden="true"></span>
+        <div class="wordmark">PWSTREAM</div>
+      </div>
+      <ul>
+        <li><a href="#site">Recursos</a></li>
+        <li><a href="#site">Planos</a></li>
+        <li><a href="#site">Para agências</a></li>
+        <li><a href="#site">Entrar</a></li>
+      </ul>
+    </div>
+
+    <!-- HERÓI -->
+    <div class="heroi">
+      <div class="heroi-txt">
+        <p class="sobrancelha">Estúdio de transmissão ao vivo</p>
+        <h3 class="cartaz">
+          <span class="l1">Ao vivo,</span>
+          <span class="l2">ao mesmo tempo,</span>
+          <span class="l3">em todo canto.</span>
+        </h3>
+        <p class="sub">O PwStream transmite para o YouTube, o Facebook e a Twitch de uma vez só, direto do navegador — com chat unificado, cenas, enquetes e compartilhamento de tela. Sem instalar nada. E sem traduzir nada: o produto foi escrito em português e a fatura vem em real.</p>
+        <div class="heroi-acao">
+          <a class="btn-1" href="#site">
+            Começar a transmitir
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="width:17px;height:17px"><path d="M4.5 12h14M13 6.4 18.9 12 13 17.6"/></svg>
+          </a>
+          <span class="heroi-nota">Teste sem cartão. Cancelamento em um clique.</span>
+        </div>
+        <div class="heroi-selo">
+          <div><b class="num">3</b>plataformas simultâneas no plano de entrada</div>
+          <div><b>Pix e boleto</b>além de cartão, na fatura em real</div>
+          <div><b>Suporte em pt-BR</b>no fuso de Brasília</div>
+        </div>
+      </div>
+
+      <!-- fragmento real da interface: nenhuma métrica inventada -->
+      <div class="frag" role="img" aria-label="Fragmento da interface do PwStream mostrando o cronômetro da transmissão, os três destinos conectados e as leituras de sinal.">
+        <div class="frag-topo"><span class="viga" style="height:14px;background:var(--stu-programa)" aria-hidden="true"></span><span class="rot">Sinal ao vivo</span></div>
+        <div class="frag-corpo">
+          <div class="frag-crono">
+            <b class="num">01:47:22</b>
+            <span class="pilula-live"><span class="ponto vivo" aria-hidden="true"></span><b>Ao vivo</b></span>
+          </div>
+          <ul class="frag-dest">
+            <li><span class="dest-sigla" aria-hidden="true">YT</span><b>YouTube</b><span class="dest-est" data-est="conectado"><span class="ponto" aria-hidden="true"></span>Conectado</span></li>
+            <li><span class="dest-sigla" aria-hidden="true">FB</span><b>Facebook</b><span class="dest-est" data-est="conectado"><span class="ponto" aria-hidden="true"></span>Conectado</span></li>
+            <li><span class="dest-sigla" aria-hidden="true">TW</span><b>Twitch</b><span class="dest-est" data-est="religando"><span class="ponto" aria-hidden="true"></span>Reconectando</span></li>
+          </ul>
+          <div class="frag-leit">
+            <div><span class="rot">Quadros</span><b>60 fps</b></div>
+            <div><span class="rot">Taxa</span><b>6,2 Mbps</b></div>
+            <div><span class="rot">Perda</span><b>0,02 %</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faixa-tile" aria-hidden="true"></div>
+
+    <!-- PLANOS -->
+    <div class="precos">
+      <div class="precos-cab">
+        <h3>Três planos. Um preço, em real.</h3>
+        <p>Sem conversão de dólar no fechamento da fatura, sem IOF de compra internacional e sem tabela traduzida às pressas.</p>
+      </div>
+
+      <div class="planos">
+        <div class="plano">
+          <div class="plano-marca" aria-hidden="true"></div>
+          <div class="plano-topo"><h4>Standard</h4></div>
+          <p class="preco num">R$ 49,90<small> /mês</small></p>
+          <p class="plano-linha">3 canais simultâneos</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Chat unificado das três plataformas</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Cenas, sobreposições e enquetes</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Gravação local em 1080p</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Um operador</li>
+          </ul>
+          <button class="btn-2" type="button">Assinar Standard</button>
+        </div>
+
+        <div class="plano" data-rec="sim">
+          <div class="plano-marca" aria-hidden="true"></div>
+          <div class="plano-topo"><h4>Professional</h4><span class="rec">Recomendado</span></div>
+          <p class="preco num">R$ 99,90<small> /mês</small></p>
+          <p class="plano-linha">5 canais + co-produtores</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Tudo do Standard</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Convidados e co-produtores na sala</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Gravação em nuvem por 30 dias</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Marca do cliente no gerador de caracteres</li>
+          </ul>
+          <button class="btn-2" type="button">Assinar Professional</button>
+        </div>
+
+        <div class="plano">
+          <div class="plano-marca" aria-hidden="true"></div>
+          <div class="plano-topo"><h4>Business</h4></div>
+          <p class="preco num">R$ 199,90<small> /mês</small></p>
+          <p class="plano-linha">8 canais + SRT profissional</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Tudo do Professional</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Entrada e saída SRT com cifragem</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Ingest dedicado em São Paulo</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M4.5 12.6 9.6 17.7 19.5 6.9"/></svg>Suporte por telefone em horário comercial</li>
+          </ul>
+          <button class="btn-2" type="button">Assinar Business</button>
+        </div>
+      </div>
+
+      <p class="precos-nota">Preços por mês, com emissão de nota fiscal. Pagamento em cartão, Pix ou boleto. Trocar de plano vale a partir do ciclo seguinte, com o valor proporcional já abatido.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 03 · SISTEMA ===================== -->
+<section class="sec" id="sistema">
+  <div class="sec-cab">
+    <div class="sec-num">03</div>
+    <div>
+      <h2>O sistema, legível</h2>
+      <p class="deck">Trinta e sete tokens de cor no lugar de 187 hexes soltos. Duas escalas tipográficas no lugar de 1.101 tamanhos arbitrários. Três raios no lugar de oito. Quatro pesos no lugar de seis — sem 800 no console e sem 900 em lugar nenhum, porque 900 nunca existiu nas famílias carregadas.</p>
+    </div>
+  </div>
+
+  <!-- PALETA -->
+  <div class="bloco">
+    <div class="bloco-cab"><h3>Concreto do console</h3><p>Declarado uma vez. Nunca redefinido por tema. R = G = B em todos.</p></div>
+    <div class="bloco-corpo" style="padding:0">
+      <div class="tira">
+        <div class="amostra"><div class="chip" style="background:var(--stu-000)"></div><div class="amostra-txt"><code>--stu-000</code><span class="papel">Chão do aplicativo</span><span class="hexes"><b>fixo</b>#0B0B0B</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-050)"></div><div class="amostra-txt"><code>--stu-050</code><span class="papel">Trilhos, colunas laterais</span><span class="hexes"><b>fixo</b>#131313</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-100)"></div><div class="amostra-txt"><code>--stu-100</code><span class="papel">Painel, cabeçalho de bloco</span><span class="hexes"><b>fixo</b>#1A1A1A</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-150)"></div><div class="amostra-txt"><code>--stu-150</code><span class="papel">Campo, superfície elevada</span><span class="hexes"><b>fixo</b>#232323</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-200)"></div><div class="amostra-txt"><code>--stu-200</code><span class="papel">Fio padrão</span><span class="hexes"><b>fixo</b>#2E2E2E</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-300)"></div><div class="amostra-txt"><code>--stu-300</code><span class="papel">Fio estrutural, moldura</span><span class="hexes"><b>fixo</b>#3D3D3D</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-tela)"></div><div class="amostra-txt"><code>--stu-tela</code><span class="papel">Só o letterbox do vídeo</span><span class="hexes"><b>fixo</b>#000000</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-txt-1)"></div><div class="amostra-txt"><code>--stu-txt-1</code><span class="papel">Valor ativo, título</span><span class="hexes"><b>fixo</b>#F2F2F2</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-txt-2)"></div><div class="amostra-txt"><code>--stu-txt-2</code><span class="papel">Corpo do console</span><span class="hexes"><b>fixo</b>#B5B5B5</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-txt-3)"></div><div class="amostra-txt"><code>--stu-txt-3</code><span class="papel">Rótulo, metadado · 4,7:1</span><span class="hexes"><b>fixo</b>#858585</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-txt-4)"></div><div class="amostra-txt"><code>--stu-txt-4</code><span class="papel">Desativado, marca-d’água</span><span class="hexes"><b>fixo</b>#5E5E5E</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-programa)"></div><div class="amostra-txt"><code>--stu-programa</code><span class="papel">No ar · tally de programa</span><span class="hexes"><b>fixo</b>#D42E22</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-programa-cl)"></div><div class="amostra-txt"><code>--stu-programa-cl</code><span class="papel">Texto vermelho sobre concreto</span><span class="hexes"><b>fixo</b>#F0574C</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-previa)"></div><div class="amostra-txt"><code>--stu-previa</code><span class="papel">Prévia, saudável</span><span class="hexes"><b>fixo</b>#35C46F</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-degradado)"></div><div class="amostra-txt"><code>--stu-degradado</code><span class="papel">Degradado, reconectando</span><span class="hexes"><b>fixo</b>#E0A32B</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--stu-foco)"></div><div class="amostra-txt"><code>--stu-foco</code><span class="papel">Anel de foco · valor, não matiz</span><span class="hexes"><b>fixo</b>#F2F2F2</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bloco">
+    <div class="bloco-cab"><h3>Página · superfície e texto</h3><p>Troca com o tema. Claro à esquerda, escuro à direita.</p></div>
+    <div class="bloco-corpo" style="padding:0">
+      <div class="tira">
+        <div class="amostra"><div class="chip" style="background:var(--sup-0)"></div><div class="amostra-txt"><code>--sup-0</code><span class="papel">Chão da página</span><span class="hexes"><b>clr</b>#EDEDED<b>esc</b>#0B0B0B</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--sup-1)"></div><div class="amostra-txt"><code>--sup-1</code><span class="papel">Cal · painel, cartão</span><span class="hexes"><b>clr</b>#FFFFFF<b>esc</b>#141414</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--sup-2)"></div><div class="amostra-txt"><code>--sup-2</code><span class="papel">Recuo, linha em hover</span><span class="hexes"><b>clr</b>#F5F5F5<b>esc</b>#1F1F1F</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--sup-3)"></div><div class="amostra-txt"><code>--sup-3</code><span class="papel">Bloco inerte, trilho</span><span class="hexes"><b>clr</b>#E4E4E4<b>esc</b>#282828</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--linha)"></div><div class="amostra-txt"><code>--linha</code><span class="papel">Fio padrão · 1px</span><span class="hexes"><b>clr</b>#D6D6D6<b>esc</b>#2E2E2E</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--linha-forte)"></div><div class="amostra-txt"><code>--linha-forte</code><span class="papel">Fio estrutural</span><span class="hexes"><b>clr</b>#B4B4B4<b>esc</b>#3D3D3D</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--txt-1)"></div><div class="amostra-txt"><code>--txt-1</code><span class="papel">Título, valor · 16,2:1</span><span class="hexes"><b>clr</b>#101010<b>esc</b>#F2F2F2</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--txt-2)"></div><div class="amostra-txt"><code>--txt-2</code><span class="papel">Corpo · 11,4:1</span><span class="hexes"><b>clr</b>#3A3A3A<b>esc</b>#B5B5B5</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--txt-3)"></div><div class="amostra-txt"><code>--txt-3</code><span class="papel">Rótulo, apoio · 5,3:1</span><span class="hexes"><b>clr</b>#6B6B6B<b>esc</b>#858585</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--txt-4)"></div><div class="amostra-txt"><code>--txt-4</code><span class="papel">Desativado</span><span class="hexes"><b>clr</b>#9A9A9A<b>esc</b>#5E5E5E</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--foco)"></div><div class="amostra-txt"><code>--foco</code><span class="papel">Anel de foco · achromático</span><span class="hexes"><b>clr</b>#101010<b>esc</b>#F2F2F2</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--txt-inv)"></div><div class="amostra-txt"><code>--txt-inv</code><span class="papel">Texto sobre vermelho</span><span class="hexes"><b>clr</b>#FFFFFF<b>esc</b>#FFFFFF</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bloco">
+    <div class="bloco-cab"><h3>Cromática e séries de dados</h3><p>Quatro matizes. Nenhum deles entra no console fora dos três estados.</p></div>
+    <div class="bloco-corpo" style="padding:0">
+      <div class="tira">
+        <div class="amostra"><div class="chip" style="background:var(--vermelho)"></div><div class="amostra-txt"><code>--vermelho</code><span class="papel">Viga estrutural · botão, régua, marca</span><span class="hexes"><b>clr</b>#C42A1E<b>esc</b>#D42E22</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--vermelho-forte)"></div><div class="amostra-txt"><code>--vermelho-forte</code><span class="papel">Pressionado / hover</span><span class="hexes"><b>clr</b>#A32016<b>esc</b>#F0574C</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--vermelho-txt)"></div><div class="amostra-txt"><code>--vermelho-txt</code><span class="papel">Vermelho como texto · 7,6:1</span><span class="hexes"><b>clr</b>#A32016<b>esc</b>#F0574C</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--azulejo)"></div><div class="amostra-txt"><code>--azulejo</code><span class="papel">Aviso neutro, série de dados</span><span class="hexes"><b>clr</b>#1F49A6<b>esc</b>#6E93F0</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--verde)"></div><div class="amostra-txt"><code>--verde</code><span class="papel">Saudável, pago, conectado</span><span class="hexes"><b>clr</b>#1E7A45<b>esc</b>#35C46F</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--ambar)"></div><div class="amostra-txt"><code>--ambar</code><span class="papel">Cota, atraso, degradado</span><span class="hexes"><b>clr</b>#8A5A00<b>esc</b>#E0A32B</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--dado-1)"></div><div class="amostra-txt"><code>--dado-1</code><span class="papel">Série 1</span><span class="hexes"><b>clr</b>#C42A1E<b>esc</b>#F0574C</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--dado-2)"></div><div class="amostra-txt"><code>--dado-2</code><span class="papel">Série 2</span><span class="hexes"><b>clr</b>#1F49A6<b>esc</b>#6E93F0</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--dado-3)"></div><div class="amostra-txt"><code>--dado-3</code><span class="papel">Série 3</span><span class="hexes"><b>clr</b>#1E7A45<b>esc</b>#35C46F</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--dado-4)"></div><div class="amostra-txt"><code>--dado-4</code><span class="papel">Série 4</span><span class="hexes"><b>clr</b>#8A5A00<b>esc</b>#E0A32B</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--dado-5)"></div><div class="amostra-txt"><code>--dado-5</code><span class="papel">Série 5 · eixo e grade</span><span class="hexes"><b>clr</b>#6B6B6B<b>esc</b>#9A9A9A</span></div></div>
+        <div class="amostra"><div class="chip" style="background:var(--tinta-vermelho)"></div><div class="amostra-txt"><code>--tinta-vermelho</code><span class="papel">A única receita de tinta: 12%</span><span class="hexes"><b>derivado</b>color-mix</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPOGRAFIA -->
+  <div class="bloco">
+    <div class="bloco-cab"><h3>Archivo · variação serial no eixo de largura</h3><p>Uma família. O contraste vem da largura, não de uma segunda fonte.</p></div>
+    <div class="bloco-corpo">
+      <div class="eixo">
+        <div><span class="rot">wdth 62 · 600</span><span class="esp" style="font-stretch:62%;font-weight:600">TRANSMITA</span></div>
+        <div><span class="rot">wdth 88 · 600 · console</span><span class="esp" style="font-stretch:88%;font-weight:600">TRANSMITA</span></div>
+        <div><span class="rot">wdth 100 · 500 · padrão</span><span class="esp" style="font-stretch:100%;font-weight:500">TRANSMITA</span></div>
+        <div><span class="rot">wdth 112 · 800 · seção</span><span class="esp" style="font-stretch:112%;font-weight:800">TRANSMITA</span></div>
+        <div><span class="rot">wdth 125 · 900 · cartaz</span><span class="esp" style="font-stretch:125%;font-weight:900">TRANSMITA</span></div>
+      </div>
+      <p class="deck" style="margin-top:var(--d2);font-size:var(--c3)">Rótulos de console rodam em <b>wdth 88</b> porque uma coluna de 232px não tem largura sobrando; o cartaz roda em <b>wdth 125</b> porque um cartaz tem. É a mesma letra. Waldemar Cordeiro chamaria isso de série; aqui é também uma economia de duas famílias para uma.</p>
+    </div>
+  </div>
+
+  <div class="bloco">
+    <div class="bloco-cab"><h3>Duas escalas, duas densidades</h3><p>O console é apertado de propósito. O site respira de propósito.</p></div>
+    <div class="bloco-corpo">
+      <div class="escalas">
+        <div>
+          <div class="rot" style="margin-bottom:var(--d1)">Escala do console</div>
+          <table class="tab-escala">
+            <thead><tr><th>Token</th><th>rem / px</th><th>Uso</th></tr></thead>
+            <tbody>
+              <tr><td class="mostra" style="font-size:.6875rem;font-stretch:88%;font-weight:600;letter-spacing:.09em;text-transform:uppercase">--c1</td><td class="num">0.6875 / 11</td><td>Rótulo micro. O menor tamanho que embarca.</td></tr>
+              <tr><td class="mostra" style="font-size:.75rem">--c2</td><td class="num">0.75 / 12</td><td>Chip, etiqueta, hora</td></tr>
+              <tr><td class="mostra" style="font-size:.8125rem">--c3</td><td class="num">0.8125 / 13</td><td>Corpo de painel, linha de lista</td></tr>
+              <tr><td class="mostra" style="font-size:.9375rem">--c4</td><td class="num">0.9375 / 15</td><td>Título de painel, valor ativo</td></tr>
+              <tr><td class="mostra" style="font-size:1.125rem">--c5</td><td class="num">1.125 / 18</td><td>Cabeçalho de bloco</td></tr>
+              <tr><td class="mostra num" style="font-size:.8125rem">--c-num</td><td class="num">0.8125 / 13</td><td>Leitura numérica, mono, tabular</td></tr>
+              <tr><td class="mostra num" style="font-size:1.625rem">--c-num-g</td><td class="num">1.625 / 26</td><td>Cronômetro</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div class="rot" style="margin-bottom:var(--d1)">Escala editorial</div>
+          <table class="tab-escala">
+            <thead><tr><th>Token</th><th>rem / px</th><th>Uso</th></tr></thead>
+            <tbody>
+              <tr><td class="mostra" style="font-size:1rem">--e1</td><td class="num">1 / 16</td><td>Corpo, medida de 64ch</td></tr>
+              <tr><td class="mostra" style="font-size:1.1875rem">--e2</td><td class="num">1.1875 / 19</td><td>Linha de apoio do herói</td></tr>
+              <tr><td class="mostra" style="font-size:1.625rem">--e3</td><td class="num">1.625 / 26</td><td>Nome de plano, título de cartão</td></tr>
+              <tr><td class="mostra" style="font-size:2.25rem;font-stretch:112%;font-weight:800;letter-spacing:-.025em">--e4</td><td class="num">2.25 / 36</td><td>Título de seção</td></tr>
+              <tr><td class="mostra" style="font-size:2.6rem;font-stretch:125%;font-weight:900;letter-spacing:-.04em">--e5</td><td class="num">clamp 40→72</td><td>Cartaz. Um por página.</td></tr>
+              <tr><td class="mostra num" style="font-size:2.75rem;letter-spacing:-.03em">--e-preco</td><td class="num">2.75 / 44</td><td>Preço. O preço é um número.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grade2" style="margin-top:var(--d3)">
+        <div class="regra">
+          <div class="rot">Numerais · Azeret Mono, tabular</div>
+          <p style="margin-bottom:var(--d1)">Zero <code>tabular-nums</code> no produto atual, em um produto feito de números. Aqui é obrigatório em toda leitura, coluna, preço e cronômetro — e a separação decimal é a brasileira.</p>
+          <div class="numerais">
+            01:47:22<br>00:09:05<br>6,2 Mbps<br>0,02 %<br>R$ 199,90<br>R$ 49,90
+            <em>Alinham em coluna porque o algarismo tem largura fixa.</em>
+          </div>
+        </div>
+        <div class="regra">
+          <div class="rot">Pesos · quatro, e um teto</div>
+          <p>500 é o padrão da interface — a mudança que devolve hierarquia sem tocar em um único tamanho. 600 marca rótulo e ênfase, 700 é o teto do console, 800/900 existem apenas no cartaz do site.</p>
+          <ul style="margin-top:var(--d2)">
+            <li><b>400</b><span style="font-weight:400">Texto longo, prosa jurídica</span></li>
+            <li><b>500</b><span style="font-weight:500">Padrão da interface</span></li>
+            <li><b>600</b><span style="font-weight:600">Rótulo, ênfase, nome ativo</span></li>
+            <li><b>700</b><span style="font-weight:700">Título, botão primário</span></li>
+            <li><b>800/900</b><span style="font-weight:800;font-stretch:112%">Somente o cartaz</span></li>
+          </ul>
+          <p style="margin-top:var(--d2);color:var(--txt-3)"><code>font-synthesis-weight: none</code> está ligado: qualquer peso não carregado aparece errado em vez de ser falsificado.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMA -->
+  <div class="bloco">
+    <div class="bloco-cab"><h3>Forma, elevação, fio, densidade</h3><p>A arte concreta é ortogonal. O sistema também.</p></div>
+    <div class="bloco-corpo">
+      <div class="grade2">
+        <div class="regra">
+          <div class="rot">Raio · três degraus e um teto de 4px</div>
+          <p>Estrutura é quadrada: painel, monitor, palco, modal, tabela. Só o que se toca ganha 2px. Nada no sistema passa de 4px. O círculo é reservado a ponto de estado e avatar.</p>
+          <div class="demo-forma">
+            <i style="border-radius:var(--r-0)">0</i>
+            <i style="border-radius:var(--r-1)">2px</i>
+            <i style="border-radius:var(--r-2)">4px</i>
+            <i style="border-radius:var(--r-dot);width:46px;height:46px;place-items:center">•</i>
+          </div>
+        </div>
+        <div class="regra">
+          <div class="rot">Elevação · o concreto não brilha</div>
+          <p>90% das superfícies são planas: um fio de 1px e um degrau na rampa. Sombra existe só onde algo flutua de verdade. Zero sombra colorida, zero desfoque de fundo, zero halo em volta do vídeo.</p>
+          <ul style="margin-top:var(--d2)">
+            <li><b>--e0</b>1px de fio. Painel, cartão, linha, monitor.</li>
+            <li><b>--sombra-1</b>Popover, menu suspenso.</li>
+            <li><b>--sombra-2</b>Modal. E só.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="grade2" style="margin-top:var(--d3)">
+        <div class="regra">
+          <div class="rot">Fio · três receitas</div>
+          <ul>
+            <li><b>padrão</b><span>1px <code>--linha</code> · toda divisão de chrome</span></li>
+            <li><b>forte</b><span>1px <code>--linha-forte</code> · moldura de monitor, borda de modal</span></li>
+            <li><b>marcado</b><span>3px <code>--vermelho</code> na borda inicial + degrau de superfície</span></li>
+          </ul>
+          <p style="margin-top:var(--d2);color:var(--txt-3)">Substitui 816 <code>border-slate-800</code> e suas sete variantes de opacidade. Seleção é uma viga pintada na aresta, não um preenchimento tingido.</p>
+        </div>
+        <div class="regra">
+          <div class="rot">Densidade · duas calibragens</div>
+          <ul>
+            <li><b>console</b>ritmo 4 · 6 · 8 · 12 · 16 · linha de 28px · painel com 12px</li>
+            <li><b>editorial</b>ritmo 8 · 16 · 24 · 32 · 48 · 72 · 104 · seção de 72–104px</li>
+          </ul>
+          <p style="margin-top:var(--d2);color:var(--txt-3)">Hoje as duas superfícies respiram igual, e a errada é a de vendas. Aqui o console é apertado por ofício e o site é largo por ofício.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="rodape">
+  <p><b>PwStream</b> — grafado assim, sempre. Uma marca com dez grafias não é uma marca. Direção 04 · Concretismo: concreto sem matiz no console, vermelho estrutural e malha ortogonal no site, uma família tipográfica variada no eixo de largura, e nenhuma linha de texto traduzida de um concorrente americano.</p>
+</footer>
+
+</main>
+
+<script>
+(function(){
+  var raiz = document.documentElement;
+  var btn  = document.getElementById('btnTema');
+  var rot  = document.getElementById('temaRot');
+  var guardado = null;
+  try { guardado = localStorage.getItem('pwstream-tema'); } catch(e) {}
+  if (guardado === 'dark' || guardado === 'light') raiz.setAttribute('data-theme', guardado);
+
+  function escuroAtivo(){
+    var marcado = raiz.getAttribute('data-theme');
+    if (marcado === 'dark') return true;
+    if (marcado === 'light') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function pintar(){
+    var escuro = escuroAtivo();
+    rot.textContent = escuro ? 'Tema escuro' : 'Tema claro';
+    btn.setAttribute('aria-pressed', escuro ? 'true' : 'false');
+    btn.setAttribute('aria-label', escuro ? 'Tema escuro ativo. Mudar para claro.' : 'Tema claro ativo. Mudar para escuro.');
+  }
+  btn.addEventListener('click', function(){
+    var proximo = escuroAtivo() ? 'light' : 'dark';
+    raiz.setAttribute('data-theme', proximo);
+    try { localStorage.setItem('pwstream-tema', proximo); } catch(e) {}
+    pintar();
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', pintar);
+  pintar();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,704 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PwStream Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+/* ══ PRIMITIVAS — idênticas a src/index.css. Este documento NÃO inventa um
+      sistema paralelo: são os mesmos valores que o app já usa e que o portão
+      de contraste do CI verifica a cada build. ══ */
+:root{
+  --n-0:#000000;   --n-3:#0A0B0C;   --n-6:#111315;   --n-10:#181B1F;
+  --n-14:#202429;  --n-18:#282D31;  --n-22:#30363B;  --n-28:#3C4349;
+  --n-36:#4E565E;  --n-46:#656E77;  --n-58:#838C96;  --n-70:#A2ACB7;
+  --n-80:#BEC7D1;  --n-89:#D9E1EA;  --n-92:#E3E9F0;  --n-96:#F0F5F9;
+  --n-99:#FAFCFF;  --n-100:#FFFFFF;
+
+  --sig:#D91F2D; --sig-deep:#A81622; --sig-lift:#F4666A;
+  --brand:#4683E0; --brand-deep:#2C5FB0; --brand-lift:#7FAAEC;
+
+  --r-0:0; --r-sm:8px; --r-md:10px; --r-lg:12px; --r-xl:16px; --r-2xl:20px; --r-pill:999px;
+  --s-1:4px; --s-2:6px; --s-3:8px; --s-4:12px; --s-5:16px; --s-6:24px;
+  --s-7:32px; --s-8:48px; --s-9:64px; --s-10:96px;
+
+  --f:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+
+  /* ESCURO é o primário */
+  --well:var(--n-3); --bg:var(--n-6); --surface:var(--n-10);
+  --panel:var(--n-14); --raise:var(--n-18); --line:var(--n-22); --line-ctl:var(--n-28);
+  --ink-dim:var(--n-70); --ink-lo:var(--n-80); --ink:var(--n-89); --ink-hi:var(--n-96);
+  --stage:var(--n-0);
+  --e-1:0 2px 8px rgb(0 0 0/.30), 0 10px 32px rgb(0 0 0/.24);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --well:var(--n-89); --bg:var(--n-96); --surface:var(--n-99);
+  --panel:var(--n-92); --raise:var(--n-100); --line:var(--n-80); --line-ctl:var(--n-70);
+  --ink-dim:var(--n-36); --ink-lo:var(--n-28); --ink:var(--n-18); --ink-hi:var(--n-6);
+  --stage:var(--n-0);
+  --e-1:0 2px 8px rgb(16 24 40/.07), 0 10px 32px rgb(16 24 40/.06);
+  color-scheme:light;
+}
+/* CONSOLE — invariante. Não segue o tema, por colorimetria. */
+[data-surface="console"]{
+  --well:var(--n-0); --bg:var(--n-3); --surface:var(--n-6);
+  --panel:var(--n-10); --raise:var(--n-14); --line:var(--n-18); --line-ctl:var(--n-28);
+  --ink-dim:var(--n-58); --ink-lo:var(--n-70); --ink:var(--n-89); --ink-hi:var(--n-96);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--f);-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--brand-lift);outline-offset:2px;border-radius:4px}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 var(--s-6) var(--s-10)}
+
+/* ── barra ── */
+.top{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:var(--s-4);padding:var(--s-4) var(--s-6);flex-wrap:wrap}
+.top .mark{display:flex;align-items:center;gap:var(--s-3);font-weight:700;color:var(--ink-hi);letter-spacing:-.01em}
+.top .mark i{width:14px;height:14px;background:var(--sig);border-radius:var(--r-sm);display:block}
+.top nav{display:flex;gap:2px;flex-wrap:wrap;margin-left:var(--s-4)}
+.top nav a{font-size:12.5px;color:var(--ink-lo);text-decoration:none;padding:5px 10px;border-radius:var(--r-xl)}
+.top nav a:hover{background:var(--raise);color:var(--ink-hi)}
+.top .sp{margin-left:auto}
+
+h1{font:700 clamp(2rem,4.6vw,2.9rem)/1.05 var(--f);letter-spacing:-.028em;color:var(--ink-hi);margin-bottom:var(--s-4);text-wrap:balance}
+.lede{max-width:70ch;color:var(--ink-lo);margin-bottom:var(--s-6)}
+section{padding-top:var(--s-9);scroll-margin-top:72px}
+.sh{display:flex;align-items:baseline;gap:var(--s-4);border-bottom:2px solid var(--ink-hi);padding-bottom:10px;margin-bottom:var(--s-5);flex-wrap:wrap}
+.sh h2{font:700 1.6rem/1.15 var(--f);letter-spacing:-.02em;color:var(--ink-hi)}
+.sh .n{font:500 12px/1 var(--f-num);color:var(--brand);letter-spacing:.1em}
+.sh .note{margin-left:auto;font:500 11px/1 var(--f-num);color:var(--ink-dim);text-transform:uppercase;letter-spacing:.09em}
+h3{font:600 1.02rem/1.3 var(--f);color:var(--ink-hi);margin:var(--s-6) 0 var(--s-3)}
+h4{font:600 12px/1 var(--f-num);color:var(--ink-dim);text-transform:uppercase;letter-spacing:.09em;margin:var(--s-5) 0 var(--s-3)}
+p{max-width:70ch;color:var(--ink-lo)}
+code{font:500 .85em var(--f-num);background:var(--raise);padding:1.5px 5px;border-radius:5px;color:var(--ink-hi)}
+
+/* ── grelhas ── */
+.g{display:grid;gap:var(--s-4)}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-5)}
+.frameit{border:1px dashed var(--line-ctl);border-radius:var(--r-lg);padding:var(--s-5);background:var(--bg)}
+.cap{font:500 11px/1.5 var(--f-num);color:var(--ink-dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:var(--s-3)}
+
+/* ── rampa ── */
+.ramp{display:flex;flex-wrap:wrap;gap:3px}
+.ramp div{flex:1 1 54px}
+.ramp i{display:block;height:46px;border-radius:var(--r-sm);border:1px solid var(--line)}
+.ramp span{display:block;font:400 10px/1.4 var(--f-num);color:var(--ink-dim);margin-top:5px;text-align:center}
+
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:13px}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+th{text-align:left;font:600 10.5px/1 var(--f-num);color:var(--ink-dim);text-transform:uppercase;
+  letter-spacing:.1em;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--ink);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+td.m{font-family:var(--f-num);font-size:12px;color:var(--ink-lo)}
+.ok{color:#4ADE80;font-weight:600} :root[data-theme="light"] .ok{color:#15803D}
+
+/* ── componentes ── */
+.btn{display:inline-flex;align-items:center;gap:var(--s-2);padding:9px 18px;border-radius:var(--r-xl);
+  font-size:13px;font-weight:600;background:var(--brand-deep);color:#fff;border:1px solid transparent;
+  transition:filter 110ms linear}
+.btn:hover{filter:brightness(1.1)} .btn:active{filter:brightness(.93)}
+.btn--ghost{background:transparent;color:var(--ink);border-color:var(--line-ctl)}
+.btn--ghost:hover{background:var(--raise);filter:none}
+.btn--danger{background:var(--sig);color:#fff}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 11px;border-radius:var(--r-pill);
+  font:600 11px/1.6 var(--f);text-transform:uppercase;letter-spacing:.08em;
+  background:var(--raise);color:var(--ink-lo);border:1px solid var(--line-ctl)}
+.badge i{width:6px;height:6px;border-radius:50%;background:currentColor;display:block}
+.badge--live{background:var(--sig);color:#fff;border-color:transparent}
+.field{display:block;margin-bottom:var(--s-4)}
+.field span{display:block;font-size:12px;color:var(--ink-lo);margin-bottom:5px}
+.field input,.field select{width:100%;padding:9px 12px;border-radius:var(--r-md);
+  background:var(--well);color:var(--ink-hi);border:1px solid var(--line-ctl);font:inherit;font-size:13px}
+.field input::placeholder{color:var(--ink-dim)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:var(--s-4);overflow-x:auto}
+.tab{padding:8px 14px;border-radius:var(--r-xl) var(--r-xl) 0 0;font-size:12.5px;color:var(--ink-lo);white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--raise);color:var(--ink-hi)}
+
+/* ── monitores + tally ── */
+.mon{min-width:0}
+.mhd{display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-3)}
+.mtag{font:600 10.5px/1.6 var(--f);text-transform:uppercase;letter-spacing:.09em;padding:3px 10px;
+  border-radius:var(--r-pill);background:var(--raise);color:var(--ink-lo);border:1px solid var(--line-ctl)}
+[data-air="on"] .mon--pgm .mtag{background:var(--sig);color:#fff;border-color:transparent}
+.mspec{margin-left:auto;font:400 10.5px/1 var(--f-num);color:var(--ink-dim);font-variant-numeric:tabular-nums}
+.frame{position:relative;padding:2px;background:var(--n-14);border-radius:var(--r-0)}
+.frame--pvw{background:var(--n-89)}
+[data-air="on"] .frame--pgm{background:var(--sig)}
+[data-air="on"] .frame--pgm::after{content:"";position:absolute;inset:-10px;pointer-events:none;
+  --m:var(--n-92);--aw:13%;--ah:22%;--t:4px;
+  background:
+    linear-gradient(var(--m),var(--m)) 0 0/var(--aw) var(--t) no-repeat,
+    linear-gradient(var(--m),var(--m)) 0 0/var(--t) var(--ah) no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 0/var(--aw) var(--t) no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 0/var(--t) var(--ah) no-repeat,
+    linear-gradient(var(--m),var(--m)) 0 100%/var(--aw) var(--t) no-repeat,
+    linear-gradient(var(--m),var(--m)) 0 100%/var(--t) var(--ah) no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 100%/var(--aw) var(--t) no-repeat,
+    linear-gradient(var(--m),var(--m)) 100% 100%/var(--t) var(--ah) no-repeat}
+.stage{position:relative;aspect-ratio:16/9;background:var(--stage);overflow:hidden;border-radius:var(--r-0)}
+.bars{position:absolute;inset:0;display:grid;grid-template-rows:70% 8% 22%}
+.bm{background:linear-gradient(90deg,#BFBFBF 0 14.28%,#BFBF00 14.28% 28.57%,#00BFBF 28.57% 42.85%,
+  #00BF00 42.85% 57.14%,#BF00BF 57.14% 71.42%,#BF0000 71.42% 85.71%,#0000BF 85.71% 100%)}
+.bc{background:linear-gradient(90deg,#0000BF 0 14.28%,#131313 14.28% 28.57%,#BF00BF 28.57% 42.85%,
+  #131313 42.85% 57.14%,#00BFBF 57.14% 71.42%,#131313 71.42% 85.71%,#BFBFBF 85.71% 100%)}
+.bp{background:linear-gradient(90deg,#0A0A0A 0 33%,#000 33% 41%,#1A1A1A 41% 50%,#131313 50% 100%)}
+.grey{position:absolute;inset:0;background:linear-gradient(90deg,#000 0 10%,#1C1C1C 10% 20%,#333 20% 30%,
+  #4C4C4C 30% 40%,#666 40% 50%,#7F7F7F 50% 60%,#999 60% 70%,#B2B2B2 70% 80%,#CCC 80% 90%,#E5E5E5 90% 100%)}
+.gc{position:absolute;left:5%;bottom:9%;display:flex}
+.gc i{width:4px;background:var(--n-92)}
+.gc span{background:rgb(10 11 12/.84);padding:5px 10px;display:block}
+.gc b{display:block;font:600 11.5px/1.25 var(--f);color:#F0F5F9}
+.gc em{display:block;font:400 10px/1.3 var(--f);color:#A2ACB7;font-style:normal}
+
+/* ── leituras ── */
+.reads{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:var(--s-3)}
+.read{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:8px 12px;min-width:88px}
+.rk{font:500 10px/1 var(--f-num);color:var(--ink-lo);text-transform:uppercase;letter-spacing:.09em;margin-bottom:4px}
+.rv{font:500 14px/1.1 var(--f-num);color:var(--ink-hi);font-variant-numeric:tabular-nums}
+
+/* ── console ── */
+.con{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-lg);overflow:visible;box-shadow:var(--e-1)}
+.cbar{display:flex;align-items:center;gap:var(--s-3);padding:0 var(--s-4);height:44px;background:var(--surface);
+  border-bottom:1px solid var(--line);border-radius:var(--r-lg) var(--r-lg) 0 0}
+.clock{margin-left:auto;font:500 14px/1 var(--f-num);color:var(--ink-hi);font-variant-numeric:tabular-nums}
+.cbody{display:grid;grid-template-columns:196px minmax(0,1fr) 260px;min-height:400px}
+@media (max-width:980px){.cbody{grid-template-columns:minmax(0,1fr)}}
+.rail{background:var(--surface);min-width:0;display:flex;flex-direction:column}
+.rail--l{border-right:1px solid var(--line)} .rail--r{border-left:1px solid var(--line)}
+.rh{font:500 10px/1 var(--f-num);color:var(--ink-dim);text-transform:uppercase;letter-spacing:.09em;padding:var(--s-4) var(--s-4) var(--s-3)}
+.scene{display:flex;align-items:center;gap:var(--s-3);width:100%;padding:6px var(--s-3);border-radius:var(--r-sm);text-align:left}
+.scene:hover{background:var(--raise)}
+.scene[aria-current="true"]{background:var(--raise)}
+.scene i{width:32px;height:19px;background:var(--well);border:1px solid var(--line-ctl);border-radius:3px;flex:0 0 auto}
+.scene span{font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stagecol{padding:var(--s-5);display:flex;flex-direction:column;gap:var(--s-4);min-width:0;background:var(--bg)}
+.mons{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:var(--s-5);align-items:start}
+@media (max-width:700px){.mons{grid-template-columns:minmax(0,1fr)}}
+.tray{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-4);background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r-lg);flex-wrap:wrap}
+.ctl{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:var(--r-xl);
+  background:var(--raise);border:1px solid var(--line-ctl);font-size:12px;color:var(--ink)}
+.ctl:hover{background:var(--panel)} .ctl:active{filter:brightness(.93)}
+.ctl[aria-pressed="true"]{background:var(--ink-hi);color:var(--bg);border-color:transparent}
+.ctl i{width:14px;height:14px;border:1.5px solid currentColor;border-radius:4px;display:block}
+.ctl[aria-pressed="true"] i{background:currentColor}
+.end{margin-left:auto;height:42px;padding:0 22px;border-radius:var(--r-xl);background:var(--sig);color:#fff;
+  font-weight:600;font-size:13px}
+[data-air="off"] .end{background:var(--ink-hi);color:var(--bg)}
+.msg{padding:8px 0;border-bottom:1px solid var(--line)}
+.msg b{display:block;font:600 12px/1.3 var(--f);color:var(--ink-hi)}
+.msg span{font-size:12px;color:var(--ink)}
+.msg em{font:400 10px/1 var(--f-num);color:var(--ink-dim);font-style:normal;float:right}
+.dest{display:flex;align-items:center;gap:var(--s-3);padding:8px;border:1px solid var(--line);
+  border-radius:var(--r-md);background:var(--panel);margin-bottom:6px}
+.dest span{font-size:12px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dest .s{margin-left:auto;flex:0 0 auto;text-align:right}
+.dest .b{display:block;font:400 10px/1.4 var(--f-num);color:var(--ink-dim);font-variant-numeric:tabular-nums}
+.vu{display:flex;align-items:center;gap:var(--s-3);padding:5px 0}
+.vu b{font:500 10px/1 var(--f-num);color:var(--ink-lo);width:34px;font-weight:500}
+.vu .t{flex:1;height:7px;background:var(--well);border-radius:var(--r-pill);overflow:hidden}
+.vu .f{height:100%;border-radius:var(--r-pill);background:linear-gradient(90deg,var(--ink-lo) 0 68%,var(--n-80) 68% 88%,var(--n-92) 88% 100%);
+  background-size:calc(100% / var(--pk,.72)) 100%;width:calc(100% * var(--pk,.72))}
+
+/* ── overlay / modal / toast ── */
+.demo{position:relative;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-lg);
+  min-height:250px;padding:var(--s-5);overflow:hidden}
+.scrim{position:absolute;inset:0;background:rgb(6 8 10/.62);display:grid;place-items:center;padding:var(--s-5)}
+.dlg{width:min(400px,100%);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2xl);
+  box-shadow:var(--e-1);overflow:hidden}
+.dlg header{padding:var(--s-5) var(--s-5) var(--s-3);border-bottom:1px solid var(--line)}
+.dlg header b{display:block;font:600 15px/1.3 var(--f);color:var(--ink-hi)}
+.dlg .body{padding:var(--s-4) var(--s-5);font-size:13px;color:var(--ink-lo)}
+.dlg footer{display:flex;gap:var(--s-3);justify-content:flex-end;padding:var(--s-3) var(--s-5) var(--s-5)}
+.toasts{position:absolute;right:var(--s-5);bottom:var(--s-5);display:grid;gap:var(--s-3);width:min(300px,80%)}
+.toast{display:flex;gap:var(--s-3);align-items:flex-start;background:var(--raise);border:1px solid var(--line-ctl);
+  border-radius:var(--r-lg);padding:11px 13px;box-shadow:var(--e-1)}
+.toast i{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:0 0 auto;background:var(--ink-lo)}
+.toast.good i{background:#4ADE80} .toast.bad i{background:var(--sig)}
+.toast b{display:block;font:600 12.5px/1.35 var(--f);color:var(--ink-hi)}
+.toast span{font-size:11.5px;color:var(--ink-lo)}
+
+/* ── estados ── */
+.state{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-6);
+  text-align:center;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.state .ic{width:34px;height:34px;border-radius:var(--r-md);border:1.5px solid var(--line-ctl);margin-bottom:4px}
+.state b{font:600 13.5px/1.35 var(--f);color:var(--ink-hi)}
+.state span{font-size:12px;color:var(--ink-lo);max-width:34ch}
+.sk{background:var(--raise);border-radius:6px;height:11px}
+.sk.w1{width:70%} .sk.w2{width:45%} .sk.w3{width:88%}
+
+/* ── páginas ── */
+.page{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--bg)}
+.pbar{display:flex;align-items:center;gap:var(--s-3);height:42px;padding:0 var(--s-4);background:var(--surface);
+  border-bottom:1px solid var(--line);font-size:12px;color:var(--ink-lo)}
+.pbar b{color:var(--ink-hi);font-weight:600;font-size:13px}
+.pbody{padding:var(--s-5)}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-4)}
+.kpi .k{font:500 10.5px/1 var(--f-num);color:var(--ink-lo);text-transform:uppercase;letter-spacing:.09em}
+.kpi .v{font:600 22px/1.15 var(--f);color:var(--ink-hi);margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .d{font-size:11px;color:var(--ink-dim);margin-top:2px}
+.hero{padding:var(--s-8) var(--s-5);text-align:center;background:var(--bg)}
+.hero h3{font:700 clamp(1.6rem,4vw,2.4rem)/1.06 var(--f);letter-spacing:-.028em;color:var(--ink-hi);margin:0 0 var(--s-3);text-wrap:balance}
+.hero p{margin:0 auto var(--s-5);color:var(--ink-lo);max-width:52ch;font-size:14px}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--s-4)}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-5);display:flex;flex-direction:column;gap:6px}
+.plan.rec{border-color:var(--brand)}
+.plan .nm{font:600 13px/1 var(--f);color:var(--ink-hi)}
+.plan .pr{font:700 24px/1.1 var(--f);color:var(--ink-hi);font-variant-numeric:tabular-nums}
+.plan .pr small{font:400 12px var(--f);color:var(--ink-dim)}
+.plan ul{list-style:none;font-size:12px;color:var(--ink-lo);display:grid;gap:4px;margin:6px 0 var(--s-4)}
+footer.doc{margin-top:var(--s-9);padding-top:var(--s-5);border-top:1px solid var(--line);
+  font:400 11.5px/1.7 var(--f-num);color:var(--ink-dim);display:flex;gap:var(--s-4);flex-wrap:wrap}
+</style>
+
+<div class="top">
+  <span class="mark"><i></i>PwStream</span>
+  <nav>
+    <a href="#fundacao">Fundação</a><a href="#componentes">Componentes</a>
+    <a href="#overlays">Overlays</a><a href="#estados">Estados</a><a href="#dados">Dados</a>
+    <a href="#estudio">Estúdio</a><a href="#dashboard">Dashboard</a><a href="#landing">Landing</a>
+    <a href="#faturamento">Faturamento</a><a href="#admin">Admin</a><a href="#regras">Regras</a>
+  </nav>
+  <span class="sp"></span>
+  <button class="btn btn--ghost" id="theme" type="button">Tema claro</button>
+</div>
+
+<div class="wrap">
+  <section style="padding-top:var(--s-8)">
+    <h1>Sistema de design e maquetes para aprovação</h1>
+    <p class="lede">
+      Os tokens abaixo <strong style="color:var(--ink-hi)">não são uma proposta paralela</strong> — são os
+      valores que já estão em <code>src/index.css</code>, verificados a cada build pelo portão de contraste
+      do CI (56 pares, três escopos, WCAG AA). O que está em revisão aqui é a
+      <strong style="color:var(--ink-hi)">aplicação</strong> deles às telas, e as quatro coisas que a
+      crítica do bakeoff apontou como nunca desenhadas: overlays, gráficos, o tema claro como projeto,
+      e os estados de vazio, carregamento e erro.
+    </p>
+    <div style="display:flex;gap:var(--s-3);flex-wrap:wrap">
+      <span class="badge"><i></i>56 pares AA</span>
+      <span class="badge"><i></i>3 escopos</span>
+      <span class="badge"><i></i>Zero animação infinita</span>
+      <span class="badge"><i></i>Console invariante</span>
+    </div>
+  </section>
+
+  <!-- ══════════ FUNDAÇÃO ══════════ -->
+  <section id="fundacao">
+    <div class="sh"><span class="n">01</span><h2>Fundação</h2><span class="note">Já em produção</span></div>
+    <h4>Rampa neutra — luminância casada</h4>
+    <p style="margin-bottom:var(--s-4)">Dezoito degraus, viés de matiz para ≈222° em luz linear. Cada um a ±0,2 % de Y do cinza que substituiu, então toda razão de contraste medida na auditoria continuou valendo.</p>
+    <div class="ramp">
+      <div><i style="background:var(--n-0)"></i><span>n-0</span></div>
+      <div><i style="background:var(--n-3)"></i><span>n-3</span></div>
+      <div><i style="background:var(--n-6)"></i><span>n-6</span></div>
+      <div><i style="background:var(--n-10)"></i><span>n-10</span></div>
+      <div><i style="background:var(--n-14)"></i><span>n-14</span></div>
+      <div><i style="background:var(--n-18)"></i><span>n-18</span></div>
+      <div><i style="background:var(--n-22)"></i><span>n-22</span></div>
+      <div><i style="background:var(--n-28)"></i><span>n-28</span></div>
+      <div><i style="background:var(--n-36)"></i><span>n-36</span></div>
+      <div><i style="background:var(--n-46)"></i><span>n-46</span></div>
+      <div><i style="background:var(--n-58)"></i><span>n-58</span></div>
+      <div><i style="background:var(--n-70)"></i><span>n-70</span></div>
+      <div><i style="background:var(--n-80)"></i><span>n-80</span></div>
+      <div><i style="background:var(--n-89)"></i><span>n-89</span></div>
+      <div><i style="background:var(--n-92)"></i><span>n-92</span></div>
+      <div><i style="background:var(--n-96)"></i><span>n-96</span></div>
+      <div><i style="background:var(--n-99)"></i><span>n-99</span></div>
+      <div><i style="background:var(--n-100)"></i><span>n-100</span></div>
+    </div>
+
+    <h4>Sinal e marca — os dois únicos matizes</h4>
+    <div class="g g3">
+      <div class="card"><div class="cap">Tally · --sig</div>
+        <i style="display:block;height:40px;border-radius:var(--r-sm);background:var(--sig)"></i>
+        <p style="font-size:12px;margin-top:8px">#D91F2D · Y 15,92 %. Só no ar. Nunca em gráfico, selo ou plano recomendado.</p></div>
+      <div class="card"><div class="cap">Marca · --brand-deep</div>
+        <i style="display:block;height:40px;border-radius:var(--r-sm);background:var(--brand-deep)"></i>
+        <p style="font-size:12px;margin-top:8px">#2C5FB0 para preenchimento sólido — 6,23:1 com texto branco. O #4683E0 claro só como acento.</p></div>
+      <div class="card"><div class="cap">Marca de no ar · n-92</div>
+        <i style="display:block;height:40px;border-radius:var(--r-sm);background:var(--n-92)"></i>
+        <p style="font-size:12px;margin-top:8px">Neutra de propósito: idêntica sob protanopia, deuteranopia e escala de cinza.</p></div>
+    </div>
+
+    <h4>Papéis semânticos por escopo</h4>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Token</th><th>Escuro</th><th>Claro</th><th>Console</th><th>Papel</th></tr></thead>
+        <tbody>
+          <tr><td class="m">--well</td><td class="m">n-3</td><td class="m">n-89</td><td class="m">n-0</td><td>Campo, poço, alojamento recuado</td></tr>
+          <tr><td class="m">--bg</td><td class="m">n-6</td><td class="m">n-96</td><td class="m">n-3</td><td>Chão da página</td></tr>
+          <tr><td class="m">--surface</td><td class="m">n-10</td><td class="m">n-99</td><td class="m">n-6</td><td>Cartão, trilho, barra</td></tr>
+          <tr><td class="m">--panel</td><td class="m">n-14</td><td class="m">n-92</td><td class="m">n-10</td><td>Painel aninhado dentro de cartão</td></tr>
+          <tr><td class="m">--raise</td><td class="m">n-18</td><td class="m">n-100</td><td class="m">n-14</td><td>Face de tecla, controle erguido</td></tr>
+          <tr><td class="m">--ink-hi</td><td class="m">n-96</td><td class="m">n-6</td><td class="m">n-96</td><td>Título, número, dado primário</td></tr>
+          <tr><td class="m">--ink</td><td class="m">n-89</td><td class="m">n-18</td><td class="m">n-89</td><td>Corpo</td></tr>
+          <tr><td class="m">--ink-lo</td><td class="m">n-80</td><td class="m">n-28</td><td class="m">n-70</td><td>Secundário, legenda</td></tr>
+          <tr><td class="m">--ink-dim</td><td class="m">n-70</td><td class="m">n-36</td><td class="m">n-58</td><td>Rótulo, unidade</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Raio e forma</h4>
+    <div class="g g3">
+      <div class="card"><div class="cap">Palco · 0</div><i style="display:block;height:34px;background:var(--raise);border:1px solid var(--line-ctl);border-radius:0"></i>
+        <p style="font-size:12px;margin-top:8px">Moldura de vídeo nunca arredonda: o canto recortaria imagem no vértice.</p></div>
+      <div class="card"><div class="cap">Botão · 16px</div><i style="display:block;height:34px;background:var(--raise);border:1px solid var(--line-ctl);border-radius:var(--r-xl)"></i>
+        <p style="font-size:12px;margin-top:8px">Generoso, por decisão de produto. Cartão 12px, campo 10px.</p></div>
+      <div class="card"><div class="cap">Selo · pílula</div><i style="display:block;height:34px;background:var(--raise);border:1px solid var(--line-ctl);border-radius:var(--r-pill)"></i>
+        <p style="font-size:12px;margin-top:8px">Sempre totalmente arredondado, para separá-lo de botão à primeira vista.</p></div>
+    </div>
+  </section>
+
+  <!-- ══════════ COMPONENTES ══════════ -->
+  <section id="componentes">
+    <div class="sh"><span class="n">02</span><h2>Componentes</h2><span class="note">Estados completos</span></div>
+    <div class="g g2">
+      <div class="card">
+        <div class="cap">Botões — todos os estados</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn">Primário</button>
+          <button class="btn btn--ghost">Secundário</button>
+          <button class="btn btn--danger">Encerrar</button>
+          <button class="btn" disabled>Enviando…</button>
+        </div>
+        <p style="font-size:12px;margin-top:var(--s-4)">Cada um tem <code>:hover</code>, <code>:active</code> e <code>:focus-visible</code>. A auditoria mediu 907 <code>hover:</code> contra 35 <code>active:</code> e zero <code>focus-visible:</code> — a proporção era 26:1.</p>
+      </div>
+      <div class="card">
+        <div class="cap">Selos</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="badge badge--live"><i></i>No ar</span>
+          <span class="badge"><i></i>Fora do ar</span>
+          <span class="badge">reconectando 3/8</span>
+          <span class="badge">Business</span>
+        </div>
+        <p style="font-size:12px;margin-top:var(--s-4)">Estado nunca por cor sozinha: o selo de no ar muda <em>preenchimento, palavra e valor</em> ao mesmo tempo.</p>
+      </div>
+      <div class="card">
+        <div class="cap">Campos</div>
+        <label class="field"><span>Chave de transmissão</span><input value="pw_live_9f2a…" readonly></label>
+        <label class="field"><span>Servidor de ingestão</span><input placeholder="rtmp://…"></label>
+        <p style="font-size:12px">Controles nativos seguem os tokens — sem <code>!important</code>. Medido: 14,11:1.</p>
+      </div>
+      <div class="card">
+        <div class="cap">Abas</div>
+        <div class="tabs"><span class="tab" aria-selected="true">Chat</span><span class="tab">Destinos</span><span class="tab">Áudio</span><span class="tab">Convidados</span></div>
+        <p style="font-size:12px">A aba padrão precisa existir. O app entrava no estúdio com <code>'first'</code>, que não casava com painel nenhum — barra lateral em branco na primeira visita.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ OVERLAYS (lacuna nº1 da crítica) ══════════ -->
+  <section id="overlays">
+    <div class="sh"><span class="n">03</span><h2>Overlays</h2><span class="note">Lacuna bloqueante nº 1</span></div>
+    <p class="lede">A crítica do bakeoff foi direta: nas cinco maquetes anteriores, <strong style="color:var(--ink-hi)">nenhum modal, diálogo, popover ou toast foi desenhado</strong> — e essa é a maior convergência da auditoria (20 raízes de modal feitas à mão, 12 camadas de z-index até <code>z-[99999]</code>, zero ESC, zero trava de rolagem, zero armadilha de foco). Aqui estão.</p>
+    <div class="g g2">
+      <div>
+        <div class="cap">Diálogo de confirmação, sobre o console ao vivo</div>
+        <div class="demo" data-surface="console" data-air="on">
+          <div style="opacity:.5"><div class="reads"><div class="read"><div class="rk">Taxa</div><div class="rv">60 fps</div></div><div class="read"><div class="rk">Bitrate</div><div class="rv">6,2 Mbps</div></div></div></div>
+          <div class="scrim">
+            <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dt">
+              <header><b id="dt">Encerrar a transmissão?</b></header>
+              <div class="body">Três destinos estão no ar há 01:47:22. Encerrar desconecta todos e finaliza a gravação.</div>
+              <footer><button class="btn btn--ghost">Continuar no ar</button><button class="btn btn--danger">Encerrar</button></footer>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:12px;margin-top:8px">Uma primitiva: <code>role="dialog"</code>, <code>aria-modal</code>, ESC, clique no scrim, trava de rolagem, foco preso e devolvido. Aposenta 25 <code>alert()</code>/<code>confirm()</code> nativos que travam a thread principal no meio da transmissão.</p>
+      </div>
+      <div>
+        <div class="cap">Toasts — o canal que não existia</div>
+        <div class="demo">
+          <div style="display:grid;gap:6px;opacity:.5"><div class="sk w3"></div><div class="sk w1"></div><div class="sk w2"></div></div>
+          <div class="toasts">
+            <div class="toast good"><i></i><div><b>Chave copiada</b><span>Cole no OBS em Configurações → Transmissão.</span></div></div>
+            <div class="toast bad"><i></i><div><b>Não foi possível copiar</b><span>Seu navegador bloqueou a área de transferência. <u>Copiar manualmente</u></span></div></div>
+          </div>
+        </div>
+        <p style="font-size:12px;margin-top:8px">O segundo toast existe por um defeito real: 41 chamadas de <code>clipboard.writeText</code> sem <code>.catch()</code> — a interface dizia “Copiado!” mesmo quando copiar a chave RTMP falhava em silêncio.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ ESTADOS (lacuna nº4) ══════════ -->
+  <section id="estados">
+    <div class="sh"><span class="n">04</span><h2>Vazio, carregando, erro</h2><span class="note">Lacuna nº 4</span></div>
+    <p class="lede">A auditoria encontrou <strong style="color:var(--ink-hi)">zero estados de carregamento</strong> no app inteiro, e toda maquete anterior desenhou apenas o sistema saudável, no ar e autenticado.</p>
+    <div class="g g3">
+      <div class="state"><span class="ic"></span><b>Nenhum destino conectado</b><span>Conecte YouTube, Facebook ou Twitch para transmitir para mais de um lugar ao mesmo tempo.</span><button class="btn" style="margin-top:8px">Conectar canal</button></div>
+      <div class="state" style="align-items:stretch;text-align:left"><div class="cap">Carregando</div>
+        <div style="display:grid;gap:8px;width:100%"><div class="sk w3"></div><div class="sk w1"></div><div class="sk w2"></div><div class="sk w3"></div></div>
+        <span style="margin-top:10px">Esqueleto com a forma do conteúdo, não um giro — evita o salto de layout.</span></div>
+      <div class="state"><span class="ic" style="border-color:var(--sig)"></span><b>Ingestão recusada</b><span>A chave de transmissão expirou. Gere uma nova no painel — a transmissão atual não foi interrompida.</span><button class="btn btn--ghost" style="margin-top:8px">Gerar nova chave</button></div>
+    </div>
+    <p style="font-size:12.5px;margin-top:var(--s-4)">A regra do travessão: valor ausente é <code>—</code>, nunca zero. Mostrar “2,8 Mbps” numa linha que está reconectando sugere que há dados fluindo.</p>
+  </section>
+
+  <!-- ══════════ DADOS (lacuna nº3) ══════════ -->
+  <section id="dados">
+    <div class="sh"><span class="n">05</span><h2>Dados</h2><span class="note">Lacuna nº 3</span></div>
+    <p class="lede">O tratamento de gráfico anterior eram seis quadradinhos de 1×1. A paleta de séries é a rampa — separação por <em>valor</em>, não por matiz — porque o carmim é reservado ao ar e a auditoria achou o ramp 500 do Tailwind usado como paleta de gráfico.</p>
+    <div class="card">
+      <div style="display:flex;align-items:baseline;gap:var(--s-4);margin-bottom:var(--s-4);flex-wrap:wrap">
+        <b style="color:var(--ink-hi);font-size:14px">Egressso por destino</b>
+        <span style="font-size:11px;color:var(--ink-dim);font-family:var(--f-num)">últimos 7 dias · Mbps</span>
+        <span style="margin-left:auto;display:flex;gap:12px;font-size:11px;color:var(--ink-lo);flex-wrap:wrap">
+          <span><i style="display:inline-block;width:9px;height:9px;background:var(--n-89);border-radius:2px;margin-right:5px"></i>YouTube</span>
+          <span><i style="display:inline-block;width:9px;height:9px;background:var(--n-70);border-radius:2px;margin-right:5px"></i>Facebook</span>
+          <span><i style="display:inline-block;width:9px;height:9px;background:var(--n-46);border-radius:2px;margin-right:5px"></i>Twitch</span>
+        </span>
+      </div>
+      <div style="overflow-x:auto">
+      <svg viewBox="0 0 660 210" width="100%" height="210" role="img" aria-label="Área empilhada do egresso por destino ao longo de sete dias">
+        <g stroke="var(--line)" stroke-width="1">
+          <line x1="42" y1="18" x2="646" y2="18"/><line x1="42" y1="63" x2="646" y2="63"/>
+          <line x1="42" y1="108" x2="646" y2="108"/><line x1="42" y1="153" x2="646" y2="153"/>
+          <line x1="42" y1="176" x2="646" y2="176"/>
+        </g>
+        <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-dim)" text-anchor="end">
+          <text x="36" y="22">12</text><text x="36" y="67">9</text>
+          <text x="36" y="112">6</text><text x="36" y="157">3</text><text x="36" y="180">0</text>
+        </g>
+        <path d="M42,176 L42,150 143,142 244,128 345,134 446,112 547,104 646,96 L646,176 Z" fill="var(--n-46)"/>
+        <path d="M42,150 L143,142 244,128 345,134 446,112 547,104 646,96" fill="none" stroke="var(--n-46)" stroke-width="1.5"/>
+        <path d="M42,150 L42,116 143,110 244,92 345,100 446,74 547,70 646,58 L646,96 547,104 446,112 345,134 244,128 143,142 42,150 Z" fill="var(--n-70)"/>
+        <path d="M42,116 L42,72 143,66 244,44 345,54 446,34 547,28 646,22 L646,58 547,70 446,74 345,100 244,92 143,110 42,116 Z" fill="var(--n-89)"/>
+        <circle cx="646" cy="22" r="3.5" fill="var(--n-96)" stroke="var(--bg)" stroke-width="1.5"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-dim)" text-anchor="middle">
+          <text x="42" y="196">seg</text><text x="143" y="196">ter</text><text x="244" y="196">qua</text>
+          <text x="345" y="196">qui</text><text x="446" y="196">sex</text><text x="547" y="196">sáb</text><text x="640" y="196">dom</text>
+        </g>
+      </svg>
+      </div>
+    </div>
+    <div class="scroll" style="margin-top:var(--s-4)">
+      <table>
+        <thead><tr><th>Fatura</th><th>Emissão</th><th>Plano</th><th style="text-align:right">Valor</th><th>Situação</th></tr></thead>
+        <tbody>
+          <tr><td class="m">2026-0914</td><td class="m">01/09/2026</td><td>Business</td><td style="text-align:right" class="m">R$ 199,90</td><td><span class="badge">Paga</span></td></tr>
+          <tr><td class="m">2026-0841</td><td class="m">01/08/2026</td><td>Business</td><td style="text-align:right" class="m">R$ 199,90</td><td><span class="badge">Paga</span></td></tr>
+          <tr><td class="m">2026-0777</td><td class="m">01/07/2026</td><td>Professional</td><td style="text-align:right" class="m">R$ 1.284.590,00</td><td><span class="badge">Paga</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12.5px;margin-top:8px">Números alinham com <code>tabular-nums</code> — o app tinha <strong style="color:var(--ink-hi)">zero</strong> ocorrências, num produto feito de números. A linha com nove dígitos está aí de propósito: a crítica notou que nenhum número desenhado era longo o bastante para testar a regra.</p>
+  </section>
+
+  <!-- ══════════ ESTÚDIO ══════════ -->
+  <section id="estudio">
+    <div class="sh"><span class="n">06</span><h2>Estúdio</h2><span class="note">Console · invariante</span></div>
+    <p class="lede">A tela inteira é o console, cabeçalho incluído — e ela <strong style="color:var(--ink-hi)">não acompanha o tema</strong>. Troque o tema no topo desta página: tudo muda, o console fica. A luminância a que o operador se adapta não pode mudar porque alguém apertou um botão no meio de uma transmissão.</p>
+    <div class="con" data-surface="console" data-air="on" id="con">
+      <div class="cbar">
+        <b style="font-size:13px;color:var(--ink-hi)">Webinar de Produto · Q3</b>
+        <span class="badge badge--live" id="chip"><i></i>No ar</span>
+        <span class="clock" id="clock">01:47:22</span>
+        <button class="ctl" id="exit" style="height:30px">Sair do estúdio</button>
+      </div>
+      <div class="cbody">
+        <div class="rail rail--l">
+          <div class="rh">Cenas</div>
+          <div style="padding:0 var(--s-3) var(--s-3)">
+            <button class="scene" aria-current="true"><i></i><span>Abertura</span></button>
+            <button class="scene"><i></i><span>Entrevista</span></button>
+            <button class="scene"><i></i><span>Tela + Câmera</span></button>
+            <button class="scene"><i></i><span>Encerramento</span></button>
+          </div>
+        </div>
+        <div class="stagecol">
+          <div class="mons">
+            <div class="mon mon--pgm">
+              <div class="mhd"><span class="mtag">PGM</span><span class="mspec">1920×1080 · 59,94p</span></div>
+              <div class="frame frame--pgm"><div class="stage">
+                <div class="bars"><div class="bm"></div><div class="bc"></div><div class="bp"></div></div>
+                <span class="gc"><i></i><span><b>Roberto Santos</b><em>Diretor de Produto · PwStream</em></span></span>
+              </div></div>
+            </div>
+            <div class="mon mon--pvw">
+              <div class="mhd"><span class="mtag">PVW</span><span class="mspec">1280×720</span></div>
+              <div class="frame frame--pvw"><div class="stage"><div class="grey"></div></div></div>
+            </div>
+          </div>
+          <div class="reads">
+            <div class="read"><div class="rk">Taxa</div><div class="rv">60 fps</div></div>
+            <div class="read"><div class="rk">Bitrate</div><div class="rv">6,2 Mbps</div></div>
+            <div class="read"><div class="rk">RTT</div><div class="rv">18 ms</div></div>
+            <div class="read"><div class="rk">Perda</div><div class="rv">0,02 %</div></div>
+          </div>
+          <div class="tray">
+            <button class="ctl" aria-pressed="true"><i></i>Microfone</button>
+            <button class="ctl" aria-pressed="true"><i></i>Câmera</button>
+            <button class="ctl" aria-pressed="false"><i></i>Tela</button>
+            <button class="end" id="end">Encerrar transmissão</button>
+          </div>
+        </div>
+        <div class="rail rail--r">
+          <div class="rh">Chat</div>
+          <div style="padding:0 var(--s-4) var(--s-4)">
+            <div class="msg"><b>Fernanda Lima <em>01:46</em></b><span>O SRT já está disponível no plano Business?</span></div>
+            <div class="msg"><b>Ana Beatriz <em>01:46</em></b><span>Áudio perfeito aqui em São Paulo.</span></div>
+            <div class="rh" style="padding-left:0">Destinos</div>
+            <div class="dest"><span>YouTube</span><span class="s"><span class="badge"><i></i>No ar</span><span class="b">6,2 Mbps</span></span></div>
+            <div class="dest"><span>Twitch</span><span class="s"><span class="badge">reconectando 3/8</span><span class="b">— Mbps</span></span></div>
+            <div class="rh" style="padding-left:0">Áudio</div>
+            <div class="vu"><b>Mic</b><span class="t"><span class="f" style="--pk:.74"></span></span></div>
+            <div class="vu"><b>Trilha</b><span class="t"><span class="f" style="--pk:.21"></span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="g g2" style="margin-top:var(--s-5)">
+      <div class="card"><div class="cap">O tally, resolvido</div>
+        <p style="font-size:12.5px">O anel de 2 px <strong style="color:var(--ink-hi)">enquadra</strong>; a marca externa de 4 px <strong style="color:var(--ink-hi)">sinaliza</strong>. A carmim precisaria de 8,02 px nos quatro lados para ser legível de canto de olho — e isso comeria imagem. Um neutro claro chega lá com 1,34 px, por fora, custo zero. PGM×PVW saiu de 1,031:1 para 3,802:1.</p></div>
+      <div class="card"><div class="cap">Saída sempre presente</div>
+        <p style="font-size:12.5px">O botão <em>Sair do estúdio</em> vive na barra do console, não só no cabeçalho. O app tinha <code>onExit</code> declarado e recebido em <code>ControlTray</code> — e nunca renderizado, o que deixava o operador sem saída entre 768 e 1279 px.</p></div>
+    </div>
+  </section>
+
+  <!-- ══════════ DASHBOARD ══════════ -->
+  <section id="dashboard">
+    <div class="sh"><span class="n">07</span><h2>Dashboard</h2><span class="note">Segue o tema</span></div>
+    <div class="page">
+      <div class="pbar"><b>PwStream</b><span>Estúdio</span><span>Transmissões</span><span>Faturamento</span>
+        <span style="margin-left:auto"><span class="badge">Business</span></span></div>
+      <div class="pbody">
+        <h3 style="margin:0 0 4px;font-size:20px">Olá, Ana</h3>
+        <p style="font-size:13px;margin-bottom:var(--s-5)">Gerencie, agende e configure seus webinares e transmissões ao vivo.</p>
+        <div class="g g3" style="margin-bottom:var(--s-5)">
+          <div class="kpi"><div class="k">Webinares agendados</div><div class="v">2</div><div class="d">Na sua conta</div></div>
+          <div class="kpi"><div class="k">Espectadores únicos</div><div class="v">—</div><div class="d">Aguardando telemetria</div></div>
+          <div class="kpi"><div class="k">Minutos transmitidos</div><div class="v">—</div><div class="d">Aguardando telemetria</div></div>
+          <div class="kpi"><div class="k">Engajamento médio</div><div class="v">—</div><div class="d">Aguardando telemetria</div></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-3);flex-wrap:wrap">
+            <b style="color:var(--ink-hi);font-size:13.5px">Como Alavancar suas Vendas</b>
+            <span class="badge">Amanhã 19:30</span>
+            <span style="margin-left:auto;display:flex;gap:8px"><button class="btn btn--ghost">Inscrições</button><button class="btn btn--ghost">Criar Capa</button><button class="btn">Acessar Estúdio</button></span>
+          </div>
+          <p style="font-size:12.5px;margin:0">Canais: YouTube, Facebook</p>
+        </div>
+        <p style="font-size:12.5px;margin-top:var(--s-4)">Três dos quatro indicadores são travessão de propósito. Só a contagem de webinares tem fonte de verdade hoje — a lista da própria conta. Espectadores, minutos e engajamento dependem de telemetria do servidor de ingestão, que ainda não existe, então seguem a regra do sistema: valor ausente é travessão, nunca um número plausível. A saudação usa o primeiro nome da sessão, não um nome fixo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ LANDING ══════════ -->
+  <section id="landing">
+    <div class="sh"><span class="n">08</span><h2>Landing e planos</h2><span class="note">Copy original pt-BR</span></div>
+    <p class="lede">A página atual traz o selo <code>RESTREAM MODE</code> e uma manchete em inglês copiada da Restream, num produto em português. Aqui a copy é original e a moeda é uma só — o app tinha três tabelas de preço que se contradiziam.</p>
+    <div class="page">
+      <div class="pbar"><b>PwStream</b><span>Recursos</span><span>Planos</span><span style="margin-left:auto"><button class="btn" style="padding:5px 14px">Criar conta</button></span></div>
+      <div class="hero">
+        <h3>Uma transmissão.<br>Todos os seus canais.</h3>
+        <p>Transmita ao vivo para YouTube, Facebook e Twitch ao mesmo tempo, direto do navegador. Sem instalar nada.</p>
+        <button class="btn">Começar gratuitamente</button>
+      </div>
+      <div class="pbody">
+        <div class="plans">
+          <div class="plan"><span class="nm">Standard</span><span class="pr">R$ 49,90<small>/mês</small></span>
+            <ul><li>3 canais simultâneos</li><li>Gravação em 1080p</li><li>Chat unificado</li></ul>
+            <button class="btn btn--ghost">Assinar</button></div>
+          <div class="plan rec"><span class="nm">Professional <span class="badge" style="margin-left:6px">Recomendado</span></span><span class="pr">R$ 99,90<small>/mês</small></span>
+            <ul><li>5 canais + co-produtores</li><li>Marca própria nos overlays</li><li>Enquetes e destaques</li></ul>
+            <button class="btn">Assinar</button></div>
+          <div class="plan"><span class="nm">Business</span><span class="pr">R$ 199,90<small>/mês</small></span>
+            <ul><li>8 canais + SRT profissional</li><li>Equipe e permissões</li><li>Suporte prioritário</li></ul>
+            <button class="btn btn--ghost">Assinar</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ FATURAMENTO + ADMIN ══════════ -->
+  <section id="faturamento">
+    <div class="sh"><span class="n">09</span><h2>Faturamento e Admin</h2><span class="note">Superfícies densas</span></div>
+    <div class="g g2">
+      <div class="page"><div class="pbar"><b>Faturamento</b></div><div class="pbody">
+        <div class="card" style="margin-bottom:var(--s-4)">
+          <div style="display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap">
+            <div><div class="cap" style="margin:0">Plano atual</div><b style="color:var(--ink-hi);font-size:15px">Business</b></div>
+            <span style="margin-left:auto"><button class="btn btn--ghost">Mudar plano</button></span>
+          </div>
+        </div>
+        <label class="field"><span>Razão social</span><input value="VineaSX Solutions Ltda."></label>
+        <label class="field"><span>CNPJ</span><input value="12.345.678/0001-90"></label>
+        <button class="btn">Salvar</button>
+      </div></div>
+      <div class="page"><div class="pbar"><b>Administração</b></div><div class="pbody">
+        <div class="card" style="margin-bottom:var(--s-4)">
+          <div class="cap">Chave de ingestão</div>
+          <label class="field" style="margin:0"><span>Servidor RTMP</span><input value="rtmp://ingest.pwstream.com/live" readonly></label>
+          <div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn--ghost">Copiar URL</button><button class="btn">Gerar nova chave</button></div>
+        </div>
+        <div class="dest"><span>São Paulo</span><span class="s"><span class="badge"><i></i>Operacional</span><span class="b">18 ms</span></span></div>
+        <div class="dest"><span>Frankfurt</span><span class="s"><span class="badge">degradado</span><span class="b">— ms</span></span></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ══════════ REGRAS ══════════ -->
+  <section id="regras">
+    <div class="sh"><span class="n">10</span><h2>O que segura isto</h2><span class="note">CI</span></div>
+    <p class="lede">A direção anterior já tinha a regra escrita — “nenhum estado por cor sozinha” — e despachou uma violação assim mesmo, com um comentário explicando a violação. Uma frase no guia não segura nada.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Portão</th><th>O que faz</th><th>Falha</th></tr></thead>
+        <tbody>
+          <tr><td class="m">lint:contrast</td><td>56 pares texto/superfície, 3 escopos, WCAG AA. Mais um guarda contra comentários que afirmam luminância casada entre estados.</td><td class="ok">Reprova o build</td></tr>
+          <tr><td class="m">lint:css</td><td>Hexadecimal cru só dentro dos blocos de token; nada de <code>!important</code> fora do bloco de movimento reduzido.</td><td class="ok">Reprova o build</td></tr>
+          <tr><td class="m">lint:debt</td><td>Catraca de 7 métricas contra linha de base versionada. A dívida pode cair; subir exige decisão explícita no diff.</td><td class="ok">Reprova se subir</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="doc">
+    <span>Tokens idênticos a src/index.css</span><span>·</span>
+    <span>Ambos os temas</span><span>·</span><span>Console invariante</span>
+    <span style="margin-left:auto">Maquete para aprovação — não é código de produção</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var r=document.documentElement;
+  document.getElementById('theme').addEventListener('click',function(){
+    var light=r.getAttribute('data-theme')==='light';
+    r.setAttribute('data-theme',light?'dark':'light');
+    this.textContent=light?'Tema claro':'Tema escuro';
+  });
+  document.querySelectorAll('.ctl[aria-pressed]').forEach(function(c){
+    c.addEventListener('click',function(){c.setAttribute('aria-pressed',c.getAttribute('aria-pressed')==='true'?'false':'true')});
+  });
+  document.querySelectorAll('.scene').forEach(function(s){
+    s.addEventListener('click',function(){
+      document.querySelectorAll('.scene').forEach(function(x){x.setAttribute('aria-current','false')});
+      s.setAttribute('aria-current','true');
+    });
+  });
+  var con=document.getElementById('con');
+  document.getElementById('end').addEventListener('click',function(){
+    var on=con.getAttribute('data-air')==='on';
+    con.setAttribute('data-air',on?'off':'on');
+    this.textContent=on?'Entrar no ar':'Encerrar transmissão';
+    var chip=document.getElementById('chip');
+    chip.className=on?'badge':'badge badge--live';
+    chip.innerHTML='<i></i>'+(on?'Fora do ar':'No ar');
+    document.getElementById('clock').textContent=on?'00:00:00':'01:47:22';
+  });
+})();
+</script>

@@ -1,7 +1,10 @@
+import { Button } from './ui/Button';
 import React, { useState, useRef } from 'react';
 import { X, QrCode, ShoppingBag, Link as LinkIcon, Sparkles, Copy, Check, Download, Eye, EyeOff, LayoutTemplate, Layers, Palette, Tag, DollarSign, ExternalLink, RefreshCw, Smartphone, Image as ImageIcon, ArrowRight, CheckCircle2, ShieldCheck, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { QrCodeConfig } from '../types';
+import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 
 interface QrCodeModalProps {
   isOpen: boolean;
@@ -149,13 +152,11 @@ export function QrCodeModal({
     }
   }, [config, isOpen]);
 
-  if (!isOpen) return null;
-
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(form.storeUrl || 'https://pwstreamer.com')}&color=${(form.qrColor || '#000000').replace('#', '')}&bgcolor=${(form.qrBgColor || '#ffffff').replace('#', '')}`;
 
   const handleCopyLink = () => {
     if (!form.storeUrl) return;
-    navigator.clipboard.writeText(form.storeUrl);
+    copyText(form.storeUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
@@ -213,34 +214,34 @@ export function QrCodeModal({
       case 'light':
         return {
           bg: 'bg-white/95 text-slate-900 border-slate-200 shadow-2xl',
-          subtext: 'text-slate-600',
+          subtext: 'text-[var(--ink-dim)]',
           priceColor: 'text-emerald-600',
           border: 'border-slate-300'
         };
       case 'brand':
         return {
-          bg: 'bg-[#121622]/95 text-white border-blue-500/40 shadow-[0_10px_30px_rgba(70,131,224,0.3)]',
+          bg: 'bg-[var(--bg)]/95 text-[var(--ink-hi)] border-blue-500/40 shadow-[0_10px_30px_rgba(70,131,224,0.3)]',
           subtext: 'text-blue-200/70',
           priceColor: 'text-blue-400',
           border: 'border-blue-500/30'
         };
       case 'glass':
         return {
-          bg: 'bg-slate-950/75 backdrop-blur-xl text-white border-white/20 shadow-2xl',
-          subtext: 'text-slate-300',
+          bg: 'bg-[var(--bg)]/75 backdrop-blur-xl text-[var(--ink-hi)] border-white/20 shadow-2xl',
+          subtext: 'text-[var(--ink)]',
           priceColor: 'text-emerald-400',
           border: 'border-white/15'
         };
       case 'neon':
         return {
-          bg: 'bg-[#08090d]/95 text-white border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
+          bg: 'bg-[var(--well)]/95 text-[var(--ink-hi)] border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.35)]',
           subtext: 'text-cyan-200/80',
           priceColor: 'text-cyan-400',
           border: 'border-cyan-500/40'
         };
       case 'gold':
         return {
-          bg: 'bg-[#15120c]/95 text-white border-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.25)]',
+          bg: 'bg-[var(--bg)]/95 text-[var(--ink-hi)] border-amber-500/50 shadow-[0_10px_30px_rgba(245,158,11,0.25)]',
           subtext: 'text-amber-200/80',
           priceColor: 'text-amber-400',
           border: 'border-amber-500/40'
@@ -248,10 +249,10 @@ export function QrCodeModal({
       case 'dark':
       default:
         return {
-          bg: 'bg-[#0F1115]/95 text-white border-slate-800 shadow-2xl',
-          subtext: 'text-gray-400',
+          bg: 'bg-[var(--bg)]/95 text-[var(--ink-hi)] border-[var(--line)] shadow-2xl',
+          subtext: 'text-[var(--ink-lo)]',
           priceColor: 'text-emerald-400',
-          border: 'border-slate-800'
+          border: 'border-[var(--line)]'
         };
     }
   };
@@ -259,23 +260,23 @@ export function QrCodeModal({
   const theme = getThemeStyles();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md overflow-y-auto" id="qr-code-modal-overlay">
-      <div className="relative w-full max-w-5xl bg-[#12151B] border border-slate-800 rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-white animate-in fade-in zoom-in-95 duration-200">
+    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="QR Code na transmissão">
+      <div className="relative w-full max-w-5xl bg-[var(--bg)] border border-[var(--line)] rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-[var(--ink-hi)] animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-[#0F1115] shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--line)] bg-[var(--bg)] shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400">
               <QrCode size={22} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-white leading-tight">Configurador de QR Code & Loja Online</h3>
+                <h3 className="text-base font-bold text-[var(--ink-hi)] leading-tight">Configurador de QR Code & Loja Online</h3>
                 <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Live Commerce
                 </span>
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-[var(--ink-lo)] mt-0.5">
                 Crie e configure QR Codes dinâmicos com links de lojas para exibir produtos e direcionar os espectadores ao vivo.
               </p>
             </div>
@@ -289,7 +290,7 @@ export function QrCodeModal({
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
                 showQrCodeOnStream
                   ? 'bg-emerald-600/20 border-emerald-500 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
-                  : 'bg-slate-800 border-slate-700 text-gray-400 hover:text-white'
+                  : 'bg-[var(--panel)] border-[var(--line-ctl)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
               }`}
             >
               {showQrCodeOnStream ? (
@@ -308,7 +309,7 @@ export function QrCodeModal({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+              className="p-2 text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)] rounded-xl transition-colors cursor-pointer"
               title="Fechar"
             >
               <X size={18} />
@@ -317,7 +318,7 @@ export function QrCodeModal({
         </div>
 
         {/* Modal Subtabs */}
-        <div className="flex bg-[#0A0D12] border-b border-slate-800 px-5 pt-2 gap-2 shrink-0">
+        <div className="flex bg-[var(--well)] border-b border-[var(--line)] px-5 pt-2 gap-2 shrink-0">
           {[
             { id: 'product', label: '1. Produto & Link da Loja', icon: ShoppingBag },
             { id: 'appearance', label: '2. Orientação & Estilo Visual', icon: LayoutTemplate },
@@ -333,7 +334,7 @@ export function QrCodeModal({
                 className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
                   isActive
                     ? 'border-blue-500 text-blue-400 bg-blue-500/10 rounded-t-lg'
-                    : 'border-transparent text-gray-400 hover:text-gray-200'
+                    : 'border-transparent text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                 }`}
               >
                 <Icon size={14} />
@@ -344,7 +345,7 @@ export function QrCodeModal({
         </div>
 
         {/* Main Content Grid: Left Form & Right Live Preview */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-y-auto divide-y lg:divide-y-0 lg:divide-x divide-slate-800">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-y-auto divide-y lg:divide-y-0 lg:divide-x divide-[var(--line)]">
           
           {/* LEFT PANEL: Form Configuration (7 cols) */}
           <div className="lg:col-span-7 p-5 space-y-5 overflow-y-auto custom-scrollbar">
@@ -353,28 +354,28 @@ export function QrCodeModal({
             {activeTab === 'product' && (
               <div className="space-y-4 animate-in fade-in duration-150">
                 {/* Store URL & Destination */}
-                <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <label htmlFor="qrcodemodal-link-da-loja-destino-do-qr-code" className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                       <LinkIcon size={14} className="text-blue-400" />
                       Link da Loja / Destino do QR Code *
                     </label>
-                    <span className="text-[10px] text-gray-500 font-mono">Destino escaneado</span>
+                    <span className="text-[10px] text-[var(--ink-dim)] font-mono">Destino escaneado</span>
                   </div>
 
                   <div className="relative">
-                    <input
+                    <input id="qrcodemodal-link-da-loja-destino-do-qr-code"
                       type="url"
                       value={form.storeUrl}
                       onChange={(e) => setForm(prev => ({ ...prev, storeUrl: e.target.value }))}
                       placeholder="https://sualoja.com/produto-exemplo"
-                      className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500 font-mono"
+                      className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder:text-[var(--ink-dim)] focus:outline-none focus:border-blue-500 font-mono"
                     />
                     {form.storeUrl && (
                       <button
                         type="button"
                         onClick={handleCopyLink}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-gray-300 hover:text-white rounded-lg flex items-center gap-1 transition-colors"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 bg-[var(--panel)] hover:bg-[var(--raise)] text-[10px] font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-lg flex items-center gap-1 transition-colors"
                       >
                         {copiedLink ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
                         {copiedLink ? 'Copiado' : 'Copiar'}
@@ -384,7 +385,7 @@ export function QrCodeModal({
 
                   {/* Store platform shortcut buttons */}
                   <div className="space-y-1.5 pt-1">
-                    <span className="text-[10px] font-semibold text-gray-400">Plataforma / Marketplace da Loja:</span>
+                    <span className="text-[10px] font-semibold text-[var(--ink-lo)]">Plataforma / Marketplace da Loja:</span>
                     <div className="flex flex-wrap gap-1.5">
                       {STORE_PRESETS.map((store) => (
                         <button
@@ -398,7 +399,7 @@ export function QrCodeModal({
                           className={`px-2 py-1 rounded-lg text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-1 ${
                             form.storeName === store.name
                               ? 'bg-blue-600 text-white border-blue-500 shadow-sm'
-                              : 'bg-[#16191E] text-gray-400 border-slate-800 hover:border-slate-700 hover:text-white'
+                              : 'bg-[var(--surface)] text-[var(--ink-lo)] border-[var(--line)] hover:border-[var(--line-ctl)] hover:text-[var(--ink-hi)]'
                           }`}
                         >
                           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: store.color }} />
@@ -410,97 +411,97 @@ export function QrCodeModal({
                 </div>
 
                 {/* Product Title & Subtitle */}
-                <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
-                  <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                     <ShoppingBag size={14} className="text-blue-400" />
                     Informações do Produto
                   </h4>
 
                   <div className="space-y-3">
                     <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Título do Produto *</label>
-                      <input
+                      <label htmlFor="qrcodemodal-titulo-do-produto" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Título do Produto *</label>
+                      <input id="qrcodemodal-titulo-do-produto"
                         type="text"
                         value={form.title}
                         onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
                         placeholder="Ex: Smartphone Pro Max 256GB"
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-semibold"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 font-semibold"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Subtítulo / Chamada Curta</label>
-                      <input
+                      <label htmlFor="qrcodemodal-subtitulo-chamada-curta" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Subtítulo / Chamada Curta</label>
+                      <input id="qrcodemodal-subtitulo-chamada-curta"
                         type="text"
                         value={form.subtitle || ''}
                         onChange={(e) => setForm(prev => ({ ...prev, subtitle: e.target.value }))}
                         placeholder="Ex: Oferta exclusiva durante a transmissão ao vivo"
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Price, Original Price & Discount Badge */}
-                <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
-                  <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                     <Tag size={14} className="text-emerald-400" />
                     Preços & Cupom Promocional
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Preço Promocional</label>
-                      <input
+                      <label htmlFor="qrcodemodal-preco-promocional" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Preço Promocional</label>
+                      <input id="qrcodemodal-preco-promocional"
                         type="text"
                         value={form.price || ''}
                         onChange={(e) => setForm(prev => ({ ...prev, price: e.target.value }))}
                         placeholder="Ex: R$ 1.899,00"
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs font-bold text-emerald-400 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Preço Original (De)</label>
-                      <input
+                      <label htmlFor="qrcodemodal-preco-original-de" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Preço Original (De)</label>
+                      <input id="qrcodemodal-preco-original-de"
                         type="text"
                         value={form.originalPrice || ''}
                         onChange={(e) => setForm(prev => ({ ...prev, originalPrice: e.target.value }))}
                         placeholder="Ex: R$ 2.499,00"
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-gray-400 line-through focus:outline-none focus:border-blue-500"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-lo)] line-through focus:outline-none focus:border-blue-500"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Selo / Cupom</label>
-                      <input
+                      <label htmlFor="qrcodemodal-selo-cupom" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Selo / Cupom</label>
+                      <input id="qrcodemodal-selo-cupom"
                         type="text"
                         value={form.discountBadge || ''}
                         onChange={(e) => setForm(prev => ({ ...prev, discountBadge: e.target.value }))}
                         placeholder="Ex: 30% OFF / CUPOM: LIVE"
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-amber-400 focus:outline-none focus:border-amber-500"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs font-bold text-amber-400 focus:outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Product Image & CTA Button Label */}
-                <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
-                  <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                     <ImageIcon size={14} className="text-blue-400" />
                     Imagem do Produto & Botão CTA
                   </h4>
 
                   <div className="space-y-3">
                     <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">URL da Foto do Produto</label>
+                      <label htmlFor="qrcodemodal-url-da-foto-do-produto" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">URL da Foto do Produto</label>
                       <div className="flex gap-2">
-                        <input
+                        <input id="qrcodemodal-url-da-foto-do-produto"
                           type="url"
                           value={form.imageUrl || ''}
                           onChange={(e) => setForm(prev => ({ ...prev, imageUrl: e.target.value }))}
                           placeholder="https://..."
-                          className="flex-1 bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                          className="flex-1 bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"
                         />
                         <input
                           type="file"
@@ -512,7 +513,7 @@ export function QrCodeModal({
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl text-gray-300 hover:text-white transition-colors flex items-center gap-1.5"
+                          className="px-3 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-xs font-bold rounded-xl text-[var(--ink)] hover:text-[var(--ink-hi)] transition-colors flex items-center gap-1.5"
                         >
                           <ImageIcon size={13} />
                           Upload
@@ -521,13 +522,13 @@ export function QrCodeModal({
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Texto do Botão / Chamada (CTA)</label>
-                      <input
+                      <label htmlFor="qrcodemodal-texto-do-botao-chamada-cta" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block mb-1">Texto do Botão / Chamada (CTA)</label>
+                      <input id="qrcodemodal-texto-do-botao-chamada-cta"
                         type="text"
                         value={form.ctaLabel || 'Compre Agora'}
                         onChange={(e) => setForm(prev => ({ ...prev, ctaLabel: e.target.value }))}
                         placeholder="Ex: Compre Agora / Escanear QR"
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-blue-500"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs font-bold text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"
                       />
                     </div>
                   </div>
@@ -540,9 +541,9 @@ export function QrCodeModal({
               <div className="space-y-4 animate-in fade-in duration-150">
                 
                 {/* Orientation Selector: Horizontal vs Vertical (Matches user requirements directly) */}
-                <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <label className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                       <LayoutTemplate size={14} className="text-blue-400" />
                       Orientação do Card na Transmissão
                     </label>
@@ -551,7 +552,7 @@ export function QrCodeModal({
                     </span>
                   </div>
 
-                  <p className="text-[11px] text-gray-400 leading-normal">
+                  <p className="text-[11px] text-[var(--ink-lo)] leading-normal">
                     Selecione o formato de apresentação do card do produto com o QR Code na tela da transmissão.
                   </p>
 
@@ -563,11 +564,11 @@ export function QrCodeModal({
                       className={`p-3.5 rounded-xl border text-left transition-all flex flex-col gap-2.5 cursor-pointer ${
                         form.orientation === 'horizontal'
                           ? 'bg-blue-600/15 border-blue-500 ring-2 ring-blue-500/30'
-                          : 'bg-[#16191E] border-slate-800 hover:border-slate-700'
+                          : 'bg-[var(--surface)] border-[var(--line)] hover:border-[var(--line-ctl)]'
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-extrabold text-white flex items-center gap-1.5">
+                        <span className="text-xs font-extrabold text-[var(--ink-hi)] flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-blue-400" />
                           Horizontal (Card Retangular)
                         </span>
@@ -575,7 +576,7 @@ export function QrCodeModal({
                       </div>
 
                       {/* Mini visual mockup of horizontal card */}
-                      <div className="w-full h-14 bg-[#0A0C10] border border-slate-800 rounded-lg p-1.5 flex items-center justify-between gap-2">
+                      <div className="w-full h-14 bg-[var(--well)] border border-[var(--line)] rounded-lg p-1.5 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 flex-1 min-w-0">
                           <div className="w-9 h-9 rounded bg-blue-500/20 border border-blue-500/30 shrink-0 flex items-center justify-center text-[10px]">
                             🖼️
@@ -590,7 +591,7 @@ export function QrCodeModal({
                         </div>
                       </div>
 
-                      <p className="text-[10px] text-gray-400">Ideal para a parte inferior da tela sem cobrir o palestrante.</p>
+                      <p className="text-[10px] text-[var(--ink-lo)]">Ideal para a parte inferior da tela sem cobrir o palestrante.</p>
                     </button>
 
                     {/* Vertical Option */}
@@ -600,11 +601,11 @@ export function QrCodeModal({
                       className={`p-3.5 rounded-xl border text-left transition-all flex flex-col gap-2.5 cursor-pointer ${
                         form.orientation === 'vertical'
                           ? 'bg-blue-600/15 border-blue-500 ring-2 ring-blue-500/30'
-                          : 'bg-[#16191E] border-slate-800 hover:border-slate-700'
+                          : 'bg-[var(--surface)] border-[var(--line)] hover:border-[var(--line-ctl)]'
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-extrabold text-white flex items-center gap-1.5">
+                        <span className="text-xs font-extrabold text-[var(--ink-hi)] flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-indigo-400" />
                           Vertical (Totem em Pé)
                         </span>
@@ -612,8 +613,8 @@ export function QrCodeModal({
                       </div>
 
                       {/* Mini visual mockup of vertical card */}
-                      <div className="w-full h-14 bg-[#0A0C10] border border-slate-800 rounded-lg p-1.5 flex items-center justify-center gap-2">
-                        <div className="w-14 h-full bg-slate-800/80 rounded flex flex-col items-center justify-center p-0.5 gap-0.5">
+                      <div className="w-full h-14 bg-[var(--well)] border border-[var(--line)] rounded-lg p-1.5 flex items-center justify-center gap-2">
+                        <div className="w-14 h-full bg-[var(--panel)]/80 rounded flex flex-col items-center justify-center p-0.5 gap-0.5">
                           <div className="w-8 h-1.5 bg-slate-600 rounded" />
                           <div className="w-5 h-1 bg-emerald-400/80 rounded" />
                           <div className="w-5 h-5 bg-white rounded-xs p-0.5 flex items-center justify-center">
@@ -622,24 +623,24 @@ export function QrCodeModal({
                         </div>
                       </div>
 
-                      <p className="text-[10px] text-gray-400">Ideal para cantos laterais do estúdio, destacando a foto e o código.</p>
+                      <p className="text-[10px] text-[var(--ink-lo)]">Ideal para cantos laterais do estúdio, destacando a foto e o código.</p>
                     </button>
                   </div>
                 </div>
 
                 {/* Card Themes & Styling */}
-                <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
-                  <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                     <Palette size={14} className="text-blue-400" />
                     Tema Visual & Cores do Card
                   </h4>
 
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { id: 'dark', label: 'Dark Studio', desc: 'Preto & Grafite', bg: 'bg-[#0F1115]' },
-                      { id: 'brand', label: 'Brand Azul', desc: 'Sleek Broadcast', bg: 'bg-[#121622] border-blue-500' },
+                      { id: 'dark', label: 'Dark Studio', desc: 'Preto & Grafite', bg: 'bg-[var(--bg)]' },
+                      { id: 'brand', label: 'Brand Azul', desc: 'Sleek Broadcast', bg: 'bg-[var(--bg)] border-blue-500' },
                       { id: 'light', label: 'Clean Claro', desc: 'Fundo Branco', bg: 'bg-white text-slate-900' },
-                      { id: 'glass', label: 'Glassmorphism', desc: 'Vidro Translúcido', bg: 'bg-slate-900/60' },
+                      { id: 'glass', label: 'Glassmorphism', desc: 'Vidro Translúcido', bg: 'bg-[var(--surface)]/60' },
                       { id: 'neon', label: 'Cyber Neon', desc: 'Ciano Vibrante', bg: 'bg-cyan-950/40 border-cyan-500' },
                       { id: 'gold', label: 'Gold Premium', desc: 'Dourado Luxo', bg: 'bg-amber-950/40 border-amber-500' },
                     ].map(thm => (
@@ -650,20 +651,20 @@ export function QrCodeModal({
                         className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
                           form.cardTheme === thm.id
                             ? 'border-blue-500 ring-2 ring-blue-500/40 bg-blue-500/10 font-bold'
-                            : 'border-slate-800 bg-[#16191E] text-gray-400 hover:border-slate-700 hover:text-white'
+                            : 'border-[var(--line)] bg-[var(--surface)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
                         <div className={`w-full h-3 rounded mb-1.5 ${thm.bg}`} />
                         <span className="text-[11px] font-bold block truncate">{thm.label}</span>
-                        <span className="text-[8.5px] text-gray-500 block truncate">{thm.desc}</span>
+                        <span className="text-[8.5px] text-[var(--ink-dim)] block truncate">{thm.desc}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Visibility Toggles */}
-                <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
-                  <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                     <Eye size={14} className="text-blue-400" />
                     Elementos Visíveis no Card
                   </h4>
@@ -676,13 +677,13 @@ export function QrCodeModal({
                       { key: 'showStoreName', label: 'Exibir Nome da Loja', state: form.showStoreName },
                       { key: 'showScanPrompt', label: 'Instrução ("Aponte a Câmera")', state: form.showScanPrompt },
                     ].map(toggle => (
-                      <label key={toggle.key} className="flex items-center justify-between p-2 rounded-lg bg-[#16191E] border border-slate-800 cursor-pointer">
-                        <span className="text-xs font-semibold text-gray-300">{toggle.label}</span>
+                      <label key={toggle.key} className="flex items-center justify-between p-2 rounded-lg bg-[var(--surface)] border border-[var(--line)] cursor-pointer">
+                        <span className="text-xs font-semibold text-[var(--ink)]">{toggle.label}</span>
                         <input
                           type="checkbox"
                           checked={toggle.state}
                           onChange={(e) => setForm(prev => ({ ...prev, [toggle.key]: e.target.checked }))}
-                          className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 bg-slate-800 border-slate-700 cursor-pointer"
+                          className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 bg-[var(--panel)] border-[var(--line-ctl)] cursor-pointer"
                         />
                       </label>
                     ))}
@@ -694,12 +695,12 @@ export function QrCodeModal({
             {/* TAB 3: PRESETS */}
             {activeTab === 'presets' && (
               <div className="space-y-4 animate-in fade-in duration-150">
-                <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
-                  <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
+                  <h4 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles size={14} className="text-blue-400" />
                     Modelos Rápidos de Produtos (1-Clique)
                   </h4>
-                  <p className="text-[11px] text-gray-400 leading-normal">
+                  <p className="text-[11px] text-[var(--ink-lo)] leading-normal">
                     Carregue um dos modelos pré-configurados para testar o formato do QR Code imediatamente na transmissão.
                   </p>
 
@@ -707,13 +708,13 @@ export function QrCodeModal({
                     {PRESET_PRODUCTS.map((preset, idx) => (
                       <div
                         key={idx}
-                        className="p-3 bg-[#16191E] border border-slate-800 hover:border-blue-500/50 rounded-xl flex items-center justify-between gap-3 transition-all"
+                        className="p-3 bg-[var(--surface)] border border-[var(--line)] hover:border-blue-500/50 rounded-xl flex items-center justify-between gap-3 transition-all"
                       >
                         <div className="flex items-center gap-3 overflow-hidden">
                           <span className="text-2xl shrink-0">{preset.icon}</span>
                           <div className="overflow-hidden">
-                            <h5 className="text-xs font-bold text-white truncate">{preset.title}</h5>
-                            <p className="text-[10px] text-gray-400 truncate">{preset.subtitle} &bull; <strong className="text-emerald-400">{preset.price}</strong></p>
+                            <h5 className="text-xs font-bold text-[var(--ink-hi)] truncate">{preset.title}</h5>
+                            <p className="text-[10px] text-[var(--ink-lo)] truncate">{preset.subtitle} &bull; <strong className="text-emerald-400">{preset.price}</strong></p>
                           </div>
                         </div>
 
@@ -733,20 +734,20 @@ export function QrCodeModal({
           </div>
 
           {/* RIGHT PANEL: Live Interactive Preview (5 cols) */}
-          <div className="lg:col-span-5 p-5 bg-[#0D0F14] flex flex-col justify-between space-y-4">
+          <div className="lg:col-span-5 p-5 bg-[var(--bg)] flex flex-col justify-between space-y-4">
             <div>
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center justify-between pb-3 border-b border-[var(--line)]">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">Prévia em Tempo Real no Estúdio</h4>
+                  <h4 className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider">Prévia em Tempo Real no Estúdio</h4>
                 </div>
-                <span className="text-[10px] text-gray-500 font-mono">16:9 Stage View</span>
+                <span className="text-[10px] text-[var(--ink-dim)] font-mono">16:9 Stage View</span>
               </div>
 
               {/* Mock Broadcast Stage Frame */}
-              <div className="mt-4 bg-[#050608] border-2 border-slate-800/80 rounded-xl p-3 relative aspect-video flex flex-col justify-end items-center overflow-hidden shadow-2xl">
+              <div className="mt-4 bg-[var(--well)] border-2 border-[var(--line)]/80 rounded-xl p-3 relative aspect-video flex flex-col justify-end items-center overflow-hidden shadow-2xl">
                 {/* Mock Stream Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-[#10141d] to-[#08090d] flex items-center justify-center opacity-70">
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--surface)] via-[var(--bg)] to-[var(--well)] flex items-center justify-center opacity-70">
                   <div className="text-center text-slate-700">
                     <p className="text-[10px] font-mono uppercase tracking-widest">[ Feed da Câmera do Apresentador ]</p>
                   </div>
@@ -785,7 +786,7 @@ export function QrCodeModal({
                             <span className={`text-xs sm:text-sm font-black ${theme.priceColor}`}>{form.price}</span>
                           )}
                           {form.showPrice && form.originalPrice && (
-                            <span className="text-[9px] text-gray-500 line-through">{form.originalPrice}</span>
+                            <span className="text-[9px] text-[var(--ink-dim)] line-through">{form.originalPrice}</span>
                           )}
                         </div>
 
@@ -842,7 +843,7 @@ export function QrCodeModal({
                             <span className={`text-xs font-black ${theme.priceColor}`}>{form.price}</span>
                           )}
                           {form.showPrice && form.originalPrice && (
-                            <span className="text-[9px] text-gray-500 line-through">{form.originalPrice}</span>
+                            <span className="text-[9px] text-[var(--ink-dim)] line-through">{form.originalPrice}</span>
                           )}
                         </div>
 
@@ -878,15 +879,15 @@ export function QrCodeModal({
               </div>
 
               {/* Scannable test helper */}
-              <div className="mt-3 p-3 bg-[#0F1115] border border-slate-800 rounded-xl flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-gray-400">
+              <div className="mt-3 p-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-[var(--ink-lo)]">
                   <Smartphone size={14} className="text-blue-400" />
                   <span className="text-[11px]">Teste com a câmera do seu celular!</span>
                 </div>
                 <button
                   type="button"
                   onClick={handleDownloadQrImage}
-                  className="text-[10px] font-bold text-blue-400 hover:text-white flex items-center gap-1 hover:underline cursor-pointer"
+                  className="text-[10px] font-bold text-blue-400 hover:text-[var(--ink-hi)] flex items-center gap-1 hover:underline cursor-pointer"
                 >
                   <Download size={11} /> Baixar QR PNG
                 </button>
@@ -894,36 +895,30 @@ export function QrCodeModal({
             </div>
 
             {/* Bottom Actions inside Right Panel */}
-            <div className="pt-3 border-t border-slate-800 space-y-2">
-              <button
-                type="button"
+            <div className="pt-3 border-t border-[var(--line)] space-y-2">
+              {/* O gradiente azul→índigo daqui saiu: o sistema preenche com
+                  --brand-deep sólido. Gradiente em botão de ação era um dos
+                  tiques que a auditoria marcou. */}
+              <Button
                 onClick={handleSaveAndActivate}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                icon={<Sparkles size={14} />}
+                className="w-full"
               >
-                <Sparkles size={14} />
                 {savedSuccess ? 'Salvo com Sucesso!' : 'Salvar & Ativar na Live'}
-              </button>
+              </Button>
 
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
-                >
+                <Button variant="ghost" size="sm" onClick={handleSave} className="flex-1">
                   Salvar Sem Ativar
-                </button>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 bg-transparent hover:bg-slate-800 text-gray-400 hover:text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
-                >
+                </Button>
+                <Button variant="ghost" size="sm" onClick={onClose}>
                   Cancelar
-                </button>
+                </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

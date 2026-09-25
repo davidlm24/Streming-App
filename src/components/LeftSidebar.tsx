@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { ImagePlaceholder } from './ImagePlaceholder';
-import { Destination, AudioTrack, Banner, BannerPosition, Comment, Participant, QrCodeConfig } from '../types';
+import { Destination, AudioTrack, Banner, BannerPosition, Comment, Participant, QrCodeConfig, StudioTab, SceneTransitionType } from '../types';
 import { AUDIO_LIBRARY, BACKGROUND_TEMPLATES, OVERLAY_TEMPLATES, LOGO_TEMPLATES } from '../data';
 import { ThumbnailEditor } from './ThumbnailEditor';
 import { AudioVUMeter } from './AudioVUMeter';
@@ -193,9 +193,12 @@ const DEFAULT_PRESETS: BrandPreset[] = [
 ];
 
 import { useMediaManager } from '../context/MediaManagerContext';
+import { useToast } from './ui/Toast';
+import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 
 interface LeftSidebarProps {
-  activeTab: string;
+  activeTab: StudioTab;
   destinations: Destination[];
   onToggleDestination: (id: string) => void;
   title: string;
@@ -245,8 +248,8 @@ interface LeftSidebarProps {
   onLayoutChange: (l: '1-cam' | 'dual' | 'screen-share' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery') => void;
   participants: Participant[];
   onToggleParticipantActive: (id: string) => void;
-  transitionType: 'cut' | 'fade' | 'slide' | 'zoom';
-  onTransitionTypeChange: (t: 'cut' | 'fade' | 'slide' | 'zoom') => void;
+  transitionType: SceneTransitionType;
+  onTransitionTypeChange: (t: SceneTransitionType) => void;
   isPresentationOverlayActive?: boolean;
   onTogglePresentationOverlayActive?: () => void;
 
@@ -353,8 +356,8 @@ interface LeftSidebarProps {
   isPresenterSpeaking?: boolean;
 
   // Scene-specific transitions
-  sceneTransitions?: Record<string, { type: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash'; duration: number }>;
-  onUpdateSceneTransition?: (sceneId: string, type: 'cut' | 'fade' | 'slide' | 'zoom' | 'dip-to-color' | 'slide-wipe' | 'shutter-wipe' | 'radial-wipe' | 'flash', duration: number) => void;
+  sceneTransitions?: Record<string, { type: SceneTransitionType; duration: number }>;
+  onUpdateSceneTransition?: (sceneId: string, type: SceneTransitionType, duration: number) => void;
 
   // Studio Widgets props
   showWidgetChat?: boolean;
@@ -376,6 +379,7 @@ interface LeftSidebarProps {
   setIsSmartSidebarEnabled?: (val: boolean) => void;
   onBatchAddComments?: (comments: Comment[]) => void;
   onClearComments?: () => void;
+  currentUserName?: string;
   onOpenCloudflareModal?: () => void;
   onOpenCustomDestinationsModal?: () => void;
   onOpenAddChannelsModal?: () => void;
@@ -551,11 +555,16 @@ export function LeftSidebar({
   setIsSmartSidebarEnabled = () => {},
   onBatchAddComments,
   onClearComments,
+  currentUserName,
   onOpenCloudflareModal,
   onOpenCustomDestinationsModal,
   onOpenAddChannelsModal,
   userId
 }: LeftSidebarProps) {
+  const toast = useToast();
+  // Nomes do palco vêm dos participantes, não de uma persona fixa
+  const nomeLocal = participants.find(p => p.isLocal)?.name ?? 'Você';
+  const nomeConvidado = participants.find(p => p.id === 'p-guest')?.name ?? 'Convidado';
   const { 
     activeLogo, setActiveLogo, 
     activeWatermark, setActiveWatermark,
@@ -810,7 +819,7 @@ export function LeftSidebar({
   const handleSaveCurrentSceneTemplate = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSceneTemplateName.trim()) {
-      alert('Por favor, digite um nome para a cena!');
+      toast.error('Por favor, digite um nome para a cena!');
       return;
     }
     const activePartIds = participants.filter(p => p.isActive).map(p => p.id);
@@ -855,7 +864,7 @@ export function LeftSidebar({
 
   const handleSaveCurrentPreset = () => {
     if (!newPresetName.trim()) {
-      alert("Por favor, digite um nome para o preset!");
+      toast.error("Por favor, digite um nome para o preset!");
       return;
     }
     const newPreset: BrandPreset = {
@@ -920,12 +929,12 @@ export function LeftSidebar({
             isCustom: true
           };
           setCustomPresets(prev => [newPreset, ...prev]);
-          alert("Preset importado e aplicado com sucesso!");
+          toast.success("Preset importado e aplicado com sucesso!");
         } else {
-          alert("Arquivo JSON inválido. Deve conter pelo menos 'streamColor' e 'textStyle'.");
+          toast.error("Arquivo JSON inválido. Deve conter pelo menos 'streamColor' e 'textStyle'.");
         }
       } catch (err) {
-        alert("Erro ao ler o arquivo JSON.");
+        toast.error("Erro ao ler o arquivo JSON.");
       }
     };
     reader.readAsText(file);
@@ -1098,20 +1107,20 @@ export function LeftSidebar({
   ];
 
   return (
-    <div className={`h-full bg-[#16191E] p-4 flex flex-col text-white selection:bg-blue-500 selection:text-white ${activeTab === 'seven' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+    <div className={`h-full bg-[var(--surface)] p-4 flex flex-col text-white selection:bg-blue-500 selection:text-white ${activeTab === 'seven' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
       
       {/* WIDGETS TAB PANEL */}
       {activeTab === 'widgets' && (
         <div className="space-y-5 animate-in fade-in duration-200">
           {/* Section Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--line)]/80">
             <div className="flex items-center gap-2.5">
               <div className="p-2 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-400">
                 <LayoutGrid size={20} />
               </div>
               <div>
-                <h2 className="text-base font-bold text-white leading-tight">Widgets do Estúdio</h2>
-                <p className="text-[11px] text-slate-400">Ative ferramentas flutuantes, lousa, chat e atalhos</p>
+                <h2 className="text-base font-bold text-[var(--ink-hi)] leading-tight">Widgets do Estúdio</h2>
+                <p className="text-[11px] text-[var(--ink-lo)]">Ative ferramentas flutuantes, lousa, chat e atalhos</p>
               </div>
             </div>
           </div>
@@ -1120,22 +1129,22 @@ export function LeftSidebar({
           <div className="space-y-3">
 
             {/* 1. Botão Chat Flutuante */}
-            <div className="p-3.5 rounded-xl bg-[#0F1115] border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col gap-3">
+            <div className="p-3.5 rounded-xl bg-[var(--bg)] border border-[var(--line)]/80 hover:border-[var(--line-ctl)] transition-all flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${showWidgetChat ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-800 text-slate-400'}`}>
+                  <div className={`p-2 rounded-lg ${showWidgetChat ? 'bg-blue-500/20 text-blue-400' : 'bg-[var(--panel)] text-[var(--ink-lo)]'}`}>
                     <MessageSquare size={16} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white">Botão Chat Flutuante</h4>
-                    <p className="text-[10px] text-slate-400">Exibe o botão de chat no preview do estúdio</p>
+                    <h4 className="text-xs font-bold text-[var(--ink-hi)]">Botão Chat Flutuante</h4>
+                    <p className="text-[10px] text-[var(--ink-lo)]">Exibe o botão de chat no preview do estúdio</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={onToggleShowWidgetChat}
                   className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer p-0.5 shrink-0 ${
-                    showWidgetChat ? 'bg-blue-600' : 'bg-slate-800'
+                    showWidgetChat ? 'bg-blue-600' : 'bg-[var(--panel)]'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
@@ -1145,40 +1154,40 @@ export function LeftSidebar({
               </div>
               
               {/* Opacity Control */}
-              <div className="bg-[#16191E] rounded-lg p-2.5 border border-slate-800/50">
+              <div className="bg-[var(--surface)] rounded-lg p-2.5 border border-[var(--line)]/50">
                 <div className="flex items-center justify-between mb-2 text-[10px]">
-                  <span className="text-slate-400 font-medium">Transparência do Fundo</span>
+                  <label htmlFor="leftsidebar-transparencia-do-fundo" className="text-[var(--ink-lo)] font-medium">Transparência do Fundo</label>
                   <span className="text-blue-400 font-mono font-bold">{chatWidgetOpacity}%</span>
                 </div>
-                <input
+                <input id="leftsidebar-transparencia-do-fundo"
                   type="range"
                   min="10"
                   max="100"
                   step="5"
                   value={chatWidgetOpacity}
                   onChange={(e) => onChatWidgetOpacityChange(Number(e.target.value))}
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  className="w-full h-1.5 bg-[var(--panel)] rounded-lg appearance-none cursor-pointer accent-blue-500"
                 />
               </div>
             </div>
 
             {/* 2. Botão Lousa Digital */}
-            <div className="p-3.5 rounded-xl bg-[#0F1115] border border-slate-800/80 hover:border-slate-700 transition-all">
+            <div className="p-3.5 rounded-xl bg-[var(--bg)] border border-[var(--line)]/80 hover:border-[var(--line-ctl)] transition-all">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${showWidgetLousa ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-800 text-slate-400'}`}>
+                  <div className={`p-2 rounded-lg ${showWidgetLousa ? 'bg-rose-500/20 text-rose-400' : 'bg-[var(--panel)] text-[var(--ink-lo)]'}`}>
                     <Pencil size={16} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white">Botão Lousa Digital</h4>
-                    <p className="text-[10px] text-slate-400">Exibe o botão de desenho na tela do estúdio</p>
+                    <h4 className="text-xs font-bold text-[var(--ink-hi)]">Botão Lousa Digital</h4>
+                    <p className="text-[10px] text-[var(--ink-lo)]">Exibe o botão de desenho na tela do estúdio</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={onToggleShowWidgetLousa}
                   className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer p-0.5 ${
-                    showWidgetLousa ? 'bg-rose-600' : 'bg-slate-800'
+                    showWidgetLousa ? 'bg-rose-600' : 'bg-[var(--panel)]'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
@@ -1189,22 +1198,22 @@ export function LeftSidebar({
             </div>
 
             {/* 3. Botão Capturar Snapshot */}
-            <div className="p-3.5 rounded-xl bg-[#0F1115] border border-slate-800/80 hover:border-slate-700 transition-all">
+            <div className="p-3.5 rounded-xl bg-[var(--bg)] border border-[var(--line)]/80 hover:border-[var(--line-ctl)] transition-all">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${showWidgetSnapshot ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400'}`}>
+                  <div className={`p-2 rounded-lg ${showWidgetSnapshot ? 'bg-amber-500/20 text-amber-400' : 'bg-[var(--panel)] text-[var(--ink-lo)]'}`}>
                     <Camera size={16} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white">Botão Capturar Snapshot</h4>
-                    <p className="text-[10px] text-slate-400">Exibe o botão de snapshot no preview do estúdio</p>
+                    <h4 className="text-xs font-bold text-[var(--ink-hi)]">Botão Capturar Snapshot</h4>
+                    <p className="text-[10px] text-[var(--ink-lo)]">Exibe o botão de snapshot no preview do estúdio</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={onToggleShowWidgetSnapshot}
                   className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer p-0.5 ${
-                    showWidgetSnapshot ? 'bg-amber-600' : 'bg-slate-800'
+                    showWidgetSnapshot ? 'bg-amber-600' : 'bg-[var(--panel)]'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
@@ -1222,22 +1231,22 @@ export function LeftSidebar({
       {activeTab === 'settings' && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-white mb-1 flex items-center gap-2">
+            <h2 className="text-lg font-bold tracking-tight text-[var(--ink-hi)] mb-1 flex items-center gap-2">
               <Tv size={18} className="text-blue-500" />
               Transmissão & Palco
             </h2>
-            <p className="text-xs text-[#a59ebf]">Configure as telas de transmissão, organize o palco e os destinos.</p>
+            <p className="text-xs text-[var(--ink-lo)]">Configure as telas de transmissão, organize o palco e os destinos.</p>
           </div>
 
           {/* Segmented Control for Sub-tabs */}
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-1 bg-[#0F1115] p-1 rounded-xl border border-slate-800/80">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-1 bg-[var(--bg)] p-1 rounded-xl border border-[var(--line)]/80">
             <button
               type="button"
               onClick={() => setSettingsSubTab('devices')}
               className={`flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                 settingsSubTab === 'devices'
-                  ? 'bg-[#4683E0] text-white shadow-md'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-[var(--color-brand-deep)] text-white shadow-md'
+                  : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
               }`}
             >
               <Sliders size={14} />
@@ -1248,8 +1257,8 @@ export function LeftSidebar({
               onClick={() => setSettingsSubTab('transitions')}
               className={`flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                 settingsSubTab === 'transitions'
-                  ? 'bg-[#4683E0] text-white shadow-md'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-[var(--color-brand-deep)] text-white shadow-md'
+                  : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
               }`}
             >
               <Film size={14} />
@@ -1260,8 +1269,8 @@ export function LeftSidebar({
               onClick={() => setSettingsSubTab('transmission')}
               className={`flex-none px-4 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
                 settingsSubTab === 'transmission'
-                  ? 'bg-[#4683E0] text-white shadow-md'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-[var(--color-brand-deep)] text-white shadow-md'
+                  : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
               }`}
             >
               <Tv size={14} />
@@ -1273,23 +1282,23 @@ export function LeftSidebar({
             <div className="space-y-6">
 
           {/* FERRAMENTA DE COMPARTILHAMENTO DE TELA & SLIDES */}
-          <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3.5" id="screen-share-settings-tool">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3.5" id="screen-share-settings-tool">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                 <Monitor size={14} className="text-blue-400" />
                 Compartilhamento de Tela
               </h3>
               <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded flex items-center gap-1 ${
                 isScreenSharing 
                   ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                  : 'bg-slate-800 text-gray-500'
+                  : 'bg-[var(--panel)] text-[var(--ink-dim)]'
               }`}>
                 <span className={`w-1 h-1 rounded-full ${isScreenSharing ? 'bg-green-400 animate-ping' : 'bg-gray-500'}`}></span>
                 {isScreenSharing ? 'Ativo' : 'Inativo'}
               </span>
             </div>
 
-            <p className="text-[10px] text-[#a59ebf] leading-normal">
+            <p className="text-[10px] text-[var(--ink-lo)] leading-normal">
               Compartilhe sua tela inteira, uma janela ou guias do navegador diretamente com os espectadores do webinar.
             </p>
 
@@ -1299,7 +1308,7 @@ export function LeftSidebar({
               className={`w-full touch-action-btn py-2.5 px-4 rounded-xl border text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer touch-action-btn hover:scale-[1.02] active:scale-[0.98] ${
                 isScreenSharing
                   ? 'bg-red-600/10 border-red-500 text-red-400 hover:bg-red-600/20 shadow-[0_0_12px_rgba(239,68,68,0.15)]'
-                  : 'bg-[#4683E0]/15 border-[#4683E0]/40 text-[#4683E0] hover:bg-[#4683E0] hover:text-white shadow-md'
+                  : 'bg-[var(--color-brand-deep)]/15 border-[var(--color-brand)]/40 text-[var(--color-brand)] hover:bg-[var(--color-brand-deep)] hover:text-white shadow-md'
               }`}
             >
               <Monitor size={14} />
@@ -1307,17 +1316,17 @@ export function LeftSidebar({
             </button>
 
             {/* Screen Share toggles */}
-            <div className="space-y-2 pt-2.5 border-t border-slate-800/60">
+            <div className="space-y-2 pt-2.5 border-t border-[var(--line)]/60">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold text-gray-300">Transmitir em 1080p (Full HD)</p>
-                  <p className="text-[9px] text-gray-500">Qualidade de compartilhamento máxima</p>
+                  <p className="text-xs font-semibold text-[var(--ink)]">Transmitir em 1080p (Full HD)</p>
+                  <p className="text-[9px] text-[var(--ink-dim)]">Qualidade de compartilhamento máxima</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShareIn1080p(!shareIn1080p)}
                   className={`w-8 h-4.5 rounded-full p-0.5 transition-colors relative flex items-center ${
-                    shareIn1080p ? 'bg-blue-500' : 'bg-slate-700'
+                    shareIn1080p ? 'bg-blue-500' : 'bg-[var(--raise)]'
                   }`}
                 >
                   <div className={`w-3.5 h-3.5 bg-white rounded-full transition-transform shadow ${
@@ -1326,16 +1335,16 @@ export function LeftSidebar({
                 </button>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-slate-800/30">
+              <div className="flex items-center justify-between pt-2 border-t border-[var(--line)]/30">
                 <div>
-                  <p className="text-xs font-semibold text-gray-300">Auto-adicionar ao Palco</p>
-                  <p className="text-[9px] text-gray-500">Adicionar feed de tela à live na hora</p>
+                  <p className="text-xs font-semibold text-[var(--ink)]">Auto-adicionar ao Palco</p>
+                  <p className="text-[9px] text-[var(--ink-dim)]">Adicionar feed de tela à live na hora</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setAutoAddScreen(!autoAddScreen)}
                   className={`w-8 h-4.5 rounded-full p-0.5 transition-colors relative flex items-center ${
-                    autoAddScreen ? 'bg-blue-500' : 'bg-slate-700'
+                    autoAddScreen ? 'bg-blue-500' : 'bg-[var(--raise)]'
                   }`}
                 >
                   <div className={`w-3.5 h-3.5 bg-white rounded-full transition-transform shadow ${
@@ -1347,9 +1356,9 @@ export function LeftSidebar({
           </div>
 
           {/* CONTROLE DE ENTRADA DE ÁUDIO & MICROFONE */}
-          <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3.5" id="audio-settings-tool">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3.5" id="audio-settings-tool">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                 <Volume2 size={14} className="text-blue-400" />
                 Controle de Áudio & Mic
               </h3>
@@ -1370,8 +1379,8 @@ export function LeftSidebar({
                 onClick={onToggleMute}
                 className={`w-full touch-action-btn py-2 px-3 rounded-xl border text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                   isMuted
-                    ? 'bg-red-600/10 border-red-500 text-white'
-                    : 'bg-[#16191E] border-slate-800 text-gray-300 hover:text-white hover:border-slate-700'
+                    ? 'bg-red-600/10 border-red-500 text-[var(--ink-hi)]'
+                    : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink)] hover:text-[var(--ink-hi)] hover:border-[var(--line-ctl)]'
                 }`}
               >
                 {!isMuted ? <Mic size={14} className="text-blue-400" /> : <MicOff size={14} className="text-red-500" />}
@@ -1380,27 +1389,27 @@ export function LeftSidebar({
             </div>
 
             {/* Input VU Meter */}
-            <div className="p-2.5 bg-[#16191E] border border-slate-800/80 rounded-xl space-y-1">
+            <div className="p-2.5 bg-[var(--surface)] border border-[var(--line)]/80 rounded-xl space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-[8.5px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="text-[8.5px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                   Monitor de Sinal de Voz
                 </span>
-                <span className="text-[8px] text-gray-500 font-mono">Real-time</span>
+                <span className="text-[8px] text-[var(--ink-dim)] font-mono">Real-time</span>
               </div>
               <AudioVUMeter isMuted={isMuted} isActive={true} simulationType="speech" />
             </div>
 
             {/* Microphone Selector Dropdown inside the panel */}
             <div className="space-y-1.5">
-              <label htmlFor="mic-select-sidebar" className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">
+              <label htmlFor="mic-select-sidebar" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">
                 Selecione o Dispositivo de Entrada
               </label>
               <select
                 id="mic-select-sidebar"
                 value={selectedMicSidebar}
                 onChange={(e) => setSelectedMicSidebar(e.target.value)}
-                className="w-full bg-[#16191E] border border-slate-800 text-xs text-gray-300 font-semibold px-2.5 py-2 rounded-xl focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                className="w-full bg-[var(--surface)] border border-[var(--line)] text-xs text-[var(--ink)] font-semibold px-2.5 py-2 rounded-xl focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
               >
                 <option value="Microfone Padrão (Yeti Stereo Microphone)">Microfone Padrão (Yeti Stereo Mic)</option>
                 <option value="c922 Pro Stream Webcam Mic">c922 Pro Stream Webcam Mic</option>
@@ -1411,28 +1420,28 @@ export function LeftSidebar({
             </div>
 
             {/* Soundtrack/Synthesizer volume controller inside settings panel */}
-            <div className="space-y-2 pt-2.5 border-t border-slate-800/60">
+            <div className="space-y-2 pt-2.5 border-t border-[var(--line)]/60">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Volume da Trilha Sonora</span>
+                <label htmlFor="leftsidebar-volume-da-trilha-sonora" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Volume da Trilha Sonora</label>
                 <span className="text-xs text-blue-400 font-mono font-bold">{Math.round(volume * 100)}%</span>
               </div>
-              <input
+              <input id="leftsidebar-volume-da-trilha-sonora"
                 type="range"
                 min="0"
                 max="1"
                 step="0.01"
                 value={volume}
                 onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
-                className="w-full accent-blue-500 cursor-pointer h-1.5 rounded-lg bg-slate-800"
+                className="w-full accent-blue-500 cursor-pointer h-1.5 rounded-lg bg-[var(--panel)]"
               />
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Loop da Música de Fundo</span>
+                <span className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Loop da Música de Fundo</span>
                 <button
                   type="button"
                   onClick={() => setMusicLoop(!musicLoop)}
                   className={`w-8 h-4.5 rounded-full p-0.5 transition-colors relative flex items-center ${
-                    musicLoop ? 'bg-blue-500' : 'bg-slate-700'
+                    musicLoop ? 'bg-blue-500' : 'bg-[var(--raise)]'
                   }`}
                 >
                   <div className={`w-3.5 h-3.5 bg-white rounded-full transition-transform shadow ${
@@ -1442,17 +1451,17 @@ export function LeftSidebar({
               </div>
 
               {/* AUTO-FADE (DUCKING) CONFIGURATION */}
-              <div className="pt-2.5 border-t border-slate-800/60 space-y-2">
+              <div className="pt-2.5 border-t border-[var(--line)]/60 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="text-left">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Auto-fade (Ducking de Áudio)</span>
-                    <span className="text-[9px] text-[#a59ebf]">Abaixa a música ao detectar fala</span>
+                    <span className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Auto-fade (Ducking de Áudio)</span>
+                    <span className="text-[9px] text-[var(--ink-lo)]">Abaixa a música ao detectar fala</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => onToggleAutoFade(!isAutoFadeEnabled)}
                     className={`w-8 h-4.5 rounded-full p-0.5 transition-colors relative flex items-center ${
-                      isAutoFadeEnabled ? 'bg-blue-500' : 'bg-slate-700'
+                      isAutoFadeEnabled ? 'bg-blue-500' : 'bg-[var(--raise)]'
                     }`}
                   >
                     <div className={`w-3.5 h-3.5 bg-white rounded-full transition-transform shadow ${
@@ -1462,38 +1471,38 @@ export function LeftSidebar({
                 </div>
 
                 {isAutoFadeEnabled && (
-                  <div className="space-y-2.5 pt-1.5 border-t border-slate-800/50 animate-in fade-in slide-in-from-top-1 duration-250 text-left">
+                  <div className="space-y-2.5 pt-1.5 border-t border-[var(--line)]/50 animate-in fade-in slide-in-from-top-1 duration-250 text-left">
                     {/* Volume Factor Slider */}
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="text-gray-400 font-medium">Volume da Música com Fala</span>
+                        <label htmlFor="leftsidebar-volume-da-musica-com-fala" className="text-[var(--ink-lo)] font-medium">Volume da Música com Fala</label>
                         <span className="font-mono text-blue-400 font-bold">{Math.round(autoFadeVolumeFactor * 100)}%</span>
                       </div>
-                      <input
+                      <input id="leftsidebar-volume-da-musica-com-fala"
                         type="range"
                         min="0"
                         max="0.8"
                         step="0.05"
                         value={autoFadeVolumeFactor}
                         onChange={(e) => onChangeAutoFadeVolumeFactor(parseFloat(e.target.value))}
-                        className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                        className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
                       />
                     </div>
 
                     {/* Voice Sensitivity Slider */}
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="text-gray-400 font-medium">Sensibilidade de Voz</span>
+                        <label htmlFor="leftsidebar-sensibilidade-de-voz" className="text-[var(--ink-lo)] font-medium">Sensibilidade de Voz</label>
                         <span className="font-mono text-blue-400 font-bold">{Math.round(autoFadeSensitivity * 100)}%</span>
                       </div>
-                      <input
+                      <input id="leftsidebar-sensibilidade-de-voz"
                         type="range"
                         min="0.1"
                         max="1"
                         step="0.05"
                         value={autoFadeSensitivity}
                         onChange={(e) => onChangeAutoFadeSensitivity(parseFloat(e.target.value))}
-                        className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                        className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
                       />
                     </div>
 
@@ -1503,7 +1512,7 @@ export function LeftSidebar({
                         ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' 
                         : 'bg-emerald-500/5 border-emerald-500/10 text-emerald-400'
                     }`}>
-                      <span className="font-medium text-gray-400">Voz do Apresentador:</span>
+                      <span className="font-medium text-[var(--ink-lo)]">Voz do Apresentador:</span>
                       <span className="font-bold uppercase tracking-wider flex items-center gap-1">
                         <span className={`w-1.5 h-1.5 rounded-full ${isPresenterSpeaking ? 'bg-amber-400 animate-ping' : 'bg-emerald-400'}`} />
                         {isPresenterSpeaking ? 'Falando (Ducking)' : 'Silêncio (Normal)'}
@@ -1518,36 +1527,36 @@ export function LeftSidebar({
 
 
           {/* AUTOMAÇÃO DE CENAS POR VOZ */}
-          <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3.5" id="scene-automation-panel">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3.5" id="scene-automation-panel">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                 <Activity size={14} className="text-blue-400" />
                 Automação de Cenas
               </h3>
               <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded flex items-center gap-1 ${
                 isSceneAutomationEnabled 
                   ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[0_0_8px_rgba(70,131,224,0.15)]' 
-                  : 'bg-slate-800 text-gray-500'
+                  : 'bg-[var(--panel)] text-[var(--ink-dim)]'
               }`}>
                 <span className={`w-1 h-1 rounded-full ${isSceneAutomationEnabled ? 'bg-blue-400 animate-pulse' : 'bg-gray-500'}`}></span>
                 {isSceneAutomationEnabled ? 'Ativo' : 'Inativo'}
               </span>
             </div>
 
-            <p className="text-[10px] text-[#a59ebf] leading-normal">
+            <p className="text-[10px] text-[var(--ink-lo)] leading-normal">
               Alterna o layout principal automaticamente entre <strong>Solo</strong>, <strong>Duo</strong> ou <strong>Apresentação</strong> com base em quem está falando na transmissão por detecção de áudio.
             </p>
 
-            <div className="flex items-center justify-between p-2.5 bg-[#16191E]/60 border border-slate-800/80 rounded-xl">
+            <div className="flex items-center justify-between p-2.5 bg-[var(--surface)]/60 border border-[var(--line)]/80 rounded-xl">
               <div>
-                <p className="text-xs font-semibold text-gray-300">Alternar por Voz</p>
-                <p className="text-[9px] text-gray-500">Ativa a detecção inteligente</p>
+                <p className="text-xs font-semibold text-[var(--ink)]">Alternar por Voz</p>
+                <p className="text-[9px] text-[var(--ink-dim)]">Ativa a detecção inteligente</p>
               </div>
               <button
                 type="button"
                 onClick={() => onToggleSceneAutomation && onToggleSceneAutomation(!isSceneAutomationEnabled)}
                 className={`w-10 h-5.5 rounded-full p-0.5 transition-colors relative flex items-center ${
-                  isSceneAutomationEnabled ? 'bg-blue-500' : 'bg-slate-700'
+                  isSceneAutomationEnabled ? 'bg-blue-500' : 'bg-[var(--raise)]'
                 }`}
               >
                 <div className={`w-4.5 h-4.5 bg-white rounded-full transition-transform shadow ${
@@ -1557,9 +1566,9 @@ export function LeftSidebar({
             </div>
 
             {isSceneAutomationEnabled && (
-              <div className="p-3 bg-[#16191E] border border-blue-500/20 rounded-xl space-y-2 animate-fadeIn">
+              <div className="p-3 bg-[var(--surface)] border border-blue-500/20 rounded-xl space-y-2 animate-fadeIn">
                 <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Atividade de Áudio</span>
+                  <span className="text-[9px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Atividade de Áudio</span>
                   <span className="text-[8px] text-blue-400 font-bold bg-blue-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                     LIVE SENSING
@@ -1568,16 +1577,16 @@ export function LeftSidebar({
                 
                 <div className="space-y-1.5 text-left pt-1">
                   <div className="flex items-center justify-between text-[10px]">
-                    <span className="text-gray-400">Palestrante Ativo:</span>
-                    <span className="font-bold text-white flex items-center gap-1.5">
+                    <span className="text-[var(--ink-lo)]">Palestrante Ativo:</span>
+                    <span className="font-bold text-[var(--ink-hi)] flex items-center gap-1.5">
                       <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      {activeSpeaker === 'p-local' ? 'Marcos (Você)' : 'Ana Silva (Convidada)'}
+                      {activeSpeaker === 'p-local' ? `${nomeLocal} (Você)` : nomeConvidado}
                     </span>
                   </div>
-                  <p className="text-[9px] text-gray-500 leading-normal">
+                  <p className="text-[9px] text-[var(--ink-dim)] leading-normal">
                     {activeSpeaker === 'p-local' 
-                      ? 'Marcos está falando agora. O estúdio focou no layout Solo/Apresentação.' 
-                      : 'Ana Silva está falando agora. O estúdio expandiu para o layout Duo.'
+                      ? `${nomeLocal} está falando agora. O estúdio focou no layout Solo/Apresentação.` 
+                      : `${nomeConvidado} está falando agora. O estúdio expandiu para o layout Duo.`
                     }
                   </p>
                 </div>
@@ -1586,11 +1595,11 @@ export function LeftSidebar({
           </div>
 
           {/* Moved from StudioPreview: Gerenciar Fontes */}
-          <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
+            <h3 className="text-xs font-semibold text-[var(--ink-lo)] uppercase tracking-wider text-left">
               Gerenciar Fontes (Palco)
             </h3>
-            <p className="text-[10px] text-[#a59ebf] -mt-1 leading-normal">Adicione ou remova participantes do webinar com um único clique.</p>
+            <p className="text-[10px] text-[var(--ink-lo)] -mt-1 leading-normal">Adicione ou remova participantes do webinar com um único clique.</p>
             
             <div className="space-y-2">
               {participants.map(p => (
@@ -1599,8 +1608,8 @@ export function LeftSidebar({
                   onClick={() => onToggleParticipantActive(p.id)}
                   className={`w-full text-left rounded-xl p-2.5 border transition-all relative flex items-center justify-between ${
                     p.isActive 
-                      ? 'bg-blue-500/10 border-blue-500 ring-1 ring-blue-500/30 text-white' 
-                      : 'bg-[#16191E] border-slate-800 text-gray-400 hover:border-slate-700'
+                      ? 'bg-blue-500/10 border-blue-500 ring-1 ring-blue-500/30 text-[var(--ink-hi)]' 
+                      : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 overflow-hidden">
@@ -1612,13 +1621,13 @@ export function LeftSidebar({
                       <img 
                         src={p.avatarUrl} 
                         alt={p.name} 
-                        className="w-8 h-8 rounded-full object-cover border border-slate-800 shrink-0"
+                        className="w-8 h-8 rounded-full object-cover border border-[var(--line)] shrink-0"
                         referrerPolicy="no-referrer"
                       />
                     )}
                     <div className="overflow-hidden">
-                      <p className={`text-xs font-bold truncate ${p.isActive ? 'text-white' : 'text-gray-300'}`}>{p.name}</p>
-                      <p className="text-[9px] text-gray-500">
+                      <p className={`text-xs font-bold truncate ${p.isActive ? 'text-[var(--ink-hi)]' : 'text-[var(--ink)]'}`}>{p.name}{p.isLocal && ' (Você)'}</p>
+                      <p className="text-[9px] text-[var(--ink-dim)]">
                         {p.isLocal ? 'Apresentador Principal' : p.isScreenShare ? 'Slide Compartilhado' : 'Convidado Externo'}
                       </p>
                       
@@ -1646,7 +1655,7 @@ export function LeftSidebar({
                         No Palco
                       </span>
                     ) : (
-                      <span className="text-[9px] font-bold text-gray-400 hover:text-white border border-slate-700 bg-[#0F1115] px-2 py-0.5 rounded">
+                      <span className="text-[9px] font-bold text-[var(--ink-lo)] hover:text-[var(--ink-hi)] border border-[var(--line-ctl)] bg-[var(--bg)] px-2 py-0.5 rounded">
                         + Add
                       </span>
                     )}
@@ -1657,9 +1666,9 @@ export function LeftSidebar({
           </div>
 
           {/* TRANSIÇÕES DO STUDIO */}
-          <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3.5" id="studio-transitions-tool">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3.5" id="studio-transitions-tool">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                 <Sparkles size={14} className="text-blue-400" />
                 Transições do Studio
               </h3>
@@ -1668,7 +1677,7 @@ export function LeftSidebar({
               </span>
             </div>
 
-            <p className="text-[10px] text-[#a59ebf] leading-normal text-left">
+            <p className="text-[10px] text-[var(--ink-lo)] leading-normal text-left">
               Escolha o efeito visual de transição ao mudar de layout ou ao alternar feeds no palco.
             </p>
 
@@ -1686,7 +1695,7 @@ export function LeftSidebar({
                   className={`py-2 px-2.5 rounded-xl border text-center transition-all flex flex-col justify-center items-center h-11 cursor-pointer touch-action-btn hover:scale-[1.02] active:scale-[0.98] ${
                     transitionType === t.id 
                       ? 'bg-blue-500/10 border-blue-500 text-blue-400 ring-1 ring-blue-500/30 font-bold' 
-                      : 'bg-[#16191E] border-slate-800 text-gray-400 hover:border-slate-700 hover:text-white'
+                      : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)] hover:text-[var(--ink-hi)]'
                   }`}
                 >
                   <span className="text-xs font-extrabold tracking-wide">{t.label}</span>
@@ -1696,36 +1705,36 @@ export function LeftSidebar({
             </div>
 
             {/* Slider duration */}
-            <div className="space-y-2 pt-2.5 border-t border-slate-800/60">
+            <div className="space-y-2 pt-2.5 border-t border-[var(--line)]/60">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Velocidade da Transição</span>
+                <label htmlFor="leftsidebar-velocidade-da-transicao" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Velocidade da Transição</label>
                 <span className="text-xs text-blue-400 font-mono font-bold">{transitionDuration} ms</span>
               </div>
-              <input
+              <input id="leftsidebar-velocidade-da-transicao"
                 type="range"
                 min="100"
                 max="1500"
                 step="50"
                 value={transitionDuration}
                 onChange={(e) => onTransitionDurationChange && onTransitionDurationChange(parseInt(e.target.value))}
-                className="w-full accent-blue-500 cursor-pointer h-1.5 rounded-lg bg-slate-800"
+                className="w-full accent-blue-500 cursor-pointer h-1.5 rounded-lg bg-[var(--panel)]"
               />
             </div>
           </div>
 
           {/* CONFIGURAÇÃO DE TRANSIÇÕES POR CENA */}
-          <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3.5">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3.5">
             <div>
-              <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                 <Sliders size={14} className="text-blue-400" />
                 Transições Automáticas por Cena
               </h3>
-              <p className="text-[10px] text-[#a59ebf] mt-0.5 leading-normal">Configure a transição automática e a duração específica ao alternar para cada cena.</p>
+              <p className="text-[10px] text-[var(--ink-lo)] mt-0.5 leading-normal">Configure a transição automática e a duração específica ao alternar para cada cena.</p>
             </div>
 
             {/* Scene Selector Inside Panel */}
             <div className="space-y-3">
-              <div className="flex bg-[#16191E] p-1 rounded-lg border border-slate-800/80">
+              <div className="flex bg-[var(--surface)] p-1 rounded-lg border border-[var(--line)]/80">
                 {[
                   { id: 'scene-1', name: 'Abertura' },
                   { id: 'scene-2', name: 'Solo' },
@@ -1740,7 +1749,7 @@ export function LeftSidebar({
                     className={`flex-1 py-1 text-[9px] font-bold rounded transition-all cursor-pointer ${
                       selectedSceneConfigId === sc.id 
                         ? 'bg-blue-600 text-white shadow-sm' 
-                        : 'text-gray-400 hover:text-white'
+                        : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                     }`}
                   >
                     {sc.name}
@@ -1752,13 +1761,13 @@ export function LeftSidebar({
               {(() => {
                 const config = sceneTransitions[selectedSceneConfigId] || { type: 'fade', duration: 300 };
                 return (
-                  <div className="space-y-3 bg-[#16191E]/40 p-3 rounded-lg border border-slate-800/60 text-left animate-in fade-in duration-250">
+                  <div className="space-y-3 bg-[var(--surface)]/40 p-3 rounded-lg border border-[var(--line)]/60 text-left animate-in fade-in duration-250">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Tipo de Transição</label>
-                      <select
+                      <label htmlFor="leftsidebar-tipo-de-transicao" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Tipo de Transição</label>
+                      <select id="leftsidebar-tipo-de-transicao"
                         value={config.type}
                         onChange={(e) => onUpdateSceneTransition(selectedSceneConfigId, e.target.value as any, config.duration)}
-                        className="w-full bg-[#16191E] border border-slate-800 text-xs text-gray-300 font-semibold px-2 py-1.5 rounded-lg focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] text-xs text-[var(--ink)] font-semibold px-2 py-1.5 rounded-lg focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
                       >
                         <option value="cut">Corte Seco (Cut)</option>
                         <option value="fade">Desvanecer Suave (Fade)</option>
@@ -1774,17 +1783,17 @@ export function LeftSidebar({
 
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="font-bold text-gray-400 uppercase tracking-wider">Duração</span>
+                        <label htmlFor="leftsidebar-duracao" className="font-bold text-[var(--ink-lo)] uppercase tracking-wider">Duração</label>
                         <span className="font-mono text-blue-400 font-bold">{config.duration} ms</span>
                       </div>
-                      <input
+                      <input id="leftsidebar-duracao" aria-label="Duração da transição"
                         type="range"
                         min={config.type === 'cut' ? 0 : 100}
                         max={1500}
                         step={50}
                         value={config.duration}
                         onChange={(e) => onUpdateSceneTransition(selectedSceneConfigId, config.type, parseInt(e.target.value))}
-                        className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                        className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
                       />
                     </div>
                   </div>
@@ -1794,21 +1803,21 @@ export function LeftSidebar({
           </div>
 
           {/* Configurações de Gravação Local */}
-          <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left flex items-center justify-between">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
+            <h3 className="text-xs font-semibold text-[var(--ink-lo)] uppercase tracking-wider text-left flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <Film size={14} className="text-blue-500" />
                 Gravação Local da Transmissão
               </span>
               <span className="text-[10px] text-green-500 font-extrabold lowercase bg-green-500/10 px-2 py-0.5 rounded">Ativo</span>
             </h3>
-            <p className="text-[10px] text-[#a59ebf] -mt-1 leading-normal">Defina a qualidade e o formato preferido para salvar a transmissão no seu disco local.</p>
+            <p className="text-[10px] text-[var(--ink-lo)] -mt-1 leading-normal">Defina a qualidade e o formato preferido para salvar a transmissão no seu disco local.</p>
 
             <div className="grid grid-cols-2 gap-4 pt-1">
               {/* Formato de Gravação */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">Formato de Saída</label>
-                <div className="flex bg-[#16191E] p-0.5 rounded-lg border border-slate-800">
+                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Formato de Saída</label>
+                <div className="flex bg-[var(--surface)] p-0.5 rounded-lg border border-[var(--line)]">
                   {(['mp4', 'webm'] as const).map(fmt => (
                     <button
                       key={fmt}
@@ -1817,7 +1826,7 @@ export function LeftSidebar({
                       className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all uppercase cursor-pointer ${
                         recordingFormat === fmt 
                           ? 'bg-blue-500 text-white shadow-md' 
-                          : 'text-gray-400 hover:text-white'
+                          : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                       }`}
                     >
                       {fmt}
@@ -1828,8 +1837,8 @@ export function LeftSidebar({
 
               {/* Qualidade da Gravação */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">Resolução / Qualidade</label>
-                <div className="flex bg-[#16191E] p-0.5 rounded-lg border border-slate-800">
+                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Resolução / Qualidade</label>
+                <div className="flex bg-[var(--surface)] p-0.5 rounded-lg border border-[var(--line)]">
                   {(['720p', '1080p'] as const).map(qual => (
                     <button
                       key={qual}
@@ -1838,7 +1847,7 @@ export function LeftSidebar({
                       className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
                         recordingQuality === qual 
                           ? 'bg-blue-500 text-white shadow-md' 
-                          : 'text-gray-400 hover:text-white'
+                          : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                       }`}
                     >
                       {qual}
@@ -1848,12 +1857,12 @@ export function LeftSidebar({
               </div>
             </div>
 
-            <div className="pt-1.5 border-t border-slate-800/60 flex items-center justify-between text-[9px] text-gray-500">
-              <span className="flex items-center gap-1 font-semibold text-gray-400">
+            <div className="pt-1.5 border-t border-[var(--line)]/60 flex items-center justify-between text-[9px] text-[var(--ink-dim)]">
+              <span className="flex items-center gap-1 font-semibold text-[var(--ink-lo)]">
                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                 Salvar automático no encerramento
               </span>
-              <span className="font-mono bg-slate-950/60 px-2 py-0.5 rounded text-blue-400 font-bold">Bitrate: {recordingQuality === '1080p' ? '6.0' : '3.5'} Mbps</span>
+              <span className="font-mono bg-[var(--bg)]/60 px-2 py-0.5 rounded text-blue-400 font-bold">Bitrate: {recordingQuality === '1080p' ? '6.0' : '3.5'} Mbps</span>
             </div>
           </div>
           </div>
@@ -1862,25 +1871,25 @@ export function LeftSidebar({
           {settingsSubTab === 'transitions' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               {/* Scene Transitions Config */}
-              <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-4">
+              <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <h3 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                     <Film size={14} className="text-blue-400" />
                     Transições de Cena
                   </h3>
                 </div>
                 
-                <p className="text-[10px] text-[#a59ebf] leading-normal">
+                <p className="text-[10px] text-[var(--ink-lo)] leading-normal">
                   Configure o tipo e duração da transição para cada cena ao alternar para ela.
                 </p>
 
                 <div className="space-y-3">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">Cena Alvo</label>
-                    <select
+                    <label htmlFor="leftsidebar-cena-alvo" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Cena Alvo</label>
+                    <select id="leftsidebar-cena-alvo"
                       value={selectedSceneForTransition}
                       onChange={(e) => setSelectedSceneForTransition(e.target.value)}
-                      className="w-full bg-[#16191E] border border-slate-800 text-white text-xs rounded-lg p-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      className="w-full bg-[var(--surface)] border border-[var(--line)] text-[var(--ink-hi)] text-xs rounded-lg p-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                     >
                       <option value="scene-1">Cena 1 (Apresentador)</option>
                       <option value="scene-2">Cena 2 (Entrevista)</option>
@@ -1890,8 +1899,8 @@ export function LeftSidebar({
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">Tipo de Transição</label>
-                    <div className="grid grid-cols-2 gap-1 bg-[#16191E] p-1 rounded-lg border border-slate-800">
+                    <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Tipo de Transição</label>
+                    <div className="grid grid-cols-2 gap-1 bg-[var(--surface)] p-1 rounded-lg border border-[var(--line)]">
                       {([
                         { id: 'cut', label: 'Corte Seco (Cut)' },
                         { id: 'fade', label: 'Esmaecer (Fade)' },
@@ -1913,7 +1922,7 @@ export function LeftSidebar({
                             className={`py-1.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
                               currentTransition === anim.id 
                                 ? 'bg-blue-500 text-white shadow-md' 
-                                : 'text-gray-400 hover:text-white'
+                                : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                             }`}
                           >
                             {anim.label}
@@ -1925,10 +1934,10 @@ export function LeftSidebar({
 
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">Duração da Transição</label>
+                      <label htmlFor="leftsidebar-duracao-da-transicao" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Duração da Transição</label>
                       <span className="text-[10px] text-blue-400 font-mono bg-blue-500/10 px-1.5 py-0.5 rounded">{sceneTransitions[selectedSceneForTransition]?.duration || 300}ms</span>
                     </div>
-                    <input 
+                    <input id="leftsidebar-duracao-da-transicao" 
                       type="range" 
                       min="100" 
                       max="2000" 
@@ -1940,7 +1949,7 @@ export function LeftSidebar({
                       }}
                       className="w-full accent-blue-500"
                     />
-                    <div className="flex justify-between text-[8px] text-gray-500 font-medium">
+                    <div className="flex justify-between text-[8px] text-[var(--ink-dim)] font-medium">
                       <span>Rápido (100ms)</span>
                       <span>Lento (2000ms)</span>
                     </div>
@@ -1949,26 +1958,26 @@ export function LeftSidebar({
               </div>
 
               {/* Salvar Layout como Template */}
-              <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-4">
+              <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <h3 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                     <Save size={14} className="text-emerald-400" />
                     Templates de Layout
                   </h3>
                 </div>
                 
-                <p className="text-[10px] text-[#a59ebf] leading-normal">
+                <p className="text-[10px] text-[var(--ink-lo)] leading-normal">
                   Salve a configuração atual de participações e ativos como um template para reaproveitar em futuros webinars.
                 </p>
 
                 <div className="space-y-3">
                   <div className="flex gap-2">
-                    <input 
+                    <input aria-label="Nome do template de layout" 
                       type="text" 
                       placeholder="Nome do Template..."
                       value={layoutTemplateName}
                       onChange={(e) => setLayoutTemplateName(e.target.value)}
-                      className="flex-1 bg-[#16191E] border border-slate-800 text-white text-[10px] font-bold rounded-lg px-3 py-2 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-gray-600"
+                      className="flex-1 bg-[var(--surface)] border border-[var(--line)] text-[var(--ink-hi)] text-[10px] font-bold rounded-lg px-3 py-2 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-[var(--ink-dim)]"
                     />
                     <button
                       type="button"
@@ -1986,16 +1995,16 @@ export function LeftSidebar({
                   </div>
                   
                   {savedLayoutTemplates.length > 0 && (
-                    <div className="space-y-1.5 mt-3 pt-3 border-t border-slate-800/50">
-                      <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">Templates Salvos</label>
+                    <div className="space-y-1.5 mt-3 pt-3 border-t border-[var(--line)]/50">
+                      <label className="text-[9px] font-bold text-[var(--ink-dim)] uppercase tracking-wider block">Templates Salvos</label>
                       <div className="space-y-1.5">
                         {savedLayoutTemplates.map(template => (
-                          <div key={template.id} className="flex justify-between items-center bg-[#16191E] border border-slate-800/80 px-2.5 py-2 rounded-lg">
-                            <span className="text-[10px] font-bold text-gray-300">{template.name}</span>
+                          <div key={template.id} className="flex justify-between items-center bg-[var(--surface)] border border-[var(--line)]/80 px-2.5 py-2 rounded-lg">
+                            <span className="text-[10px] font-bold text-[var(--ink)]">{template.name}</span>
                             <button
                                type="button"
                                className="text-[9px] font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-2 py-1.5 rounded cursor-pointer transition-colors"
-                               onClick={() => alert(`Layout '${template.name}' carregado com sucesso!`)}
+                               onClick={() => toast.success(`Layout '${template.name}' carregado com sucesso!`)}
                             >
                                Carregar
                             </button>
@@ -2012,10 +2021,10 @@ export function LeftSidebar({
           {settingsSubTab === 'transmission' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               {/* Destinations Selection */}
-              <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3" id="streaming-destinations-panel">
+              <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3" id="streaming-destinations-panel">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider text-left">
+                    <h3 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider text-left">
                       Transmitir para:
                     </h3>
                     <span className="text-[9px] font-black text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">
@@ -2048,20 +2057,20 @@ export function LeftSidebar({
                         onClick={() => onToggleDestination(dest.id)}
                         className={`w-full flex items-center justify-between p-2.5 rounded-lg border transition-all text-left group cursor-pointer ${
                           dest.selected 
-                            ? 'bg-blue-500/10 border-blue-500 text-white ring-1 ring-blue-500/20' 
-                            : 'bg-[#16191E] border-slate-800 text-gray-400 hover:border-slate-700'
+                            ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)] ring-1 ring-blue-500/20' 
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)]'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0 pr-2">
                           <img 
                             src={dest.avatarUrl} 
                             alt={dest.name} 
-                            className="w-7 h-7 rounded-full object-cover shrink-0 border border-slate-700"
+                            className="w-7 h-7 rounded-full object-cover shrink-0 border border-[var(--line-ctl)]"
                             referrerPolicy="no-referrer"
                           />
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <p className={`text-xs font-bold truncate ${dest.selected ? 'text-white' : 'text-gray-300'}`}>
+                              <p className={`text-xs font-bold truncate ${dest.selected ? 'text-[var(--ink-hi)]' : 'text-[var(--ink)]'}`}>
                                 {dest.name}
                               </p>
                               {isCustomType && (
@@ -2071,9 +2080,9 @@ export function LeftSidebar({
                               )}
                             </div>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <p className="text-[8px] text-[#a59ebf] uppercase font-bold">{dest.platform}</p>
+                              <p className="text-[8px] text-[var(--ink-lo)] uppercase font-bold">{dest.platform}</p>
                               {dest.streamUrl && (
-                                <span className="text-[8px] text-gray-500 font-mono truncate max-w-[140px]">
+                                <span className="text-[8px] text-[var(--ink-dim)] font-mono truncate max-w-[140px]">
                                   {dest.streamUrl.replace(/^rtmps?:\/\//, '').split('/')[0]}
                                 </span>
                               )}
@@ -2083,7 +2092,7 @@ export function LeftSidebar({
 
                         <div className="flex items-center gap-1.5 shrink-0">
                           <div className={`w-4 h-4 rounded-full flex items-center justify-center border transition-colors ${
-                            dest.selected ? 'bg-blue-500 border-blue-500 text-white' : 'border-slate-700 bg-slate-800'
+                            dest.selected ? 'bg-blue-500 border-blue-500 text-white' : 'border-[var(--line-ctl)] bg-[var(--panel)]'
                           }`}>
                             {dest.selected && <Check size={10} />}
                           </div>
@@ -2097,7 +2106,7 @@ export function LeftSidebar({
                 <button
                   type="button"
                   onClick={() => onOpenCustomDestinationsModal && onOpenCustomDestinationsModal()}
-                  className="w-full py-2 px-3 bg-[#161922] hover:bg-[#1C202B] border border-slate-800 hover:border-slate-700 rounded-lg text-xs font-bold text-gray-300 hover:text-white transition-all flex items-center justify-center gap-1.5 cursor-pointer mt-1"
+                  className="w-full py-2 px-3 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] rounded-lg text-xs font-bold text-[var(--ink)] hover:text-[var(--ink-hi)] transition-all flex items-center justify-center gap-1.5 cursor-pointer mt-1"
                 >
                   <Settings size={13} className="text-blue-400" />
                   Gerenciar URLs, Chaves & NGINX RTMP
@@ -2105,11 +2114,11 @@ export function LeftSidebar({
               </div>
 
               {/* CLOUDFLARE STREAM GLOBAL CDN PANEL */}
-              <div className="bg-gradient-to-br from-blue-950/40 via-[#0F1115] to-slate-900/60 border border-blue-500/30 p-4 rounded-xl space-y-4" id="cloudflare-stream-panel">
+              <div className="bg-gradient-to-br from-blue-950/40 via-[var(--bg)] to-[var(--surface)]/60 border border-blue-500/30 p-4 rounded-xl space-y-4" id="cloudflare-stream-panel">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                    <h3 className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider">
                       Cloudflare Stream Ingest
                     </h3>
                   </div>
@@ -2118,7 +2127,7 @@ export function LeftSidebar({
                   </span>
                 </div>
 
-                <p className="text-[10px] text-gray-300 leading-normal text-left">
+                <p className="text-[10px] text-[var(--ink)] leading-normal text-left">
                   Pipeline global com ingestão RTMPS, SRT e WebRTC WHIP para streaming de ultra-baixa latência com distribuição em CDN mundial.
                 </p>
 
@@ -2143,7 +2152,7 @@ export function LeftSidebar({
                   <button
                     type="button"
                     onClick={() => onOpenCloudflareModal && onOpenCloudflareModal()}
-                    className="p-2 bg-slate-800 hover:bg-slate-700 text-blue-300 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer"
+                    className="p-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-blue-300 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 border border-[var(--line-ctl)] cursor-pointer"
                   >
                     <Sparkles size={12} className="text-orange-400" />
                     Central Cloudflare
@@ -2151,20 +2160,20 @@ export function LeftSidebar({
                 </div>
 
                 {/* Cloudflare Quick URLs List */}
-                <div className="space-y-2 pt-1 border-t border-slate-800/80 text-left">
+                <div className="space-y-2 pt-1 border-t border-[var(--line)]/80 text-left">
                   <div className="flex items-center justify-between text-[10px]">
-                    <span className="text-gray-400 font-semibold">Live Input ID:</span>
-                    <code className="text-blue-400 font-mono text-[9px] bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
+                    <span className="text-[var(--ink-lo)] font-semibold">Live Input ID:</span>
+                    <code className="text-blue-400 font-mono text-[9px] bg-[var(--bg)] px-1.5 py-0.5 rounded border border-[var(--line)]">
                       {CLOUDFLARE_STREAM_CONFIG.liveInputId.slice(0, 14)}...
                     </code>
                   </div>
 
                   <div className="flex items-center justify-between text-[10px]">
-                    <span className="text-gray-400 font-semibold">WebRTC WHIP Ingest:</span>
+                    <span className="text-[var(--ink-lo)] font-semibold">WebRTC WHIP Ingest:</span>
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(CLOUDFLARE_STREAM_CONFIG.whipPublishUrl);
+                        copyText(CLOUDFLARE_STREAM_CONFIG.whipPublishUrl);
                         setCopiedKey(true);
                         setTimeout(() => setCopiedKey(false), 2000);
                       }}
@@ -2176,11 +2185,11 @@ export function LeftSidebar({
                   </div>
 
                   <div className="flex items-center justify-between text-[10px]">
-                    <span className="text-gray-400 font-semibold">Manifesto HLS (.m3u8):</span>
+                    <span className="text-[var(--ink-lo)] font-semibold">Manifesto HLS (.m3u8):</span>
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(CLOUDFLARE_STREAM_CONFIG.hlsManifestUrl);
+                        copyText(CLOUDFLARE_STREAM_CONFIG.hlsManifestUrl);
                         setCopiedServer(true);
                         setTimeout(() => setCopiedServer(false), 2000);
                       }}
@@ -2192,11 +2201,11 @@ export function LeftSidebar({
                   </div>
 
                   <div className="flex items-center justify-between text-[10px]">
-                    <span className="text-gray-400 font-semibold">Stream Player Iframe:</span>
+                    <span className="text-[var(--ink-lo)] font-semibold">Stream Player Iframe:</span>
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(CLOUDFLARE_STREAM_CONFIG.embedIframeCode);
+                        copyText(CLOUDFLARE_STREAM_CONFIG.embedIframeCode);
                         setCopiedKey(true);
                         setTimeout(() => setCopiedKey(false), 2000);
                       }}
@@ -2210,9 +2219,9 @@ export function LeftSidebar({
               </div>
 
               {/* OBS / RTMP EXTERNO CONFIGURATION PANEL */}
-              <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-4" id="rtmp-external-obs-config">
+              <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-4" id="rtmp-external-obs-config">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <h3 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles size={14} className="text-blue-400" />
                     OBS / Transmissão Externa
                   </h3>
@@ -2221,34 +2230,34 @@ export function LeftSidebar({
                   </span>
                 </div>
 
-                <p className="text-[10px] text-[#a59ebf] leading-normal text-left">
+                <p className="text-[10px] text-[var(--ink-lo)] leading-normal text-left">
                   Chave e servidor de entrada para seu OBS/vMix. Para gerenciar chaves adicionais, acesse o <strong>Admin Principal (/admin)</strong>.
                 </p>
 
                 {/* RTMP Server URL Input */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">
+                  <label htmlFor="leftsidebar-servidor-url-de-ingestao-rtmp" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">
                     Servidor / URL de Ingestão (RTMP)
                   </label>
                   <div className="flex gap-2">
-                    <input
+                    <input id="leftsidebar-servidor-url-de-ingestao-rtmp"
                       type="text"
                       value={rtmpServer}
                       onChange={(e) => setRtmpServer && setRtmpServer(e.target.value)}
                       placeholder="rtmps://live.cloudflare.com:443/live/"
-                      className="flex-1 bg-[#16191E] border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all font-mono"
+                      className="flex-1 bg-[var(--surface)] border border-[var(--line)] rounded-lg px-2.5 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all font-mono"
                     />
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(rtmpServer);
+                        copyText(rtmpServer);
                         setCopiedServer(true);
                         setTimeout(() => setCopiedServer(false), 2000);
                       }}
                       className={`px-3 rounded-lg border transition-all flex items-center justify-center cursor-pointer ${
                         copiedServer 
                           ? 'bg-green-500/10 border-green-500 text-green-400' 
-                          : 'bg-[#16191E] border-slate-800 text-gray-400 hover:text-white hover:border-slate-700'
+                          : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:border-[var(--line-ctl)]'
                       }`}
                       title="Copiar URL do Servidor"
                     >
@@ -2260,28 +2269,28 @@ export function LeftSidebar({
 
                 {/* Stream Key Input */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">
+                  <label htmlFor="leftsidebar-chave-de-transmissao-stream-key" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">
                     Chave de Transmissão / Stream Key
                   </label>
                   <div className="flex gap-2">
-                    <input
+                    <input id="leftsidebar-chave-de-transmissao-stream-key"
                       type="text"
                       value={streamKey}
                       onChange={(e) => setStreamKey && setStreamKey(e.target.value)}
                       placeholder="Chave de Stream"
-                      className="flex-1 bg-[#16191E] border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all font-mono"
+                      className="flex-1 bg-[var(--surface)] border border-[var(--line)] rounded-lg px-2.5 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all font-mono"
                     />
                     <button
                       type="button"
                       onClick={() => {
-                        navigator.clipboard.writeText(streamKey);
+                        copyText(streamKey);
                         setCopiedKey(true);
                         setTimeout(() => setCopiedKey(false), 2000);
                       }}
                       className={`px-3 rounded-lg border transition-all flex items-center justify-center cursor-pointer ${
                         copiedKey 
                           ? 'bg-green-500/10 border-green-500 text-green-400' 
-                          : 'bg-[#16191E] border-slate-800 text-gray-400 hover:text-white hover:border-slate-700'
+                          : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:border-[var(--line-ctl)]'
                       }`}
                       title="Copiar Chave de Stream"
                     >
@@ -2292,91 +2301,91 @@ export function LeftSidebar({
                 </div>
 
                 {/* Stream Delay Input */}
-                <div className="space-y-1.5 pt-2 border-t border-slate-800/60 mt-2">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left flex items-center gap-1.5">
-                    <Clock size={12} className="text-gray-400" />
+                <div className="space-y-1.5 pt-2 border-t border-[var(--line)]/60 mt-2">
+                  <label htmlFor="leftsidebar-atraso-de-transmissao-stream-delay" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left flex items-center gap-1.5">
+                    <Clock size={12} className="text-[var(--ink-lo)]" />
                     Atraso de Transmissão (Stream Delay)
                   </label>
-                  <p className="text-[9px] text-[#a59ebf] leading-normal text-left mb-2">
+                  <p className="text-[9px] text-[var(--ink-lo)] leading-normal text-left mb-2">
                     Adicione um atraso customizado (em segundos) para proteger sua transmissão contra "stream sniping".
                   </p>
                   <div className="flex gap-2 items-center">
-                    <input
+                    <input id="leftsidebar-atraso-de-transmissao-stream-delay"
                       type="number"
                       min="0"
                       max="300"
                       value={streamDelay}
                       onChange={(e) => setStreamDelay(Number(e.target.value) || 0)}
-                      className="w-24 bg-[#16191E] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 transition-all font-mono"
+                      className="w-24 bg-[var(--surface)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all font-mono"
                     />
-                    <span className="text-[10px] text-gray-400 font-semibold">segundos</span>
+                    <span className="text-[10px] text-[var(--ink-lo)] font-semibold">segundos</span>
                   </div>
                 </div>
 
                 {/* Quick Help Guide */}
-                <div className="p-3 bg-[#16191E] border border-slate-800/60 rounded-xl space-y-2 text-left">
+                <div className="p-3 bg-[var(--surface)] border border-[var(--line)]/60 rounded-xl space-y-2 text-left">
                   <span className="text-[9px] font-black text-blue-400 uppercase tracking-wider block">
                     Guia rápido para OBS Studio:
                   </span>
-                  <ol className="list-decimal list-inside text-[9px] text-gray-400 space-y-1 leading-normal pl-0.5">
-                    <li>Abra as <b className="text-gray-300">Configurações</b> no OBS.</li>
-                    <li>Vá para a aba <b className="text-gray-300">Transmissão</b>.</li>
-                    <li>Em Serviço, selecione <b className="text-gray-300">Personalizado...</b>.</li>
-                    <li>Cole o <b className="text-gray-300">Servidor</b> e a <b className="text-gray-300">Chave de Transmissão</b>.</li>
-                    <li>Clique em <b className="text-gray-300">Iniciar Transmissão</b> no OBS.</li>
+                  <ol className="list-decimal list-inside text-[9px] text-[var(--ink-lo)] space-y-1 leading-normal pl-0.5">
+                    <li>Abra as <b className="text-[var(--ink)]">Configurações</b> no OBS.</li>
+                    <li>Vá para a aba <b className="text-[var(--ink)]">Transmissão</b>.</li>
+                    <li>Em Serviço, selecione <b className="text-[var(--ink)]">Personalizado...</b>.</li>
+                    <li>Cole o <b className="text-[var(--ink)]">Servidor</b> e a <b className="text-[var(--ink)]">Chave de Transmissão</b>.</li>
+                    <li>Clique em <b className="text-[var(--ink)]">Iniciar Transmissão</b> no OBS.</li>
                   </ol>
                 </div>
               </div>
 
               {/* Title & Description Form */}
-              <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-4">
+              <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-4">
                 <div>
-                  <label htmlFor="title-input" className="block text-xs font-medium text-[#a59ebf] mb-1">Título do Webinar</label>
+                  <label htmlFor="title-input" className="block text-xs font-medium text-[var(--ink-lo)] mb-1">Título do Webinar</label>
                   <input
                     id="title-input"
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Insira o título da transmissão"
-                    className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all"
+                    className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="desc-input" className="block text-xs font-medium text-[#a59ebf] mb-1">Descrição</label>
+                  <label htmlFor="desc-input" className="block text-xs font-medium text-[var(--ink-lo)] mb-1">Descrição</label>
                   <textarea
                     id="desc-input"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Diga algo sobre esta transmissão..."
                     rows={3}
-                    className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all resize-none"
+                    className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all resize-none"
                   />
                 </div>
               </div>
 
               {/* Extra options */}
-              <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3">
+              <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3">
                 <div className="flex flex-col gap-2.5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-semibold text-white">Thumbnail personalizada</p>
-                      <p className="text-[9px] text-[#a59ebf]">Adicionar capa para redes sociais</p>
+                      <p className="text-xs font-semibold text-[var(--ink-hi)]">Thumbnail personalizada</p>
+                      <p className="text-[9px] text-[var(--ink-lo)]">Adicionar capa para redes sociais</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
+                      <input aria-label="Thumbnail personalizada" 
                         type="checkbox" 
                         checked={isThumbnailEnabled}
                         onChange={(e) => setIsThumbnailEnabled(e.target.checked)}
                         className="sr-only peer" 
                       />
-                      <div className="w-8 h-4.5 bg-[#16191E] border border-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[#a59ebf] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
+                      <div className="w-8 h-4.5 bg-[var(--surface)] border border-[var(--line)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[var(--ink-lo)] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
                     </label>
                   </div>
 
                   {isThumbnailEnabled && (
-                    <div className="mt-1 p-2.5 bg-[#16191E] rounded-xl border border-slate-800 flex flex-col gap-2 animate-in fade-in slide-in-from-top-1 duration-150">
-                      <p className="text-[10px] text-[#a59ebf] text-left">Gere ou baixe capas de alta resolução de 1280x720 para a sua live:</p>
+                    <div className="mt-1 p-2.5 bg-[var(--surface)] rounded-xl border border-[var(--line)] flex flex-col gap-2 animate-in fade-in slide-in-from-top-1 duration-150">
+                      <p className="text-[10px] text-[var(--ink-lo)] text-left">Gere ou baixe capas de alta resolução de 1280x720 para a sua live:</p>
                       <button
                         type="button"
                         onClick={() => setIsThumbnailModalOpen(true)}
@@ -2388,19 +2397,19 @@ export function LeftSidebar({
                   )}
                 </div>
 
-                <div className="flex items-center justify-between border-t border-slate-800/80 pt-3">
+                <div className="flex items-center justify-between border-t border-[var(--line)]/80 pt-3">
                   <div>
-                    <p className="text-xs font-semibold text-white">Agendar Webinar</p>
-                    <p className="text-[9px] text-[#a59ebf]">Marcar horário e data de início</p>
+                    <p className="text-xs font-semibold text-[var(--ink-hi)]">Agendar Webinar</p>
+                    <p className="text-[9px] text-[var(--ink-lo)]">Marcar horário e data de início</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
+                    <input aria-label="Agendar Webinar" 
                       type="checkbox" 
                       checked={isScheduleEnabled}
                       onChange={(e) => setIsScheduleEnabled(e.target.checked)}
                       className="sr-only peer" 
                     />
-                    <div className="w-8 h-4.5 bg-[#16191E] border border-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[#a59ebf] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
+                    <div className="w-8 h-4.5 bg-[var(--surface)] border border-[var(--line)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[var(--ink-lo)] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
                   </label>
                 </div>
               </div>
@@ -2414,16 +2423,16 @@ export function LeftSidebar({
         <div className="space-y-4 flex flex-col h-full">
           
           {/* Header section with brand dropdown */}
-          <div className="flex items-center justify-between bg-[#0F1115] border border-slate-800 p-2.5 rounded-xl relative">
+          <div className="flex items-center justify-between bg-[var(--bg)] border border-[var(--line)] p-2.5 rounded-xl relative">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-pink-400">
                 <Folder size={16} />
               </div>
               <div className="text-left relative">
-                <p className="text-[10px] uppercase font-bold text-gray-500 leading-none">Pasta de Ativos</p>
+                <p className="text-[10px] uppercase font-bold text-[var(--ink-dim)] leading-none">Pasta de Ativos</p>
                 <button 
                   onClick={() => setIsFolderOpen(!isFolderOpen)}
-                  className="text-xs font-bold text-white flex items-center gap-1 mt-1 hover:text-blue-400 transition-colors"
+                  className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-1 mt-1 hover:text-blue-400 transition-colors"
                 >
                   {selectedFolder}
                   <ChevronDown size={12} />
@@ -2433,7 +2442,7 @@ export function LeftSidebar({
             
             {/* Folder Dropdown selector */}
             {isFolderOpen && (
-              <div className="absolute top-12 left-2 z-50 w-48 bg-[#1E222B] border border-slate-700 rounded-xl shadow-2xl p-1.5 text-left">
+              <div className="absolute top-12 left-2 z-50 w-48 bg-[var(--panel)] border border-[var(--line-ctl)] rounded-xl shadow-2xl p-1.5 text-left">
                 {['Powerstar7', 'Webinar Studio', 'Marca Pessoal', 'Lançamentos', 'Marketing'].map(folder => (
                   <button
                     key={folder}
@@ -2442,7 +2451,7 @@ export function LeftSidebar({
                       setIsFolderOpen(false);
                     }}
                     className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between ${
-                      selectedFolder === folder ? 'bg-blue-500 text-white' : 'text-gray-300 hover:bg-slate-800'
+                      selectedFolder === folder ? 'bg-blue-500 text-white' : 'text-[var(--ink)] hover:bg-[var(--panel)]'
                     }`}
                   >
                     {folder}
@@ -2453,8 +2462,8 @@ export function LeftSidebar({
             )}
 
             <button 
-              onClick={() => alert("Criar nova pasta de ativos gráficos para organizar outros webinar-packs!")}
-              className="p-1.5 rounded-lg bg-[#16191E] hover:bg-slate-800 text-gray-400 hover:text-white border border-slate-800 transition-all"
+              onClick={() => toast.success("Criar nova pasta de ativos gráficos para organizar outros webinar-packs!")}
+              className="p-1.5 rounded-lg bg-[var(--surface)] hover:bg-[var(--panel)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] border border-[var(--line)] transition-all"
               title="Nova Coleção"
             >
               <Plus size={14} />
@@ -2463,10 +2472,10 @@ export function LeftSidebar({
 
           {/* Edit Theme wide button */}
           <button 
-            onClick={() => alert("As cores principais da marca e os estilos tipográficos dos letreiros foram movidos para a aba dedicada 'Temas' no menu vertical do painel!")}
-            className="w-full touch-action-btn py-2.5 bg-[#252A35] hover:bg-[#323846] text-white text-xs font-bold rounded-xl transition-all border border-slate-700/80 flex items-center justify-center gap-1.5 shadow-md"
+            onClick={() => toast.success("As cores principais da marca e os estilos tipográficos dos letreiros foram movidos para a aba dedicada 'Temas' no menu vertical do painel!")}
+            className="w-full touch-action-btn py-2.5 bg-[var(--raise)] hover:bg-[var(--raise)] text-[var(--ink-hi)] text-xs font-bold rounded-xl transition-all border border-[var(--line-ctl)]/80 flex items-center justify-center gap-1.5 shadow-md"
           >
-            <Settings size={14} className="text-[#4683E0]" />
+            <Settings size={14} className="text-[var(--color-brand)]" />
             Editar Aparência (Tema)
           </button>
 
@@ -2475,15 +2484,15 @@ export function LeftSidebar({
             
             {/* LOGO SECTION */}
             {activeTab === 'design' && (
-              <div className="bg-[#0F1115] border border-slate-800/80 rounded-xl overflow-hidden">
+              <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl overflow-hidden">
                 <div 
                   onClick={() => setIsLogoOpen(!isLogoOpen)}
-                  className="w-full p-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-all select-none cursor-pointer"
+                  className="w-full p-3 flex items-center justify-between text-left hover:bg-[var(--panel)]/30 transition-all select-none cursor-pointer"
                 >
-                  <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                     {isLogoOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                     Logotipo
-                    <HelpCircle size={12} className="text-gray-500" title="Exibido no canto superior direito do seu webinar. Clique no logo ativo para esconder do estúdio." />
+                    <span title="Exibido no canto superior direito do seu webinar. Clique no logo ativo para esconder do estúdio." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                   </span>
                   
                   {/* Action buttons in header */}
@@ -2495,7 +2504,7 @@ export function LeftSidebar({
                       className={`px-1.5 py-0.5 rounded border text-[9px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
                         activeLogo 
                           ? 'bg-blue-500/20 border-blue-500/60 text-blue-400 hover:bg-blue-500/30' 
-                          : 'bg-[#16191E] border-slate-700 text-gray-500 hover:text-gray-300 hover:border-slate-600'
+                          : 'bg-[var(--surface)] border-[var(--line-ctl)] text-[var(--ink-dim)] hover:text-[var(--ink)] hover:border-[var(--line-ctl)]'
                       }`}
                       title={activeLogo ? "Clique para esconder o logotipo do estúdio" : "Clique para exibir o logotipo no estúdio"}
                     >
@@ -2508,7 +2517,7 @@ export function LeftSidebar({
                       <button
                         type="button"
                         onClick={() => window.dispatchEvent(new CustomEvent('studio-logo-pos-set', { detail: { pos: { x: 86, y: 4 } } }))}
-                        className="w-4 h-4 rounded border border-slate-700 hover:border-blue-500 hover:text-blue-400 flex items-center justify-center text-[8px] font-bold text-gray-400 transition-colors cursor-pointer"
+                        className="w-4 h-4 rounded border border-[var(--line-ctl)] hover:border-blue-500 hover:text-blue-400 flex items-center justify-center text-[8px] font-bold text-[var(--ink-lo)] transition-colors cursor-pointer"
                         title="Fixar no Topo Direito (TR)"
                       >
                         TR
@@ -2516,7 +2525,7 @@ export function LeftSidebar({
                       <button
                         type="button"
                         onClick={() => window.dispatchEvent(new CustomEvent('studio-logo-pos-set', { detail: { pos: { x: 4, y: 4 } } }))}
-                        className="w-4 h-4 rounded border border-slate-700 hover:border-blue-500 hover:text-blue-400 flex items-center justify-center text-[8px] font-bold text-gray-400 transition-colors cursor-pointer"
+                        className="w-4 h-4 rounded border border-[var(--line-ctl)] hover:border-blue-500 hover:text-blue-400 flex items-center justify-center text-[8px] font-bold text-[var(--ink-lo)] transition-colors cursor-pointer"
                         title="Fixar no Topo Esquerdo (TL)"
                       >
                         TL
@@ -2526,8 +2535,8 @@ export function LeftSidebar({
                 </div>
 
                 {isLogoOpen && (
-                  <div className="p-3 bg-[#16191E]/30 border-t border-slate-800/60 space-y-2">
-                    <div className="flex items-center justify-between text-[10px] text-gray-400 pb-0.5">
+                  <div className="p-3 bg-[var(--surface)]/30 border-t border-[var(--line)]/60 space-y-2">
+                    <div className="flex items-center justify-between text-[10px] text-[var(--ink-lo)] pb-0.5">
                       <span>Clique na logo para <strong>exibir ou esconder</strong> do estúdio</span>
                       {activeLogo && (
                         <button
@@ -2544,7 +2553,7 @@ export function LeftSidebar({
                       <button 
                         type="button"
                         onClick={() => logoInputRef.current?.click()}
-                        className="aspect-square bg-[#0F1115] hover:bg-blue-500/10 rounded-lg border-2 border-dashed border-slate-800 flex flex-col items-center justify-center text-gray-500 hover:text-blue-400 transition-all group cursor-pointer"
+                        className="aspect-square bg-[var(--bg)] hover:bg-blue-500/10 rounded-lg border-2 border-dashed border-[var(--line)] flex flex-col items-center justify-center text-[var(--ink-dim)] hover:text-blue-400 transition-all group cursor-pointer"
                         title="Enviar novo logotipo"
                       >
                         <Plus size={16} className="group-hover:scale-110 transition-transform" />
@@ -2566,10 +2575,10 @@ export function LeftSidebar({
                             key={tmpl.id}
                             type="button"
                             onClick={() => setActiveLogo(isActive ? '' : tmpl.url)}
-                            className={`group aspect-square bg-[#0F1115] rounded-lg p-1.5 border flex items-center justify-center transition-all overflow-hidden relative cursor-pointer ${
+                            className={`group aspect-square bg-[var(--bg)] rounded-lg p-1.5 border flex items-center justify-center transition-all overflow-hidden relative cursor-pointer ${
                               isActive 
                                 ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-500/5' 
-                                : 'border-slate-800 hover:border-slate-700'
+                                : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                             }`}
                             title={isActive ? "Ativo no estúdio - Clique para esconder" : "Clique para exibir no estúdio"}
                           >
@@ -2579,7 +2588,7 @@ export function LeftSidebar({
                               className="max-w-full max-h-full object-contain"
                             />
                             {isActive && (
-                              <div className="absolute top-1 left-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-[#0F1115] shadow"></div>
+                              <div className="absolute top-1 left-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-[var(--bg)] shadow"></div>
                             )}
                             <div 
                               onClick={(e) => { e.stopPropagation(); deleteCustomLogo(tmpl.id); }}
@@ -2600,10 +2609,10 @@ export function LeftSidebar({
                             key={tmpl.id}
                             type="button"
                             onClick={() => setActiveLogo(isActive ? '' : tmpl.url)}
-                            className={`group aspect-square bg-[#0F1115] rounded-lg p-1.5 border flex items-center justify-center transition-all overflow-hidden relative cursor-pointer ${
+                            className={`group aspect-square bg-[var(--bg)] rounded-lg p-1.5 border flex items-center justify-center transition-all overflow-hidden relative cursor-pointer ${
                               isActive 
                                 ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-500/5' 
-                                : 'border-slate-800 hover:border-slate-700'
+                                : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                             }`}
                             title={isActive ? "Ativo no estúdio - Clique para esconder" : "Clique para exibir no estúdio"}
                           >
@@ -2614,7 +2623,7 @@ export function LeftSidebar({
                               referrerPolicy="no-referrer"
                             />
                             {isActive && (
-                              <div className="absolute top-1 left-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-[#0F1115] shadow"></div>
+                              <div className="absolute top-1 left-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-[var(--bg)] shadow"></div>
                             )}
                             <div 
                               onClick={(e) => { e.stopPropagation(); hideTemplate(tmpl.id); }}
@@ -2634,15 +2643,15 @@ export function LeftSidebar({
 
             {/* WATERMARK SECTION */}
             {activeTab === 'design' && (
-              <div className="bg-[#0F1115] border border-slate-800/80 rounded-xl overflow-hidden">
+              <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl overflow-hidden">
                 <div 
                   onClick={() => setIsWatermarkOpen(!isWatermarkOpen)}
-                  className="w-full p-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-all select-none cursor-pointer"
+                  className="w-full p-3 flex items-center justify-between text-left hover:bg-[var(--panel)]/30 transition-all select-none cursor-pointer"
                 >
-                  <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                     {isWatermarkOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                     Marca D'água
-                    <HelpCircle size={12} className="text-gray-500" title="Logo semitransparente fixado no canto. Clique na marca ativa para esconder do estúdio." />
+                    <span title="Logo semitransparente fixado no canto. Clique na marca ativa para esconder do estúdio." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                   </span>
 
                   {/* Header action button */}
@@ -2653,7 +2662,7 @@ export function LeftSidebar({
                       className={`px-1.5 py-0.5 rounded border text-[9px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
                         activeWatermark 
                           ? 'bg-blue-500/20 border-blue-500/60 text-blue-400 hover:bg-blue-500/30' 
-                          : 'bg-[#16191E] border-slate-700 text-gray-500 hover:text-gray-300 hover:border-slate-600'
+                          : 'bg-[var(--surface)] border-[var(--line-ctl)] text-[var(--ink-dim)] hover:text-[var(--ink)] hover:border-[var(--line-ctl)]'
                       }`}
                       title={activeWatermark ? "Clique para esconder a marca d'água do estúdio" : "Clique para exibir a marca d'água no estúdio"}
                     >
@@ -2664,8 +2673,8 @@ export function LeftSidebar({
                 </div>
 
                 {isWatermarkOpen && (
-                  <div className="p-3 bg-[#16191E]/30 border-t border-slate-800/60 space-y-2">
-                    <div className="flex items-center justify-between text-[10px] text-gray-400 pb-0.5">
+                  <div className="p-3 bg-[var(--surface)]/30 border-t border-[var(--line)]/60 space-y-2">
+                    <div className="flex items-center justify-between text-[10px] text-[var(--ink-lo)] pb-0.5">
                       <span>Clique na marca d'água para <strong>exibir ou esconder</strong> do estúdio</span>
                       {activeWatermark && (
                         <button
@@ -2681,7 +2690,7 @@ export function LeftSidebar({
                       <button 
                         type="button"
                         onClick={() => watermarkInputRef.current?.click()}
-                        className="aspect-square bg-[#0F1115] hover:bg-blue-500/10 rounded-lg border-2 border-dashed border-slate-800 flex flex-col items-center justify-center text-gray-500 hover:text-blue-400 transition-all group cursor-pointer"
+                        className="aspect-square bg-[var(--bg)] hover:bg-blue-500/10 rounded-lg border-2 border-dashed border-[var(--line)] flex flex-col items-center justify-center text-[var(--ink-dim)] hover:text-blue-400 transition-all group cursor-pointer"
                         title="Enviar nova marca d'água"
                       >
                         <Plus size={16} className="group-hover:scale-110 transition-transform" />
@@ -2702,10 +2711,10 @@ export function LeftSidebar({
                             key={tmpl.id}
                             type="button"
                             onClick={() => setActiveWatermark(isActive ? '' : tmpl.url)}
-                            className={`group aspect-square bg-[#0F1115] rounded-lg p-1.5 border flex items-center justify-center transition-all overflow-hidden relative cursor-pointer ${
+                            className={`group aspect-square bg-[var(--bg)] rounded-lg p-1.5 border flex items-center justify-center transition-all overflow-hidden relative cursor-pointer ${
                               isActive 
                                 ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-500/5' 
-                                : 'border-slate-800 hover:border-slate-700'
+                                : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                             }`}
                             title={isActive ? "Ativo no estúdio - Clique para esconder" : "Clique para exibir no estúdio"}
                           >
@@ -2715,7 +2724,7 @@ export function LeftSidebar({
                               className="max-w-full max-h-full object-contain opacity-50"
                             />
                             {isActive && (
-                              <div className="absolute top-1 left-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-[#0F1115] shadow"></div>
+                              <div className="absolute top-1 left-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-[var(--bg)] shadow"></div>
                             )}
                             <div 
                               onClick={(e) => { e.stopPropagation(); deleteCustomWatermark(tmpl.id); }}
@@ -2735,15 +2744,15 @@ export function LeftSidebar({
 
             {/* OVERLAY SECTION */}
             {activeTab === 'design' && (
-              <div className="bg-[#0F1115] border border-slate-800/80 rounded-xl overflow-hidden">
+              <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl overflow-hidden">
                 <div 
                   onClick={() => setIsOverlayOpen(!isOverlayOpen)}
-                  className="w-full p-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-all select-none cursor-pointer"
+                  className="w-full p-3 flex items-center justify-between text-left hover:bg-[var(--panel)]/30 transition-all select-none cursor-pointer"
                 >
-                  <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                     {isOverlayOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                     Overlay Transparente
-                    <HelpCircle size={12} className="text-gray-500" title="Molduras e elementos transparentes que cobrem a stream inteira. Clique no overlay ativo para esconder do estúdio." />
+                    <span title="Molduras e elementos transparentes que cobrem a stream inteira. Clique no overlay ativo para esconder do estúdio." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                   </span>
 
                   {/* Header action button */}
@@ -2754,7 +2763,7 @@ export function LeftSidebar({
                       className={`px-1.5 py-0.5 rounded border text-[9px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
                         activeOverlay 
                           ? 'bg-blue-500/20 border-blue-500/60 text-blue-400 hover:bg-blue-500/30' 
-                          : 'bg-[#16191E] border-slate-700 text-gray-500 hover:text-gray-300 hover:border-slate-600'
+                          : 'bg-[var(--surface)] border-[var(--line-ctl)] text-[var(--ink-dim)] hover:text-[var(--ink)] hover:border-[var(--line-ctl)]'
                       }`}
                       title={activeOverlay ? "Clique para esconder o overlay do estúdio" : "Clique para exibir o overlay no estúdio"}
                     >
@@ -2765,8 +2774,8 @@ export function LeftSidebar({
                 </div>
 
                 {isOverlayOpen && (
-                  <div className="p-3 bg-[#16191E]/30 border-t border-slate-800/60 space-y-2">
-                    <div className="flex items-center justify-between text-[10px] text-gray-400 pb-0.5">
+                  <div className="p-3 bg-[var(--surface)]/30 border-t border-[var(--line)]/60 space-y-2">
+                    <div className="flex items-center justify-between text-[10px] text-[var(--ink-lo)] pb-0.5">
                       <span>Clique na moldura para <strong>aplicar ou esconder</strong> do estúdio</span>
                       {activeOverlay && (
                         <button
@@ -2783,7 +2792,7 @@ export function LeftSidebar({
                       <button 
                         type="button"
                         onClick={() => overlayInputRef.current?.click()}
-                        className="aspect-video bg-[#0F1115] hover:bg-blue-500/10 rounded-lg border-2 border-dashed border-slate-800 flex flex-col items-center justify-center text-gray-500 hover:text-blue-400 transition-all group p-1 cursor-pointer"
+                        className="aspect-video bg-[var(--bg)] hover:bg-blue-500/10 rounded-lg border-2 border-dashed border-[var(--line)] flex flex-col items-center justify-center text-[var(--ink-dim)] hover:text-blue-400 transition-all group p-1 cursor-pointer"
                         title="Enviar nova moldura"
                       >
                         <Plus size={16} className="group-hover:scale-110 transition-transform" />
@@ -2804,7 +2813,7 @@ export function LeftSidebar({
                         className={`aspect-video rounded-lg border transition-all flex flex-col items-center justify-center text-[10px] font-bold cursor-pointer ${
                           activeOverlay === '' 
                             ? 'bg-blue-500/10 border-blue-500 text-blue-400' 
-                            : 'bg-[#0F1115] border-slate-800 text-gray-500 hover:border-slate-700 hover:text-white'
+                            : 'bg-[var(--bg)] border-[var(--line)] text-[var(--ink-dim)] hover:border-[var(--line-ctl)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
                         Nenhum overlay
@@ -2818,19 +2827,19 @@ export function LeftSidebar({
                             key={tmpl.id}
                             type="button"
                             onClick={() => setActiveOverlay(isActive ? '' : tmpl.url)}
-                            className={`group aspect-video bg-[#0F1115] rounded-lg p-1 border flex flex-col items-center justify-center transition-all relative overflow-hidden cursor-pointer ${
-                              isActive ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-500/5' : 'border-slate-800 hover:border-slate-700'
+                            className={`group aspect-video bg-[var(--bg)] rounded-lg p-1 border flex flex-col items-center justify-center transition-all relative overflow-hidden cursor-pointer ${
+                              isActive ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-500/5' : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                             }`}
                             title={isActive ? "Ativo no estúdio - Clique para esconder" : `Aplicar: ${tmpl.name}`}
                           >
-                            <img src={tmpl.url} alt={tmpl.name} className="w-full h-full object-contain bg-slate-800/30 rounded" onError={(e) => {
+                            <img src={tmpl.url} alt={tmpl.name} className="w-full h-full object-contain bg-[var(--panel)]/30 rounded" onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                                 (e.target as HTMLImageElement).parentElement?.classList.add('error-state');
                               }} />
                             <div className="hidden [.error-state_&]:flex absolute inset-0">
                               <ImagePlaceholder onReupload={() => bgInputRef.current?.click()} className="w-full h-full rounded-none border-none p-1" />
                             </div>
-                            <div className={`absolute top-1 left-1 w-3.5 h-2.5 rounded bg-slate-700/80 border border-slate-600 flex items-center justify-center`}>
+                            <div className={`absolute top-1 left-1 w-3.5 h-2.5 rounded bg-[var(--raise)]/80 border border-[var(--line-ctl)] flex items-center justify-center`}>
                               <div className={`w-1.5 h-1 rounded-sm ${isActive ? 'bg-blue-500' : 'bg-gray-500'}`}></div>
                             </div>
                             <div 
@@ -2852,16 +2861,16 @@ export function LeftSidebar({
                             key={tmpl.id}
                             type="button"
                             onClick={() => setActiveOverlay(isActive ? '' : tmpl.url)}
-                            className={`group aspect-video bg-[#0F1115] rounded-lg p-1 border flex flex-col items-center justify-center transition-all relative overflow-hidden cursor-pointer ${
-                              isActive ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-500/5' : 'border-slate-800 hover:border-slate-700'
+                            className={`group aspect-video bg-[var(--bg)] rounded-lg p-1 border flex flex-col items-center justify-center transition-all relative overflow-hidden cursor-pointer ${
+                              isActive ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-500/5' : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                             }`}
                             title={isActive ? "Ativo no estúdio - Clique para esconder" : `Aplicar: ${tmpl.name}`}
                           >
-                            <div className="w-full h-full bg-slate-800/30 flex items-center justify-center rounded">
-                              <span className="text-[9px] font-bold text-gray-400 truncate max-w-[120px] px-1">{tmpl.name}</span>
+                            <div className="w-full h-full bg-[var(--panel)]/30 flex items-center justify-center rounded">
+                              <span className="text-[9px] font-bold text-[var(--ink-lo)] truncate max-w-[120px] px-1">{tmpl.name}</span>
                             </div>
                             {/* Layout mini overlay webcam icon on top-right as seen in Restream UI */}
-                            <div className="absolute top-1 left-1 w-3.5 h-2.5 rounded bg-slate-700/80 border border-slate-600 flex items-center justify-center">
+                            <div className="absolute top-1 left-1 w-3.5 h-2.5 rounded bg-[var(--raise)]/80 border border-[var(--line-ctl)] flex items-center justify-center">
                               <div className="w-1.5 h-1 bg-blue-500 rounded-sm"></div>
                             </div>
                             <div 
@@ -2883,20 +2892,20 @@ export function LeftSidebar({
             {/* VIDEO CLIPS SECTION */}
             {activeTab === 'video' && (
               <div className="space-y-4">
-                <div className="bg-[#0F1115] border border-slate-800/80 rounded-xl overflow-hidden">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl overflow-hidden">
                   <button 
                     onClick={() => setIsVideoOpen(!isVideoOpen)}
-                    className="w-full p-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-all select-none"
+                    className="w-full p-3 flex items-center justify-between text-left hover:bg-[var(--panel)]/30 transition-all select-none"
                   >
-                    <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                       {isVideoOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                       Videoclipes (Intro/Outro)
-                      <HelpCircle size={12} className="text-gray-500" title="Clipes curtos que cobrem todo o palco, como contagens e intros." />
+                      <span title="Clipes curtos que cobrem todo o palco, como contagens e intros." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                     </span>
                   </button>
 
                   {isVideoOpen && (
-                    <div className="p-3 bg-[#16191E]/30 border-t border-slate-800/60 space-y-3">
+                    <div className="p-3 bg-[var(--surface)]/30 border-t border-[var(--line)]/60 space-y-3">
                       {/* Drag & Drop Upload Zone */}
                       <div
                         onDragOver={handleVideoDragOver}
@@ -2906,7 +2915,7 @@ export function LeftSidebar({
                         className={`relative rounded-xl border-2 border-dashed p-3.5 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-1.5 select-none ${
                           isDraggingVideo
                             ? 'border-blue-500 bg-blue-500/15 ring-2 ring-blue-500/30 scale-[1.01]'
-                            : 'border-slate-800 bg-[#0F1115] hover:border-blue-500/50 hover:bg-slate-800/40'
+                            : 'border-[var(--line)] bg-[var(--bg)] hover:border-blue-500/50 hover:bg-[var(--panel)]/40'
                         }`}
                       >
                         <input 
@@ -2921,22 +2930,22 @@ export function LeftSidebar({
                         {isCloudUploading ? (
                           <div className="flex flex-col items-center gap-1 py-1">
                             <Upload size={18} className="text-blue-400 animate-bounce" />
-                            <span className="text-xs font-bold text-white">Carregando vídeo...</span>
-                            <span className="text-[10px] text-gray-400">Adicionando à biblioteca de mídia</span>
+                            <span className="text-xs font-bold text-[var(--ink-hi)]">Carregando vídeo...</span>
+                            <span className="text-[10px] text-[var(--ink-lo)]">Adicionando à biblioteca de mídia</span>
                           </div>
                         ) : isDraggingVideo ? (
                           <div className="flex flex-col items-center gap-1 py-1">
                             <Upload size={22} className="text-blue-400 animate-bounce" />
                             <span className="text-xs font-black text-blue-400 uppercase tracking-wider">Solte os vídeos aqui</span>
-                            <span className="text-[10px] text-gray-300">Suporta MP4, WebM, MOV, AVI</span>
+                            <span className="text-[10px] text-[var(--ink)]">Suporta MP4, WebM, MOV, AVI</span>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center gap-1">
                             <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-0.5">
                               <Film size={16} />
                             </div>
-                            <span className="text-xs font-bold text-white">Arraste seus vídeos aqui</span>
-                            <span className="text-[10px] text-gray-400">ou clique para escolher do PC (MP4, WebM, MOV)</span>
+                            <span className="text-xs font-bold text-[var(--ink-hi)]">Arraste seus vídeos aqui</span>
+                            <span className="text-[10px] text-[var(--ink-lo)]">ou clique para escolher do PC (MP4, WebM, MOV)</span>
                           </div>
                         )}
                       </div>
@@ -2944,10 +2953,10 @@ export function LeftSidebar({
                       {/* Video list grid */}
                       <div className="grid grid-cols-2 gap-2">
                         {videoClips.length === 0 ? (
-                          <div className="col-span-2 text-center py-4 px-2 bg-[#0F1115] border border-slate-800 rounded-lg text-gray-400 text-xs">
-                            <Film size={18} className="mx-auto mb-1 text-slate-500" />
-                            <p className="font-semibold text-slate-300">Nenhum vídeo salvo</p>
-                            <p className="text-[10px] text-slate-500 mt-0.5">Faça upload de vídeos (MP4, WebM, MOV) para transmitir no estúdio.</p>
+                          <div className="col-span-2 text-center py-4 px-2 bg-[var(--bg)] border border-[var(--line)] rounded-lg text-[var(--ink-lo)] text-xs">
+                            <Film size={18} className="mx-auto mb-1 text-[var(--ink-dim)]" />
+                            <p className="font-semibold text-[var(--ink)]">Nenhum vídeo salvo</p>
+                            <p className="text-[10px] text-[var(--ink-dim)] mt-0.5">Faça upload de vídeos (MP4, WebM, MOV) para transmitir no estúdio.</p>
                           </div>
                         ) : (
                           videoClips.map(clip => {
@@ -2955,10 +2964,10 @@ export function LeftSidebar({
                             return (
                             <div
                               key={clip.id}
-                              className={`group aspect-video bg-[#0F1115] rounded-lg p-1 border flex flex-col items-center justify-between transition-all relative overflow-hidden text-left ${
+                              className={`group aspect-video bg-[var(--bg)] rounded-lg p-1 border flex flex-col items-center justify-between transition-all relative overflow-hidden text-left ${
                                 isPlaying 
                                   ? 'border-blue-500 ring-1 ring-blue-500/20' 
-                                  : 'border-slate-800 hover:border-slate-700'
+                                  : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                               }`}
                             >
                               {/* Video Mock Thumbnail with dark cover */}
@@ -2972,7 +2981,7 @@ export function LeftSidebar({
                                     e.stopPropagation();
                                     deleteVideoClip(clip.id);
                                   }}
-                                  className="absolute top-1 right-1 z-20 w-5 h-5 rounded bg-black/80 hover:bg-red-600 text-gray-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                                  className="absolute top-1 right-1 z-20 w-5 h-5 rounded bg-black/80 hover:bg-red-600 text-[var(--ink)] hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                                   title="Excluir vídeo da biblioteca"
                                 >
                                   <Trash2 size={10} />
@@ -2980,7 +2989,7 @@ export function LeftSidebar({
                               )}
 
                               {/* Video label metadata overlay */}
-                              <span className="relative z-10 text-[8px] bg-black/60 text-white px-1 py-0.5 rounded-sm font-mono mt-1 ml-1">
+                              <span className="relative z-10 text-[8px] bg-black/60 text-[var(--ink-hi)] px-1 py-0.5 rounded-sm font-mono mt-1 ml-1">
                                 {clip.duration}
                               </span>
 
@@ -2990,7 +2999,7 @@ export function LeftSidebar({
                                 className="relative z-10 w-full flex items-end justify-between p-1 cursor-pointer"
                                 title={`Clique para transmitir: ${clip.name}`}
                               >
-                                <p className="text-[9px] font-bold text-white truncate max-w-[90px] leading-tight drop-shadow">
+                                <p className="text-[9px] font-bold text-[var(--ink-hi)] truncate max-w-[90px] leading-tight drop-shadow">
                                   {clip.name}
                                 </p>
                                 <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${isPlaying ? 'bg-red-600 text-white animate-pulse' : 'bg-blue-500 text-white'}`}>
@@ -3006,41 +3015,41 @@ export function LeftSidebar({
                 </div>
 
                 {/* TRILHA SONORA INTEGRADA */}
-                <div className="bg-[#0F1115] border border-slate-800/80 rounded-xl overflow-hidden text-left">
-                  <div className="p-3 border-b border-slate-800/60 bg-[#16191E]/25">
-                    <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5 uppercase tracking-wider">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl overflow-hidden text-left">
+                  <div className="p-3 border-b border-[var(--line)]/60 bg-[var(--surface)]/25">
+                    <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                       <Music size={14} className="text-blue-500" />
                       Trilha Sonora
                     </span>
                   </div>
 
-                  <div className="p-3 bg-[#16191E]/30 space-y-4">
+                  <div className="p-3 bg-[var(--surface)]/30 space-y-4">
                     {/* Music Controller Block */}
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Volume do Áudio</span>
-                        <span className="text-xs text-gray-400 font-mono">{Math.round(volume * 100)}%</span>
+                        <label htmlFor="leftsidebar-volume-do-audio" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Volume do Áudio</label>
+                        <span className="text-xs text-[var(--ink-lo)] font-mono">{Math.round(volume * 100)}%</span>
                       </div>
-                      <input
+                      <input id="leftsidebar-volume-do-audio"
                         type="range"
                         min="0"
                         max="1"
                         step="0.01"
                         value={volume}
                         onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
-                        className="w-full accent-[#4683E0] cursor-pointer h-1.5 rounded-lg bg-gray-700"
+                        className="w-full accent-[var(--color-brand)] cursor-pointer h-1.5 rounded-lg bg-[var(--raise)]"
                       />
 
                       <div className="flex items-center justify-between pt-1">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Loop Contínuo</span>
+                        <span className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Loop Contínuo</span>
                         <label className="relative inline-flex items-center cursor-pointer">
-                          <input 
+                          <input aria-label="Loop Contínuo" 
                             type="checkbox" 
                             checked={musicLoop}
                             onChange={(e) => setMusicLoop(e.target.checked)}
                             className="sr-only peer" 
                           />
-                          <div className="w-8 h-4.5 bg-[#16191E] border border-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[#a59ebf] peer-checked:after:bg-[#4683E0] after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
+                          <div className="w-8 h-4.5 bg-[var(--surface)] border border-[var(--line)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[var(--ink-lo)] peer-checked:after:bg-[var(--color-brand-deep)] after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
                         </label>
                       </div>
                     </div>
@@ -3049,7 +3058,7 @@ export function LeftSidebar({
                       <div className="flex gap-2">
                         <button 
                           onClick={() => audioInputRef.current?.click()}
-                          className="flex-1 p-2 bg-[#0F1115] hover:bg-blue-500/10 rounded-lg border-2 border-dashed border-slate-800 flex items-center justify-center text-gray-500 hover:text-blue-400 transition-all text-xs font-bold gap-2"
+                          className="flex-1 p-2 bg-[var(--bg)] hover:bg-blue-500/10 rounded-lg border-2 border-dashed border-[var(--line)] flex items-center justify-center text-[var(--ink-dim)] hover:text-blue-400 transition-all text-xs font-bold gap-2"
                         >
                           <Plus size={14} /> Upload Audio
                         </button>
@@ -3063,10 +3072,10 @@ export function LeftSidebar({
                       </div>
                       
                       {[...customAudios, ...AUDIO_LIBRARY].length === 0 ? (
-                        <div className="text-center py-4 px-2 bg-[#0F1115] border border-slate-800 rounded-lg text-gray-400 text-xs">
-                          <Music size={18} className="mx-auto mb-1 text-slate-500" />
-                          <p className="font-semibold text-slate-300">Nenhum áudio enviado</p>
-                          <p className="text-[10px] text-slate-500 mt-0.5">Faça upload do seu arquivo de áudio (MP3, WAV) para reproduzir na transmissão.</p>
+                        <div className="text-center py-4 px-2 bg-[var(--bg)] border border-[var(--line)] rounded-lg text-[var(--ink-lo)] text-xs">
+                          <Music size={18} className="mx-auto mb-1 text-[var(--ink-dim)]" />
+                          <p className="font-semibold text-[var(--ink)]">Nenhum áudio enviado</p>
+                          <p className="text-[10px] text-[var(--ink-dim)] mt-0.5">Faça upload do seu arquivo de áudio (MP3, WAV) para reproduzir na transmissão.</p>
                         </div>
                       ) : (
                         [...customAudios, ...AUDIO_LIBRARY].map(track => {
@@ -3077,13 +3086,13 @@ export function LeftSidebar({
                               onClick={() => onPlayTrack(track.id)}
                               className={`group flex items-center justify-between p-2 rounded-lg border transition-all cursor-pointer ${
                                 isCurrent 
-                                  ? 'bg-blue-500/15 border-blue-500 text-white' 
-                                  : 'bg-[#0F1115] border-slate-800 text-gray-300 hover:border-slate-700'
+                                  ? 'bg-blue-500/15 border-blue-500 text-[var(--ink-hi)]' 
+                                  : 'bg-[var(--bg)] border-[var(--line)] text-[var(--ink)] hover:border-[var(--line-ctl)]'
                               }`}
                             >
                               <div className="flex items-center gap-2 overflow-hidden flex-1">
                                 <div className={`w-6 h-6 rounded flex items-center justify-center shrink-0 ${
-                                  isCurrent ? 'bg-blue-500 text-white' : 'bg-[#16191E] text-[#4683E0]'
+                                  isCurrent ? 'bg-blue-500 text-white' : 'bg-[var(--surface)] text-[var(--color-brand)]'
                                 }`}>
                                   <Music size={11} />
                                 </div>
@@ -3096,19 +3105,19 @@ export function LeftSidebar({
                                   <button
                                     type="button"
                                     onClick={(e) => { e.stopPropagation(); deleteCustomAudio(track.id); }}
-                                    className="w-6 h-6 bg-[#0F1115] hover:bg-red-500 hover:text-white rounded flex items-center justify-center transition-colors text-red-400 opacity-0 group-hover:opacity-100"
+                                    className="w-6 h-6 bg-[var(--bg)] hover:bg-red-500 hover:text-white rounded flex items-center justify-center transition-colors text-red-400 opacity-0 group-hover:opacity-100"
                                     title="Remover"
                                   >
                                     <Trash2 size={12} />
                                   </button>
                                 )}
-                                <button
+                                <button aria-label={isCurrent ? `Pausar ${track.name}` : `Tocar ${track.name}`} aria-pressed={isCurrent}
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); onPlayTrack(isCurrent ? null : track.id); }}
                                   className={`p-1 rounded-full transition-all shrink-0 ${
                                     isCurrent 
                                       ? 'bg-blue-500 text-white hover:bg-blue-400' 
-                                      : 'bg-[#16191E] hover:bg-blue-500 hover:text-white text-gray-300'
+                                      : 'bg-[var(--surface)] hover:bg-blue-500 hover:text-white text-[var(--ink)]'
                                   }`}
                                 >
                                   {isCurrent ? <Pause size={10} /> : <Play size={10} className="ml-[1px]" />}
@@ -3127,15 +3136,15 @@ export function LeftSidebar({
             {/* BACKGROUND SECTION */}
             {activeTab === 'design' && (
               <>
-                <div className="bg-[#0F1115] border border-slate-800/80 rounded-xl overflow-hidden">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl overflow-hidden">
                   <div 
                     onClick={() => setIsBgOpen(!isBgOpen)}
-                    className="w-full p-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-all select-none cursor-pointer"
+                    className="w-full p-3 flex items-center justify-between text-left hover:bg-[var(--panel)]/30 transition-all select-none cursor-pointer"
                   >
-                    <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                       {isBgOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                       Plano de Fundo (Backdrops)
-                      <HelpCircle size={12} className="text-gray-500" title="Exibido atrás das câmeras dos palestrantes. Clique no plano ativo para esconder do estúdio." />
+                      <span title="Exibido atrás das câmeras dos palestrantes. Clique no plano ativo para esconder do estúdio." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                     </span>
 
                     {/* Action buttons in header */}
@@ -3146,7 +3155,7 @@ export function LeftSidebar({
                         className={`px-1.5 py-0.5 rounded border text-[9px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
                           activeBackground 
                             ? 'bg-blue-500/20 border-blue-500/60 text-blue-400 hover:bg-blue-500/30' 
-                            : 'bg-[#16191E] border-slate-700 text-gray-500 hover:text-gray-300 hover:border-slate-600'
+                            : 'bg-[var(--surface)] border-[var(--line-ctl)] text-[var(--ink-dim)] hover:text-[var(--ink)] hover:border-[var(--line-ctl)]'
                         }`}
                         title={activeBackground ? "Clique para esconder o plano de fundo do estúdio" : "Clique para exibir o plano de fundo no estúdio"}
                       >
@@ -3157,8 +3166,8 @@ export function LeftSidebar({
                   </div>
 
                   {isBgOpen && (
-                    <div className="p-3 bg-[#16191E]/30 border-t border-slate-800/60 space-y-2">
-                      <div className="flex items-center justify-between text-[10px] text-gray-400 pb-0.5">
+                    <div className="p-3 bg-[var(--surface)]/30 border-t border-[var(--line)]/60 space-y-2">
+                      <div className="flex items-center justify-between text-[10px] text-[var(--ink-lo)] pb-0.5">
                         <span>Clique no plano de fundo para <strong>aplicar ou esconder</strong> do estúdio</span>
                         {activeBackground && (
                           <button
@@ -3175,7 +3184,7 @@ export function LeftSidebar({
                         <button 
                           type="button"
                           onClick={() => bgInputRef.current?.click()}
-                          className="aspect-video bg-[#0F1115] hover:bg-blue-500/10 rounded-lg border-2 border-dashed border-slate-800 flex flex-col items-center justify-center text-gray-500 hover:text-blue-400 transition-all group cursor-pointer"
+                          className="aspect-video bg-[var(--bg)] hover:bg-blue-500/10 rounded-lg border-2 border-dashed border-[var(--line)] flex flex-col items-center justify-center text-[var(--ink-dim)] hover:text-blue-400 transition-all group cursor-pointer"
                           title="Enviar novo plano de fundo"
                         >
                           <Plus size={14} className="group-hover:scale-110 transition-transform" />
@@ -3199,7 +3208,7 @@ export function LeftSidebar({
                               onClick={() => setActiveBackground(isActive ? '' : tmpl.url)}
                               style={{ backgroundImage: `url(${tmpl.url})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
                               className={`group aspect-video rounded-lg border transition-all relative overflow-hidden cursor-pointer ${
-                                isActive ? 'border-blue-500 ring-2 ring-blue-500/30 shadow-md' : 'border-slate-800 hover:border-slate-700'
+                                isActive ? 'border-blue-500 ring-2 ring-blue-500/30 shadow-md' : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
                               }`}
                               title={isActive ? "Ativo no estúdio - Clique para esconder" : `Aplicar: ${tmpl.name}`}
                             >
@@ -3229,7 +3238,7 @@ export function LeftSidebar({
                               onClick={() => setActiveBackground(isActive ? '' : tmpl.url)}
                               style={{ background: tmpl.css }}
                               className={`group aspect-video rounded-lg border transition-all relative overflow-hidden cursor-pointer ${
-                                isActive ? "border-blue-500 ring-2 ring-blue-500/30 shadow-md" : "border-slate-800 hover:border-slate-700"
+                                isActive ? "border-blue-500 ring-2 ring-blue-500/30 shadow-md" : "border-[var(--line)] hover:border-[var(--line-ctl)]"
                               }`}
                               title={isActive ? "Ativo no estúdio - Clique para esconder" : `Aplicar: ${tmpl.name}`}
                             >
@@ -3254,13 +3263,13 @@ export function LeftSidebar({
                 </div>
 
                 {/* SNAPSHOTS SECTION */}
-                <div className="bg-[#0F1115] border border-slate-800/80 rounded-xl overflow-hidden">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl overflow-hidden">
                   <button 
                     type="button"
                     onClick={() => setIsSnapshotOpen(!isSnapshotOpen)}
-                    className="w-full p-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-all select-none"
+                    className="w-full p-3 flex items-center justify-between text-left hover:bg-[var(--panel)]/30 transition-all select-none"
                   >
-                    <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                       <Camera size={14} className="text-blue-500" />
                       Capturas da Stream ({snapshots.length})
                     </span>
@@ -3268,15 +3277,15 @@ export function LeftSidebar({
                   </button>
 
                   {isSnapshotOpen && (
-                    <div className="p-3 bg-[#16191E]/30 border-t border-slate-800/60 space-y-2">
+                    <div className="p-3 bg-[var(--surface)]/30 border-t border-[var(--line)]/60 space-y-2">
                       {snapshots.length === 0 ? (
-                        <p className="text-[10px] text-gray-500 text-center py-4 leading-normal">
+                        <p className="text-[10px] text-[var(--ink-dim)] text-center py-4 leading-normal">
                           Nenhuma captura de tela tirada ainda.<br />Clique no botão <span className="text-blue-400 font-bold">"SNAPSHOT"</span> no topo do player para capturar o preview!
                         </p>
                       ) : (
                         <div className="grid grid-cols-2 gap-2">
                           {snapshots.map(snap => (
-                            <div key={snap.id} className="group aspect-video bg-[#0F1115] rounded-lg border border-slate-800 overflow-hidden relative flex flex-col justify-between">
+                            <div key={snap.id} className="group aspect-video bg-[var(--bg)] rounded-lg border border-[var(--line)] overflow-hidden relative flex flex-col justify-between">
                               <img src={snap.url} alt={snap.name} className="absolute inset-0 w-full h-full object-cover" />
                               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-10">
                                 <a 
@@ -3296,7 +3305,7 @@ export function LeftSidebar({
                                   <Trash2 size={12} />
                                 </button>
                               </div>
-                              <div className="absolute bottom-1 left-1 bg-black/75 px-1 py-0.5 rounded text-[8px] text-gray-300 font-mono z-10">
+                              <div className="absolute bottom-1 left-1 bg-black/75 px-1 py-0.5 rounded text-[8px] text-[var(--ink)] font-mono z-10">
                                 {snap.timestamp}
                               </div>
                             </div>
@@ -3307,26 +3316,26 @@ export function LeftSidebar({
                   )}
                 </div>
                 {/* BANNERS SECTION */}
-                <div className="bg-[#0F1115] border border-slate-800/80 rounded-xl overflow-hidden">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl overflow-hidden">
                   <button 
                     type="button"
                     onClick={() => setIsBannersOpen(!isBannersOpen)}
-                    className="w-full p-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-all select-none"
+                    className="w-full p-3 flex items-center justify-between text-left hover:bg-[var(--panel)]/30 transition-all select-none"
                   >
-                    <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                       <Bookmark size={14} className="text-indigo-400" />
                       Banners & Terços Inferiores ({banners.length})
-                      <HelpCircle size={12} className="text-gray-500" title="Crie e gerencie banners que podem ser arrastados e redimensionados na tela." />
+                      <span title="Crie e gerencie banners que podem ser arrastados e redimensionados na tela." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                     </span>
                     {isBannersOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                   </button>
 
                   {isBannersOpen && (
-                    <div className="p-3 bg-[#16191E]/30 border-t border-slate-800/60 space-y-3">
+                    <div className="p-3 bg-[var(--surface)]/30 border-t border-[var(--line)]/60 space-y-3">
                       {/* Banner Position Controls */}
-                      <div className="bg-[#0b0e17] p-2.5 rounded-xl border border-slate-800/80 space-y-2">
+                      <div className="bg-[var(--well)] p-2.5 rounded-xl border border-[var(--line)]/80 space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1.5">
                             <Move size={11} className="text-indigo-400" />
                             Posição na Tela
                           </span>
@@ -3363,7 +3372,7 @@ export function LeftSidebar({
                               className={`py-1.5 px-1 rounded-lg text-[10px] font-bold transition-all border cursor-pointer text-center ${
                                 bannerPosition === opt.id
                                   ? 'bg-indigo-600/30 border-indigo-500 text-indigo-200'
-                                  : 'bg-[#121622] border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                                  : 'bg-[var(--bg)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:border-[var(--line-ctl)]'
                               }`}
                             >
                               {opt.label}
@@ -3376,7 +3385,7 @@ export function LeftSidebar({
                       <button
                         type="button"
                         onClick={() => handleOpenAddBannerModal()}
-                        className="w-full py-3 px-3.5 rounded-xl border-2 border-dashed border-slate-700/80 hover:border-indigo-500 bg-[#0c0f18] hover:bg-indigo-500/10 text-slate-200 hover:text-white text-xs font-bold transition-all flex items-center justify-between group shadow-sm cursor-pointer"
+                        className="w-full py-3 px-3.5 rounded-xl border-2 border-dashed border-[var(--line-ctl)]/80 hover:border-indigo-500 bg-[var(--bg)] hover:bg-indigo-500/10 text-[var(--ink-hi)] hover:text-white text-xs font-bold transition-all flex items-center justify-between group shadow-sm cursor-pointer"
                       >
                         <div className="flex items-center gap-2">
                           <div className="p-1 rounded-lg bg-indigo-500/20 text-indigo-400 group-hover:scale-110 transition-transform">
@@ -3384,14 +3393,14 @@ export function LeftSidebar({
                           </div>
                           <span>Add banner</span>
                         </div>
-                        <span className="text-[10px] font-mono bg-slate-800 text-slate-400 group-hover:bg-indigo-600 group-hover:text-white px-2 py-0.5 rounded font-bold transition-colors">
+                        <span className="text-[10px] font-mono bg-[var(--panel)] text-[var(--ink-lo)] group-hover:bg-indigo-600 group-hover:text-white px-2 py-0.5 rounded font-bold transition-colors">
                           {banners.length}/50
                         </span>
                       </button>
 
                       {/* Banner Items List */}
                       {banners.length === 0 ? (
-                        <p className="text-xs text-gray-500 text-center py-4 bg-[#0c0f18] border border-slate-800/80 rounded-xl">
+                        <p className="text-xs text-[var(--ink-dim)] text-center py-4 bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl">
                           Nenhum banner cadastrado. Clique em <strong className="text-indigo-400">Add banner</strong> para criar!
                         </p>
                       ) : (
@@ -3404,13 +3413,13 @@ export function LeftSidebar({
                                 onClick={() => onSetActiveBanner(isSelected ? null : banner.id)}
                                 className={`relative p-3 rounded-xl border transition-all cursor-pointer text-left flex flex-col gap-1.5 ${
                                   isSelected
-                                    ? 'bg-[#121626] border-indigo-500 ring-1 ring-indigo-500/40 shadow-md shadow-indigo-500/10'
-                                    : 'bg-[#0b0e17] border-slate-800/90 hover:border-slate-700'
+                                    ? 'bg-[var(--bg)] border-indigo-500 ring-1 ring-indigo-500/40 shadow-md shadow-indigo-500/10'
+                                    : 'bg-[var(--well)] border-[var(--line)]/90 hover:border-[var(--line-ctl)]'
                                 }`}
                               >
                                 {/* Header Row: Title & Badge */}
                                 <div className="flex items-start justify-between gap-2">
-                                  <h4 className="text-xs font-bold text-white leading-snug break-words flex-1 pr-2">
+                                  <h4 className="text-xs font-bold text-[var(--ink-hi)] leading-snug break-words flex-1 pr-2">
                                     {banner.text}
                                   </h4>
                                   {isSelected && (
@@ -3422,14 +3431,14 @@ export function LeftSidebar({
 
                                 {/* Subtitle */}
                                 {banner.subtitle && (
-                                  <p className="text-[11px] font-medium text-slate-400 leading-tight break-words">
+                                  <p className="text-[11px] font-medium text-[var(--ink-lo)] leading-tight break-words">
                                     {banner.subtitle}
                                   </p>
                                 )}
 
                                 {/* Bottom Row */}
-                                <div className="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-1">
-                                  <span className={`text-[10px] font-bold flex items-center gap-1.5 ${isSelected ? 'text-indigo-400' : 'text-slate-500'}`}>
+                                <div className="flex items-center justify-between border-t border-[var(--line)]/60 pt-2 mt-1">
+                                  <span className={`text-[10px] font-bold flex items-center gap-1.5 ${isSelected ? 'text-indigo-400' : 'text-[var(--ink-dim)]'}`}>
                                     {isSelected ? <Eye size={12} /> : <EyeOff size={12} />}
                                     {isSelected ? 'Ativo no Studio' : 'Clique para Exibir'}
                                   </span>
@@ -3440,7 +3449,7 @@ export function LeftSidebar({
                                         e.stopPropagation();
                                         handleOpenAddBannerModal(banner);
                                       }}
-                                      className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors"
+                                      className="p-1 text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)] rounded transition-colors"
                                       title="Editar banner"
                                     >
                                       <Edit3 size={12} />
@@ -3451,7 +3460,7 @@ export function LeftSidebar({
                                         e.stopPropagation();
                                         onDeleteBanner(banner.id);
                                       }}
-                                      className="p-1 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded transition-colors"
+                                      className="p-1 text-[var(--ink-lo)] hover:text-red-400 hover:bg-[var(--panel)] rounded transition-colors"
                                       title="Excluir banner"
                                     >
                                       <Trash2 size={12} />
@@ -3468,38 +3477,38 @@ export function LeftSidebar({
                 </div>
 
                 {/* TICKERS / BARRA DE ROLAGEM SECTION */}
-                <div className="bg-[#0F1115] border border-slate-800/80 rounded-xl overflow-hidden mt-3">
+                <div className="bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl overflow-hidden mt-3">
                   <button 
                     type="button"
                     onClick={() => setIsTickersOpen(!isTickersOpen)}
-                    className="w-full p-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-all select-none"
+                    className="w-full p-3 flex items-center justify-between text-left hover:bg-[var(--panel)]/30 transition-all select-none"
                   >
-                    <span className="text-xs font-bold text-gray-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-[var(--ink)] flex items-center gap-1.5 uppercase tracking-wider">
                       <Activity size={14} className="text-blue-400" />
                       Barra de Rolagem / Tickers ({tickers.length})
-                      <HelpCircle size={12} className="text-gray-500" title="Crie frases ou letreiros que rolam continuamente na barra inferior do preview do studio." />
+                      <span title="Crie frases ou letreiros que rolam continuamente na barra inferior do preview do studio." className="inline-flex"><HelpCircle size={12} className="text-[var(--ink-dim)]" /></span>
                     </span>
                     {isTickersOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                   </button>
 
                   {isTickersOpen && (
-                    <div className="p-3 bg-[#16191E]/30 border-t border-slate-800/60 space-y-3">
+                    <div className="p-3 bg-[var(--surface)]/30 border-t border-[var(--line)]/60 space-y-3">
                       {/* Input to add new scrolling ticker */}
                       <form onSubmit={handleTickerSubmit} className="space-y-2">
                         <div className="flex gap-2">
-                          <input
+                          <input aria-label="Selo da barra de rolagem"
                             type="text"
                             value={newTickerBadge}
                             onChange={(e) => setNewTickerBadge(e.target.value)}
                             placeholder="Selo (ex: ALERTA)"
-                            className="w-1/3 bg-[#0c0f18] border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-bold uppercase text-center"
+                            className="w-1/3 bg-[var(--bg)] border border-[var(--line-ctl)]/80 rounded-xl px-2.5 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 font-bold uppercase text-center"
                           />
-                          <input
+                          <input aria-label="Texto da barra de rolagem"
                             type="text"
                             value={newTickerText}
                             onChange={(e) => setNewTickerText(e.target.value)}
                             placeholder="Texto da barra de rolagem..."
-                            className="w-2/3 bg-[#0c0f18] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                            className="w-2/3 bg-[var(--bg)] border border-[var(--line-ctl)]/80 rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
                           />
                         </div>
                         <button
@@ -3511,18 +3520,18 @@ export function LeftSidebar({
                       </form>
 
                       {/* Speed and Direction Controls */}
-                      <div className="grid grid-cols-2 gap-2 bg-[#0c0f18] p-2.5 rounded-xl border border-slate-800/80">
+                      <div className="grid grid-cols-2 gap-2 bg-[var(--bg)] p-2.5 rounded-xl border border-[var(--line)]/80">
                         {/* Speed */}
                         <div>
-                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <label className="block text-[9px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1 flex items-center gap-1">
                             <Gauge size={10} className="text-blue-400" /> Velocidade
                           </label>
-                          <div className="flex bg-[#16191E] p-0.5 rounded-lg border border-slate-800">
+                          <div className="flex bg-[var(--surface)] p-0.5 rounded-lg border border-[var(--line)]">
                             <button
                               type="button"
                               onClick={() => onSetTickerSpeed?.('slow')}
                               className={`flex-1 py-1 text-[10px] font-bold rounded transition-colors ${
-                                tickerSpeed === 'slow' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'
+                                tickerSpeed === 'slow' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                               }`}
                             >
                               Lenta
@@ -3531,7 +3540,7 @@ export function LeftSidebar({
                               type="button"
                               onClick={() => onSetTickerSpeed?.('normal')}
                               className={`flex-1 py-1 text-[10px] font-bold rounded transition-colors ${
-                                tickerSpeed === 'normal' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'
+                                tickerSpeed === 'normal' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                               }`}
                             >
                               Normal
@@ -3540,7 +3549,7 @@ export function LeftSidebar({
                               type="button"
                               onClick={() => onSetTickerSpeed?.('fast')}
                               className={`flex-1 py-1 text-[10px] font-bold rounded transition-colors ${
-                                tickerSpeed === 'fast' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'
+                                tickerSpeed === 'fast' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                               }`}
                             >
                               Rápida
@@ -3550,15 +3559,15 @@ export function LeftSidebar({
 
                         {/* Direction */}
                         <div>
-                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <label className="block text-[9px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1 flex items-center gap-1">
                             <FastForward size={10} className="text-blue-400" /> Direção
                           </label>
-                          <div className="flex bg-[#16191E] p-0.5 rounded-lg border border-slate-800">
+                          <div className="flex bg-[var(--surface)] p-0.5 rounded-lg border border-[var(--line)]">
                             <button
                               type="button"
                               onClick={() => onSetTickerDirection?.('left')}
                               className={`flex-1 py-1 text-[10px] font-bold rounded transition-colors flex items-center justify-center gap-1 ${
-                                tickerDirection === 'left' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'
+                                tickerDirection === 'left' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                               }`}
                               title="Rolagem da direita para a esquerda"
                             >
@@ -3568,7 +3577,7 @@ export function LeftSidebar({
                               type="button"
                               onClick={() => onSetTickerDirection?.('right')}
                               className={`flex-1 py-1 text-[10px] font-bold rounded transition-colors flex items-center justify-center gap-1 ${
-                                tickerDirection === 'right' ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'
+                                tickerDirection === 'right' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                               }`}
                               title="Rolagem da esquerda para a direita"
                             >
@@ -3580,7 +3589,7 @@ export function LeftSidebar({
 
                       {/* List of Tickers */}
                       {tickers.length === 0 ? (
-                        <p className="text-xs text-gray-500 text-center py-3 bg-[#0c0f18] border border-slate-800/80 rounded-xl">
+                        <p className="text-xs text-[var(--ink-dim)] text-center py-3 bg-[var(--bg)] border border-[var(--line)]/80 rounded-xl">
                           Nenhuma barra de rolagem cadastrada.
                         </p>
                       ) : (
@@ -3593,8 +3602,8 @@ export function LeftSidebar({
                                 onClick={() => onSetActiveTicker?.(isSelected ? null : ticker.id)}
                                 className={`p-3 rounded-xl border transition-all cursor-pointer text-left flex flex-col gap-1.5 ${
                                   isSelected
-                                    ? 'bg-[#101a30] border-blue-500 ring-1 ring-blue-500/40 shadow-md shadow-blue-500/10'
-                                    : 'bg-[#0b0e17] border-slate-800/90 hover:border-slate-700'
+                                    ? 'bg-[var(--surface)] border-blue-500 ring-1 ring-blue-500/40 shadow-md shadow-blue-500/10'
+                                    : 'bg-[var(--well)] border-[var(--line)]/90 hover:border-[var(--line-ctl)]'
                                 }`}
                               >
                                 <div className="flex items-center justify-between gap-2">
@@ -3608,12 +3617,12 @@ export function LeftSidebar({
                                   )}
                                 </div>
 
-                                <p className="text-xs font-semibold text-slate-100 leading-snug break-words">
+                                <p className="text-xs font-semibold text-[var(--ink-hi)] leading-snug break-words">
                                   {ticker.text}
                                 </p>
 
-                                <div className="flex items-center justify-between border-t border-slate-800/60 pt-2 mt-1">
-                                  <span className={`text-[10px] font-bold flex items-center gap-1.5 ${isSelected ? 'text-blue-400' : 'text-slate-500'}`}>
+                                <div className="flex items-center justify-between border-t border-[var(--line)]/60 pt-2 mt-1">
+                                  <span className={`text-[10px] font-bold flex items-center gap-1.5 ${isSelected ? 'text-blue-400' : 'text-[var(--ink-dim)]'}`}>
                                     {isSelected ? <Eye size={12} /> : <EyeOff size={12} />}
                                     {isSelected ? 'Ocultar Rolagem' : 'Exibir na Barra Inferior'}
                                   </span>
@@ -3623,7 +3632,7 @@ export function LeftSidebar({
                                       e.stopPropagation();
                                       onDeleteTicker?.(ticker.id);
                                     }}
-                                    className="p-1 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded transition-colors"
+                                    className="p-1 text-[var(--ink-lo)] hover:text-red-400 hover:bg-[var(--panel)] rounded transition-colors"
                                     title="Excluir ticker"
                                   >
                                     <Trash2 size={12} />
@@ -3649,33 +3658,33 @@ export function LeftSidebar({
         <div className="space-y-4 text-left">
           {/* Section Header */}
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-white mb-1 flex items-center gap-2">
+            <h2 className="text-lg font-bold tracking-tight text-[var(--ink-hi)] mb-1 flex items-center gap-2">
               <FileText size={18} className="text-blue-500" />
               Teleprompter do Apresentador
             </h2>
-            <p className="text-xs text-[#a59ebf]">Script de leitura ao vivo com rolagem automática, controle de velocidade e exibição no estúdio.</p>
+            <p className="text-xs text-[var(--ink-lo)]">Script de leitura ao vivo com rolagem automática, controle de velocidade e exibição no estúdio.</p>
           </div>
 
           {/* Interactive Teleprompter Reader Window */}
-          <div className="bg-[#0F1115] border border-slate-800/90 rounded-2xl p-3.5 space-y-3 shadow-xl">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/90 rounded-2xl p-3.5 space-y-3 shadow-xl">
             {/* Header / Status bar */}
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <div className="flex items-center justify-between border-b border-[var(--line)]/80 pb-2">
               <div className="flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${isTeleprompterPlaying ? 'bg-emerald-500 animate-ping' : 'bg-slate-600'}`} />
-                <span className={`text-[10px] font-black uppercase tracking-wider ${isTeleprompterPlaying ? 'text-emerald-400' : 'text-slate-400'}`}>
+                <span className={`text-[10px] font-black uppercase tracking-wider ${isTeleprompterPlaying ? 'text-emerald-400' : 'text-[var(--ink-lo)]'}`}>
                   {isTeleprompterPlaying ? 'Leitura em Andamento' : 'Prompter Pausado'}
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-slate-400 font-mono bg-[#16191E] border border-slate-800 px-2 py-0.5 rounded-md">
+                <span className="text-[10px] text-[var(--ink-lo)] font-mono bg-[var(--surface)] border border-[var(--line)] px-2 py-0.5 rounded-md">
                   {teleprompterWordCount} palavras • ~{teleprompterEstTime}
                 </span>
               </div>
             </div>
 
             {/* Reader Box */}
-            <div className="relative bg-[#05060a] border border-slate-800 rounded-xl overflow-hidden h-48 shadow-inner group">
+            <div className="relative bg-[var(--well)] border border-[var(--line)] rounded-xl overflow-hidden h-48 shadow-inner group">
               {/* Center Reading Guide Line */}
               <div className="absolute top-1/2 left-0 right-0 h-8 -translate-y-1/2 bg-blue-500/15 border-y border-blue-500/30 pointer-events-none z-10 flex items-center justify-between px-2">
                 <span className="text-[8px] font-black uppercase tracking-widest text-blue-400/80">GUIA DE LEITURA</span>
@@ -3692,7 +3701,7 @@ export function LeftSidebar({
                   teleprompterFontSize === 'md' ? 'text-sm' :
                   teleprompterFontSize === 'xl' ? 'text-xl font-bold' :
                   'text-base font-semibold'
-                } ${isTeleprompterPlaying ? 'text-yellow-300' : 'text-slate-200'}`}
+                } ${isTeleprompterPlaying ? 'text-yellow-300' : 'text-[var(--ink-hi)]'}`}
               >
                 <div className="h-14" />
                 <p className="whitespace-pre-line tracking-wide">
@@ -3722,7 +3731,7 @@ export function LeftSidebar({
                 onClick={() => {
                   if (sidebarPrompterRef.current) sidebarPrompterRef.current.scrollTop = 0;
                 }}
-                className="py-2.5 px-3 bg-[#16191E] hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="py-2.5 px-3 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line)] text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <RotateCcw size={14} /> Voltar ao Topo
               </button>
@@ -3730,20 +3739,20 @@ export function LeftSidebar({
           </div>
 
           {/* Configuration Settings Panel */}
-          <div className="bg-[#0F1115] border border-slate-800/90 rounded-2xl p-3.5 space-y-3.5">
-            <h3 className="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/90 rounded-2xl p-3.5 space-y-3.5">
+            <h3 className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-1.5">
               <Sliders size={13} className="text-blue-400" /> Ajustes de Leitura
             </h3>
 
             {/* Speed Control */}
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+              <div className="flex items-center justify-between text-xs font-semibold text-[var(--ink)]">
                 <span className="flex items-center gap-1 text-[11px]">
                   <Gauge size={12} className="text-blue-400" /> Velocidade de Rolagem
                 </span>
                 <span className="text-[10px] text-blue-400 font-mono font-bold">{teleprompterSpeed}x</span>
               </div>
-              <div className="grid grid-cols-4 gap-1.5 bg-[#16191E] p-1 rounded-xl border border-slate-800">
+              <div className="grid grid-cols-4 gap-1.5 bg-[var(--surface)] p-1 rounded-xl border border-[var(--line)]">
                 {[
                   { speed: 2, label: 'Lenta' },
                   { speed: 4, label: 'Normal' },
@@ -3757,7 +3766,7 @@ export function LeftSidebar({
                     className={`py-1.5 text-[10px] font-bold rounded-lg transition-colors cursor-pointer ${
                       teleprompterSpeed === item.speed 
                         ? 'bg-blue-600 text-white shadow-sm' 
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                        : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]'
                     }`}
                   >
                     {item.label}
@@ -3770,8 +3779,8 @@ export function LeftSidebar({
             <div className="grid grid-cols-2 gap-2">
               {/* Font Size */}
               <div className="space-y-1.5">
-                <span className="block text-[11px] font-semibold text-slate-300">Tamanho da Fonte</span>
-                <div className="flex bg-[#16191E] p-1 rounded-xl border border-slate-800">
+                <span className="block text-[11px] font-semibold text-[var(--ink)]">Tamanho da Fonte</span>
+                <div className="flex bg-[var(--surface)] p-1 rounded-xl border border-[var(--line)]">
                   {[
                     { size: 'sm', label: 'P' },
                     { size: 'md', label: 'M' },
@@ -3785,7 +3794,7 @@ export function LeftSidebar({
                       className={`flex-1 py-1 text-[10px] font-bold rounded-lg transition-colors cursor-pointer ${
                         teleprompterFontSize === item.size 
                           ? 'bg-blue-600 text-white shadow-sm' 
-                          : 'text-slate-400 hover:text-white'
+                          : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                       }`}
                     >
                       {item.label}
@@ -3796,14 +3805,14 @@ export function LeftSidebar({
 
               {/* Mirror Toggle */}
               <div className="space-y-1.5">
-                <span className="block text-[11px] font-semibold text-slate-300">Espelhamento H</span>
+                <span className="block text-[11px] font-semibold text-[var(--ink)]">Espelhamento H</span>
                 <button
                   type="button"
                   onClick={() => onToggleTeleprompterMirrored?.()}
                   className={`w-full py-1.5 px-2 rounded-xl border text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     teleprompterMirrored
                       ? 'bg-blue-500/20 border-blue-500 text-blue-400'
-                      : 'bg-[#16191E] border-slate-800 text-slate-400 hover:text-white'
+                      : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                   }`}
                 >
                   <Move size={12} /> {teleprompterMirrored ? 'Espelhado' : 'Normal'}
@@ -3812,20 +3821,20 @@ export function LeftSidebar({
             </div>
 
             {/* Show on Studio Preview Toggle */}
-            <div className="bg-[#16191E] border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+            <div className="bg-[var(--surface)] border border-[var(--line)] rounded-xl p-3 flex items-center justify-between">
               <div className="flex flex-col text-left">
-                <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                <span className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-1.5">
                   <Tv size={13} className="text-blue-400" />
                   Exibir no Preview do Studio
                 </span>
-                <span className="text-[10px] text-slate-400">Projeta o teleprompter sobre o vídeo da transmissão</span>
+                <span className="text-[10px] text-[var(--ink-lo)]">Projeta o teleprompter sobre o vídeo da transmissão</span>
               </div>
 
               <button
                 type="button"
                 onClick={() => onToggleShowTeleprompterOnStudio?.()}
                 className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  showTeleprompterOnStudio ? 'bg-blue-600' : 'bg-slate-800'
+                  showTeleprompterOnStudio ? 'bg-blue-600' : 'bg-[var(--panel)]'
                 }`}
                 title="Ativar teleprompter flutuante no palco"
               >
@@ -3839,23 +3848,23 @@ export function LeftSidebar({
           </div>
 
           {/* Script Editor & Preset Templates */}
-          <div className="bg-[#0F1115] border border-slate-800/90 rounded-2xl p-3.5 space-y-3">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/90 rounded-2xl p-3.5 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 id="leftsidebar-editar-script-do-roteiro" className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-1.5">
                 <Edit3 size={13} className="text-blue-400" />
                 Editar Script do Roteiro
               </h3>
-              <span className="text-[9px] text-slate-400 font-mono">
+              <span className="text-[9px] text-[var(--ink-lo)] font-mono">
                 {teleprompterText.length} caracteres
               </span>
             </div>
 
             {/* Presets Selector Dropdown */}
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <label htmlFor="leftsidebar-carregar-modelo-de-roteiro" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">
                 Carregar Modelo de Roteiro (Preset)
               </label>
-              <select
+              <select id="leftsidebar-carregar-modelo-de-roteiro"
                 onChange={(e) => {
                   const preset = TELEPROMPTER_PRESETS.find(p => p.id === e.target.value);
                   if (preset) {
@@ -3863,7 +3872,7 @@ export function LeftSidebar({
                   }
                 }}
                 defaultValue=""
-                className="w-full bg-[#16191E] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 cursor-pointer"
+                className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 cursor-pointer"
               >
                 <option value="" disabled>Selecione um modelo pronto...</option>
                 {TELEPROMPTER_PRESETS.map((p) => (
@@ -3875,12 +3884,12 @@ export function LeftSidebar({
             </div>
 
             {/* Script Text Area */}
-            <textarea
+            <textarea aria-labelledby="leftsidebar-editar-script-do-roteiro"
               value={teleprompterText}
               onChange={(e) => onTeleprompterTextChange?.(e.target.value)}
               placeholder="Digite ou cole aqui o seu roteiro completo de apresentação..."
               rows={6}
-              className="w-full bg-[#16191E] border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-medium leading-relaxed resize-y"
+              className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl p-3 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 font-medium leading-relaxed resize-y"
             />
 
             {/* Action buttons */}
@@ -3898,7 +3907,7 @@ export function LeftSidebar({
               <button
                 type="button"
                 onClick={() => onTeleprompterTextChange?.('')}
-                className="text-[10px] font-bold text-slate-500 hover:text-red-400 flex items-center gap-1 cursor-pointer"
+                className="text-[10px] font-bold text-[var(--ink-dim)] hover:text-red-400 flex items-center gap-1 cursor-pointer"
               >
                 <Trash2 size={11} /> Limpar Script
               </button>
@@ -3911,15 +3920,15 @@ export function LeftSidebar({
       {activeTab === 'apps' && (
         <div className="space-y-5 flex flex-col h-full">
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-white mb-1 flex items-center gap-2">
+            <h2 className="text-lg font-bold tracking-tight text-[var(--ink-hi)] mb-1 flex items-center gap-2">
               <Puzzle size={18} className="text-blue-500" />
               Apps & Integrações
             </h2>
-            <p className="text-xs text-[#a59ebf]">QR Codes dinâmicos de produtos e notas privadas para o seu estúdio.</p>
+            <p className="text-xs text-[var(--ink-lo)]">QR Codes dinâmicos de produtos e notas privadas para o seu estúdio.</p>
           </div>
 
           {/* Apps Sub-navigation Tabs */}
-          <div className="flex bg-[#0F1115] border border-slate-800 rounded-xl p-1 shrink-0">
+          <div className="flex bg-[var(--bg)] border border-[var(--line)] rounded-xl p-1 shrink-0">
             {([
               { id: 'qrcode', label: 'QR Code', icon: QrCode },
               { id: 'notes', label: 'Notas', icon: FileText }
@@ -3931,8 +3940,8 @@ export function LeftSidebar({
                   onClick={() => setAppsSubtab(sub.id)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                     appsSubtab === sub.id 
-                      ? 'bg-[#4683E0] text-white shadow-md' 
-                      : 'text-gray-400 hover:text-white'
+                      ? 'bg-[var(--color-brand-deep)] text-white shadow-md' 
+                      : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                   }`}
                 >
                   <Icon size={12} />
@@ -3957,26 +3966,26 @@ export function LeftSidebar({
                 </button>
 
                 {/* Stage Visibility & Quick Orientation */}
-                <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-3.5">
+                <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-3.5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-bold text-white">Exibir QR Code no Palco</p>
-                      <p className="text-[9px] text-[#a59ebf]">Card flutuante com QR Code e link para os espectadores</p>
+                      <p className="text-xs font-bold text-[var(--ink-hi)]">Exibir QR Code no Palco</p>
+                      <p className="text-[9px] text-[var(--ink-lo)]">Card flutuante com QR Code e link para os espectadores</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
+                      <input aria-label="Exibir QR Code no Palco" 
                         type="checkbox" 
                         checked={showQrCode}
                         onChange={(e) => setShowQrCode(e.target.checked)}
                         className="sr-only peer" 
                       />
-                      <div className="w-9 h-5 bg-[#16191E] border border-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[#a59ebf] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
+                      <div className="w-9 h-5 bg-[var(--surface)] border border-[var(--line)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[var(--ink-lo)] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
                     </label>
                   </div>
 
                   {/* Orientation switch */}
-                  <div className="space-y-1.5 pt-2 border-t border-slate-800">
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider text-left">
+                  <div className="space-y-1.5 pt-2 border-t border-[var(--line)]">
+                    <label className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider text-left">
                       Orientação do Card no Estúdio
                     </label>
                     <div className="grid grid-cols-2 gap-2">
@@ -3990,12 +3999,12 @@ export function LeftSidebar({
                         }}
                         className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                           (qrCodeConfig?.orientation || 'horizontal') === 'horizontal'
-                            ? 'bg-blue-600/20 border-blue-500 text-white font-bold ring-1 ring-blue-500/30'
-                            : 'bg-[#16191E] border-slate-800 text-gray-400 hover:border-slate-700 hover:text-white'
+                            ? 'bg-blue-600/20 border-blue-500 text-[var(--ink-hi)] font-bold ring-1 ring-blue-500/30'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
                         <span className="text-xs font-bold">⇄ Centro Inferior</span>
-                        <span className="text-[8px] opacity-70 px-1 py-0.5 rounded bg-slate-800">Sobe com Ticker</span>
+                        <span className="text-[8px] opacity-70 px-1 py-0.5 rounded bg-[var(--panel)]">Sobe com Ticker</span>
                       </button>
 
                       <button
@@ -4008,27 +4017,27 @@ export function LeftSidebar({
                         }}
                         className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
                           qrCodeConfig?.orientation === 'vertical' || bannerPosition === 'lateral'
-                            ? 'bg-blue-600/20 border-blue-500 text-white font-bold ring-1 ring-blue-500/30'
-                            : 'bg-[#16191E] border-slate-800 text-gray-400 hover:border-slate-700 hover:text-white'
+                            ? 'bg-blue-600/20 border-blue-500 text-[var(--ink-hi)] font-bold ring-1 ring-blue-500/30'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
                         <span className="text-xs font-bold">⇅ Lateral Direita</span>
-                        <span className="text-[8px] opacity-70 px-1 py-0.5 rounded bg-slate-800">Reduz Apresentador</span>
+                        <span className="text-[8px] opacity-70 px-1 py-0.5 rounded bg-[var(--panel)]">Reduz Apresentador</span>
                       </button>
                     </div>
                   </div>
                 </div>
 
                 {/* Quick Store Links & Information */}
-                <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-3 text-left">
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-3 text-left">
+                  <h3 className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-1.5">
                     <ShoppingBag size={14} className="text-blue-400" />
                     Dados do Produto & Loja
                   </h3>
 
                   {/* Store presets */}
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    <label className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">
                       Plataforma da Loja
                     </label>
                     <div className="flex flex-wrap gap-1">
@@ -4044,7 +4053,7 @@ export function LeftSidebar({
                           className={`px-2 py-1 rounded-lg text-[9px] font-bold border transition-colors cursor-pointer ${
                             qrCodeConfig?.storeName === store
                               ? 'bg-blue-600 text-white border-blue-500'
-                              : 'bg-[#16191E] text-gray-400 border-slate-800 hover:text-white'
+                              : 'bg-[var(--surface)] text-[var(--ink-lo)] border-[var(--line)] hover:text-[var(--ink-hi)]'
                           }`}
                         >
                           {store}
@@ -4054,7 +4063,7 @@ export function LeftSidebar({
                   </div>
 
                   <div>
-                    <label htmlFor="qr-store-url" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                    <label htmlFor="qr-store-url" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">
                       Link da Loja / URL do Produto (QR Code)
                     </label>
                     <div className="relative">
@@ -4070,13 +4079,13 @@ export function LeftSidebar({
                           }
                         }}
                         placeholder="https://sualoja.com.br/produto"
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-all font-mono"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all font-mono"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="qr-prod-title" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                    <label htmlFor="qr-prod-title" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">
                       Título do Produto
                     </label>
                     <input
@@ -4089,13 +4098,13 @@ export function LeftSidebar({
                         }
                       }}
                       placeholder="Ex: Smartphone Pro Max 256GB"
-                      className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-all"
+                      className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label htmlFor="qr-prod-price" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                      <label htmlFor="qr-prod-price" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">
                         Preço Promocional
                       </label>
                       <input
@@ -4108,12 +4117,12 @@ export function LeftSidebar({
                           }
                         }}
                         placeholder="R$ 1.899,00"
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-all font-semibold"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all font-semibold"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="qr-prod-badge" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                      <label htmlFor="qr-prod-badge" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">
                         Selo de Desconto
                       </label>
                       <input
@@ -4126,7 +4135,7 @@ export function LeftSidebar({
                           }
                         }}
                         placeholder="24% OFF"
-                        className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-all"
+                        className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all"
                       />
                     </div>
                   </div>
@@ -4134,8 +4143,8 @@ export function LeftSidebar({
 
                 {/* Live Card Preview Box */}
                 {qrCodeConfig && (
-                  <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-2 text-left">
-                    <div className="flex items-center justify-between text-[10px] text-gray-400">
+                  <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-2 text-left">
+                    <div className="flex items-center justify-between text-[10px] text-[var(--ink-lo)]">
                       <span className="font-bold uppercase tracking-wider">Prévia do Card na Tela</span>
                       <span className="font-bold text-blue-400">
                         {qrCodeConfig.orientation === 'vertical' ? 'Card Vertical' : 'Card Horizontal'}
@@ -4144,7 +4153,7 @@ export function LeftSidebar({
 
                     {/* Render according to orientation */}
                     {qrCodeConfig.orientation === 'vertical' ? (
-                      <div className="max-w-[220px] mx-auto bg-[#16191E] border border-slate-700 rounded-2xl p-3 shadow-2xl space-y-2 text-center">
+                      <div className="max-w-[220px] mx-auto bg-[var(--surface)] border border-[var(--line-ctl)] rounded-2xl p-3 shadow-2xl space-y-2 text-center">
                         {qrCodeConfig.discountBadge && (
                           <span className="inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
                             {qrCodeConfig.discountBadge}
@@ -4152,12 +4161,12 @@ export function LeftSidebar({
                         )}
 
                         {qrCodeConfig.imageUrl && (
-                          <div className="w-full aspect-video rounded-lg overflow-hidden bg-slate-900 border border-slate-800">
+                          <div className="w-full aspect-video rounded-lg overflow-hidden bg-[var(--surface)] border border-[var(--line)]">
                             <img src={qrCodeConfig.imageUrl} alt={qrCodeConfig.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                           </div>
                         )}
 
-                        <p className="text-xs font-bold text-white leading-tight">{qrCodeConfig.title}</p>
+                        <p className="text-xs font-bold text-[var(--ink-hi)] leading-tight">{qrCodeConfig.title}</p>
                         {qrCodeConfig.price && (
                           <p className="text-sm font-black text-emerald-400">{qrCodeConfig.price}</p>
                         )}
@@ -4170,10 +4179,10 @@ export function LeftSidebar({
                             referrerPolicy="no-referrer"
                           />
                         </div>
-                        <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Aponte a câmera para comprar</p>
+                        <p className="text-[8px] text-[var(--ink-lo)] font-bold uppercase tracking-wider">Aponte a câmera para comprar</p>
                       </div>
                     ) : (
-                      <div className="w-full bg-[#16191E] border border-slate-700 rounded-2xl p-3 shadow-2xl flex items-center gap-3">
+                      <div className="w-full bg-[var(--surface)] border border-[var(--line-ctl)] rounded-2xl p-3 shadow-2xl flex items-center gap-3">
                         <div className="bg-white p-1.5 rounded-xl shrink-0 shadow-md">
                           <img 
                             src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(qrCodeConfig.storeUrl || qrCodeText)}`} 
@@ -4194,11 +4203,11 @@ export function LeftSidebar({
                               </span>
                             )}
                           </div>
-                          <p className="text-xs font-bold text-white truncate leading-tight">{qrCodeConfig.title}</p>
+                          <p className="text-xs font-bold text-[var(--ink-hi)] truncate leading-tight">{qrCodeConfig.title}</p>
                           {qrCodeConfig.price && (
                             <p className="text-xs font-black text-emerald-400">{qrCodeConfig.price}</p>
                           )}
-                          <p className="text-[8px] text-slate-400 font-mono truncate">{qrCodeConfig.storeUrl || qrCodeText}</p>
+                          <p className="text-[8px] text-[var(--ink-lo)] font-mono truncate">{qrCodeConfig.storeUrl || qrCodeText}</p>
                         </div>
                       </div>
                     )}
@@ -4208,16 +4217,16 @@ export function LeftSidebar({
             )}
 
             {appsSubtab === 'notes' && (
-              <div className="bg-[#0F1115] border border-slate-800 rounded-xl p-4 flex flex-col space-y-3 animate-in fade-in slide-in-from-top-1 duration-150">
-                <label htmlFor="notes-area" className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider text-left">Roteiro Privado (Apenas para você)</label>
+              <div className="bg-[var(--bg)] border border-[var(--line)] rounded-xl p-4 flex flex-col space-y-3 animate-in fade-in slide-in-from-top-1 duration-150">
+                <label htmlFor="notes-area" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider text-left">Roteiro Privado (Apenas para você)</label>
                 <textarea
                   id="notes-area"
                   value={presenterNotes}
                   onChange={(e) => setPresenterNotes(e.target.value)}
                   placeholder="Digite suas anotações de apoio..."
-                  className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-all resize-none font-sans leading-relaxed min-h-[250px]"
+                  className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all resize-none font-sans leading-relaxed min-h-[250px]"
                 />
-                <p className="text-[9px] text-gray-500 text-left">Nota: As anotações são salvas localmente e NÃO são visíveis para os espectadores da transmissão.</p>
+                <p className="text-[9px] text-[var(--ink-dim)] text-left">Nota: As anotações são salvas localmente e NÃO são visíveis para os espectadores da transmissão.</p>
               </div>
             )}
           </div>
@@ -4242,6 +4251,7 @@ export function LeftSidebar({
           isLive={isLive}
           onBatchAddComments={onBatchAddComments}
           onClearComments={onClearComments}
+          authorName={currentUserName}
         />
       )}
 
@@ -4249,11 +4259,11 @@ export function LeftSidebar({
       {activeTab === 'schedule' && (
         <div className="space-y-5 flex flex-col h-full">
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-white mb-1 flex items-center gap-2">
+            <h2 className="text-lg font-bold tracking-tight text-[var(--ink-hi)] mb-1 flex items-center gap-2">
               <Calendar size={18} className="text-blue-500" />
               Agendamento de Webinars
             </h2>
-            <p className="text-xs text-[#a59ebf]">Agende transmissões futuras ou selecione um evento agendado para iniciar.</p>
+            <p className="text-xs text-[var(--ink-lo)]">Agende transmissões futuras ou selecione um evento agendado para iniciar.</p>
           </div>
 
           {/* New Event Form Toggle button */}
@@ -4265,12 +4275,12 @@ export function LeftSidebar({
               <Plus size={14} /> Agendar Novo Webinar
             </button>
           ) : (
-            <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-3 shrink-0 text-left">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-1">
-                <span className="text-xs font-bold text-white uppercase tracking-wider">Novo Agendamento</span>
-                <button
+            <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-3 shrink-0 text-left">
+              <div className="flex items-center justify-between border-b border-[var(--line)] pb-2 mb-1">
+                <span className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider">Novo Agendamento</span>
+                <button aria-label="Fechar agendamento"
                   onClick={() => setIsSchedulingFormOpen(false)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)]"
                 >
                   <X size={14} />
                 </button>
@@ -4278,43 +4288,43 @@ export function LeftSidebar({
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Título</label>
-                  <input
+                  <label htmlFor="leftsidebar-titulo" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Título</label>
+                  <input id="leftsidebar-titulo"
                     type="text"
                     value={scheduleTitle}
                     onChange={(e) => setScheduleTitle(e.target.value)}
                     placeholder="Ex: Lançamento Oficial do Produto"
-                    className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                    className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Descrição</label>
-                  <textarea
+                  <label htmlFor="leftsidebar-descricao" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Descrição</label>
+                  <textarea id="leftsidebar-descricao"
                     value={scheduleDesc}
                     onChange={(e) => setScheduleDesc(e.target.value)}
                     placeholder="Descrição do webinar..."
-                    className="w-full h-12 bg-[#16191E] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 resize-none"
+                    className="w-full h-12 bg-[var(--surface)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 resize-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Data / Horário</label>
-                    <input
+                    <label htmlFor="leftsidebar-data-horario" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Data / Horário</label>
+                    <input id="leftsidebar-data-horario"
                       type="text"
                       value={scheduleTime}
                       onChange={(e) => setScheduleTime(e.target.value)}
                       placeholder="Quinta, às 20h"
-                      className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Tipo</label>
-                    <select
+                    <label htmlFor="leftsidebar-tipo" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider mb-1">Tipo</label>
+                    <select id="leftsidebar-tipo"
                       value={scheduleType}
                       onChange={(e) => setScheduleType(e.target.value as any)}
-                      className="w-full bg-[#16191E] border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                      className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-lg px-2 py-1.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500"
                     >
                       <option value="webinar">Webinar Interativo</option>
                       <option value="live">Transmissão Direta</option>
@@ -4326,7 +4336,7 @@ export function LeftSidebar({
                 <button
                   onClick={() => {
                     if (!scheduleTitle || !scheduleTime) {
-                      alert("Por favor, preencha o Título e a Data/Horário!");
+                      toast.error("Por favor, preencha o Título e a Data/Horário!");
                       return;
                     }
                     const newWebinar = {
@@ -4354,48 +4364,48 @@ export function LeftSidebar({
 
           <div className="flex-1 overflow-y-auto pr-0.5 space-y-3">
             {webinars.length === 0 ? (
-              <div className="h-40 flex flex-col items-center justify-center text-center text-gray-500">
-                <Calendar size={24} className="mb-2 text-gray-600" />
+              <div className="h-40 flex flex-col items-center justify-center text-center text-[var(--ink-dim)]">
+                <Calendar size={24} className="mb-2 text-[var(--ink-dim)]" />
                 <p className="text-xs">Nenhum webinar agendado.</p>
               </div>
             ) : (
               webinars.map(webinar => (
                 <div 
                   key={webinar.id} 
-                  className="bg-[#0F1115] border border-slate-800 hover:border-slate-700/80 p-3.5 rounded-xl text-left space-y-2.5 transition-all"
+                  className="bg-[var(--bg)] border border-[var(--line)] hover:border-[var(--line-ctl)]/80 p-3.5 rounded-xl text-left space-y-2.5 transition-all"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <span className="text-[9px] font-bold tracking-wider text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md uppercase">
                         {webinar.type}
                       </span>
-                      <h3 className="font-bold text-white text-xs mt-1.5 leading-normal">{webinar.title}</h3>
+                      <h3 className="font-bold text-[var(--ink-hi)] text-xs mt-1.5 leading-normal">{webinar.title}</h3>
                     </div>
                     <button
                       onClick={() => setWebinars(prev => prev.filter(w => w.id !== webinar.id))}
-                      className="text-gray-500 hover:text-red-400 p-1 rounded-lg hover:bg-[#16191E] transition-all shrink-0"
+                      className="text-[var(--ink-dim)] hover:text-red-400 p-1 rounded-lg hover:bg-[var(--surface)] transition-all shrink-0"
                       title="Excluir agendamento"
                     >
                       <Trash2 size={12} />
                     </button>
                   </div>
 
-                  <p className="text-[10px] text-[#a59ebf] line-clamp-2 leading-relaxed">{webinar.desc}</p>
+                  <p className="text-[10px] text-[var(--ink-lo)] line-clamp-2 leading-relaxed">{webinar.desc}</p>
 
-                  <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-medium">
-                    <Calendar size={11} className="text-gray-500" />
+                  <div className="flex items-center gap-1.5 text-[10px] text-[var(--ink-lo)] font-medium">
+                    <Calendar size={11} className="text-[var(--ink-dim)]" />
                     <span>{webinar.time}</span>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                    <span className="text-[9px] text-gray-500 truncate">
+                  <div className="pt-2 border-t border-[var(--line)]/80 flex items-center justify-between gap-2">
+                    <span className="text-[9px] text-[var(--ink-dim)] truncate">
                       Canais: {webinar.channels.join(', ')}
                     </span>
                     <button
                       onClick={() => {
                         setTitle(webinar.title);
                         setDescription(webinar.desc);
-                        alert(`Estúdio configurado com os dados do Webinar:\n"${webinar.title}"! Pronto para transmitir.`);
+                        toast.success(`Estúdio configurado com os dados do Webinar:\n"${webinar.title}"! Pronto para transmitir.`);
                       }}
                       className="px-2.5 py-1 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 border border-blue-500/20 font-bold rounded-lg text-[10px] transition-all flex items-center gap-1 cursor-pointer shrink-0"
                     >
@@ -4415,17 +4425,17 @@ export function LeftSidebar({
       {activeTab === 'theme' && (
         <div className="space-y-5">
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-white mb-1 flex items-center gap-2">
+            <h2 className="text-lg font-bold tracking-tight text-[var(--ink-hi)] mb-1 flex items-center gap-2">
               <Sliders size={18} className="text-blue-500" />
               Temas & Aparência
             </h2>
-            <p className="text-xs text-[#a59ebf]">Escolha o modo visual do estúdio e personalize as cores e marcas das suas transmissões.</p>
+            <p className="text-xs text-[var(--ink-lo)]">Escolha o modo visual do estúdio e personalize as cores e marcas das suas transmissões.</p>
           </div>
 
           {/* STUDIO THEME MODE (MODO CLARO / MODO ESCURO) */}
-          <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-3.5" id="studio-theme-mode-section">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-3.5" id="studio-theme-mode-section">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-1.5">
                 {theme === 'dark' ? <Moon size={14} className="text-blue-400" /> : <Sun size={14} className="text-amber-500" />}
                 Esquema de Cores do Estúdio
               </h3>
@@ -4438,7 +4448,7 @@ export function LeftSidebar({
               </span>
             </div>
 
-            <p className="text-[10px] text-[#a59ebf] leading-normal text-left">
+            <p className="text-[10px] text-[var(--ink-lo)] leading-normal text-left">
               Alterne entre o visual Escuro (Dark Studio) e o novo Tema Claro (Light Studio) de alta legibilidade para todas as barras, menus e painéis.
             </p>
 
@@ -4450,15 +4460,15 @@ export function LeftSidebar({
                 className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative flex flex-col justify-between ${
                   theme === 'dark'
                     ? 'bg-blue-600/10 border-blue-500 ring-2 ring-blue-500/30'
-                    : 'bg-[#16191E] border-slate-800 hover:border-slate-700 text-gray-300'
+                    : 'bg-[var(--surface)] border-[var(--line)] hover:border-[var(--line-ctl)] text-[var(--ink)]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-blue-400 shadow-sm">
+                    <div className="w-6 h-6 rounded-lg bg-[var(--surface)] border border-[var(--line-ctl)] flex items-center justify-center text-blue-400 shadow-sm">
                       <Moon size={13} />
                     </div>
-                    <span className="font-bold text-xs text-white">Escuro</span>
+                    <span className="font-bold text-xs text-[var(--ink-hi)]">Escuro</span>
                   </div>
                   {theme === 'dark' && (
                     <span className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center">
@@ -4466,7 +4476,7 @@ export function LeftSidebar({
                     </span>
                   )}
                 </div>
-                <p className="text-[9px] text-[#a59ebf] leading-tight">Ideal para estúdios escuros e transmissões noturnas.</p>
+                <p className="text-[9px] text-[var(--ink-lo)] leading-tight">Ideal para estúdios escuros e transmissões noturnas.</p>
               </button>
 
               {/* Light Theme Option Card */}
@@ -4476,7 +4486,7 @@ export function LeftSidebar({
                 className={`p-3 rounded-xl border text-left transition-all cursor-pointer relative flex flex-col justify-between ${
                   theme === 'light'
                     ? 'bg-blue-600/10 border-blue-500 ring-2 ring-blue-500/30'
-                    : 'bg-[#16191E] border-slate-800 hover:border-slate-700 text-gray-300'
+                    : 'bg-[var(--surface)] border-[var(--line)] hover:border-[var(--line-ctl)] text-[var(--ink)]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -4484,7 +4494,7 @@ export function LeftSidebar({
                     <div className="w-6 h-6 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-500 shadow-sm">
                       <Sun size={13} />
                     </div>
-                    <span className="font-bold text-xs text-white">Claro</span>
+                    <span className="font-bold text-xs text-[var(--ink-hi)]">Claro</span>
                   </div>
                   {theme === 'light' && (
                     <span className="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center">
@@ -4492,15 +4502,15 @@ export function LeftSidebar({
                     </span>
                   )}
                 </div>
-                <p className="text-[9px] text-[#a59ebf] leading-tight">Alta nitidez, fundo limpo e contraste aprimorado.</p>
+                <p className="text-[9px] text-[var(--ink-lo)] leading-tight">Alta nitidez, fundo limpo e contraste aprimorado.</p>
               </button>
             </div>
           </div>
 
           {/* BRAND PRESETS PANEL */}
-          <div className="bg-[#0F1115] border border-slate-800/80 p-4 rounded-xl space-y-4" id="brand-presets-section">
+          <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-4 rounded-xl space-y-4" id="brand-presets-section">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-[var(--ink)] uppercase tracking-wider flex items-center gap-1.5">
                 <Palette size={14} className="text-pink-400" />
                 Presets de Identidade Visual
               </h3>
@@ -4509,13 +4519,13 @@ export function LeftSidebar({
               </span>
             </div>
 
-            <p className="text-[10px] text-[#a59ebf] leading-normal text-left">
+            <p className="text-[10px] text-[var(--ink-lo)] leading-normal text-left">
               Alterne instantaneamente entre marcas pré-configuradas ou salve seu próprio tema para usar depois.
             </p>
 
             {/* Presets Grid */}
             <div className="space-y-2.5 text-left">
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Estilos Prontos</span>
+              <span className="text-[9px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Estilos Prontos</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {DEFAULT_PRESETS.map(preset => {
                   const isActive = streamColor.toLowerCase() === preset.streamColor.toLowerCase() && 
@@ -4529,7 +4539,7 @@ export function LeftSidebar({
                       className={`flex items-center justify-between p-2 rounded-xl border text-xs text-left transition-all cursor-pointer ${
                         isActive 
                           ? 'bg-blue-500/10 border-blue-500 hover:border-blue-400' 
-                          : 'bg-[#16191E] border-slate-800/80 hover:border-slate-700 text-gray-300 hover:text-white'
+                          : 'bg-[var(--surface)] border-[var(--line)]/80 hover:border-[var(--line-ctl)] text-[var(--ink)] hover:text-[var(--ink-hi)]'
                       }`}
                     >
                       <div className="flex items-center gap-2 min-w-0">
@@ -4539,7 +4549,7 @@ export function LeftSidebar({
                         />
                         <div className="truncate">
                           <p className="font-bold text-[11px] leading-tight truncate">{preset.name}</p>
-                          <p className="text-[9px] text-[#a59ebf] capitalize leading-none mt-0.5">{preset.textStyle}</p>
+                          <p className="text-[9px] text-[var(--ink-lo)] capitalize leading-none mt-0.5">{preset.textStyle}</p>
                         </div>
                       </div>
                       {isActive && (
@@ -4554,14 +4564,14 @@ export function LeftSidebar({
             </div>
 
             {/* Custom Saved Presets Section */}
-            <div className="space-y-2.5 text-left pt-2.5 border-t border-slate-800/60">
+            <div className="space-y-2.5 text-left pt-2.5 border-t border-[var(--line)]/60">
               <div className="flex items-center justify-between">
-                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Meus Presets Salvos</span>
-                <span className="text-[9px] font-mono text-gray-500">{customPresets.length} salvos</span>
+                <span className="text-[9px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Meus Presets Salvos</span>
+                <span className="text-[9px] font-mono text-[var(--ink-dim)]">{customPresets.length} salvos</span>
               </div>
 
               {customPresets.length === 0 ? (
-                <div className="py-3 bg-[#16191E]/40 rounded-xl border border-dashed border-slate-800 flex flex-col items-center justify-center text-center text-gray-500">
+                <div className="py-3 bg-[var(--surface)]/40 rounded-xl border border-dashed border-[var(--line)] flex flex-col items-center justify-center text-center text-[var(--ink-dim)]">
                   <span className="text-[10px]">Nenhum preset personalizado salvo.</span>
                 </div>
               ) : (
@@ -4578,7 +4588,7 @@ export function LeftSidebar({
                         className={`flex items-center justify-between p-2 rounded-xl border text-xs text-left transition-all cursor-pointer group relative ${
                           isActive 
                             ? 'bg-blue-500/10 border-blue-500 hover:border-blue-400' 
-                            : 'bg-[#16191E] border-slate-800/80 hover:border-slate-700 text-gray-300 hover:text-white'
+                            : 'bg-[var(--surface)] border-[var(--line)]/80 hover:border-[var(--line-ctl)] text-[var(--ink)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
                         <div className="flex items-center gap-2 min-w-0 pr-5">
@@ -4588,7 +4598,7 @@ export function LeftSidebar({
                           />
                           <div className="truncate">
                             <p className="font-bold text-[11px] leading-tight truncate">{preset.name}</p>
-                            <p className="text-[9px] text-[#a59ebf] capitalize leading-none mt-0.5">{preset.textStyle}</p>
+                            <p className="text-[9px] text-[var(--ink-lo)] capitalize leading-none mt-0.5">{preset.textStyle}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
@@ -4600,7 +4610,7 @@ export function LeftSidebar({
                           <button
                             type="button"
                             onClick={(e) => handleDeleteCustomPreset(preset.id, e)}
-                            className="text-gray-500 hover:text-red-400 p-1 rounded hover:bg-red-500/10 transition-all cursor-pointer"
+                            className="text-[var(--ink-dim)] hover:text-red-400 p-1 rounded hover:bg-red-500/10 transition-all cursor-pointer"
                             title="Excluir Preset"
                           >
                             <Trash2 size={11} />
@@ -4616,12 +4626,12 @@ export function LeftSidebar({
               <div className="space-y-2 pt-1.5">
                 {isSavingPreset ? (
                   <div className="flex gap-1.5 animate-in slide-in-from-bottom-1 duration-150">
-                    <input
+                    <input aria-label="Nome da predefinição de marca"
                       type="text"
                       value={newPresetName}
                       onChange={(e) => setNewPresetName(e.target.value)}
                       placeholder="Nome da sua marca..."
-                      className="flex-1 bg-[#16191E] border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                      className="flex-1 bg-[var(--surface)] border border-[var(--line)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-colors"
                       maxLength={24}
                     />
                     <button
@@ -4637,7 +4647,7 @@ export function LeftSidebar({
                         setIsSavingPreset(false);
                         setNewPresetName('');
                       }}
-                      className="px-2.5 bg-[#16191E] border border-slate-800 hover:bg-slate-800 text-gray-400 hover:text-white rounded-lg text-xs transition-colors flex items-center justify-center cursor-pointer"
+                      className="px-2.5 bg-[var(--surface)] border border-[var(--line)] hover:bg-[var(--panel)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] rounded-lg text-xs transition-colors flex items-center justify-center cursor-pointer"
                     >
                       Cancelar
                     </button>
@@ -4655,7 +4665,7 @@ export function LeftSidebar({
                       <button
                         type="button"
                         onClick={handleExportCurrentPreset}
-                        className="py-2 px-3 bg-slate-800/60 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-gray-300 hover:text-white font-bold rounded-xl text-[10px] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="py-2 px-3 bg-[var(--panel)]/60 hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[var(--ink)] hover:text-[var(--ink-hi)] font-bold rounded-xl text-[10px] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         title="Exportar Marca como JSON"
                       >
                         <Download size={12} /> Exportar JSON
@@ -4663,7 +4673,7 @@ export function LeftSidebar({
                       <button
                         type="button"
                         onClick={() => presetFileRef.current?.click()}
-                        className="py-2 px-3 bg-slate-800/60 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-gray-300 hover:text-white font-bold rounded-xl text-[10px] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="py-2 px-3 bg-[var(--panel)]/60 hover:bg-[var(--panel)] border border-[var(--line)] hover:border-[var(--line-ctl)] text-[var(--ink)] hover:text-[var(--ink-hi)] font-bold rounded-xl text-[10px] transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         title="Importar Marca do JSON"
                       >
                         <Upload size={12} /> Importar JSON
@@ -4683,8 +4693,8 @@ export function LeftSidebar({
           </div>
 
           {/* Theme Stream Color */}
-          <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-3">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left">Cor Principal da Marca</h3>
+          <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-3">
+            <h3 className="text-xs font-semibold text-[var(--ink-lo)] uppercase tracking-wider text-left">Cor Principal da Marca</h3>
             
             <div className="flex flex-wrap gap-2 justify-start">
               {PRESET_COLORS.map(color => (
@@ -4703,7 +4713,7 @@ export function LeftSidebar({
               
               {/* HTML custom color input */}
               <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-600 hover:scale-105 transition-all">
-                <input
+                <input aria-label="Cor da marca"
                   type="color"
                   value={streamColor}
                   onChange={(e) => onStreamColorChange(e.target.value)}
@@ -4717,12 +4727,12 @@ export function LeftSidebar({
                 </div>
               </div>
             </div>
-            <p className="text-[11px] text-gray-400 text-left">Cor ativa: <span className="font-mono font-semibold text-white">{streamColor}</span></p>
+            <p className="text-[11px] text-[var(--ink-lo)] text-left">Cor ativa: <span className="font-mono font-semibold text-[var(--ink-hi)]">{streamColor}</span></p>
           </div>
 
           {/* Text Style selection */}
-          <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-3">
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left">Estilo dos Textos (Banners)</h3>
+          <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-3">
+            <h3 className="text-xs font-semibold text-[var(--ink-lo)] uppercase tracking-wider text-left">Estilo dos Textos (Banners)</h3>
             <div className="grid grid-cols-3 gap-2">
               {(['default', 'news', 'rounded'] as const).map(style => (
                 <button
@@ -4731,7 +4741,7 @@ export function LeftSidebar({
                   className={`py-2 text-[11px] font-bold rounded-lg capitalize border transition-all ${
                     textStyle === style 
                       ? 'bg-blue-500/10 border-blue-500 text-blue-400' 
-                      : 'bg-[#16191E] border-slate-800 text-gray-300 hover:border-slate-700'
+                      : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink)] hover:border-[var(--line-ctl)]'
                   }`}
                 >
                   {style}
@@ -4741,20 +4751,20 @@ export function LeftSidebar({
           </div>
 
           {/* Animação de Entrada para Elementos */}
-          <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-4">
+          <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-4">
             <div>
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left flex items-center gap-1.5">
+              <h3 className="text-xs font-semibold text-[var(--ink-lo)] uppercase tracking-wider text-left flex items-center gap-1.5">
                 <Sparkles size={14} className="text-blue-500" />
                 Animações de Entrada de Elementos
               </h3>
-              <p className="text-[10px] text-[#a59ebf] mt-0.5 leading-normal">Escolha os efeitos visuais de entrada para banners e logos ao serem ativados no palco.</p>
+              <p className="text-[10px] text-[var(--ink-lo)] mt-0.5 leading-normal">Escolha os efeitos visuais de entrada para banners e logos ao serem ativados no palco.</p>
             </div>
 
             <div className="space-y-3">
               {/* Logo entrance animation */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">Efeito de Entrada do Logo</label>
-                <div className="grid grid-cols-2 gap-1 bg-[#16191E] p-1 rounded-lg border border-slate-800">
+                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Efeito de Entrada do Logo</label>
+                <div className="grid grid-cols-2 gap-1 bg-[var(--surface)] p-1 rounded-lg border border-[var(--line)]">
                   {([
                     { id: 'none', label: 'Nenhum' },
                     { id: 'fade', label: 'Surgir (Fade)' },
@@ -4768,7 +4778,7 @@ export function LeftSidebar({
                       className={`py-1.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
                         logoAnimation === anim.id 
                           ? 'bg-blue-500 text-white shadow-md' 
-                          : 'text-gray-400 hover:text-white'
+                          : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                       }`}
                     >
                       {anim.label}
@@ -4779,8 +4789,8 @@ export function LeftSidebar({
 
               {/* Banner entrance animation */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">Efeito de Entrada do Letreiro</label>
-                <div className="grid grid-cols-2 gap-1 bg-[#16191E] p-1 rounded-lg border border-slate-800">
+                <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">Efeito de Entrada do Letreiro</label>
+                <div className="grid grid-cols-2 gap-1 bg-[var(--surface)] p-1 rounded-lg border border-[var(--line)]">
                   {([
                     { id: 'none', label: 'Nenhum' },
                     { id: 'fade', label: 'Surgir (Fade)' },
@@ -4795,7 +4805,7 @@ export function LeftSidebar({
                       className={`py-1.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
                         bannerAnimation === anim.id 
                           ? 'bg-blue-500 text-white shadow-md' 
-                          : 'text-gray-400 hover:text-white'
+                          : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                       }`}
                     >
                       {anim.label}
@@ -4807,21 +4817,21 @@ export function LeftSidebar({
           </div>
 
           {/* Posicionamento do Card do Palestrante (PIP & Apresentação) */}
-          <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-4">
+          <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="text-left">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                <h3 className="text-xs font-semibold text-[var(--ink-lo)] uppercase tracking-wider flex items-center gap-1.5">
                   <Move size={14} className="text-blue-500" />
                   Posição do Card do Palestrante
                 </h3>
-                <p className="text-[10px] text-[#a59ebf] mt-0.5 leading-normal">
+                <p className="text-[10px] text-[var(--ink-lo)] mt-0.5 leading-normal">
                   Arraste livremente no palco ou selecione os atalhos para posicionar a sua câmera sobre os slides e telas.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => updateSpeakerSettings({ x: 74, y: 68 }, 1.0, 'rounded')}
-                className="px-2 py-1 bg-[#16191E] hover:bg-slate-800 border border-slate-700 text-gray-300 rounded text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line-ctl)] text-[var(--ink)] rounded text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer"
               >
                 Resetar
               </button>
@@ -4829,17 +4839,17 @@ export function LeftSidebar({
 
             {/* Presets Grid */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">
+              <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">
                 Posições Rápidas (Cantos & Centro)
               </label>
-              <div className="grid grid-cols-4 gap-1.5 bg-[#16191E] p-1.5 rounded-lg border border-slate-800">
+              <div className="grid grid-cols-4 gap-1.5 bg-[var(--surface)] p-1.5 rounded-lg border border-[var(--line)]">
                 <button
                   type="button"
                   onClick={() => updateSpeakerSettings({ x: 3, y: 4 })}
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x < 20 && sidebarSpeakerPos.y < 20
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-gray-400 hover:text-white hover:bg-slate-800'
+                      : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Topo Esquerdo"
                 >
@@ -4852,7 +4862,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x > 25 && sidebarSpeakerPos.x < 50 && sidebarSpeakerPos.y < 20
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-gray-400 hover:text-white hover:bg-slate-800'
+                      : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Topo Centro"
                 >
@@ -4865,7 +4875,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x > 60 && sidebarSpeakerPos.y < 20
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-gray-400 hover:text-white hover:bg-slate-800'
+                      : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Topo Direito"
                 >
@@ -4878,7 +4888,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x > 25 && sidebarSpeakerPos.x < 50 && sidebarSpeakerPos.y > 25 && sidebarSpeakerPos.y < 55
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-gray-400 hover:text-white hover:bg-slate-800'
+                      : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Centro da Tela"
                 >
@@ -4891,7 +4901,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x < 20 && sidebarSpeakerPos.y > 55
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-gray-400 hover:text-white hover:bg-slate-800'
+                      : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Base Esquerda"
                 >
@@ -4904,7 +4914,7 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x > 25 && sidebarSpeakerPos.x < 50 && sidebarSpeakerPos.y > 55
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-gray-400 hover:text-white hover:bg-slate-800'
+                      : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Base Centro"
                 >
@@ -4917,14 +4927,14 @@ export function LeftSidebar({
                   className={`py-1.5 px-2 rounded flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold transition-all ${
                     sidebarSpeakerPos.x > 60 && sidebarSpeakerPos.y > 55
                       ? 'bg-blue-500 text-white shadow'
-                      : 'text-gray-400 hover:text-white hover:bg-slate-800'
+                      : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]'
                   }`}
                   title="Base Direita (Padrão)"
                 >
                   <ArrowDownRight size={13} />
                   <span>Base Dir</span>
                 </button>
-                <div className="flex flex-col items-center justify-center p-1 rounded bg-[#0F1115] border border-slate-800/80 text-[8px] font-mono text-blue-400">
+                <div className="flex flex-col items-center justify-center p-1 rounded bg-[var(--bg)] border border-[var(--line)]/80 text-[8px] font-mono text-blue-400">
                   <span>X: {Math.round(sidebarSpeakerPos.x)}%</span>
                   <span>Y: {Math.round(sidebarSpeakerPos.y)}%</span>
                 </div>
@@ -4933,10 +4943,10 @@ export function LeftSidebar({
 
             {/* Shape Selector */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block text-left">
+              <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block text-left">
                 Formato do Card
               </label>
-              <div className="grid grid-cols-3 gap-1.5 bg-[#16191E] p-1 rounded-lg border border-slate-800">
+              <div className="grid grid-cols-3 gap-1.5 bg-[var(--surface)] p-1 rounded-lg border border-[var(--line)]">
                 {[
                   { id: 'rounded', label: 'Retângulo Arredondado' },
                   { id: 'circle', label: 'Circular (Avatar PIP)' },
@@ -4949,7 +4959,7 @@ export function LeftSidebar({
                     className={`py-1.5 px-2 text-[10px] font-bold rounded-md transition-all ${
                       sidebarSpeakerShape === shape.id
                         ? 'bg-blue-500 text-white shadow'
-                        : 'text-gray-400 hover:text-white'
+                        : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                     }`}
                   >
                     {shape.label}
@@ -4961,27 +4971,27 @@ export function LeftSidebar({
             {/* Scale Slider */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-gray-300 font-medium">Tamanho / Escala do Card</span>
+                <label htmlFor="leftsidebar-tamanho-escala-do-card" className="text-[var(--ink)] font-medium">Tamanho / Escala do Card</label>
                 <span className="font-mono text-blue-400 font-bold">{Math.round(sidebarSpeakerScale * 100)}%</span>
               </div>
-              <input
+              <input id="leftsidebar-tamanho-escala-do-card"
                 type="range"
                 min="0.6"
                 max="1.8"
                 step="0.05"
                 value={sidebarSpeakerScale}
                 onChange={(e) => updateSpeakerSettings(undefined, parseFloat(e.target.value))}
-                className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
               />
             </div>
           </div>
 
           {/* Ajuste de Enquadramento da Câmera (Crop) */}
-          <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-4">
+          <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="text-left">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Enquadramento da Câmera</h3>
-                <p className="text-[10px] text-[#a59ebf] mt-0.5 leading-normal">Ajuste o zoom e o crop da sua câmera principal ao vivo.</p>
+                <h3 className="text-xs font-semibold text-[var(--ink-lo)] uppercase tracking-wider">Enquadramento da Câmera</h3>
+                <p className="text-[10px] text-[var(--ink-lo)] mt-0.5 leading-normal">Ajuste o zoom e o crop da sua câmera principal ao vivo.</p>
               </div>
               <button
                 type="button"
@@ -4990,7 +5000,7 @@ export function LeftSidebar({
                   onCameraOffsetXChange(0);
                   onCameraOffsetYChange(0);
                 }}
-                className="px-2 py-1 bg-[#16191E] hover:bg-slate-800 border border-slate-700 text-gray-300 rounded text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                className="px-2 py-1 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line-ctl)] text-[var(--ink)] rounded text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer"
               >
                 Resetar
               </button>
@@ -5000,102 +5010,102 @@ export function LeftSidebar({
               {/* Zoom Slider */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-gray-300 font-medium">Zoom (Crop)</span>
+                  <label htmlFor="leftsidebar-zoom-crop" className="text-[var(--ink)] font-medium">Zoom (Crop)</label>
                   <span className="font-mono text-blue-400 font-bold">{Math.round(cameraZoom * 100)}%</span>
                 </div>
-                <input
+                <input id="leftsidebar-zoom-crop"
                   type="range"
                   min="1"
                   max="3"
                   step="0.05"
                   value={cameraZoom}
                   onChange={(e) => onCameraZoomChange(parseFloat(e.target.value))}
-                  className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                  className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
                 />
               </div>
 
               {/* Offset X Slider */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-gray-300 font-medium">Posição Horizontal (X)</span>
+                  <label htmlFor="leftsidebar-posicao-horizontal-x" className="text-[var(--ink)] font-medium">Posição Horizontal (X)</label>
                   <span className="font-mono text-blue-400 font-bold">
                     {cameraOffsetX > 0 ? `+${cameraOffsetX}` : cameraOffsetX}%
                   </span>
                 </div>
-                <input
+                <input id="leftsidebar-posicao-horizontal-x"
                   type="range"
                   min="-100"
                   max="100"
                   step="1"
                   value={cameraOffsetX}
                   onChange={(e) => onCameraOffsetXChange(parseInt(e.target.value))}
-                  className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                  className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
                 />
               </div>
 
               {/* Offset Y Slider */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-gray-300 font-medium">Posição Vertical (Y)</span>
+                  <label htmlFor="leftsidebar-posicao-vertical-y" className="text-[var(--ink)] font-medium">Posição Vertical (Y)</label>
                   <span className="font-mono text-blue-400 font-bold">
                     {cameraOffsetY > 0 ? `+${cameraOffsetY}` : cameraOffsetY}%
                   </span>
                 </div>
-                <input
+                <input id="leftsidebar-posicao-vertical-y"
                   type="range"
                   min="-100"
                   max="100"
                   step="1"
                   value={cameraOffsetY}
                   onChange={(e) => onCameraOffsetYChange(parseInt(e.target.value))}
-                  className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                  className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
                 />
               </div>
 
               {/* Espelhar Câmera (Flip Horizontal) Toggle */}
-              <div className="pt-3.5 border-t border-slate-800/60 flex items-center justify-between">
+              <div className="pt-3.5 border-t border-[var(--line)]/60 flex items-center justify-between">
                 <div className="text-left pr-2">
-                  <span className="text-[11px] text-gray-300 font-bold flex items-center gap-1">
+                  <span className="text-[11px] text-[var(--ink)] font-bold flex items-center gap-1">
                     Espelhar Câmera (Mirror)
                   </span>
-                  <p className="text-[9px] text-[#a59ebf] leading-tight mt-0.5">Mantenha habilitado para visualização natural ou desative para que textos em slides ou no fundo fiquem legíveis.</p>
+                  <p className="text-[9px] text-[var(--ink-lo)] leading-tight mt-0.5">Mantenha habilitado para visualização natural ou desative para que textos em slides ou no fundo fiquem legíveis.</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                  <input 
+                  <input aria-label="Espelhar Câmera (Mirror)" 
                     type="checkbox" 
                     checked={mirrorCamera}
                     onChange={(e) => onMirrorCameraChange(e.target.checked)}
                     className="sr-only peer" 
                   />
-                  <div className="w-8 h-4.5 bg-[#16191E] border border-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[#a59ebf] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
+                  <div className="w-8 h-4.5 bg-[var(--surface)] border border-[var(--line)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[var(--ink-lo)] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
                 </label>
               </div>
             </div>
           </div>
 
           {/* Croma Key (Green Screen) Controls */}
-          <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-4">
+          <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="text-left">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Croma Key (Fundo Verde)</h3>
-                <p className="text-[10px] text-[#a59ebf] mt-0.5 leading-normal">Remova ou substitua o fundo da sua câmera principal.</p>
+                <h3 className="text-xs font-semibold text-[var(--ink-lo)] uppercase tracking-wider">Croma Key (Fundo Verde)</h3>
+                <p className="text-[10px] text-[var(--ink-lo)] mt-0.5 leading-normal">Remova ou substitua o fundo da sua câmera principal.</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
+                <input aria-label="Croma Key (Fundo Verde)" 
                   type="checkbox" 
                   checked={chromaKeyEnabled}
                   onChange={(e) => onChromaKeyEnabledChange(e.target.checked)}
                   className="sr-only peer" 
                 />
-                <div className="w-8 h-4.5 bg-[#16191E] border border-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[#a59ebf] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
+                <div className="w-8 h-4.5 bg-[var(--surface)] border border-[var(--line)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[var(--ink-lo)] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
               </label>
             </div>
 
             {chromaKeyEnabled && (
-              <div className="space-y-3.5 border-t border-slate-800/60 pt-3 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="space-y-3.5 border-t border-[var(--line)]/60 pt-3 animate-in fade-in slide-in-from-top-2 duration-200">
                 {/* Chroma Color Picker */}
                 <div className="space-y-1.5 text-left">
-                  <span className="text-[11px] text-gray-300 font-medium">Cor de Chave (Background a remover)</span>
+                  <span className="text-[11px] text-[var(--ink)] font-medium">Cor de Chave (Background a remover)</span>
                   <div className="flex items-center gap-3">
                     <div className="flex gap-1.5 flex-1">
                       {[
@@ -5110,7 +5120,7 @@ export function LeftSidebar({
                           className={`flex-1 py-1 px-1.5 rounded text-[9px] font-bold border transition-all ${
                             chromaColor.toLowerCase() === preset.hex 
                               ? 'bg-blue-500/10 border-blue-500 text-blue-400' 
-                              : 'bg-[#16191E] border-slate-800 text-gray-400 hover:text-white'
+                              : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                           }`}
                         >
                           <div className="flex items-center gap-1 justify-center">
@@ -5122,7 +5132,7 @@ export function LeftSidebar({
                     </div>
                     {/* HTML color picker */}
                     <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-gray-600 hover:scale-105 transition-all shrink-0">
-                      <input
+                      <input aria-label="Cor do chroma key"
                         type="color"
                         value={chromaColor}
                         onChange={(e) => onChromaColorChange(e.target.value)}
@@ -5136,25 +5146,25 @@ export function LeftSidebar({
                       </div>
                     </div>
                   </div>
-                  <p className="text-[9px] text-gray-500">Cor selecionada: <span className="font-mono text-gray-300">{chromaColor}</span></p>
+                  <p className="text-[9px] text-[var(--ink-dim)]">Cor selecionada: <span className="font-mono text-[var(--ink)]">{chromaColor}</span></p>
                 </div>
 
                 {/* Tolerance slider */}
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-gray-300 font-medium">Tolerância da Cor</span>
+                    <label htmlFor="leftsidebar-tolerancia-da-cor" className="text-[var(--ink)] font-medium">Tolerância da Cor</label>
                     <span className="font-mono text-blue-400 font-bold">{chromaTolerance}%</span>
                   </div>
-                  <input
+                  <input id="leftsidebar-tolerancia-da-cor"
                     type="range"
                     min="10"
                     max="100"
                     step="1"
                     value={chromaTolerance}
                     onChange={(e) => onChromaToleranceChange(parseInt(e.target.value))}
-                    className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                    className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
                   />
-                  <p className="text-[9px] text-gray-500 leading-normal">
+                  <p className="text-[9px] text-[var(--ink-dim)] leading-normal">
                     Valores mais altos removem mais tons próximos da cor escolhida.
                   </p>
                 </div>
@@ -5162,19 +5172,19 @@ export function LeftSidebar({
                 {/* Edge Softness slider */}
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-gray-300 font-medium">Suavização das Bordas</span>
+                    <label htmlFor="leftsidebar-suavizacao-das-bordas" className="text-[var(--ink)] font-medium">Suavização das Bordas</label>
                     <span className="font-mono text-blue-400 font-bold">{chromaEdgeSoftness}%</span>
                   </div>
-                  <input
+                  <input id="leftsidebar-suavizacao-das-bordas"
                     type="range"
                     min="0"
                     max="100"
                     step="1"
                     value={chromaEdgeSoftness}
                     onChange={(e) => onChromaEdgeSoftnessChange && onChromaEdgeSoftnessChange(parseInt(e.target.value))}
-                    className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                    className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
                   />
-                  <p className="text-[9px] text-gray-500 leading-normal">
+                  <p className="text-[9px] text-[var(--ink-dim)] leading-normal">
                     Suaviza o contorno do corte da câmera para evitar bordas serrilhadas.
                   </p>
                 </div>
@@ -5182,19 +5192,19 @@ export function LeftSidebar({
                 {/* Spill Suppression slider */}
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-gray-300 font-medium">Descarte de Brilho (Spill)</span>
+                    <label htmlFor="leftsidebar-descarte-de-brilho-spill" className="text-[var(--ink)] font-medium">Descarte de Brilho (Spill)</label>
                     <span className="font-mono text-blue-400 font-bold">{chromaSpillSuppression}%</span>
                   </div>
-                  <input
+                  <input id="leftsidebar-descarte-de-brilho-spill"
                     type="range"
                     min="0"
                     max="100"
                     step="1"
                     value={chromaSpillSuppression}
                     onChange={(e) => onChromaSpillSuppressionChange && onChromaSpillSuppressionChange(parseInt(e.target.value))}
-                    className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                    className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
                   />
-                  <p className="text-[9px] text-gray-500 leading-normal">
+                  <p className="text-[9px] text-[var(--ink-dim)] leading-normal">
                     Reduz reflexos esverdeados ou azulados nas bordas do cabelo e ombros.
                   </p>
                 </div>
@@ -5203,30 +5213,30 @@ export function LeftSidebar({
           </div>
 
           {/* Cronômetro Regressivo Panel */}
-          <div className="bg-[#0F1115] border border-slate-800 p-4 rounded-xl space-y-4">
+          <div className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="text-left">
-                <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <h3 className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-1.5">
                   <Clock size={14} className="text-blue-500 animate-pulse" />
                   Cronômetro de Espera / Intervalo
                 </h3>
-                <p className="text-[10px] text-[#a59ebf] mt-0.5 leading-normal">
+                <p className="text-[10px] text-[var(--ink-lo)] mt-0.5 leading-normal">
                   Exiba um cronômetro na tela para intervalos ou contagem regressiva.
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
+                <input aria-label="Cronômetro de Espera / Intervalo" 
                   type="checkbox" 
                   checked={showCountdownOnScreen}
                   onChange={(e) => setShowCountdownOnScreen && setShowCountdownOnScreen(e.target.checked)}
                   className="sr-only peer" 
                 />
-                <div className="w-8 h-4.5 bg-[#16191E] border border-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[#a59ebf] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
+                <div className="w-8 h-4.5 bg-[var(--surface)] border border-[var(--line)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-[var(--ink-lo)] peer-checked:after:bg-blue-500 after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-blue-500/20 peer-checked:border-blue-500"></div>
               </label>
             </div>
 
             {showCountdownOnScreen && (
-              <div className="space-y-4 border-t border-slate-800/60 pt-3.5 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="space-y-4 border-t border-[var(--line)]/60 pt-3.5 animate-in fade-in slide-in-from-top-2 duration-200">
                 {/* Timer Controls (Start, Pause, Reset) */}
                 <div className="flex items-center gap-2">
                   <button
@@ -5256,7 +5266,7 @@ export function LeftSidebar({
                         setCountdownTimeLeft(countdownDuration);
                       }
                     }}
-                    className="px-3 py-2 bg-[#16191E] hover:bg-slate-800 border border-slate-700 text-gray-300 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1"
+                    className="px-3 py-2 bg-[var(--surface)] hover:bg-[var(--panel)] border border-[var(--line-ctl)] text-[var(--ink)] rounded-lg text-xs font-bold uppercase transition-all cursor-pointer flex items-center gap-1"
                     title="Resetar Cronômetro"
                   >
                     <RotateCcw size={12} /> Reset
@@ -5265,7 +5275,7 @@ export function LeftSidebar({
 
                 {/* Duration Config Preset Buttons */}
                 <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Atalhos de Duração</label>
+                  <label className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Atalhos de Duração</label>
                   <div className="grid grid-cols-4 gap-1">
                     {[
                       { label: '1 min', sec: 60 },
@@ -5285,7 +5295,7 @@ export function LeftSidebar({
                         className={`py-1.5 text-[10px] font-bold rounded border transition-all cursor-pointer ${
                           countdownDuration === preset.sec 
                             ? 'bg-blue-500 text-white border-blue-500' 
-                            : 'bg-[#16191E] border-slate-800 text-gray-400 hover:text-white'
+                            : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                         }`}
                       >
                         {preset.label}
@@ -5297,12 +5307,12 @@ export function LeftSidebar({
                 {/* Custom Duration Slider */}
                 <div className="space-y-1.5 text-left">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-gray-300 font-medium">Duração Personalizada</span>
+                    <label htmlFor="leftsidebar-duracao-personalizada" className="text-[var(--ink)] font-medium">Duração Personalizada</label>
                     <span className="font-mono text-blue-400 font-bold">
                       {Math.floor(countdownDuration / 60)}m {countdownDuration % 60}s
                     </span>
                   </div>
-                  <input
+                  <input id="leftsidebar-duracao-personalizada"
                     type="range"
                     min="30"
                     max="1800"
@@ -5317,21 +5327,21 @@ export function LeftSidebar({
                         }
                       }
                     }}
-                    className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-slate-800"
+                    className="w-full accent-blue-500 cursor-pointer h-1 rounded-lg bg-[var(--panel)]"
                   />
-                  <p className="text-[9px] text-gray-500">
+                  <p className="text-[9px] text-[var(--ink-dim)]">
                     Ajuste entre 30 segundos e 30 minutos.
                   </p>
                 </div>
 
                 {/* Live Remaining Time Display */}
-                <div className="p-3 bg-[#16191E] border border-slate-800/80 rounded-xl text-center space-y-1">
-                  <div className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Tempo Restante</div>
-                  <div className="text-2xl font-mono font-black text-white tracking-widest animate-pulse">
+                <div className="p-3 bg-[var(--surface)] border border-[var(--line)]/80 rounded-xl text-center space-y-1">
+                  <div className="text-[9px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Tempo Restante</div>
+                  <div className="text-2xl font-mono font-black text-[var(--ink-hi)] tracking-widest animate-pulse">
                     {Math.floor(countdownTimeLeft / 60).toString().padStart(2, '0')}:
                     {(countdownTimeLeft % 60).toString().padStart(2, '0')}
                   </div>
-                  <div className="text-[8px] text-gray-500 uppercase font-semibold">
+                  <div className="text-[8px] text-[var(--ink-dim)] uppercase font-semibold">
                     {isCountdownActive ? 'Contagem ativa' : 'Pausado'}
                   </div>
                 </div>
@@ -5343,19 +5353,19 @@ export function LeftSidebar({
 
       {/* Thumbnail Editor Modal */}
       {isThumbnailModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#16191E] border border-slate-800 w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+        <Modal isOpen onClose={() => setIsThumbnailModalOpen(false)} bare ariaLabel="Miniatura da transmissão">
+          <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F1115]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--bg)]">
               <div className="text-left">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <h3 className="text-sm font-bold text-[var(--ink-hi)] flex items-center gap-2">
                   <Edit size={16} className="text-blue-500" /> Editor de Capas (Thumbnail)
                 </h3>
-                <p className="text-xs text-gray-400">Configure a imagem e os textos e faça o download da thumbnail final</p>
+                <p className="text-xs text-[var(--ink-lo)]">Configure a imagem e os textos e faça o download da thumbnail final</p>
               </div>
-              <button 
+              <button aria-label="Fechar miniatura" 
                 onClick={() => setIsThumbnailModalOpen(false)}
-                className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
+                className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -5371,25 +5381,25 @@ export function LeftSidebar({
               />
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {/* Modal for Creating or Editing Banner */}
       {isAddBannerModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#121620] border border-slate-700 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4 text-left animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+        <Modal isOpen onClose={() => setIsAddBannerModalOpen(false)} bare ariaLabel="Adicionar banner">
+          <div className="bg-[var(--bg)] border border-[var(--line-ctl)] w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4 text-left animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-2 border-b border-[var(--line)]">
+              <h3 className="text-sm font-bold text-[var(--ink-hi)] flex items-center gap-2">
                 <Bookmark size={16} className="text-indigo-400" />
                 {editingBanner ? 'Editar Banner' : 'Criar Novo Banner'}
               </h3>
-              <button
+              <button aria-label="Fechar"
                 type="button"
                 onClick={() => {
                   setIsAddBannerModalOpen(false);
                   setEditingBanner(null);
                 }}
-                className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-1.5 rounded-lg hover:bg-[var(--panel)] transition-colors cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -5397,34 +5407,34 @@ export function LeftSidebar({
 
             <div className="space-y-3">
               <div>
-                <label className="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                <label htmlFor="leftsidebar-titulo-principal-banner" className="block text-[10px] font-bold text-[var(--ink)] uppercase tracking-wider mb-1">
                   Título Principal (Banner)
                 </label>
-                <input
+                <input id="leftsidebar-titulo-principal-banner"
                   type="text"
                   value={bannerInputTitle}
                   onChange={(e) => setBannerInputTitle(e.target.value)}
                   placeholder="Ex: Multistreaming upto 40+ social media platforms at once"
-                  className="w-full bg-[#0b0d14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[var(--well)] border border-[var(--line-ctl)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-indigo-500"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-1">
+                <label htmlFor="leftsidebar-subtitulo-cabecalho-superior" className="block text-[10px] font-bold text-[var(--ink)] uppercase tracking-wider mb-1">
                   Subtítulo / Cabeçalho Superior
                 </label>
-                <input
+                <input id="leftsidebar-subtitulo-cabecalho-superior"
                   type="text"
                   value={bannerInputSubtitle}
                   onChange={(e) => setBannerInputSubtitle(e.target.value)}
                   placeholder="Ex: Stream like a Pro - OneStream Live Studio"
-                  className="w-full bg-[#0b0d14] border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[var(--well)] border border-[var(--line-ctl)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-[10px] font-bold text-[var(--ink)] uppercase tracking-wider mb-1.5">
                   Tema de Cores
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -5442,7 +5452,7 @@ export function LeftSidebar({
                         setSelectedAccentColor(preset.accent);
                       }}
                       className={`p-2.5 rounded-xl border flex items-center justify-between text-[11px] font-bold transition-all cursor-pointer ${
-                        selectedThemeColor === preset.theme ? 'border-indigo-500 bg-indigo-950/40 text-white shadow-sm' : 'border-slate-800 bg-[#0b0d14] text-slate-400 hover:border-slate-700'
+                        selectedThemeColor === preset.theme ? 'border-indigo-500 bg-indigo-950/40 text-white shadow-sm' : 'border-[var(--line)] bg-[var(--well)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)]'
                       }`}
                     >
                       <span>{preset.label}</span>
@@ -5456,14 +5466,14 @@ export function LeftSidebar({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[var(--line)]">
               <button
                 type="button"
                 onClick={() => {
                   setIsAddBannerModalOpen(false);
                   setEditingBanner(null);
                 }}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink)] text-xs font-bold rounded-xl transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
@@ -5476,7 +5486,7 @@ export function LeftSidebar({
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

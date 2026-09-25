@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, Lock, Sparkles, ArrowRight, ShieldCheck, Radio, Server, Copy, CheckCircle2, ChevronRight, AlertCircle, Info, ExternalLink } from 'lucide-react';
 import { Destination } from '../types';
+import { Modal } from './ui/Modal';
 
 interface AddChannelsModalProps {
   isOpen: boolean;
@@ -44,8 +45,6 @@ export function AddChannelsModal({
   const [showKey, setShowKey] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
   const [successSaved, setSuccessSaved] = useState(false);
-
-  if (!isOpen) return null;
 
   // Maximum active destinations allowed based on plan
   const planLimits: Record<string, { maxChannels: number; allowedProtocols: string[] }> = {
@@ -172,7 +171,7 @@ export function AddChannelsModal({
       logo: (
         <div className="flex items-center gap-0.5">
           <span className="font-bold text-xl text-[#0A66C2]">Linked</span>
-          <span className="bg-[#0A66C2] text-white font-bold text-lg px-1.5 py-0.2 rounded-md">in</span>
+          <span className="bg-[#0A66C2] text-[var(--ink-hi)] font-bold text-lg px-1.5 py-0.2 rounded-md">in</span>
         </div>
       )
     },
@@ -186,7 +185,7 @@ export function AddChannelsModal({
       officialDocUrl: 'https://rumble.com',
       logo: (
         <div className="flex items-center gap-1.5">
-          <div className="w-6 h-6 rounded-full bg-[#85C744] flex items-center justify-center text-white">
+          <div className="w-6 h-6 rounded-full bg-[#85C744] flex items-center justify-center text-[var(--ink-hi)]">
             <svg className="w-3.5 h-3.5 translate-x-0.5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M8 5v14l11-7z"/>
             </svg>
@@ -239,26 +238,23 @@ export function AddChannelsModal({
   };
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
-      id="add-channels-modal-overlay"
-    >
-      <div className="bg-[#0F1218] text-slate-100 rounded-3xl w-full max-w-5xl border border-slate-700/80 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="Adicionar canais de transmissão">
+      <div className="bg-[var(--bg)] text-[var(--ink-hi)] rounded-3xl w-full max-w-5xl border border-[var(--line-ctl)]/80 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Modal Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 shrink-0 bg-[#141822]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] shrink-0 bg-[var(--surface)]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
               <Radio size={18} className="animate-pulse" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <h2 className="text-lg font-bold text-[var(--ink-hi)] tracking-tight flex items-center gap-2">
                 Add new channels
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
                   Multistreaming
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[var(--ink-lo)]">
                 Selecione as redes sociais e servidores RTMP para transmitir simultaneamente.
               </p>
             </div>
@@ -266,11 +262,11 @@ export function AddChannelsModal({
 
           <div className="flex items-center gap-3">
             {/* Plan Info Badge */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs">
-              <span className="text-slate-400 font-medium">Plano:</span>
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface)]/80 border border-[var(--line)] text-xs">
+              <span className="text-[var(--ink-lo)] font-medium">Plano:</span>
               <span className="font-black text-amber-400 uppercase">{currentPlan}</span>
-              <span className="text-slate-600">•</span>
-              <span className="text-slate-300 font-mono font-bold">
+              <span className="text-[var(--ink-dim)]">•</span>
+              <span className="text-[var(--ink)] font-mono font-bold">
                 {activeCount}/{currentLimit.maxChannels === 99 ? '∞' : currentLimit.maxChannels} destinos ativos
               </span>
             </div>
@@ -289,7 +285,7 @@ export function AddChannelsModal({
             <button 
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all cursor-pointer"
+              className="p-2 rounded-xl text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]/80 transition-all cursor-pointer"
               title="Fechar"
             >
               <X size={20} />
@@ -298,7 +294,7 @@ export function AddChannelsModal({
         </div>
 
         {/* Modal Main Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-[#0B0E14]">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-[var(--well)]">
           
           {/* Active Banner for Limit Warning */}
           {activeCount >= currentLimit.maxChannels && currentLimit.maxChannels < 99 && (
@@ -375,8 +371,8 @@ export function AddChannelsModal({
 
                   {/* Locked Overlay Icon for Pro-only features */}
                   {isLocked && (
-                    <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[1px] rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="bg-slate-900/90 text-white px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 border border-slate-700">
+                    <div className="absolute inset-0 bg-[var(--bg)]/20 backdrop-blur-[1px] rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-[var(--surface)]/90 text-[var(--ink-hi)] px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 border border-[var(--line-ctl)]">
                         <Lock size={10} className="text-amber-400" />
                         Upgrade
                       </div>
@@ -388,10 +384,10 @@ export function AddChannelsModal({
           </div>
 
           {/* Connected Channels List preview at bottom */}
-          <div className="mt-8 pt-6 border-t border-slate-800/80">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
+          <div className="mt-8 pt-6 border-t border-[var(--line)]/80">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--ink-lo)] mb-3 flex items-center justify-between">
               <span>Canais Configurados no seu Estúdio ({destinations.length})</span>
-              <span className="text-[10px] text-slate-500 font-normal">
+              <span className="text-[10px] text-[var(--ink-dim)] font-normal">
                 Clique nos cards acima para editar chaves ou adicionar novos
               </span>
             </h3>
@@ -402,20 +398,20 @@ export function AddChannelsModal({
                   key={dest.id}
                   className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
                     dest.selected 
-                      ? 'bg-blue-500/10 border-blue-500/40 text-white' 
-                      : 'bg-[#141822] border-slate-800 text-slate-400'
+                      ? 'bg-blue-500/10 border-blue-500/40 text-[var(--ink-hi)]' 
+                      : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 pr-2">
                     <img 
                       src={dest.avatarUrl} 
                       alt={dest.name} 
-                      className="w-7 h-7 rounded-full object-cover shrink-0 border border-slate-700"
+                      className="w-7 h-7 rounded-full object-cover shrink-0 border border-[var(--line-ctl)]"
                       referrerPolicy="no-referrer"
                     />
                     <div className="min-w-0">
-                      <p className="text-xs font-bold truncate text-white">{dest.name}</p>
-                      <p className="text-[9px] uppercase font-bold text-slate-400">{dest.platform}</p>
+                      <p className="text-xs font-bold truncate text-[var(--ink-hi)]">{dest.name}</p>
+                      <p className="text-[9px] uppercase font-bold text-[var(--ink-lo)]">{dest.platform}</p>
                     </div>
                   </div>
 
@@ -425,7 +421,7 @@ export function AddChannelsModal({
                     className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all ${
                       dest.selected 
                         ? 'bg-blue-600 hover:bg-blue-500 text-white' 
-                        : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                        : 'bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink)]'
                     }`}
                   >
                     {dest.selected ? 'Ativo' : 'Ativar'}
@@ -437,7 +433,7 @@ export function AddChannelsModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-3.5 border-t border-slate-800 bg-[#141822] flex items-center justify-between text-xs text-slate-400">
+        <div className="px-6 py-3.5 border-t border-[var(--line)] bg-[var(--surface)] flex items-center justify-between text-xs text-[var(--ink-lo)]">
           <div className="flex items-center gap-2">
             <Info size={14} className="text-blue-400" />
             <span>Transmita simultaneamente para todas as suas redes sem usar mais banda do seu computador.</span>
@@ -455,30 +451,34 @@ export function AddChannelsModal({
 
       {/* Slide-over / Modal for Platform RTMP Details Configuration */}
       <AnimatePresence>
+        {/* Diálogo aninhado. Era um scrim próprio em z-60, sem ESC, sem
+            armadilha de foco e sem trava de rolagem. A trava do Modal é
+            CONTADA justamente para este caso: fechar este não pode devolver
+            a rolagem enquanto o diálogo de baixo continua aberto. */}
         {selectedPlatform && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+          <Modal
+            isOpen={!!selectedPlatform}
+            onClose={() => setSelectedPlatform(null)}
+            bare
+            ariaLabel={`Configurar ${selectedPlatform.name}`}
           >
-            <div className="bg-[#121620] text-slate-100 rounded-3xl w-full max-w-lg border border-slate-700 shadow-2xl overflow-hidden p-6 space-y-5">
+            <div className="bg-[var(--bg)] text-[var(--ink-hi)] rounded-3xl w-full max-w-lg border border-[var(--line-ctl)] shadow-2xl overflow-hidden p-6 space-y-5">
               
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center justify-between border-b border-[var(--line)] pb-4">
                 <div className="flex items-center gap-3">
                   <div className="bg-white rounded-xl p-2 h-10 w-20 flex items-center justify-center shadow-xs">
                     {selectedPlatform.logo}
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-white">Configurar {selectedPlatform.name}</h3>
-                    <p className="text-[11px] text-slate-400">Insira os dados de transmissão da plataforma</p>
+                    <h3 className="text-base font-bold text-[var(--ink-hi)]">Configurar {selectedPlatform.name}</h3>
+                    <p className="text-[11px] text-[var(--ink-lo)]">Insira os dados de transmissão da plataforma</p>
                   </div>
                 </div>
-                <button
+                <button aria-label="Fechar configuração da plataforma"
                   type="button"
                   onClick={() => setSelectedPlatform(null)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                  className="p-1.5 rounded-lg text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]"
                 >
                   <X size={18} />
                 </button>
@@ -505,34 +505,34 @@ export function AddChannelsModal({
               {/* Form fields */}
               <div className="space-y-3.5 text-left">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  <label htmlFor="addchannelsmodal-nome-de-exibicao-do-canal" className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)] mb-1">
                     Nome de Exibição do Canal
                   </label>
-                  <input
+                  <input id="addchannelsmodal-nome-de-exibicao-do-canal"
                     type="text"
                     value={channelName}
                     onChange={(e) => setChannelName(e.target.value)}
                     placeholder="Ex: Meu Canal Oficial"
-                    className="w-full px-3.5 py-2.5 bg-[#0B0E14] border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3.5 py-2.5 bg-[var(--well)] border border-[var(--line-ctl)] rounded-xl text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  <label htmlFor="addchannelsmodal-url-do-servidor-rtmp-rtmps" className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)] mb-1">
                     URL do Servidor RTMP / RTMPS
                   </label>
-                  <input
+                  <input id="addchannelsmodal-url-do-servidor-rtmp-rtmps"
                     type="text"
                     value={streamUrl}
                     onChange={(e) => setStreamUrl(e.target.value)}
                     placeholder="rtmp://..."
-                    className="w-full px-3.5 py-2.5 bg-[#0B0E14] border border-slate-700 rounded-xl text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3.5 py-2.5 bg-[var(--well)] border border-[var(--line-ctl)] rounded-xl text-xs text-[var(--ink-hi)] font-mono placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <label htmlFor="addchannelsmodal-chave-de-transmissao-stream-key" className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)]">
                       Chave de Transmissão (Stream Key)
                     </label>
                     <button
@@ -543,22 +543,22 @@ export function AddChannelsModal({
                       {showKey ? 'Ocultar' : 'Mostrar'}
                     </button>
                   </div>
-                  <input
+                  <input id="addchannelsmodal-chave-de-transmissao-stream-key"
                     type={showKey ? 'text' : 'password'}
                     value={streamKey}
                     onChange={(e) => setStreamKey(e.target.value)}
                     placeholder={selectedPlatform.defaultRtmpKeyPlaceholder}
-                    className="w-full px-3.5 py-2.5 bg-[#0B0E14] border border-slate-700 rounded-xl text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3.5 py-2.5 bg-[var(--well)] border border-[var(--line-ctl)] rounded-xl text-xs text-[var(--ink-hi)] font-mono placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[var(--line)]">
                 <button
                   type="button"
                   onClick={() => setSelectedPlatform(null)}
-                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer"
+                  className="px-4 py-2.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink)] rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -581,9 +581,9 @@ export function AddChannelsModal({
               </div>
 
             </div>
-          </motion.div>
+          </Modal>
         )}
       </AnimatePresence>
-    </div>
+    </Modal>
   );
 }

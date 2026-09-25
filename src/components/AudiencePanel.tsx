@@ -88,8 +88,8 @@ export function AudiencePanel() {
 
   return (
     <div className="space-y-4 h-full flex flex-col">
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
-        <h2 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+      <div className="flex items-center justify-between pb-3 border-b border-[var(--line)]/80">
+        <h2 className="text-lg font-bold tracking-tight text-[var(--ink-hi)] flex items-center gap-2">
           <Users size={18} className="text-blue-500" />
           CRM da Audiência
         </h2>
@@ -104,19 +104,19 @@ export function AudiencePanel() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input 
+          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--ink-lo)]" />
+          <input aria-label="Buscar espectadores" 
             type="text" 
             placeholder="Buscar espectadores..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#0F1115] border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+            className="w-full bg-[var(--bg)] border border-[var(--line-ctl)] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-colors"
           />
         </div>
-        <select 
+        <select aria-label="Filtrar espectadores" 
           value={filter}
           onChange={(e) => setFilter(e.target.value as any)}
-          className="bg-[#0F1115] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-blue-500 cursor-pointer"
+          className="bg-[var(--bg)] border border-[var(--line-ctl)] rounded-lg px-2 py-1.5 text-xs text-[var(--ink)] focus:outline-none focus:border-blue-500 cursor-pointer"
         >
           <option value="all">Todos</option>
           <option value="new">Novos</option>
@@ -126,32 +126,32 @@ export function AudiencePanel() {
 
       <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
         {filteredAudience.length === 0 ? (
-          <div className="text-center text-slate-500 text-xs py-10">
+          <div className="text-center text-[var(--ink-dim)] text-xs py-10">
             Nenhum usuário encontrado na sua base.
           </div>
         ) : (
           filteredAudience.map(user => (
-            <div key={user.id} className="bg-[#0F1115] border border-slate-800/80 hover:border-slate-700 p-3 rounded-xl flex items-center gap-3 transition-colors">
+            <div key={user.id} className="bg-[var(--bg)] border border-[var(--line)]/80 hover:border-[var(--line-ctl)] p-3 rounded-xl flex items-center gap-3 transition-colors">
               <img 
                 src={user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80'} 
                 alt={user.name} 
-                className="w-10 h-10 rounded-full border border-slate-700 object-cover"
+                className="w-10 h-10 rounded-full border border-[var(--line-ctl)] object-cover"
               />
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-white truncate">{user.name}</h3>
+                  <h3 className="text-sm font-bold text-[var(--ink-hi)] truncate">{user.name}</h3>
                   {user.isNewUser && (
                     <span className="shrink-0 bg-emerald-500/20 text-emerald-400 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">Novo</span>
                   )}
                 </div>
-                <div className="text-[10px] text-slate-400 truncate">
+                <div className="text-[10px] text-[var(--ink-lo)] truncate">
                   {user.email || 'Sem e-mail cadastrado'}
                 </div>
                 
-                <div className="flex gap-3 mt-1.5 text-[9px] text-slate-500 font-medium">
+                <div className="flex gap-3 mt-1.5 text-[9px] text-[var(--ink-dim)] font-medium">
                   <div className="flex items-center gap-1">
-                    <Activity size={10} className={user.engagementScore > 50 ? 'text-amber-400' : 'text-slate-500'} />
+                    <Activity size={10} className={user.engagementScore > 50 ? 'text-amber-400' : 'text-[var(--ink-dim)]'} />
                     Score: {user.engagementScore}
                   </div>
                   <div className="flex items-center gap-1">

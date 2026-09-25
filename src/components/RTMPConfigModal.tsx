@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Copy, CheckCircle2, Server, Save, Activity, RefreshCw, AlertCircle, Plus, Trash2, Youtube, Tv, Globe, Radio, Check, Edit3 } from 'lucide-react';
+import { copyText } from './ui/clipboard';
+import { Modal } from './ui/Modal';
 
 export interface RTMPProfile {
   id: string;
@@ -115,16 +117,14 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
     }
   }, [profiles]);
 
-  if (!isOpen) return null;
-
   const handleCopyUrl = () => {
-    navigator.clipboard.writeText(url);
+    copyText(url);
     setCopiedUrl(true);
     setTimeout(() => setCopiedUrl(false), 2000);
   };
 
   const handleCopyKey = () => {
-    navigator.clipboard.writeText(streamKey);
+    copyText(streamKey);
     setCopiedKey(true);
     setTimeout(() => setCopiedKey(false), 2000);
   };
@@ -225,22 +225,22 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#1a1625] border border-slate-700/50 rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="Configuração RTMP">
+      <div className="bg-[var(--surface)] border border-[var(--line-ctl)]/50 rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#14101d]">
+        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[var(--bg)]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
               <Server className="text-purple-400" size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white leading-tight">Perfis & Destinos RTMP Multicanais</h2>
-              <p className="text-xs text-gray-400 mt-1">Gerencie múltiplos perfis de transmissão e alterne rapidamente sem sobrescrever configurações.</p>
+              <h2 className="text-xl font-bold text-[var(--ink-hi)] leading-tight">Perfis & Destinos RTMP Multicanais</h2>
+              <p className="text-xs text-[var(--ink-lo)] mt-1">Gerencie múltiplos perfis de transmissão e alterne rapidamente sem sobrescrever configurações.</p>
             </div>
           </div>
-          <button 
+          <button aria-label="Fechar" 
             onClick={onClose}
-            className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white cursor-pointer"
+            className="p-2 hover:bg-white/5 rounded-full transition-colors text-[var(--ink-lo)] hover:text-[var(--ink-hi)] cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -274,7 +274,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                     className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between group relative ${
                       isSelected
                         ? 'bg-purple-950/40 border-purple-500 text-white shadow-lg shadow-purple-500/10 ring-1 ring-purple-500/50'
-                        : 'bg-[#0f0c16] border-white/5 text-slate-300 hover:border-white/20 hover:bg-white/5'
+                        : 'bg-[var(--well)] border-white/5 text-[var(--ink)] hover:border-white/20 hover:bg-white/5'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0 pr-2">
@@ -285,10 +285,10 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-white truncate">{prof.name}</span>
+                          <span className="text-xs font-bold text-[var(--ink-hi)] truncate">{prof.name}</span>
                           {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />}
                         </div>
-                        <span className="text-[10px] text-slate-400 font-mono truncate block">{prof.url}</span>
+                        <span className="text-[10px] text-[var(--ink-lo)] font-mono truncate block">{prof.url}</span>
                       </div>
                     </div>
 
@@ -302,7 +302,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                           <button
                             type="button"
                             onClick={(e) => handleDeleteProfile(prof.id, e)}
-                            className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-lg transition-all"
+                            className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-rose-500/20 text-[var(--ink-lo)] hover:text-rose-400 rounded-lg transition-all"
                             title="Excluir Perfil"
                           >
                             <Trash2 size={13} />
@@ -317,18 +317,18 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
           </div>
 
           {/* Edit Selected Profile Form */}
-          <div className="bg-[#0f0c16] border border-white/10 rounded-2xl p-5 space-y-4">
+          <div className="bg-[var(--well)] border border-white/10 rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <span className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider flex items-center gap-2">
                 <Edit3 size={14} className="text-purple-400" /> Configurações do Perfil Selecionado
               </span>
-              <span className="text-[10px] text-slate-400 font-mono">ID: {activeProfileId}</span>
+              <span className="text-[10px] text-[var(--ink-lo)] font-mono">ID: {activeProfileId}</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Nome do Perfil</label>
-                <input
+                <label htmlFor="rtmpconfigmodal-nome-do-perfil" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Nome do Perfil</label>
+                <input id="rtmpconfigmodal-nome-do-perfil"
                   type="text"
                   value={profileName}
                   onChange={(e) => {
@@ -336,13 +336,13 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                     handleSaveCurrentProfile();
                   }}
                   placeholder="Ex: Transmissão Principal YouTube"
-                  className="w-full bg-[#161222] px-3 py-2 rounded-lg text-xs text-white border border-white/10 focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--bg)] px-3 py-2 rounded-lg text-xs text-[var(--ink-hi)] border border-white/10 focus:outline-none focus:border-purple-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Plataforma</label>
-                <select
+                <label htmlFor="rtmpconfigmodal-plataforma" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Plataforma</label>
+                <select id="rtmpconfigmodal-plataforma"
                   value={platform}
                   onChange={(e) => {
                     const newPlat = e.target.value as RTMPProfile['platform'];
@@ -355,7 +355,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                     if (newPlat === 'Twitch TV' && !url) setUrl('rtmp://live.twitch.tv/app');
                     if (newPlat === 'Facebook Live' && !url) setUrl('rtmps://live-api-s.facebook.com:443/rtmp/');
                   }}
-                  className="w-full bg-[#161222] px-3 py-2 rounded-lg text-xs text-white border border-white/10 focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[var(--bg)] px-3 py-2 rounded-lg text-xs text-[var(--ink-hi)] border border-white/10 focus:outline-none focus:border-purple-500"
                 >
                   <option value="Cloudflare Stream">Cloudflare Stream (RTMPS)</option>
                   <option value="YouTube Live">YouTube Live</option>
@@ -369,9 +369,9 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
 
             <div className="space-y-3 pt-1">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Servidor RTMP (URL Ingest)</label>
+                <label htmlFor="rtmpconfigmodal-servidor-rtmp-url-ingest" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Servidor RTMP (URL Ingest)</label>
                 <div className="flex items-center gap-2">
-                  <input
+                  <input id="rtmpconfigmodal-servidor-rtmp-url-ingest"
                     type="text"
                     value={url}
                     onChange={(e) => {
@@ -379,7 +379,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                       setTestResult('idle');
                     }}
                     placeholder="rtmp://a.rtmp.youtube.com/live2"
-                    className="flex-1 bg-[#161222] px-3.5 py-2.5 rounded-lg text-xs text-white border border-white/10 focus:outline-none focus:border-purple-500 font-mono transition-colors"
+                    className="flex-1 bg-[var(--bg)] px-3.5 py-2.5 rounded-lg text-xs text-[var(--ink-hi)] border border-white/10 focus:outline-none focus:border-purple-500 font-mono transition-colors"
                   />
                   <button 
                     type="button"
@@ -393,14 +393,14 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Chave de Transmissão (Stream Key)</label>
+                <label htmlFor="rtmpconfigmodal-chave-de-transmissao-stream-key" className="text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider block">Chave de Transmissão (Stream Key)</label>
                 <div className="flex items-center gap-2">
-                  <input
+                  <input id="rtmpconfigmodal-chave-de-transmissao-stream-key"
                     type={copiedKey ? "text" : "password"}
                     value={streamKey}
                     onChange={(e) => setStreamKey(e.target.value)}
                     placeholder="••••••••••••••••••••"
-                    className="flex-1 bg-[#161222] px-3.5 py-2.5 rounded-lg text-xs text-amber-300 border border-white/10 focus:outline-none focus:border-purple-500 font-mono transition-colors"
+                    className="flex-1 bg-[var(--bg)] px-3.5 py-2.5 rounded-lg text-xs text-amber-300 border border-white/10 focus:outline-none focus:border-purple-500 font-mono transition-colors"
                   />
                   <button 
                     type="button"
@@ -443,7 +443,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
                     </span>
                   )}
                   {testResult === 'idle' && !isTesting && (
-                    <span className="text-slate-500 text-[11px]">Teste o endpoint antes de salvar (validação DNS e socket TCP)</span>
+                    <span className="text-[var(--ink-dim)] text-[11px]">Teste o endpoint antes de salvar (validação DNS e socket TCP)</span>
                   )}
                 </div>
               </div>
@@ -452,15 +452,15 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
         </div>
 
         {/* Footer */}
-        <div className="p-5 border-t border-white/5 bg-[#14101d] flex items-center justify-between gap-3">
-          <span className="text-xs text-slate-400 hidden sm:inline">
-            Perfil ativo: <strong className="text-white">{profileName || activeProfile.name}</strong>
+        <div className="p-5 border-t border-white/5 bg-[var(--bg)] flex items-center justify-between gap-3">
+          <span className="text-xs text-[var(--ink-lo)] hidden sm:inline">
+            Perfil ativo: <strong className="text-[var(--ink-hi)]">{profileName || activeProfile.name}</strong>
           </span>
           <div className="flex items-center gap-2 ml-auto">
             <button 
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-lg font-semibold text-xs transition-colors cursor-pointer"
+              className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-[var(--ink-hi)] rounded-lg font-semibold text-xs transition-colors cursor-pointer"
             >
               Cancelar
             </button>
@@ -475,6 +475,6 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
           </div>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

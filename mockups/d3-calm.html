@@ -1,0 +1,1143 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PwStream — Direção 3: Modo Estúdio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =============================================================================
+   PwStream — Direção "Modo Estúdio"
+   Tese: o estúdio é um modo em que se entra, não o produto inteiro.
+   O sistema é claro por padrão. O console é o modo escuro deliberado dele.
+   ============================================================================= */
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img,svg{display:block;max-width:100%}
+button{font:inherit;color:inherit}
+h1,h2,h3,h4,p,ul,ol,figure,dl,dd{margin:0}
+ul,ol{padding:0;list-style:none}
+table{border-collapse:collapse}
+
+/* -----------------------------------------------------------------------------
+   1. RAMPAS BRUTAS — declaradas uma vez, nunca re-tematizadas.
+   Duas rampas neutras, e a razão é escrita no sistema:
+   PAPEL carrega um viés verde-neutro de 2 pontos (é papel, não tela de grau).
+   GRAFITE é exatamente neutro, R=G=B, porque cerca vídeo.
+   -------------------------------------------------------------------------- */
+:root{
+  /* Papel — superfícies claras */
+  --p-0:#FFFFFF;
+  --p-1:#F6F8F7;
+  --p-2:#EFF2F1;
+  --p-3:#E4E8E7;
+  --p-4:#D3D8D7;
+  --p-5:#9AA1A0;
+  --p-6:#6E7674;
+  --p-7:#4A5150;
+  --p-8:#1B1F1E;
+
+  /* Grafite — console e tema escuro. R=G=B em todos os degraus. */
+  --g-0:#000000;
+  --g-1:#0A0A0A;
+  --g-2:#121212;
+  --g-3:#191919;
+  --g-4:#212121;
+  --g-5:#2B2B2B;
+  --g-6:#3A3A3A;
+  --g-7:#6E6E6E;
+  --g-8:#909090;
+  --g-9:#B4B4B4;
+  --g-10:#EDEDED;
+
+  /* Marca — petróleo. Vive fora do console, por regra. */
+  --brand-700:#08453D;
+  --brand-600:#0A5D52;
+  --brand-500:#0E7A6C;
+  --brand-300:#5FC4B0;
+  --brand-tint-l:#E3EFEC;
+  --brand-tint-d:#10302B;
+
+  /* Tally — namespace reservado da transmissão. Nunca decoração. */
+  --live-l:#C0261B;   --live-d:#FF4436;
+  --ready-l:#1C6E42;  --ready-d:#3FD07C;
+  --warn-l:#8A5D00;   --warn-d:#E8A93A;
+  --fail-l:#A32418;   --fail-d:#FF7466;
+  --live-tint-l:#F7E4E2; --live-tint-d:#2A1210;
+  --ready-tint-l:#E2F0E8; --ready-tint-d:#0F241A;
+  --warn-tint-l:#F5EBD8; --warn-tint-d:#241C0C;
+
+  /* Séries de dados — 4 matizes, escolhidas para não colidir com tally. */
+  --data1-l:#0A5D52; --data1-d:#5FC4B0;
+  --data2-l:#5B4B87; --data2-d:#A99BD6;
+  --data3-l:#8A5D00; --data3-d:#D2A05A;
+  --data4-l:#2F5F78; --data4-d:#7FB2CC;
+
+  /* ---- Escala tipográfica ---- */
+  --t-display:clamp(2.75rem,5.4vw,4.5rem);
+  --t-h2:clamp(1.75rem,3vw,2rem);
+  --t-h3:1.375rem;
+  --t-lead:1.1875rem;
+  --t-body:1rem;
+  --t-small:0.875rem;
+  --t-label:0.75rem;
+  --t-price:2.5rem;
+  /* Console */
+  --t-c-lg:0.9375rem;
+  --t-c-md:0.8125rem;
+  --t-c-sm:0.75rem;
+  --t-c-xs:0.6875rem;   /* piso absoluto: 11px. Nada abaixo disso embarca. */
+  --t-c-num:1.75rem;
+
+  /* ---- Espaço. Base 4. Regra: console usa s-1..s4; editorial usa s2..s10.
+         s3 (12px) é a única dobradiça compartilhada. ---- */
+  --s-1:2px; --s0:4px; --s1:6px; --s2:8px; --s3:12px; --s4:16px;
+  --s5:24px; --s6:32px; --s7:48px; --s8:64px; --s9:96px; --s10:128px;
+
+  /* ---- Raio. 4 degraus. Filho = pai − recuo, piso 4, teto 16. ---- */
+  --r-1:4px;   /* chips, células, linhas de lista */
+  --r-2:8px;   /* botões, campos, painéis */
+  --r-3:16px;  /* poço do vídeo e mídia de herói. Nada mais. */
+  --r-full:999px; /* avatares, pontos de estado, botões de alternância */
+
+  /* ---- Elevação. Elevação é troca de chão, não brilho. ---- */
+  --e-0:none;
+  --e-1:0 1px 2px rgb(0 0 0 / .05), 0 8px 24px rgb(0 0 0 / .06);
+  --e-2:0 2px 4px rgb(0 0 0 / .06), 0 24px 64px rgb(0 0 0 / .10);
+
+  /* ---- Fontes ---- */
+  --font-text:"Archivo","Segoe UI",system-ui,sans-serif;
+  --font-num:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  /* =========================================================================
+     2. TOKENS SEMÂNTICOS — valores CLAROS (tema padrão)
+     ====================================================================== */
+  --paper:var(--p-1);
+  --surface:var(--p-0);
+  --surface-2:var(--p-2);
+  --surface-3:var(--p-3);
+  --stage:var(--g-0);
+  --rule:var(--p-3);
+  --rule-strong:var(--p-4);
+  --ink:var(--p-8);
+  --ink-2:var(--p-7);
+  --ink-3:var(--p-6);
+  --ink-4:var(--p-5);
+  --brand:var(--brand-600);
+  --brand-hover:var(--brand-700);
+  --brand-tint:var(--brand-tint-l);
+  --on-brand:var(--p-0);
+  --action:var(--p-8);          /* a ação primária é tinta, não cor */
+  --action-hover:var(--g-4);
+  --on-action:var(--p-0);
+  --focus:var(--brand-500);
+  --on-live:var(--p-0);   /* texto sobre o vermelho de tally. Igual nos dois temas. */
+  --live:var(--live-l);   --live-tint:var(--live-tint-l);
+  --ready:var(--ready-l); --ready-tint:var(--ready-tint-l);
+  --warn:var(--warn-l);   --warn-tint:var(--warn-tint-l);
+  --fail:var(--fail-l);
+  --data1:var(--data1-l); --data2:var(--data2-l);
+  --data3:var(--data3-l); --data4:var(--data4-l);
+  --elev:var(--e-1);
+
+  color-scheme:light;
+}
+
+/* =========================================================================
+   3. ESCURO POR PREFERÊNCIA DO SISTEMA — só tokens, nada mais
+   ====================================================================== */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:var(--g-1);
+    --surface:var(--g-2);
+    --surface-2:var(--g-3);
+    --surface-3:var(--g-4);
+    --stage:var(--g-0);
+    --rule:var(--g-5);
+    --rule-strong:var(--g-6);
+    --ink:var(--g-10);
+    --ink-2:var(--g-9);
+    --ink-3:var(--g-8);
+    --ink-4:var(--g-7);
+    --brand:var(--brand-300);
+    --brand-hover:var(--brand-500);
+    --brand-tint:var(--brand-tint-d);
+    --on-brand:var(--g-1);
+    --action:var(--g-10);
+    --action-hover:var(--p-0);
+    --on-action:var(--g-1);
+    --focus:var(--brand-300);
+    --live:var(--live-d);   --live-tint:var(--live-tint-d);
+    --ready:var(--ready-d); --ready-tint:var(--ready-tint-d);
+    --warn:var(--warn-d);   --warn-tint:var(--warn-tint-d);
+    --fail:var(--fail-d);
+    --data1:var(--data1-d); --data2:var(--data2-d);
+    --data3:var(--data3-d); --data4:var(--data4-d);
+    --elev:var(--e-0);
+    color-scheme:dark;
+  }
+}
+
+/* =========================================================================
+   4. ESCURO EXPLÍCITO — o botão vence a preferência nos dois sentidos
+   ====================================================================== */
+:root[data-theme="dark"]{
+  --paper:var(--g-1);
+  --surface:var(--g-2);
+  --surface-2:var(--g-3);
+  --surface-3:var(--g-4);
+  --stage:var(--g-0);
+  --rule:var(--g-5);
+  --rule-strong:var(--g-6);
+  --ink:var(--g-10);
+  --ink-2:var(--g-9);
+  --ink-3:var(--g-8);
+  --ink-4:var(--g-7);
+  --brand:var(--brand-300);
+  --brand-hover:var(--brand-500);
+  --brand-tint:var(--brand-tint-d);
+  --on-brand:var(--g-1);
+  --action:var(--g-10);
+  --action-hover:var(--p-0);
+  --on-action:var(--g-1);
+  --focus:var(--brand-300);
+  --live:var(--live-d);   --live-tint:var(--live-tint-d);
+  --ready:var(--ready-d); --ready-tint:var(--ready-tint-d);
+  --warn:var(--warn-d);   --warn-tint:var(--warn-tint-d);
+  --fail:var(--fail-d);
+  --data1:var(--data1-d); --data2:var(--data2-d);
+  --data3:var(--data3-d); --data4:var(--data4-d);
+  --elev:var(--e-0);
+  color-scheme:dark;
+}
+
+/* =========================================================================
+   5. MODO ESTÚDIO — um escopo, não um tema.
+   O console fixa a rampa grafite nos dois temas da página, e a marca
+   é banida daqui: em volta do vídeo só existe neutro e tally.
+   ====================================================================== */
+[data-surface="console"]{
+  --paper:var(--g-1);
+  --surface:var(--g-2);
+  --surface-2:var(--g-3);
+  --surface-3:var(--g-4);
+  --stage:var(--g-0);
+  --rule:var(--g-5);
+  --rule-strong:var(--g-6);
+  --ink:var(--g-10);
+  --ink-2:var(--g-9);
+  --ink-3:var(--g-8);
+  --ink-4:var(--g-7);
+  --brand:var(--g-10);          /* sem matiz de marca junto do vídeo */
+  --brand-tint:var(--g-4);
+  --on-brand:var(--g-1);
+  --action:var(--g-4);
+  --action-hover:var(--g-5);
+  --on-action:var(--g-10);
+  --focus:var(--g-10);          /* foco acromático: não contamina o monitor */
+  --live:var(--live-d);   --live-tint:var(--live-tint-d);
+  --ready:var(--ready-d); --ready-tint:var(--ready-tint-d);
+  --warn:var(--warn-d);   --warn-tint:var(--warn-tint-d);
+  --fail:var(--fail-d);
+  --elev:var(--e-0);
+  color-scheme:dark;
+}
+
+/* =============================================================================
+   BASE
+   ============================================================================= */
+body{
+  background:var(--paper);
+  color:var(--ink-2);
+  font-family:var(--font-text);
+  font-size:var(--t-body);
+  font-weight:400;
+  font-stretch:100%;
+  line-height:1.65;
+  font-synthesis-weight:none;
+  -webkit-font-smoothing:antialiased;
+}
+.num,code,.mono{font-family:var(--font-num);font-variant-numeric:tabular-nums;letter-spacing:-0.01em}
+table,td,th,.tabular{font-variant-numeric:tabular-nums}
+
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:2px}
+
+/* O eixo de largura carrega a densidade: 112% display · 100% texto · 94% console */
+h1,h2,.display{font-stretch:112%}
+[data-surface="console"]{font-stretch:94%}
+
+.eyebrow{
+  font-family:var(--font-num);
+  font-size:var(--t-label);
+  font-weight:500;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:var(--s5)}
+.prose{max-width:62ch}
+.hr{height:1px;background:var(--rule);border:0}
+
+/* =============================================================================
+   MASTHEAD
+   ============================================================================= */
+.masthead{
+  border-bottom:1px solid var(--rule);
+  background:var(--surface);
+  position:sticky;top:0;z-index:20;
+}
+.masthead__in{
+  display:flex;align-items:center;gap:var(--s5);
+  min-height:60px;
+}
+.brand{display:flex;align-items:center;gap:var(--s2);text-decoration:none;color:var(--ink)}
+.brand__mark{width:22px;height:22px;color:var(--brand);flex:none}
+.brand__name{font-size:1.0625rem;font-weight:700;font-stretch:112%;letter-spacing:-0.02em}
+.masthead__thesis{
+  font-size:var(--t-label);color:var(--ink-3);
+  border-left:1px solid var(--rule);padding-left:var(--s5);
+  flex:1 1 auto;line-height:1.4;
+}
+.themectl{display:flex;align-items:center;gap:0;border:1px solid var(--rule);border-radius:var(--r-2);padding:2px;background:var(--surface-2)}
+.themectl__b{
+  appearance:none;background:transparent;border:0;cursor:pointer;
+  font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-3);padding:5px 9px;border-radius:var(--r-1);
+}
+.themectl__b[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--e-0);border:1px solid var(--rule)}
+.themectl__b:hover{color:var(--ink)}
+
+/* =============================================================================
+   MOLDURA DE SEÇÃO
+   ============================================================================= */
+.surfacehead{padding-top:var(--s8);padding-bottom:var(--s5)}
+.surfacehead__row{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s3) var(--s5);border-bottom:1px solid var(--rule);padding-bottom:var(--s3)}
+.surfacehead h2{
+  font-size:var(--t-h3);font-weight:600;letter-spacing:-0.015em;color:var(--ink);line-height:1.2;
+}
+.surfacehead__note{font-size:var(--t-small);color:var(--ink-3);max-width:56ch;margin-top:var(--s3);line-height:1.6}
+
+/* =============================================================================
+   SUPERFÍCIE 1 — CONSOLE
+   ============================================================================= */
+.console{
+  background:var(--paper);
+  color:var(--ink-2);
+  border:1px solid var(--rule-strong);
+  border-radius:var(--r-3);
+  overflow:hidden;
+  font-size:var(--t-c-md);
+  line-height:1.45;
+}
+.console__bar{
+  display:flex;align-items:center;gap:var(--s4);
+  height:44px;padding:0 var(--s3);
+  background:var(--surface);
+  border-bottom:1px solid var(--rule);
+}
+.console__id{display:flex;align-items:center;gap:var(--s2);color:var(--ink);font-weight:600;font-size:var(--t-c-md);white-space:nowrap}
+.console__id svg{width:16px;height:16px;color:var(--ink-3)}
+.console__sess{color:var(--ink-3);font-weight:400}
+
+.tally{
+  display:inline-flex;align-items:center;gap:var(--s1);
+  background:var(--live);color:var(--on-live);
+  padding:3px var(--s2) 3px var(--s1);
+  border-radius:var(--r-1);
+  font-family:var(--font-num);font-size:var(--t-c-xs);font-weight:600;letter-spacing:.1em;
+}
+.tally__dot{width:6px;height:6px;border-radius:var(--r-full);background:currentColor}
+@media (prefers-reduced-motion: no-preference){
+  .tally__dot{animation:tallybeat 2s steps(1,end) infinite}
+  @keyframes tallybeat{0%,60%{opacity:1}61%,100%{opacity:.25}}
+}
+.timer{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-c-lg);font-weight:500;color:var(--ink);letter-spacing:0}
+
+.readouts{display:flex;gap:var(--s4);margin-left:auto;align-items:center}
+.ro{display:flex;flex-direction:column;gap:1px;min-width:0}
+.ro__k{font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);line-height:1}
+.ro__v{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-c-md);color:var(--ink);line-height:1.2}
+.ro__v.is-ok{color:var(--ready)}
+.ro__v.is-warn{color:var(--warn)}
+
+.console__grid{display:grid;grid-template-columns:212px minmax(0,1fr) 300px;min-height:520px}
+.col{border-right:1px solid var(--rule);background:var(--paper);min-width:0}
+.col:last-child{border-right:0}
+.col--rail{background:var(--surface);display:flex;flex-direction:column}
+.col--chat{background:var(--surface);display:flex;flex-direction:column}
+
+.panelhead{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s2);
+  height:28px;padding:0 var(--s3);
+  border-bottom:1px solid var(--rule);
+}
+.panelhead__t{font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.panelhead__c{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-c-xs);color:var(--ink-4)}
+
+.scenes{padding:var(--s0) 0}
+.scene{
+  display:flex;align-items:center;gap:var(--s2);
+  height:28px;padding:0 var(--s3);
+  border-left:2px solid transparent;
+  cursor:default;color:var(--ink-2);
+}
+.scene:hover{background:var(--surface-2)}
+.scene__n{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-c-xs);color:var(--ink-4);width:14px;flex:none}
+.scene__l{font-size:var(--t-c-md);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scene__s{margin-left:auto;font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.08em;text-transform:uppercase}
+.scene.is-live{border-left-color:var(--live);background:var(--live-tint);color:var(--ink)}
+.scene.is-live .scene__s{color:var(--live)}
+.scene.is-ready{border-left-color:var(--ready)}
+.scene.is-ready .scene__s{color:var(--ready)}
+
+.dests{padding:var(--s0) var(--s2) var(--s3)}
+.dest{
+  display:flex;align-items:center;gap:var(--s2);
+  height:32px;padding:0 var(--s1);
+  border-bottom:1px solid var(--rule);
+}
+.dest:last-child{border-bottom:0}
+.dest__m{
+  width:20px;height:20px;flex:none;border:1px solid var(--rule-strong);border-radius:var(--r-1);
+  display:grid;place-items:center;
+  font-family:var(--font-num);font-size:var(--t-c-xs);font-weight:500;color:var(--ink-3);
+}
+.dest__n{font-size:var(--t-c-md);color:var(--ink-2)}
+.dest__s{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.06em;text-transform:uppercase}
+.dot{width:6px;height:6px;border-radius:var(--r-full);flex:none}
+.s-live{color:var(--live)} .s-live .dot{background:var(--live)}
+.s-ok{color:var(--ready)} .s-ok .dot{background:var(--ready)}
+.s-warn{color:var(--warn)} .s-warn .dot{background:var(--warn)}
+
+/* Palco */
+.stagecol{padding:var(--s3);display:flex;flex-direction:column;gap:var(--s3);min-width:0}
+.monitor{position:relative;background:var(--stage);border-radius:var(--r-2);overflow:hidden;border:1px solid var(--rule-strong)}
+.monitor--program{aspect-ratio:16/9;border-top:2px solid var(--live)}
+.monitor--preview{aspect-ratio:16/9;border-top:2px solid var(--ready);width:232px;flex:none}
+.monitor__safe{position:absolute;inset:5%;border:1px dashed var(--g-6);opacity:.55;border-radius:2px;pointer-events:none}
+.monitor__tag{
+  position:absolute;top:var(--s2);left:var(--s2);
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--g-9);background:var(--g-2);border:1px solid var(--g-5);
+  padding:2px 6px;border-radius:var(--r-1);
+}
+.monitor__meta{
+  position:absolute;top:var(--s2);right:var(--s2);
+  font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-c-xs);
+  color:var(--g-8);
+}
+.monitor__slate{
+  position:absolute;left:var(--s2);bottom:var(--s2);
+  font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.06em;color:var(--g-8);
+}
+.monitor__center{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-size:var(--t-c-lg);font-weight:500;color:var(--g-6);letter-spacing:-0.01em;
+}
+.monitor--preview .monitor__center{font-size:var(--t-c-sm)}
+.monitor--preview .monitor__safe{display:none}
+
+.stagerow{display:flex;gap:var(--s3);align-items:stretch;min-width:0}
+.stagebox{
+  flex:1 1 0;min-width:0;
+  border:1px solid var(--rule);border-radius:var(--r-2);background:var(--surface);
+  padding:var(--s2) var(--s3) var(--s3);
+}
+.stagebox__h{display:flex;align-items:center;justify-content:space-between;height:20px;margin-bottom:var(--s2)}
+
+/* VU */
+.vu{display:flex;flex-direction:column;gap:var(--s1)}
+.vu__row{display:flex;align-items:center;gap:var(--s2)}
+.vu__ch{font-family:var(--font-num);font-size:var(--t-c-xs);color:var(--ink-4);width:10px;flex:none}
+.vu__track{position:relative;flex:1 1 auto;height:8px;background:var(--surface-3);border-radius:2px;overflow:hidden}
+.vu__fill{
+  position:absolute;inset:0 auto 0 0;
+  /* O medidor é acromático até deixar de ser: cinza no nominal, âmbar na margem,
+     vermelho no clipe. Nenhuma faixa saturada permanente ao lado do monitor. */
+  background:linear-gradient(90deg,var(--ink-3) 0 68%,var(--warn) 68% 88%,var(--live) 88% 100%);
+  background-size:calc(100% * var(--full,1)) 100%;background-repeat:no-repeat;
+}
+.vu__seg{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 6px,var(--surface) 6px 8px)}
+.vu__scale{display:flex;justify-content:space-between;font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-c-xs);color:var(--ink-4);padding-left:18px}
+.vu__peak{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-c-xs);color:var(--ink-3);width:44px;text-align:right;flex:none}
+
+/* Transição */
+.transitions{display:flex;gap:var(--s2);margin-top:var(--s2)}
+.tbtn{
+  appearance:none;cursor:pointer;
+  background:var(--action);color:var(--on-action);
+  border:1px solid var(--rule-strong);border-radius:var(--r-1);
+  font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.08em;text-transform:uppercase;
+  height:26px;padding:0 var(--s2);
+}
+.tbtn:hover{background:var(--action-hover)}
+.tbtn--take{border-color:var(--ready);color:var(--ready);background:transparent}
+.tbtn--take:hover{background:var(--ready-tint)}
+
+/* Chat */
+.chat{display:flex;flex-direction:column;min-height:0;flex:1 1 auto}
+.chat__list{padding:var(--s2) var(--s3);display:flex;flex-direction:column;gap:var(--s3);overflow:hidden}
+.msg{display:grid;grid-template-columns:22px minmax(0,1fr);gap:var(--s2)}
+.msg__av{
+  width:22px;height:22px;border-radius:var(--r-full);
+  display:grid;place-items:center;background:var(--surface-3);color:var(--ink-3);
+  font-family:var(--font-num);font-size:var(--t-c-xs);font-weight:500;
+}
+.msg__h{display:flex;align-items:baseline;gap:var(--s1);flex-wrap:wrap}
+.msg__n{font-size:var(--t-c-sm);font-weight:600;color:var(--ink)}
+.msg__t{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-c-xs);color:var(--ink-4)}
+.msg__src{font-family:var(--font-num);font-size:var(--t-c-xs);color:var(--ink-4);letter-spacing:.06em}
+.msg__b{font-size:var(--t-c-md);color:var(--ink-2);margin-top:1px}
+.chat__foot{margin-top:auto;border-top:1px solid var(--rule);padding:var(--s2) var(--s3)}
+.chat__input{
+  width:100%;height:30px;border:1px solid var(--rule-strong);border-radius:var(--r-1);
+  background:var(--surface-2);color:var(--ink);padding:0 var(--s2);
+  font-family:var(--font-text);font-size:var(--t-c-md);font-stretch:94%;
+}
+.chat__input::placeholder{color:var(--ink-4)}
+
+/* Bandeja */
+.tray{
+  display:flex;align-items:center;gap:var(--s2);
+  height:56px;padding:0 var(--s3);
+  border-top:1px solid var(--rule);background:var(--surface);
+}
+.ctrl{
+  appearance:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:var(--s2);
+  height:34px;padding:0 var(--s3);
+  background:var(--surface-2);color:var(--ink-2);
+  border:1px solid var(--rule);border-radius:var(--r-1);
+  font-size:var(--t-c-md);font-stretch:94%;
+}
+.ctrl svg{width:16px;height:16px;flex:none}
+.ctrl:hover{background:var(--surface-3);color:var(--ink)}
+.ctrl.is-muted{color:var(--warn);border-color:var(--warn)}
+.ctrl.is-on{color:var(--ink);border-color:var(--rule-strong);background:var(--surface-3)}
+.tray__sep{width:1px;height:24px;background:var(--rule);margin:0 var(--s1)}
+.tray__end{margin-left:auto;display:flex;align-items:center;gap:var(--s3)}
+.tray__hint{font-family:var(--font-num);font-size:var(--t-c-xs);color:var(--ink-4);letter-spacing:.04em}
+.endbtn{
+  appearance:none;cursor:pointer;
+  height:34px;padding:0 var(--s4);
+  background:var(--live);color:var(--on-live);border:1px solid var(--live);border-radius:var(--r-1);
+  font-family:var(--font-num);font-size:var(--t-c-sm);font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+}
+.endbtn:hover{filter:brightness(1.08)}
+
+/* =============================================================================
+   SUPERFÍCIE 2 — HERÓI + PLANOS
+   ============================================================================= */
+.hero{padding-top:var(--s9);padding-bottom:var(--s8)}
+.hero__eyebrow{margin-bottom:var(--s5)}
+.hero h1{
+  font-size:var(--t-display);line-height:0.98;letter-spacing:-0.035em;
+  font-weight:600;color:var(--ink);max-width:17ch;
+}
+.hero h1 em{font-style:normal;color:var(--brand)}
+.hero__sub{
+  margin-top:var(--s5);font-size:var(--t-lead);line-height:1.55;color:var(--ink-2);max-width:56ch;
+}
+.hero__act{margin-top:var(--s6);display:flex;flex-wrap:wrap;align-items:center;gap:var(--s5)}
+.btn{
+  appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:var(--s2);
+  background:var(--action);color:var(--on-action);
+  border:1px solid var(--action);border-radius:var(--r-2);
+  height:48px;padding:0 var(--s5);
+  font-size:var(--t-body);font-weight:600;letter-spacing:-0.01em;
+  text-decoration:none;
+}
+.btn:hover{background:var(--action-hover);border-color:var(--action-hover)}
+.btn__k{font-family:var(--font-num);font-size:var(--t-label);opacity:.7;letter-spacing:.06em}
+.hero__fine{font-size:var(--t-small);color:var(--ink-3);max-width:34ch;line-height:1.5}
+.hero__fine a{color:var(--brand);text-decoration-thickness:1px;text-underline-offset:3px}
+
+.specs{
+  margin-top:var(--s8);border-top:1px solid var(--rule);
+  display:grid;grid-template-columns:repeat(4,1fr);
+}
+.spec{border-right:1px solid var(--rule);padding:var(--s5) var(--s5) var(--s5) 0}
+.spec:last-child{border-right:0}
+.spec:not(:first-child){padding-left:var(--s5)}
+.spec__k{font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);display:block;margin-bottom:var(--s2)}
+.spec__v{font-size:var(--t-small);color:var(--ink);line-height:1.45;font-weight:500}
+
+/* Planos */
+.pricing{padding-top:var(--s8);padding-bottom:var(--s9)}
+.pricing__head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,26rem);gap:var(--s7);align-items:end;padding-bottom:var(--s6);border-bottom:1px solid var(--rule-strong)}
+.pricing h2{font-size:var(--t-h2);line-height:1.1;letter-spacing:-0.025em;font-weight:600;color:var(--ink);max-width:16ch}
+.pricing__note{font-size:var(--t-small);color:var(--ink-3);line-height:1.6}
+
+.plans{display:grid;grid-template-columns:repeat(3,1fr)}
+.plan{
+  border-right:1px solid var(--rule);
+  padding:var(--s6) var(--s5) var(--s6) 0;
+  display:flex;flex-direction:column;
+}
+.plan:not(:first-child){padding-left:var(--s5)}
+.plan:last-child{border-right:0;padding-right:0}
+.plan.is-picked{background:var(--brand-tint);box-shadow:inset 3px 0 0 0 var(--brand);padding-left:var(--s5);padding-right:var(--s5)}
+.plan__name{display:flex;align-items:baseline;gap:var(--s2);margin-bottom:var(--s2)}
+.plan__name h3{font-size:var(--t-h3);font-weight:600;letter-spacing:-0.015em;color:var(--ink);line-height:1.2}
+.plan__tag{font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+.plan__desc{font-size:var(--t-small);color:var(--ink-3);line-height:1.55;min-height:3.4em;max-width:30ch}
+.plan__price{
+  margin-top:var(--s5);display:flex;align-items:baseline;gap:var(--s2);
+  font-family:var(--font-num);font-variant-numeric:tabular-nums;
+}
+.plan__cur{font-size:var(--t-lead);color:var(--ink-3);font-weight:400}
+.plan__amt{font-size:var(--t-price);line-height:1;font-weight:500;color:var(--ink);letter-spacing:-0.03em}
+/* Os centavos descem de nível: resolve o vão da vírgula na mono tabular
+   sem abrir mão do alinhamento entre colunas. */
+.plan__cents{font-size:.56em;letter-spacing:-0.01em;color:var(--ink-2);margin-left:.06em}
+.plan__per{font-size:var(--t-small);color:var(--ink-3)}
+.plan__lead{margin-top:var(--s3);font-size:var(--t-small);color:var(--ink);font-weight:600}
+.plan__feats{margin-top:var(--s5);display:flex;flex-direction:column;gap:var(--s3)}
+.feat{display:grid;grid-template-columns:14px 1fr;gap:var(--s2);align-items:start;font-size:var(--t-small);color:var(--ink-2);line-height:1.45}
+.feat i{display:block;height:1px;background:var(--rule-strong);margin-top:.72em}
+.plan__pick{
+  margin-top:var(--s5);display:inline-flex;align-items:center;gap:var(--s2);
+  font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-3);background:transparent;border:0;padding:0;cursor:pointer;
+}
+.plan__pick .dot{width:10px;height:10px;border:1px solid var(--rule-strong);border-radius:var(--r-full);background:transparent}
+.plan.is-picked .plan__pick{color:var(--brand)}
+.plan.is-picked .plan__pick .dot{background:var(--brand);border-color:var(--brand);box-shadow:inset 0 0 0 2px var(--brand-tint)}
+
+.checkout{
+  margin-top:var(--s6);border-top:1px solid var(--rule-strong);padding-top:var(--s6);
+  display:flex;flex-wrap:wrap;align-items:center;gap:var(--s5) var(--s7);
+}
+.checkout__sum{font-size:var(--t-small);color:var(--ink-3);max-width:44ch;line-height:1.6}
+.checkout__sum b{color:var(--ink);font-weight:600}
+
+/* =============================================================================
+   SUPERFÍCIE 3 — TOKENS
+   ============================================================================= */
+.tokens{padding-bottom:var(--s9)}
+.tokgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:var(--s6) var(--s7);margin-top:var(--s5)}
+.tokgroup h3{
+  font-family:var(--font-num);font-size:var(--t-c-xs);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:500;padding-bottom:var(--s2);border-bottom:1px solid var(--rule);margin-bottom:var(--s2);
+}
+.tokgroup p{font-size:var(--t-small);color:var(--ink-3);line-height:1.5;margin-bottom:var(--s3)}
+.swatch{display:grid;grid-template-columns:auto 1fr auto;gap:var(--s2);align-items:center;padding:5px 0;border-bottom:1px solid var(--rule)}
+.swatch:last-child{border-bottom:0}
+.chips{display:flex;flex:none}
+.chip{width:22px;height:22px;border:1px solid var(--rule-strong)}
+.chip:first-child{border-radius:var(--r-1) 0 0 var(--r-1)}
+.chip:last-child{border-radius:0 var(--r-1) var(--r-1) 0;border-left:0}
+.swatch__t{font-family:var(--font-num);font-size:var(--t-c-xs);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.swatch__r{font-size:var(--t-c-xs);color:var(--ink-4);display:block;font-family:var(--font-text);font-stretch:94%;letter-spacing:0}
+.swatch__h{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-c-xs);color:var(--ink-3);text-align:right;white-space:nowrap}
+
+.specimen{margin-top:var(--s7);border-top:1px solid var(--rule-strong);padding-top:var(--s6)}
+.spec-row{display:grid;grid-template-columns:170px minmax(0,1fr);gap:var(--s5);padding:var(--s3) 0;border-bottom:1px solid var(--rule);align-items:baseline}
+.spec-row__k{font-family:var(--font-num);font-size:var(--t-c-xs);color:var(--ink-4);line-height:1.5}
+.spec-row__k b{display:block;color:var(--ink-3);font-weight:500}
+.sp-display{font-size:var(--t-display);line-height:.98;letter-spacing:-0.035em;font-weight:600;color:var(--ink);font-stretch:112%}
+.sp-h2{font-size:var(--t-h2);line-height:1.1;letter-spacing:-0.025em;font-weight:600;color:var(--ink);font-stretch:112%}
+.sp-h3{font-size:var(--t-h3);line-height:1.2;letter-spacing:-0.015em;font-weight:600;color:var(--ink)}
+.sp-lead{font-size:var(--t-lead);line-height:1.55;color:var(--ink-2)}
+.sp-body{font-size:var(--t-body);line-height:1.65;color:var(--ink-2)}
+.sp-small{font-size:var(--t-small);line-height:1.5;color:var(--ink-3)}
+.sp-price{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-price);line-height:1;letter-spacing:-0.03em;color:var(--ink)}
+.sp-c{font-stretch:94%;color:var(--ink-2)}
+
+.scaleboxes{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:flex-end;margin-top:var(--s3)}
+.sb{display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.sb i{display:block;background:var(--brand);height:12px;border-radius:1px}
+.sb span{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-size:var(--t-c-xs);color:var(--ink-4)}
+.radboxes{display:flex;gap:var(--s4);flex-wrap:wrap;margin-top:var(--s3)}
+.rb{width:64px;height:52px;border:1px solid var(--rule-strong);background:var(--surface-2);display:grid;place-items:end center;padding-bottom:4px;font-family:var(--font-num);font-size:var(--t-c-xs);color:var(--ink-4)}
+.elevboxes{display:flex;gap:var(--s5);flex-wrap:wrap;margin-top:var(--s3)}
+.eb{width:132px;height:64px;border-radius:var(--r-2);background:var(--surface);border:1px solid var(--rule);display:grid;place-items:center;font-family:var(--font-num);font-size:var(--t-c-xs);color:var(--ink-3)}
+.eb--1{box-shadow:var(--e-1)}
+.eb--2{box-shadow:var(--e-2)}
+
+.rules{margin-top:var(--s7);border-top:1px solid var(--rule-strong);padding-top:var(--s6);display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--s6) var(--s7)}
+.rule-card h4{font-size:var(--t-small);font-weight:600;color:var(--ink);margin-bottom:var(--s2)}
+.rule-card p{font-size:var(--t-small);color:var(--ink-3);line-height:1.6}
+.rule-card code{font-size:var(--t-c-xs);color:var(--ink-2);background:var(--surface-2);padding:1px 4px;border-radius:2px}
+
+.pagefoot{border-top:1px solid var(--rule);padding:var(--s5) 0 var(--s8);font-size:var(--t-small);color:var(--ink-4)}
+
+/* =============================================================================
+   RESPONSIVO
+   ============================================================================= */
+@media (max-width:1080px){
+  .console__grid{grid-template-columns:190px minmax(0,1fr)}
+  .col--chat{grid-column:1 / -1;border-top:1px solid var(--rule);border-right:0}
+  .readouts{gap:var(--s3)}
+}
+@media (max-width:880px){
+  .masthead__thesis{display:none}
+  .console__grid{grid-template-columns:1fr}
+  .col{border-right:0;border-bottom:1px solid var(--rule)}
+  .stagerow{flex-direction:column}
+  .monitor--preview{width:100%}
+  .specs{grid-template-columns:repeat(2,1fr)}
+  .spec:nth-child(2){border-right:0}
+  .plans{grid-template-columns:1fr}
+  .plan{border-right:0;border-bottom:1px solid var(--rule);padding-left:0;padding-right:0}
+  .plan.is-picked{padding-left:var(--s4);padding-right:var(--s4);box-shadow:inset 3px 0 0 0 var(--brand)}
+  .pricing__head{grid-template-columns:1fr;gap:var(--s5)}
+  .spec-row{grid-template-columns:1fr;gap:var(--s2)}
+  .tray{height:auto;padding:var(--s3);flex-wrap:wrap}
+  .tray__end{width:100%;justify-content:space-between}
+}
+@media (max-width:560px){
+  .readouts{display:none}
+  .specs{grid-template-columns:1fr}
+  .spec{border-right:0;border-bottom:1px solid var(--rule);padding-left:0}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead__in">
+    <a class="brand" href="#top">
+      <svg class="brand__mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="2.75" y="4.75" width="18.5" height="14.5" rx="3" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 9.4v5.2l4.6-2.6L10 9.4Z" fill="currentColor"/>
+      </svg>
+      <span class="brand__name">PwStream</span>
+    </a>
+    <p class="masthead__thesis">Direção 3 — o estúdio é um modo em que se entra, não o produto inteiro. O sistema é claro; o console é o escuro deliberado dele.</p>
+    <div class="themectl" role="group" aria-label="Tema da página">
+      <button class="themectl__b" type="button" data-set="auto" aria-pressed="true">Auto</button>
+      <button class="themectl__b" type="button" data-set="light" aria-pressed="false">Claro</button>
+      <button class="themectl__b" type="button" data-set="dark" aria-pressed="false">Escuro</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ==========================================================
+       SUPERFÍCIE 1 — CONSOLE
+       ========================================================== -->
+  <section class="wrap surfacehead" aria-labelledby="s1">
+    <div class="surfacehead__row">
+      <span class="eyebrow">Superfície 01</span>
+      <h2 id="s1">Estúdio ao vivo</h2>
+    </div>
+    <p class="surfacehead__note">O console permanece escuro nos dois temas da página. Não é preferência: é a condição de leitura do vídeo. Aqui a marca não entra — em volta do monitor existem apenas neutros exatos (R=G=B) e o vermelho, verde e âmbar reservados ao tally.</p>
+  </section>
+
+  <section class="wrap" aria-label="Estúdio PwStream">
+    <div class="console" data-surface="console">
+
+      <div class="console__bar">
+        <span class="console__id">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="2.75" y="4.75" width="18.5" height="14.5" rx="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 9.4v5.2l4.6-2.6L10 9.4Z" fill="currentColor"/>
+          </svg>
+          PwStream <span class="console__sess">/ Entrevista de quinta</span>
+        </span>
+        <span class="tally"><span class="tally__dot"></span>AO VIVO</span>
+        <span class="timer" aria-label="Tempo no ar">01:47:22</span>
+
+        <div class="readouts">
+          <div class="ro"><span class="ro__k">fps</span><span class="ro__v">60</span></div>
+          <div class="ro"><span class="ro__k">bitrate</span><span class="ro__v">6.2 Mbps</span></div>
+          <div class="ro"><span class="ro__k">rtt</span><span class="ro__v is-ok">18 ms</span></div>
+          <div class="ro"><span class="ro__k">perda</span><span class="ro__v is-ok">0.02%</span></div>
+          <div class="ro"><span class="ro__k">cpu</span><span class="ro__v is-warn">61%</span></div>
+        </div>
+      </div>
+
+      <div class="console__grid">
+
+        <!-- Rail: cenas + destinos -->
+        <div class="col col--rail">
+          <div class="panelhead"><span class="panelhead__t">Cenas</span><span class="panelhead__c">4</span></div>
+          <ul class="scenes">
+            <li class="scene is-live"><span class="scene__n">1</span><span class="scene__l">Abertura</span><span class="scene__s">no ar</span></li>
+            <li class="scene"><span class="scene__n">2</span><span class="scene__l">Entrevista</span></li>
+            <li class="scene is-ready"><span class="scene__n">3</span><span class="scene__l">Tela + Câmera</span><span class="scene__s">pronta</span></li>
+            <li class="scene"><span class="scene__n">4</span><span class="scene__l">Encerramento</span></li>
+          </ul>
+
+          <div class="panelhead" style="border-top:1px solid var(--rule)"><span class="panelhead__t">Destinos</span><span class="panelhead__c">3</span></div>
+          <div class="dests">
+            <div class="dest">
+              <span class="dest__m">YT</span><span class="dest__n">YouTube</span>
+              <span class="dest__s s-live"><span class="dot"></span>no ar</span>
+            </div>
+            <div class="dest">
+              <span class="dest__m">FB</span><span class="dest__n">Facebook</span>
+              <span class="dest__s s-live"><span class="dot"></span>no ar</span>
+            </div>
+            <div class="dest">
+              <span class="dest__m">TW</span><span class="dest__n">Twitch</span>
+              <span class="dest__s s-warn"><span class="dot"></span>religando</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Palco -->
+        <div class="col stagecol">
+          <div class="monitor monitor--program">
+            <div class="monitor__safe"></div>
+            <span class="monitor__tag"><span class="dot" style="background:var(--live)"></span>Programa</span>
+            <span class="monitor__meta">1920&times;1080 &middot; 60p</span>
+            <span class="monitor__center">Cena 1 &mdash; Abertura</span>
+            <span class="monitor__slate">CAM 1 + TRILHA &middot; PGM</span>
+          </div>
+
+          <div class="stagerow">
+            <div class="monitor monitor--preview">
+              <span class="monitor__tag"><span class="dot" style="background:var(--ready)"></span>Prévia</span>
+              <span class="monitor__center">Cena 3 &mdash; Tela + Câmera</span>
+            </div>
+
+            <div class="stagebox">
+              <div class="stagebox__h">
+                <span class="panelhead__t">Áudio &middot; Mic principal</span>
+                <span class="msg__src">SHURE MV7 &middot; 48 kHz</span>
+              </div>
+              <div class="vu">
+                <div class="vu__row">
+                  <span class="vu__ch">E</span>
+                  <span class="vu__track"><span class="vu__fill" style="width:74%;--full:1.35"></span><span class="vu__seg"></span></span>
+                  <span class="vu__peak">-9.4 dB</span>
+                </div>
+                <div class="vu__row">
+                  <span class="vu__ch">D</span>
+                  <span class="vu__track"><span class="vu__fill" style="width:68%;--full:1.47"></span><span class="vu__seg"></span></span>
+                  <span class="vu__peak">-11.2 dB</span>
+                </div>
+                <div class="vu__scale"><span>-60</span><span>-40</span><span>-20</span><span>-12</span><span>-6</span><span>0</span></div>
+              </div>
+              <div class="transitions">
+                <button class="tbtn" type="button">Corte</button>
+                <button class="tbtn" type="button">Fundido 0,4 s</button>
+                <button class="tbtn tbtn--take" type="button">Levar prévia ao ar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat -->
+        <div class="col col--chat">
+          <div class="panelhead"><span class="panelhead__t">Chat unificado</span><span class="panelhead__c">3 canais</span></div>
+          <div class="chat">
+            <div class="chat__list">
+              <article class="msg">
+                <span class="msg__av" aria-hidden="true">RS</span>
+                <div>
+                  <div class="msg__h"><span class="msg__n">Roberto Santos</span><span class="msg__t">01:44</span><span class="msg__src">YT</span></div>
+                  <p class="msg__b">O áudio do convidado ficou um pouco baixo aqui em casa.</p>
+                </div>
+              </article>
+              <article class="msg">
+                <span class="msg__av" aria-hidden="true">FL</span>
+                <div>
+                  <div class="msg__h"><span class="msg__n">Fernanda Lima</span><span class="msg__t">01:45</span><span class="msg__src">TW</span></div>
+                  <p class="msg__b">Cheguei agora, dá pra repetir a parte do SRT?</p>
+                </div>
+              </article>
+              <article class="msg">
+                <span class="msg__av" aria-hidden="true">AB</span>
+                <div>
+                  <div class="msg__h"><span class="msg__n">Ana Beatriz</span><span class="msg__t">01:46</span><span class="msg__src">FB</span></div>
+                  <p class="msg__b">Boa noite, gente. Assistindo de Recife, imagem impecável.</p>
+                </div>
+              </article>
+              <article class="msg">
+                <span class="msg__av" aria-hidden="true">RS</span>
+                <div>
+                  <div class="msg__h"><span class="msg__n">Roberto Santos</span><span class="msg__t">01:47</span><span class="msg__src">YT</span></div>
+                  <p class="msg__b">Melhorou agora, obrigado.</p>
+                </div>
+              </article>
+            </div>
+            <div class="chat__foot">
+              <input class="chat__input" type="text" aria-label="Responder no chat" placeholder="Responder nos três canais">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bandeja -->
+      <div class="tray">
+        <button class="ctrl is-on" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg>
+          Microfone
+        </button>
+        <button class="ctrl is-on" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="13" height="12" rx="2"/><path d="M15.5 10.5 21.5 7.5v9l-6-3z"/></svg>
+          Câmera
+        </button>
+        <button class="ctrl" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="13" rx="2"/><path d="M8 21h8"/><path d="M12 13.5v-5"/><path d="m9.5 11 2.5-2.5 2.5 2.5"/></svg>
+          Compartilhar tela
+        </button>
+        <span class="tray__sep" aria-hidden="true"></span>
+        <button class="ctrl" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 7.5l9 4.5 9-4.5L12 3Z"/><path d="m3 12.5 9 4.5 9-4.5"/></svg>
+          Cenas
+        </button>
+        <button class="ctrl" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12.2a7.5 7.5 0 0 1-10.9 6.7L4.5 20.5l1.5-4.5A7.5 7.5 0 1 1 20.5 12.2Z"/></svg>
+          Enquete
+        </button>
+        <div class="tray__end">
+          <span class="tray__hint">Mantenha pressionado para confirmar</span>
+          <button class="endbtn" type="button">Encerrar transmissão</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SUPERFÍCIE 2 — HERÓI + PLANOS
+       ========================================================== -->
+  <section class="wrap surfacehead" aria-labelledby="s2">
+    <div class="surfacehead__row">
+      <span class="eyebrow">Superfície 02</span>
+      <h2 id="s2">Página pública e planos</h2>
+    </div>
+    <p class="surfacehead__note">Noventa por cento do que um cliente toca é isto: site, cadastro, cobrança, administração. Este é o sistema padrão — claro, espaçoso, sem caixa em volta de tudo. O console acima é o mesmo sistema, no modo escuro dele.</p>
+  </section>
+
+  <section class="wrap hero" aria-labelledby="hero-t">
+    <p class="eyebrow hero__eyebrow">Transmissão ao vivo pelo navegador</p>
+    <h1 id="hero-t">Entre no estúdio quando precisar. <em>Saia dele em paz.</em></h1>
+    <p class="hero__sub">A PwStream leva a sua transmissão para YouTube, Facebook e Twitch ao mesmo tempo, com cenas, chat unificado e compartilhamento de tela. O console aparece quando você aperta “ao vivo”; o resto do tempo, o produto sai da frente.</p>
+    <div class="hero__act">
+      <a class="btn" href="#planos">Começar a transmitir <span class="btn__k">R$ 49,90/mês</span></a>
+      <p class="hero__fine">Sem instalar programa e sem placa de captura. Assinatura mensal em reais, <a href="#planos">cancelável a qualquer momento</a>.</p>
+    </div>
+
+    <div class="specs">
+      <div class="spec"><span class="spec__k">Entrada</span><span class="spec__v">Navegador, webcam, microfone USB ou mesa de som</span></div>
+      <div class="spec"><span class="spec__k">Saída</span><span class="spec__v">1080p a 60 fps, até 8 canais simultâneos</span></div>
+      <div class="spec"><span class="spec__k">Convidados</span><span class="spec__v">Co-produtores no mesmo estúdio, por link</span></div>
+      <div class="spec"><span class="spec__k">Cobrança</span><span class="spec__v">Reais, cartão ou Pix, com nota fiscal</span></div>
+    </div>
+  </section>
+
+  <section class="wrap pricing" id="planos" aria-labelledby="planos-t">
+    <div class="pricing__head">
+      <h2 id="planos-t">Três planos, uma moeda, nenhum asterisco.</h2>
+      <p class="pricing__note">Valores mensais em reais, iguais no site e dentro do produto. O que muda entre os planos é quantos canais recebem a sua transmissão ao mesmo tempo e quem entra no estúdio com você.</p>
+    </div>
+
+    <div class="plans">
+
+      <article class="plan">
+        <div class="plan__name"><h3>Standard</h3></div>
+        <p class="plan__desc">Para quem transmite sozinho e quer chegar a mais de um lugar sem duplicar trabalho.</p>
+        <p class="plan__price"><span class="plan__cur">R$</span><span class="plan__amt">49<span class="plan__cents">,90</span></span><span class="plan__per">/mês</span></p>
+        <p class="plan__lead">3 canais simultâneos</p>
+        <ul class="plan__feats">
+          <li class="feat"><i aria-hidden="true"></i><span>Chat unificado dos três canais em uma coluna</span></li>
+          <li class="feat"><i aria-hidden="true"></i><span>Cenas ilimitadas e compartilhamento de tela</span></li>
+          <li class="feat"><i aria-hidden="true"></i><span>Gravação em 1080p no seu computador</span></li>
+        </ul>
+        <button class="plan__pick" type="button"><span class="dot"></span>Escolher</button>
+      </article>
+
+      <article class="plan is-picked" aria-current="true">
+        <div class="plan__name"><h3>Professional</h3><span class="plan__tag">selecionado</span></div>
+        <p class="plan__desc">Para quem convida gente ao vivo e precisa dividir o controle do estúdio com a equipe.</p>
+        <p class="plan__price"><span class="plan__cur">R$</span><span class="plan__amt">99<span class="plan__cents">,90</span></span><span class="plan__per">/mês</span></p>
+        <p class="plan__lead">5 canais + co-produtores</p>
+        <ul class="plan__feats">
+          <li class="feat"><i aria-hidden="true"></i><span>Convidados e co-produtores entrando por link</span></li>
+          <li class="feat"><i aria-hidden="true"></i><span>Enquetes ao vivo e destaques de chat no ar</span></li>
+          <li class="feat"><i aria-hidden="true"></i><span>Gravação separada por participante</span></li>
+        </ul>
+        <button class="plan__pick" type="button"><span class="dot"></span>Selecionado</button>
+      </article>
+
+      <article class="plan">
+        <div class="plan__name"><h3>Business</h3></div>
+        <p class="plan__desc">Para operação contínua, com entrada e saída profissionais e registro de cada sessão.</p>
+        <p class="plan__price"><span class="plan__cur">R$</span><span class="plan__amt">199<span class="plan__cents">,90</span></span><span class="plan__per">/mês</span></p>
+        <p class="plan__lead">8 canais + SRT profissional</p>
+        <ul class="plan__feats">
+          <li class="feat"><i aria-hidden="true"></i><span>Ingest e saída SRT para mesa de corte externa</span></li>
+          <li class="feat"><i aria-hidden="true"></i><span>Página de webinar com a marca do cliente</span></li>
+          <li class="feat"><i aria-hidden="true"></i><span>Registro de sessão e histórico de operadores</span></li>
+        </ul>
+        <button class="plan__pick" type="button"><span class="dot"></span>Escolher</button>
+      </article>
+
+    </div>
+
+    <div class="checkout">
+      <a class="btn" href="#planos">Continuar com Professional <span class="btn__k">R$ 99,90/mês</span></a>
+      <p class="checkout__sum">Você começa em <b>Professional</b>, com <b>5 canais simultâneos</b>. Troca de plano e cancelamento acontecem no mesmo lugar, e o valor cobrado é exatamente o que está escrito acima.</p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SUPERFÍCIE 3 — TOKENS
+       ========================================================== -->
+  <section class="wrap surfacehead tokens" aria-labelledby="s3">
+    <div class="surfacehead__row">
+      <span class="eyebrow">Superfície 03</span>
+      <h2 id="s3">O sistema, legível</h2>
+    </div>
+    <p class="surfacehead__note">Cada amostra mostra os dois valores do mesmo token: <strong>claro à esquerda, escuro à direita</strong>. Os papéis são únicos; só os valores trocam. São duas rampas neutras e a razão está escrita nelas — o papel carrega dois pontos de viés verde, o grafite é exatamente neutro porque cerca vídeo.</p>
+
+    <div class="tokgrid">
+
+      <div class="tokgroup">
+        <h3>Superfícies</h3>
+        <p>Profundidade é troca de chão, não sombra colorida.</p>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-1)"></i><i class="chip" style="background:var(--g-1)"></i></span><span class="swatch__t">--paper<span class="swatch__r">chão do aplicativo</span></span><span class="swatch__h">F6F8F7 / 0A0A0A</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-0)"></i><i class="chip" style="background:var(--g-2)"></i></span><span class="swatch__t">--surface<span class="swatch__r">painel, cartão, barra</span></span><span class="swatch__h">FFFFFF / 121212</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-2)"></i><i class="chip" style="background:var(--g-3)"></i></span><span class="swatch__t">--surface-2<span class="swatch__r">linha realçada, aba</span></span><span class="swatch__h">EFF2F1 / 191919</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-3)"></i><i class="chip" style="background:var(--g-4)"></i></span><span class="swatch__t">--surface-3<span class="swatch__r">campo, trilho, medidor</span></span><span class="swatch__h">E4E8E7 / 212121</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--g-0)"></i><i class="chip" style="background:var(--g-0)"></i></span><span class="swatch__t">--stage<span class="swatch__r">letterbox do vídeo. O único preto puro.</span></span><span class="swatch__h">000000 / 000000</span></div>
+      </div>
+
+      <div class="tokgroup">
+        <h3>Fios e tinta</h3>
+        <p>Duas receitas de fio no produto inteiro. Nenhuma variante de opacidade.</p>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-3)"></i><i class="chip" style="background:var(--g-5)"></i></span><span class="swatch__t">--rule<span class="swatch__r">divisão padrão</span></span><span class="swatch__h">E4E8E7 / 2B2B2B</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-4)"></i><i class="chip" style="background:var(--g-6)"></i></span><span class="swatch__t">--rule-strong<span class="swatch__r">borda do poço, moldura</span></span><span class="swatch__h">D3D8D7 / 3A3A3A</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-8)"></i><i class="chip" style="background:var(--g-10)"></i></span><span class="swatch__t">--ink<span class="swatch__r">título, valor ativo</span></span><span class="swatch__h">1B1F1E / EDEDED</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-7)"></i><i class="chip" style="background:var(--g-9)"></i></span><span class="swatch__t">--ink-2<span class="swatch__r">corpo de texto</span></span><span class="swatch__h">4A5150 / B4B4B4</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-6)"></i><i class="chip" style="background:var(--g-8)"></i></span><span class="swatch__t">--ink-3<span class="swatch__r">metadado, legenda</span></span><span class="swatch__h">6E7674 / 909090</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-5)"></i><i class="chip" style="background:var(--g-7)"></i></span><span class="swatch__t">--ink-4<span class="swatch__r">desabilitado, marcador</span></span><span class="swatch__h">9AA1A0 / 6E6E6E</span></div>
+      </div>
+
+      <div class="tokgroup">
+        <h3>Ação e marca</h3>
+        <p>A ação primária é tinta, não cor. O petróleo é só link, foco e seleção — e não entra no console.</p>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--p-8)"></i><i class="chip" style="background:var(--g-10)"></i></span><span class="swatch__t">--action<span class="swatch__r">botão primário</span></span><span class="swatch__h">1B1F1E / EDEDED</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--brand-600)"></i><i class="chip" style="background:var(--brand-300)"></i></span><span class="swatch__t">--brand<span class="swatch__r">link, seleção, marca</span></span><span class="swatch__h">0A5D52 / 5FC4B0</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--brand-700)"></i><i class="chip" style="background:var(--brand-500)"></i></span><span class="swatch__t">--brand-hover<span class="swatch__r">estado pressionado</span></span><span class="swatch__h">08453D / 0E7A6C</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--brand-tint-l)"></i><i class="chip" style="background:var(--brand-tint-d)"></i></span><span class="swatch__t">--brand-tint<span class="swatch__r">a única receita de fundo tingido</span></span><span class="swatch__h">E3EFEC / 10302B</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--brand-500)"></i><i class="chip" style="background:var(--brand-300)"></i></span><span class="swatch__t">--focus<span class="swatch__r">anel de foco (acromático no console)</span></span><span class="swatch__h">0E7A6C / 5FC4B0</span></div>
+      </div>
+
+      <div class="tokgroup">
+        <h3>Tally — reservado</h3>
+        <p>Namespace da transmissão. A marca nunca toma emprestado. Estado nunca é só cor: vem com palavra.</p>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--live-l)"></i><i class="chip" style="background:var(--live-d)"></i></span><span class="swatch__t">--live<span class="swatch__r">no ar, gravando, encerrar</span></span><span class="swatch__h">C0261B / FF4436</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--ready-l)"></i><i class="chip" style="background:var(--ready-d)"></i></span><span class="swatch__t">--ready<span class="swatch__r">prévia pronta, saudável</span></span><span class="swatch__h">1C6E42 / 3FD07C</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--warn-l)"></i><i class="chip" style="background:var(--warn-d)"></i></span><span class="swatch__t">--warn<span class="swatch__r">degradado, quadros perdidos</span></span><span class="swatch__h">8A5D00 / E8A93A</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--fail-l)"></i><i class="chip" style="background:var(--fail-d)"></i></span><span class="swatch__t">--fail<span class="swatch__r">desconectado, erro</span></span><span class="swatch__h">A32418 / FF7466</span></div>
+      </div>
+
+      <div class="tokgroup">
+        <h3>Séries de dados</h3>
+        <p>Quatro matizes espaçadas, escolhidas para não colidir com o tally. A cor de série vem da identidade do dado, nunca da posição do cartão.</p>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--data1-l)"></i><i class="chip" style="background:var(--data1-d)"></i></span><span class="swatch__t">--data1<span class="swatch__r">série primária</span></span><span class="swatch__h">0A5D52 / 5FC4B0</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--data2-l)"></i><i class="chip" style="background:var(--data2-d)"></i></span><span class="swatch__t">--data2<span class="swatch__r">série secundária</span></span><span class="swatch__h">5B4B87 / A99BD6</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--data3-l)"></i><i class="chip" style="background:var(--data3-d)"></i></span><span class="swatch__t">--data3<span class="swatch__r">série terciária</span></span><span class="swatch__h">8A5D00 / D2A05A</span></div>
+        <div class="swatch"><span class="chips"><i class="chip" style="background:var(--data4-l)"></i><i class="chip" style="background:var(--data4-d)"></i></span><span class="swatch__t">--data4<span class="swatch__r">comparação, período anterior</span></span><span class="swatch__h">2F5F78 / 7FB2CC</span></div>
+      </div>
+
+    </div>
+
+    <!-- Espécime tipográfico -->
+    <div class="specimen">
+      <p class="eyebrow" style="margin-bottom:var(--s4)">Tipografia — Archivo variável e IBM Plex Mono</p>
+      <p class="sp-small" style="max-width:64ch;margin-bottom:var(--s5)">Uma família de texto, um eixo de largura, uma família numérica. O eixo de largura carrega a densidade: 112% no display, 100% no texto, 94% no console — a mesma voz, três aperturas. Todo número do produto é Plex Mono com <code>tabular-nums</code>.</p>
+
+      <div class="spec-row"><span class="spec-row__k"><b>--t-display</b>clamp 44→72px · 0.98 · -0.035em · 600 · wdth 112</span><p class="sp-display">Entre no estúdio.</p></div>
+      <div class="spec-row"><span class="spec-row__k"><b>--t-h2</b>28→32px · 1.1 · -0.025em · 600</span><p class="sp-h2">Três planos, uma moeda</p></div>
+      <div class="spec-row"><span class="spec-row__k"><b>--t-h3</b>22px · 1.2 · -0.015em · 600</span><p class="sp-h3">Professional — 5 canais simultâneos</p></div>
+      <div class="spec-row"><span class="spec-row__k"><b>--t-lead</b>19px · 1.55 · 400</span><p class="sp-lead">O console aparece quando você aperta “ao vivo”; o resto do tempo, o produto sai da frente.</p></div>
+      <div class="spec-row"><span class="spec-row__k"><b>--t-body</b>16px · 1.65 · 400 · medida 62ch</span><p class="sp-body">Transmissão simultânea para YouTube, Facebook e Twitch, com cenas, chat unificado, enquetes e compartilhamento de tela — direto do navegador, sem instalação e sem placa de captura.</p></div>
+      <div class="spec-row"><span class="spec-row__k"><b>--t-small</b>14px · 1.5 · 400</span><p class="sp-small">Valores em reais, cobrados mensalmente, com nota fiscal.</p></div>
+      <div class="spec-row"><span class="spec-row__k"><b>--t-label</b>12px mono · +0.1em · caixa alta · orçamento de uma por painel</span><p class="eyebrow">Destinos conectados</p></div>
+      <div class="spec-row"><span class="spec-row__k"><b>--t-price</b>40px mono · tabular · -0.03em · centavos a 0.56em</span><p class="sp-price">R$ 99<span class="plan__cents">,90</span></p></div>
+      <div class="spec-row"><span class="spec-row__k"><b>Console 15 / 13 / 12 / 11</b>wdth 94% · piso absoluto de 11px</span>
+        <p><span class="sp-c" style="font-size:var(--t-c-lg)">Entrevista de quinta</span> · <span class="sp-c" style="font-size:var(--t-c-md)">Tela + Câmera</span> · <span class="sp-c" style="font-size:var(--t-c-sm)">Religando o Twitch</span> · <span class="sp-c" style="font-size:var(--t-c-xs)">CANAL 1</span></p>
+      </div>
+      <div class="spec-row"><span class="spec-row__k"><b>Numerais</b>IBM Plex Mono · tabular em toda cifra, cronômetro e medida</span>
+        <p class="mono" style="font-size:var(--t-c-lg);color:var(--ink)">01:47:22 &nbsp; 6.2 Mbps &nbsp; 18 ms &nbsp; 0.02% &nbsp; 60 fps &nbsp; R$ 199,90</p>
+      </div>
+    </div>
+
+    <!-- Espaço, raio, elevação -->
+    <div class="rules">
+      <div class="rule-card">
+        <h4>Espaço — base 4, duas densidades</h4>
+        <p>O console usa <code>s-1…s4</code> (2–16px). O editorial usa <code>s2…s10</code> (8–128px). <code>s3</code> = 12px é a única dobradiça compartilhada. Nada existe fora da escala.</p>
+        <div class="scaleboxes">
+          <span class="sb"><i style="width:2px"></i><span>2</span></span>
+          <span class="sb"><i style="width:4px"></i><span>4</span></span>
+          <span class="sb"><i style="width:6px"></i><span>6</span></span>
+          <span class="sb"><i style="width:8px"></i><span>8</span></span>
+          <span class="sb"><i style="width:12px"></i><span>12</span></span>
+          <span class="sb"><i style="width:16px"></i><span>16</span></span>
+          <span class="sb"><i style="width:24px"></i><span>24</span></span>
+          <span class="sb"><i style="width:32px"></i><span>32</span></span>
+          <span class="sb"><i style="width:48px"></i><span>48</span></span>
+          <span class="sb"><i style="width:64px"></i><span>64</span></span>
+          <span class="sb"><i style="width:96px"></i><span>96</span></span>
+          <span class="sb"><i style="width:128px"></i><span>128</span></span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <h4>Raio — quatro degraus, uma regra</h4>
+        <p>Filho = pai menos o recuo, piso de 4px, teto de 16px. O 16 é do poço do vídeo e da mídia de herói; mais nada. <code>--r-full</code> é só avatar, ponto de estado e chave de alternância.</p>
+        <div class="radboxes">
+          <span class="rb" style="border-radius:4px">4</span>
+          <span class="rb" style="border-radius:8px">8</span>
+          <span class="rb" style="border-radius:16px">16</span>
+          <span class="rb" style="border-radius:999px">full</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <h4>Elevação — três níveis, zero brilho</h4>
+        <p>Noventa por cento das superfícies são planas, com um fio. No escuro a sombra some por completo: elevação vira degrau da rampa. Nenhuma sombra colorida, nenhum <code>backdrop-blur</code> fora do véu de modal.</p>
+        <div class="elevboxes">
+          <span class="eb">e-0 · fio</span>
+          <span class="eb eb--1">e-1 · popover</span>
+          <span class="eb eb--2">e-2 · modal</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <h4>O que esta direção recusa</h4>
+        <p>Cartão em volta de tudo, distintivo em caixa alta como decoração, número inventado como prova social, e cor de marca em volta de vídeo. A tabela de planos não tem três caixas: tem três colunas separadas por fios.</p>
+      </div>
+    </div>
+
+    <p class="pagefoot">PwStream — grafia canônica única. Direção 3 de 4, feita para comparação lado a lado. Todo valor de cor nesta página vem de uma custom property.</p>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var btns = Array.prototype.slice.call(document.querySelectorAll('.themectl__b'));
+  function apply(mode){
+    if (mode === 'auto') { root.removeAttribute('data-theme'); }
+    else { root.setAttribute('data-theme', mode); }
+    btns.forEach(function(b){
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set') === mode));
+    });
+  }
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){ apply(b.getAttribute('data-set')); });
+  });
+})();
+</script>
+</body>
+</html>
