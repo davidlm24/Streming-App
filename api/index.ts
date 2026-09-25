@@ -2,11 +2,21 @@ import express from "express";
 import crypto from "crypto";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
+import {
+  PLANOS_PAGOS,
+  avaliarAcesso,
+  cabecalhosExtras,
+  exigirLogin,
+  lerProprioPerfil,
+  lerTextoLimitado,
+  urlDeWebhookPermitida,
+  type ReqComLogin,
+} from "./_lib/seguranca.js";
 
 dotenv.config();
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "256kb" }));
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
@@ -14,10 +24,14 @@ app.get("/api/health", (req, res) => {
 });
 
 // API route for AI moderation of chat comments
-app.post("/api/moderate", async (req, res) => {
+// Exige login: cada chamada gasta a cota do Gemini.
+app.post("/api/moderate", exigirLogin, async (req, res) => {
   const { text } = req.body;
-  if (!text) {
+  if (!text || typeof text !== "string") {
     return res.status(400).json({ error: "Text is required" });
+  }
+  if (text.length > 2000) {
+    return res.status(413).json({ error: "Comentário longo demais para moderar." });
   }
 
   const runLocalModeration = (reasonPrefix = "") => {
@@ -91,48 +105,37 @@ Retorne estritamente um JSON estruturado com:
 });
 
 // Payment Routes for Subscriptions
-app.post("/api/validate-trial", async (req, res) => {
-  const { userId, userEmail, plan, trialEndsAt, trialDays, isExpired } = req.body;
-  
-  if (plan && plan !== "Free Trial") {
-    return res.json({
-      isExpired: false,
-      trialDays: 30,
-      canBroadcast: true,
-      canRecord: true,
-      plan
-    });
+// Decide pelo perfil gravado no banco, lido com o token de quem chama. Antes
+// devolvia o que o próprio cliente mandava no corpo (plan, isExpired...).
+app.post("/api/validate-trial", exigirLogin, async (req: ReqComLogin, res) => {
+  try {
+    const perfil = await lerProprioPerfil(req.idToken!, req.usuario!.uid);
+    if (!perfil) {
+      return res.status(404).json({ error: "Perfil não encontrado." });
+    }
+    return res.json(avaliarAcesso(perfil));
+  } catch (err: any) {
+    console.error("validate-trial:", err?.message || err);
+    return res.status(503).json({ error: "Não foi possível verificar o plano agora." });
   }
-
-  const now = Date.now();
-  const endsAtMs = trialEndsAt ? new Date(trialEndsAt).getTime() : now - 1000;
-  const diffDays = Math.ceil((endsAtMs - now) / (1000 * 60 * 60 * 24));
-  const expired = isExpired === true || trialDays === 0 || diffDays <= 0;
-  const remainingDays = expired ? 0 : Math.max(0, diffDays);
-
-  return res.json({
-    isExpired: expired,
-    trialDays: remainingDays,
-    canBroadcast: !expired,
-    canRecord: !expired,
-    trialEndsAt: trialEndsAt || new Date(endsAtMs).toISOString(),
-    plan: plan || 'Free Trial'
-  });
 });
 
-app.post("/api/checkout", async (req, res) => {
-  const { planId, userId, userEmail, method } = req.body;
-  
-  if (!planId || !userId || !userEmail) {
-    return res.status(400).json({ error: "Missing required fields" });
+// Quem assina é quem está logado: uid e e-mail vêm do token, não do corpo.
+app.post("/api/checkout", exigirLogin, async (req: ReqComLogin, res) => {
+  const { planId, method } = req.body;
+  const userId = req.usuario!.uid;
+  const userEmail = req.usuario!.email;
+
+  if (!(PLANOS_PAGOS as readonly string[]).includes(planId)) {
+    return res.status(400).json({ error: "Plano inválido." });
+  }
+
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeKey) {
+    return res.status(503).json({ error: "Pagamento indisponível no momento." });
   }
 
   try {
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
-    if (!stripeKey) {
-      throw new Error("STRIPE_SECRET_KEY is required");
-    }
-
     const Stripe = (await import("stripe")).default;
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" as any });
 
@@ -167,13 +170,17 @@ app.post("/api/checkout", async (req, res) => {
 
     res.json({ url: session.url });
   } catch (err: any) {
+    // Erro é erro. Antes devolvia a URL de SUCESSO (?payment=success&mock=true)
+    // e o app anunciava pagamento aprovado depois de uma falha.
     console.error("Stripe Checkout Error:", err);
-    res.json({ url: `${req.headers.origin}/?payment=success&mock=true` });
+    res.status(502).json({ error: "Não foi possível iniciar o pagamento." });
   }
 });
 
 // Webhook Test Trigger Endpoint
-app.post("/api/webhooks/test-trigger", async (req, res) => {
+// Faz o servidor chamar uma URL escolhida pelo usuário: exige login, e o
+// destino tem de ser https num host público (ver urlDeWebhookPermitida).
+app.post("/api/webhooks/test-trigger", exigirLogin, async (req, res) => {
   const startTime = Date.now();
   const { 
     platform = 'twitch', 
@@ -200,7 +207,7 @@ app.post("/api/webhooks/test-trigger", async (req, res) => {
     'User-Agent': `PwStreamer-Webhook-Dispatcher/2.0 (${platform})`,
     'X-PwStream-Event-Id': eventId,
     'X-PwStream-Delivery-Timestamp': timestampIso,
-    ...customHeaders
+    ...cabecalhosExtras(customHeaders)
   };
 
   if (platform === 'twitch') {
@@ -276,21 +283,49 @@ app.post("/api/webhooks/test-trigger", async (req, res) => {
     });
   }
 
+  const destino = await urlDeWebhookPermitida(endpointUrl);
+  if (!destino) {
+    const motivo = "Destino não permitido: use https:// num endereço público (porta 443 ou 8443).";
+    return res.json({
+      success: false,
+      log: {
+        id: eventId,
+        timestamp: timestampIso,
+        platform,
+        eventType,
+        method: 'POST',
+        endpointUrl,
+        status: 400,
+        statusText: 'Destino não permitido',
+        latencyMs: Date.now() - startTime,
+        requestHeaders: headers,
+        requestPayload: parsedPayload,
+        responseBody: { error: motivo },
+        mode: 'manual_test',
+        isSuccess: false,
+        error: motivo
+      }
+    });
+  }
+
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-    const response = await fetch(endpointUrl, {
+    // redirect: 'manual' — um 30x não pode levar o servidor a outro destino
+    // que não passou pela checagem acima.
+    const response = await fetch(destino, {
       method: 'POST',
       headers,
       body: payloadString,
+      redirect: 'manual',
       signal: controller.signal
     });
-    clearTimeout(timeoutId);
 
     const latencyMs = Date.now() - startTime;
     let resBody: any;
-    const resText = await response.text();
+    const resText = await lerTextoLimitado(response);
+    clearTimeout(timeoutId);
     try {
       resBody = JSON.parse(resText);
     } catch {

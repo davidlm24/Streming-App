@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiFetch } from '../lib/apiFetch';
 import { X, Check, CreditCard, ShieldAlert, Activity, Radio, Disc, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useToast } from './ui/Toast';
 import { Modal } from './ui/Modal';
@@ -32,13 +33,12 @@ export function PlansModal({ onClose, userEmail, userId, currentPlan, reason, on
     if (loading) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/checkout', {
+      const res = await apiFetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        // Quem assina sai do token de login (apiFetch), não do corpo.
         body: JSON.stringify({
           planId: selectedPlan,
-          userId,
-          userEmail,
           method: method === 'paypal' ? 'card' : method
         })
       });

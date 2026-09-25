@@ -1,4 +1,5 @@
 import { Button } from './ui/Button';
+import { apiFetch } from '../lib/apiFetch';
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
@@ -290,7 +291,7 @@ export function CustomDestinationModal({
       let altRes: any = null;
 
       if ((target === 'primary' || target === 'both') && streamUrl.trim()) {
-        const res = await fetch('/api/rtmp/test', {
+        const res = await apiFetch('/api/rtmp/test', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: streamUrl.trim(), streamKey })
@@ -299,7 +300,7 @@ export function CustomDestinationModal({
       }
 
       if ((target === 'alternative' || target === 'both') && alternativeIngestUrl.trim()) {
-        const res = await fetch('/api/rtmp/test', {
+        const res = await apiFetch('/api/rtmp/test', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: alternativeIngestUrl.trim(), streamKey })
@@ -345,7 +346,7 @@ export function CustomDestinationModal({
     await Promise.all(customDestinations.map(async (dest) => {
       if (!dest.streamUrl) return;
       try {
-        const res = await fetch('/api/rtmp/test', {
+        const res = await apiFetch('/api/rtmp/test', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: dest.streamUrl, streamKey: dest.streamKey })
