@@ -238,6 +238,7 @@ export function Header({
               <button
                 type="button"
                 onClick={() => setStreamMenuOpen(!streamMenuOpen)}
+                aria-expanded={streamMenuOpen}
                 id="btn-stream-recording-dropdown"
                 className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[var(--bg)] hover:bg-[var(--panel)]/90 border border-[var(--line)] hover:border-[var(--line-ctl)] transition-all cursor-pointer text-left select-none group shrink-0"
                 title="Configurações de Transmissão e Gravação"
@@ -449,6 +450,7 @@ export function Header({
             <div className="relative">
               <button 
                 onClick={() => setDropdownOpen(!dropdownOpen)}
+                aria-expanded={dropdownOpen}
                 className="flex items-center gap-3 text-left hover:bg-[var(--panel)] p-2 rounded-lg transition-all focus:outline-none cursor-pointer"
                 id="user-menu-button"
               >

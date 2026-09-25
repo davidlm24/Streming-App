@@ -1,4 +1,5 @@
 import { Button } from './components/ui/Button';
+import { useTabs } from './components/ui/Tabs';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Header } from './components/Header';
 import { LeftSidebar } from './components/LeftSidebar';
@@ -400,6 +401,7 @@ export default function App() {
   // Quick Settings / Integrations modal state
   const [isIntegrationsModalOpen, setIsIntegrationsModalOpen] = useState(false);
   const [integrationsModalTab, setIntegrationsModalTab] = useState<'rtmp' | 'social' | 'webhooks'>('rtmp');
+  const integracoesAbas = useTabs('integracoes', ['rtmp', 'social', 'webhooks'] as const, integrationsModalTab, setIntegrationsModalTab);
   const [isImmersiveMode, setIsImmersiveMode] = useState(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
   const [isMobileScenesOpen, setIsMobileScenesOpen] = useState(false);
@@ -2026,7 +2028,7 @@ export default function App() {
 
       {/* 2. PRODUCTION CONTROL ROOM VIEW */}
       {currentView === 'studio' ? (
-        <div
+        <main
           data-surface="console"
           className="flex-1 overflow-hidden w-full max-w-none px-0 mx-0 relative bg-[var(--bg)] text-[var(--ink)]"
           style={{
@@ -2884,7 +2886,7 @@ export default function App() {
             </>
           )}
 
-        </div>
+        </main>
       ) : currentView === 'super-admin' ? (
         <SuperAdminPanel 
           onBack={() => setCurrentView('dashboard')} 
@@ -2935,7 +2937,7 @@ export default function App() {
         />
       ) : (
         /* 3. BUSINESS DASHBOARD VIEW */
-        <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200">
+        <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200">
           
           {/* Welcome back user */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -3189,7 +3191,7 @@ export default function App() {
             onSelectShare={handleConfirmScreenShare}
           />
 
-        </div>
+        </main>
       )}
 
       {/* Styled Footer - Visible only on main page / dashboard */}
@@ -3423,7 +3425,7 @@ export default function App() {
             </div>
 
             {/* Tab Switched Header */}
-            <div className="flex border-b border-[var(--line)] bg-[var(--bg)]/50 px-6 py-2 gap-2">
+            <div {...integracoesAbas.tablist} aria-label="Integrações" className="flex border-b border-[var(--line)] bg-[var(--bg)]/50 px-6 py-2 gap-2">
               {[
                 { id: 'rtmp', label: 'Ingestão OBS & RTMP', icon: Server },
                 { id: 'social', label: 'Mídias Sociais & OAuth', icon: Users },
@@ -3434,7 +3436,8 @@ export default function App() {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setIntegrationsModalTab(tab.id as any)}
+                    {...integracoesAbas.tab(tab.id as typeof integrationsModalTab)}
+                    onClick={() => setIntegrationsModalTab(tab.id as typeof integrationsModalTab)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                       active ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
                     }`}
@@ -3446,7 +3449,7 @@ export default function App() {
             </div>
 
             {/* Content Body */}
-            <div className="p-6 max-h-[65vh] overflow-y-auto text-xs text-[var(--ink)] space-y-4">
+            <div {...integracoesAbas.panel(integrationsModalTab)} className="p-6 max-h-[65vh] overflow-y-auto text-xs text-[var(--ink)] space-y-4">
               {integrationsModalTab === 'rtmp' && (
                 <div className="space-y-4">
                   <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl">

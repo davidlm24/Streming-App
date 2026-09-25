@@ -326,7 +326,7 @@ export function WebinarPublicPage({
 
                   <div className="space-y-1.5 text-left">
                     <label htmlFor="webinarpublicpage-nome-completo" className="text-xs text-[var(--ink-lo)] font-semibold">Nome Completo</label>
-                    <input id="webinarpublicpage-nome-completo"
+                    <input autoComplete="name" id="webinarpublicpage-nome-completo"
                       type="text"
                       required
                       placeholder="Ex: Carlos Albuquerque"
@@ -338,7 +338,7 @@ export function WebinarPublicPage({
 
                   <div className="space-y-1.5 text-left">
                     <label htmlFor="webinarpublicpage-e-mail-corporativo" className="text-xs text-[var(--ink-lo)] font-semibold">E-mail Corporativo</label>
-                    <input id="webinarpublicpage-e-mail-corporativo"
+                    <input autoComplete="email" id="webinarpublicpage-e-mail-corporativo"
                       type="email"
                       required
                       placeholder="Ex: carlos@empresa.com"
@@ -350,7 +350,7 @@ export function WebinarPublicPage({
 
                   <div className="space-y-1.5 text-left">
                     <label htmlFor="webinarpublicpage-empresa-cargo" className="text-xs text-[var(--ink-lo)] font-semibold">Empresa / Cargo</label>
-                    <input id="webinarpublicpage-empresa-cargo"
+                    <input autoComplete="organization" id="webinarpublicpage-empresa-cargo"
                       type="text"
                       placeholder="Ex: sua empresa / seu cargo"
                       value={company}

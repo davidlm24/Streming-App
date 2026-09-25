@@ -324,7 +324,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
               <label htmlFor="superadminpanel-e-mail-de-admin-mestre" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">E-mail de Admin Mestre</label>
               <div className="relative">
                 <Mail size={16} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
-                <input id="superadminpanel-e-mail-de-admin-mestre"
+                <input autoComplete="email" id="superadminpanel-e-mail-de-admin-mestre"
                   type="email"
                   required
                   value={emailInput}
@@ -339,7 +339,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
               <label htmlFor="superadminpanel-senha-de-acesso-mestre" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Senha de Acesso Mestre</label>
               <div className="relative">
                 <Lock size={16} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
-                <input id="superadminpanel-senha-de-acesso-mestre"
+                <input autoComplete="current-password" id="superadminpanel-senha-de-acesso-mestre"
                   type="password"
                   required
                   value={pinInput}
@@ -381,7 +381,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   }
 
   return (
-    <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200" id="super-admin-dashboard">
+    <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200" id="super-admin-dashboard">
       
       {/* Top Banner Notice */}
       <div className="bg-gradient-to-r from-amber-950/80 via-[var(--surface)] to-blue-950/80 border border-amber-500/30 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xl">
@@ -658,7 +658,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
               <div>
                 <label htmlFor="superadminpanel-e-mail-do-cliente-atribuido" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">E-mail do Cliente Atribuído</label>
-                <input id="superadminpanel-e-mail-do-cliente-atribuido"
+                <input autoComplete="off" id="superadminpanel-e-mail-do-cliente-atribuido"
                   type="email"
                   required
                   value={newKeyClientEmail}
@@ -866,6 +866,6 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
         </div>
       )}
 
-    </div>
+    </main>
   );
 }

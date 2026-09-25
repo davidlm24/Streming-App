@@ -1,5 +1,6 @@
 import { PLANS, formatPrice, getPlan } from '../lib/plans';
 import { Button } from './ui/Button';
+import { useTabs } from './ui/Tabs';
 import React, { useState } from 'react';
 import { 
   Check, LogIn, UserPlus, CreditCard, ArrowRight, Lock, 
@@ -58,6 +59,11 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
   const [checkoutError, setCheckoutError] = useState('');
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const [selectedGateway, setSelectedGateway] = useState<'stripe' | 'paypal' | 'mercadopago'>('stripe');
+  const selecionarGateway = (g: 'stripe' | 'paypal' | 'mercadopago') => {
+    setSelectedGateway(g);
+    setCheckoutError('');
+  };
+  const gatewayAbas = useTabs('pagamento', ['stripe', 'paypal', 'mercadopago'] as const, selectedGateway, selecionarGateway);
   const [paypalEmail, setPaypalEmail] = useState(IS_DEV ? 'marcos-test@pwstreamer.com' : '');
   const [paypalPassword, setPaypalPassword] = useState('');
   const [isPaypalAuthorized, setIsPaypalAuthorized] = useState(false);
@@ -208,13 +214,13 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               impresso na barra de navegação do próprio produto. */}
           <PwStreamLogo iconSize={32} textSize="sm" />
         </div>
-        <div className="flex items-center gap-4 text-xs font-semibold text-[var(--ink-lo)]">
+        <nav aria-label="Principal" className="flex items-center gap-4 text-xs font-semibold text-[var(--ink-lo)]">
           <button onClick={() => setView('landing')} className="hover:text-[var(--ink-hi)] transition-colors">Início</button>
           <button onClick={() => setView('features')} className="hover:text-[var(--ink-hi)] transition-colors">Recursos</button>
           <button onClick={() => setView('pricing')} className="hover:text-[var(--ink-hi)] transition-colors">Planos</button>
           <button onClick={() => setView('login')} className="px-3.5 py-1.5 border border-[var(--line)] rounded-lg hover:bg-[var(--surface)] transition-colors text-[var(--ink-hi)]">Log In</button>
           <button onClick={() => setView('register')} className="px-3.5 py-1.5 bg-[var(--color-brand-deep)] rounded-lg hover:bg-blue-600 transition-all text-white">Sign Up</button>
-        </div>
+        </nav>
       </header>
 
       {/* Main View Switcher */}
@@ -294,7 +300,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               )}
 
               {authError && (
-                <div className="p-3 bg-red-950/40 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2 text-left">
+                <div role="alert" className="p-3 bg-red-950/40 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2 text-left">
                   <AlertTriangle size={14} className="shrink-0" />
                   <span>{authError}</span>
                 </div>
@@ -394,7 +400,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
         {view === 'login' && (
           <div className="w-full max-w-md bg-[var(--surface)]/80 border border-[var(--line)] p-8 rounded-3xl space-y-6 animate-in fade-in duration-200" id="login-view">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-[var(--ink-hi)]">Bem-vindo de volta!</h2>
+              <h1 className="text-2xl font-bold text-[var(--ink-hi)]">Bem-vindo de volta!</h1>
               <p className="text-xs text-[var(--ink-lo)]">Insira suas credenciais para acessar o painel de transmissões.</p>
             </div>
 
@@ -445,7 +451,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             )}
 
             {authError && (
-              <div className="p-3 bg-red-950/40 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2">
+              <div role="alert" className="p-3 bg-red-950/40 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2">
                 <AlertTriangle size={14} className="shrink-0" />
                 <span>{authError}</span>
               </div>
@@ -474,11 +480,11 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             <form onSubmit={handleLogin} className="space-y-4 text-left">
               <div className="space-y-1.5">
                 <label htmlFor="campo-0-e-mail" className="text-xs font-semibold text-[var(--ink-lo)]">E-mail</label>
-                <input id="campo-0-e-mail" 
+                <input autoComplete="email" id="campo-0-e-mail" 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="mgdlms@pwstreamer.com" 
+                  placeholder="voce@empresa.com" 
                   className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:border-blue-500 transition-colors"
                 />
               </div>
@@ -491,7 +497,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       recuperação implementado, então o link prometia algo que
                       o produto não faz. Volta quando o fluxo existir. */}
                 </div>
-                <input id="campo-1-senha" 
+                <input autoComplete="current-password" id="campo-1-senha" 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -517,12 +523,12 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
         {view === 'register' && (
           <div className="w-full max-w-md bg-[var(--surface)]/80 border border-[var(--line)] p-8 rounded-3xl space-y-6 animate-in fade-in duration-200" id="register-view">
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-[var(--ink-hi)] font-sans">Crie sua Conta Grátis</h2>
+              <h1 className="text-2xl font-bold text-[var(--ink-hi)] font-sans">Crie sua Conta Grátis</h1>
               <p className="text-xs text-[var(--ink-lo)]">Cadastre-se para aproveitar 30 dias de teste grátis com acesso total ao estúdio.</p>
             </div>
 
             {authError && (
-              <div className="p-3 bg-red-950/40 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2">
+              <div role="alert" className="p-3 bg-red-950/40 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2">
                 <AlertTriangle size={14} className="shrink-0" />
                 <span>{authError}</span>
               </div>
@@ -531,11 +537,11 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             <form onSubmit={handleRegister} className="space-y-4 text-left">
               <div className="space-y-1.5">
                 <label htmlFor="campo-2-nome-completo" className="text-xs font-semibold text-[var(--ink-lo)]">Nome Completo</label>
-                <input id="campo-2-nome-completo" 
+                <input autoComplete="name" id="campo-2-nome-completo" 
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Marcos Gonçalves" 
+                  placeholder="Seu nome completo" 
                   required
                   className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:border-blue-500 transition-colors"
                 />
@@ -543,11 +549,11 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
               <div className="space-y-1.5">
                 <label htmlFor="campo-3-e-mail-corporativo-o" className="text-xs font-semibold text-[var(--ink-lo)]">E-mail Corporativo ou Pessoal</label>
-                <input id="campo-3-e-mail-corporativo-o" 
+                <input autoComplete="email" id="campo-3-e-mail-corporativo-o" 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="mgdlms@pwstreamer.com" 
+                  placeholder="voce@empresa.com" 
                   required
                   className="w-full px-4 py-2.5 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-sm text-[var(--ink-hi)] focus:border-blue-500 transition-colors"
                 />
@@ -555,7 +561,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
               <div className="space-y-1.5">
                 <label htmlFor="campo-4-senha" className="text-xs font-semibold text-[var(--ink-lo)]">Senha</label>
-                <input id="campo-4-senha" 
+                <input autoComplete="new-password" id="campo-4-senha" 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -610,9 +616,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
         {view === 'pricing' && (
           <div className="w-full max-w-6xl mx-auto space-y-10 text-center animate-in fade-in duration-200" id="pricing-view">
             <div className="space-y-4">
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--ink-hi)]">
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--ink-hi)]">
                 Upgrade to grow and engage your audience
-              </h2>
+              </h1>
               <p className="text-sm text-[var(--ink-lo)] max-w-xl mx-auto">
                 Escolha o plano ideal para as suas transmissões. Comece com nosso plano de testes gratuito ou assine um plano pago para liberar canais adicionais.
               </p>
@@ -620,12 +626,16 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               {/* Monthly vs Annual Toggle */}
               <div className="inline-flex items-center gap-2 p-1 bg-[var(--surface)] border border-[var(--line)] rounded-xl mt-4">
                 <button 
+                  type="button"
+                  aria-pressed={!isAnnual}
                   onClick={() => setIsAnnual(false)}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}
                 >
                   Mensal
                 </button>
                 <button 
+                  type="button"
+                  aria-pressed={isAnnual}
                   onClick={() => setIsAnnual(true)}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}
                 >
@@ -725,7 +735,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             <div className="flex items-center justify-between border-b border-[var(--line)] pb-4">
               <div className="text-left space-y-1">
                 <span className="text-[0.625rem] uppercase font-bold text-blue-500">Checkout Seguro</span>
-                <h2 className="text-xl font-bold text-[var(--ink-hi)]">Finalizar Assinatura</h2>
+                <h1 className="text-xl font-bold text-[var(--ink-hi)]">Finalizar Assinatura</h1>
               </div>
               <div className="text-right">
                 <span className="text-xs text-[var(--ink-lo)]">Plano Selecionado</span>
@@ -734,17 +744,18 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
             </div>
 
             {checkoutError && (
-              <div className="p-3 bg-red-950/40 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2">
+              <div role="alert" className="p-3 bg-red-950/40 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center gap-2">
                 <AlertTriangle size={14} className="shrink-0" />
                 <span>{checkoutError}</span>
               </div>
             )}
 
             {/* Gateway tab selection buttons */}
-            <div className="grid grid-cols-3 gap-2">
+            <div {...gatewayAbas.tablist} aria-label="Forma de pagamento" className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => { setSelectedGateway('stripe'); setCheckoutError(''); }}
+                {...gatewayAbas.tab('stripe')}
+                onClick={() => selecionarGateway('stripe')}
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'stripe' 
                     ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)]' 
@@ -755,7 +766,8 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               </button>
               <button
                 type="button"
-                onClick={() => { setSelectedGateway('paypal'); setCheckoutError(''); }}
+                {...gatewayAbas.tab('paypal')}
+                onClick={() => selecionarGateway('paypal')}
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'paypal' 
                     ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)]' 
@@ -766,7 +778,8 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               </button>
               <button
                 type="button"
-                onClick={() => { setSelectedGateway('mercadopago'); setCheckoutError(''); }}
+                {...gatewayAbas.tab('mercadopago')}
+                onClick={() => selecionarGateway('mercadopago')}
                 className={`py-2 text-xs font-bold rounded-xl border transition-all ${
                   selectedGateway === 'mercadopago' 
                     ? 'bg-blue-500/10 border-blue-500 text-[var(--ink-hi)]' 
@@ -781,7 +794,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               
               {/* RENDER STRIPE GATEWAY */}
               {selectedGateway === 'stripe' && (
-                <div className="space-y-4">
+                <div {...gatewayAbas.panel('stripe')} className="space-y-4">
                   {/* Credencial de teste é ferramenta de desenvolvimento, não
                       informação de produto: sai do build de produção.
                       O AVISO de que não há cobrança real continua visível para
@@ -812,7 +825,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-2xl space-y-3">
                     <div className="space-y-1">
                       <label htmlFor="campo-6-numero-do-cartao" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
-                      <input id="campo-6-numero-do-cartao" 
+                      <input autoComplete="cc-number" id="campo-6-numero-do-cartao" 
                         type="text" 
                         required
                         value={cardNumber}
@@ -824,7 +837,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <label htmlFor="campo-7-validade" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
-                        <input id="campo-7-validade" 
+                        <input autoComplete="cc-exp" id="campo-7-validade" 
                           type="text" 
                           required
                           value={cardExpiry}
@@ -835,7 +848,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       </div>
                       <div className="space-y-1">
                         <label htmlFor="campo-8-cvc" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
-                        <input id="campo-8-cvc" 
+                        <input autoComplete="cc-csc" id="campo-8-cvc" 
                           type="password" 
                           required
                           value={cardCvc}
@@ -849,12 +862,12 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
                     <div className="space-y-1">
                       <label htmlFor="campo-9-nome-do-titular" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Nome do Titular</label>
-                      <input id="campo-9-nome-do-titular" 
+                      <input autoComplete="cc-name" id="campo-9-nome-do-titular" 
                         type="text" 
                         required
                         value={cardName}
                         onChange={(e) => setCardName(e.target.value.toUpperCase())}
-                        placeholder="MARCOS GONÇALVES" 
+                        placeholder="NOME COMO NO CARTÃO" 
                         className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--line)] rounded-xl text-xs text-[var(--ink-hi)] uppercase"
                       />
                     </div>
@@ -864,7 +877,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
               {/* RENDER PAYPAL GATEWAY */}
               {selectedGateway === 'paypal' && (
-                <div className="space-y-4">
+                <div {...gatewayAbas.panel('paypal')} className="space-y-4">
                   <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded-xl text-xs text-[var(--ink-lo)]">
                     Aprovação simulada na carteira PayPal. Autentique-se na conta de testes:
                   </div>
@@ -872,7 +885,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-2xl space-y-3">
                     <div className="space-y-1">
                       <label htmlFor="campo-10-paypal-sandbox-e-mai" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">PayPal Sandbox E-mail</label>
-                      <input id="campo-10-paypal-sandbox-e-mai" 
+                      <input autoComplete="off" id="campo-10-paypal-sandbox-e-mai" 
                         type="email" 
                         required
                         value={paypalEmail}
@@ -882,7 +895,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     </div>
                     <div className="space-y-1">
                       <label htmlFor="campo-11-senha" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Senha</label>
-                      <input id="campo-11-senha" 
+                      <input autoComplete="off" id="campo-11-senha" 
                         type="password" 
                         required
                         value={paypalPassword}
@@ -911,12 +924,13 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
               {/* RENDER MERCADO PAGO GATEWAY */}
               {selectedGateway === 'mercadopago' && (
-                <div className="space-y-4">
+                <div {...gatewayAbas.panel('mercadopago')} className="space-y-4">
                   
                   {/* Mercado Pago method tabs */}
                   <div className="flex bg-[var(--bg)] border border-[var(--line)] rounded-xl p-1">
                     <button
                       type="button"
+                      aria-pressed={mpMethod === 'pix'}
                       onClick={() => setMpMethod('pix')}
                       className={`flex-1 text-center py-1.5 text-xs font-bold rounded-lg transition-all ${
                         mpMethod === 'pix' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
@@ -926,6 +940,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                     </button>
                     <button
                       type="button"
+                      aria-pressed={mpMethod === 'card'}
                       onClick={() => setMpMethod('card')}
                       className={`flex-1 text-center py-1.5 text-xs font-bold rounded-lg transition-all ${
                         mpMethod === 'card' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
@@ -991,7 +1006,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                       <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-2xl space-y-3">
                         <div className="space-y-1">
                           <label htmlFor="campo-12-numero-do-cartao" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
-                          <input id="campo-12-numero-do-cartao" 
+                          <input autoComplete="cc-number" id="campo-12-numero-do-cartao" 
                             type="text" 
                             required
                             value={cardNumber}
@@ -1003,7 +1018,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
                             <label htmlFor="campo-13-validade" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
-                            <input id="campo-13-validade" 
+                            <input autoComplete="cc-exp" id="campo-13-validade" 
                               type="text" 
                               required
                               value={cardExpiry}
@@ -1013,7 +1028,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                           </div>
                           <div className="space-y-1">
                             <label htmlFor="campo-14-cvc" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
-                            <input id="campo-14-cvc" 
+                            <input autoComplete="cc-csc" id="campo-14-cvc" 
                               type="password" 
                               required
                               value={cardCvc}
@@ -1026,7 +1041,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
                         <div className="space-y-1">
                           <label htmlFor="campo-15-nome-no-cartao" className="text-[0.625rem] uppercase font-bold text-[var(--ink-dim)]">Nome no Cartão</label>
-                          <input id="campo-15-nome-no-cartao" 
+                          <input autoComplete="cc-name" id="campo-15-nome-no-cartao" 
                             type="text" 
                             required
                             value={cardName}

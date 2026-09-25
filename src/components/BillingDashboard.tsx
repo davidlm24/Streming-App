@@ -2,6 +2,7 @@ import { PLANS, formatPrice } from '../lib/plans';
 import React, { useState, useEffect } from 'react';
 import { useToast } from './ui/Toast';
 import { Button } from './ui/Button';
+import { useTabs } from './ui/Tabs';
 import { useConfirm } from './ui/ConfirmDialog';
 import { copyText } from './ui/clipboard';
 import { Modal } from './ui/Modal';
@@ -98,6 +99,14 @@ export function BillingDashboard({ user, onUpdateUser, onBackToDashboard, initia
   const [isAnnual, setIsAnnual] = useState(false);
   const [selectedUpgradePlan, setSelectedUpgradePlan] = useState<'Standard' | 'Professional' | 'Business' | null>(null);
   const [checkoutStep, setCheckoutStep] = useState<'none' | 'gateway' | 'details' | 'success'>('none');
+
+  // Trocar de aba fora de "Planos" abandona o checkout em andamento — pelo
+  // clique ou pelas setas do teclado, o mesmo caminho.
+  const selecionarSubAba = (id: typeof activeSubTab) => {
+    setActiveSubTab(id);
+    if (id !== 'plans') setCheckoutStep('none');
+  };
+  const subAbas = useTabs('conta', ['plans', 'profile', 'billing-history', 'metrics'] as const, activeSubTab, selecionarSubAba);
   const [selectedGateway, setSelectedGateway] = useState<'stripe' | 'paypal' | 'mercadopago'>('stripe');
 
   // Stripe Card State
@@ -291,7 +300,7 @@ Suporte Técnico: suporte@pwstreamer.com
   };
 
   return (
-    <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200">
+    <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200">
       
       {/* Header Path */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -318,7 +327,7 @@ Suporte Técnico: suporte@pwstreamer.com
       </div>
 
       {/* Horizontal Sub-tabs layout */}
-      <div className="flex border-b border-[var(--line)] pb-px overflow-x-auto scrollbar-none gap-2">
+      <div {...subAbas.tablist} aria-label="Conta" className="flex border-b border-[var(--line)] pb-px overflow-x-auto scrollbar-none gap-2">
         {[
           { id: 'plans', label: 'Planos & Cobrança', icon: CreditCard },
           { id: 'profile', label: 'Dados de Cadastro', icon: User },
@@ -330,12 +339,8 @@ Suporte Técnico: suporte@pwstreamer.com
           return (
             <button
               key={subTab.id}
-              onClick={() => {
-                setActiveSubTab(subTab.id as any);
-                if (subTab.id !== 'plans') {
-                  setCheckoutStep('none');
-                }
-              }}
+              {...subAbas.tab(subTab.id as typeof activeSubTab)}
+              onClick={() => selecionarSubAba(subTab.id as typeof activeSubTab)}
               className={`flex items-center gap-2 px-5 py-3 text-xs font-bold transition-all border-b-2 shrink-0 ${
                 isActive 
                   ? 'border-blue-500 text-blue-400 font-extrabold bg-blue-500/5 rounded-t-xl' 
@@ -351,7 +356,7 @@ Suporte Técnico: suporte@pwstreamer.com
 
       {/* RENDER VIEW 1: PLANS AND PRICING TAB */}
       {activeSubTab === 'plans' && checkoutStep === 'none' && (
-        <div className="space-y-10">
+        <div {...subAbas.panel('plans')} className="space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold border border-blue-500/20 inline-flex items-center gap-1.5">
               <Sparkles size={14} /> Cresça seu Público e Multiplique Canais
@@ -364,12 +369,16 @@ Suporte Técnico: suporte@pwstreamer.com
             {/* Billing interval switcher */}
             <div className="inline-flex items-center gap-2 p-1 bg-[var(--surface)] border border-[var(--line)] rounded-xl mt-4">
               <button 
+                type="button"
+                aria-pressed={!isAnnual}
                 onClick={() => setIsAnnual(false)}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${!isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}
               >
                 Mensal
               </button>
               <button 
+                type="button"
+                aria-pressed={isAnnual}
                 onClick={() => setIsAnnual(true)}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${isAnnual ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'}`}
               >
@@ -486,7 +495,7 @@ Suporte Técnico: suporte@pwstreamer.com
 
       {/* RENDER VIEW 1.2: REAL TIME INTERACTIVE INTEGRATED CHECKOUT WITH GATEWAYS (Stripe, Paypal, Mercado Pago) */}
       {activeSubTab === 'plans' && checkoutStep !== 'none' && (
-        <div className="max-w-xl mx-auto bg-[var(--surface)] border border-[var(--line)] rounded-2xl overflow-hidden shadow-2xl text-left animate-in zoom-in-95 duration-150">
+        <div {...subAbas.panel('plans')} className="max-w-xl mx-auto bg-[var(--surface)] border border-[var(--line)] rounded-2xl overflow-hidden shadow-2xl text-left animate-in zoom-in-95 duration-150">
           
           {/* Checkout Steps Indicator */}
           <div className="grid grid-cols-3 bg-[var(--bg)] border-b border-[var(--line)] text-center text-[10px] font-bold uppercase tracking-wider text-[var(--ink-dim)]">
@@ -515,6 +524,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 {/* Stripe Card option */}
                 <button
                   type="button"
+                  aria-pressed={selectedGateway === 'stripe'}
                   onClick={() => setSelectedGateway('stripe')}
                   className={`w-full p-4 flex items-center justify-between rounded-xl border transition-all text-left ${
                     selectedGateway === 'stripe' 
@@ -539,6 +549,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 {/* PayPal option */}
                 <button
                   type="button"
+                  aria-pressed={selectedGateway === 'paypal'}
                   onClick={() => setSelectedGateway('paypal')}
                   className={`w-full p-4 flex items-center justify-between rounded-xl border transition-all text-left ${
                     selectedGateway === 'paypal' 
@@ -563,6 +574,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 {/* Mercado Pago option */}
                 <button
                   type="button"
+                  aria-pressed={selectedGateway === 'mercadopago'}
                   onClick={() => setSelectedGateway('mercadopago')}
                   className={`w-full p-4 flex items-center justify-between rounded-xl border transition-all text-left ${
                     selectedGateway === 'mercadopago' 
@@ -671,7 +683,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3">
                     <div className="space-y-1">
                       <label htmlFor="billingdashboard-numero-do-cartao" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
-                      <input id="billingdashboard-numero-do-cartao" 
+                      <input autoComplete="cc-number" id="billingdashboard-numero-do-cartao" 
                         type="text" 
                         required
                         value={stripeCardNumber}
@@ -683,7 +695,7 @@ Suporte Técnico: suporte@pwstreamer.com
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label htmlFor="billingdashboard-validade" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
-                        <input id="billingdashboard-validade" 
+                        <input autoComplete="cc-exp" id="billingdashboard-validade" 
                           type="text" 
                           required
                           value={stripeExpiry}
@@ -694,7 +706,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       </div>
                       <div className="space-y-1">
                         <label htmlFor="billingdashboard-cvc" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
-                        <input id="billingdashboard-cvc" 
+                        <input autoComplete="cc-csc" id="billingdashboard-cvc" 
                           type="password" 
                           required
                           value={stripeCvc}
@@ -708,7 +720,7 @@ Suporte Técnico: suporte@pwstreamer.com
 
                     <div className="space-y-1">
                       <label htmlFor="billingdashboard-nome-do-titular" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Nome do Titular</label>
-                      <input id="billingdashboard-nome-do-titular" 
+                      <input autoComplete="cc-name" id="billingdashboard-nome-do-titular" 
                         type="text" 
                         required
                         value={stripeCardName}
@@ -736,7 +748,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3 text-left">
                     <div className="space-y-1">
                       <label htmlFor="billingdashboard-e-mail-do-sandbox-paypal" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">E-mail do Sandbox PayPal</label>
-                      <input id="billingdashboard-e-mail-do-sandbox-paypal" 
+                      <input autoComplete="off" id="billingdashboard-e-mail-do-sandbox-paypal" 
                         type="email" 
                         required
                         value={paypalEmail}
@@ -746,7 +758,7 @@ Suporte Técnico: suporte@pwstreamer.com
                     </div>
                     <div className="space-y-1">
                       <label htmlFor="billingdashboard-senha" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Senha</label>
-                      <input id="billingdashboard-senha" 
+                      <input autoComplete="off" id="billingdashboard-senha" 
                         type="password" 
                         required
                         value={paypalPassword}
@@ -783,6 +795,7 @@ Suporte Técnico: suporte@pwstreamer.com
                   <div className="flex bg-[var(--bg)] border border-[var(--line)] rounded-xl p-1">
                     <button
                       type="button"
+                      aria-pressed={mpMethod === 'pix'}
                       onClick={() => setMpMethod('pix')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
                         mpMethod === 'pix' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
@@ -792,6 +805,7 @@ Suporte Técnico: suporte@pwstreamer.com
                     </button>
                     <button
                       type="button"
+                      aria-pressed={mpMethod === 'card'}
                       onClick={() => setMpMethod('card')}
                       className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${
                         mpMethod === 'card' ? 'bg-[var(--color-brand-deep)] text-white' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
@@ -857,7 +871,7 @@ Suporte Técnico: suporte@pwstreamer.com
                       <div className="p-4 bg-[var(--bg)] rounded-2xl border border-[var(--line)] space-y-3">
                         <div className="space-y-1">
                           <label htmlFor="billingdashboard-numero-do-cartao-2" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Número do Cartão</label>
-                          <input id="billingdashboard-numero-do-cartao-2" 
+                          <input autoComplete="cc-number" id="billingdashboard-numero-do-cartao-2" 
                             type="text" 
                             required
                             value={mpCardNumber}
@@ -869,7 +883,7 @@ Suporte Técnico: suporte@pwstreamer.com
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-1">
                             <label htmlFor="billingdashboard-validade-2" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Validade</label>
-                            <input id="billingdashboard-validade-2" 
+                            <input autoComplete="cc-exp" id="billingdashboard-validade-2" 
                               type="text" 
                               required
                               value={mpExpiry}
@@ -879,7 +893,7 @@ Suporte Técnico: suporte@pwstreamer.com
                           </div>
                           <div className="space-y-1">
                             <label htmlFor="billingdashboard-cvc-2" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">CVC</label>
-                            <input id="billingdashboard-cvc-2" 
+                            <input autoComplete="cc-csc" id="billingdashboard-cvc-2" 
                               type="password" 
                               required
                               value={mpCvc}
@@ -891,7 +905,7 @@ Suporte Técnico: suporte@pwstreamer.com
 
                         <div className="space-y-1">
                           <label htmlFor="billingdashboard-nome-completo" className="text-[10px] uppercase font-bold text-[var(--ink-dim)]">Nome Completo</label>
-                          <input id="billingdashboard-nome-completo" 
+                          <input autoComplete="cc-name" id="billingdashboard-nome-completo" 
                             type="text" 
                             required
                             value={mpCardName}
@@ -1023,7 +1037,7 @@ Suporte Técnico: suporte@pwstreamer.com
 
       {/* RENDER VIEW 2: CADASTRE PROFILE AND INVOICE ADDRESS TAB */}
       {activeSubTab === 'profile' && (
-        <div className="max-w-2xl mx-auto bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 text-left space-y-6">
+        <div {...subAbas.panel('profile')} className="max-w-2xl mx-auto bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 text-left space-y-6">
           <div className="border-b border-[var(--line)] pb-4">
             <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
               <User size={18} className="text-blue-500" /> Informações Cadastrais & Fiscais
@@ -1043,7 +1057,7 @@ Suporte Técnico: suporte@pwstreamer.com
               <div className="space-y-1.5">
                 <label htmlFor="billingdashboard-nome-completo-2" className="text-xs font-semibold text-[var(--ink)]">Nome Completo</label>
                 <div className="relative">
-                  <input id="billingdashboard-nome-completo-2" 
+                  <input autoComplete="name" id="billingdashboard-nome-completo-2" 
                     type="text" 
                     required
                     value={profileName}
@@ -1057,7 +1071,7 @@ Suporte Técnico: suporte@pwstreamer.com
               <div className="space-y-1.5">
                 <label htmlFor="billingdashboard-endereco-de-e-mail" className="text-xs font-semibold text-[var(--ink)]">Endereço de E-mail</label>
                 <div className="relative">
-                  <input id="billingdashboard-endereco-de-e-mail" 
+                  <input autoComplete="email" id="billingdashboard-endereco-de-e-mail" 
                     type="email" 
                     required
                     value={profileEmail}
@@ -1076,7 +1090,7 @@ Suporte Técnico: suporte@pwstreamer.com
                 <div className="space-y-1.5">
                   <label htmlFor="billingdashboard-razao-social-nome-de-faturamento" className="text-xs font-semibold text-[var(--ink)]">Razão Social / Nome de Faturamento</label>
                   <div className="relative">
-                    <input id="billingdashboard-razao-social-nome-de-faturamento" 
+                    <input autoComplete="organization" id="billingdashboard-razao-social-nome-de-faturamento" 
                       type="text" 
                       placeholder="Ex: Minha Empresa de Tecnologia Ltda"
                       value={companyName}
@@ -1124,7 +1138,7 @@ Suporte Técnico: suporte@pwstreamer.com
 
       {/* RENDER VIEW 3: BILLING HISTORY AND SIMULATED RECEIPTS TAB */}
       {activeSubTab === 'billing-history' && (
-        <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 text-left space-y-6">
+        <div {...subAbas.panel('billing-history')} className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 text-left space-y-6">
           <div className="border-b border-[var(--line)] pb-4">
             <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
               <FileText size={18} className="text-blue-500" /> Histórico de Transações & Faturas
@@ -1349,7 +1363,7 @@ Suporte Técnico: suporte@pwstreamer.com
         };
 
         return (
-          <div className="space-y-6">
+          <div {...subAbas.panel('metrics')} className="space-y-6">
             
             {/* Main stats card header comparing limits */}
             <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 text-left space-y-6">
@@ -1606,6 +1620,6 @@ Suporte Técnico: suporte@pwstreamer.com
         );
       })()}
 
-    </div>
+    </main>
   );
 }

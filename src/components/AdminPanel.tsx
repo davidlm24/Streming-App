@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTabs } from './ui/Tabs';
 import { 
   Key, Plus, Trash2, Copy, Check,
   Crown, Share2, Eye, ShieldCheck, Lock, RefreshCw, Radio, RotateCw, Activity
@@ -25,6 +26,7 @@ interface AdminPanelProps {
 export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelProps) {
   const confirm = useConfirm();
   const [clientTab, setClientTab] = useState<'my-rtmp' | 'destinations' | 'stats' | 'webhooks'>('my-rtmp');
+  const clienteAbas = useTabs('cliente', ['my-rtmp', 'destinations', 'stats', 'webhooks'] as const, clientTab, setClientTab);
   const [copiedKey, setCopiedKey] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -144,7 +146,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
   };
 
   return (
-    <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200" id="client-admin-dashboard">
+    <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200" id="client-admin-dashboard">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--line)] pb-6">
@@ -180,7 +182,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
           Twitch)", o flex espremia cada aba e o texto quebrava em várias
           linhas — a faixa chegava a 90px de altura. A irmã em
           BillingDashboard já rolava na horizontal; esta agora faz o mesmo. */}
-      <div className="flex border-b border-[var(--line)] pb-px gap-1 overflow-x-auto scrollbar-none">
+      <div {...clienteAbas.tablist} aria-label="Painel do cliente" className="flex border-b border-[var(--line)] pb-px gap-1 overflow-x-auto scrollbar-none">
         {[
           { id: 'my-rtmp', label: 'Sua Chave de Ingestão OBS / Encoder', icon: Key },
           { id: 'destinations', label: 'Destinos para Redes Sociais (YouTube / Facebook / Twitch)', icon: Share2 },
@@ -189,7 +191,8 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
         ].map(tab => (
           <button
             key={tab.id}
-            onClick={() => setClientTab(tab.id as any)}
+            {...clienteAbas.tab(tab.id as typeof clientTab)}
+            onClick={() => setClientTab(tab.id as typeof clientTab)}
             className={`shrink-0 whitespace-nowrap flex items-center gap-2 px-5 py-3 border-b-2 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
               clientTab === tab.id 
                 ? 'border-blue-500 text-[var(--ink-hi)] bg-blue-500/5' 
@@ -204,7 +207,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
       {/* CLIENT TAB 1: MY INGESTION STREAM KEY */}
       {clientTab === 'my-rtmp' && (
-        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
+        <div {...clienteAbas.panel('my-rtmp')} className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <div className="flex items-start justify-between gap-4 border-b border-[var(--line)] pb-4">
             <div>
               <h3 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
@@ -317,7 +320,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
       {/* CLIENT TAB 2: OUTBOUND DESTINATIONS */}
       {clientTab === 'destinations' && (
-        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
+        <div {...clienteAbas.panel('destinations')} className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <div>
             <h3 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
               <Share2 size={18} className="text-blue-500" /> Chaves RTMP dos Seus Canais (Redes Sociais)
@@ -434,7 +437,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
       {/* CLIENT TAB 3: STATS & PERFORMANCE MONITOR */}
       {clientTab === 'stats' && (
-        <div className="space-y-6">
+        <div {...clienteAbas.panel('stats')} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Eram três literais — '1.240' espectadores, '482' comentários,
                 '1080p 60fps' de ingestão — renderizados com o desenho de um
@@ -463,7 +466,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
 
       {/* CLIENT TAB 4: WEBHOOKS VALIDATOR & DISPATCHER */}
       {clientTab === 'webhooks' && (
-        <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
+        <div {...clienteAbas.panel('webhooks')} className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <WebhookPanel 
             userId={user?.email || 'mgdlms@gmail.com'}
             isLive={false}
@@ -491,6 +494,6 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
         initialUrl={newDestUrl}
         initialKey={newDestKey}
       />
-    </div>
+    </main>
   );
 }

@@ -95,6 +95,12 @@ for (const arq of walkDir('src')) {
           const ph = lit(n, 'placeholder');
           achados.push(`${onde(n)}  <${n.tagName.getText()}${tipo ? ` type="${tipo}"` : ''}>${ph ? `  placeholder="${ph}"` : ''}`);
         }
+        // WCAG 1.3.5: e-mail e senha declaram autoComplete — sem isso o
+        // gerenciador de senhas nao preenche nada. "off" vale: a decisao
+        // (ex.: login simulado de PayPal) fica explicita no codigo.
+        if ((tipo === 'email' || tipo === 'password') && !temAttr(n, 'autoComplete') && !temAttr(n, 'readOnly')) {
+          achados.push(`${onde(n)}  <input type="${tipo}"> sem autoComplete`);
+        }
       }
     }
     ts.forEachChild(n, v);
