@@ -1,4 +1,5 @@
 import { AcaoDeTexto } from './components/ui/AcaoDeTexto';
+import { BotaoDeIcone } from './components/ui/BotaoDeIcone';
 import { Button } from './components/ui/Button';
 import { apiFetch } from './lib/apiFetch';
 import { useTabs } from './components/ui/Tabs';
@@ -34,7 +35,7 @@ import { CLOUDFLARE_STREAM_CONFIG } from './lib/cloudflareStreamConfig';
 import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, QrCodeConfig, StudioTab, SceneTransitionType, isWipeTransition } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_BANNERS, INITIAL_TICKERS, INITIAL_COMMENTS, AUDIO_LIBRARY } from './data';
 import { startSynth, stopSynth, setVolume as setSynthVolume } from './audioEngine';
-import { Play, Calendar, Users, Tv, Radio, BarChart3, Plus, ArrowRight, Settings, ExternalLink, Palette, ListTodo, QrCode, FileText, MessageSquare, Music, Sliders, ShieldAlert, Sparkles, X, Maximize2, Minimize2, Server, CheckCircle2, Type, Film, Bell, Puzzle, Activity, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
+import { CircleAlert, Play, Calendar, Users, Tv, Radio, BarChart3, Plus, ArrowRight, Settings, ExternalLink, Palette, ListTodo, QrCode, FileText, MessageSquare, Music, Sliders, ShieldAlert, Sparkles, X, Maximize2, Minimize2, Server, CheckCircle2, Type, Film, Bell, Puzzle, Activity, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
 import { ThumbnailEditor } from './components/ThumbnailEditor';
 import { ScenesPanel, Scene, DEFAULT_STUDIO_SCENES } from './components/ScenesPanel';
 import { LegalModal } from './components/LegalModals';
@@ -2105,31 +2106,30 @@ export default function App() {
       />
       )}
 
-      {/* Firestore Free Tier Quota Alert Banner */}
+      {/* Cota do banco esgotada. Era um aviso de desenvolvedor para o cliente
+          ("Limite diário de gravações do Firestore (Spark Free Tier)"), em
+          âmbar, com um link para o cliente fazer upgrade no Firebase — que
+          não é dele. Agora diz o que acontece com as alterações; a cota fica
+          só para o admin. */}
       {isQuotaExceeded && isQuotaBannerVisible && (
-        <div id="firestore-quota-alert-banner" className="bg-amber-950/90 border-b border-amber-500/40 px-4 py-2 flex items-center justify-between text-xs text-amber-200 backdrop-blur-md shrink-0 z-40">
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="flex items-center justify-center w-4 h-4 rounded-full bg-amber-500/30 text-amber-300 font-bold text-[10px]">!</span>
+        <div id="firestore-quota-alert-banner" role="status" className="flex min-h-11 shrink-0 items-center justify-between gap-3 border-b border-[var(--line)] bg-[var(--surface)] pl-4 pr-1 text-xs text-[var(--ink-hi)]">
+          <p className="flex items-start gap-2 py-2">
+            <CircleAlert size={14} aria-hidden="true" className="mt-px shrink-0" />
             <span>
-              <strong>Limite diário de gravações do Firestore (Spark Free Tier) atingido:</strong> O estúdio está funcionando normalmente com persistência local em tempo real. As cotas são reiniciadas diariamente.
+              Não foi possível salvar na nuvem agora. Suas alterações estão guardadas só neste navegador.
+              {user?.role === 'super-admin' && (
+                <>
+                  {' '}
+                  <AcaoDeTexto href={FIRESTORE_UPGRADE_URL} tamanho="xs" sublinhada>
+                    Ver a cota no Firebase
+                  </AcaoDeTexto>
+                </>
+              )}
             </span>
-            <a 
-              href={FIRESTORE_UPGRADE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-medium px-2 py-0.5 rounded border border-amber-500/40 transition-colors"
-            >
-              <span>Gerenciar Cota / Upgrade no Firebase</span>
-              <ExternalLink size={11} />
-            </a>
-          </div>
-          <button 
-            onClick={() => setIsQuotaBannerVisible(false)}
-            className="p-1 text-amber-400/80 hover:text-amber-200 rounded hover:bg-amber-500/20 transition-colors ml-2"
-            title="Fechar aviso"
-          >
-            <X size={14} />
-          </button>
+          </p>
+          <BotaoDeIcone rotulo="Fechar aviso" onClick={() => setIsQuotaBannerVisible(false)}>
+            <X size={16} aria-hidden="true" />
+          </BotaoDeIcone>
         </div>
       )}
 

@@ -17,15 +17,21 @@ import {
   subscribeAllRtmpKeys, 
   saveRtmpKeyToFirestore, 
   deleteRtmpKeyFromFirestore, 
-  regenerateRtmpKeyInFirestore, 
-  AuditLogEntry, 
-  RtmpKeyEntry 
+  regenerateRtmpKeyInFirestore,
+  subscribeUserProfiles,
+  gerarChaveDeTransmissao,
+  AuditLogEntry,
+  RtmpKeyEntry,
+  PerfilDeCliente
 } from '../lib/firestoreService';
+import { getPlan, type PlanId } from '../lib/plans';
 import { SuperAdminAnalytics } from './SuperAdminAnalytics';
 import { StudioPerformanceMonitor } from './StudioPerformanceMonitor';
 import { WebhookPanel } from './WebhookPanel';
 import { useConfirm } from './ui/ConfirmDialog';
 import { copyText } from './ui/clipboard';
+import { AcaoDeTexto } from './ui/AcaoDeTexto';
+import { CabecalhoDePagina, Pagina } from './ui/Pagina';
 
 interface SuperAdminPanelProps {
   onBack: () => void;
@@ -34,34 +40,20 @@ interface SuperAdminPanelProps {
   onDeleteWebinar?: (id: string) => void;
 }
 
-/**
- * Linha da tabela de clientes.
- *
- * O estado era inferido do literal inicial, então cada linha ganhava um
- * `plan` literal exato ('Business', 'Professional'…). Trocar o plano com
- * a união larga não casava com nenhum membro dessa união inferida — e o
- * erro só aparecia quando os tipos do React estavam instalados.
- */
-interface ClientRow {
-  id: string;
-  name: string;
-  email: string;
-  plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial';
-  role: 'super-admin' | 'client';
-  status: 'Active' | 'Suspended';
-  webinarsCount: number;
-  joinedDate: string;
-}
+/** Linha da tabela de clientes: o perfil como está no banco, sem nada inventado. */
+type ClientRow = PerfilDeCliente;
+
+/** Situação da assinatura em palavra, a partir do que o perfil guarda. */
+const situacaoDe = (c: ClientRow) =>
+  c.isExpired || c.subscriptionStatus === 'expired' ? 'Expirado' : c.subscriptionStatus === 'active' ? 'Ativo' : 'Em teste';
 
 export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: SuperAdminPanelProps) {
   const confirm = useConfirm();
-  // Master Admin Auth PIN Lock state
-  const [isUnlocked, setIsUnlocked] = useState<boolean>(() => {
-    return user?.role === 'super-admin' || user?.email === 'mgdlms@gmail.com' || localStorage.getItem('pwstream_master_unlocked') === 'true';
-  });
-  const [emailInput, setEmailInput] = useState('admin@pwstreamer.com');
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState('');
+  // Só o papel do perfil abre o painel. O papel vem do banco, e as regras não
+  // deixam ninguém se promover; o que o navegador decide aqui é só a tela.
+  const isUnlocked = user?.role === 'super-admin';
+  // Quem age é quem está logado: os registros assinam com o e-mail da sessão.
+  const eu = user?.email ?? '';
 
   // Tabs for Super Admin
   const [activeTab, setActiveTab] = useState<'analytics' | 'clients' | 'webinars' | 'master-rtmp' | 'servers' | 'webhooks' | 'logs'>('analytics');
@@ -77,90 +69,37 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   const [masterRtmpKeys, setMasterRtmpKeys] = useState<RtmpKeyEntry[]>([]);
 
   useEffect(() => {
+    if (!isUnlocked) return;
     const unsubLogs = subscribeAuditLogs((logs) => {
       setAuditLogs(logs);
     });
 
-    const unsubKeys = subscribeAllRtmpKeys((keys) => {
-      if (keys.length === 0) {
-        // Seed default master keys if Firestore collection is fresh
-        const defaultKeys: RtmpKeyEntry[] = [
-          { 
-            id: 'key-master-1', 
-            label: 'Chave Master 01 - Estúdio A', 
-            clientEmail: user?.email || 'mgdlms@gmail.com', 
-            key: 'pw_live_68e29a10bc39e1a', 
-            server: 'rtmp://stream.pwstreamer.com/live', 
-            maxBitrate: '8000 kbps',
-            active: true,
-            createdAt: '2026-08-01'
-          },
-          { 
-            id: 'key-techlive-2', 
-            label: 'Chave Ingestão - Tech Live BR', 
-            clientEmail: 'contato@techlivebr.com.br', 
-            key: 'pw_live_44f8812c30ab991', 
-            server: 'rtmp://stream.pwstreamer.com/live', 
-            maxBitrate: '6000 kbps',
-            active: true,
-            createdAt: '2026-08-04'
-          }
-        ];
-        defaultKeys.forEach(k => saveRtmpKeyToFirestore(k));
-      } else {
-        setMasterRtmpKeys(keys);
-      }
-    });
+    // Coleção vazia fica vazia. Antes, sem chaves, o painel gravava duas
+    // chaves de exemplo no banco real, uma delas em nome de outra empresa.
+    const unsubKeys = subscribeAllRtmpKeys(setMasterRtmpKeys);
 
     return () => {
       unsubLogs();
       unsubKeys();
     };
-  }, [user?.email]);
+  }, [isUnlocked]);
 
-  // Sample Registered Clients List (Master View)
-  const [clients, setClients] = useState<ClientRow[]>([
-    { 
-      id: 'usr-1', 
-      name: user?.name || 'Marcos Lima (Admin Master)', 
-      email: user?.email || 'mgdlms@gmail.com', 
-      plan: 'Business' as const, 
-      role: 'super-admin' as const, 
-      status: 'Active' as const, 
-      webinarsCount: 5, 
-      joinedDate: '2026-07-01' 
-    },
-    { 
-      id: 'usr-2', 
-      name: 'Empresa Tech Live BR', 
-      email: 'contato@techlivebr.com.br', 
-      plan: 'Professional' as const, 
-      role: 'client' as const, 
-      status: 'Active' as const, 
-      webinarsCount: 12, 
-      joinedDate: '2026-07-15' 
-    },
-    { 
-      id: 'usr-3', 
-      name: 'Estúdio Digital Marketing', 
-      email: 'financeiro@estudiodigital.com', 
-      plan: 'Standard' as const, 
-      role: 'client' as const, 
-      status: 'Active' as const, 
-      webinarsCount: 3, 
-      joinedDate: '2026-08-01' 
-    },
-    { 
-      id: 'usr-4', 
-      name: 'Canal Gamer BR', 
-      email: 'streamer@gamerbr.tv', 
-      plan: 'Free Trial' as const, 
-      role: 'client' as const, 
-      status: 'Suspended' as const, 
-      webinarsCount: 1, 
-      joinedDate: '2026-08-05' 
-    }
-  ]);
+  // Clientes de verdade, lidos dos perfis. Era uma lista fixa de empresas
+  // inventadas, com ações que só mudavam a tela e ainda gravavam na auditoria
+  // uma troca de plano que não tinha acontecido.
+  const [clients, setClients] = useState<ClientRow[]>([]);
+  // A lista vazia só diz "nenhum perfil" quando o banco respondeu que não há
+  const [estadoDosClientes, setEstadoDosClientes] = useState<'carregando' | 'ok' | 'sem-conexao' | 'sem-permissao'>('carregando');
+  useEffect(() => {
+    if (!isUnlocked) return;
+    return subscribeUserProfiles(
+      (perfis, doCache) => {
+        setClients(perfis);
+        setEstadoDosClientes(doCache && perfis.length === 0 ? 'sem-conexao' : 'ok');
+      },
+      () => setEstadoDosClientes('sem-permissao'),
+    );
+  }, [isUnlocked]);
 
   const [newKeyLabel, setNewKeyLabel] = useState('');
   const [newKeyClientEmail, setNewKeyClientEmail] = useState('');
@@ -179,32 +118,6 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
   const externalAdminUrl = `${window.location.origin}/admin`;
 
-  const handleUnlockPin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanEmail = emailInput.trim().toLowerCase();
-    const cleanPin = pinInput.trim();
-
-    if (
-      (cleanEmail === 'admin@pwstreamer.com' && cleanPin === 'S!CRb$762v') ||
-      cleanPin === 'S!CRb$762v' ||
-      cleanPin === 'admin123' ||
-      cleanPin === 'master' ||
-      cleanPin === 'pwstream2026' ||
-      cleanEmail === 'mgdlms@gmail.com'
-    ) {
-      setIsUnlocked(true);
-      localStorage.setItem('pwstream_master_unlocked', 'true');
-      setPinError('');
-      await addAuditLogToFirestore({
-        action: 'SUPER_ADMIN_LOGIN',
-        actorEmail: cleanEmail || user?.email || 'admin@pwstreamer.com',
-        details: `Super Admin autenticado com sucesso via rota externa /admin`
-      });
-    } else {
-      setPinError('Credenciais inválidas. Verifique o e-mail e a senha master (admin@pwstreamer.com).');
-    }
-  };
-
   const handleCopyExternalLink = () => {
     copyText(externalAdminUrl);
     setCopiedLink(true);
@@ -219,14 +132,14 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
       id: `key-${Date.now()}`,
       label: newKeyLabel,
       clientEmail: newKeyClientEmail,
-      key: `pw_live_${Math.random().toString(16).substr(2, 12)}`,
+      key: gerarChaveDeTransmissao(),
       server: 'rtmp://stream.pwstreamer.com/live',
       maxBitrate: newKeyBitrate,
       active: true,
       createdAt: new Date().toISOString().split('T')[0]
     };
 
-    await saveRtmpKeyToFirestore(newKey, user?.email || 'mgdlms@gmail.com');
+    await saveRtmpKeyToFirestore(newKey, eu);
     setNewKeyLabel('');
     setNewKeyClientEmail('');
   };
@@ -236,7 +149,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
     await regenerateRtmpKeyInFirestore(
       key.id, 
       key.clientEmail, 
-      user?.email || 'mgdlms@gmail.com', 
+      eu, 
       key.label
     );
   };
@@ -246,7 +159,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
     await saveRtmpKeyToFirestore(updated);
     await addAuditLogToFirestore({
       action: 'TOGGLE_CLIENT_STATUS',
-      actorEmail: user?.email || 'mgdlms@gmail.com',
+      actorEmail: eu,
       targetEmail: key.clientEmail,
       details: `Chave RTMP '${key.label}' (${key.clientEmail}) ${updated.active ? 'ativada' : 'suspensa'} no servidor`
     });
@@ -254,28 +167,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
   const handleDeleteMasterKey = async (key: RtmpKeyEntry) => {
     if (!(await confirm({ title: 'Revogar esta chave?', description: `A chave '${key.label}' é apagada permanentemente e não pode ser recuperada.`, confirmLabel: 'Revogar', destructive: true }))) return;
-    await deleteRtmpKeyFromFirestore(key.id, user?.email || 'mgdlms@gmail.com', key.clientEmail, key.label);
-  };
-
-  const handleChangeClientPlan = async (clientId: string, clientEmail: string, newPlan: 'Standard' | 'Professional' | 'Business') => {
-    setClients(prev => prev.map(c => c.id === clientId ? { ...c, plan: newPlan } : c));
-    await addAuditLogToFirestore({
-      action: 'CHANGE_PLAN',
-      actorEmail: user?.email || 'mgdlms@gmail.com',
-      targetEmail: clientEmail,
-      details: `Plano do cliente ${clientEmail} alterado para ${newPlan}`
-    });
-  };
-
-  const handleToggleClientStatus = async (clientId: string, clientEmail: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'Active' ? 'Suspended' : 'Active';
-    setClients(prev => prev.map(c => c.id === clientId ? { ...c, status: newStatus as any } : c));
-    await addAuditLogToFirestore({
-      action: 'TOGGLE_CLIENT_STATUS',
-      actorEmail: user?.email || 'mgdlms@gmail.com',
-      targetEmail: clientEmail,
-      details: `Status do cliente ${clientEmail} alterado para ${newStatus === 'Active' ? 'Ativo' : 'Suspenso'}`
-    });
+    await deleteRtmpKeyFromFirestore(key.id, eu, key.clientEmail, key.label);
   };
 
   const handleDeleteWebinarAdmin = async (webinarId: string, webinarTitle: string) => {
@@ -285,7 +177,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
     }
     await addAuditLogToFirestore({
       action: 'DELETE_WEBINAR',
-      actorEmail: user?.email || 'mgdlms@gmail.com',
+      actorEmail: eu,
       details: `Excluído webinar '${webinarTitle}' (ID: ${webinarId}) via Painel Mestre Super Admin`
     });
   };
@@ -300,83 +192,15 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
     c.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // If PIN / Master Admin is locked
+  // Sem o papel de admin, o painel não existe para a pessoa: sem formulário
+  // e sem senha. Era uma tela de "senha master" com as senhas no próprio
+  // código — e um e-mail que destravava sem senha nenhuma.
   if (!isUnlocked) {
     return (
-      <div className="flex-1 max-w-md mx-auto w-full px-4 py-16 flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in duration-300">
-        <div className="w-full bg-[var(--surface)] border border-amber-500/30 p-8 rounded-2xl shadow-2xl space-y-6 text-center">
-          <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center mx-auto text-amber-400 shadow-lg">
-            <Lock size={32} />
-          </div>
-
-          <div>
-            <span className="bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-amber-500/30">
-              Acesso Exclusivo
-            </span>
-            <h2 className="text-xl font-bold text-[var(--ink-hi)] mt-3">Autenticação do Admin Principal (/admin)</h2>
-            <p className="text-xs text-[var(--ink-lo)] mt-1">
-              Portal isolado de gerenciamento global. Digite as credenciais do Administrador do Sistema.
-            </p>
-          </div>
-
-          <form onSubmit={handleUnlockPin} className="space-y-4 text-left">
-            <div>
-              <label htmlFor="superadminpanel-e-mail-de-admin-mestre" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">E-mail de Admin Mestre</label>
-              <div className="relative">
-                <Mail size={16} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
-                <input autoComplete="email" id="superadminpanel-e-mail-de-admin-mestre"
-                  type="email"
-                  required
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="admin@pwstreamer.com"
-                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-amber-500 transition-all font-mono"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="superadminpanel-senha-de-acesso-mestre" className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block mb-1">Senha de Acesso Mestre</label>
-              <div className="relative">
-                <Lock size={16} className="absolute left-3.5 top-3.5 text-[var(--ink-dim)]" />
-                <input autoComplete="current-password" id="superadminpanel-senha-de-acesso-mestre"
-                  type="password"
-                  required
-                  value={pinInput}
-                  onChange={(e) => setPinInput(e.target.value)}
-                  placeholder="••••••••••••"
-                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-amber-500 transition-all font-mono"
-                />
-              </div>
-            </div>
-
-            {pinError && (
-              <p className="text-xs text-red-400 font-medium bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg">
-                {pinError}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Unlock size={16} /> Autenticar Admin Principal
-            </button>
-          </form>
-
-          <div className="pt-2 border-t border-[var(--line)]/80 flex justify-between items-center text-[11px] text-[var(--ink-lo)]">
-            <span>Usuário Conectado:</span>
-            <span className="text-[var(--ink-hi)] font-semibold">{user?.email || 'Visitante'}</span>
-          </div>
-
-          <button
-            onClick={onBack}
-            className="text-xs text-[var(--ink-lo)] hover:text-[var(--ink-hi)] underline cursor-pointer"
-          >
-            Voltar ao Dashboard Geral
-          </button>
-        </div>
-      </div>
+      <Pagina>
+        <CabecalhoDePagina titulo="Acesso restrito" descricao="Esta área é só para a administração da plataforma." />
+        <AcaoDeTexto onClick={onBack}>Voltar ao painel</AcaoDeTexto>
+      </Pagina>
     );
   }
 
@@ -448,7 +272,13 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
       {/* Infrastructure KPI Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Clientes Ativos', value: clients.filter(c => c.status === 'Active').length.toString(), desc: 'Total cadastrados: ' + clients.length, color: 'text-amber-400', icon: Users },
+          {
+            label: 'Clientes Ativos',
+            value: estadoDosClientes === 'ok' ? clients.filter(c => situacaoDe(c) !== 'Expirado').length.toString() : '—',
+            desc: estadoDosClientes === 'ok' ? 'Total cadastrados: ' + clients.length : 'Lista indisponível agora',
+            color: 'text-amber-400',
+            icon: Users
+          },
           { label: 'Transmissões / Webinars', value: allWebinars.length.toString(), desc: 'Agendadas e ao vivo', color: 'text-blue-400', icon: Video },
           { label: 'Chaves RTMP Master', value: masterRtmpKeys.length.toString(), desc: masterRtmpKeys.filter(k => k.active).length + ' Ativas no Ingest', color: 'text-emerald-400', icon: Key },
           { label: 'Status da Rede Ingest', value: '100% Online', desc: 'MediaMTX / Nginx RTMP', color: 'text-indigo-400', icon: Server }
@@ -494,7 +324,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
       {/* TAB 0: ANALYTICS & USAGE */}
       {activeTab === 'analytics' && (
-        <SuperAdminAnalytics clientsList={clients} allWebinarsCount={allWebinars.length} />
+        <SuperAdminAnalytics allWebinarsCount={allWebinars.length} />
       )}
 
       {/* TAB 1: CLIENTS MANAGEMENT */}
@@ -505,7 +335,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
               <h3 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
                 <Users size={18} className="text-amber-400" /> Gerenciamento Completo de Clientes
               </h3>
-              <p className="text-xs text-[var(--ink-lo)] mt-1">Visualize todos os usuários e clientes cadastrados no sistema, altere seus planos e controle acessos.</p>
+              <p className="text-xs text-[var(--ink-lo)] mt-1">Todos os perfis cadastrados, com plano e situação da assinatura. Mudar plano ou suspender um cliente ainda não é feito por aqui.</p>
             </div>
 
             <div className="relative w-full sm:w-64">
@@ -524,57 +354,37 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             <table className="w-full text-left text-xs">
               <thead className="bg-[var(--bg)] text-[var(--ink-lo)] font-bold uppercase text-[10px] border-b border-[var(--line)]">
                 <tr>
-                  <th className="p-3.5">Cliente / Nome</th>
+                  <th className="p-3.5">Cliente</th>
                   <th className="p-3.5">E-mail</th>
-                  <th className="p-3.5">Plano Atual</th>
-                  <th className="p-3.5">Status</th>
-                  <th className="p-3.5">Webinars</th>
-                  <th className="p-3.5 text-right">Ações de Admin</th>
+                  <th className="p-3.5">Plano</th>
+                  <th className="p-3.5">Situação</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--line)]/60 text-[var(--ink)]">
+                {filteredClients.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="p-3.5 text-[var(--ink-lo)]">
+                      {estadoDosClientes === 'carregando'
+                        ? "Carregando os perfis…"
+                        : estadoDosClientes === 'sem-permissao'
+                          ? "Não foi possível ler os perfis. As regras do banco só liberam esta lista para o admin."
+                          : estadoDosClientes === 'sem-conexao'
+                            ? "Sem conexão com o banco agora. A lista aparece quando ele voltar."
+                            : searchQuery
+                              ? "Nenhum cliente com esse nome ou e-mail."
+                              : "Nenhum perfil cadastrado ainda."}
+                    </td>
+                  </tr>
+                )}
                 {filteredClients.map(client => (
-                  <tr key={client.id} className="hover:bg-[var(--panel)]/30 transition-colors">
-                    <td className="p-3.5 font-bold text-[var(--ink-hi)] flex items-center gap-2">
-                      <span>{client.name}</span>
-                      {client.role === 'super-admin' && (
-                        <span className="bg-amber-500/20 text-amber-300 text-[8px] font-black px-1.5 py-0.5 rounded border border-amber-500/30 uppercase">
-                          Admin Master
-                        </span>
-                      )}
+                  <tr key={client.uid} className="hover:bg-[var(--panel)]/30 transition-colors">
+                    <td className="p-3.5 font-semibold text-[var(--ink-hi)]">
+                      {client.name || client.email}
+                      {client.role === 'super-admin' && <span className="ml-2 font-normal text-[var(--ink-lo)]">· admin</span>}
                     </td>
-                    <td className="p-3.5 font-mono text-[var(--ink-lo)]">{client.email}</td>
-                    <td className="p-3.5">
-                      <select aria-label={`Plano de ${client.name}`}
-                        value={client.plan}
-                        onChange={(e) => handleChangeClientPlan(client.id, client.email, e.target.value as any)}
-                        className="bg-[var(--bg)] border border-[var(--line)] rounded-lg px-2 py-1 text-[11px] font-bold text-blue-400 focus:outline-none focus:border-amber-500"
-                      >
-                        <option value="Standard">Standard</option>
-                        <option value="Professional">Professional</option>
-                        <option value="Business">Business</option>
-                      </select>
-                    </td>
-                    <td className="p-3.5">
-                      <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                        client.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                      }`}>
-                        {client.status === 'Active' ? 'Ativo' : 'Suspenso'}
-                      </span>
-                    </td>
-                    <td className="p-3.5 font-semibold text-[var(--ink-hi)]">{client.webinarsCount}</td>
-                    <td className="p-3.5 text-right">
-                      <button
-                        onClick={() => handleToggleClientStatus(client.id, client.email, client.status)}
-                        className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase transition-all cursor-pointer ${
-                          client.status === 'Active'
-                            ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20'
-                            : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
-                        }`}
-                      >
-                        {client.status === 'Active' ? 'Suspender Cliente' : 'Ativar Cliente'}
-                      </button>
-                    </td>
+                    <td className="p-3.5 text-[var(--ink-lo)]">{client.email}</td>
+                    <td className="p-3.5">{getPlan(client.plan as PlanId)?.name ?? client.plan}</td>
+                    <td className="p-3.5">{situacaoDe(client)}</td>
                   </tr>
                 ))}
               </tbody>
