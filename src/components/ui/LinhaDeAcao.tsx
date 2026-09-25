@@ -1,8 +1,11 @@
+import type { ReactNode } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 interface LinhaDeAcaoProps {
   titulo: string;
   descricao: string;
+  /** Um valor à direita, antes do indicador (ex.: o preço de um plano). */
+  lateral?: ReactNode;
   onClick: () => void;
   /**
    * `avancar` leva a outra tela ou painel; `expandir` abre conteúdo logo
@@ -18,7 +21,7 @@ interface LinhaDeAcaoProps {
  * indicador de para onde vai. Configurações é feita disso — antes eram
  * cartões com fundo, borda e ícone colorido cada um.
  */
-export function LinhaDeAcao({ titulo, descricao, onClick, tipo = 'avancar', expandido, controla }: LinhaDeAcaoProps) {
+export function LinhaDeAcao({ titulo, descricao, lateral, onClick, tipo = 'avancar', expandido, controla }: LinhaDeAcaoProps) {
   const Indicador = tipo === 'expandir' ? ChevronDown : ChevronRight;
   return (
     <button
@@ -32,6 +35,7 @@ export function LinhaDeAcao({ titulo, descricao, onClick, tipo = 'avancar', expa
         <span className="block text-sm font-medium text-[var(--ink-hi)]">{titulo}</span>
         <span className="mt-1 block text-xs text-[var(--ink-lo)]">{descricao}</span>
       </span>
+      {lateral && <span className="shrink-0 text-right">{lateral}</span>}
       <Indicador
         size={16}
         aria-hidden="true"
