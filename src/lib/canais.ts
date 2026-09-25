@@ -12,17 +12,27 @@ export function estadoDoCanal(canal: Destination): EstadoDoCanal {
   return pendenciaDoCanal(canal) ? 'incompleto' : 'pronto';
 }
 
-/** O que falta para o canal receber a live — ou `null` quando nada falta. */
+/**
+ * O que falta para o canal receber a live — ou `null` quando nada falta.
+ * Faltando os dois, diz os dois: dizer só "servidor" mandava a pessoa
+ * consertar um e tropeçar no outro ao salvar.
+ */
 export function pendenciaDoCanal(canal: Destination): string | null {
-  if (!canal.streamUrl?.trim()) return 'Falta o servidor';
-  if (!canal.streamKey?.trim()) return 'Falta a chave';
+  const semServidor = !canal.streamUrl?.trim();
+  const semChave = !canal.streamKey?.trim();
+  if (semServidor && semChave) return 'Falta o servidor e a chave';
+  if (semServidor) return 'Falta o servidor';
+  if (semChave) return 'Falta a chave';
   return null;
 }
 
 /** A pendência em forma curta, para caber num chip ("sem chave"). */
 export function pendenciaCurta(canal: Destination): string | null {
-  if (!canal.streamUrl?.trim()) return 'sem servidor';
-  if (!canal.streamKey?.trim()) return 'sem chave';
+  const semServidor = !canal.streamUrl?.trim();
+  const semChave = !canal.streamKey?.trim();
+  if (semServidor && semChave) return 'sem servidor nem chave';
+  if (semServidor) return 'sem servidor';
+  if (semChave) return 'sem chave';
   return null;
 }
 
@@ -40,11 +50,11 @@ const NOMES: Record<string, string> = {
   cloudflare: 'Cloudflare Stream',
   nginx: 'Servidor NGINX',
   srs: 'Servidor SRS',
-  custom: 'RTMP personalizado',
+  custom: 'Servidor RTMP próprio',
 };
 
 export function nomeDaPlataforma(plataforma: string): string {
-  return NOMES[plataforma] ?? 'RTMP personalizado';
+  return NOMES[plataforma] ?? 'Servidor RTMP próprio';
 }
 
 /**

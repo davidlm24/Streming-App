@@ -107,6 +107,7 @@ export default function App() {
   const [isAddChannelsModalOpen, setIsAddChannelsModalOpen] = useState(false);
   // Plataforma em que o modal de canais abre direto (o "conserta num clique").
   const [plataformaDoModalDeCanais, setPlataformaDoModalDeCanais] = useState<string | undefined>(undefined);
+  const [canalDoModalDeCanais, setCanalDoModalDeCanais] = useState<string | undefined>(undefined);
   const [plansModalReason, setPlansModalReason] = useState<'live' | 'record' | 'upgrade' | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'cancelled' | null>(null);
 
@@ -1450,11 +1451,15 @@ export default function App() {
   // Add or Update Destination (from AddChannelsModal)
   const handleAddOrUpdateDestination = (newDest: Destination) => {
     setDestinations(prev => {
-      const existingIdx = prev.findIndex(d => d.id === newDest.id || d.platform === newDest.platform);
+      // Pelo id, só. Casar também pela plataforma sobrescrevia o primeiro canal
+      // dela — com dois servidores RTMP, editar o segundo apagava o primeiro.
+      const existingIdx = prev.findIndex(d => d.id === newDest.id);
       let updated: Destination[];
       if (existingIdx >= 0) {
         updated = [...prev];
-        updated[existingIdx] = { ...updated[existingIdx], ...newDest, selected: true };
+        // Quem decide ligar é o modal: editar não liga um canal desligado, e
+        // um canal novo além do limite do plano entra desligado.
+        updated[existingIdx] = { ...updated[existingIdx], ...newDest };
       } else {
         updated = [newDest, ...prev];
       }
@@ -1478,7 +1483,15 @@ export default function App() {
 
   // Ações das telas da casca (painel, canais, webinars)
   const conectarCanal = (plataforma?: string) => {
+    setCanalDoModalDeCanais(undefined);
     setPlataformaDoModalDeCanais(plataforma);
+    setIsAddChannelsModalOpen(true);
+  };
+  // Editar ESTE canal: pelo id, e não pela plataforma — um servidor RTMP
+  // criado no estúdio (NGINX, SRS…) não tem linha própria no modal.
+  const editarCanal = (id: string) => {
+    setPlataformaDoModalDeCanais(undefined);
+    setCanalDoModalDeCanais(id);
     setIsAddChannelsModalOpen(true);
   };
   const entrarNoEstudio = (webinar?: { title: string }) => {
@@ -2973,6 +2986,7 @@ export default function App() {
         <CanaisPagina
           canais={destinations}
           onConectarCanal={conectarCanal}
+          onEditarCanal={editarCanal}
           onAlternarCanal={handleToggleDestination}
           onRemoverCanal={handleRemoveDestination}
         />
@@ -3006,6 +3020,7 @@ export default function App() {
           onPaginaPublica={abrirPaginaPublica}
           onCriarCapa={abrirEditorDeCapa}
           onConectarCanal={conectarCanal}
+          onEditarCanal={editarCanal}
           onVerCanais={() => setCurrentView('channels')}
           onVerWebinars={() => setCurrentView('webinars')}
         />
@@ -3475,11 +3490,11 @@ export default function App() {
       {/* Add Channels / Multi-Platform Transmission Modal */}
       <AddChannelsModal
         isOpen={isAddChannelsModalOpen}
-        onClose={() => { setIsAddChannelsModalOpen(false); setPlataformaDoModalDeCanais(undefined); }}
+        onClose={() => { setIsAddChannelsModalOpen(false); setPlataformaDoModalDeCanais(undefined); setCanalDoModalDeCanais(undefined); }}
         plataformaInicial={plataformaDoModalDeCanais}
+        canalInicialId={canalDoModalDeCanais}
         destinations={destinations}
         onAddOrUpdateDestination={handleAddOrUpdateDestination}
-        onToggleDestination={handleToggleDestination}
         currentPlan={user?.plan || 'Free Trial'}
         onOpenUpgrade={() => {
           setIsAddChannelsModalOpen(false);

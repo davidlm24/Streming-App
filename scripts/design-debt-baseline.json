@@ -1,11 +1,11 @@
 {
-  "hex-arbitrario-em-classe": 24,
-  "hex-em-atributo-jsx": 20,
-  "botao-cru-fora-da-primitiva": 469,
-  "paleta-slate-gray-estrutural": 92,
-  "tamanho-de-fonte-avulso": 1018,
+  "hex-arbitrario-em-classe": 18,
+  "hex-em-atributo-jsx": 19,
+  "botao-cru-fora-da-primitiva": 461,
+  "paleta-slate-gray-estrutural": 80,
+  "tamanho-de-fonte-avulso": 1002,
   "dialogo-nativo-bloqueante": 0,
-  "outline-none": 119,
+  "outline-none": 116,
   "important-no-css": 6,
   "z-index-avulso": 7
 }

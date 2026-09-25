@@ -29,6 +29,14 @@ export interface Plan {
   description: string;
   features: string[];
   popular: boolean;
+  /**
+   * Canais ligados ao mesmo tempo. O modal de canais tinha a própria tabela
+   * (Standard com 2, "Business ilimitado") contradizendo a vitrine (3 e 8).
+   * A frase em `features` descreve; este número decide.
+   */
+  destinosSimultaneos: number;
+  /** Servidor RTMP próprio como destino ("Destinos RTMP personalizados"). */
+  rtmpProprio: boolean;
 }
 
 export const CURRENCY = 'BRL' as const;
@@ -64,7 +72,9 @@ export const PLANS: Plan[] = [
       'Transmissão para até 2 destinos',
       'Aviso de renovação opcional'
     ],
-    popular: false
+    popular: false,
+    destinosSimultaneos: 2,
+    rtmpProprio: false
   },
   {
     id: 'Standard',
@@ -88,7 +98,9 @@ export const PLANS: Plan[] = [
       'Transmissão em formato Paisagem + Retrato',
       'Teleprompter'
     ],
-    popular: false
+    popular: false,
+    destinosSimultaneos: 3,
+    rtmpProprio: true
   },
   {
     id: 'Professional',
@@ -113,7 +125,9 @@ export const PLANS: Plan[] = [
       'Teleprompter',
       'Fluxo incorporado'
     ],
-    popular: true
+    popular: true,
+    destinosSimultaneos: 5,
+    rtmpProprio: true
   },
   {
     id: 'Business',
@@ -140,7 +154,9 @@ export const PLANS: Plan[] = [
       'Fluxo incorporado',
       'Múltiplas câmeras'
     ],
-    popular: false
+    popular: false,
+    destinosSimultaneos: 8,
+    rtmpProprio: true
   }
 ];
 

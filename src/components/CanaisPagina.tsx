@@ -12,6 +12,8 @@ interface CanaisPaginaProps {
   canais: Destination[];
   /** Sem argumento, conecta um canal novo; com a plataforma, abre direto nela. */
   onConectarCanal: (plataforma?: string) => void;
+  /** Abre o modal neste canal — pelo id, que vale também para servidores RTMP. */
+  onEditarCanal: (id: string) => void;
   onAlternarCanal: (id: string) => void;
   onRemoverCanal: (id: string) => void;
 }
@@ -21,7 +23,7 @@ interface CanaisPaginaProps {
  * canais apareciam como contador no cabeçalho ("Adicionar canais 2") e
  * como lista dentro do estúdio, e não havia como remover um.
  */
-export function CanaisPagina({ canais, onConectarCanal, onAlternarCanal, onRemoverCanal }: CanaisPaginaProps) {
+export function CanaisPagina({ canais, onConectarCanal, onEditarCanal, onAlternarCanal, onRemoverCanal }: CanaisPaginaProps) {
   const confirmar = useConfirm();
 
   const removerComConfirmacao = async (canal: Destination) => {
@@ -85,7 +87,7 @@ export function CanaisPagina({ canais, onConectarCanal, onAlternarCanal, onRemov
                 <Menu
                   rotulo={`Ações de ${canal.name}`}
                   itens={[
-                    { rotulo: 'Editar servidor e chave', icone: <Pencil size={14} />, onSelect: () => onConectarCanal(canal.platform) },
+                    { rotulo: 'Editar servidor e chave', icone: <Pencil size={14} />, onSelect: () => onEditarCanal(canal.id) },
                     { rotulo: 'Remover canal', icone: <Trash2 size={14} />, perigo: true, onSelect: () => removerComConfirmacao(canal) },
                   ]}
                 />
