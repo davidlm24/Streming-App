@@ -41,3 +41,12 @@ jobs:
       # Catraca: a dívida pode cair, nunca subir sem alguém decidir.
       - name: Débito de design
         run: npm run lint:debt
+
+      # Botão só-ícone sem nome acessível reprova o build (AST, não regex).
+      - name: Botões só-ícone
+        run: npm run lint:icons
+
+      # Campo sem nome, <label> vazio, htmlFor para id inexistente,
+      # e-mail/senha sem autoComplete.
+      - name: Rótulos de formulário
+        run: npm run lint:labels
