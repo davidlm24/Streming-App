@@ -17,6 +17,28 @@ import { copyText } from './ui/clipboard';
 /** Vite remove o ramo inteiro no build de produção. */
 const IS_DEV = import.meta.env.DEV;
 
+/**
+ * "Com Google": em produção, a única porta de entrada — é a única
+ * autenticação real (Firebase). Ver o comentário em handleLogin.
+ */
+function BotaoGoogle({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full py-3 bg-[var(--panel)] hover:bg-[var(--raise)] border border-[var(--line-ctl)] rounded-xl text-sm font-bold transition-all text-[var(--ink-hi)] flex items-center justify-center gap-2 cursor-pointer mb-4"
+    >
+      <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/>
+        <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
+        <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/>
+        <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"/>
+      </svg>
+      {children}
+    </button>
+  );
+}
+
 interface AuthAndPricingProps {
   onAuthSuccess: (user: { 
     email: string; 
@@ -86,6 +108,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
       if (err?.code === 'auth/unauthorized-domain' || err?.message?.includes('unauthorized-domain')) {
         setIsUnauthorizedDomain(true);
         setAuthError('');
+        if (view === 'register') setView('login');
       } else {
         setAuthError(err.message || 'Erro ao autenticar com o Google.');
       }
@@ -99,6 +122,13 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    // CONTENÇÃO. Este formulário não autentica: não chama o Firebase nem
+    // servidor nenhum, só confere se os campos estão preenchidos. Qualquer
+    // e-mail com qualquer senha entrava — e 'mgdlms@gmail.com' ganhava o
+    // papel de super-admin. Em produção o formulário nem é renderizado e só
+    // o Google (autenticação real) entra. Volta quando o login por e-mail
+    // for do Firebase (signInWithEmailAndPassword).
+    if (!IS_DEV) return;
     if (isSubmittingAuth) return;
     if (!email || !password) {
       setAuthError('Por favor, preencha todos os campos.');
@@ -120,6 +150,8 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    // Mesma contenção de handleLogin: este cadastro não cria conta nenhuma.
+    if (!IS_DEV) return;
     if (isSubmittingAuth) return;
     if (!email || !password || !name) {
       setAuthError('Por favor, preencha todos os campos.');
@@ -422,7 +454,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
           <div className="w-full max-w-md bg-[var(--surface)]/80 border border-[var(--line)] p-8 rounded-3xl space-y-6 animate-in fade-in duration-200" id="login-view">
             <div className="text-center space-y-2">
               <h1 className="text-2xl font-bold text-[var(--ink-hi)]">Bem-vindo de volta!</h1>
-              <p className="text-xs text-[var(--ink-lo)]">Insira suas credenciais para acessar o painel de transmissões.</p>
+              <p className="text-xs text-[var(--ink-lo)]">Entre para acessar o painel de transmissões.</p>
             </div>
 
             {isUnauthorizedDomain && (
@@ -478,20 +510,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              className="w-full py-3 bg-[var(--panel)] hover:bg-[var(--raise)] border border-[var(--line-ctl)] rounded-xl text-sm font-bold transition-all text-[var(--ink-hi)] flex items-center justify-center gap-2 cursor-pointer mb-4"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
-                <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z"/>
-                <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
-                <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/>
-                <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z"/>
-              </svg>
-              Entrar com Google
-            </button>
+            <BotaoGoogle onClick={handleGoogleLogin}>Entrar com Google</BotaoGoogle>
 
+            {IS_DEV && (<>
             <div className="relative flex py-1 items-center">
               <div className="flex-grow border-t border-[var(--line)]"></div>
               <span className="flex-shrink mx-3 text-[0.625rem] text-[var(--ink-dim)] font-bold uppercase">ou e-mail</span>
@@ -531,6 +552,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 {isSubmittingAuth ? 'Entrando...' : <>Entrar no Estúdio <LogIn size={16} /></>}
               </Button>
             </form>
+            </>)}
 
             <div className="text-center">
               <p className="text-xs text-[var(--ink-lo)]">
@@ -554,6 +576,15 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                 <span>{authError}</span>
               </div>
             )}
+
+            <BotaoGoogle onClick={handleGoogleLogin}>Criar conta com Google</BotaoGoogle>
+
+            {IS_DEV && (<>
+            <div className="relative flex py-1 items-center">
+              <div className="flex-grow border-t border-[var(--line)]"></div>
+              <span className="flex-shrink mx-3 text-[0.625rem] text-[var(--ink-dim)] font-bold uppercase">ou e-mail</span>
+              <div className="flex-grow border-t border-[var(--line)]"></div>
+            </div>
 
             <form onSubmit={handleRegister} className="space-y-4 text-left">
               <div className="space-y-1.5">
@@ -610,6 +641,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
               <Button type="submit" loading={isSubmittingAuth} className="w-full">
                 {isSubmittingAuth ? 'Criando conta...' : <>Criar conta <ArrowRight size={16} /></>}
               </Button>
+            </form>
+            </>)}
+
               <p className="text-xs text-[var(--ink-dim)] text-center">
                 30 dias de teste. Sem cartão de crédito.
               </p>
@@ -623,7 +657,6 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
                   Deseja assinar um plano direto? Ver planos e preços →
                 </button>
               </div>
-            </form>
 
             <div className="text-center pt-2 border-t border-[var(--line)]/40">
               <p className="text-xs text-[var(--ink-lo)]">
