@@ -946,7 +946,12 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                 />
                 <button
                   type="button"
-                  onClick={() => setSecretKey(`whsec_${selectedPlatform}_${Math.random().toString(36).substring(2, 12)}`)}
+                  // Segredo de assinatura é senha: crypto, e não Math.random
+                  onClick={() => {
+                    const bytes = new Uint8Array(16);
+                    crypto.getRandomValues(bytes);
+                    setSecretKey(`whsec_${selectedPlatform}_${Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')}`);
+                  }}
                   className="px-3 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink)] hover:text-[var(--ink-hi)] rounded-xl text-[10px] font-bold transition-all cursor-pointer"
                   title="Gerar nova chave secreta aleatória"
                 >

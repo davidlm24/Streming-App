@@ -5,7 +5,8 @@ import {
   Crown, Share2, Eye, ShieldCheck, Lock, RefreshCw, Radio, RotateCw, Activity
 } from 'lucide-react';
 import { 
-  subscribeClientRtmpKeys, 
+  subscribeClientRtmpKeys,
+  gerarChaveDeTransmissao,
   saveRtmpKeyToFirestore, 
   regenerateRtmpKeyInFirestore, 
   RtmpKeyEntry 
@@ -38,7 +39,9 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
   const [clientRtmpKeys, setClientRtmpKeys] = useState<RtmpKeyEntry[]>([]);
 
   useEffect(() => {
-    const email = user?.email || 'mgdlms@gmail.com';
+    const email = user?.email ?? '';
+    // Sem e-mail não há dono: nada de criar uma chave em nome de ninguém
+    if (!email) return;
     const unsubscribe = subscribeClientRtmpKeys(email, (keys) => {
       if (keys.length === 0) {
         // Automatically create initial key in Firestore if none exists for this client
@@ -46,7 +49,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
           id: `key_${email.replace(/[^a-zA-Z0-9]/g, '_')}`,
           label: `Chave de Ingestão Exclusiva - ${user?.name || 'Cliente PwStreamer'}`,
           clientEmail: email,
-          key: `pw_live_${email.replace(/[^a-zA-Z0-9]/g, '')}_${Date.now().toString(36)}`,
+          key: gerarChaveDeTransmissao(),
           server: 'rtmp://stream.pwstreamer.com/live',
           maxBitrate: '8000 kbps',
           active: true,
@@ -61,12 +64,13 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
     return () => unsubscribe();
   }, [user?.email]);
 
-  // Fallback assigned key if Firestore loading
+  // Enquanto a chave não chega do banco, não há chave: a de antes era
+  // inventada ("…_881023a") e dava para copiar para o OBS.
   const primaryKey = clientRtmpKeys[0] || {
-    id: `key_${(user?.email || 'mgdlms').replace(/[^a-zA-Z0-0]/g, '_')}`,
+    id: `key_${(user?.email ?? '').replace(/[^a-zA-Z0-9]/g, '_')}`,
     label: `Chave de Ingestão - ${user?.name || 'Cliente PwStreamer'}`,
     server: 'rtmp://stream.pwstreamer.com/live',
-    key: `pw_live_${(user?.email || 'mgdlms').replace(/[^a-zA-Z0-0]/g, '')}_881023a`,
+    key: '',
     maxBitrate: '8000 kbps',
     clientEmail: user?.email || '',
     active: true,
@@ -85,8 +89,8 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
     setIsRegenerating(true);
     await regenerateRtmpKeyInFirestore(
       keyId, 
-      user?.email || 'mgdlms@gmail.com', 
-      user?.email || 'mgdlms@gmail.com', 
+      user?.email ?? '', 
+      user?.email ?? '', 
       primaryKey.label
     );
     setTimeout(() => setIsRegenerating(false), 600);
@@ -105,14 +109,6 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
   const [newDestPlatform, setNewDestPlatform] = useState('');
   const [newDestKey, setNewDestKey] = useState('');
   const [newDestUrl, setNewDestUrl] = useState('');
-
-  // Assigned Ingestion Key for this client
-  const myAssignedKey = {
-    label: `Chave de Ingestão - ${user?.name || 'Cliente PwStreamer'}`,
-    server: 'rtmp://stream.pwstreamer.com/live',
-    key: `pw_live_${(user?.email || 'mgdlms').replace(/[^a-zA-Z0-0]/g, '')}_881023a`,
-    maxBitrate: '8000 kbps'
-  };
 
   const handleAddClientDestination = (e: React.FormEvent) => {
     e.preventDefault();
@@ -218,7 +214,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </p>
             </div>
             <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black px-2.5 py-1 rounded-lg shrink-0">
-              Isolado para: {user?.email || 'mgdlms@gmail.com'}
+              Isolado para: {user?.email ?? ''}
             </span>
           </div>
 
@@ -267,9 +263,11 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
                     type="text"
                     readOnly
                     value={primaryKey.key}
+                    placeholder="Carregando sua chave…"
                     className="flex-1 bg-[var(--surface)] border border-[var(--line)] rounded-lg px-3 py-2 text-xs text-amber-400 font-bold focus:outline-none"
                   />
                   <button
+                    disabled={!primaryKey.key}
                     onClick={() => {
                       copyText(primaryKey.key);
                       setCopiedKey(true);
@@ -468,7 +466,7 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
       {clientTab === 'webhooks' && (
         <div {...clienteAbas.panel('webhooks')} className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <WebhookPanel 
-            userId={user?.email || 'mgdlms@gmail.com'}
+            userId={user?.email ?? ''}
             isLive={false}
           />
         </div>

@@ -735,6 +735,48 @@ export function subscribeAuditLogs(onUpdate: (logs: AuditLogEntry[]) => void) {
   });
 }
 
+// Perfis de todos os clientes, para a lista do painel de administração. As
+// regras só deixam o admin ler a coleção inteira; para os demais, o erro
+// chega aqui e a lista fica vazia. Era uma lista fixa de clientes inventados.
+export interface PerfilDeCliente {
+  uid: string;
+  name: string;
+  email: string;
+  plan: string;
+  role: string;
+  subscriptionStatus: string;
+  isExpired: boolean;
+}
+
+export function subscribeUserProfiles(
+  // `doCache`: a lista veio do cache local, sem o banco (rede desligada pela
+  // cota, por exemplo). Vazia assim, ela não prova que não há clientes.
+  onUpdate: (perfis: PerfilDeCliente[], doCache: boolean) => void,
+  onError?: (err: unknown) => void,
+) {
+  return onSnapshot(collection(db, 'users'), (snapshot) => {
+    const perfis: PerfilDeCliente[] = [];
+    snapshot.forEach((docSnap) => {
+      const d = docSnap.data();
+      perfis.push({
+        uid: docSnap.id,
+        name: d.name || '',
+        email: d.email || '',
+        plan: d.plan || 'Free Trial',
+        role: d.role || 'client',
+        subscriptionStatus: d.subscriptionStatus || 'trial',
+        isExpired: Boolean(d.isExpired),
+      });
+    });
+    perfis.sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email, 'pt-BR'));
+    onUpdate(perfis, snapshot.metadata.fromCache);
+  }, (err) => {
+    if (isQuotaExceededError(err)) markQuotaExceeded();
+    else console.warn('Firestore user profiles error:', (err as any)?.message || err);
+    onError?.(err);
+  });
+}
+
 export async function addAuditLogToFirestore(entry: Omit<AuditLogEntry, 'id' | 'timestamp'> & { timestamp?: string }) {
   await safeFirestoreWrite(() => {
     const docRef = doc(collection(db, 'auditLogs'));
@@ -745,6 +787,17 @@ export async function addAuditLogToFirestore(entry: Omit<AuditLogEntry, 'id' | '
     };
     return setDoc(docRef, logItem);
   });
+}
+
+/**
+ * Chave de transmissão aleatória de verdade (crypto), sem nada da pessoa nela.
+ * As antigas eram o e-mail do cliente mais um carimbo de tempo, ou
+ * `Math.random` — dá para adivinhar, e chave de transmissão é senha.
+ */
+export function gerarChaveDeTransmissao(): string {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return 'pw_live_' + Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 // RTMP Transmission Keys Isolation Persistence
@@ -803,11 +856,13 @@ export async function saveRtmpKeyToFirestore(key: RtmpKeyEntry, actorEmail?: str
     await setDoc(docRef, key, { merge: true });
 
     if (actorEmail) {
+      // O registro diz o que aconteceu, nunca o segredo: a chave fica só no
+      // documento dela, onde as regras decidem quem lê.
       await addAuditLogToFirestore({
         action: 'CREATE_RTMP_KEY',
         actorEmail,
         targetEmail: key.clientEmail,
-        details: `Criada/atualizada chave RTMP '${key.label}' (${key.key}) para ${key.clientEmail}`
+        details: `Criada/atualizada chave RTMP '${key.label}' para ${key.clientEmail}`
       });
     }
   });
@@ -829,7 +884,7 @@ export async function deleteRtmpKeyFromFirestore(keyId: string, actorEmail?: str
 }
 
 export async function regenerateRtmpKeyInFirestore(keyId: string, clientEmail: string, actorEmail: string, currentLabel?: string): Promise<string> {
-  const newStreamKey = `pw_live_${Math.random().toString(36).substr(2, 9)}_${Date.now().toString(36)}`;
+  const newStreamKey = gerarChaveDeTransmissao();
   await safeFirestoreWrite(async () => {
     const docRef = doc(db, 'rtmpKeys', keyId);
     await setDoc(docRef, { key: newStreamKey, createdAt: new Date().toISOString() }, { merge: true });
@@ -838,7 +893,7 @@ export async function regenerateRtmpKeyInFirestore(keyId: string, clientEmail: s
       action: 'REGENERATE_RTMP_KEY',
       actorEmail,
       targetEmail: clientEmail,
-      details: `Regenerada chave de transmissão RTMP do cliente ${clientEmail} (Rótulo: '${currentLabel || keyId}'). Nova chave: ${newStreamKey}`
+      details: `Regenerada chave de transmissão RTMP do cliente ${clientEmail} (Rótulo: '${currentLabel || keyId}')`
     });
   });
   return newStreamKey;
@@ -852,7 +907,9 @@ export async function uploadMediaToStorage(
   type: 'logo' | 'watermark' | 'overlay' | 'background' | 'video',
   userEmail?: string
 ): Promise<{ id: string; name: string; url: string; storagePath: string }> {
-  const email = userEmail || auth.currentUser?.email || 'mgdlms@gmail.com';
+  // Sem conta, sem envio: o padrão antigo punha o arquivo na pasta do dono do app.
+  const email = userEmail || auth.currentUser?.email;
+  if (!email) throw new Error('Entre na sua conta para enviar arquivos.');
   const cleanEmail = email.replace(/[^a-zA-Z0-9]/g, '_');
   const timestamp = Date.now();
   const assetId = `${type}-${timestamp}`;
