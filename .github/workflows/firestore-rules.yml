@@ -1,0 +1,48 @@
+name: Regras do Firestore
+
+# As regras são a única barreira entre o banco e a internet: a configuração
+# do Firebase está no bundle público e o cadastro é aberto. Cada mudança nelas
+# roda no emulador contra os testes de tests/firestore-rules/ — o que o app
+# usa tem de passar, o dado de outra pessoa tem de ser negado.
+
+on:
+  push:
+    paths:
+      - 'firestore.rules'
+      - 'tests/firestore-rules/**'
+      - '.github/workflows/firestore-rules.yml'
+  pull_request:
+    paths:
+      - 'firestore.rules'
+      - 'tests/firestore-rules/**'
+      - '.github/workflows/firestore-rules.yml'
+  workflow_dispatch:
+
+jobs:
+  regras:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/firestore-rules/package-lock.json
+
+      # O emulador do Firestore roda em Java.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: npm ci --prefix tests/firestore-rules
+
+      # Projeto "demo-*": o emulador roda offline, sem credencial nenhuma.
+      - name: Testes das regras no emulador
+        run: >
+          npx --yes firebase-tools@15 emulators:exec
+          --only firestore
+          --project demo-pwstreamer
+          --config tests/firestore-rules/firebase.json
+          "npm test --prefix tests/firestore-rules"

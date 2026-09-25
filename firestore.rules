@@ -1,57 +1,131 @@
 rules_version = '2';
+
+// Regras do banco do PwStreamer.
+//
+// Premissa: "está logado" não é barreira. O cadastro é aberto (qualquer conta
+// Google entra) e a configuração do Firebase está no bundle público, então
+// qualquer pessoa fala com este banco direto pelo SDK, sem passar pela
+// interface. Cada regra responde "de QUEM é este documento" — nunca só
+// "está logado?".
+//
+// Testes: tests/firestore-rules/ (emulador, no CI).
 service cloud.firestore {
   match /databases/{database}/documents {
+
     function isSignedIn() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // E-mail confirmado pelo Firebase (login Google). Sem essa checagem,
+    // um token pode trazer um e-mail que ninguém verificou.
+    function emailVerificado() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function meuEmail() {
+      return request.auth.token.email;
+    }
+
+    // Administração. Espelha SUPER_ADMIN_EMAILS do servidor. O papel NÃO vem
+    // do documento do usuário — ali quem escreve é o próprio usuário.
+    function isAdmin() {
+      return emailVerificado() && meuEmail() in ['mgdlms@gmail.com'];
+    }
+
+    // Tudo o que não está listado abaixo é negado.
     match /{document=**} {
       allow read, write: if false;
     }
 
-    match /users/{userId} {
-      allow read: if isSignedIn();
-      allow create, update, delete: if isOwner(userId);
+    // ---------- Perfis ----------
+    // plan, role, subscriptionStatus, isExpired, trialDays e stripeCustomerId
+    // decidem acesso e cobrança, e o app confia neles. O usuário cria o
+    // perfil só com os valores de entrada e depois troca apenas nome e foto.
+    // Plano pago é gravado pelo servidor (o Admin SDK não passa por aqui).
+    function perfilDeEntrada() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['uid', 'email', 'name', 'photoURL', 'plan', 'isExpired',
+                               'trialDays', 'role', 'subscriptionStatus', 'trialEndsAt'])
+        && d.uid == request.auth.uid
+        && d.email == meuEmail()
+        && d.plan == 'Free Trial'
+        && d.isExpired == false
+        && d.trialDays == 30
+        && d.subscriptionStatus == 'trial'
+        && (d.role == 'client' || (d.role == 'super-admin' && isAdmin()));
+    }
 
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && perfilDeEntrada();
+      allow update: if isAdmin()
+                    || (isOwner(userId)
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                             .hasOnly(['name', 'photoURL']));
+      allow delete: if isOwner(userId) || isAdmin();
+
+      // Webinars, cenas, snapshots, webhooks, audiência: só do dono.
       match /{allSubcollections=**} {
         allow read, write: if isOwner(userId);
       }
     }
 
-
-    match /auditLogs/{logId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if false;
+    // ---------- Chaves de transmissão ----------
+    // O dono é quem tem o e-mail de clientEmail. Os documentos nunca tiveram
+    // userId, e é por clientEmail que o app consulta.
+    function donoDaChave(dados) {
+      return emailVerificado() && dados.clientEmail == meuEmail();
     }
 
     match /rtmpKeys/{keyId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
+      allow read, delete: if isAdmin() || donoDaChave(resource.data);
+      allow create: if isAdmin() || donoDaChave(request.resource.data);
+      allow update: if isAdmin()
+                    || (donoDaChave(resource.data)
+                        && request.resource.data.clientEmail == resource.data.clientEmail);
+    }
+
+    // ---------- Registro de auditoria ----------
+    // Só leitura para o admin (os registros citam clientes e chaves).
+    // Quem grava assina com o próprio e-mail; nada é editado nem apagado.
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if emailVerificado()
+                    && request.resource.data.keys().hasOnly(['id', 'timestamp', 'action', 'actorEmail', 'targetEmail', 'details'])
+                    && request.resource.data.id == logId
+                    && request.resource.data.actorEmail == meuEmail();
+      allow update, delete: if false;
+    }
+
+    // ---------- Mídia ----------
+    // O app grava ownerEmail; ownerId/userId seguem aceitos para documentos
+    // antigos. Os campos de dono não mudam depois de criados.
+    function donoDoAsset(dados) {
+      return (emailVerificado() && dados.get('ownerEmail', '') == meuEmail())
+          || dados.get('ownerId', '') == request.auth.uid
+          || dados.get('userId', '') == request.auth.uid;
+    }
+
+    function mesmoDono() {
+      return request.resource.data.get('ownerEmail', '') == resource.data.get('ownerEmail', '')
+          && request.resource.data.get('ownerId', '') == resource.data.get('ownerId', '')
+          && request.resource.data.get('userId', '') == resource.data.get('userId', '');
     }
 
     match /media_assets/{assetId} {
-      allow read: if isSignedIn() && (resource == null || resource.data.ownerId == request.auth.uid || resource.data.userId == request.auth.uid || resource.data.isPublic == true);
-      allow create: if isSignedIn() && (request.resource.data.ownerId == request.auth.uid || request.resource.data.userId == request.auth.uid);
-      allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || resource.data.userId == request.auth.uid);
+      allow read: if isSignedIn()
+                  && (donoDoAsset(resource.data) || resource.data.get('isPublic', false) == true);
+      allow create: if isSignedIn() && donoDoAsset(request.resource.data);
+      allow update: if isSignedIn() && donoDoAsset(resource.data) && mesmoDono();
+      allow delete: if isSignedIn() && donoDoAsset(resource.data);
     }
 
-    match /webinars/{webinarId} {
-      allow read: if true; // Visitantes podem consultar detalhes da live pública
-      allow create, update, delete: if isSignedIn() && (resource == null || resource.data.hostId == request.auth.uid || request.resource.data.hostId == request.auth.uid);
-    }
-
-    match /webinarRegistrations/{regId} {
-      allow create: if true; // Visitantes podem registrar presença/inscrição
-      allow read: if isSignedIn();
-      allow update, delete: if isSignedIn();
-    }
-
-    match /streamSessions/{sessionId} {
-      allow read, write: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || request.resource.data.userId == request.auth.uid);
-    }
+    // webinars, webinarRegistrations e streamSessions (no topo) saíram: o app
+    // não usa nenhuma das três (os webinars ficam em users/{uid}/webinars), e
+    // uma delas aceitava gravação sem login. Caem na regra padrão: negado.
   }
 }
