@@ -562,6 +562,9 @@ export function LeftSidebar({
   userId
 }: LeftSidebarProps) {
   const toast = useToast();
+  // Nomes do palco vêm dos participantes, não de uma persona fixa
+  const nomeLocal = participants.find(p => p.isLocal)?.name ?? 'Você';
+  const nomeConvidado = participants.find(p => p.id === 'p-guest')?.name ?? 'Convidado';
   const { 
     activeLogo, setActiveLogo, 
     activeWatermark, setActiveWatermark,
@@ -1577,13 +1580,13 @@ export function LeftSidebar({
                     <span className="text-[var(--ink-lo)]">Palestrante Ativo:</span>
                     <span className="font-bold text-[var(--ink-hi)] flex items-center gap-1.5">
                       <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      {activeSpeaker === 'p-local' ? 'Marcos (Você)' : 'Ana Silva (Convidada)'}
+                      {activeSpeaker === 'p-local' ? `${nomeLocal} (Você)` : nomeConvidado}
                     </span>
                   </div>
                   <p className="text-[9px] text-[var(--ink-dim)] leading-normal">
                     {activeSpeaker === 'p-local' 
-                      ? 'Marcos está falando agora. O estúdio focou no layout Solo/Apresentação.' 
-                      : 'Ana Silva está falando agora. O estúdio expandiu para o layout Duo.'
+                      ? `${nomeLocal} está falando agora. O estúdio focou no layout Solo/Apresentação.` 
+                      : `${nomeConvidado} está falando agora. O estúdio expandiu para o layout Duo.`
                     }
                   </p>
                 </div>
@@ -1623,7 +1626,7 @@ export function LeftSidebar({
                       />
                     )}
                     <div className="overflow-hidden">
-                      <p className={`text-xs font-bold truncate ${p.isActive ? 'text-[var(--ink-hi)]' : 'text-[var(--ink)]'}`}>{p.name}</p>
+                      <p className={`text-xs font-bold truncate ${p.isActive ? 'text-[var(--ink-hi)]' : 'text-[var(--ink)]'}`}>{p.name}{p.isLocal && ' (Você)'}</p>
                       <p className="text-[9px] text-[var(--ink-dim)]">
                         {p.isLocal ? 'Apresentador Principal' : p.isScreenShare ? 'Slide Compartilhado' : 'Convidado Externo'}
                       </p>

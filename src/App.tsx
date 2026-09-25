@@ -269,8 +269,8 @@ export default function App() {
   // correspondia a painel nenhum — barra lateral em branco na primeira visita.
   const [activeTab, setActiveTab] = useState<StudioTab>('seven');
   const [destinations, setDestinations] = useState<Destination[]>(INITIAL_DESTINATIONS);
-  const [title, setTitle] = useState<string>('Marcos');
-  const [description, setDescription] = useState<string>('Marcos');
+  const [title, setTitle] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
   const [isThumbnailEnabled, setIsThumbnailEnabled] = useState(false);
   const [isScheduleEnabled, setIsScheduleEnabled] = useState(false);
 
@@ -843,7 +843,8 @@ export default function App() {
   const [participants, setParticipants] = useState<Participant[]>([
     {
       id: 'p-local',
-      name: 'Marcos (Você)',
+      // Placeholder até a sessão carregar — o efeito abaixo põe o nome real.
+      name: 'Apresentador',
       avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
       isLocal: true,
       isActive: true,
@@ -861,6 +862,16 @@ export default function App() {
       hasAudio: false
     }
   ]);
+
+  // O participante local é quem está logado. Era 'Marcos (Você)' fixo no
+  // código: todo cliente aparecia no palco, na gravação e na lista de
+  // participantes como Marcos. Nome puro aqui; o "(Você)" é das telas do
+  // operador, não do que vai ao ar.
+  useEffect(() => {
+    const nome = user?.name?.trim().split(/\s+/)[0];
+    if (!nome) return;
+    setParticipants(prev => prev.map(p => (p.id === 'p-local' ? { ...p, name: nome } : p)));
+  }, [user?.name]);
 
   // Track pending changes between Studio Preview (editing stage) and Program (Live On Air output)
   const pendingChanges = useMemo(() => {
@@ -1230,7 +1241,7 @@ export default function App() {
       return;
     }
 
-    // Auto-active Marcos and Ana on stage when automation is enabled
+    // Automação ligada: apresentador e convidado entram no palco
     setParticipants(prev => prev.map(p => {
       if (p.id === 'p-local' || p.id === 'p-guest') {
         return { ...p, isActive: true };

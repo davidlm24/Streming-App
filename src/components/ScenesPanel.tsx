@@ -248,7 +248,7 @@ export function ScenesPanel({
                     </>
                     )}
                     <div className="overflow-hidden">
-                      <p className={`text-xs font-bold truncate ${p.isActive ? 'text-[var(--ink-hi)]' : 'text-[var(--ink)]'}`}>{p.name}</p>
+                      <p className={`text-xs font-bold truncate ${p.isActive ? 'text-[var(--ink-hi)]' : 'text-[var(--ink)]'}`}>{p.name}{p.isLocal && ' (Você)'}</p>
                       <p className="text-[8px] text-[var(--ink-dim)] mt-0.5">
                         {p.isLocal ? 'Apresentador Principal' : p.isScreenShare ? 'Apresentação / Tela' : 'Convidado Externo'}
                       </p>

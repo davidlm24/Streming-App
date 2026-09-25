@@ -1836,7 +1836,7 @@ export function StudioPreview({
               <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-[var(--color-brand)] mb-3 animate-pulse">
                 <User size={32} />
               </div>
-              <p className="text-sm font-semibold text-[var(--ink-hi)]">Marcos (Você)</p>
+              <p className="text-sm font-semibold text-[var(--ink-hi)]">{p.name}</p>
               <p className="text-[10px] text-[var(--ink-lo)]">Câmera Desativada</p>
             </div>
           )}
@@ -1845,7 +1845,7 @@ export function StudioPreview({
             style={{ backgroundColor: streamColor }}
             className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-[var(--ink-hi)] tracking-wide"
           >
-            Marcos (Palestrante)
+            {p.name} (Palestrante)
           </div>
         </div>
       );
@@ -1934,7 +1934,7 @@ export function StudioPreview({
           {/* Slide Footer */}
           <div className="bg-[var(--bg)] px-4 py-1.5 flex items-center justify-between text-[8px] font-mono text-[var(--ink-dim)] border-t border-[var(--line)] z-10">
             <span>PwStreamer Presentations™</span>
-            <span>Apresentado por Marcos (Palestrante)</span>
+            <span>Apresentado por {participants.find(f => f.isLocal)?.name ?? 'Apresentador'}</span>
           </div>
         </div>
       );
