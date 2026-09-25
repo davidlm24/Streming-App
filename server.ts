@@ -7,6 +7,20 @@ import { URL } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
+import { getFirestore } from "firebase-admin/firestore";
+import {
+  BANCO_FIRESTORE,
+  PLANOS_PAGOS,
+  appAdmin,
+  avaliarAcesso,
+  cabecalhosExtras,
+  exigirLogin,
+  hostPublico,
+  lerProprioPerfil,
+  lerTextoLimitado,
+  urlDeWebhookPermitida,
+  type ReqComLogin,
+} from "./api/_lib/seguranca.js";
 
 dotenv.config();
 
@@ -20,7 +34,11 @@ async function startServer() {
   // o bug que a separação de portas existe para evitar.
   const PORT = Number(process.env.PORT) || 3211;
 
-  app.use(express.json());
+  // O webhook do Stripe precisa do corpo BRUTO para conferir a assinatura;
+  // com express.json() antes dele, constructEvent falhava em toda chamada
+  // assim que STRIPE_WEBHOOK_SECRET fosse configurado.
+  const jsonParser = express.json({ limit: "256kb" });
+  app.use((req, res, next) => (req.path === "/api/webhooks/stripe" ? next() : jsonParser(req, res, next)));
 
   // Health check endpoint
   app.get("/api/health", (req, res) => {
@@ -28,10 +46,14 @@ async function startServer() {
   });
 
   // API route for AI moderation of chat comments
-  app.post("/api/moderate", async (req, res) => {
+  // Exige login: cada chamada gasta a cota do Gemini.
+  app.post("/api/moderate", exigirLogin, async (req, res) => {
     const { text } = req.body;
-    if (!text) {
+    if (!text || typeof text !== "string") {
       return res.status(400).json({ error: "Text is required" });
+    }
+    if (text.length > 2000) {
+      return res.status(413).json({ error: "Comentário longo demais para moderar." });
     }
 
     const runLocalModeration = (reasonPrefix = "") => {
@@ -105,41 +127,29 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // Payment Routes for Subscriptions
-  app.post("/api/validate-trial", async (req, res) => {
-    const { userId, userEmail, plan, trialEndsAt, trialDays, isExpired } = req.body;
-    
-    // Paid plans have full access without trial restriction
-    if (plan && plan !== "Free Trial") {
-      return res.json({
-        isExpired: false,
-        trialDays: 30,
-        canBroadcast: true,
-        canRecord: true,
-        plan
-      });
+  // Decide pelo perfil gravado no banco, lido com o token de quem chama. Antes
+  // devolvia o que o próprio cliente mandava no corpo (plan, isExpired...).
+  app.post("/api/validate-trial", exigirLogin, async (req: ReqComLogin, res) => {
+    try {
+      const perfil = await lerProprioPerfil(req.idToken!, req.usuario!.uid);
+      if (!perfil) {
+        return res.status(404).json({ error: "Perfil não encontrado." });
+      }
+      return res.json(avaliarAcesso(perfil));
+    } catch (err: any) {
+      console.error("validate-trial:", err?.message || err);
+      return res.status(503).json({ error: "Não foi possível verificar o plano agora." });
     }
-
-    const now = Date.now();
-    const endsAtMs = trialEndsAt ? new Date(trialEndsAt).getTime() : now - 1000;
-    const diffDays = Math.ceil((endsAtMs - now) / (1000 * 60 * 60 * 24));
-    const expired = isExpired === true || trialDays === 0 || diffDays <= 0;
-    const remainingDays = expired ? 0 : Math.max(0, diffDays);
-
-    return res.json({
-      isExpired: expired,
-      trialDays: remainingDays,
-      canBroadcast: !expired,
-      canRecord: !expired,
-      trialEndsAt: trialEndsAt || new Date(endsAtMs).toISOString(),
-      plan: plan || 'Free Trial'
-    });
   });
 
-  app.post("/api/checkout", async (req, res) => {
-    const { planId, userId, userEmail, method } = req.body;
-    
-    if (!planId || !userId || !userEmail) {
-      return res.status(400).json({ error: "Missing required fields" });
+  // Quem assina é quem está logado: uid e e-mail vêm do token, não do corpo.
+  app.post("/api/checkout", exigirLogin, async (req: ReqComLogin, res) => {
+    const { planId, method } = req.body;
+    const userId = req.usuario!.uid;
+    const userEmail = req.usuario!.email;
+
+    if (!(PLANOS_PAGOS as readonly string[]).includes(planId)) {
+      return res.status(400).json({ error: "Plano inválido." });
     }
 
     try {
@@ -233,7 +243,7 @@ Retorne estritamente um JSON estruturado com:
   const activeStreamSessions = new Map<string, StreamSession>();
 
   // 1. Create a stream session
-  app.post("/api/streams", (req, res) => {
+  app.post("/api/streams", exigirLogin, (req, res) => {
     const { userId, title, resolution = '1080p', bitrateKbps = 6000, fps = 30, destinations = [], ingestProtocol = 'BrowserCanvas' } = req.body;
     
     const sessionId = `stream_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
@@ -272,7 +282,7 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // 2. Start streaming on session
-  app.post("/api/streams/:id/start", (req, res) => {
+  app.post("/api/streams/:id/start", exigirLogin, (req, res) => {
     const { id } = req.params;
     let session = activeStreamSessions.get(id);
 
@@ -324,7 +334,7 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // 3. Stop streaming on session
-  app.post("/api/streams/:id/stop", (req, res) => {
+  app.post("/api/streams/:id/stop", exigirLogin, (req, res) => {
     const { id } = req.params;
     const session = activeStreamSessions.get(id);
 
@@ -362,7 +372,7 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // 4. Query stream status
-  app.get("/api/streams/:id/status", (req, res) => {
+  app.get("/api/streams/:id/status", exigirLogin, (req, res) => {
     const { id } = req.params;
     const session = activeStreamSessions.get(id);
 
@@ -388,7 +398,7 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // 5. Query stream real-time technical stats
-  app.get("/api/streams/:id/stats", (req, res) => {
+  app.get("/api/streams/:id/stats", exigirLogin, (req, res) => {
     const { id } = req.params;
     const session = activeStreamSessions.get(id);
 
@@ -411,7 +421,7 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // 6. List recent stream sessions
-  app.get("/api/streams", (req, res) => {
+  app.get("/api/streams", exigirLogin, (req, res) => {
     return res.json({
       sessions: Array.from(activeStreamSessions.values()).slice(-10)
     });
@@ -420,7 +430,9 @@ Retorne estritamente um JSON estruturado com:
   // ==========================================
   // REAL RTMP / RTMPS SERVER CONNECTION TESTER
   // ==========================================
-  app.post("/api/rtmp/test", async (req, res) => {
+  // Abre conexão TCP com o host informado: exige login, e só host público em
+  // porta de RTMP — senão servia para varrer a rede interna.
+  app.post("/api/rtmp/test", exigirLogin, async (req, res) => {
     const { url, streamKey } = req.body;
     
     if (!url || typeof url !== 'string') {
@@ -457,9 +469,22 @@ Retorne estritamente um JSON estruturado com:
         }
       }
 
+      if (![1935, 1936, 443, 80].includes(port) || !(await hostPublico(host))) {
+        return res.status(400).json({
+          reachable: false,
+          authenticated: false,
+          error: "Destino não permitido: use um servidor RTMP público (portas 1935, 1936, 443 ou 80)."
+        });
+      }
+
       // Step 1: DNS Lookup check
       const lookupResult = await dns.promises.lookup(host);
       const ipAddress = lookupResult.address;
+      // Conecta no IP já conferido, não no nome: entre a checagem e a conexão
+      // o DNS poderia responder outro endereço.
+      if (!(await hostPublico(ipAddress))) {
+        return res.status(400).json({ reachable: false, authenticated: false, error: "Destino não permitido." });
+      }
 
       // Step 2: TCP Socket Handshake Reachability Test (Timeout 3.5s)
       const socketTestPromise = new Promise<{ reachable: boolean; latencyMs: number; error?: string }>((resolve) => {
@@ -468,7 +493,7 @@ Retorne estritamente um JSON estruturado com:
 
         socket.setTimeout(3500);
 
-        socket.connect(port, host, () => {
+        socket.connect(port, ipAddress, () => {
           const latencyMs = Date.now() - socketStart;
           socket.destroy();
           resolve({ reachable: true, latencyMs });
@@ -538,8 +563,10 @@ Retorne estritamente um JSON estruturado com:
     });
   });
 
-  app.post("/api/cloudflare/live-inputs", async (req, res) => {
-    const { userId, title = 'Transmissão PwStreamer' } = req.body;
+  // Cria live input na conta Cloudflare com o token do servidor: exige login.
+  app.post("/api/cloudflare/live-inputs", exigirLogin, async (req: ReqComLogin, res) => {
+    const { title = 'Transmissão PwStreamer' } = req.body;
+    const userId = req.usuario!.uid;
     const token = process.env.CLOUDFLARE_STREAM_API_TOKEN;
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
 
@@ -608,81 +635,83 @@ Retorne estritamente um JSON estruturado com:
     });
   });
 
-  // ==========================================
-  // SECURE ROLE-BASED ACCESS CONTROL (RBAC)
-  // ==========================================
-  app.post("/api/auth/verify-role", (req, res) => {
-    const { email, uid } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({ error: "Email obrigatório" });
-    }
-
-    const superAdminList = (process.env.SUPER_ADMIN_EMAILS || 'mgdlms@gmail.com')
-      .split(',')
-      .map(e => e.trim().toLowerCase());
-
-    const isSuperAdmin = superAdminList.includes(email.trim().toLowerCase());
-
-    return res.json({
-      uid,
-      email,
-      role: isSuperAdmin ? 'super-admin' : 'client',
-      permissions: isSuperAdmin 
-        ? ['stream.manage', 'users.manage', 'billing.manage', 'recordings.manage', 'webhooks.manage', 'settings.manage']
-        : ['stream.broadcast', 'stream.record']
-    });
-  });
+  // /api/auth/verify-role saiu: devolvia "super-admin" para qualquer e-mail
+  // enviado no corpo, sem conferir quem chamava. O papel de admin é decidido
+  // pelas regras do Firestore a partir do e-mail verificado no token.
 
   // ==========================================
   // STRIPE WEBHOOK RECEIVER (PRODUCTION-READY)
   // ==========================================
-  app.post("/api/webhooks/stripe", async (req, res) => {
+  // Corpo bruto só nesta rota (o parser JSON global a pula): sem ele a
+  // assinatura nunca confere.
+  app.post("/api/webhooks/stripe", express.raw({ type: "application/json" }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-    if (!sig || !webhookSecret) {
-      // In development or when webhook secret is pending
-      return res.status(200).json({
-        received: true,
-        message: "Webhook recebido. Configure STRIPE_WEBHOOK_SECRET para validação estrita de assinatura."
-      });
+    // Sem o segredo não há como saber se o evento veio do Stripe: nada é
+    // processado. (Antes respondia 200 e seguia.)
+    if (!webhookSecret) {
+      return res.status(503).json({ error: "Webhook do Stripe não configurado (STRIPE_WEBHOOK_SECRET)." });
+    }
+    if (!sig) {
+      return res.status(400).send("Assinatura ausente.");
     }
 
+    let event: any;
     try {
       const Stripe = (await import("stripe")).default;
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: "2023-10-16" as any });
-      const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-
-      console.log(`[STRIPE WEBHOOK] Received verified event: ${event.type}`);
-
-      switch (event.type) {
-        case 'checkout.session.completed': {
-          const session = event.data.object as any;
-          console.log(`[STRIPE] Assinatura ativada para usuário: ${session.client_reference_id}, plano: ${session.metadata?.planId}`);
-          break;
-        }
-        case 'customer.subscription.updated': {
-          const sub = event.data.object as any;
-          console.log(`[STRIPE] Assinatura atualizada: ${sub.id}, status: ${sub.status}`);
-          break;
-        }
-        case 'customer.subscription.deleted': {
-          const sub = event.data.object as any;
-          console.log(`[STRIPE] Assinatura cancelada: ${sub.id}`);
-          break;
-        }
-      }
-
-      return res.json({ received: true });
+      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
     } catch (err: any) {
       console.error("[STRIPE WEBHOOK] Verification failed:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
+
+    // O plano é gravado AQUI, e só aqui: as regras do Firestore não deixam o
+    // cliente mexer em plan/subscriptionStatus. Antes o webhook só logava — o
+    // pagamento nunca virava plano.
+    try {
+      const banco = getFirestore(appAdmin(), BANCO_FIRESTORE);
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const sessao = event.data.object as any;
+          const uid = sessao.client_reference_id;
+          const plano = sessao.metadata?.planId;
+          if (uid && (PLANOS_PAGOS as readonly string[]).includes(plano)) {
+            await banco.doc(`users/${uid}`).set(
+              { plan: plano, subscriptionStatus: 'active', isExpired: false, stripeCustomerId: sessao.customer || '' },
+              { merge: true }
+            );
+          }
+          break;
+        }
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted': {
+          const assinatura = event.data.object as any;
+          const encerrada = event.type === 'customer.subscription.deleted'
+            || ['canceled', 'unpaid', 'incomplete_expired'].includes(assinatura.status);
+          const perfis = await banco.collection('users').where('stripeCustomerId', '==', assinatura.customer).get();
+          await Promise.all(perfis.docs.map((perfil) => perfil.ref.set(
+            encerrada
+              ? { plan: 'Free Trial', subscriptionStatus: assinatura.status || 'canceled' }
+              : { subscriptionStatus: assinatura.status },
+            { merge: true }
+          )));
+          break;
+        }
+      }
+      return res.json({ received: true });
+    } catch (err: any) {
+      // Sem credencial do Admin SDK a gravação falha; 500 faz o Stripe reenviar.
+      console.error("[STRIPE WEBHOOK] Falha ao gravar a assinatura:", err?.message || err);
+      return res.status(500).json({ error: "Falha ao gravar a assinatura." });
+    }
   });
 
   // Webhook Test Trigger Endpoint
-  app.post("/api/webhooks/test-trigger", async (req, res) => {
+  // Faz o servidor chamar uma URL escolhida pelo usuário: exige login, e o
+  // destino tem de ser https num host público (ver urlDeWebhookPermitida).
+  app.post("/api/webhooks/test-trigger", exigirLogin, async (req, res) => {
     const startTime = Date.now();
     const { 
       platform = 'twitch', 
@@ -710,7 +739,7 @@ Retorne estritamente um JSON estruturado com:
       'User-Agent': `PwStreamer-Webhook-Dispatcher/2.0 (${platform})`,
       'X-PwStream-Event-Id': eventId,
       'X-PwStream-Delivery-Timestamp': timestampIso,
-      ...customHeaders
+      ...cabecalhosExtras(customHeaders)
     };
 
     // Platform-specific headers & signatures
@@ -788,22 +817,50 @@ Retorne estritamente um JSON estruturado com:
       });
     }
 
+    const destino = await urlDeWebhookPermitida(endpointUrl);
+    if (!destino) {
+      const motivo = "Destino não permitido: use https:// num endereço público (porta 443 ou 8443).";
+      return res.json({
+        success: false,
+        log: {
+          id: eventId,
+          timestamp: timestampIso,
+          platform,
+          eventType,
+          method: 'POST',
+          endpointUrl,
+          status: 400,
+          statusText: 'Destino não permitido',
+          latencyMs: Date.now() - startTime,
+          requestHeaders: headers,
+          requestPayload: parsedPayload,
+          responseBody: { error: motivo },
+          mode: 'manual_test',
+          isSuccess: false,
+          error: motivo
+        }
+      });
+    }
+
     // If an external URL is provided, perform an actual HTTP request
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
 
-      const response = await fetch(endpointUrl, {
+      // redirect: 'manual' — um 30x não pode levar o servidor a outro destino
+      // que não passou pela checagem acima.
+      const response = await fetch(destino, {
         method: 'POST',
         headers,
         body: payloadString,
+        redirect: 'manual',
         signal: controller.signal
       });
-      clearTimeout(timeoutId);
 
       const latencyMs = Date.now() - startTime;
       let resBody: any;
-      const resText = await response.text();
+      const resText = await lerTextoLimitado(response);
+      clearTimeout(timeoutId);
       try {
         resBody = JSON.parse(resText);
       } catch {

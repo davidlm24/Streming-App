@@ -1,3 +1,5 @@
+import { apiFetch } from './apiFetch';
+
 export interface CloudflareStreamDetails {
   liveInputId: string;
   customerSubdomain: string;
@@ -54,7 +56,7 @@ export const CLOUDFLARE_STREAM_CONFIG: CloudflareStreamDetails = {
  */
 export async function getSecureCloudflareLiveInput(userId = 'anonymous', title = 'Live PwStreamer'): Promise<CloudflareStreamDetails> {
   try {
-    const res = await fetch('/api/cloudflare/live-inputs', {
+    const res = await apiFetch('/api/cloudflare/live-inputs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, title })

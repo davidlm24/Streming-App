@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../lib/apiFetch';
 import { 
   Radio, 
   Send, 
@@ -627,7 +628,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
     }
 
     try {
-      const response = await fetch('/api/webhooks/test-trigger', {
+      const response = await apiFetch('/api/webhooks/test-trigger', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

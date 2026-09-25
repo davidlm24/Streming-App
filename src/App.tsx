@@ -1,4 +1,5 @@
 import { Button } from './components/ui/Button';
+import { apiFetch } from './lib/apiFetch';
 import { useTabs } from './components/ui/Tabs';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Header } from './components/Header';
@@ -1284,7 +1285,7 @@ export default function App() {
   // AI Moderation fetcher and logic
   const moderateComment = async (text: string) => {
     try {
-      const res = await fetch('/api/moderate', {
+      const res = await apiFetch('/api/moderate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),

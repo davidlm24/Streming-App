@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '../lib/apiFetch';
 import { X, Copy, CheckCircle2, Server, Save, Activity, RefreshCw, AlertCircle, Plus, Trash2, Youtube, Tv, Globe, Radio, Check, Edit3 } from 'lucide-react';
 import { copyText } from './ui/clipboard';
 import { Modal } from './ui/Modal';
@@ -136,7 +137,7 @@ export function RTMPConfigModal({ isOpen, onClose, onSave, initialUrl = '', init
     setTestDetails('');
 
     try {
-      const res = await fetch('/api/rtmp/test', {
+      const res = await apiFetch('/api/rtmp/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, streamKey })

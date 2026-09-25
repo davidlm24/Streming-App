@@ -5,6 +5,7 @@ import {
   GoogleAuthProvider,
   User as FirebaseUser 
 } from 'firebase/auth';
+import { apiFetch } from './apiFetch';
 import { 
   doc, 
   getDoc, 
@@ -264,18 +265,9 @@ export async function validateUserTrialStatus(
 
   // 2. Query the backend validation service
   try {
-    const res = await fetch('/api/validate-trial', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: user.uid,
-        userEmail: user.email,
-        plan: user.plan,
-        trialEndsAt: user.trialEndsAt,
-        trialDays: user.trialDays,
-        isExpired: user.isExpired
-      })
-    });
+    // O servidor lê o perfil no banco com o token de login; não recebe
+    // (nem aceitaria) plano ou datas do cliente.
+    const res = await apiFetch('/api/validate-trial', { method: 'POST' });
     if (res.ok) {
       const data = await res.json();
       return data;
