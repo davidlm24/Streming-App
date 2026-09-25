@@ -3,7 +3,7 @@ import {
   Video, Layers, Wand2, MessageSquareText, Radio, Disc,
   Users, FileText, SlidersHorizontal, QrCode, ArrowRight, Check
 } from 'lucide-react';
-import { PwStreamLogo } from './PwStreamLogo';
+import { PublicHeader, type DestinoPublico } from './PublicHeader';
 
 /**
  * Página de Recursos e Ferramentas.
@@ -29,6 +29,7 @@ interface FeaturesPageProps {
   onBack: () => void;
   onGetStarted: () => void;
   onSeePricing: () => void;
+  onNavegar: (destino: DestinoPublico) => void;
 }
 
 const CAPABILITIES = [
@@ -71,27 +72,12 @@ const STUDIO_TOOLS = [
   { icon: QrCode, label: 'QR na tela', note: 'Aponta a audiência para um link' }
 ];
 
-export function FeaturesPage({ onBack, onGetStarted, onSeePricing }: FeaturesPageProps) {
+export function FeaturesPage({ onBack, onGetStarted, onSeePricing, onNavegar }: FeaturesPageProps) {
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--ink-hi)] flex flex-col" id="features-page">
 
       {/* NAV: uma linha, altura contida */}
-      <header className="w-full border-b border-[var(--line)] bg-[var(--bg)]/90 backdrop-blur-md px-6 h-16 flex items-center justify-between sticky top-0 z-20">
-        <button onClick={onBack} className="cursor-pointer">
-          <PwStreamLogo iconSize={30} textSize="sm" />
-        </button>
-        <nav className="flex items-center gap-1 text-xs font-semibold text-[var(--ink-lo)]">
-          <button onClick={onBack} className="px-3 py-1.5 rounded-xl hover:text-[var(--ink-hi)] hover:bg-[var(--surface)] transition-colors">Início</button>
-          <span className="px-3 py-1.5 rounded-xl text-[var(--ink-hi)] bg-[var(--surface)]">Recursos</span>
-          <button onClick={onSeePricing} className="px-3 py-1.5 rounded-xl hover:text-[var(--ink-hi)] hover:bg-[var(--surface)] transition-colors">Planos</button>
-          <button
-            onClick={onGetStarted}
-            className="ml-2 px-4 py-2 bg-[var(--color-brand-deep)] hover:brightness-110 active:brightness-95 text-white rounded-xl transition-all"
-          >
-            Criar conta
-          </button>
-        </nav>
-      </header>
+      <PublicHeader atual="features" fixo onNavegar={onNavegar} />
 
       <main className="flex-1 w-full max-w-[1200px] mx-auto px-6">
 

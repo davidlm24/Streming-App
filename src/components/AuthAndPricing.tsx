@@ -7,9 +7,9 @@ import {
   CheckCircle2, Sparkles, Shield, AlertTriangle, Play, HelpCircle, QrCode,
   Copy, ExternalLink, ShieldCheck
 } from 'lucide-react';
-import { PwStreamLogo } from './PwStreamLogo';
 import { LegalModal } from './LegalModals';
 import { FeaturesPage } from './FeaturesPage';
+import { PublicHeader } from './PublicHeader';
 import { loginWithGoogle, createDirectUserProfile } from '../lib/firestoreService';
 import { useToast } from './ui/Toast';
 import { copyText } from './ui/clipboard';
@@ -245,6 +245,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
         onBack={() => setView('landing')}
         onGetStarted={() => setView('register')}
         onSeePricing={() => setView('pricing')}
+        onNavegar={setView}
       />
     );
   }
@@ -261,20 +262,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing', selecte
       */}
 
       {/* Header Logo Navbar */}
-      <header className="relative z-10 w-full border-b border-[var(--line)] bg-[var(--bg)]/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* O selo "RESTREAM MODE" saiu daqui: era o nome de um concorrente
-              impresso na barra de navegação do próprio produto. */}
-          <PwStreamLogo iconSize={32} textSize="sm" />
-        </div>
-        <nav aria-label="Principal" className="flex items-center gap-4 text-xs font-semibold text-[var(--ink-lo)]">
-          <button onClick={() => setView('landing')} className="hover:text-[var(--ink-hi)] transition-colors">Início</button>
-          <button onClick={() => setView('features')} className="hover:text-[var(--ink-hi)] transition-colors">Recursos</button>
-          <button onClick={() => setView('pricing')} className="hover:text-[var(--ink-hi)] transition-colors">Planos</button>
-          <button onClick={() => setView('login')} className="px-3.5 py-1.5 border border-[var(--line)] rounded-lg hover:bg-[var(--surface)] transition-colors text-[var(--ink-hi)]">Log In</button>
-          <button onClick={() => setView('register')} className="px-3.5 py-1.5 bg-[var(--color-brand-deep)] rounded-lg hover:bg-blue-600 transition-all text-white">Sign Up</button>
-        </nav>
-      </header>
+      <PublicHeader atual={view} onNavegar={setView} />
 
       {/* Main View Switcher */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-12 max-w-7xl mx-auto w-full">
