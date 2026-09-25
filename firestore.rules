@@ -69,7 +69,11 @@ service cloud.firestore {
       allow delete: if isOwner(userId) || isAdmin();
 
       // Webinars, cenas, snapshots, webhooks, audiência: só do dono.
-      match /{allSubcollections=**} {
+      // `{subcolecao}` exige ao menos um segmento abaixo do perfil. Com só
+      // `{x=**}` (rules v2: casa ZERO ou mais segmentos) o bloco casava o
+      // próprio /users/{userId} e liberava escrita livre no perfil — por
+      // cima da restrição de campos acima. O teste pegou.
+      match /{subcolecao}/{resto=**} {
         allow read, write: if isOwner(userId);
       }
     }
