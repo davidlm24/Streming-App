@@ -1,8 +1,14 @@
+import { AcaoDeTexto } from './components/ui/AcaoDeTexto';
 import { Button } from './components/ui/Button';
 import { apiFetch } from './lib/apiFetch';
 import { useTabs } from './components/ui/Tabs';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Header } from './components/Header';
+import { AppHeader, type VisaoDoApp } from './components/AppHeader';
+import { Dashboard } from './components/Dashboard';
+import { CanaisPagina } from './components/CanaisPagina';
+import { WebinarsPagina } from './components/WebinarsPagina';
+import { ConfiguracoesPagina } from './components/ConfiguracoesPagina';
 import { LeftSidebar } from './components/LeftSidebar';
 import { StudioPreview } from './components/StudioPreview';
 import { ControlTray } from './components/ControlTray';
@@ -99,6 +105,8 @@ export default function App() {
 
   const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
   const [isAddChannelsModalOpen, setIsAddChannelsModalOpen] = useState(false);
+  // Plataforma em que o modal de canais abre direto (o "conserta num clique").
+  const [plataformaDoModalDeCanais, setPlataformaDoModalDeCanais] = useState<string | undefined>(undefined);
   const [plansModalReason, setPlansModalReason] = useState<'live' | 'record' | 'upgrade' | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'cancelled' | null>(null);
 
@@ -157,7 +165,7 @@ export default function App() {
   };
 
   // App views: 'dashboard' | 'studio' | 'admin' | 'super-admin' | 'public-webinar' | 'profile' | 'billing'
-  const [currentView, setCurrentView] = useState<'dashboard' | 'studio' | 'admin' | 'super-admin' | 'public-webinar' | 'profile' | 'billing'>('dashboard');
+  const [currentView, setCurrentView] = useState<VisaoDoApp>('dashboard');
 
   // Handle direct URL route navigation for /admin or #admin
   useEffect(() => {
@@ -215,27 +223,12 @@ export default function App() {
      *  semeados nao tem porque sao demonstracao: a pagina entao mostra o
      *  horario anunciado em , que e o que de fato se sabe. */
     startsAt?: string;
-  }>>([
-    {
-      id: 'webinar-1',
-      title: 'Como Alavancar suas Vendas com webinars interativos',
-      desc: 'Aprenda os segredos e técnicas para engajar audiências com transmissões ao vivo de altíssimo nível, gerando conexões reais e impulsionando vendas.',
-      time: 'Amanhã, às 19:30 (Horário de Brasília)',
-      channels: ['Facebook', 'YouTube'],
-      type: 'webinar',
-      videoName: ''
-    },
-    {
-      id: 'webinar-2',
-      title: 'Webinar de Boas-vindas para Novos Membros da Equipe',
-      desc: 'Sessão interna de integração para novos colaboradores.',
-      time: 'Quarta-feira, às 14:00',
-      channels: ['YouTube (Canal Privado)'],
-      type: 'live',
-      videoName: ''
-    }
-  ]);
-  const [selectedWebinarId, setSelectedWebinarId] = useState<string>('webinar-1');
+  // Começa vazio. Eram dois webinars inventados ("Como Alavancar suas
+  // Vendas...", "Webinar de Boas-vindas...") que ficavam na tela sempre que
+  // o Firestore não respondia — e o painel novo os anunciaria como "a
+  // próxima live". A lista real chega pela assinatura abaixo.
+  }>>([]);
+  const [selectedWebinarId, setSelectedWebinarId] = useState<string>('');
 
   const handleDeleteWebinar = async (id: string) => {
     setWebinars(prev => prev.filter(w => w.id !== id));
@@ -1472,6 +1465,35 @@ export default function App() {
     });
   };
 
+  // Remover canal: não existia — um canal conectado ficava para sempre.
+  const handleRemoveDestination = (id: string) => {
+    setDestinations(prev => {
+      const updated = prev.filter(dest => dest.id !== id);
+      if (user?.uid) {
+        saveDestinationsToFirestore(user.uid, updated);
+      }
+      return updated;
+    });
+  };
+
+  // Ações das telas da casca (painel, canais, webinars)
+  const conectarCanal = (plataforma?: string) => {
+    setPlataformaDoModalDeCanais(plataforma);
+    setIsAddChannelsModalOpen(true);
+  };
+  const entrarNoEstudio = (webinar?: { title: string }) => {
+    if (webinar) setTitle(webinar.title);
+    setCurrentView('studio');
+  };
+  const abrirPaginaPublica = (webinar: { id: string }) => {
+    setSelectedWebinarId(webinar.id);
+    setCurrentView('public-webinar');
+  };
+  const abrirEditorDeCapa = (webinar: { title: string }) => {
+    setDashboardEditorTitle(webinar.title);
+    setIsDashboardEditorOpen(true);
+  };
+
   // Add Banner text ticker
   const handleAddBanner = (text: string, subtitle?: string, themeColor?: string, accentColor?: string) => {
     const newBanner: Banner = {
@@ -1977,9 +1999,13 @@ export default function App() {
       // O tally lê daqui. Ancestral de tudo, para que qualquer moldura de
       // programa no console saiba que está no ar sem receber a prop na mão.
       data-air={isLive ? 'on' : undefined}
-      className={`bg-[var(--bg)] font-sans text-[var(--ink-hi)] flex flex-col selection:bg-blue-500 selection:text-white ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
+      className={`bg-[var(--bg)] font-sans text-[var(--ink-hi)] flex flex-col ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
       
-      {/* Dynamic Header */}
+      {/* O estúdio tem o cabeçalho de console (GO LIVE, gravação, canais do
+          ar). As outras telas, a casca do app: quatro destinos e a conta. */}
+      {currentView !== 'studio' ? (
+        <AppHeader user={user} currentView={currentView} onNavigate={setCurrentView} onLogout={handleLogout} />
+      ) : (
       <Header 
         onExit={() => setCurrentView('dashboard')} 
         user={user}
@@ -2004,6 +2030,7 @@ export default function App() {
         onToggleRecording={handleToggleRecording}
         recordingTime={recordingTime}
       />
+      )}
 
       {/* Firestore Free Tier Quota Alert Banner */}
       {isQuotaExceeded && isQuotaBannerVisible && (
@@ -2942,291 +2969,106 @@ export default function App() {
           onBackToDashboard={() => setCurrentView('dashboard')}
           initialTab={currentView}
         />
+      ) : currentView === 'channels' ? (
+        <CanaisPagina
+          canais={destinations}
+          onConectarCanal={conectarCanal}
+          onAlternarCanal={handleToggleDestination}
+          onRemoverCanal={handleRemoveDestination}
+        />
+      ) : currentView === 'webinars' ? (
+        <WebinarsPagina
+          webinars={webinars}
+          carregado={isFirestoreSettingsLoaded}
+          onAgendar={() => setIsCreateWebinarOpen(true)}
+          onEntrar={entrarNoEstudio}
+          onPaginaPublica={abrirPaginaPublica}
+          onCriarCapa={abrirEditorDeCapa}
+          onExcluir={(webinar) => handleDeleteWebinar(webinar.id)}
+        />
+      ) : currentView === 'settings' ? (
+        <ConfiguracoesPagina
+          plano={user?.plan || 'Free Trial'}
+          ehSuperAdmin={user?.role === 'super-admin'}
+          onAbrirIntegracao={(aba) => {
+            setIntegrationsModalTab(aba);
+            setIsIntegrationsModalOpen(true);
+          }}
+          onIrPara={setCurrentView}
+        />
       ) : (
-        /* 3. BUSINESS DASHBOARD VIEW */
-        <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8 space-y-8 animate-in fade-in duration-200">
-          
-          {/* Welcome back user */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              {/* Era "Olá, Marcos Gonçalves" fixo no código: TODO cliente que
-                  abria o painel era cumprimentado pelo nome de outra pessoa.
-                  Só o primeiro nome — o nome completo numa saudação soa a
-                  formulário, não a boas-vindas. */}
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--ink-hi)]">
-                {user?.name ? `Olá, ${user.name.split(' ')[0]}` : 'Olá'}
-              </h1>
-              <p className="text-sm text-[var(--ink-lo)] mt-1">Gerencie, agende e configure seus webinares e transmissões ao vivo.</p>
-            </div>
-            
-            <div className="flex items-center gap-2.5">
-              <Button variant="ghost" onClick={() => setCurrentView('admin')} icon={<Server size={14} className="text-blue-500 animate-pulse" />}>
-                Painel de Administração
-              </Button>
-              <Button onClick={() => setIsCreateWebinarOpen(true)} icon={<Plus size={16} />}>
-                Agendar Webinar
-              </Button>
-            </div>
-          </div>
-
-          {/* Metrics summary widget card */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Eram quatro números inventados — 14 webinars, 4.829
-                espectadores, 1.240m, 87% — apresentados como medição real na
-                conta de todo cliente.
-                Só o primeiro tem fonte de verdade hoje: a lista de webinars.
-                Os outros três dependem de telemetria do servidor de ingestão,
-                que ainda não existe, então seguem a regra do próprio sistema:
-                valor ausente é travessão, nunca um número plausível. */}
-            {[
-              { label: 'Webinares agendados', value: String(webinars.length), change: webinars.length === 0 ? 'Nenhum ainda' : 'Na sua conta', icon: Radio },
-              { label: 'Espectadores únicos', value: '—', change: 'Aguardando telemetria', icon: Users },
-              { label: 'Minutos transmitidos', value: '—', change: 'Aguardando telemetria', icon: Tv },
-              { label: 'Engajamento médio', value: '—', change: 'Aguardando telemetria', icon: BarChart3 }
-            ].map((metric, i) => (
-              <div key={i} className="bg-[var(--surface)] border border-[var(--line)] p-5 rounded-2xl flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-[var(--ink-lo)] font-semibold">{metric.label}</p>
-                  <p className="text-2xl font-bold text-[var(--ink-hi)] mt-1.5">{metric.value}</p>
-                  <p className="text-[10px] text-blue-400 mt-1">{metric.change}</p>
-                </div>
-                <div className="w-11 h-11 bg-[var(--bg)] border border-[var(--line)] rounded-xl flex items-center justify-center text-[var(--color-brand)]">
-                  <metric.icon size={20} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Live webinar planning section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            {/* Stream room launcher trigger */}
-            <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--line)] rounded-2xl overflow-hidden flex flex-col">
-              <div className="p-6 border-b border-[var(--line)] flex items-center justify-between">
-                <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
-                  <Calendar size={18} className="text-[var(--color-brand)]" /> Próximos Webinares Agendados
-                </h2>
-                <span className="text-xs text-blue-400 hover:underline cursor-pointer">Ver todos</span>
-              </div>
-
-              <div className="p-6 flex-1 divide-y divide-[var(--line)]/40 space-y-4">
-                {webinars.map((webinar, i) => (
-                  <div key={webinar.id || i} className={`pt-4 first:pt-0 flex flex-col xl:flex-row justify-between items-start gap-4`}>
-                    <div className="space-y-1 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-bold text-[var(--ink-hi)] hover:text-[var(--color-brand)] transition-colors cursor-pointer text-left">
-                          {webinar.title}
-                        </p>
-                        <span className={`text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
-                          webinar.type === 'pre-recorded' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-emerald-500/10 text-emerald-400'
-                        }`}>
-                          {webinar.type === 'pre-recorded' ? 'Vídeo Gravado' : 'Transmissão Ao Vivo'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-[var(--ink-lo)] text-left">{webinar.desc}</p>
-                      <div className="flex flex-wrap items-center gap-2 text-[10px] text-[var(--ink-lo)] pt-1">
-                        <span className="font-semibold text-blue-400">{webinar.time}</span>
-                        <span>•</span>
-                        <span>Canais: {webinar.channels.join(', ')}</span>
-                        {webinar.videoName && (
-                          <>
-                            <span>•</span>
-                            <span className="text-indigo-400">Vídeo: {webinar.videoName}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 shrink-0 w-full xl:w-auto">
-                      {/* Cor no ícone e no texto, não no fundo: "Inscrições" e
-                          "Criar Capa" continuam avisando seu destino por
-                          matiz — o fundo neutro do ghost é quem diz "ação
-                          secundária". */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedWebinarId(webinar.id);
-                          setCurrentView('public-webinar');
-                        }}
-                        icon={<ExternalLink size={12} />}
-                        className="text-emerald-400 hover:text-emerald-300"
-                        title="Ver landing page pública de inscrição do webinar"
-                      >
-                        Inscrições
-                      </Button>
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setDashboardEditorTitle(webinar.title);
-                          setIsDashboardEditorOpen(true);
-                        }}
-                        icon={<Palette size={12} />}
-                        className="text-blue-400 hover:text-blue-300"
-                        title="Criar ou personalizar a thumbnail da live"
-                      >
-                        Criar Capa
-                      </Button>
-
-                      {/* Seta depois do texto no original — "ir para".
-                          O slot `icon` da primitiva é sempre líder, então a
-                          seta entra como filho, não pelo prop. */}
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setTitle(webinar.title);
-                          setCurrentView('studio');
-                        }}
-                      >
-                        Acessar Estúdio <ArrowRight size={12} />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick settings & support */}
-            <div className="bg-[var(--surface)] border border-[var(--line)] rounded-2xl p-6 flex flex-col justify-between">
-              <div className="space-y-4">
-                <h2 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
-                  <Settings size={18} className="text-[var(--color-brand)]" /> Configurações & Chaves
-                </h2>
-                
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIntegrationsModalTab('rtmp');
-                      setIsIntegrationsModalOpen(true);
-                    }}
-                    className="w-full flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
-                  >
-                    <div>
-                      <p className="text-[var(--ink-hi)] font-semibold">Integração com OBS / RTMP Externo</p>
-                      <p className="text-[10px] text-[var(--ink-lo)]">Ver chaves de ingestão, URLs de servidores e OBS</p>
-                    </div>
-                    <ExternalLink size={12} className="text-[var(--ink-dim)]" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIntegrationsModalTab('social');
-                      setIsIntegrationsModalOpen(true);
-                    }}
-                    className="w-full flex items-center justify-between p-3 bg-[var(--bg)] hover:bg-blue-500/10 hover:border-blue-500/20 rounded-xl border border-[var(--line)]/40 cursor-pointer transition-all text-xs text-left"
-                  >
-                    <div>
-                      <p className="text-[var(--ink-hi)] font-semibold">Gerenciar Redes Sociais & OAuth</p>
-                      <p className="text-[10px] text-[var(--ink-lo)]">Configurações para YouTube, Facebook e Twitch</p>
-                    </div>
-                    <ExternalLink size={12} className="text-[var(--ink-dim)]" />
-                  </button>
-
-                  {/* REMOVIDO — o card "Análise de Requisitos & Chaves".
-                      Abria, para o cliente pagante, o quadro interno de status
-                      de engenharia: "Painel de Cobranças — Pronto / Simulação
-                      Premium", "Servidores de Ingestão RTMP/SRT — Requer
-                      Produção", "substituir a persistência de localStorage", e
-                      a lista dos nomes das variáveis secretas do sistema.
-                      Era o único dos três cards em esmeralda com Sparkles
-                      animado — vocabulário de novidade boa no item que
-                      confessava que o faturamento é simulado.
-                      Enquanto a ingestão não for real, o lugar de dizer isso é
-                      um estado vazio honesto na tela do recurso, não um
-                      relatório de backlog dentro do produto. */}
-                </div>
-              </div>
-
-              <div className="border-t border-[var(--line)] pt-4 mt-6 text-xs text-[var(--ink-lo)] text-left space-y-1.5">
-                <p>Precisa de ajuda imediata?</p>
-                <p className="text-blue-400 hover:underline cursor-pointer font-semibold flex items-center gap-1">
-                  PwStreamer <ArrowRight size={12} />
-                </p>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Video Quality Control Panel Section */}
-          <VideoQualityPanel 
-            userPlan={user?.plan || 'Standard'} 
-            onNavigateToBilling={() => setCurrentView('billing')} 
-          />
-
-          {/* Dashboard Capas Creator Modal */}
-          {isDashboardEditorOpen && (
-            <Modal isOpen onClose={() => setIsDashboardEditorOpen(false)} bare ariaLabel="Editor do painel">
-              <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--bg)]">
-                  <div className="text-left">
-                    <h3 className="text-sm font-bold text-[var(--ink-hi)] flex items-center gap-2">
-                      <Palette size={16} className="text-blue-500 animate-pulse" /> Gerador de Capas & Miniaturas (Thumbnail Editor)
-                    </h3>
-                    <p className="text-xs text-[var(--ink-lo)]">Desenhe e baixe capas em alta definição para as suas redes sociais e transmissões</p>
-                  </div>
-                  <button aria-label="Fechar gerador de capas" 
-                    onClick={() => setIsDashboardEditorOpen(false)}
-                    className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-
-                {/* Body with loaded ThumbnailEditor */}
-                <div className="p-6 max-h-[80vh] overflow-y-auto">
-                  <ThumbnailEditor 
-                    initialTitle={dashboardEditorTitle} 
-                    onSave={(dataUrl) => {
-                      console.log("Miniatura do dashboard gerada!");
-                    }}
-                  />
-                </div>
-              </div>
-            </Modal>
-          )}
-
-          {/* Custom Chrome Screen Share Picker Modal */}
-          <ScreenSharePickerModal
-            isOpen={isScreenSharePickerOpen}
-            onClose={() => setIsScreenSharePickerOpen(false)}
-            initialTab={screenPickerInitialTab}
-            onSelectShare={handleConfirmScreenShare}
-          />
-
-        </main>
+        <Dashboard
+          webinars={webinars}
+          carregado={isFirestoreSettingsLoaded}
+          canais={destinations}
+          onEntrarNoEstudio={entrarNoEstudio}
+          onAgendar={() => setIsCreateWebinarOpen(true)}
+          onPaginaPublica={abrirPaginaPublica}
+          onCriarCapa={abrirEditorDeCapa}
+          onConectarCanal={conectarCanal}
+          onVerCanais={() => setCurrentView('channels')}
+          onVerWebinars={() => setCurrentView('webinars')}
+        />
       )}
 
-      {/* Styled Footer - Visible only on main page / dashboard */}
+      {/* Moravam dentro do painel antigo. O seletor de tela é aberto pelo
+          ESTÚDIO — montado só no painel, ele nunca aparecia lá e surgia
+          depois, ao voltar para o painel. Agora ficam na raiz. */}
+      {/* Dashboard Capas Creator Modal */}
+      {isDashboardEditorOpen && (
+        <Modal isOpen onClose={() => setIsDashboardEditorOpen(false)} bare ariaLabel="Editor do painel">
+          <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--bg)]">
+              <div className="text-left">
+                <h3 className="text-sm font-bold text-[var(--ink-hi)] flex items-center gap-2">
+                  <Palette size={16} className="text-blue-500 animate-pulse" /> Gerador de Capas & Miniaturas (Thumbnail Editor)
+                </h3>
+                <p className="text-xs text-[var(--ink-lo)]">Desenhe e baixe capas em alta definição para as suas redes sociais e transmissões</p>
+              </div>
+              <button aria-label="Fechar gerador de capas" 
+                onClick={() => setIsDashboardEditorOpen(false)}
+                className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Body with loaded ThumbnailEditor */}
+            <div className="p-6 max-h-[80vh] overflow-y-auto">
+              <ThumbnailEditor 
+                initialTitle={dashboardEditorTitle} 
+                onSave={(dataUrl) => {
+                  console.log("Miniatura do dashboard gerada!");
+                }}
+              />
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Custom Chrome Screen Share Picker Modal */}
+      <ScreenSharePickerModal
+        isOpen={isScreenSharePickerOpen}
+        onClose={() => setIsScreenSharePickerOpen(false)}
+        initialTab={screenPickerInitialTab}
+        onSelectShare={handleConfirmScreenShare}
+      />
+
+      {/* Rodapé da casca. Era em inglês ("All Rights Reserved... Developed and
+          Maintained by"), com links em caixa alta, um segundo logo e um link
+          de suporte para uma página que não existe. */}
       {currentView !== 'studio' && (
-        <footer className="bg-[var(--bg)] border-t border-[var(--line)] py-6 text-xs text-[var(--ink-lo)]">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex gap-6">
-              <button 
-                onClick={() => { setLegalModalType('terms'); setLegalModalOpen(true); }}
-                className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold cursor-pointer"
-              >
-                TERMOS
-              </button>
-              <button 
-                onClick={() => { setLegalModalType('privacy'); setLegalModalOpen(true); }}
-                className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold cursor-pointer"
-              >
-                PRIVACIDADE
-              </button>
-              <a href="https://pwstreamer.com/support" target="_blank" rel="noreferrer" className="hover:text-[var(--ink-hi)] transition-colors uppercase font-semibold">PwStreamer</a>
-            </div>
-
-            <div className="text-center text-[var(--ink-dim)]">
-              <p>© 2026, All Rights Reserved to <span className="text-[var(--ink-hi)]">PW Stream Online.</span> Developed and Maintained by <span className="text-blue-400">PwStreamer</span></p>
-            </div>
-
-            <div className="shrink-0">
-              <PwStreamLogo showText={false} iconSize={28} />
+        <footer className="border-t border-[var(--line)]">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-6 text-xs text-[var(--ink-lo)] sm:px-6">
+            <p>© {new Date().getFullYear()} PW Stream Online</p>
+            <div className="flex gap-5">
+              <AcaoDeTexto tamanho="xs" onClick={() => { setLegalModalType('terms'); setLegalModalOpen(true); }}>
+                Termos de uso
+              </AcaoDeTexto>
+              <AcaoDeTexto tamanho="xs" onClick={() => { setLegalModalType('privacy'); setLegalModalOpen(true); }}>
+                Privacidade
+              </AcaoDeTexto>
             </div>
           </div>
         </footer>
@@ -3633,7 +3475,8 @@ export default function App() {
       {/* Add Channels / Multi-Platform Transmission Modal */}
       <AddChannelsModal
         isOpen={isAddChannelsModalOpen}
-        onClose={() => setIsAddChannelsModalOpen(false)}
+        onClose={() => { setIsAddChannelsModalOpen(false); setPlataformaDoModalDeCanais(undefined); }}
+        plataformaInicial={plataformaDoModalDeCanais}
         destinations={destinations}
         onAddOrUpdateDestination={handleAddOrUpdateDestination}
         onToggleDestination={handleToggleDestination}

@@ -43,6 +43,11 @@ const stripComments = (text) =>
     .join('\n');
 
 const src = stripComments(readAll(tsx));
+// As primitivas são onde o `<button>` mora de direito. Contá-las fazia a
+// métrica "fora da primitiva" subir a cada primitiva extraída — punia
+// exatamente a migração que ela existe para medir.
+const PASTA_DAS_PRIMITIVAS = path.join(ROOT, 'src', 'components', 'ui') + path.sep;
+const srcForaDasPrimitivas = stripComments(readAll(tsx.filter((f) => !f.startsWith(PASTA_DAS_PRIMITIVAS))));
 // Comentários são removidos antes de medir: a primeira versão contava
 // `!important` escrito em PROSA — inclusive dentro do comentário que explicava
 // por que aquele !important era legítimo. A catraca pegou a si mesma.
@@ -67,12 +72,11 @@ const METRICS = {
     /(?:stroke|fill|stopColor|color|backgroundColor|borderColor)\s*[=:]\s*\{?["']#[0-9A-Fa-f]{6}["']/g
   ),
 
-  // `<button>` cru, fora da primitiva. Cada um reinventa preenchimento, raio
-  // e estados — foi assim que o app chegou a 920 `hover:` contra 48 `active:`
-  // e zero `focus-visible:`. O número só desce conforme migram para <Button>.
-  // Não vai a zero: `ui/Button.tsx` contém o único `<button>` legítimo, e há
-  // controles segmentados e alternadores que não são botões de ação.
-  'botao-cru-fora-da-primitiva': count(src, /<button[\s>]/g),
+  // `<button>` cru, fora das primitivas (src/components/ui). Cada um reinventa
+  // preenchimento, raio e estados — foi assim que o app chegou a 920 `hover:`
+  // contra 48 `active:` e zero `focus-visible:`. O número só desce conforme
+  // migram para <Button>, <AcaoDeTexto>, <BotaoDeIcone> e as demais.
+  'botao-cru-fora-da-primitiva': count(srcForaDasPrimitivas, /<button[\s>]/g),
 
   // Paleta de estoque em papel estrutural — deve ser token semântico.
   'paleta-slate-gray-estrutural': count(

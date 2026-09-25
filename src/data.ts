@@ -1,63 +1,9 @@
 import { Destination, AudioTrack, Banner, Comment, Participant, TickerItem } from './types';
 
-export const INITIAL_DESTINATIONS: Destination[] = [
-  {
-    id: 'dest-1',
-    name: 'YouTube Principal',
-    platform: 'youtube',
-    avatarUrl: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=100&auto=format&fit=crop&q=80',
-    selected: true
-  },
-  {
-    id: 'dest-2',
-    name: 'Facebook Live',
-    platform: 'facebook',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-    selected: true
-  },
-  {
-    id: 'dest-3',
-    name: 'Instagram Oficial',
-    platform: 'instagram',
-    avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80',
-    selected: false
-  },
-  {
-    id: 'dest-4',
-    name: 'TikTok Live',
-    platform: 'tiktok',
-    avatarUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=100&auto=format&fit=crop&q=80',
-    selected: false
-  },
-  {
-    id: 'dest-5',
-    name: 'Twitch Channel',
-    platform: 'twitch',
-    avatarUrl: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100&auto=format&fit=crop&q=80',
-    selected: false
-  },
-  {
-    id: 'dest-6',
-    name: 'Kick Live Stream',
-    platform: 'kick',
-    avatarUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=100&auto=format&fit=crop&q=80',
-    selected: false
-  },
-  {
-    id: 'dest-7',
-    name: 'LinkedIn Broadcast',
-    platform: 'linkedin',
-    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80',
-    selected: false
-  },
-  {
-    id: 'dest-8',
-    name: 'Rumble Oficial',
-    platform: 'rumble',
-    avatarUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=80',
-    selected: false
-  }
-];
+// Começa vazio. Eram quatro canais semeados ("YouTube Principal", "Facebook
+// Live", "Instagram Oficial", "TikTok Live") que todo usuário novo via como
+// seus, sem ter conectado nenhum.
+export const INITIAL_DESTINATIONS: Destination[] = [];
 
 export const AUDIO_LIBRARY: AudioTrack[] = [];
 

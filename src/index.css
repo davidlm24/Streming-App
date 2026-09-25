@@ -105,6 +105,7 @@
      --raise (n-18) por 4,08:1. O portão de contraste pegou — o navegador
      não, porque esse par não chega a coexistir nas telas que amostrei. */
   --ink-dim: var(--color-n-70);
+  --sig-texto: var(--color-sig-lift);  /* ação destrutiva como texto, sobre grafite */
   --ink-lo:  var(--color-n-80);
   --ink:     var(--color-n-89);
   --ink-hi:  var(--color-n-96);
@@ -140,6 +141,7 @@
   /* n-46 reprovava contra --well (3,93:1) e --panel (4,24:1). Um degrau
      abaixo em cada passo resolve e mantém quatro níveis distintos. */
   --ink-dim: var(--color-n-36);
+  --sig-texto: var(--color-sig-deep);  /* ação destrutiva como texto, sobre claro */
   --ink-lo:  var(--color-n-28);
   --ink:     var(--color-n-18);
   --ink-hi:  var(--color-n-6);
@@ -205,6 +207,7 @@
      apontou na direção original — um token declarado "nunca texto essencial"
      e usado como texto essencial. */
   --ink-dim: var(--color-n-58);
+  --sig-texto: var(--color-sig-lift);  /* ação destrutiva como texto, no console */
   --ink-lo:  var(--color-n-70);
   --ink:     var(--color-n-89);
   --ink-hi:  var(--color-n-96);
@@ -339,6 +342,10 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
 }
 
 /* ── barra de rolagem ─────────────────────────────────────────────────── */
+/* Reserva a calha da barra de rolagem em toda página. Sem isso, as telas
+   que rolam (Configurações, Canais) deslocavam cabeçalho e coluna ~6px
+   em relação às que não rolam (Painel) — a casca "pulava" ao navegar. */
+html { scrollbar-gutter: stable; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--surface); }
 ::-webkit-scrollbar-thumb { background: var(--line-ctl); border-radius: 3px; }
@@ -381,7 +388,8 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     padding: 9px 18px;
     border-radius: var(--radius-xl);
-    font-size: 13px; font-weight: 600; line-height: 1.2;
+    /* 14px = text-sm. Era 13px: um tamanho fora da escala em cada botão. */
+    font-size: 14px; font-weight: 600; line-height: 1.2;
     background: var(--color-brand-deep); color: var(--color-n-100);
     border: 1px solid transparent;
     cursor: pointer;
@@ -403,6 +411,10 @@ select option { background-color: var(--surface); color: var(--ink-hi); }
      sem este degrau a migração pararia neles — o de sempre: a primitiva não
      cobre o caso apertado, o caso apertado fica solto, a primitiva não pega. */
   .btn--sm { padding: 5px 11px; font-size: 12px; border-radius: var(--radius-md); gap: 6px; }
+
+  /* A ação da tela. Um por tela, no máximo: o botão de entrar no estúdio no
+     painel. 16px = text-base. */
+  .btn--lg { padding: 13px 24px; font-size: 16px; gap: 10px; }
 
   .btn[disabled] { opacity: 0.45; cursor: not-allowed; filter: none; }
 

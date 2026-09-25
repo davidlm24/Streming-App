@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, Lock, Sparkles, ArrowRight, ShieldCheck, Radio, Server, Copy, CheckCircle2, ChevronRight, AlertCircle, Info, ExternalLink } from 'lucide-react';
 import { Destination } from '../types';
@@ -12,6 +12,8 @@ interface AddChannelsModalProps {
   onToggleDestination: (id: string) => void;
   currentPlan?: 'Standard' | 'Professional' | 'Business' | 'Free Trial';
   onOpenUpgrade?: () => void;
+  /** Abre direto no formulário desta plataforma (ex.: "falta a chave" no painel). */
+  plataformaInicial?: string;
 }
 
 export interface PlatformConfig {
@@ -36,7 +38,8 @@ export function AddChannelsModal({
   onAddOrUpdateDestination,
   onToggleDestination,
   currentPlan = 'Free Trial',
-  onOpenUpgrade
+  onOpenUpgrade,
+  plataformaInicial
 }: AddChannelsModalProps) {
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformConfig | null>(null);
   const [channelName, setChannelName] = useState('');
@@ -212,6 +215,22 @@ export function AddChannelsModal({
     setStreamKey(existing?.streamKey || '');
     setSuccessSaved(false);
   };
+
+  // Aberto já num canal: vai direto para o formulário dele e põe o foco no
+  // primeiro campo vazio. É o "conserta num clique" da linha de canais — antes
+  // o clique abria a grade de plataformas e o usuário recomeçava do zero.
+  useEffect(() => {
+    if (!isOpen || !plataformaInicial) return;
+    const plat = platforms.find((p) => p.id === plataformaInicial);
+    if (!plat) return;
+    handleSelectPlatform(plat);
+    const existente = destinations.find((d) => d.platform === plat.id);
+    const semServidor = !(existente?.streamUrl || plat.defaultRtmpUrl);
+    const campo = semServidor ? 'addchannelsmodal-url-do-servidor-rtmp-rtmps' : 'addchannelsmodal-chave-de-transmissao-stream-key';
+    const t = setTimeout(() => document.getElementById(campo)?.focus(), 150);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, plataformaInicial]);
 
   const handleSaveChannel = () => {
     if (!selectedPlatform) return;
