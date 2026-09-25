@@ -196,6 +196,7 @@ import { useMediaManager } from '../context/MediaManagerContext';
 import { useToast } from './ui/Toast';
 import { copyText } from './ui/clipboard';
 import { Modal } from './ui/Modal';
+import { PlataformaIcone } from './ui/PlataformaIcone';
 
 interface LeftSidebarProps {
   activeTab: StudioTab;
@@ -2062,12 +2063,11 @@ export function LeftSidebar({
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                          <img 
-                            src={dest.avatarUrl} 
-                            alt={dest.name} 
-                            className="w-7 h-7 rounded-full object-cover shrink-0 border border-[var(--line-ctl)]"
-                            referrerPolicy="no-referrer"
-                          />
+                          {/* Era a foto de banco de imagens gravada no canal
+                              como "avatar"; a plataforma diz mais. */}
+                          <span className="flex w-7 h-7 shrink-0 items-center justify-center rounded-full border border-[var(--line-ctl)] text-[var(--ink-lo)]">
+                            <PlataformaIcone plataforma={dest.platform} size={14} />
+                          </span>
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
                               <p className={`text-xs font-bold truncate ${dest.selected ? 'text-[var(--ink-hi)]' : 'text-[var(--ink)]'}`}>

@@ -12,17 +12,42 @@ export function estadoDoCanal(canal: Destination): EstadoDoCanal {
   return pendenciaDoCanal(canal) ? 'incompleto' : 'pronto';
 }
 
-/** O que falta para o canal receber a live — ou `null` quando nada falta. */
+/**
+ * O canal cabe ligado? O plano limita quantos transmitem ao mesmo tempo
+ * (`destinosSimultaneos` em plans.ts). Conta os OUTROS ligados, não o próprio
+ * canal: editar um canal que já está ligado nunca estoura o limite. Desligar
+ * é sempre permitido — a regra só é consultada para ligar. `id` indefinido é
+ * um canal novo.
+ *
+ * Uma regra só para as quatro portas: o interruptor de Canais, a lista do
+ * estúdio, o modal de canais e o modal de RTMP do estúdio. Antes só o modal
+ * de canais conferia, e as outras três ligavam além do plano.
+ */
+export function cabeLigado(canais: Destination[], id: string | undefined, limite: number): boolean {
+  return canais.filter((c) => c.selected && c.id !== id).length < limite;
+}
+
+/**
+ * O que falta para o canal receber a live — ou `null` quando nada falta.
+ * Faltando os dois, diz os dois: dizer só "servidor" mandava a pessoa
+ * consertar um e tropeçar no outro ao salvar.
+ */
 export function pendenciaDoCanal(canal: Destination): string | null {
-  if (!canal.streamUrl?.trim()) return 'Falta o servidor';
-  if (!canal.streamKey?.trim()) return 'Falta a chave';
+  const semServidor = !canal.streamUrl?.trim();
+  const semChave = !canal.streamKey?.trim();
+  if (semServidor && semChave) return 'Falta o servidor e a chave';
+  if (semServidor) return 'Falta o servidor';
+  if (semChave) return 'Falta a chave';
   return null;
 }
 
 /** A pendência em forma curta, para caber num chip ("sem chave"). */
 export function pendenciaCurta(canal: Destination): string | null {
-  if (!canal.streamUrl?.trim()) return 'sem servidor';
-  if (!canal.streamKey?.trim()) return 'sem chave';
+  const semServidor = !canal.streamUrl?.trim();
+  const semChave = !canal.streamKey?.trim();
+  if (semServidor && semChave) return 'sem servidor nem chave';
+  if (semServidor) return 'sem servidor';
+  if (semChave) return 'sem chave';
   return null;
 }
 
@@ -40,11 +65,11 @@ const NOMES: Record<string, string> = {
   cloudflare: 'Cloudflare Stream',
   nginx: 'Servidor NGINX',
   srs: 'Servidor SRS',
-  custom: 'RTMP personalizado',
+  custom: 'Servidor RTMP próprio',
 };
 
 export function nomeDaPlataforma(plataforma: string): string {
-  return NOMES[plataforma] ?? 'RTMP personalizado';
+  return NOMES[plataforma] ?? 'Servidor RTMP próprio';
 }
 
 /**

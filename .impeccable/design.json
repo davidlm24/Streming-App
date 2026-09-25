@@ -1,63 +1,302 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-25T12:00:00Z",
+  "generatedAt": "2026-09-25T18:00:00Z",
   "title": "Design System: PwStreamer",
   "extensions": {
     "colorMeta": {
-      "brand-deep": { "role": "primary", "displayName": "Azul da Marca Profundo", "canonical": "#2C5FB0", "tonalRamp": ["#0E1F3B", "#16305B", "#1F437F", "#2C5FB0", "#4683E0", "#7FAAEC", "#B3CCF4", "#E1EBFB"] },
-      "brand": { "role": "primary", "displayName": "Azul da Marca", "canonical": "#4683E0", "tonalRamp": ["#0E1F3B", "#16305B", "#1F437F", "#2C5FB0", "#4683E0", "#7FAAEC", "#B3CCF4", "#E1EBFB"] },
-      "brand-lift": { "role": "primary", "displayName": "Azul do Foco", "canonical": "#7FAAEC", "tonalRamp": ["#0E1F3B", "#16305B", "#1F437F", "#2C5FB0", "#4683E0", "#7FAAEC", "#B3CCF4", "#E1EBFB"] },
-      "tally": { "role": "secondary", "displayName": "Carmim do Tally", "canonical": "#D91F2D", "tonalRamp": ["#3A080C", "#6B0F16", "#A81622", "#D91F2D", "#E8434E", "#F4666A", "#F9A5A7", "#FDE2E3"] },
-      "tally-deep": { "role": "secondary", "displayName": "Carmim como texto no claro", "canonical": "#A81622" },
-      "tally-lift": { "role": "secondary", "displayName": "Carmim como texto no escuro", "canonical": "#F4666A" },
-      "brand-grad-from": { "role": "tertiary", "displayName": "Gradiente da Marca: azul", "canonical": "#4683E0" },
-      "brand-grad-mid": { "role": "tertiary", "displayName": "Gradiente da Marca: violeta isoluminante", "canonical": "#9669F2" },
-      "brand-grad-to": { "role": "tertiary", "displayName": "Gradiente da Marca: rosa", "canonical": "#EC407A" },
-      "navy-6": { "role": "neutral", "displayName": "Marinho Noite (fundo, escuro)", "canonical": "#111315", "tonalRamp": ["#000000", "#0A0B0C", "#111315", "#181B1F", "#202429", "#282D31", "#30363B", "#3C4349", "#4E565E", "#656E77", "#838C96", "#A2ACB7", "#BEC7D1", "#D9E1EA", "#E3E9F0", "#F0F5F9", "#FAFCFF", "#FFFFFF"] },
-      "navy-22": { "role": "neutral", "displayName": "Linha (escuro)", "canonical": "#30363B" },
-      "navy-96": { "role": "neutral", "displayName": "Tinta Alta (escuro)", "canonical": "#F0F5F9" },
-      "navy-80": { "role": "neutral", "displayName": "Tinta Baixa (escuro)", "canonical": "#BEC7D1" }
+      "brand-deep": {
+        "role": "primary",
+        "displayName": "Azul da Marca Profundo",
+        "canonical": "#2C5FB0",
+        "tonalRamp": [
+          "#0E1F3B",
+          "#16305B",
+          "#1F437F",
+          "#2C5FB0",
+          "#4683E0",
+          "#7FAAEC",
+          "#B3CCF4",
+          "#E1EBFB"
+        ]
+      },
+      "brand": {
+        "role": "primary",
+        "displayName": "Azul da Marca",
+        "canonical": "#4683E0",
+        "tonalRamp": [
+          "#0E1F3B",
+          "#16305B",
+          "#1F437F",
+          "#2C5FB0",
+          "#4683E0",
+          "#7FAAEC",
+          "#B3CCF4",
+          "#E1EBFB"
+        ]
+      },
+      "brand-lift": {
+        "role": "primary",
+        "displayName": "Azul do Foco",
+        "canonical": "#7FAAEC",
+        "tonalRamp": [
+          "#0E1F3B",
+          "#16305B",
+          "#1F437F",
+          "#2C5FB0",
+          "#4683E0",
+          "#7FAAEC",
+          "#B3CCF4",
+          "#E1EBFB"
+        ]
+      },
+      "tally": {
+        "role": "secondary",
+        "displayName": "Carmim do Tally",
+        "canonical": "#D91F2D",
+        "tonalRamp": [
+          "#3A080C",
+          "#6B0F16",
+          "#A81622",
+          "#D91F2D",
+          "#E8434E",
+          "#F4666A",
+          "#F9A5A7",
+          "#FDE2E3"
+        ]
+      },
+      "tally-deep": {
+        "role": "secondary",
+        "displayName": "Carmim como texto no claro",
+        "canonical": "#A81622"
+      },
+      "tally-lift": {
+        "role": "secondary",
+        "displayName": "Carmim como texto no escuro",
+        "canonical": "#F4666A"
+      },
+      "brand-grad-from": {
+        "role": "tertiary",
+        "displayName": "Gradiente da Marca: azul",
+        "canonical": "#4683E0"
+      },
+      "brand-grad-mid": {
+        "role": "tertiary",
+        "displayName": "Gradiente da Marca: violeta isoluminante",
+        "canonical": "#9669F2"
+      },
+      "brand-grad-to": {
+        "role": "tertiary",
+        "displayName": "Gradiente da Marca: rosa",
+        "canonical": "#EC407A"
+      },
+      "navy-6": {
+        "role": "neutral",
+        "displayName": "Marinho Noite (fundo, escuro)",
+        "canonical": "#111315",
+        "tonalRamp": [
+          "#000000",
+          "#0A0B0C",
+          "#111315",
+          "#181B1F",
+          "#202429",
+          "#282D31",
+          "#30363B",
+          "#3C4349",
+          "#4E565E",
+          "#656E77",
+          "#838C96",
+          "#A2ACB7",
+          "#BEC7D1",
+          "#D9E1EA",
+          "#E3E9F0",
+          "#F0F5F9",
+          "#FAFCFF",
+          "#FFFFFF"
+        ]
+      },
+      "navy-22": {
+        "role": "neutral",
+        "displayName": "Linha (escuro)",
+        "canonical": "#30363B"
+      },
+      "navy-96": {
+        "role": "neutral",
+        "displayName": "Tinta Alta (escuro)",
+        "canonical": "#F0F5F9"
+      },
+      "navy-80": {
+        "role": "neutral",
+        "displayName": "Tinta Baixa (escuro)",
+        "canonical": "#BEC7D1"
+      }
     },
     "semanticRoles": {
       "note": "Papéis que trocam por escopo; valores são primitivas navy-*.",
-      "dark": { "well": "navy-3", "bg": "navy-6", "surface": "navy-10", "panel": "navy-14", "raise": "navy-18", "line": "navy-22", "line-ctl": "navy-28", "ink-dim": "navy-70", "ink-lo": "navy-80", "ink": "navy-89", "ink-hi": "navy-96", "sig-texto": "tally-lift", "stage": "navy-0" },
-      "light": { "well": "navy-89", "bg": "navy-96", "surface": "navy-99", "panel": "navy-92", "raise": "navy-100", "line": "navy-80", "line-ctl": "navy-70", "ink-dim": "navy-36", "ink-lo": "navy-28", "ink": "navy-18", "ink-hi": "navy-6", "sig-texto": "tally-deep", "stage": "navy-0" },
-      "console": { "well": "navy-0", "bg": "navy-3", "surface": "navy-6", "panel": "navy-10", "raise": "navy-14", "line": "navy-18", "line-ctl": "navy-28", "ink-dim": "navy-58", "ink-lo": "navy-70", "ink": "navy-89", "ink-hi": "navy-96", "sig-texto": "tally-lift", "stage": "navy-0" }
+      "dark": {
+        "well": "navy-3",
+        "bg": "navy-6",
+        "surface": "navy-10",
+        "panel": "navy-14",
+        "raise": "navy-18",
+        "line": "navy-22",
+        "line-ctl": "navy-28",
+        "ink-dim": "navy-70",
+        "ink-lo": "navy-80",
+        "ink": "navy-89",
+        "ink-hi": "navy-96",
+        "sig-texto": "tally-lift",
+        "stage": "navy-0"
+      },
+      "light": {
+        "well": "navy-89",
+        "bg": "navy-96",
+        "surface": "navy-99",
+        "panel": "navy-92",
+        "raise": "navy-100",
+        "line": "navy-80",
+        "line-ctl": "navy-70",
+        "ink-dim": "navy-36",
+        "ink-lo": "navy-28",
+        "ink": "navy-18",
+        "ink-hi": "navy-6",
+        "sig-texto": "tally-deep",
+        "stage": "navy-0"
+      },
+      "console": {
+        "well": "navy-0",
+        "bg": "navy-3",
+        "surface": "navy-6",
+        "panel": "navy-10",
+        "raise": "navy-14",
+        "line": "navy-18",
+        "line-ctl": "navy-28",
+        "ink-dim": "navy-58",
+        "ink-lo": "navy-70",
+        "ink": "navy-89",
+        "ink-hi": "navy-96",
+        "sig-texto": "tally-lift",
+        "stage": "navy-0"
+      }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display (text-3xl)", "purpose": "Uma por tela: h1 da página ou título da próxima live no Painel." },
-      "title": { "displayName": "Título de seção (text-base)", "purpose": "h2 das seções abertas por linha." },
-      "body": { "displayName": "Corpo (text-sm)", "purpose": "Descrições, rótulos de chip, ações de texto." },
-      "body-strong": { "displayName": "Nome (text-sm 500)", "purpose": "Nome de item em linha de lista." },
-      "label": { "displayName": "Metadado (text-xs)", "purpose": "Linha abaixo do nome, rodapé, aviso de teste." },
-      "button": { "displayName": "Rótulo de botão", "purpose": "14px/600 em .btn; 16px no lg, 12px no sm." },
-      "measure": { "displayName": "Medida (mono tabular)", "purpose": "Só a hora e outras medidas; nunca rótulo." }
+      "display": {
+        "displayName": "Display (text-3xl)",
+        "purpose": "Uma por tela: h1 da página ou título da próxima live no Painel."
+      },
+      "title": {
+        "displayName": "Título de seção (text-base)",
+        "purpose": "h2 das seções abertas por linha."
+      },
+      "body": {
+        "displayName": "Corpo (text-sm)",
+        "purpose": "Descrições, rótulos de chip, ações de texto."
+      },
+      "body-strong": {
+        "displayName": "Nome (text-sm 500)",
+        "purpose": "Nome de item em linha de lista."
+      },
+      "label": {
+        "displayName": "Metadado (text-xs)",
+        "purpose": "Linha abaixo do nome, rodapé, aviso de teste."
+      },
+      "button": {
+        "displayName": "Rótulo de botão",
+        "purpose": "14px/600 em .btn; 16px no lg, 12px no sm."
+      },
+      "measure": {
+        "displayName": "Medida (mono tabular)",
+        "purpose": "Só a hora e outras medidas; nunca rótulo."
+      }
     },
     "shadows": [
-      { "name": "menu", "value": "0 8px 24px -8px rgb(0 0 0 / 0.45)", "purpose": "Popover do Menu (⋯ e conta)." },
-      { "name": "overlay", "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)", "purpose": "Modal, ConfirmDialog e Toast (shadow-2xl)." }
+      {
+        "name": "menu",
+        "value": "0 8px 24px -8px rgb(0 0 0 / 0.45)",
+        "purpose": "Popover do Menu (⋯ e conta)."
+      },
+      {
+        "name": "overlay",
+        "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+        "purpose": "Modal, ConfirmDialog e Toast (shadow-2xl)."
+      }
     ],
     "motion": [
-      { "name": "btn-feedback", "value": "filter 110ms linear, background-color 110ms linear", "purpose": "Hover brightness(1.1) e active brightness(0.93) do .btn." },
-      { "name": "state-color", "value": "150ms", "purpose": "Troca de cor/fundo em hover de ações, chips, navegação, switch." },
-      { "name": "chevron", "value": "200ms ease-out", "purpose": "Chevron da LinhaDeAcao: desloca 2px (avancar) ou gira 180° (expandir)." },
-      { "name": "chip-enter", "value": "300ms cubic-bezier(0.16, 1, 0.3, 1); fade + translateX(-0.5rem)", "purpose": "O único movimento de entrada da casca: chip de canal recém-conectado, uma vez, motion-safe." },
-      { "name": "ease-enter", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Entradas (.animate-in, 200ms padrão)." },
-      { "name": "ease-exit", "value": "cubic-bezier(0.4, 0, 1, 1)", "purpose": "Saídas (.animate-out, 150ms padrão)." }
+      {
+        "name": "btn-feedback",
+        "value": "filter 110ms linear, background-color 110ms linear",
+        "purpose": "Hover brightness(1.1) e active brightness(0.93) do .btn."
+      },
+      {
+        "name": "state-color",
+        "value": "150ms",
+        "purpose": "Troca de cor/fundo em hover de ações, chips, navegação, switch."
+      },
+      {
+        "name": "chevron",
+        "value": "200ms ease-out",
+        "purpose": "Chevron da LinhaDeAcao: desloca 2px (avancar) ou gira 180° (expandir)."
+      },
+      {
+        "name": "chip-enter",
+        "value": "300ms cubic-bezier(0.16, 1, 0.3, 1); fade + translateX(-0.5rem)",
+        "purpose": "O único movimento de entrada no conteúdo da casca: chip de canal recém-conectado, uma vez, motion-safe."
+      },
+      {
+        "name": "modal-enter",
+        "value": "scrim: fade 150ms; painel: fade + zoom-in-95 200ms",
+        "purpose": "Entrada da primitiva Modal. Nenhum diálogo acrescenta entrada própria; o modal de canais não acrescenta."
+      },
+      {
+        "name": "ease-enter",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Entradas (.animate-in, 200ms padrão)."
+      },
+      {
+        "name": "ease-exit",
+        "value": "cubic-bezier(0.4, 0, 1, 1)",
+        "purpose": "Saídas (.animate-out, 150ms padrão)."
+      }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" }
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
     ],
     "zIndex": [
-      { "name": "sticky", "value": "20" },
-      { "name": "dropdown", "value": "40" },
-      { "name": "scrim", "value": "60" },
-      { "name": "modal", "value": "70" },
-      { "name": "toast", "value": "80" }
+      {
+        "name": "sticky",
+        "value": "20"
+      },
+      {
+        "name": "dropdown",
+        "value": "40"
+      },
+      {
+        "name": "scrim",
+        "value": "60"
+      },
+      {
+        "name": "modal",
+        "value": "70"
+      },
+      {
+        "name": "toast",
+        "value": "80"
+      }
     ],
-    "focus": { "value": "outline: 2px solid var(--color-brand-lift); outline-offset: 2px; border-radius: 4px", "purpose": "Anel global de :focus-visible." },
+    "focus": {
+      "value": "outline: 2px solid var(--color-brand-lift); outline-offset: 2px; border-radius: 4px",
+      "purpose": "Anel global de :focus-visible."
+    },
     "enforcement": [
       "npm run verify",
       "scripts/contrast-gate.mjs (WCAG AA, escuro/claro/console)",
@@ -65,7 +304,49 @@
       "scripts/icon-buttons.cjs",
       "scripts/form-labels.cjs",
       ".github/workflows/design-system.yml"
-    ]
+    ],
+    "fieldError": {
+      "border": "input/textarea/select[aria-invalid=\"true\"] { border-color: var(--ink-hi) } (index.css, global)",
+      "message": "CircleAlert 14px + frase text-xs em --ink-hi, 8px abaixo do campo, ligada por aria-describedby",
+      "purpose": "Erro de campo sem carmim."
+    },
+    "planLimits": {
+      "source": "src/lib/plans.ts",
+      "destinosSimultaneos": {
+        "Free Trial": 2,
+        "Standard": 3,
+        "Professional": 5,
+        "Business": 8
+      },
+      "rtmpProprio": "Standard e acima",
+      "rule": "Canal novo além do limite é salvo desligado e a tela diz por quê."
+    },
+    "pendencyVocabulary": {
+      "source": "src/lib/canais.ts",
+      "curta": [
+        "sem servidor nem chave",
+        "sem servidor",
+        "sem chave"
+      ],
+      "longa": [
+        "Falta o servidor e a chave",
+        "Falta o servidor",
+        "Falta a chave"
+      ],
+      "custom": "Servidor RTMP próprio"
+    },
+    "platformIcons": {
+      "youtube": "Lucide Youtube",
+      "facebook": "Lucide Facebook",
+      "instagram": "Lucide Instagram",
+      "linkedin": "Lucide Linkedin",
+      "twitch": "Lucide Twitch",
+      "tiktok": "Lucide Music2",
+      "rumble": "Lucide CirclePlay",
+      "kick": "K desenhado: M7 4v16 + M17 4 9.5 12l7.5 8, traço 1,75, currentColor",
+      "rtmp": "Lucide Server",
+      "stroke": 1.75
+    }
   },
   "components": [
     {
@@ -99,6 +380,22 @@
       "description": "Canal com estado por ícone + palavra; pendência na tinta do nome.",
       "html": "<button class=\"ds-chip\" aria-label=\"Facebook Live: sem servidor\"><svg class=\"ds-chip-ico\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" aria-hidden=\"true\"><path d=\"M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z\"/></svg><span>Facebook Live</span><span class=\"ds-chip-state\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg>sem servidor</span></button>",
       "css": ".ds-chip { display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 10px; border-radius: 9999px; border: 1px solid var(--line-ctl, #3C4349); background: transparent; color: var(--ink-hi, #F0F5F9); font-family: Poppins, system-ui, sans-serif; font-size: 14px; cursor: pointer; transition: background-color 150ms; } .ds-chip-ico { color: var(--ink-lo, #BEC7D1); } .ds-chip-state { display: inline-flex; align-items: center; gap: 4px; margin-left: 2px; } .ds-chip:hover { background: var(--raise, #282D31); } .ds-chip:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Campo com erro",
+      "kind": "input",
+      "refersTo": "input-invalid",
+      "description": "Campo de 44px; erro por ícone + frase em tinta alta e borda em --ink-hi. Nunca carmim.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field-l\" for=\"ds-chave\">Chave de transmissão</label><input id=\"ds-chave\" class=\"ds-input\" type=\"password\" placeholder=\"Cole aqui a chave de transmissão\" aria-invalid=\"true\" aria-describedby=\"ds-chave-erro\"><p id=\"ds-chave-erro\" class=\"ds-field-err\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>Falta a chave. Sem ela o canal não recebe a live.</span></p></div>",
+      "css": ".ds-field { font-family: Poppins, system-ui, sans-serif; max-width: 420px; } .ds-field-l { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-input { display: block; width: 100%; height: 44px; margin-top: 8px; padding: 0 12px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--well, #0A0B0C); color: var(--ink-hi, #F0F5F9); font: inherit; font-size: 14px; } .ds-input::placeholder { color: var(--ink-dim, #A2ACB7); } .ds-input:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-input[aria-invalid=\"true\"] { border-color: var(--ink-hi, #F0F5F9); } .ds-field-err { display: flex; align-items: flex-start; gap: 6px; margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--ink-hi, #F0F5F9); } .ds-field-err svg { flex-shrink: 0; margin-top: 1px; }"
+    },
+    {
+      "name": "Lista mestre (modal de canais)",
+      "kind": "custom",
+      "refersTo": "master-row",
+      "description": "Tablist vertical de 15rem: uma linha de 56px por plataforma com ícone, nome e palavra de estado; escolhida em --raise.",
+      "html": "<div class=\"ds-master\" role=\"tablist\" aria-orientation=\"vertical\" aria-label=\"Plataformas\"><button class=\"ds-mrow\" role=\"tab\" aria-selected=\"false\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17\"/><path d=\"m10 15 5-3-5-3z\"/></svg><span class=\"ds-mrow-t\"><span class=\"ds-mrow-n\">YouTube</span><span class=\"ds-mrow-s\">Pronto</span></span></button><button class=\"ds-mrow\" role=\"tab\" aria-selected=\"true\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 4v16\"/><path d=\"M17 4 9.5 12l7.5 8\"/></svg><span class=\"ds-mrow-t\"><span class=\"ds-mrow-n\">Kick</span><span class=\"ds-mrow-s ds-hi\">Sem servidor nem chave</span></span></button><button class=\"ds-mrow\" role=\"tab\" aria-selected=\"false\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m10 8 6 4-6 4z\"/></svg><span class=\"ds-mrow-t\"><span class=\"ds-mrow-n\">Rumble</span><span class=\"ds-mrow-s\">Não conectado</span></span></button></div>",
+      "css": ".ds-master { display: flex; flex-direction: column; gap: 2px; width: 240px; padding-right: 16px; border-right: 1px solid var(--line, #30363B); font-family: Poppins, system-ui, sans-serif; } .ds-mrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 12px; border: 0; border-radius: 16px; background: transparent; text-align: left; cursor: pointer; color: var(--ink-lo, #BEC7D1); transition: background-color 150ms; } .ds-mrow:hover { background: var(--panel, #202429); } .ds-mrow[aria-selected=\"true\"] { background: var(--raise, #282D31); } .ds-mrow:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-mrow svg { flex-shrink: 0; } .ds-mrow-t { min-width: 0; flex: 1; } .ds-mrow-n { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-mrow-s { display: block; margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); } .ds-mrow-s.ds-hi { color: var(--ink-hi, #F0F5F9); }"
     },
     {
       "name": "Switch",
@@ -146,22 +443,59 @@
     "overview": "A casca do PwStreamer (tudo fora do estúdio) existe para levar o anfitrião ao ar. Cada tela tem uma ação, e o resto é estado. No Painel, essa ação é \"Entrar no estúdio\". A tela diz o que vem a seguir, para onde a live vai e o que falta consertar. Não mostra indicadores, cartões nem nada do que o produto sabe fazer sem que a tarefa do momento peça. É uma coluna estreita sobre uma rampa azul-marinho de 18 degraus, em Poppins e em quatro tamanhos. A estrutura é feita de linhas de 1px.\n\nA cor é escassa de propósito. O azul da marca preenche só o botão da ação da tela, e o vermelho do tally pertence ao ar (e, como texto, às ações que apagam algo). Todo o resto, inclusive os estados \"ligado\", \"selecionado\" e \"atual\", sobe ou desce na rampa neutra. O estado é dito por ícone e palavra, e não por matiz. A rampa foi gerada com luminância casada contra o cinza neutro, e por isso o marinho não custa contraste.\n\nA densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo ([data-surface=\"console\"]), escuro sempre, mesmo no tema claro, porque o operador se adapta à luminância do entorno do vídeo e ela não pode mudar no meio de uma live.",
     "keyCharacteristics": [
       "Uma ação colorida por tela; o resto em tinta neutra.",
-      "Vermelho = ar. Não entra em gráfico, em alerta nem em decoração.",
+      "Vermelho = ar. Não entra em gráfico, em alerta, em erro de campo nem em decoração.",
       "Linhas de 1px (--line) separam seções e linhas de lista; sem cartões na casca.",
       "Poppins em text-xs, text-sm, text-base e text-3xl; mono tabular só para medidas.",
       "Estado por ícone + texto, sempre com o nome acessível completo.",
       "Três escopos de tema sobre as mesmas primitivas: escuro (padrão), claro e console.",
-      "Um único momento de movimento: o chip de um canal recém-conectado entra deslizando uma vez."
+      "Um único momento de movimento na página: o chip de um canal recém-conectado entra deslizando uma vez. Diálogos entram só pela primitiva Modal."
     ],
     "rules": [
-      { "name": "Regra da Voz Única", "body": "Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (--ink-hi, --raise), nunca pelo azul. Switch ligado é tinta cheia; segmento ativo sobe um degrau; destino atual ganha um traço de 2px em --ink-hi.", "section": "colors" },
-      { "name": "Regra do Ar", "body": "O carmim é o sinal de \"no ar\". Fora do ar, aparece só onde algo é apagado ou encerrado. Não entra em pendência, em aviso, em gráfico nem em ícone de marca. Uma pendência de canal (\"sem chave\") fica na tinta do nome, com ícone de alerta.", "section": "colors" },
-      { "name": "Regra da Marca Monocromática", "body": "Ícones de plataforma (YouTube, Twitch…) são Lucide em currentColor, traço 1,75, nunca nas cores do dono da marca.", "section": "colors" },
-      { "name": "Regra dos Quatro Tamanhos", "body": "A casca usa text-xs, text-sm, text-base e text-3xl, e nada mais. Tamanho em px avulso (text-[13px]) é dívida contada pela catraca (tamanho-de-fonte-avulso).", "section": "typography" },
-      { "name": "Regra do Mono como Medida", "body": "Mono aparece só em medidas (hora, e no estúdio bitrate e contadores), sempre com tabular-nums. Nunca como rótulo, sobretítulo ou enfeite.", "section": "typography" },
-      { "name": "Regra da Caixa Normal", "body": "Rótulos, links e ações ficam em caixa normal de frase. Caixa alta com espaçamento largo não é voz do sistema.", "section": "typography" },
-      { "name": "Regra da Linha, Não do Cartão", "body": "Estrutura é uma linha de 1px em --line. Seção, lista e rodapé são separados por borda; nenhum bloco da casca tem fundo próprio para se destacar. Se parece precisar de um cartão, precisa de uma seção.", "section": "elevation" },
-      { "name": "Regra do Chão Plano", "body": "Nada em repouso na página tem sombra. Sombra só em camada que flutua (menu, diálogo, aviso).", "section": "elevation" }
+      {
+        "name": "Regra da Voz Única",
+        "body": "Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (--ink-hi, --raise), nunca pelo azul. Switch ligado é tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em --ink-hi.",
+        "section": "colors"
+      },
+      {
+        "name": "Regra do Ar",
+        "body": "O carmim é o sinal de \"no ar\". Fora do ar, aparece só onde algo é apagado ou encerrado. Não entra em pendência, em aviso, em erro de campo, em gráfico nem em ícone de marca. Uma pendência de canal (\"sem chave\") fica na tinta do nome, com ícone de alerta.",
+        "section": "colors"
+      },
+      {
+        "name": "Regra do Erro em Tinta Alta",
+        "body": "O que precisa de atenção (pendência, erro de campo, texto não salvo) sobe para --ink-hi e ganha um ícone; o que está em ordem fica em --ink-lo. A diferença é de degrau na rampa, nunca de matiz.",
+        "section": "colors"
+      },
+      {
+        "name": "Regra da Marca Monocromática",
+        "body": "Ícones de plataforma (YouTube, Twitch…) ficam em currentColor, traço 1,75, nunca nas cores do dono da marca. Vêm do Lucide; onde o Lucide não tem a marca, o ícone é desenhado no mesmo traço (o K do Kick).",
+        "section": "colors"
+      },
+      {
+        "name": "Regra dos Quatro Tamanhos",
+        "body": "A casca usa text-xs, text-sm, text-base e text-3xl, e nada mais. Tamanho em px avulso (text-[13px]) é dívida contada pela catraca (tamanho-de-fonte-avulso).",
+        "section": "typography"
+      },
+      {
+        "name": "Regra do Mono como Medida",
+        "body": "Mono aparece só em medidas (hora, e no estúdio bitrate e contadores), sempre com tabular-nums. Nunca como rótulo, sobretítulo ou enfeite.",
+        "section": "typography"
+      },
+      {
+        "name": "Regra da Caixa Normal",
+        "body": "Rótulos, links e ações ficam em caixa normal de frase. Caixa alta com espaçamento largo não é voz do sistema.",
+        "section": "typography"
+      },
+      {
+        "name": "Regra da Linha, Não do Cartão",
+        "body": "Estrutura é uma linha de 1px em --line. Seção, lista e rodapé são separados por borda; nenhum bloco da casca tem fundo próprio para se destacar. Se parece precisar de um cartão, precisa de uma seção.",
+        "section": "elevation"
+      },
+      {
+        "name": "Regra do Chão Plano",
+        "body": "Nada em repouso na página tem sombra. Sombra só em camada que flutua (menu, diálogo, aviso).",
+        "section": "elevation"
+      }
     ],
     "dos": [
       "Do usar os papéis semânticos (var(--bg), var(--ink-lo), var(--line)) e nunca as primitivas navy-* nem hexadecimais em componentes. Hex cru só nos blocos de token do index.css (o stylelint cobra).",
@@ -171,17 +505,23 @@
       "Do pôr horas e outras medidas em font-mono tabular-nums, e só a medida, não a frase.",
       "Do usar <BotaoDeIcone rotulo=\"…\"> (44px) para qualquer botão só-ícone.",
       "Do dizer \"nenhum…\" em texto quando não há dado, sem número inventado, e mostrar esqueleto aria-busy enquanto nada chegou.",
+      "Do marcar erro de campo com aria-invalid + aria-describedby e a frase com CircleAlert em --ink-hi; a borda sobe sozinha pela regra global.",
+      "Do ler limites e disponibilidade por plano de src/lib/plans.ts, e pendências e nomes de plataforma de src/lib/canais.ts.",
+      "Do abrir o modal de canais por id (editarCanal(id)) quando a origem é um canal, e nunca pela plataforma.",
+      "Do levar links para fora do app por <AcaoDeTexto href>, que abre em outra aba e avisa o leitor de tela.",
       "Do checar todo par novo de texto/superfície nos três escopos: npm run verify roda tipos, stylelint, o portão de contraste (WCAG AA em escuro, claro e console), a catraca de dívida, os botões só-ícone e os rótulos de formulário. O mesmo roda no CI (.github/workflows/design-system.yml)."
     ],
     "donts": [
       "Don't usar o azul da marca em estado, seleção, link, ícone ou destaque; ele é do botão da ação da tela.",
-      "Don't usar o carmim fora do ar e das ações que apagam ou encerram: nada de vermelho em pendência, aviso, gráfico ou decoração.",
+      "Don't usar o carmim fora do ar e das ações que apagam ou encerram: nada de vermelho em pendência, aviso, erro de campo, gráfico ou decoração.",
       "Don't montar a casca com cartões de indicador, fundos de bloco ou sombras em repouso.",
       "Don't usar tamanho de fonte em px avulso nem um quinto tamanho na casca; a catraca tamanho-de-fonte-avulso só pode descer.",
       "Don't pôr mais de uma ação visível por linha de lista; o resto vai para o \"⋯\".",
-      "Don't colorir ícones de plataforma com as cores das marcas.",
+      "Don't colorir ícones de plataforma com as cores das marcas, nem dar o mesmo ícone a duas plataformas.",
       "Don't usar borda tracejada para nada além de \"adicionar\".",
       "Don't fazer o tema claro alcançar o estúdio: o escopo console é invariante.",
+      "Don't fazer o título de um diálogo seguir a seleção interna; o verbo vai no botão.",
+      "Don't descartar texto digitado ao trocar de plataforma ou ao salvar outra.",
       "Don't subir número nenhum de scripts/design-debt-baseline.json. A catraca deixa a dívida cair e nunca crescer sem um --update visível na revisão."
     ]
   }

@@ -27,7 +27,8 @@ interface Toast {
 interface ToastApi {
   success: (title: string, detail?: string) => void;
   error: (title: string, detail?: string, action?: Toast['action']) => void;
-  info: (title: string, detail?: string) => void;
+  /** Com `action`, o aviso leva ao próximo passo (ex.: "Ver planos"). */
+  info: (title: string, detail?: string, action?: Toast['action']) => void;
 }
 
 const ToastContext = createContext<ToastApi | null>(null);
@@ -82,7 +83,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const api = useMemo<ToastApi>(() => ({
     success: (t, d) => push('success', t, d),
     error: (t, d, a) => push('error', t, d, a),
-    info: (t, d) => push('info', t, d),
+    info: (t, d, a) => push('info', t, d, a),
   }), [push]);
 
   return (

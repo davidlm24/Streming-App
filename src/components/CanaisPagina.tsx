@@ -12,8 +12,12 @@ interface CanaisPaginaProps {
   canais: Destination[];
   /** Sem argumento, conecta um canal novo; com a plataforma, abre direto nela. */
   onConectarCanal: (plataforma?: string) => void;
+  /** Abre o modal neste canal — pelo id, que vale também para servidores RTMP. */
+  onEditarCanal: (id: string) => void;
   onAlternarCanal: (id: string) => void;
   onRemoverCanal: (id: string) => void;
+  /** Canais ligados ao mesmo tempo que o plano permite. */
+  limiteDeLigados: number;
 }
 
 /**
@@ -21,8 +25,15 @@ interface CanaisPaginaProps {
  * canais apareciam como contador no cabeçalho ("Adicionar canais 2") e
  * como lista dentro do estúdio, e não havia como remover um.
  */
-export function CanaisPagina({ canais, onConectarCanal, onAlternarCanal, onRemoverCanal }: CanaisPaginaProps) {
+export function CanaisPagina({ canais, onConectarCanal, onEditarCanal, onAlternarCanal, onRemoverCanal, limiteDeLigados }: CanaisPaginaProps) {
   const confirmar = useConfirm();
+  const ligados = canais.filter((c) => c.selected).length;
+  // O limite dito antes de alguém esbarrar nele. Acima dele (plano que mudou,
+  // dado antigo), diz quantos desligar — nada é desligado sem a pessoa.
+  const sobreOLimite =
+    ligados > limiteDeLigados
+      ? `No seu plano, até ${limiteDeLigados} ao mesmo tempo, e ${ligados} estão ligados: desligue ${ligados - limiteDeLigados}.`
+      : `No seu plano, até ${limiteDeLigados} ao mesmo tempo.`;
 
   const removerComConfirmacao = async (canal: Destination) => {
     const ok = await confirmar({
@@ -38,7 +49,7 @@ export function CanaisPagina({ canais, onConectarCanal, onAlternarCanal, onRemov
     <Pagina>
       <CabecalhoDePagina
         titulo="Canais"
-        descricao="Os canais ligados recebem a transmissão quando você entra no ar."
+        descricao={`Os canais ligados recebem a transmissão quando você entra no ar. ${sobreOLimite}`}
         acao={
           <Button onClick={() => onConectarCanal()} icon={<Plus size={16} aria-hidden="true" />}>
             Conectar canal
@@ -64,12 +75,15 @@ export function CanaisPagina({ canais, onConectarCanal, onAlternarCanal, onRemov
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-[var(--ink-hi)]">{canal.name}</p>
-                  <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--ink-lo)]">
+                  {/* Quebra como texto: no celular, "Falta o servidor e a chave"
+                      desce inteira para a linha de baixo em vez de se espremer
+                      em três ao lado do interruptor. */}
+                  <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-[var(--ink-lo)]">
                     <span>{nomeDaPlataforma(canal.platform)} ·</span>
                     {estado === 'incompleto' ? (
                       // Pendência na tinta do nome, com ícone: não pode ler igual a "Desligado"
-                      <span className="inline-flex items-center gap-1 text-[var(--ink-hi)]">
-                        <CircleAlert size={12} aria-hidden="true" />
+                      <span className="inline-flex items-start gap-1 text-[var(--ink-hi)]">
+                        <CircleAlert size={12} aria-hidden="true" className="mt-0.5 shrink-0" />
                         {pendencia}
                       </span>
                     ) : (
@@ -85,7 +99,7 @@ export function CanaisPagina({ canais, onConectarCanal, onAlternarCanal, onRemov
                 <Menu
                   rotulo={`Ações de ${canal.name}`}
                   itens={[
-                    { rotulo: 'Editar servidor e chave', icone: <Pencil size={14} />, onSelect: () => onConectarCanal(canal.platform) },
+                    { rotulo: 'Editar servidor e chave', icone: <Pencil size={14} />, onSelect: () => onEditarCanal(canal.id) },
                     { rotulo: 'Remover canal', icone: <Trash2 size={14} />, perigo: true, onSelect: () => removerComConfirmacao(canal) },
                   ]}
                 />

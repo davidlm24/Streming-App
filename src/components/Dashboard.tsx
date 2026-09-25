@@ -20,6 +20,8 @@ interface DashboardProps {
   onCriarCapa: (webinar: WebinarResumo) => void;
   /** Sem argumento, conecta um canal novo; com a plataforma, abre direto nela. */
   onConectarCanal: (plataforma?: string) => void;
+  /** Abre o modal neste canal, para consertar o que falta. */
+  onEditarCanal: (id: string) => void;
   onVerCanais: () => void;
   onVerWebinars: () => void;
 }
@@ -41,6 +43,7 @@ export function Dashboard({
   onPaginaPublica,
   onCriarCapa,
   onConectarCanal,
+  onEditarCanal,
   onVerCanais,
   onVerWebinars,
 }: DashboardProps) {
@@ -102,6 +105,7 @@ export function Dashboard({
           canais={canais}
           planejadas={proxima?.channels ?? []}
           onConectarCanal={onConectarCanal}
+          onEditarCanal={onEditarCanal}
           onVerCanais={onVerCanais}
         />
 
@@ -155,11 +159,13 @@ function LinhaDeCanais({
   canais,
   planejadas,
   onConectarCanal,
+  onEditarCanal,
   onVerCanais,
 }: {
   canais: Destination[];
   planejadas: string[];
   onConectarCanal: (plataforma?: string) => void;
+  onEditarCanal: (id: string) => void;
   onVerCanais: () => void;
 }) {
   const ligados = canais.filter((c) => c.selected);
@@ -228,7 +234,7 @@ function LinhaDeCanais({
                 className={novos.has(canal.id) ? 'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-2 motion-safe:duration-300' : undefined}
               >
                 <Chip
-                  onClick={pendencia ? () => onConectarCanal(canal.platform) : onVerCanais}
+                  onClick={pendencia ? () => onEditarCanal(canal.id) : onVerCanais}
                   rotulo={`${canal.name}: ${pendencia ?? 'pronto'}`}
                   icone={<PlataformaIcone plataforma={canal.platform} />}
                   estado={<EstadoDoChip pendencia={pendencia} />}

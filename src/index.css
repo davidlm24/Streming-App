@@ -331,6 +331,12 @@ select {
 input::placeholder,
 textarea::placeholder { color: var(--ink-dim); }
 select option { background-color: var(--surface); color: var(--ink-hi); }
+/* Campo inválido: a borda sobe para a tinta alta, junto do ícone e da frase
+   abaixo do campo. Vermelho não — o carmim é do ar. Fica aqui, e não num
+   utilitário, porque a regra acima é sem camada e venceria qualquer um. */
+input[aria-invalid="true"],
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] { border-color: var(--ink-hi); }
 
 /* foco visível — a auditoria encontrou 137 `focus:outline-none` e ZERO
    substituições `focus-visible:`. Isto devolve o foco de teclado ao app

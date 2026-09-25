@@ -42,6 +42,10 @@ import { useSceneTransition } from './hooks/useSceneTransition';
 import { useMediaManager } from './context/MediaManagerContext';
 import { copyText } from './components/ui/clipboard';
 import { Modal } from './components/ui/Modal';
+import { useToast } from './components/ui/Toast';
+import { CanaisAcimaDoPlano } from './components/CanaisAcimaDoPlano';
+import { limiteDeCanaisLigados } from './lib/plans';
+import { cabeLigado } from './lib/canais';
 import { 
   loginWithGoogle, 
   logoutFirebase, 
@@ -107,6 +111,8 @@ export default function App() {
   const [isAddChannelsModalOpen, setIsAddChannelsModalOpen] = useState(false);
   // Plataforma em que o modal de canais abre direto (o "conserta num clique").
   const [plataformaDoModalDeCanais, setPlataformaDoModalDeCanais] = useState<string | undefined>(undefined);
+  const [canalDoModalDeCanais, setCanalDoModalDeCanais] = useState<string | undefined>(undefined);
+  const toast = useToast();
   const [plansModalReason, setPlansModalReason] = useState<'live' | 'record' | 'upgrade' | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'cancelled' | null>(null);
 
@@ -443,8 +449,27 @@ export default function App() {
   const [liveStartTime, setLiveStartTime] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [activeStreamReport, setActiveStreamReport] = useState<StreamReportData | null>(null);
+  // Mais canais ligados do que o plano transmite: escolher antes de entrar no ar
+  const [escolhaAoEntrarNoAr, setEscolhaAoEntrarNoAr] = useState(false);
 
-  const handleToggleLive = async () => {
+  // Limite de canais ligados ao mesmo tempo, do plano (plans.ts)
+  const limiteDeLigados = limiteDeCanaisLigados(user?.plan);
+  const abrirPlanos = () => {
+    setPlansModalReason('upgrade');
+    setIsPlansModalOpen(true);
+  };
+
+  const iniciarLive = () => {
+    setLiveStartTime(new Date().toISOString());
+    setIsLive(true);
+  };
+
+  /**
+   * Devolve se o estado vai mesmo trocar. O cabeçalho do estúdio só soltava o
+   * botão quando `isLive` mudava — um teste expirado deixava o GO LIVE preso
+   * em "Entrando no ar…". Com `false`, ele volta na hora.
+   */
+  const handleToggleLive = async (): Promise<boolean> => {
     if (!isLive) {
       if (user) {
         try {
@@ -460,23 +485,30 @@ export default function App() {
             localStorage.setItem('pwstream_user', JSON.stringify(updated));
             setPlansModalReason('live');
             setIsPlansModalOpen(true);
-            return;
+            return false;
           }
         } catch (err) {
           console.warn('Erro ao validar período de testes:', err);
           if (isTrialExpired) {
             setPlansModalReason('live');
             setIsPlansModalOpen(true);
-            return;
+            return false;
           }
         }
       } else if (isTrialExpired) {
         setPlansModalReason('live');
         setIsPlansModalOpen(true);
-        return;
+        return false;
       }
-      setLiveStartTime(new Date().toISOString());
-      setIsLive(true);
+      // Mais canais ligados do que o plano transmite (plano que mudou, dado
+      // antigo): antes ia ao ar para todos. Agora a pessoa escolhe quais
+      // ficam, e entra no ar pelo próprio diálogo.
+      if (destinations.filter(d => d.selected).length > limiteDeLigados) {
+        setEscolhaAoEntrarNoAr(true);
+        return false;
+      }
+      iniciarLive();
+      return true;
     } else {
       const formatTime = (secs: number) => {
         const m = Math.floor(secs / 60);
@@ -528,7 +560,21 @@ export default function App() {
       setActiveStreamReport(report);
       setIsReportModalOpen(true);
       setIsLive(false);
+      return true;
     }
+  };
+
+  // Escolhidos no diálogo: desliga estes (e grava) e entra no ar
+  const entrarNoArComEscolha = (idsParaDesligar: string[]) => {
+    setDestinations(prev => {
+      const updated = prev.map(d => (idsParaDesligar.includes(d.id) ? { ...d, selected: false } : d));
+      if (user?.uid) {
+        saveDestinationsToFirestore(user.uid, updated);
+      }
+      return updated;
+    });
+    setEscolhaAoEntrarNoAr(false);
+    iniciarLive();
   };
 
   // Recording state
@@ -1437,7 +1483,22 @@ export default function App() {
   }, [isLive, webhooksConfig]);
 
   // Destinations toggler
+  // Ligar além do plano não liga: o canal fica como estava e o aviso diz por
+  // quê e o que fazer. Antes o interruptor de Canais e a lista do estúdio
+  // ligavam qualquer quantidade.
+  const avisarLimiteDeCanais = (nome: string) =>
+    toast.info(
+      `${nome} continua desligado`,
+      `Seu plano transmite para ${limiteDeLigados} canais ao mesmo tempo. Desligue outro antes de ligar este.`,
+      { label: 'Ver planos', onClick: abrirPlanos },
+    );
+
   const handleToggleDestination = (id: string) => {
+    const canal = destinations.find(d => d.id === id);
+    if (canal && !canal.selected && !cabeLigado(destinations, id, limiteDeLigados)) {
+      avisarLimiteDeCanais(canal.name);
+      return;
+    }
     setDestinations(prev => {
       const updated = prev.map(dest => dest.id === id ? { ...dest, selected: !dest.selected } : dest);
       if (user?.uid) {
@@ -1450,11 +1511,15 @@ export default function App() {
   // Add or Update Destination (from AddChannelsModal)
   const handleAddOrUpdateDestination = (newDest: Destination) => {
     setDestinations(prev => {
-      const existingIdx = prev.findIndex(d => d.id === newDest.id || d.platform === newDest.platform);
+      // Pelo id, só. Casar também pela plataforma sobrescrevia o primeiro canal
+      // dela — com dois servidores RTMP, editar o segundo apagava o primeiro.
+      const existingIdx = prev.findIndex(d => d.id === newDest.id);
       let updated: Destination[];
       if (existingIdx >= 0) {
         updated = [...prev];
-        updated[existingIdx] = { ...updated[existingIdx], ...newDest, selected: true };
+        // Quem decide ligar é o modal: editar não liga um canal desligado, e
+        // um canal novo além do limite do plano entra desligado.
+        updated[existingIdx] = { ...updated[existingIdx], ...newDest };
       } else {
         updated = [newDest, ...prev];
       }
@@ -1478,7 +1543,15 @@ export default function App() {
 
   // Ações das telas da casca (painel, canais, webinars)
   const conectarCanal = (plataforma?: string) => {
+    setCanalDoModalDeCanais(undefined);
     setPlataformaDoModalDeCanais(plataforma);
+    setIsAddChannelsModalOpen(true);
+  };
+  // Editar ESTE canal: pelo id, e não pela plataforma — um servidor RTMP
+  // criado no estúdio (NGINX, SRS…) não tem linha própria no modal.
+  const editarCanal = (id: string) => {
+    setPlataformaDoModalDeCanais(undefined);
+    setCanalDoModalDeCanais(id);
     setIsAddChannelsModalOpen(true);
   };
   const entrarNoEstudio = (webinar?: { title: string }) => {
@@ -2973,8 +3046,10 @@ export default function App() {
         <CanaisPagina
           canais={destinations}
           onConectarCanal={conectarCanal}
+          onEditarCanal={editarCanal}
           onAlternarCanal={handleToggleDestination}
           onRemoverCanal={handleRemoveDestination}
+          limiteDeLigados={limiteDeLigados}
         />
       ) : currentView === 'webinars' ? (
         <WebinarsPagina
@@ -3006,6 +3081,7 @@ export default function App() {
           onPaginaPublica={abrirPaginaPublica}
           onCriarCapa={abrirEditorDeCapa}
           onConectarCanal={conectarCanal}
+          onEditarCanal={editarCanal}
           onVerCanais={() => setCurrentView('channels')}
           onVerWebinars={() => setCurrentView('webinars')}
         />
@@ -3441,6 +3517,18 @@ export default function App() {
         isLive={isLive}
       />
 
+      <CanaisAcimaDoPlano
+        aberto={escolhaAoEntrarNoAr}
+        ligados={destinations.filter(d => d.selected)}
+        limite={limiteDeLigados}
+        onCancelar={() => setEscolhaAoEntrarNoAr(false)}
+        onEntrarNoAr={entrarNoArComEscolha}
+        onVerPlanos={() => {
+          setEscolhaAoEntrarNoAr(false);
+          abrirPlanos();
+        }}
+      />
+
       {/* Custom RTMP & NGINX Destinations Modal */}
       <CustomDestinationModal
         isOpen={isCustomDestinationsModalOpen}
@@ -3453,6 +3541,8 @@ export default function App() {
           }
         }}
         userId={user?.uid}
+        limiteDeLigados={limiteDeLigados}
+        onLimiteDeCanais={avisarLimiteDeCanais}
       />
 
       {/* Dynamic QR Code & Live Commerce Modal */}
@@ -3475,11 +3565,11 @@ export default function App() {
       {/* Add Channels / Multi-Platform Transmission Modal */}
       <AddChannelsModal
         isOpen={isAddChannelsModalOpen}
-        onClose={() => { setIsAddChannelsModalOpen(false); setPlataformaDoModalDeCanais(undefined); }}
+        onClose={() => { setIsAddChannelsModalOpen(false); setPlataformaDoModalDeCanais(undefined); setCanalDoModalDeCanais(undefined); }}
         plataformaInicial={plataformaDoModalDeCanais}
+        canalInicialId={canalDoModalDeCanais}
         destinations={destinations}
         onAddOrUpdateDestination={handleAddOrUpdateDestination}
-        onToggleDestination={handleToggleDestination}
         currentPlan={user?.plan || 'Free Trial'}
         onOpenUpgrade={() => {
           setIsAddChannelsModalOpen(false);

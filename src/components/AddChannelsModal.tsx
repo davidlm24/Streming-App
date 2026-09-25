@@ -1,608 +1,532 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { X, Check, Lock, Sparkles, ArrowRight, ShieldCheck, Radio, Server, Copy, CheckCircle2, ChevronRight, AlertCircle, Info, ExternalLink } from 'lucide-react';
-import { Destination } from '../types';
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { Check, ChevronLeft, ChevronRight, CircleAlert, ExternalLink, Info, Lock, PenLine } from 'lucide-react';
+import type { Destination } from '../types';
+import { cabeLigado, nomeDaPlataforma, pendenciaCurta } from '../lib/canais';
+import { PLANS, getPlan, type PlanId } from '../lib/plans';
+import { AcaoDeTexto } from './ui/AcaoDeTexto';
+import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
+import { PlataformaIcone } from './ui/PlataformaIcone';
+import { useTabs } from './ui/Tabs';
+import { useToast } from './ui/Toast';
 
 interface AddChannelsModalProps {
   isOpen: boolean;
   onClose: () => void;
   destinations: Destination[];
   onAddOrUpdateDestination: (destination: Destination) => void;
-  onToggleDestination: (id: string) => void;
-  currentPlan?: 'Standard' | 'Professional' | 'Business' | 'Free Trial';
+  currentPlan?: PlanId;
   onOpenUpgrade?: () => void;
-  /** Abre direto no formulário desta plataforma (ex.: "falta a chave" no painel). */
+  /** Abre direto no formulário desta plataforma (ex.: "não conectado" no painel). */
   plataformaInicial?: string;
+  /** Abre para editar ESTE canal (menu de Canais, pendência de um canal no painel). */
+  canalInicialId?: string;
 }
 
-export interface PlatformConfig {
+interface Plataforma {
   id: string;
-  name: string;
-  badge?: 'UPGRADE' | 'BETA' | 'NEW' | 'PRO';
-  badgeColor?: string;
-  defaultRtmpUrl: string;
-  defaultRtmpKeyPlaceholder: string;
-  avatarUrl: string;
-  requiredPlan?: 'Standard' | 'Professional' | 'Business';
-  guideText: string;
-  logo: React.ReactNode;
-  iconBg?: string;
-  officialDocUrl?: string;
+  /** O servidor que a plataforma dá a todo mundo; vazio no servidor próprio. */
+  servidorPadrao: string;
+  /** Onde achar a chave, pelo caminho da própria plataforma. */
+  guia: string;
+  painel?: { rotulo: string; url: string };
 }
 
+const PLATAFORMAS: Plataforma[] = [
+  {
+    id: 'youtube',
+    servidorPadrao: 'rtmp://a.rtmp.youtube.com/live2',
+    guia: 'No YouTube Studio, vá em Criar › Transmitir ao vivo e copie a chave de transmissão.',
+    painel: { rotulo: 'Abrir o YouTube Studio', url: 'https://studio.youtube.com' },
+  },
+  {
+    id: 'facebook',
+    servidorPadrao: 'rtmps://live-api-s.facebook.com:443/rtmp/',
+    guia: 'No Live Producer do Facebook, escolha usar a chave de transmissão e copie a chave.',
+    painel: { rotulo: 'Abrir o Live Producer', url: 'https://facebook.com/live/producer' },
+  },
+  {
+    id: 'instagram',
+    servidorPadrao: 'rtmps://live-upload.instagram.com:443/rtmp/',
+    guia: 'No computador, abra o Live Producer do Instagram em instagram.com e copie o servidor e a chave.',
+    painel: { rotulo: 'Abrir o Instagram', url: 'https://www.instagram.com' },
+  },
+  {
+    id: 'tiktok',
+    servidorPadrao: 'rtmp://live.tiktok.com/live/',
+    guia: 'No TikTok Live Studio ou no Live Producer do TikTok, gere e copie a chave de transmissão.',
+    painel: { rotulo: 'Abrir o TikTok Live', url: 'https://www.tiktok.com/live' },
+  },
+  {
+    id: 'twitch',
+    servidorPadrao: 'rtmp://live.twitch.tv/app/',
+    guia: 'No painel do criador da Twitch, vá em Configurações › Transmissão e copie a chave primária.',
+    painel: { rotulo: 'Abrir o painel da Twitch', url: 'https://dashboard.twitch.tv/settings/stream' },
+  },
+  {
+    id: 'kick',
+    servidorPadrao: 'rtmps://live.kick.com/app/',
+    guia: 'No painel do criador do Kick, copie a chave de transmissão (Stream Key).',
+    painel: { rotulo: 'Abrir o painel do Kick', url: 'https://kick.com/dashboard/settings/stream' },
+  },
+  {
+    id: 'linkedin',
+    servidorPadrao: 'rtmps://live-api.linkedin.com:443/rtmp/',
+    guia: 'No LinkedIn Live, escolha a transmissão personalizada (RTMP) e copie o servidor e a chave.',
+    painel: { rotulo: 'Abrir o LinkedIn Live', url: 'https://linkedin.com/video/golive' },
+  },
+  {
+    id: 'rumble',
+    servidorPadrao: 'rtmps://live.rumble.com/live/',
+    guia: 'No Rumble, vá em Go Live › configuração RTMP e copie a chave.',
+    painel: { rotulo: 'Abrir o Rumble', url: 'https://rumble.com' },
+  },
+  {
+    id: 'custom',
+    servidorPadrao: '',
+    guia: 'Use o endereço e a chave do seu servidor RTMP: NGINX, SRS, Owncast ou outro.',
+  },
+];
+
+const IDS = PLATAFORMAS.map((p) => p.id);
+const plataformaPor = (id: string) => PLATAFORMAS.find((p) => p.id === id) ?? PLATAFORMAS[PLATAFORMAS.length - 1];
+/**
+ * A linha da lista onde um canal mora. Toda plataforma fora dela é um
+ * servidor RTMP (NGINX, SRS, Cloudflare, Restream, criados no estúdio) e cai
+ * em "Servidor RTMP próprio" — antes caía na primeira plataforma livre, e
+ * salvar ali criava um canal novo em vez de editar o que se pediu.
+ */
+const linhaDa = (plataforma: string) => (IDS.includes(plataforma) ? plataforma : 'custom');
+/** O primeiro plano que libera servidor próprio, pelo nome da vitrine. */
+const PLANO_DO_RTMP_PROPRIO = PLANS.find((p) => p.rtmpProprio)?.name ?? 'Standard';
+
+const SERVIDOR_VALIDO = /^rtmps?:\/\/\S+$/i;
+const CAMPO = 'mt-2 block w-full rounded-xl border px-3 text-sm';
+
+type Rascunho = { nome: string; servidor: string; chave: string };
+type Erros = { servidor?: string; chave?: string };
+type Estado = { texto: string; icone?: ReactNode; alta?: boolean };
+
+/**
+ * Conectar ou editar UM canal: escolher a plataforma, colar o servidor e a
+ * chave que ela mostra no painel de transmissão dela, salvar.
+ *
+ * Era uma grade de logos nas cores de cada marca, com selos "UPGRADE" e
+ * "LIVE", um segundo diálogo por cima para o formulário, a lista inteira de
+ * canais com "Ativar" (repetindo a página Canais e o estúdio) e uma tabela de
+ * limites própria que contradizia os planos. Agora é mestre-detalhe: as
+ * plataformas numa coluna, o formulário da escolhida ao lado, e o que foi
+ * digitado numa plataforma sobrevive à troca para outra.
+ */
 export function AddChannelsModal({
   isOpen,
   onClose,
   destinations,
   onAddOrUpdateDestination,
-  onToggleDestination,
   currentPlan = 'Free Trial',
   onOpenUpgrade,
-  plataformaInicial
+  plataformaInicial,
+  canalInicialId,
 }: AddChannelsModalProps) {
-  const [selectedPlatform, setSelectedPlatform] = useState<PlatformConfig | null>(null);
-  const [channelName, setChannelName] = useState('');
-  const [streamUrl, setStreamUrl] = useState('');
-  const [streamKey, setStreamKey] = useState('');
-  const [showKey, setShowKey] = useState(false);
-  const [copiedKey, setCopiedKey] = useState(false);
-  const [successSaved, setSuccessSaved] = useState(false);
+  const toast = useToast();
+  const plano = getPlan(currentPlan) ?? PLANS[0];
+  const ligados = destinations.filter((d) => d.selected).length;
+  const canalInicial = canalInicialId ? destinations.find((d) => d.id === canalInicialId) : undefined;
 
-  // Maximum active destinations allowed based on plan
-  const planLimits: Record<string, { maxChannels: number; allowedProtocols: string[] }> = {
-    'Free Trial': { maxChannels: 2, allowedProtocols: ['youtube', 'facebook', 'instagram', 'tiktok', 'twitch', 'kick', 'linkedin', 'rumble'] },
-    'Standard': { maxChannels: 2, allowedProtocols: ['youtube', 'facebook', 'instagram', 'tiktok', 'twitch', 'kick', 'linkedin', 'rumble'] },
-    'Professional': { maxChannels: 5, allowedProtocols: ['youtube', 'facebook', 'instagram', 'tiktok', 'twitch', 'kick', 'linkedin', 'rumble'] },
-    'Business': { maxChannels: 8, allowedProtocols: ['youtube', 'facebook', 'instagram', 'tiktok', 'twitch', 'kick', 'linkedin', 'rumble'] }
+  // O canal de cada linha. Aberto para um canal certo, a linha dele é ele.
+  const existenteDe = (id: string) =>
+    canalInicial && linhaDa(canalInicial.platform) === id ? canalInicial : destinations.find((d) => linhaDa(d.platform) === id);
+
+  // "Conectar canal" quer um canal novo: começa na primeira plataforma sem canal
+  const escolhaInicial = () => {
+    if (canalInicial) return linhaDa(canalInicial.platform);
+    if (plataformaInicial) return linhaDa(plataformaInicial);
+    return PLATAFORMAS.find((p) => !existenteDe(p.id))?.id ?? IDS[0];
+  };
+  const abertoNumCanal = Boolean(canalInicial || plataformaInicial);
+
+  const [ativa, setAtiva] = useState(escolhaInicial);
+  // Só no celular: a lista e o formulário não cabem lado a lado
+  const [noFormulario, setNoFormulario] = useState(abertoNumCanal);
+  const [rascunhos, setRascunhos] = useState<Record<string, Rascunho>>({});
+  const [erros, setErros] = useState<Erros>({});
+  const [chaveVisivel, setChaveVisivel] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const refServidor = useRef<HTMLTextAreaElement>(null);
+
+  // O componente fica montado entre aberturas; cada abertura começa do zero.
+  // Acertado durante a renderização, e não num efeito, para a abertura não
+  // piscar com a plataforma da vez anterior.
+  const [abertoAntes, setAbertoAntes] = useState(isOpen);
+  if (isOpen !== abertoAntes) {
+    setAbertoAntes(isOpen);
+    if (isOpen) {
+      setAtiva(escolhaInicial());
+      setNoFormulario(abertoNumCanal);
+      setRascunhos({});
+      setErros({});
+      setChaveVisivel(false);
+      setAviso(null);
+    }
+  }
+
+  const inicialDe = (id: string): Rascunho => {
+    const canal = existenteDe(id);
+    return {
+      nome: canal?.name ?? nomeDaPlataforma(id),
+      servidor: canal?.streamUrl?.trim() || plataformaPor(id).servidorPadrao,
+      chave: canal?.streamKey ?? '',
+    };
+  };
+  // Tem texto que ainda não foi salvo?
+  const sujo = (id: string) => {
+    const r = rascunhos[id];
+    if (!r) return false;
+    const i = inicialDe(id);
+    return r.nome !== i.nome || r.servidor !== i.servidor || r.chave !== i.chave;
+  };
+  const bloqueadoEm = (id: string) => id === 'custom' && !plano.rtmpProprio && !existenteDe(id);
+
+  const plataforma = plataformaPor(ativa);
+  const nome = nomeDaPlataforma(ativa);
+  const existente = existenteDe(ativa);
+  const rascunho = rascunhos[ativa] ?? inicialDe(ativa);
+  const bloqueado = bloqueadoEm(ativa);
+  // Canal novo com o limite do plano já ocupado: salva, mas desligado
+  const salvaDesligado = !existente && !cabeLigado(destinations, undefined, plano.destinosSimultaneos);
+
+  const noPadrao = Boolean(plataforma.servidorPadrao) && rascunho.servidor.trim() === plataforma.servidorPadrao;
+  const dicaDoServidor = noPadrao
+    ? existente && !existente.streamUrl?.trim()
+      ? 'Preenchido com o servidor padrão da plataforma. Confira e salve.'
+      : 'É o servidor padrão da plataforma.'
+    : ativa === 'custom'
+      ? 'O endereço RTMP do seu servidor, com o aplicativo no fim (rtmp://servidor/live).'
+      : undefined;
+
+  // O estado de cada linha fala da conexão, não de ligar e desligar (isso é
+  // da página Canais): o que falta vem primeiro; "Desligado" só num canal
+  // completo; e o que está sendo digitado aparece como "Não salvo".
+  const estadoDa = (id: string): Estado => {
+    if (sujo(id)) return { texto: 'Não salvo', icone: <PenLine size={12} />, alta: true };
+    if (bloqueadoEm(id)) return { texto: `A partir do ${PLANO_DO_RTMP_PROPRIO}`, icone: <Lock size={12} /> };
+    const canal = existenteDe(id);
+    if (!canal) return { texto: 'Não conectado' };
+    // A forma curta dos chips do painel: a longa ("Falta o servidor e a
+    // chave") quebrava em duas linhas na coluna e desigualava a lista.
+    const pendencia = pendenciaCurta(canal);
+    if (pendencia) return { texto: pendencia[0].toUpperCase() + pendencia.slice(1), icone: <CircleAlert size={12} />, alta: true };
+    return canal.selected ? { texto: 'Pronto', icone: <Check size={12} /> } : { texto: 'Desligado' };
   };
 
-  const currentLimit = planLimits[currentPlan] || planLimits['Free Trial'];
-  const activeCount = destinations.filter(d => d.selected).length;
+  const selecionar = (id: string) => {
+    setAtiva(id);
+    setErros({});
+    setChaveVisivel(false);
+    setAviso(null);
+  };
+  const abas = useTabs('canais', IDS, ativa, selecionar, 'vertical');
 
-  // Platform definitions strictly limited to the 8 requested platforms
-  const platforms: PlatformConfig[] = [
-    {
-      id: 'youtube',
-      name: 'YouTube',
-      defaultRtmpUrl: 'rtmp://a.rtmp.youtube.com/live2',
-      defaultRtmpKeyPlaceholder: 'xxxx-xxxx-xxxx-xxxx-xxxx',
-      avatarUrl: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=100&auto=format&fit=crop&q=80',
-      guideText: 'Acesse o YouTube Studio > Criar > Transmitir ao vivo > Copie a chave de transmissão.',
-      officialDocUrl: 'https://studio.youtube.com',
-      logo: (
-        <div className="flex items-center gap-1.5">
-          <svg className="w-8 h-8" viewBox="0 0 24 24" fill="#FF0000">
-            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-          </svg>
-          <span className="font-extrabold text-lg text-slate-900 tracking-tight">YouTube</span>
-        </div>
-      )
-    },
-    {
-      id: 'facebook',
-      name: 'Facebook',
-      defaultRtmpUrl: 'rtmps://live-api-s.facebook.com:443/rtmp/',
-      defaultRtmpKeyPlaceholder: 'FB-xxxxxxxxxxxxxxxxxxxxxxxx',
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-      guideText: 'Acesse o Facebook Live Producer > Usar Chave de Stream > Copie e cole aqui.',
-      officialDocUrl: 'https://facebook.com/live/producer',
-      logo: (
-        <span className="font-extrabold text-2xl text-[#1877F2] tracking-tighter lowercase">
-          facebook
-        </span>
-      )
-    },
-    {
-      id: 'instagram',
-      name: 'Instagram',
-      defaultRtmpUrl: 'rtmps://live-upload.instagram.com:443/rtmp/',
-      defaultRtmpKeyPlaceholder: 'IG-xxxxxxxxxxxxxxxxxxxxxxxx',
-      avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80',
-      guideText: 'Acesse o Instagram Live Producer no computador (instagram.com) para obter a URL e Chave de stream.',
-      officialDocUrl: 'https://www.instagram.com',
-      logo: (
-        <div className="flex items-center gap-1.5">
-          <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-            </svg>
-          </div>
-          <span className="font-semibold text-lg italic text-slate-900 tracking-tight font-serif">Instagram</span>
-        </div>
-      )
-    },
-    {
-      id: 'tiktok',
-      name: 'TikTok',
-      defaultRtmpUrl: 'rtmp://live.tiktok.com/live/',
-      defaultRtmpKeyPlaceholder: 'stream-xxxxxxxxxxxxxxxxxxxx',
-      avatarUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=100&auto=format&fit=crop&q=80',
-      guideText: 'Acesse o TikTok Live Studio ou TikTok Live Producer para gerar sua chave de stream.',
-      officialDocUrl: 'https://www.tiktok.com/live',
-      logo: (
-        <div className="flex items-center gap-1.5">
-          <svg className="w-6 h-6 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 2.89 3.5 2.73 1.54-.07 2.86-1.15 3.14-2.65.1-1.04.09-2.09.09-3.13V.02h-.01z"/>
-          </svg>
-          <span className="font-extrabold text-lg text-slate-900 tracking-tight">TikTok</span>
-          <span className="text-[10px] font-black uppercase text-white bg-rose-600 px-1 py-0.2 rounded">LIVE</span>
-        </div>
-      )
-    },
-    {
-      id: 'twitch',
-      name: 'Twitch',
-      defaultRtmpUrl: 'rtmp://live.twitch.tv/app/',
-      defaultRtmpKeyPlaceholder: 'live_xxxxxxxxxxxxxxxxxxxxxxxx',
-      avatarUrl: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=100&auto=format&fit=crop&q=80',
-      guideText: 'Acesse o Painel de Controle do Criador Twitch > Configurações > Transmissão > Chave Primária.',
-      officialDocUrl: 'https://dashboard.twitch.tv/settings/stream',
-      logo: (
-        <div className="flex items-center gap-1">
-          <svg className="w-6 h-6 text-[#9146FF]" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
-          </svg>
-          <span className="font-black text-2xl text-[#9146FF] tracking-tighter">twitch</span>
-        </div>
-      )
-    },
-    {
-      id: 'kick',
-      name: 'Kick',
-      defaultRtmpUrl: 'rtmps://live.kick.com/app/',
-      defaultRtmpKeyPlaceholder: 'sk_us_live_xxxxxxxxxxxxxxxxxxxx',
-      avatarUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=100&auto=format&fit=crop&q=80',
-      guideText: 'Acesse Creator Dashboard no Kick.com > Stream Key > Copie a chave de transmissão.',
-      officialDocUrl: 'https://kick.com/dashboard/settings/stream',
-      logo: (
-        <span className="font-black text-2xl text-slate-900 tracking-wider font-mono">
-          KICK
-        </span>
-      )
-    },
-    {
-      id: 'linkedin',
-      name: 'LinkedIn',
-      defaultRtmpUrl: 'rtmps://live-api.linkedin.com:443/rtmp/',
-      defaultRtmpKeyPlaceholder: 'linkedin_stream_key_xxxx',
-      avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80',
-      guideText: 'Acesse o LinkedIn Live > Configurações de Transmissão Personalizada (RTMP).',
-      officialDocUrl: 'https://linkedin.com/video/golive',
-      logo: (
-        <div className="flex items-center gap-0.5">
-          <span className="font-bold text-xl text-[#0A66C2]">Linked</span>
-          <span className="bg-[#0A66C2] text-[var(--ink-hi)] font-bold text-lg px-1.5 py-0.2 rounded-md">in</span>
-        </div>
-      )
-    },
-    {
-      id: 'rumble',
-      name: 'Rumble',
-      defaultRtmpUrl: 'rtmps://live.rumble.com/live/',
-      defaultRtmpKeyPlaceholder: 'rumble_stream_key_xxxx',
-      avatarUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&auto=format&fit=crop&q=80',
-      guideText: 'Acesse o Rumble.com > Go Live > Configuração de Transmissão RTMP.',
-      officialDocUrl: 'https://rumble.com',
-      logo: (
-        <div className="flex items-center gap-1.5">
-          <div className="w-6 h-6 rounded-full bg-[#85C744] flex items-center justify-center text-[var(--ink-hi)]">
-            <svg className="w-3.5 h-3.5 translate-x-0.5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-          </div>
-          <span className="font-extrabold text-xl text-slate-900 tracking-tight">rumble</span>
-        </div>
-      )
+  const editar = (campo: keyof Rascunho, valor: string) => {
+    setRascunhos((r) => ({ ...r, [ativa]: { ...(r[ativa] ?? rascunho), [campo]: valor } }));
+    if (campo !== 'nome' && erros[campo]) setErros((e) => ({ ...e, [campo]: undefined }));
+  };
+
+  // O servidor é um campo de várias linhas que cresce com o endereço: no
+  // celular o endereço inteiro cabe à vista, e a dica pede para conferi-lo.
+  useLayoutEffect(() => {
+    const el = refServidor.current;
+    if (!el) return;
+    const ajustar = () => {
+      const borda = el.offsetHeight - el.clientHeight;
+      el.style.height = 'auto';
+      el.style.height = `${el.scrollHeight + borda}px`;
+    };
+    ajustar();
+    window.addEventListener('resize', ajustar);
+    return () => window.removeEventListener('resize', ajustar);
+  }, [rascunho.servidor, ativa, noFormulario, isOpen, bloqueado]);
+
+  // Ao abrir num canal, o foco vai ao que só a pessoa pode preencher: faltando
+  // só o servidor, ao servidor (preenchido com o padrão, para conferir);
+  // faltando a chave, à chave. Sem canal escolhido, à plataforma, para as
+  // setas percorrerem a lista.
+  useEffect(() => {
+    if (!isOpen) return;
+    let alvo = `canais-aba-${ativa}`;
+    if (abertoNumCanal && !bloqueado) {
+      const semServidor = !existente?.streamUrl?.trim();
+      const semChave = !existente?.streamKey?.trim();
+      alvo = semServidor && (!plataforma.servidorPadrao || !semChave) ? 'canal-servidor' : 'canal-chave';
     }
-  ];
+    document.getElementById(alvo)?.focus();
+    // Só na abertura: depois, o foco é de quem está digitando.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
-  const handleSelectPlatform = (plat: PlatformConfig) => {
-    // If platform requires an upgrade that is not met by the current plan:
-    const isLocked = plat.requiredPlan && currentPlan === 'Free Trial';
-    if (isLocked) {
-      if (onOpenUpgrade) onOpenUpgrade();
+  const salvar = (e: FormEvent) => {
+    e.preventDefault();
+    const servidor = rascunho.servidor.trim();
+    const chave = rascunho.chave.trim();
+    const novos: Erros = {};
+    if (!servidor) {
+      novos.servidor = plataforma.servidorPadrao
+        ? `Falta o servidor. O padrão da plataforma é ${plataforma.servidorPadrao}`
+        : 'Falta o servidor. Use o endereço RTMP do seu servidor, como rtmp://servidor/live.';
+    } else if (!SERVIDOR_VALIDO.test(servidor)) {
+      novos.servidor = 'O endereço precisa começar com rtmp:// ou rtmps://.';
+    }
+    if (!chave) novos.chave = 'Falta a chave. Sem ela o canal não recebe a live.';
+    if (novos.servidor || novos.chave) {
+      setErros(novos);
+      document.getElementById(novos.servidor ? 'canal-servidor' : 'canal-chave')?.focus();
       return;
     }
 
-    // Check if user already configured this platform
-    const existing = destinations.find(d => d.platform === plat.id);
-    setSelectedPlatform(plat);
-    setChannelName(existing ? existing.name : `${plat.name} (Canal Principal)`);
-    setStreamUrl(existing?.streamUrl || plat.defaultRtmpUrl);
-    setStreamKey(existing?.streamKey || '');
-    setSuccessSaved(false);
-  };
+    // Editar não liga nem desliga; um canal novo liga se o plano comporta
+    const ligar = existente ? existente.selected : !salvaDesligado;
+    const nomeDoCanal = rascunho.nome.trim() || nome;
+    onAddOrUpdateDestination({
+      ...existente,
+      id: existente?.id ?? `dest-${ativa}-${Date.now()}`,
+      name: nomeDoCanal,
+      // Um servidor NGINX continua NGINX ao ser editado pela linha RTMP
+      platform: existente?.platform ?? ativa,
+      avatarUrl: existente?.avatarUrl ?? '',
+      selected: ligar,
+      streamUrl: servidor,
+      streamKey: chave,
+      isCustom: existente?.isCustom ?? ativa === 'custom',
+      updatedAt: new Date().toISOString(),
+    });
 
-  // Aberto já num canal: vai direto para o formulário dele e põe o foco no
-  // primeiro campo vazio. É o "conserta num clique" da linha de canais — antes
-  // o clique abria a grade de plataformas e o usuário recomeçava do zero.
-  useEffect(() => {
-    if (!isOpen || !plataformaInicial) return;
-    const plat = platforms.find((p) => p.id === plataformaInicial);
-    if (!plat) return;
-    handleSelectPlatform(plat);
-    const existente = destinations.find((d) => d.platform === plat.id);
-    const semServidor = !(existente?.streamUrl || plat.defaultRtmpUrl);
-    const campo = semServidor ? 'addchannelsmodal-url-do-servidor-rtmp-rtmps' : 'addchannelsmodal-chave-de-transmissao-stream-key';
-    const t = setTimeout(() => document.getElementById(campo)?.focus(), 150);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, plataformaInicial]);
+    if (ligar) {
+      toast.success(existente ? `${nomeDoCanal} salvo` : `${nomeDoCanal} conectado`, existente ? undefined : 'Ligado para a próxima live.');
+    } else if (existente) {
+      toast.info(`${nomeDoCanal} salvo`, 'Continua desligado. Ligue na página Canais quando quiser transmitir para ele.');
+    } else {
+      toast.info(
+        `${nomeDoCanal} conectado, mas desligado`,
+        `Seu plano transmite para ${plano.destinosSimultaneos} canais ao mesmo tempo. Desligue outro em Canais ou veja os planos.`,
+      );
+    }
 
-  const handleSaveChannel = () => {
-    if (!selectedPlatform) return;
-
-    const existingIndex = destinations.findIndex(d => d.platform === selectedPlatform.id);
-    const newDest: Destination = {
-      id: existingIndex >= 0 ? destinations[existingIndex].id : `dest-${selectedPlatform.id}-${Date.now()}`,
-      name: channelName.trim() || selectedPlatform.name,
-      platform: selectedPlatform.id,
-      avatarUrl: selectedPlatform.avatarUrl,
-      selected: true, // auto select when adding
-      streamUrl: streamUrl.trim(),
-      streamKey: streamKey.trim(),
-      isCustom: selectedPlatform.id.includes('custom'),
-      updatedAt: new Date().toISOString()
-    };
-
-    onAddOrUpdateDestination(newDest);
-    setSuccessSaved(true);
-    setTimeout(() => {
-      setSelectedPlatform(null);
-      setSuccessSaved(false);
-    }, 900);
+    // Outras plataformas com texto não salvo: o diálogo fica, na próxima
+    // delas, em vez de fechar e jogar fora o que foi digitado.
+    const pendentes = IDS.filter((id) => id !== ativa && sujo(id));
+    setRascunhos(({ [ativa]: _salvo, ...resto }) => resto);
+    if (pendentes.length === 0) {
+      onClose();
+      return;
+    }
+    selecionar(pendentes[0]);
+    setNoFormulario(true);
+    setAviso(`${nomeDoCanal} salvo. Falta salvar: ${pendentes.map(nomeDaPlataforma).join(', ')}.`);
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} bare ariaLabel="Adicionar canais de transmissão">
-      <div className="bg-[var(--bg)] text-[var(--ink-hi)] rounded-3xl w-full max-w-5xl border border-[var(--line-ctl)]/80 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
-        
-        {/* Modal Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] shrink-0 bg-[var(--surface)]">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
-              <Radio size={18} className="animate-pulse" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-[var(--ink-hi)] tracking-tight flex items-center gap-2">
-                Add new channels
-                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  Multistreaming
-                </span>
-              </h2>
-              <p className="text-xs text-[var(--ink-lo)]">
-                Selecione as redes sociais e servidores RTMP para transmitir simultaneamente.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Plan Info Badge */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface)]/80 border border-[var(--line)] text-xs">
-              <span className="text-[var(--ink-lo)] font-medium">Plano:</span>
-              <span className="font-black text-amber-400 uppercase">{currentPlan}</span>
-              <span className="text-[var(--ink-dim)]">•</span>
-              <span className="text-[var(--ink)] font-mono font-bold">
-                {activeCount}/{currentLimit.maxChannels === 99 ? '∞' : currentLimit.maxChannels} destinos ativos
-              </span>
-            </div>
-
-            {onOpenUpgrade && currentPlan === 'Free Trial' && (
+    // Título neutro e fixo. Seguir a linha escolhida trocava "Conectar" por
+    // "Editar" a cada seta e nomeava, na lista do celular, uma escolha que não
+    // estava à vista. O verbo mora no botão, junto do formulário que ele salva.
+    <Modal isOpen={isOpen} onClose={onClose} title="Canais" size="xl">
+      <div className="md:grid md:grid-cols-[15rem_minmax(0,1fr)]">
+        <div
+          {...abas.tablist}
+          aria-label="Plataformas"
+          className={`flex-col gap-0.5 md:flex md:border-r md:border-[var(--line)] md:pr-4 ${noFormulario ? 'hidden' : 'flex'}`}
+        >
+          {PLATAFORMAS.map((p) => {
+            const estado = estadoDa(p.id);
+            return (
               <button
+                key={p.id}
                 type="button"
-                onClick={onOpenUpgrade}
-                className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shadow-sm"
+                {...abas.tab(p.id)}
+                onClick={() => {
+                  selecionar(p.id);
+                  setNoFormulario(true);
+                }}
+                className={`flex min-h-14 w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors duration-150 cursor-pointer ${
+                  ativa === p.id ? 'md:bg-[var(--raise)]' : 'hover:bg-[var(--panel)]'
+                }`}
               >
-                <Sparkles size={13} />
-                Upgrade
+                <PlataformaIcone plataforma={p.id} size={18} className="shrink-0 text-[var(--ink-lo)]" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-[var(--ink-hi)]">{nomeDaPlataforma(p.id)}</span>
+                  <span className={`mt-0.5 flex items-center gap-1 text-xs ${estado.alta ? 'text-[var(--ink-hi)]' : 'text-[var(--ink-lo)]'}`}>
+                    {estado.icone && <span aria-hidden="true" className="inline-flex">{estado.icone}</span>}
+                    {estado.texto}
+                  </span>
+                </span>
+                <ChevronRight size={16} aria-hidden="true" className="shrink-0 text-[var(--ink-lo)] md:hidden" />
               </button>
-            )}
-
-            <button 
-              type="button"
-              onClick={onClose}
-              className="p-2 rounded-xl text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]/80 transition-all cursor-pointer"
-              title="Fechar"
-            >
-              <X size={20} />
-            </button>
-          </div>
+            );
+          })}
         </div>
 
-        {/* Modal Main Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-[var(--well)]">
-          
-          {/* Active Banner for Limit Warning */}
-          {activeCount >= currentLimit.maxChannels && currentLimit.maxChannels < 99 && (
-            <div className="mb-5 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between text-xs text-amber-300">
-              <div className="flex items-center gap-2.5">
-                <AlertCircle size={17} className="text-amber-400 shrink-0" />
-                <span>
-                  Você atingiu o limite de <strong>{currentLimit.maxChannels} destinos simultâneos</strong> do plano {currentPlan}. 
-                  Faça upgrade para o <strong>Professional (5 destinos)</strong> ou <strong>Business (Ilimitado)</strong>.
-                </span>
-              </div>
-              {onOpenUpgrade && (
-                <button
-                  type="button"
-                  onClick={onOpenUpgrade}
-                  className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg uppercase tracking-wider text-[10px] shrink-0 cursor-pointer ml-3"
-                >
-                  Ver Planos
-                </button>
-              )}
-            </div>
+        {/* md:pt-2 põe o título na linha do nome da primeira plataforma */}
+        <section {...abas.panel(ativa)} className={`md:block md:pl-6 md:pt-2 ${noFormulario ? 'block' : 'hidden'}`}>
+          <div className="mb-4 md:hidden">
+            <AcaoDeTexto onClick={() => setNoFormulario(false)} icone={<ChevronLeft size={14} />}>
+              Plataformas
+            </AcaoDeTexto>
+          </div>
+
+          {aviso && (
+            <p role="status" className="mb-4 flex items-start gap-2 text-sm text-[var(--ink-hi)]">
+              <Check size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+              <span>{aviso}</span>
+            </p>
           )}
 
-          {/* Grid of 8 Platforms (YouTube, Facebook, Instagram, TikTok, Twitch, Kick, LinkedIn, Rumble) */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {platforms.map((plat) => {
-              const configuredDest = destinations.find(d => d.platform === plat.id);
-              const isConfigured = !!configuredDest;
-              const isSelected = !!configuredDest?.selected;
-              const isLocked = plat.requiredPlan && currentPlan === 'Free Trial';
+          <h3 className="flex items-center gap-2 text-base font-semibold text-[var(--ink-hi)]">
+            <PlataformaIcone plataforma={ativa} size={18} className="shrink-0 text-[var(--ink-lo)]" />
+            {nome}
+          </h3>
 
-              return (
-                <div
-                  key={plat.id}
-                  onClick={() => handleSelectPlatform(plat)}
-                  className={`relative group h-28 sm:h-32 bg-white rounded-2xl p-3 flex flex-col items-center justify-center transition-all cursor-pointer select-none text-center shadow-md hover:shadow-xl hover:scale-[1.03] active:scale-[0.98] border ${
-                    isSelected 
-                      ? 'border-blue-500 ring-2 ring-blue-500/40 bg-blue-50/10' 
-                      : isConfigured 
-                        ? 'border-emerald-400' 
-                        : 'border-slate-200 hover:border-slate-400'
-                  }`}
-                >
-                  {/* Badge in top-left (e.g. UPGRADE, BETA, NEW) */}
-                  {plat.badge && (
-                    <span className={`absolute top-2 left-2 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${plat.badgeColor || 'bg-purple-600 text-white'}`}>
-                      {plat.badge}
-                    </span>
-                  )}
-
-                  {/* Connected checkmark indicator in top-right */}
-                  {isConfigured && (
-                    <div className={`absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${
-                      isSelected 
-                        ? 'bg-blue-600 text-white shadow-xs' 
-                        : 'bg-slate-200 text-slate-700'
-                    }`}>
-                      <Check size={10} strokeWidth={3} />
-                      <span className="text-[8px]">{isSelected ? 'ON' : 'OFF'}</span>
-                    </div>
-                  )}
-
-                  {/* Logo Center */}
-                  <div className="flex-1 flex items-center justify-center w-full px-2">
-                    {plat.logo}
-                  </div>
-
-                  {/* Platform Name Label */}
-                  <div className="mt-auto">
-                    <p className="text-xs font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
-                      {plat.name}
-                    </p>
-                  </div>
-
-                  {/* Locked Overlay Icon for Pro-only features */}
-                  {isLocked && (
-                    <div className="absolute inset-0 bg-[var(--bg)]/20 backdrop-blur-[1px] rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="bg-[var(--surface)]/90 text-[var(--ink-hi)] px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1 border border-[var(--line-ctl)]">
-                        <Lock size={10} className="text-amber-400" />
-                        Upgrade
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Connected Channels List preview at bottom */}
-          <div className="mt-8 pt-6 border-t border-[var(--line)]/80">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--ink-lo)] mb-3 flex items-center justify-between">
-              <span>Canais Configurados no seu Estúdio ({destinations.length})</span>
-              <span className="text-[10px] text-[var(--ink-dim)] font-normal">
-                Clique nos cards acima para editar chaves ou adicionar novos
-              </span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {destinations.map(dest => (
-                <div 
-                  key={dest.id}
-                  className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
-                    dest.selected 
-                      ? 'bg-blue-500/10 border-blue-500/40 text-[var(--ink-hi)]' 
-                      : 'bg-[var(--surface)] border-[var(--line)] text-[var(--ink-lo)]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                    <img 
-                      src={dest.avatarUrl} 
-                      alt={dest.name} 
-                      className="w-7 h-7 rounded-full object-cover shrink-0 border border-[var(--line-ctl)]"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold truncate text-[var(--ink-hi)]">{dest.name}</p>
-                      <p className="text-[9px] uppercase font-bold text-[var(--ink-lo)]">{dest.platform}</p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => onToggleDestination(dest.id)}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all ${
-                      dest.selected 
-                        ? 'bg-blue-600 hover:bg-blue-500 text-white' 
-                        : 'bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink)]'
-                    }`}
-                  >
-                    {dest.selected ? 'Ativo' : 'Ativar'}
-                  </button>
-                </div>
-              ))}
+          {bloqueado ? (
+            <div className="mt-2 max-w-prose">
+              <p className="text-sm text-[var(--ink-lo)]">
+                Transmitir para um servidor RTMP seu (NGINX, SRS, Owncast ou outro) está nos planos a partir do{' '}
+                {PLANO_DO_RTMP_PROPRIO}. No seu plano, a live vai para as plataformas desta lista.
+              </p>
+              {onOpenUpgrade && (
+                <Button className="mt-6" onClick={onOpenUpgrade}>
+                  Ver planos
+                </Button>
+              )}
             </div>
-          </div>
-        </div>
+          ) : (
+            <>
+              <p className="mt-2 max-w-prose text-sm text-[var(--ink-lo)]">
+                {plataforma.guia}
+                {plataforma.painel && (
+                  <>
+                    {' '}
+                    <AcaoDeTexto href={plataforma.painel.url} sublinhada>
+                      {plataforma.painel.rotulo}
+                      <ExternalLink size={12} aria-hidden="true" />
+                    </AcaoDeTexto>
+                  </>
+                )}
+              </p>
 
-        {/* Modal Footer */}
-        <div className="px-6 py-3.5 border-t border-[var(--line)] bg-[var(--surface)] flex items-center justify-between text-xs text-[var(--ink-lo)]">
-          <div className="flex items-center gap-2">
-            <Info size={14} className="text-blue-400" />
-            <span>Transmita simultaneamente para todas as suas redes sem usar mais banda do seu computador.</span>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md"
-          >
-            Concluir
-          </button>
-        </div>
-
-      </div>
-
-      {/* Slide-over / Modal for Platform RTMP Details Configuration */}
-      <AnimatePresence>
-        {/* Diálogo aninhado. Era um scrim próprio em z-60, sem ESC, sem
-            armadilha de foco e sem trava de rolagem. A trava do Modal é
-            CONTADA justamente para este caso: fechar este não pode devolver
-            a rolagem enquanto o diálogo de baixo continua aberto. */}
-        {selectedPlatform && (
-          <Modal
-            isOpen={!!selectedPlatform}
-            onClose={() => setSelectedPlatform(null)}
-            bare
-            ariaLabel={`Configurar ${selectedPlatform.name}`}
-          >
-            <div className="bg-[var(--bg)] text-[var(--ink-hi)] rounded-3xl w-full max-w-lg border border-[var(--line-ctl)] shadow-2xl overflow-hidden p-6 space-y-5">
-              
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-[var(--line)] pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white rounded-xl p-2 h-10 w-20 flex items-center justify-center shadow-xs">
-                    {selectedPlatform.logo}
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-[var(--ink-hi)]">Configurar {selectedPlatform.name}</h3>
-                    <p className="text-[11px] text-[var(--ink-lo)]">Insira os dados de transmissão da plataforma</p>
-                  </div>
-                </div>
-                <button aria-label="Fechar configuração da plataforma"
-                  type="button"
-                  onClick={() => setSelectedPlatform(null)}
-                  className="p-1.5 rounded-lg text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--panel)]"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              {/* Instructions text */}
-              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-xs text-blue-300 flex items-start gap-2.5">
-                <Info size={16} className="text-blue-400 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="leading-relaxed">{selectedPlatform.guideText}</p>
-                  {selectedPlatform.officialDocUrl && (
-                    <a 
-                      href={selectedPlatform.officialDocUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-400 hover:underline"
-                    >
-                      Abrir painel oficial do {selectedPlatform.name} <ExternalLink size={11} />
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {/* Form fields */}
-              <div className="space-y-3.5 text-left">
+              <form onSubmit={salvar} noValidate className="mt-6 space-y-5">
                 <div>
-                  <label htmlFor="addchannelsmodal-nome-de-exibicao-do-canal" className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)] mb-1">
-                    Nome de Exibição do Canal
+                  <label htmlFor="canal-nome" className="block text-sm font-medium text-[var(--ink-hi)]">
+                    Nome do canal
                   </label>
-                  <input id="addchannelsmodal-nome-de-exibicao-do-canal"
+                  <input
+                    id="canal-nome"
                     type="text"
-                    value={channelName}
-                    onChange={(e) => setChannelName(e.target.value)}
-                    placeholder="Ex: Meu Canal Oficial"
-                    className="w-full px-3.5 py-2.5 bg-[var(--well)] border border-[var(--line-ctl)] rounded-xl text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
+                    autoComplete="off"
+                    value={rascunho.nome}
+                    onChange={(e) => editar('nome', e.target.value)}
+                    placeholder={nome}
+                    className={`${CAMPO} h-11`}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="addchannelsmodal-url-do-servidor-rtmp-rtmps" className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)] mb-1">
-                    URL do Servidor RTMP / RTMPS
+                  <label htmlFor="canal-servidor" className="block text-sm font-medium text-[var(--ink-hi)]">
+                    Servidor
                   </label>
-                  <input id="addchannelsmodal-url-do-servidor-rtmp-rtmps"
-                    type="text"
-                    value={streamUrl}
-                    onChange={(e) => setStreamUrl(e.target.value)}
-                    placeholder="rtmp://..."
-                    className="w-full px-3.5 py-2.5 bg-[var(--well)] border border-[var(--line-ctl)] rounded-xl text-xs text-[var(--ink-hi)] font-mono placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
+                  <textarea
+                    id="canal-servidor"
+                    ref={refServidor}
+                    rows={1}
+                    inputMode="url"
+                    autoComplete="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    value={rascunho.servidor}
+                    // Um endereço não tem quebra de linha: colar com uma não a leva junto
+                    onChange={(e) => editar('servidor', e.target.value.replace(/[\r\n]+/g, ''))}
+                    onKeyDown={(e) => {
+                      if (e.key !== 'Enter') return;
+                      e.preventDefault();
+                      e.currentTarget.form?.requestSubmit();
+                    }}
+                    placeholder={plataforma.servidorPadrao || 'rtmp://servidor/live'}
+                    aria-invalid={erros.servidor ? true : undefined}
+                    aria-describedby={erros.servidor ? 'canal-servidor-erro' : dicaDoServidor ? 'canal-servidor-dica' : undefined}
+                    className={`${CAMPO} resize-none overflow-hidden break-all py-[11px] leading-5`}
                   />
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label htmlFor="addchannelsmodal-chave-de-transmissao-stream-key" className="block text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)]">
-                      Chave de Transmissão (Stream Key)
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowKey(!showKey)}
-                      className="text-[10px] text-blue-400 font-bold hover:underline"
-                    >
-                      {showKey ? 'Ocultar' : 'Mostrar'}
-                    </button>
-                  </div>
-                  <input id="addchannelsmodal-chave-de-transmissao-stream-key"
-                    type={showKey ? 'text' : 'password'}
-                    value={streamKey}
-                    onChange={(e) => setStreamKey(e.target.value)}
-                    placeholder={selectedPlatform.defaultRtmpKeyPlaceholder}
-                    className="w-full px-3.5 py-2.5 bg-[var(--well)] border border-[var(--line-ctl)] rounded-xl text-xs text-[var(--ink-hi)] font-mono placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[var(--line)]">
-                <button
-                  type="button"
-                  onClick={() => setSelectedPlatform(null)}
-                  className="px-4 py-2.5 bg-[var(--panel)] hover:bg-[var(--raise)] text-[var(--ink)] rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer"
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleSaveChannel}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer shadow-lg shadow-blue-500/20"
-                >
-                  {successSaved ? (
-                    <>
-                      <Check size={14} /> Canal Salvo!
-                    </>
+                  {erros.servidor ? (
+                    <Erro id="canal-servidor-erro">{erros.servidor}</Erro>
                   ) : (
-                    <>
-                      <CheckCircle2 size={14} /> Salvar & Ativar Canal
-                    </>
+                    dicaDoServidor && (
+                      <p id="canal-servidor-dica" className="mt-2 text-xs text-[var(--ink-lo)]">
+                        {dicaDoServidor}
+                      </p>
+                    )
                   )}
-                </button>
-              </div>
+                </div>
 
-            </div>
-          </Modal>
-        )}
-      </AnimatePresence>
+                <div>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <label htmlFor="canal-chave" className="block text-sm font-medium text-[var(--ink-hi)]">
+                      Chave de transmissão
+                    </label>
+                    <AcaoDeTexto tamanho="xs" onClick={() => setChaveVisivel((v) => !v)}>
+                      {chaveVisivel ? 'Ocultar chave' : 'Mostrar chave'}
+                    </AcaoDeTexto>
+                  </div>
+                  <input
+                    id="canal-chave"
+                    type={chaveVisivel ? 'text' : 'password'}
+                    autoComplete="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    value={rascunho.chave}
+                    onChange={(e) => editar('chave', e.target.value)}
+                    placeholder="Cole aqui a chave de transmissão"
+                    aria-invalid={erros.chave ? true : undefined}
+                    aria-describedby={erros.chave ? 'canal-chave-erro' : undefined}
+                    className={`${CAMPO} h-11`}
+                  />
+                  {erros.chave && <Erro id="canal-chave-erro">{erros.chave}</Erro>}
+                </div>
+
+                {salvaDesligado && (
+                  <p className="flex items-start gap-2 text-sm text-[var(--ink-lo)]">
+                    <Info size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+                    <span>
+                      Seu plano transmite para {plano.destinosSimultaneos} canais ao mesmo tempo, e {ligados} já estão ligados.
+                      Este canal será salvo desligado.
+                      {onOpenUpgrade && (
+                        <>
+                          {' '}
+                          <AcaoDeTexto sublinhada onClick={onOpenUpgrade}>
+                            Ver planos
+                          </AcaoDeTexto>
+                        </>
+                      )}
+                    </span>
+                  </p>
+                )}
+
+                <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+                  <Button variant="ghost" onClick={onClose}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit">{existente ? 'Salvar alterações' : 'Conectar canal'}</Button>
+                </div>
+              </form>
+            </>
+          )}
+        </section>
+      </div>
     </Modal>
+  );
+}
+
+/** Erro de campo: ícone e frase na tinta alta, e a borda do campo sobe junto (index.css). */
+function Erro({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <p id={id} className="mt-2 flex items-start gap-1.5 text-xs text-[var(--ink-hi)]">
+      <CircleAlert size={14} aria-hidden="true" className="mt-px shrink-0" />
+      <span>{children}</span>
+    </p>
   );
 }
