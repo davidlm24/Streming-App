@@ -31,8 +31,9 @@ interface DashboardProps {
  *
  * Era um mural: quatro cartões de indicador (três deles vazios), a lista de
  * webinars com três botões coloridos por linha, um cartão de configurações e
- * o painel inteiro de qualidade de vídeo. Qualidade, integrações e tema
- * foram para Configurações; os indicadores voltam quando houver telemetria.
+ * o painel inteiro de qualidade de vídeo. Integrações e tema foram para
+ * Configurações; a qualidade de vídeo saiu de vez (não chegava à live) e volta
+ * quando a transmissão existir; os indicadores, quando houver telemetria.
  */
 export function Dashboard({
   webinars,
