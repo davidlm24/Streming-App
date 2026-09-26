@@ -3,11 +3,8 @@ import { LinhaDeAcao } from './ui/LinhaDeAcao';
 import { CabecalhoDePagina, Pagina, SecaoDePagina } from './ui/Pagina';
 import { Segmentado } from './ui/Segmentado';
 
-type AbaDeIntegracao = 'rtmp' | 'social' | 'webhooks';
-
 interface ConfiguracoesPaginaProps {
   ehSuperAdmin: boolean;
-  onAbrirIntegracao: (aba: AbaDeIntegracao) => void;
   onIrPara: (visao: 'billing' | 'profile' | 'super-admin') => void;
 }
 
@@ -30,9 +27,16 @@ const TEMAS = [
  * O "Painel técnico" também saiu. A chave de ingestão apontava para um
  * servidor que não existe (stream.pwstreamer.com não resolve), os destinos
  * repetiam a página Canais sem salvar nada, as estatísticas eram vazias ou
- * inventadas, e os webhooks já estão em Integrações.
+ * inventadas, e os webhooks estavam também no modal de Integrações.
+ *
+ * E o modal de Integrações, que as três linhas daqui abriam, saiu também:
+ * "Redes sociais" prometia conectar contas pelo login e mostrava documentação
+ * de API para desenvolvedor; "Webhooks" era um testador manual com histórico
+ * inventado, selo "Dispatcher v2.0 Ativo" e um receptor que simulava sucesso
+ * — nenhum aviso sai de fato quando a live começa ou termina. Fica só a linha
+ * do OBS, dizendo que ainda não está no ar.
  */
-export function ConfiguracoesPagina({ ehSuperAdmin, onAbrirIntegracao, onIrPara }: ConfiguracoesPaginaProps) {
+export function ConfiguracoesPagina({ ehSuperAdmin, onIrPara }: ConfiguracoesPaginaProps) {
   const { theme, setTheme } = useTheme();
 
   return (
@@ -40,29 +44,11 @@ export function ConfiguracoesPagina({ ehSuperAdmin, onAbrirIntegracao, onIrPara 
       <CabecalhoDePagina titulo="Configurações" />
 
       <SecaoDePagina id="config-integracoes" titulo="Integrações">
-        <ul className="mt-2 divide-y divide-[var(--line)]">
-          <li>
-            <LinhaDeAcao
-              titulo="OBS, vMix e RTMP externo"
-              descricao="Transmitir de um programa no seu computador. Ainda não está no ar."
-              onClick={() => onAbrirIntegracao('rtmp')}
-            />
-          </li>
-          <li>
-            <LinhaDeAcao
-              titulo="Redes sociais"
-              descricao="Conectar contas do YouTube, do Facebook e da Twitch pelo login de cada uma."
-              onClick={() => onAbrirIntegracao('social')}
-            />
-          </li>
-          <li>
-            <LinhaDeAcao
-              titulo="Webhooks"
-              descricao="Avisos para outros sistemas quando a live começa, termina ou recebe um evento."
-              onClick={() => onAbrirIntegracao('webhooks')}
-            />
-          </li>
-        </ul>
+        {/* Sem ação: não há o que abrir enquanto o servidor de ingestão não existe */}
+        <div className="mt-4">
+          <p className="text-sm font-medium text-[var(--ink-hi)]">OBS, vMix e RTMP externo</p>
+          <p className="mt-1 text-xs text-[var(--ink-lo)]">Transmitir de um programa no seu computador ainda não está no ar.</p>
+        </div>
       </SecaoDePagina>
 
       <SecaoDePagina id="config-aparencia" titulo="Aparência">

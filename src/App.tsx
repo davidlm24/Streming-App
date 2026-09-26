@@ -2,7 +2,6 @@ import { AcaoDeTexto } from './components/ui/AcaoDeTexto';
 import { BotaoDeIcone } from './components/ui/BotaoDeIcone';
 import { Button } from './components/ui/Button';
 import { apiFetch } from './lib/apiFetch';
-import { useTabs } from './components/ui/Tabs';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Header } from './components/Header';
 import { AppHeader, type VisaoDoApp } from './components/AppHeader';
@@ -28,7 +27,6 @@ import { StreamReportModal, StreamReportData, downloadStreamReportJSON } from '.
 import { CloudflareStreamModal } from './components/CloudflareStreamModal';
 import { CustomDestinationModal } from './components/CustomDestinationModal';
 import { AddChannelsModal } from './components/AddChannelsModal';
-import { WebhookPanel } from './components/WebhookPanel';
 import { QrCodeModal } from './components/QrCodeModal';
 import { StudioScenePreviewControls } from './components/StudioScenePreviewControls';
 import { CLOUDFLARE_STREAM_CONFIG } from './lib/cloudflareStreamConfig';
@@ -36,13 +34,12 @@ import { CLOUDFLARE_STREAM_CONFIG } from './lib/cloudflareStreamConfig';
 import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, QrCodeConfig, StudioTab, SceneTransitionType, isWipeTransition } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_BANNERS, INITIAL_TICKERS, INITIAL_COMMENTS, AUDIO_LIBRARY } from './data';
 import { startSynth, stopSynth, setVolume as setSynthVolume } from './audioEngine';
-import { CircleAlert, Play, Calendar, Users, Tv, Radio, BarChart3, Plus, ArrowRight, Settings, ExternalLink, Palette, ListTodo, QrCode, FileText, MessageSquare, Music, Sliders, ShieldAlert, Sparkles, X, Maximize2, Minimize2, Server, CheckCircle2, Type, Film, Bell, Puzzle, Activity, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
+import { CircleAlert, Play, Calendar, Users, Tv, BarChart3, Plus, ArrowRight, Settings, ExternalLink, Palette, ListTodo, QrCode, FileText, MessageSquare, Music, Sliders, ShieldAlert, Sparkles, X, Maximize2, Minimize2, CheckCircle2, Type, Film, Bell, Puzzle, Activity, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
 import { ThumbnailEditor } from './components/ThumbnailEditor';
 import { ScenesPanel, Scene, DEFAULT_STUDIO_SCENES } from './components/ScenesPanel';
 import { LegalModal } from './components/LegalModals';
 import { useSceneTransition } from './hooks/useSceneTransition';
 import { useMediaManager } from './context/MediaManagerContext';
-import { copyText } from './components/ui/clipboard';
 import { Modal } from './components/ui/Modal';
 import { useToast } from './components/ui/Toast';
 import { CanaisAcimaDoPlano } from './components/CanaisAcimaDoPlano';
@@ -64,10 +61,6 @@ import {
   subscribeTransmissionSettings,
   saveTransmissionSettingsToFirestore,
   saveDestinationsToFirestore,
-  subscribeWebhooksConfig,
-  saveWebhooksConfigToFirestore,
-  subscribeWebhookLogs,
-  addWebhookLogToFirestore,
   subscribeSceneLayouts,
   saveSceneLayoutsToFirestore,
   validateUserTrialStatus,
@@ -410,9 +403,6 @@ export default function App() {
   const [isPresentationOverlayActive, setIsPresentationOverlayActive] = useState<boolean>(true);
 
   // Quick Settings / Integrations modal state
-  const [isIntegrationsModalOpen, setIsIntegrationsModalOpen] = useState(false);
-  const [integrationsModalTab, setIntegrationsModalTab] = useState<'rtmp' | 'social' | 'webhooks'>('rtmp');
-  const integracoesAbas = useTabs('integracoes', ['rtmp', 'social', 'webhooks'] as const, integrationsModalTab, setIntegrationsModalTab);
   const [isImmersiveMode, setIsImmersiveMode] = useState(false);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
   const [isMobileScenesOpen, setIsMobileScenesOpen] = useState(false);
@@ -430,18 +420,6 @@ export default function App() {
   const [isResizingScenes, setIsResizingScenes] = useState(false);
   const [isResizingSidebar, setIsResizingSidebar] = useState(false);
 
-  // Webhooks Manager states
-  const [selectedWebhookPlatform, setSelectedWebhookPlatform] = useState<'youtube' | 'facebook' | 'twitch'>('youtube');
-  const [webhooksConfig, setWebhooksConfig] = useState({
-    youtube: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/youtube', secret: 'whsec_yt_99b1a0f83', events: ['stream_state', 'chat_message'] },
-    facebook: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/facebook', secret: 'whsec_fb_55c3a2f11', events: ['stream_state', 'chat_message', 'new_follower'] },
-    twitch: { active: false, url: 'https://api.pwstreamer.com/v1/webhooks/twitch', secret: 'whsec_tw_77e4c1d22', events: ['stream_state'] }
-  });
-  const [webhookLogs, setWebhookLogs] = useState<Array<{ id: string; time: string; method: string; path: string; status: number; payload: string; platform: string }>>([
-    { id: 'log-1', time: '12:01:05', method: 'POST', path: '/v1/webhooks/youtube', status: 200, payload: '{"event": "ping", "message": "Connection verification successful"}', platform: 'youtube' },
-    { id: 'log-2', time: '12:05:40', method: 'POST', path: '/v1/webhooks/facebook', status: 200, payload: '{"event": "subscribe", "page_id": "1098273618"}', platform: 'facebook' },
-    { id: 'log-3', time: '12:10:15', method: 'POST', path: '/v1/webhooks/youtube', status: 200, payload: '{"event": "stream_created", "broadcast_id": "yt_live_883"}', platform: 'youtube' },
-  ]);
 
   // Firestore Quota Resilience state
   const [isQuotaExceeded, setIsQuotaExceeded] = useState(false);
@@ -1454,50 +1432,6 @@ export default function App() {
     };
   }, [isLive, isAiModerationEnabled]);
 
-  // Webhook Event simulator effect
-  useEffect(() => {
-    let intervalId: any = null;
-    if (isLive) {
-      intervalId = setInterval(() => {
-        const platforms: Array<'youtube' | 'facebook' | 'twitch'> = ['youtube', 'facebook', 'twitch'];
-        const randomPlatform = platforms[Math.floor(Math.random() * platforms.length)];
-        
-        // Check if platform webhook is active
-        const isAct = webhooksConfig[randomPlatform].active;
-        
-        const now = new Date();
-        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-        
-        const events = [
-          { name: 'stream_metrics_update', payload: { viewers: Math.floor(Math.random() * 50 + 20), status: 'live', health: 'excellent' } },
-          { name: 'chat_message_received', payload: { author: 'User_' + Math.floor(Math.random() * 100), text: 'Muito boa a transmissão!', timestamp: Date.now() } },
-          { name: 'subscription_gained', payload: { plan: 'Professional', user_id: 'usr_' + Math.random().toString(36).substr(2, 5) } }
-        ];
-        const selectedEvent = events[Math.floor(Math.random() * events.length)];
-
-        const newLog = {
-          id: `wh-log-${Date.now()}`,
-          time: timeStr,
-          method: 'POST',
-          path: webhooksConfig[randomPlatform].url,
-          status: isAct ? 200 : 503,
-          payload: JSON.stringify({ 
-            event: selectedEvent.name, 
-            platform: randomPlatform,
-            data: selectedEvent.payload, 
-            timestamp: Date.now() 
-          }, null, 2),
-          platform: randomPlatform
-        };
-
-        setWebhookLogs(prev => [newLog, ...prev].slice(0, 50));
-      }, 8000); // add a webhook event log in state every 8 seconds if live
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isLive, webhooksConfig]);
 
   // Destinations toggler
   // Ligar além do plano não liga: o canal fica como estava e o aviso diz por
@@ -1679,14 +1613,6 @@ export default function App() {
       if (settings.textStyle) setTextStyle(settings.textStyle as any);
     });
 
-    const unsubWebhooksConf = subscribeWebhooksConfig(user.uid, (config) => {
-      setWebhooksConfig(prev => JSON.stringify(prev) === JSON.stringify(config) ? prev : config);
-    });
-
-    const unsubWebhookLogs = subscribeWebhookLogs(user.uid, (logs) => {
-      setWebhookLogs(logs);
-    });
-
     const unsubScenes = subscribeSceneLayouts(user.uid, (data) => {
       if (data.sceneTransitions) setSceneTransitions(prev => JSON.stringify(prev) === JSON.stringify(data.sceneTransitions) ? prev : data.sceneTransitions);
       if (data.layout) setLayout(data.layout as any);
@@ -1699,8 +1625,6 @@ export default function App() {
       unsubBanners();
       unsubSnapshots();
       unsubSettings();
-      unsubWebhooksConf();
-      unsubWebhookLogs();
       unsubScenes();
     };
   }, [user?.uid]);
@@ -1736,15 +1660,6 @@ export default function App() {
     }, 1500);
     return () => clearTimeout(timeout);
   }, [user?.uid, destinations, rtmpServer, streamKey, recordingFormat, recordingQuality, logoAnimation, bannerAnimation, streamColor, textStyle, isFirestoreSettingsLoaded]);
-
-  // Debounced Auto-save Webhooks config to Firestore
-  useEffect(() => {
-    if (!user?.uid || !isFirestoreSettingsLoaded) return;
-    const timeout = setTimeout(() => {
-      saveWebhooksConfigToFirestore(user.uid, webhooksConfig);
-    }, 1500);
-    return () => clearTimeout(timeout);
-  }, [user?.uid, webhooksConfig, isFirestoreSettingsLoaded]);
 
   // Synthesizer background music player and custom audio player
   const customAudioPlayerRef = useRef<HTMLAudioElement | null>(null);
@@ -3071,10 +2986,6 @@ export default function App() {
       ) : currentView === 'settings' ? (
         <ConfiguracoesPagina
           ehSuperAdmin={user?.role === 'super-admin'}
-          onAbrirIntegracao={(aba) => {
-            setIntegrationsModalTab(aba);
-            setIsIntegrationsModalOpen(true);
-          }}
           onIrPara={setCurrentView}
         />
       ) : (
@@ -3178,146 +3089,6 @@ export default function App() {
         type={legalModalType}
         onClose={() => setLegalModalOpen(false)}
       />
-
-      {/* 5. INTERACTIVE INTEGRATIONS, API KEYS & REQUIREMENTS ANALYSIS MODAL */}
-      {isIntegrationsModalOpen && (
-        <Modal isOpen onClose={() => setIsIntegrationsModalOpen(false)} bare ariaLabel="Integrações e chaves">
-          <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 text-left">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--line)] bg-[var(--bg)]">
-              <div className="text-left">
-                <h3 className="text-sm sm:text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
-                  <Sparkles size={18} className="text-emerald-400 animate-pulse" />
-                  Manual de Integração, Chaves de API e Análise do SaaS
-                </h3>
-                <p className="text-xs text-[var(--ink-lo)] mt-0.5">Analise o mapeamento completo de requisitos de produção e variáveis de ambiente.</p>
-              </div>
-              <button aria-label="Fechar integrações" 
-                onClick={() => setIsIntegrationsModalOpen(false)}
-                className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Tab Switched Header */}
-            <div {...integracoesAbas.tablist} aria-label="Integrações" className="flex border-b border-[var(--line)] bg-[var(--bg)]/50 px-6 py-2 gap-2">
-              {[
-                { id: 'rtmp', label: 'Ingestão OBS & RTMP', icon: Server },
-                { id: 'social', label: 'Mídias Sociais & OAuth', icon: Users },
-                { id: 'webhooks', label: 'Gerenciador de Webhooks', icon: Radio }
-              ].map(tab => {
-                const Icon = tab.icon;
-                const active = integrationsModalTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    {...integracoesAbas.tab(tab.id as typeof integrationsModalTab)}
-                    onClick={() => setIntegrationsModalTab(tab.id as typeof integrationsModalTab)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                      active ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
-                    }`}
-                  >
-                    <Icon size={14} /> {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Content Body */}
-            <div {...integracoesAbas.panel(integrationsModalTab)} className="p-6 max-h-[65vh] overflow-y-auto text-xs text-[var(--ink)] space-y-4">
-              {integrationsModalTab === 'rtmp' && (
-                <div className="space-y-4">
-                  {/* Aqui havia "Parâmetros de Conexão Ativos": um servidor
-                      (stream.pwstreamer.com, que não resolve no DNS) e a MESMA
-                      chave fixa para todo mundo, com botões de copiar. Quem
-                      configurasse o OBS com eles não transmitiria para lugar
-                      nenhum. Volta quando o servidor de ingestão existir. */}
-                  <p className="max-w-prose text-pretty text-sm text-[var(--ink)]">
-                    Transmitir pelo OBS, vMix ou outro programa do seu computador ainda não está no ar: o servidor de
-                    ingestão do PwStreamer ainda não foi publicado, então não há endereço nem chave para configurar.
-                  </p>
-
-                  <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl">
-                    <p className="text-xs font-bold text-[var(--ink-hi)]">Requisitos Recomendados para o OBS:</p>
-                    <ul className="list-disc pl-5 mt-2 space-y-1 text-[var(--ink-lo)] text-[10px] leading-relaxed">
-                      <li><strong>Encoder de Vídeo:</strong> NVIDIA NVENC H.264 ou x264</li>
-                      <li><strong>Taxa de Bits (Bitrate):</strong> 3500 kbps a 6000 kbps (para 720p / 1080p a 30fps)</li>
-                      <li><strong>Intervalo de Keyframe:</strong> 2 segundos (Obrigatório para Facebook e YouTube)</li>
-                      <li><strong>Perfil de Áudio:</strong> AAC, Stereo, 128 kbps, 48 kHz</li>
-                    </ul>
-                  </div>
-                </div>
-              )}
-
-              {integrationsModalTab === 'social' && (
-                <div className="space-y-4">
-                  <div className="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-2xl">
-                    <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Social Media APIs & Conexão por OAuth</p>
-                    <p className="text-[11px] text-[var(--ink)] leading-relaxed">Para habilitar a retransmissão direta de um clique para canais e páginas, a plataforma utiliza o padrão de autenticação OAuth 2.0. Abaixo listamos as configurações necessárias para os portais de desenvolvedores de cada rede.</p>
-                  </div>
-
-                  <div className="space-y-3">
-                    {[
-                      {
-                        name: 'YouTube Live Streaming API',
-                        developer: 'Google Developers Console',
-                        scopes: 'https://www.googleapis.com/auth/youtube.force-ssl',
-                        desc: 'Permite criar eventos de transmissão ao vivo diretamente no canal do usuário, gerenciar títulos e capas de lives e capturar a caixa de comentários ao vivo em tempo real para o chat unificado.'
-                      },
-                      {
-                        name: 'Facebook Live Video API',
-                        developer: 'Meta for Developers (Facebook Graph API)',
-                        scopes: 'publish_video, pages_manage_posts, pages_read_engagement',
-                        desc: 'Necessário para listar as páginas e grupos gerenciados pelo usuário final e autorizar a postagem automática da live com título e link customizado diretamente na timeline.'
-                      },
-                      {
-                        name: 'Twitch API & Webhooks',
-                        developer: 'Twitch Developer Console',
-                        scopes: 'channel:manage:broadcast, channel:read:subscriptions',
-                        desc: 'Habilita o envio de chaves de transmissão e monitoramento dinâmico de status técnico do canal do streamer, bem como integração direta com chats IRC.'
-                      }
-                    ].map((platform, idx) => (
-                      <div key={idx} className="bg-[var(--bg)] border border-[var(--line)] p-4 rounded-xl space-y-2 text-left">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
-                          <p className="text-xs font-bold text-[var(--ink-hi)]">{platform.name}</p>
-                          <span className="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-mono font-bold">{platform.developer}</span>
-                        </div>
-                        <p className="text-[10px] text-[var(--ink-lo)] leading-relaxed">{platform.desc}</p>
-                        <div className="p-2.5 bg-[var(--bg)] rounded-lg">
-                          <p className="text-[9px] font-bold text-[var(--ink-dim)] uppercase tracking-wider">Escopos e Permissões OAuth Requeridas:</p>
-                          <code className="text-[9px] text-indigo-300 block font-mono break-all mt-1">{platform.scopes}</code>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {integrationsModalTab === 'webhooks' && (
-                <WebhookPanel 
-                  userId={user?.uid} 
-                  isLive={isLive}
-                  onSaveToFirestore={async (logItem) => {
-                    if (user?.uid) {
-                      await addWebhookLogToFirestore(user.uid, logItem);
-                    }
-                  }}
-                  initialLogs={webhookLogs}
-                />
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-4 border-t border-[var(--line)] bg-[var(--bg)] flex items-center justify-between">
-              <span className="text-[10px] text-[var(--ink-dim)]">Desenvolvido por PwStreamer Solutions - PwStreamer Cloud Integration Manual</span>
-              <Button onClick={() => setIsIntegrationsModalOpen(false)}>
-                Concluído
-              </Button>
-            </div>
-          </div>
-        </Modal>
-      )}
 
       {/* Stream JSON Statistics Report Modal */}
       <StreamReportModal 
