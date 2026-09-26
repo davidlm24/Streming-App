@@ -101,7 +101,29 @@ for (const [scopeName, scopeDecls] of Object.entries(SCOPES)) {
       const r = ratio(fg, bg);
       const ok = r >= MIN_TEXT;
       if (!ok) failures++;
-      rows.push({ scopeName, ink, surf, fg, bg, r, ok });
+      rows.push({ scopeName, ink, surf, fg, bg, r, ok, min: MIN_TEXT });
+    }
+  }
+}
+
+// ── bordas que carregam um estado sozinhas (WCAG 1.4.11, 3:1) ─────────────
+// A caixa de seleção desmarcada é só a borda: tem de aparecer contra toda
+// superfície em que pousa. (A borda dos campos, --line-ctl, fica abaixo de
+// 3:1 e não entra aqui: o campo se lê pelo preenchimento e pelo rótulo.)
+const BORDAS_DE_ESTADO = ['--ink-dim'];
+for (const [scopeName, scopeDecls] of Object.entries(SCOPES)) {
+  if (!Object.keys(scopeDecls).length) continue;
+  const merged = { ...SCOPES['escuro (:root)'], ...scopeDecls };
+  for (const ink of BORDAS_DE_ESTADO) {
+    for (const surf of SURFACES) {
+      const fg = resolve(merged[ink], merged);
+      const bg = resolve(merged[surf], merged);
+      if (!fg || !bg) continue;
+      checked++;
+      const r = ratio(fg, bg);
+      const ok = r >= MIN_UI;
+      if (!ok) failures++;
+      rows.push({ scopeName, ink, surf, fg, bg, r, ok, min: MIN_UI });
     }
   }
 }
@@ -120,7 +142,7 @@ const suspicious = css
   .filter(({ line }) => /\/\*|\*\//.test(line) && MATCH_WORDS.test(line));
 
 // ── relatório ─────────────────────────────────────────────────────────────
-console.log('\nPortão de contraste — pares texto/superfície\n');
+console.log('\nPortão de contraste — pares texto/superfície e bordas de estado\n');
 let currentScope = null;
 for (const row of rows.sort((a, b) => a.scopeName.localeCompare(b.scopeName) || a.r - b.r)) {
   if (row.scopeName !== currentScope) {
@@ -130,7 +152,7 @@ for (const row of rows.sort((a, b) => a.scopeName.localeCompare(b.scopeName) || 
   if (!row.ok) {
     console.log(
       `    FALHA  ${row.ink.padEnd(9)} on ${row.surf.padEnd(9)} ` +
-      `${row.fg} / ${row.bg}  ${row.r.toFixed(2)}:1  (mínimo ${MIN_TEXT})`
+      `${row.fg} / ${row.bg}  ${row.r.toFixed(2)}:1  (mínimo ${row.min})`
     );
   }
 }
