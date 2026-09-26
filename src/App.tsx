@@ -23,7 +23,6 @@ import { SuperAdminPanel } from './components/SuperAdminPanel';
 import { PlansModal } from './components/PlansModal';
 import { PlanoPagina } from './components/PlanoPagina';
 import { CadastroPagina } from './components/CadastroPagina';
-import { VideoQualityPanel } from './components/VideoQualityPanel';
 import { StreamReportModal, StreamReportData, downloadStreamReportJSON } from './components/StreamReportModal';
 import { CloudflareStreamModal } from './components/CloudflareStreamModal';
 import { CustomDestinationModal } from './components/CustomDestinationModal';
@@ -173,10 +172,12 @@ export default function App() {
 
   // Dados que telas apagadas guardavam só neste navegador e que nada lê mais:
   // os dados fiscais do cadastro antigo (razão social, CPF/CNPJ, endereço;
-  // voltam com a cobrança) e as faturas e o consumo inventados da cobrança antiga.
+  // voltam com a cobrança), as faturas e o consumo inventados da cobrança
+  // antiga e a configuração do painel de qualidade de vídeo, que não chegava
+  // à live.
   useEffect(() => {
     try {
-      ['pwstream_billing_profile', 'pwstream_invoices', 'pwstream_member_minutes', 'pwstream_member_storage'].forEach((chave) =>
+      ['pwstream_billing_profile', 'pwstream_invoices', 'pwstream_member_minutes', 'pwstream_member_storage', 'pwstream_video_quality_config'].forEach((chave) =>
         localStorage.removeItem(chave)
       );
     } catch {
@@ -3079,7 +3080,6 @@ export default function App() {
         />
       ) : currentView === 'settings' ? (
         <ConfiguracoesPagina
-          plano={user?.plan || 'Free Trial'}
           ehSuperAdmin={user?.role === 'super-admin'}
           onAbrirIntegracao={(aba) => {
             setIntegrationsModalTab(aba);
