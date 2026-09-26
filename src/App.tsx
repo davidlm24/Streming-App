@@ -9,6 +9,8 @@ import { AppHeader, type VisaoDoApp } from './components/AppHeader';
 import { Dashboard } from './components/Dashboard';
 import { CanaisPagina } from './components/CanaisPagina';
 import { WebinarsPagina } from './components/WebinarsPagina';
+import { CriarWebinarModal } from './components/CriarWebinarModal';
+import { rotuloDoHorario } from './lib/horario';
 import { ConfiguracoesPagina } from './components/ConfiguracoesPagina';
 import { LeftSidebar } from './components/LeftSidebar';
 import { StudioPreview } from './components/StudioPreview';
@@ -53,6 +55,7 @@ import {
   subscribeAuth,
   subscribeWebinars,
   saveWebinarToFirestore,
+  agendarWebinar,
   deleteWebinarFromFirestore,
   subscribeBanners,
   saveBannersToFirestore,
@@ -262,14 +265,8 @@ export default function App() {
     }
   };
 
-  // Create webinar modal states
+  // Agendar webinar (o rascunho mora no próprio modal)
   const [isCreateWebinarOpen, setIsCreateWebinarOpen] = useState(false);
-  const [newWebinarTitle, setNewWebinarTitle] = useState('');
-  const [newWebinarDesc, setNewWebinarDesc] = useState('');
-  const [newWebinarTime, setNewWebinarTime] = useState('');
-  const [newWebinarType, setNewWebinarType] = useState<'live' | 'webinar' | 'pre-recorded'>('webinar');
-  const [newWebinarVideoName, setNewWebinarVideoName] = useState('');
-  const [newWebinarChannels, setNewWebinarChannels] = useState<string[]>(['YouTube']);
 
   // Studio Widgets state
   const [showWidgetChat, setShowWidgetChat] = useState<boolean>(false);
@@ -3166,176 +3163,21 @@ export default function App() {
         </footer>
       )}
 
-      {/* 4. CREATION WEBINAR / LIVE EVENT MODAL */}
-      {isCreateWebinarOpen && (
-        <Modal isOpen onClose={() => setIsCreateWebinarOpen(false)} bare ariaLabel="Criar webinar ou evento ao vivo">
-          <div className="relative w-full max-w-xl bg-[var(--bg)] border border-[var(--line)] rounded-2xl shadow-2xl overflow-hidden flex flex-col text-left">
-            
-            {/* Modal Header */}
-            <div className="p-5 border-b border-[var(--line)] flex items-center justify-between">
-              <div className="space-y-0.5">
-                <h3 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
-                  <Calendar size={18} className="text-blue-500" /> Agendar Nova Transmissão
-                </h3>
-                <p className="text-xs text-[var(--ink-lo)]">Preencha os dados do webinar, canais de streaming e tipo de conteúdo.</p>
-              </div>
-              <button aria-label="Fechar agendamento" 
-                onClick={() => setIsCreateWebinarOpen(false)}
-                className="p-1.5 hover:bg-[var(--panel)] rounded-lg text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-all cursor-pointer"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!newWebinarTitle.trim()) return;
-
-                const nWeb = {
-                  id: `webinar-${Date.now()}`,
-                  title: newWebinarTitle,
-                  desc: newWebinarDesc || 'Nenhuma descrição fornecida.',
-                  time: newWebinarTime || 'Hoje, às ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-                  channels: newWebinarChannels.length > 0 ? newWebinarChannels : ['YouTube'],
-                  type: newWebinarType,
-                  videoName: newWebinarVideoName
-                };
-
-                setWebinars(prev => [nWeb, ...prev]);
-                if (user?.uid) {
-                  saveWebinarToFirestore(user.uid, nWeb);
-                }
-                
-                // Reset states
-                setNewWebinarTitle('');
-                setNewWebinarDesc('');
-                setNewWebinarTime('');
-                setNewWebinarType('webinar');
-                setNewWebinarVideoName('');
-                setNewWebinarChannels(['YouTube']);
-                setIsCreateWebinarOpen(false);
-              }}
-              className="p-6 space-y-4 max-h-[80vh] overflow-y-auto"
-            >
-              {/* Event Title */}
-              <div className="space-y-1.5">
-                <label htmlFor="app-titulo-do-webinar-transmissao" className="text-xs font-semibold text-[var(--ink)]">Título do Webinar / Transmissão</label>
-                <input id="app-titulo-do-webinar-transmissao"
-                  type="text"
-                  required
-                  placeholder="Ex: Como dominar o tráfego pago em 2026"
-                  value={newWebinarTitle}
-                  onChange={(e) => setNewWebinarTitle(e.target.value)}
-                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all"
-                />
-              </div>
-
-              {/* Event Description */}
-              <div className="space-y-1.5">
-                <label htmlFor="app-descricao-detalhada" className="text-xs font-semibold text-[var(--ink)]">Descrição Detalhada</label>
-                <textarea id="app-descricao-detalhada"
-                  placeholder="Ex: Neste webinar exclusivo, abordaremos as novas tendências de audiência..."
-                  value={newWebinarDesc}
-                  onChange={(e) => setNewWebinarDesc(e.target.value)}
-                  rows={3}
-                  className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all resize-none"
-                />
-              </div>
-
-              {/* Time & Type Selection Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="app-data-e-hora-do-inicio" className="text-xs font-semibold text-[var(--ink)]">Data e Hora do Início</label>
-                  <input id="app-data-e-hora-do-inicio"
-                    type="text"
-                    placeholder="Ex: Amanhã, às 20:00"
-                    value={newWebinarTime}
-                    onChange={(e) => setNewWebinarTime(e.target.value)}
-                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] placeholder-[var(--ink-dim)] focus:outline-none focus:border-blue-500 transition-all"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="app-tipo-de-conteudo" className="text-xs font-semibold text-[var(--ink)]">Tipo de Conteúdo</label>
-                  <select id="app-tipo-de-conteudo"
-                    value={newWebinarType}
-                    onChange={(e) => setNewWebinarType(e.target.value as any)}
-                    className="w-full bg-[var(--bg)] border border-[var(--line)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--ink-hi)] focus:outline-none focus:border-blue-500 transition-all"
-                  >
-                    <option value="webinar">Webinar Interativo (Ao Vivo)</option>
-                    <option value="live">Stream Convencional (Ao Vivo)</option>
-                    <option value="pre-recorded">Transmissão Gravada (Simulada)</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Pre-recorded video uploader (Shows only when pre-recorded selected) */}
-              {newWebinarType === 'pre-recorded' && (
-                <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl space-y-3">
-                  <label className="text-xs font-bold text-blue-400 uppercase tracking-wider block">Upload do Vídeo Pré-gravado</label>
-                  <p className="text-[10px] text-[var(--ink-lo)] leading-relaxed">Arraste e solte o arquivo de vídeo (.mp4, .mov) para que nossos servidores façam o transcoding automático e iniciem o fluxo RTMP no horário programado.</p>
-                  
-                  <div className="border border-dashed border-[var(--line-ctl)] hover:border-blue-500/50 rounded-lg p-5 text-center transition-all cursor-pointer bg-[var(--bg)]">
-                    {newWebinarVideoName ? (
-                      <div className="text-xs text-emerald-400 font-semibold flex items-center justify-center gap-1.5">
-                        <CheckCircle2 size={16} /> {newWebinarVideoName}
-                      </div>
-                    ) : (
-                      <div 
-                        onClick={() => setNewWebinarVideoName('aula_introducao_marketing_v2.mp4')}
-                        className="text-xs text-[var(--ink-lo)] hover:text-[var(--ink-hi)] transition-colors"
-                      >
-                        Clique para simular o upload de <span className="text-blue-400 font-semibold underline">aula_introducao_marketing_v2.mp4</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Destination channels checkbox selections */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-[var(--ink)]">Canais de Transmissão Simultânea</label>
-                <div className="grid grid-cols-3 gap-2.5">
-                  {['YouTube', 'Facebook', 'Instagram', 'Twitch', 'LinkedIn', 'X / Twitter'].map(chan => {
-                    const isChecked = newWebinarChannels.includes(chan);
-                    return (
-                      <label 
-                        key={chan} 
-                        className={`flex items-center gap-2 p-2.5 bg-[var(--bg)] border rounded-xl cursor-pointer text-xs transition-all ${
-                          isChecked ? 'border-blue-500/40 bg-blue-500/5 text-[var(--ink-hi)]' : 'border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setNewWebinarChannels(prev => [...prev, chan]);
-                            } else {
-                              setNewWebinarChannels(prev => prev.filter(c => c !== chan));
-                            }
-                          }}
-                          className="accent-blue-500"
-                        />
-                        <span>{chan}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Form submit button */}
-              <Button type="submit" className="w-full mt-4" icon={<Plus size={14} />}>
-                Salvar e Agendar Webinar
-              </Button>
-
-            </form>
-
-          </div>
-        </Modal>
-      )}
+      {/* 4. Agendar webinar */}
+      <CriarWebinarModal
+        isOpen={isCreateWebinarOpen}
+        onClose={() => setIsCreateWebinarOpen(false)}
+        canais={destinations}
+        onAgendar={async (webinar) => {
+          // Só depois de o banco confirmar: se falhar, o modal fica aberto
+          // com o rascunho e diz a saída.
+          await agendarWebinar(webinar);
+          setWebinars((prev) => [webinar, ...prev.filter((w) => w.id !== webinar.id)]);
+          setIsCreateWebinarOpen(false);
+          toast.success('Webinar agendado', rotuloDoHorario(webinar));
+        }}
+        onSair={handleLogout}
+      />
 
       {/* Interactive Legal Document Modals */}
       <LegalModal 

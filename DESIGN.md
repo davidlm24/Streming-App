@@ -148,6 +148,15 @@ components:
     rounded: "{rounded.full}"
     height: "24px"
     width: "40px"
+  checkbox:
+    backgroundColor: "{colors.navy-3}"
+    rounded: "5px"
+    size: "20px"
+  checkbox-checked:
+    backgroundColor: "{colors.navy-96}"
+    textColor: "{colors.navy-6}"
+    rounded: "5px"
+    size: "20px"
   segmented-active:
     backgroundColor: "{colors.navy-18}"
     textColor: "{colors.navy-96}"
@@ -158,6 +167,10 @@ components:
     textColor: "{colors.navy-89}"
     rounded: "{rounded.xl}"
     padding: "4px"
+  modal-md:
+    backgroundColor: "{colors.navy-10}"
+    rounded: "{rounded.2xl}"
+    width: "448px"
   modal-lg:
     backgroundColor: "{colors.navy-10}"
     rounded: "{rounded.2xl}"
@@ -193,7 +206,7 @@ components:
 
 # Design System: PwStreamer
 
-<!-- Registrado a partir do código entregue (casca do app, Painel, Canais, Webinars, Configurações, Plano e cobrança, Dados de cadastro, rodapé, o modal de canais e o modal de planos). Onde o mock mockups/design-system.html e o código divergem, vale o código. Valores em hex: os do tema escuro, que é o padrão; a troca por tema está em Colors. -->
+<!-- Registrado a partir do código entregue (casca do app, Painel, Canais, Webinars, Configurações, Plano e cobrança, Dados de cadastro, rodapé, o modal de canais, o modal de planos e o diálogo "Novo webinar"). Onde o mock mockups/design-system.html e o código divergem, vale o código. Valores em hex: os do tema escuro, que é o padrão; a troca por tema está em Colors. -->
 
 ## Overview
 
@@ -219,7 +232,7 @@ A densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo (`[
 Uma rampa azul-marinho de luminância casada carrega quase tudo. Dois acentos cromáticos, cada um com um único lugar.
 
 ### Primary
-- **Azul da Marca Profundo** (`brand-deep`): o preenchimento do botão primário (`.btn`). É a única área cromática da casca. Texto branco sobre ele. Há um botão primário por tela: "Entrar no estúdio" (tamanho `lg`) no Painel, "Conectar canal" em Canais, "Agendar webinar" em Webinars e, no modal de canais, o envio do formulário ("Conectar canal" ou "Salvar alterações"; "Ver planos" quando a plataforma está bloqueada pelo plano). Plano e cobrança e o modal de planos não têm botão primário enquanto a assinatura não abre, e por isso não têm cor nenhuma (ver a Regra da Vitrine sem Balcão). Dados de cadastro não tem cor em repouso: o primário "Salvar nome" só existe enquanto o nome está sendo editado.
+- **Azul da Marca Profundo** (`brand-deep`): o preenchimento do botão primário (`.btn`). É a única área cromática da casca. Texto branco sobre ele. Há um botão primário por tela: "Entrar no estúdio" (tamanho `lg`) no Painel, "Conectar canal" em Canais, "Agendar webinar" em Webinars (e o envio do diálogo "Novo webinar", com o mesmo verbo) e, no modal de canais, o envio do formulário ("Conectar canal" ou "Salvar alterações"; "Ver planos" quando a plataforma está bloqueada pelo plano). Plano e cobrança e o modal de planos não têm botão primário enquanto a assinatura não abre, e por isso não têm cor nenhuma (ver a Regra da Vitrine sem Balcão). Dados de cadastro não tem cor em repouso: o primário "Salvar nome" só existe enquanto o nome está sendo editado.
 - **Azul da Marca** (`brand`): a cor nominal da marca e a ponta inicial do gradiente do logo. Na casca, não é superfície de nada.
 - **Azul da Marca Claro** (`brand-lift`): só o anel de foco (`:focus-visible`, 2px, afastado 2px). O foco precisa ser visível em qualquer superfície, e por isso é a exceção à regra da voz única.
 
@@ -241,17 +254,17 @@ Os papéis semânticos trocam com o escopo; as primitivas `navy-*` nunca. Use se
 | `--panel` | esqueleto de carregamento, trilho do switch desligado, item de menu em hover, linha de lista mestre em hover, destino atual no menu móvel | navy-14 | navy-92 | navy-10 |
 | `--raise` | hover de botão fantasma/ícone/chip, segmento ativo, linha escolhida da lista mestre, fundo do menu | navy-18 | navy-100 | navy-14 |
 | `--line` | todas as linhas de estrutura (1px) | navy-22 | navy-80 | navy-18 |
-| `--line-ctl` | borda de controle: chip, segmentado, botão fantasma, campo | navy-28 | navy-70 | navy-28 |
-| `--ink-hi` | títulos, nomes, destino atual, switch ligado, pendência, erro de campo (frase e borda) | navy-96 | navy-6 | navy-96 |
+| `--line-ctl` | borda de controle: chip, segmentado, botão fantasma, campo (abaixo de 3:1; ver a dívida conhecida) | navy-28 | navy-70 | navy-28 |
+| `--ink-hi` | títulos, nomes, destino atual, switch ligado, caixa de seleção marcada, pendência, erro de campo (frase e borda) | navy-96 | navy-6 | navy-96 |
 | `--ink` | corpo; a hora em mono | navy-89 | navy-18 | navy-89 |
 | `--ink-lo` | texto secundário, descrições, dicas de campo, ação de texto em repouso, destinos não atuais | navy-80 | navy-28 | navy-70 |
-| `--ink-dim` | placeholder | navy-70 | navy-36 | navy-58 |
+| `--ink-dim` | placeholder; borda da caixa de seleção desmarcada (3:1 contra toda superfície, conferido pelo portão) | navy-70 | navy-36 | navy-58 |
 | `--stage` | letterbox do vídeo; nunca clareia | navy-0 | navy-0 | navy-0 |
 
 Gráficos usam a rampa por **valor**, nunca por matiz (`--chart-1..5`, `--chart-grid`, `--chart-axis`). A separação sobrevive a protanopia, deuteranopia e escala de cinza.
 
 ### Named Rules
-**Regra da Voz Única.** Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (`--ink-hi`, `--raise`), nunca pelo azul. Switch ligado é tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em `--ink-hi`.
+**Regra da Voz Única.** Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (`--ink-hi`, `--raise`), nunca pelo azul. Switch ligado e caixa marcada são tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em `--ink-hi`.
 
 **Regra do Ar.** O carmim é o sinal de "no ar". Fora do ar, aparece só onde algo é apagado ou encerrado. Não entra em pendência, em aviso, em erro de campo, em gráfico nem em ícone de marca. Uma pendência de canal ("sem chave") fica na tinta do nome, com ícone de alerta.
 
@@ -275,7 +288,7 @@ Gráficos usam a rampa por **valor**, nunca por matiz (`--chart-1..5`, `--chart-
 - **Body** (400 ou 500, `text-sm`): descrições (`max-w-prose`), nomes em linhas de lista (500), rótulos de campo (500, em `--ink-hi`), rótulos de botão e de chip, ações de texto, os itens de um plano aberto (em `--ink`).
 - **Label** (400, `text-xs`): a linha de metadados abaixo de um nome (plataforma · estado, horário · canais), a palavra de estado na lista mestre, a linha de origem de um registro ("É o e-mail com que você entra."), dicas e erros de campo, rodapé e aviso de teste no cabeçalho.
 - **Button** (600, 14px; `lg` 16px; `sm` 12px): definido em `.btn`, e os três caem sobre os degraus `sm`/`base`/`xs` da escala.
-- **Measure** (mono, tabular, na tinta `--ink`): só a hora dentro do texto livre do horário (`Horario` isola `20:00` e deixa "Hoje, às" na fonte do texto).
+- **Measure** (mono, tabular, na tinta `--ink`): só a hora dentro do rótulo do horário (`Horario` isola `20:00` e deixa "Hoje, às" ou "Domingo, 27 de setembro, às" na fonte do texto). Ver a Regra do Horário Derivado.
 - **Preço** (Poppins, `text-sm` 500, `tabular-nums`, `--ink-hi`; o total do ano abaixo em `text-xs` `--ink-lo`, também tabular): preço não é instrumento, então fica na fonte do texto, mas em algarismos tabulares para as linhas se lerem em coluna. Sempre por `formatPrice` (BRL, "R$ 39,90").
 
 ### Named Rules
@@ -304,9 +317,11 @@ O ritmo vertical é fixo:
 
 **Mestre-detalhe (diálogo `xl`, 896px).** A partir de `md`, duas colunas: a lista a 15rem (240px), com 16px de respiro e uma linha de 1px à direita, e o detalhe no resto, a 24px da linha. O título do detalhe desce 8px para ficar na linha do nome da primeira plataforma. Abaixo de `md`, vira dois passos no mesmo diálogo: a lista (cada linha com um chevron à direita) e, ao escolher, o formulário, com "‹ Plataformas" como ação de texto no topo para voltar. Quem abre o diálogo já num canal cai direto no formulário.
 
+**Diálogo `md` (448px).** Um formulário curto numa coluna: campos a 20px uns dos outros, dois campos curtos lado a lado numa grade de duas colunas a 12px (Data e Hora, também no celular) e uma grade de opções em duas colunas em qualquer largura (12px entre colunas, 16px a partir de `sm`). O corpo rola; o rodapé do `Modal` (linha em cima) não. É o "Novo webinar".
+
 **Diálogo `lg` (672px).** Uma coluna só: a frase de orientação e o controle da lista lado a lado (empilham quando não cabem), a lista 16px abaixo e o rodapé do `Modal`, cuja linha fecha a lista (`semLinhaFinal`). É o modal de planos.
 
-As ações de um formulário ficam no fim dele, alinhadas à direita a partir de `sm` (Cancelar e depois o primário, a 12px). No celular empilham na largura toda, com o primário em cima.
+As ações de um formulário ficam no fim dele, alinhadas à direita a partir de `sm` (Cancelar e depois o primário, a 12px). No celular empilham na largura toda, com o primário em cima. Num diálogo, as ações ficam no rodapé do `Modal`, e a linha de falha ao salvar vai no rodapé também, 12px acima delas, fora do corpo que rola: no celular ela fica à vista sem rolar.
 
 Responsivo: abaixo de `md` (768px) a navegação principal vira um botão de menu (44px) que abre uma lista vertical sob o cabeçalho, com alvos de 44px. O atalho "Estúdio" some abaixo de `sm`; o aviso de teste aparece só a partir de `lg` no cabeçalho e dentro do menu móvel abaixo disso. O botão "Entrar no estúdio" ocupa a largura toda no celular e tem no mínimo 256px a partir de `sm`. A calha da barra de rolagem é reservada (`scrollbar-gutter: stable`) para a casca não pular entre telas que rolam e que não rolam.
 
@@ -327,7 +342,7 @@ A casca é plana. A profundidade vem da rampa: página em `--bg`, superfícies f
 
 ## Shapes
 
-Cantos generosos e consistentes, e uma geometria que distingue controle de estrutura. Os controles são arredondados (botão 16px, botão denso 10px, botão de ícone 16px, campo de formulário 16px, linha da lista mestre 16px, menu 16px com itens de 12px, segmentado 16px por fora e 10px por dentro, modal 20px). Chips e switches são pílulas completas. A estrutura (linhas, seções, a divisória do mestre-detalhe) é reta e sem raio. O anel de foco tem 4px de raio.
+Cantos generosos e consistentes, e uma geometria que distingue controle de estrutura. Os controles são arredondados (botão 16px, botão denso 10px, botão de ícone 16px, campo de formulário 16px, linha da lista mestre 16px, menu 16px com itens de 12px, segmentado 16px por fora e 10px por dentro, modal 20px). Chips e switches são pílulas completas. A caixa de seleção é a única exceção abaixo da escala: 20px com 5px de raio, porque os raios nomeados (8px para cima) a fariam ler como botão de rádio. A estrutura (linhas, seções, a divisória do mestre-detalhe) é reta e sem raio. O anel de foco tem 4px de raio.
 
 A borda sólida é o padrão de todo controle com contorno (`--line-ctl`). O tracejado é reservado para "adicionar": uma pendência nunca pode parecer uma vaga vazia. O ícone de plataforma na página de Canais fica numa moldura quadrada de 40px, com 16px de raio e borda em `--line`.
 
@@ -363,9 +378,10 @@ A casca não tem cartões. Os contêineres são a coluna (`Pagina`), a seção a
 - **Style:** campos nativos seguem os tokens globalmente: fundo `--well`, texto `--ink-hi`, borda `--line-ctl`, placeholder `--ink-dim`. Na casca redesenhada, o campo de uma linha tem 44px de altura (`h-11`), 16px de raio, 12px de respiro lateral e texto `text-sm`. O rótulo fica acima, em `text-sm` 500 `--ink-hi`, ligado por `htmlFor`; uma ação de texto `xs` pode ficar na mesma linha, à direita ("Mostrar chave").
 - **Dica:** uma frase em `text-xs` `--ink-lo`, 8px abaixo do campo, ligada por `aria-describedby`.
 - **Focus:** o anel global de 2px em `brand-lift`, com afastamento de 2px.
-- **Error (`ErroDeCampo`):** a primitiva única do erro de campo, usada no modal de canais e em Dados de cadastro; nenhuma tela desenha o seu. O ícone `CircleAlert` (14px) e uma frase em `text-xs` `--ink-hi` com `text-pretty`, 8px abaixo do campo, no lugar da dica. O campo recebe `aria-invalid="true"` e `aria-describedby` apontando para a frase, e a regra global do `index.css` (`input`, `textarea` e `select` com `aria-invalid="true"`) sobe a borda para `--ink-hi`. Nunca carmim. A frase diz o que falta e como resolver ("Falta o servidor. O padrão da plataforma é …"). Ao enviar com erro, o foco vai ao primeiro campo inválido; digitar no campo limpa o erro dele.
-- **Falha ao salvar:** quando o campo passou mas o salvamento não, uma linha `role="alert"` acima das ações: `CircleAlert` (16px) e uma frase em `text-sm` `--ink-hi` com `text-pretty`. Nunca carmim. A frase diz o que aconteceu e a saída, e pode terminar com **uma** `AcaoDeTexto` sublinhada que executa a saída que ela nomeia ("Sua sessão expirou, então o nome não foi salvo. Entrar de novo"). Um novo envio apaga a linha da tentativa anterior.
+- **Error (`ErroDeCampo`):** a primitiva única do erro de campo, usada no modal de canais, em Dados de cadastro e no "Novo webinar"; nenhuma tela desenha o seu. O ícone `CircleAlert` (14px) e uma frase em `text-xs` `--ink-hi` com `text-pretty`, 8px abaixo do campo, no lugar da dica. O campo recebe `aria-invalid="true"` e `aria-describedby` apontando para a frase, e a regra global do `index.css` (`input`, `textarea` e `select` com `aria-invalid="true"`) sobe a borda para `--ink-hi`. Nunca carmim. A frase diz o que falta e como resolver ("Falta o servidor. O padrão da plataforma é …"). Ao enviar com erro, o foco vai ao primeiro campo inválido; digitar no campo limpa o erro dele.
+- **Falha ao salvar:** quando o campo passou mas o salvamento não, uma linha `role="alert"` acima das ações: `CircleAlert` (16px) e uma frase em `text-sm` `--ink-hi` com `text-pretty`. Nunca carmim. A frase diz o que aconteceu e a saída, e pode terminar com **uma** `AcaoDeTexto` sublinhada que executa a saída que ela nomeia ("Sua sessão expirou, então o nome não foi salvo. Entrar de novo"). Um novo envio apaga a linha da tentativa anterior. Num diálogo, a linha fica no rodapé, logo acima das ações (ver Layout). Depois da falha, o foco vai à saída: "Entrar de novo" quando a sessão expirou, senão de volta ao primário.
 - **Endereço longo (servidor RTMP):** um `textarea` de uma linha que cresce com o conteúdo (`rows=1`, sem redimensionar, sem rolagem, quebra em qualquer caractere), com a mesma altura mínima de 44px. É um valor só: Enter envia o formulário e quebras de linha coladas são removidas. Assim o endereço inteiro fica à vista a 375px, onde a pessoa precisa conferi-lo.
+- **Caixa de seleção (`CaixaDeSelecao`):** a primitiva única de marcar, já dentro da linha rotulada: o `<label>` inteiro (no mínimo 44px, `min-h-11`, caixa a 12px do texto) é o alvo e o nome acessível. A caixa tem 20px e 5px de raio. Desmarcada, é borda `--ink-dim` sobre `--well`; marcada, preenchimento e borda em `--ink-hi` com o ✓ (`Check` 14px, traço 3) em `--bg`. A cor muda em 150ms. Foco: o anel global. Desabilitada, 45 %. Nunca o azul da marca: marcar é estado.
 - **Switch:** trilho de 40 × 24px. Ligado é tinta cheia (`--ink-hi`) com botão em `--bg`; desligado é `--panel` com borda `--line-ctl` e botão em `--ink-lo`. Estado em `aria-checked` e na posição, nunca só na cor. O nome diz o que liga ("Transmitir para YouTube Principal").
 - **Segmentado:** grupo de poucas opções exclusivas (`role="group"` com nome), borda `--line-ctl`, 16px por fora e 10px por dentro, opções em `text-sm` a 6px × 12px. A opção ativa sobe para `--raise` e `--ink-hi`, com `aria-pressed`; as outras ficam em `--ink-lo`. Usos: tema (Configurações) e período de cobrança (`SeletorDePeriodo`: "Mensal" e "Anual, 20% menos", onde o rótulo diz a vantagem em palavras em vez de um selo de desconto).
 - **Disabled:** 45 % de opacidade.
@@ -385,7 +401,7 @@ Uma lista do que a conta é, não um formulário a preencher. É a página Dados
 - **Editar no lugar:** a linha editável vira o próprio campo. O rótulo fica onde estava e passa a ser o `<label>`; o valor vira o campo de 44px; a dica embaixo; depois as ações do formulário (Cancelar fantasma e o primário com verbo e objeto, "Salvar nome"), à direita a partir de `sm` e empilhadas na largura toda no celular, com o primário em cima. Abrir põe o foco no campo com o cursor no fim; fechar (Salvar, Cancelar ou Esc) devolve o foco a "Editar". Salvar sem mudança só fecha.
 - **Cor e movimento:** nenhuma cor em repouso; o azul aparece só no primário, durante a edição. Nenhum movimento: a troca de linha para campo é instantânea, e a entrada do chip continua sendo a única entrada da casca.
 
-**Regra do Salvo de Verdade.** Uma tela só diz "salvo" (o aviso "Nome salvo") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão ou sem cota, "tente de novo mais tarde"; sem confirmação em 10 s, "não deu para confirmar"; sessão expirada, "Entrar de novo"; recusa, "tente de novo". A restauração da sessão é esperada (`esperarSessao`) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de "salvo" local que o banco não viu.
+**Regra do Salvo de Verdade.** Uma tela só diz "salvo" (o aviso "Nome salvo") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão ou sem cota, "tente de novo mais tarde"; sem confirmação em 10 s, "não deu para confirmar"; sessão expirada, "Entrar de novo"; recusa, "tente de novo". A restauração da sessão é esperada (`esperarSessao`) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de "salvo" local que o banco não viu. A regra tem uma implementação só, `gravarComConfirmacao` em `src/lib/firestoreService.ts`, que falha com `ErroAoSalvar` (motivo `FalhaAoSalvar`: `sem-login`, `sem-conexao`, `sem-confirmacao`, `recusado`); `salvarNomeDoPerfil` e `agendarWebinar` passam por ela, e toda gravação nova também passa. Enquanto grava, o primário fica em `loading` e Cancelar desabilita; o rascunho só se apaga depois da confirmação. Uma nova tentativa de criar algo reusa o id do rascunho, e uma escrita atrasada é repetida, nunca duplicada.
 
 **Regra do Dado com Uso.** Um registro só pede o que algo no app já usa. Campo guardado "para depois" não entra; volta junto com o que o usa.
 
@@ -417,6 +433,18 @@ Conectar ou editar **um** canal: escolher a plataforma, colar o servidor e a cha
 - **Assinatura: o rascunho fica.** O que foi digitado numa plataforma sobrevive à troca para outra (e aparece como "Não salvo" na lista). Salvar com outras linhas ainda sujas não fecha o diálogo: ele segue para a próxima delas e mostra, no topo do detalhe, uma linha `role="status"` com ✓ em `text-sm` `--ink-hi` ("YouTube salvo. Falta salvar: Facebook."). Fecha só quando não resta rascunho.
 - **Movimento:** nenhum além da entrada da primitiva `Modal` e da cor em 150ms das linhas. O servidor cresce sem transição.
 
+### Novo webinar (diálogo de agendar)
+Dizer quando e para onde. Vive num `Modal` `size="md"` com o título neutro "Novo webinar"; o verbo mora só no envio, "Agendar webinar". Abre com o foco no Título. É aberto por "Agendar webinar" em Webinars e no Painel.
+- **Campos:** Título (44px); Data e Hora lado a lado (campos nativos `date` e `time`, 44px, a data com mínimo em hoje); Descrição (`textarea` de 3 linhas, sem redimensionar), com a dica "Opcional. Aparece na página de inscrição."
+- **Canais:** um `fieldset` com a legenda "Canais" (rótulo de campo) e a dica de uma linha "Para onde a live vai.", seguidos de uma grade de duas colunas de `CaixaDeSelecao`, em qualquer largura. As opções são as oito plataformas de `PLATAFORMAS_NOMEADAS`, na ordem do modal de canais; o servidor RTMP próprio fica fora, porque "Servidor…" não diz qual servidor é para `plataformaPeloNome`.
+- **Linha de canal:** o ícone da plataforma (14px, `--ink-lo`) na mesma linha, antes do nome (`text-sm` `--ink-hi`), e embaixo a palavra de estado em `text-xs` `--ink-lo`, no vocabulário de `src/lib/canais.ts`, em minúscula: "pronto", a pendência curta ("sem chave"…), "desligado" ou "não conectado". O ícone não ganha coluna própria, para a palavra de estado caber numa linha no celular.
+- **Pré-marcação:** ao abrir, as plataformas dos canais ligados vêm marcadas (para onde a live vai hoje), a menos que a pessoa já tenha mexido nelas neste rascunho.
+- **Validação:** `ErroDeCampo` em Título, Data e Hora, e o foco no primeiro inválido. Horário no passado é erro na Hora ("Esse horário já passou. Escolha um a partir de agora.").
+- **Salvar:** pela Regra do Salvo de Verdade. Só depois da confirmação a linha entra na lista, o diálogo fecha e o aviso "Webinar agendado" mostra o rótulo do horário. Na falha, o diálogo fica aberto com o rascunho e a linha de falha no rodapé; em `sem-login` ela termina com "Entrar de novo" sublinhado.
+- **Movimento:** nenhum além da entrada da primitiva `Modal` e dos 150ms da caixa.
+
+**Regra do Horário Derivado.** "Hoje, às…" e "Amanhã, às…" são derivados na hora de mostrar, a partir de `startsAt` (ISO 8601), por `rotuloDoHorario` em `src/lib/horario.ts`, e nunca gravados: um "Amanhã" gravado vira mentira no dia seguinte. O campo `time` guarda a frase absoluta ("Domingo, 27 de setembro, às 20:00", por `horarioPorExtenso`) para quem lê só o texto (página pública, estúdio). Webinar antigo sem `startsAt` mostra o seu texto livre. Lista de webinars, Painel e aviso usam o mesmo rótulo, e a hora vai em mono pelo `Horario`.
+
 ### Limites do plano
 `src/lib/plans.ts` é a fonte única dos limites e dos preços. Os campos estruturados decidem; as frases de `features` só descrevem:
 - `destinosSimultaneos`: canais ligados ao mesmo tempo (Plano Gratuito 2, Standard 3, Professional 5, Business 8).
@@ -446,6 +474,9 @@ As linhas da lista de planos mostram exatamente três limites (canais, pessoas, 
 - **Do** mostrar planos só por `<ListaDePlanos>` e abrir planos só por `abrirPlanos` (página fora do estúdio, modal dentro dele).
 - **Do** dizer em palavras o que ainda não abre ("A assinatura abre em breve…") e deixar a tela sem ação primária até abrir.
 - **Do** colar número e unidade com espaço inseparável em textos que vão a linhas estreitas.
+- **Do** marcar opções com `<CaixaDeSelecao>` (a linha inteira é o alvo e o nome), e nunca com um `<input type="checkbox">` solto.
+- **Do** gravar horário como `startsAt` e derivar "Hoje/Amanhã" na tela com `rotuloDoHorario`.
+- **Do** gravar só por `gravarComConfirmacao`, com a falha no rodapé do diálogo, acima das ações.
 - **Do** abrir o modal de canais por id (`editarCanal(id)`) quando a origem é um canal, e nunca pela plataforma.
 - **Do** levar links para fora do app por `<AcaoDeTexto href>`, que abre em outra aba e avisa o leitor de tela.
 - **Do** checar todo par novo de texto/superfície nos três escopos: `npm run verify` roda tipos, stylelint, o portão de contraste (WCAG AA em escuro, claro e console), a catraca de dívida, os botões só-ícone e os rótulos de formulário. O mesmo roda no CI (`.github/workflows/design-system.yml`).
@@ -464,10 +495,12 @@ As linhas da lista de planos mostram exatamente três limites (canais, pessoas, 
 - **Don't** marcar o plano atual ou um plano "popular" com cor, borda ou selo; o atual é dito em palavra.
 - **Don't** descartar texto digitado ao trocar de plataforma ou ao salvar outra.
 - **Don't** pedir nem guardar dado que nada no app usa ainda, nem tornar editável um valor que vem de outro sistema (o e-mail do login).
+- **Don't** gravar "Hoje" ou "Amanhã" em dado nenhum; só a frase absoluta.
+- **Don't** pintar a caixa marcada de azul da marca; marcada é tinta cheia.
 - **Don't** simular um salvamento: sem espera de enfeite, sem "atualizado com sucesso" antes da confirmação do banco.
 - **Don't** subir número nenhum de `scripts/design-debt-baseline.json`. A catraca deixa a dívida cair e nunca crescer sem um `--update` visível na revisão.
 
 ### Fora do sistema (dívida conhecida)
-Estas partes ainda carregam o visual herdado do Google AI Studio e **não** são referência: o estúdio (`Header.tsx`, `LeftSidebar`, o palco), admin e super-admin, o site público e os preços, e o modal de criar webinar em `App.tsx`. A lista de canais do estúdio já mostra o ícone da plataforma no lugar da foto de banco de imagens, mas o resto do `LeftSidebar` continua fora. Os sinais típicos são tamanhos em px avulsos, `slate`/`gray`/`blue-500` crus, rótulos em caixa alta e sombras de brilho. A catraca mede essa dívida (na linha de base atual: 910 tamanhos avulsos, 416 `<button>` crus fora das primitivas, 76 usos estruturais de `slate`/`gray`, 93 `outline-none`, 7 hex arbitrários em classe, 19 em atributo JSX, 7 `z-index` avulsos e 6 `!important` no CSS; nenhum diálogo nativo bloqueante). Ao tocar numa dessas telas, migre para as primitivas e os papéis deste documento, sem copiar o que está lá.
+Estas partes ainda carregam o visual herdado do Google AI Studio e **não** são referência: o estúdio (`Header.tsx`, `LeftSidebar`, o palco), admin e super-admin, o site público e os preços. A lista de canais do estúdio já mostra o ícone da plataforma no lugar da foto de banco de imagens, mas o resto do `LeftSidebar` continua fora. Os sinais típicos são tamanhos em px avulsos, `slate`/`gray`/`blue-500` crus, rótulos em caixa alta e sombras de brilho. A catraca mede essa dívida (na linha de base atual: 909 tamanhos avulsos, 415 `<button>` crus fora das primitivas, 76 usos estruturais de `slate`/`gray`, 89 `outline-none`, 7 hex arbitrários em classe, 19 em atributo JSX, 7 `z-index` avulsos e 6 `!important` no CSS; nenhum diálogo nativo bloqueante). Ao tocar numa dessas telas, migre para as primitivas e os papéis deste documento, sem copiar o que está lá.
 
-Dentro das superfícies redesenhadas, alguns desvios também ficam fora do sistema: o gatilho "⋯" do `Menu` (32px), o avatar da conta (32px) e o botão de fechar do `Modal` (cerca de 34px) estão abaixo do alvo de 44px, o chip tem 36px, o cabeçalho usa `z-30` em vez de `--z-sticky`, e o polegar da barra de rolagem fica azul no hover. A linha "ONLINE STUDIO" do logo (9px, mono, caixa alta) faz parte da marca e não é modelo de rótulo.
+Dentro das superfícies redesenhadas, alguns desvios também ficam fora do sistema: o gatilho "⋯" do `Menu` (32px), o avatar da conta (32px) e o botão de fechar do `Modal` (cerca de 34px) estão abaixo do alvo de 44px, o chip tem 36px, o cabeçalho usa `z-30` em vez de `--z-sticky`, a borda de campo e de controle (`--line-ctl`) fica entre 1,38:1 e 2,30:1 contra as cinco superfícies nos três escopos (1,72–2,24:1 contra `--bg` e `--surface`, onde os campos pousam), abaixo dos 3:1 da WCAG 1.4.11 (o campo se lê pelo preenchimento `--well` e pelo rótulo, e a caixa de seleção não usa essa borda), e o polegar da barra de rolagem fica azul no hover. A linha "ONLINE STUDIO" do logo (9px, mono, caixa alta) faz parte da marca e não é modelo de rótulo.

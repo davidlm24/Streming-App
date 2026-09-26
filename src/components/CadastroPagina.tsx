@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { CircleAlert } from 'lucide-react';
-import { ErroAoSalvarNome, entrouComGoogle, esperarSessao, salvarNomeDoPerfil, type FalhaAoSalvarNome } from '../lib/firestoreService';
+import { ErroAoSalvar, entrouComGoogle, esperarSessao, salvarNomeDoPerfil, type FalhaAoSalvar } from '../lib/firestoreService';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { ErroDeCampo } from './ui/ErroDeCampo';
@@ -18,7 +18,7 @@ interface CadastroPaginaProps {
 /** Nome colado de outro lugar vem com espaços sobrando. */
 const limparNome = (nome: string) => nome.replace(/\s+/g, ' ').trim();
 
-const O_QUE_DIZER: Record<FalhaAoSalvarNome, string> = {
+const O_QUE_DIZER: Record<FalhaAoSalvar, string> = {
   'sem-login': 'Sua sessão expirou, então o nome não foi salvo.',
   'sem-conexao': 'Sem conexão com a sua conta agora. Tente de novo mais tarde.',
   'sem-confirmacao': 'Não deu para confirmar que o nome foi salvo. Confira a conexão e tente de novo.',
@@ -55,7 +55,7 @@ export function CadastroPagina({ user, onNomeSalvo, onSair }: CadastroPaginaProp
   const [editando, setEditando] = useState(false);
   const [rascunho, setRascunho] = useState('');
   const [erro, setErro] = useState('');
-  const [falha, setFalha] = useState<FalhaAoSalvarNome | null>(null);
+  const [falha, setFalha] = useState<FalhaAoSalvar | null>(null);
   const [salvando, setSalvando] = useState(false);
   const refCampo = useRef<HTMLInputElement>(null);
   const refEditar = useRef<HTMLButtonElement>(null);
@@ -107,7 +107,7 @@ export function CadastroPagina({ user, onNomeSalvo, onSair }: CadastroPaginaProp
       toast.success('Nome salvo');
       fechar();
     } catch (err) {
-      setFalha(err instanceof ErroAoSalvarNome ? err.motivo : 'recusado');
+      setFalha(err instanceof ErroAoSalvar ? err.motivo : 'recusado');
     } finally {
       setSalvando(false);
     }

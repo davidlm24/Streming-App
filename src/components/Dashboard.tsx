@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { ArrowRight, Check, CircleAlert, Plus } from 'lucide-react';
 import type { Destination } from '../types';
 import { estadoDoCanal, nomeDaPlataforma, pendenciaCurta, plataformaPeloNome } from '../lib/canais';
+import { rotuloDoHorario } from '../lib/horario';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { Chip } from './ui/Chip';
@@ -76,7 +77,7 @@ export function Dashboard({
                 </div>
               </div>
               <p className="mt-3 text-sm text-[var(--ink-lo)]">
-                <Horario texto={proxima.time} />
+                <Horario texto={rotuloDoHorario(proxima)} />
                 {proxima.type === 'pre-recorded' && <> · vídeo gravado</>}
               </p>
             </>

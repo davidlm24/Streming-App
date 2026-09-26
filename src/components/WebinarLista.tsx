@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { ExternalLink, Palette, Trash2 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Menu, type ItemDeMenu } from './ui/Menu';
+import { rotuloDoHorario } from '../lib/horario';
 
 export interface WebinarResumo {
   id: string;
@@ -74,7 +75,7 @@ export function WebinarLinha({ webinar, onEntrar, onPaginaPublica, onCriarCapa, 
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-[var(--ink-hi)] text-pretty">{webinar.title}</p>
         <p className="mt-1 text-xs text-[var(--ink-lo)]">
-          <Horario texto={webinar.time} />
+          <Horario texto={rotuloDoHorario(webinar)} />
           {webinar.channels.length > 0 && <> · {webinar.channels.join(', ')}</>}
           {webinar.type === 'pre-recorded' && <> · vídeo gravado</>}
         </p>

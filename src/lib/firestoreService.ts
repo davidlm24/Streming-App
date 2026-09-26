@@ -47,6 +47,8 @@ export interface WebinarData {
   type: 'live' | 'webinar' | 'pre-recorded';
   videoName: string;
   ownerId?: string;
+  /** Horário em ISO 8601 (webinars agendados pelo formulário). `time` fica como texto por extenso. */
+  startsAt?: string;
 }
 
 export interface WebhookLogItem {
@@ -295,12 +297,12 @@ export async function validateUserTrialStatus(
   };
 }
 
-/** Por que o nome não foi salvo. A página diz cada caso com a sua saída. */
-export type FalhaAoSalvarNome = 'sem-login' | 'sem-conexao' | 'sem-confirmacao' | 'recusado';
+/** Por que uma gravação não foi confirmada. A tela diz cada caso com a sua saída. */
+export type FalhaAoSalvar = 'sem-login' | 'sem-conexao' | 'sem-confirmacao' | 'recusado';
 
-export class ErroAoSalvarNome extends Error {
-  readonly motivo: FalhaAoSalvarNome;
-  constructor(motivo: FalhaAoSalvarNome) {
+export class ErroAoSalvar extends Error {
+  readonly motivo: FalhaAoSalvar;
+  constructor(motivo: FalhaAoSalvar) {
     super(motivo);
     this.motivo = motivo;
   }
@@ -313,42 +315,65 @@ const ESPERA_DA_CONFIRMACAO_MS = 10_000;
 export const esperarSessao = () => auth.authStateReady();
 
 /**
- * Troca o nome do perfil no banco (`users/{uid}.name`), de onde o login lê o
- * nome em qualquer aparelho. Grava só `name`: plano, papel e datas não são do
- * cliente, e o e-mail é o do login.
- *
- * Só resolve depois de o banco confirmar. Este Firestore guarda escritas
- * pendentes só em memória: uma escrita feita sem conexão some quando a aba
- * fecha, então dizer "salvo" antes da confirmação seria mentira.
+ * Grava e só resolve depois de o banco confirmar (Regra do Salvo de Verdade).
+ * Este Firestore guarda escritas pendentes só em memória: uma escrita feita
+ * sem conexão some quando a aba fecha, então dizer "salvo" antes da
+ * confirmação seria mentira. Falha com o motivo, para a tela dizer a saída.
  */
-export async function salvarNomeDoPerfil(nome: string): Promise<void> {
+async function gravarComConfirmacao(gravar: (uid: string) => Promise<unknown>): Promise<void> {
   // Logo depois de recarregar, `currentUser` ainda é null enquanto a sessão
   // volta, e o app já mostra o usuário do cache: sem esperar, uma sessão
   // válida seria dada como expirada.
   await esperarSessao();
   const uid = auth.currentUser?.uid;
-  if (!uid) throw new ErroAoSalvarNome('sem-login');
+  if (!uid) throw new ErroAoSalvar('sem-login');
   if (isQuotaExceededFlag || (typeof navigator !== 'undefined' && navigator.onLine === false)) {
-    throw new ErroAoSalvarNome('sem-conexao');
+    throw new ErroAoSalvar('sem-conexao');
   }
 
   let espera: ReturnType<typeof setTimeout> | undefined;
   const semConfirmacao = new Promise<never>((_, rejeitar) => {
-    espera = setTimeout(() => rejeitar(new ErroAoSalvarNome('sem-confirmacao')), ESPERA_DA_CONFIRMACAO_MS);
+    espera = setTimeout(() => rejeitar(new ErroAoSalvar('sem-confirmacao')), ESPERA_DA_CONFIRMACAO_MS);
   });
   try {
-    await Promise.race([updateDoc(doc(db, 'users', uid), { name: nome }), semConfirmacao]);
+    await Promise.race([gravar(uid), semConfirmacao]);
   } catch (err) {
-    if (err instanceof ErroAoSalvarNome) throw err;
+    if (err instanceof ErroAoSalvar) throw err;
     if (isQuotaExceededError(err)) {
       markQuotaExceeded();
-      throw new ErroAoSalvarNome('sem-conexao');
+      throw new ErroAoSalvar('sem-conexao');
     }
-    console.warn('Perfil: o nome não foi salvo:', (err as { code?: string })?.code ?? err);
-    throw new ErroAoSalvarNome('recusado');
+    console.warn('Gravação não confirmada:', (err as { code?: string })?.code ?? err);
+    throw new ErroAoSalvar('recusado');
   } finally {
     clearTimeout(espera);
   }
+}
+
+/**
+ * Troca o nome do perfil no banco (`users/{uid}.name`), de onde o login lê o
+ * nome em qualquer aparelho. Grava só `name`: plano, papel e datas não são do
+ * cliente, e o e-mail é o do login.
+ */
+export async function salvarNomeDoPerfil(nome: string): Promise<void> {
+  await gravarComConfirmacao((uid) => updateDoc(doc(db, 'users', uid), { name: nome }));
+}
+
+/**
+ * Agenda um webinar (`users/{uid}/webinars/{id}`), confirmado pelo banco. Numa
+ * nova tentativa, o mesmo id: se a primeira escrita chegar atrasada, a segunda
+ * só a repete, sem criar outro webinar. A lista e o cache local vêm da
+ * assinatura de `subscribeWebinars`.
+ */
+export async function agendarWebinar(webinar: WebinarData): Promise<void> {
+  await gravarComConfirmacao((uid) =>
+    setDoc(doc(db, 'users', uid, 'webinars', webinar.id), {
+      ...webinar,
+      ownerId: uid,
+      uid,
+      createdAt: new Date().toISOString(),
+    })
+  );
 }
 
 /** Se a sessão atual entrou pelo Google, de onde vem o e-mail da conta. */

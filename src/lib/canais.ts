@@ -68,6 +68,14 @@ const NOMES: Record<string, string> = {
   custom: 'Servidor RTMP próprio',
 };
 
+/**
+ * As plataformas com nome que o modal de canais conecta, na ordem dele. É a
+ * lista que o agendamento de webinar oferece (o webinar guarda o nome, e
+ * `plataformaPeloNome` volta dele à plataforma). O servidor RTMP próprio fica
+ * fora: "Servidor…" não diz qual servidor é.
+ */
+export const PLATAFORMAS_NOMEADAS = ['youtube', 'facebook', 'instagram', 'tiktok', 'twitch', 'kick', 'linkedin', 'rumble'] as const;
+
 export function nomeDaPlataforma(plataforma: string): string {
   return NOMES[plataforma] ?? 'Servidor RTMP próprio';
 }

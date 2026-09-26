@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-25T20:49:12.964Z",
+  "generatedAt": "2026-09-26T09:39:40.834Z",
   "title": "Design System: PwStreamer",
   "extensions": {
     "colorMeta": {
@@ -299,7 +299,7 @@
     },
     "enforcement": [
       "npm run verify",
-      "scripts/contrast-gate.mjs (WCAG AA, escuro/claro/console)",
+      "scripts/contrast-gate.mjs (texto WCAG AA 4.5:1 e bordas de estado 3:1, WCAG 1.4.11: --ink-dim contra as cinco superfícies; escuro/claro/console)",
       "scripts/design-debt.mjs + scripts/design-debt-baseline.json (catraca: só desce)",
       "scripts/icon-buttons.cjs",
       "scripts/form-labels.cjs",
@@ -371,14 +371,75 @@
     },
     "truthfulSave": {
       "confirmTimeoutMs": 10000,
+      "implementation": "gravarComConfirmacao (src/lib/firestoreService.ts): a única implementação da regra; salvarNomeDoPerfil e agendarWebinar passam por ela. Falha com ErroAoSalvar(motivo: FalhaAoSalvar).",
       "failures": {
         "sem-conexao": "offline ou sem cota: \"Sem conexão com a sua conta agora. Tente de novo mais tarde.\"",
-        "sem-confirmacao": "sem confirmação em 10 s: \"Não deu para confirmar que o nome foi salvo. Confira a conexão e tente de novo.\"",
-        "sem-login": "sessão expirada (depois de esperarSessao): \"Sua sessão expirou, então o nome não foi salvo.\" + \"Entrar de novo\"",
-        "recusado": "\"Não foi possível salvar o nome. Tente de novo.\""
+        "sem-confirmacao": "sem confirmação em 10 s: \"Não deu para confirmar que o nome foi salvo / o webinar foi agendado. Confira a conexão e tente de novo.\"",
+        "sem-login": "sessão expirada (depois de esperarSessao): \"Sua sessão expirou, então o nome não foi salvo / o webinar não foi agendado.\" + \"Entrar de novo\" sublinhado",
+        "recusado": "\"Não foi possível salvar o nome / agendar o webinar. Tente de novo.\""
       },
-      "success": "toast \"Nome salvo\" só depois de o banco confirmar",
-      "source": "src/lib/firestoreService.ts (salvarNomeDoPerfil, ErroAoSalvarNome)"
+      "whileSaving": "primário em loading (aria-busy), Cancelar desabilitado; o rascunho só se apaga depois da confirmação",
+      "retry": "uma nova tentativa reusa o id do rascunho: escrita atrasada é repetida, nunca duplicada",
+      "failureLine": "role=\"alert\", CircleAlert 16 + text-sm --ink-hi, text-pretty; num diálogo, no rodapé do Modal 12px acima das ações, fora do corpo que rola; o foco vai a \"Entrar de novo\" (sem-login) ou volta ao primário",
+      "success": "aviso (\"Nome salvo\", \"Webinar agendado\" + rótulo do horário) só depois de o banco confirmar",
+      "source": "src/lib/firestoreService.ts (gravarComConfirmacao, salvarNomeDoPerfil, agendarWebinar, ErroAoSalvar, FalhaAoSalvar)"
+    },
+    "checkbox": {
+      "primitive": "CaixaDeSelecao (src/components/ui/CaixaDeSelecao.tsx)",
+      "box": "20px, raio 5px (abaixo da escala nomeada, que começa em 8px e a faria ler como rádio)",
+      "unchecked": "borda --ink-dim sobre --well",
+      "checked": "preenchimento e borda --ink-hi, Check 14px traço 3 em --bg",
+      "target": "o <label> inteiro, min-h-11 (44px), caixa a 12px do texto; é o nome acessível",
+      "focus": "anel global :focus-visible",
+      "transition": "cor em 150ms",
+      "never": "azul da marca: marcar é estado"
+    },
+    "time": {
+      "rule": "Regra do Horário Derivado",
+      "stored": {
+        "startsAt": "ISO 8601",
+        "time": "frase absoluta por horarioPorExtenso (\"Domingo, 27 de setembro, às 20:00\")"
+      },
+      "rendered": "rotuloDoHorario: \"Hoje, às 20:00\" / \"Amanhã, às 20:00\" / a frase absoluta; sem startsAt, o texto livre de time",
+      "measure": "Horario isola hh:mm em font-mono tabular-nums --ink",
+      "source": "src/lib/horario.ts"
+    },
+    "lineCtlDebt": {
+      "note": "Dívida conhecida: --line-ctl fica abaixo de 3:1 (WCAG 1.4.11). O campo se lê pelo preenchimento --well e pelo rótulo; a caixa de seleção não usa essa borda.",
+      "measured": {
+        "dark": {
+          "well": 1.96,
+          "bg": 1.85,
+          "surface": 1.72,
+          "panel": 1.55,
+          "raise": 1.38
+        },
+        "light": {
+          "well": 1.74,
+          "bg": 2.1,
+          "surface": 2.24,
+          "panel": 1.88,
+          "raise": 2.3
+        },
+        "console": {
+          "well": 2.09,
+          "bg": 1.96,
+          "surface": 1.85,
+          "panel": 1.72,
+          "raise": 1.55
+        }
+      }
+    },
+    "debtBaseline": {
+      "hex-arbitrario-em-classe": 7,
+      "hex-em-atributo-jsx": 19,
+      "botao-cru-fora-da-primitiva": 415,
+      "paleta-slate-gray-estrutural": 76,
+      "tamanho-de-fonte-avulso": 909,
+      "dialogo-nativo-bloqueante": 0,
+      "outline-none": 89,
+      "important-no-css": 6,
+      "z-index-avulso": 7
     }
   },
   "components": [
@@ -439,6 +500,14 @@
       "css": ".ds-switch { position: relative; display: inline-flex; align-items: center; width: 40px; height: 24px; border-radius: 9999px; border: 1px solid var(--line-ctl, #3C4349); background: var(--panel, #202429); cursor: pointer; transition: background-color 150ms ease-out; } .ds-switch-knob { position: absolute; width: 16px; height: 16px; border-radius: 9999px; background: var(--ink-lo, #BEC7D1); transform: translateX(3px); transition: transform 150ms ease-out; } .ds-switch[aria-checked=\"true\"] { background: var(--ink-hi, #F0F5F9); border-color: var(--ink-hi, #F0F5F9); } .ds-switch[aria-checked=\"true\"] .ds-switch-knob { background: var(--bg, #111315); transform: translateX(18px); } .ds-switch:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     },
     {
+      "name": "Caixa de seleção",
+      "kind": "input",
+      "refersTo": "checkbox",
+      "description": "CaixaDeSelecao: a linha rotulada inteira (44px) é o alvo; caixa de 20px/5px, desmarcada em borda --ink-dim sobre --well, marcada em tinta cheia --ink-hi com ✓ em --bg. Nunca azul.",
+      "html": "<div class=\"ds-cx-grid\"><label class=\"ds-cx\"><span class=\"ds-cx-box\"><input type=\"checkbox\" checked><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></span><span><span class=\"ds-cx-nome\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" class=\"ds-cx-ic\"><path d=\"M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17\"/><path d=\"m10 15 5-3-5-3z\"/></svg>YouTube</span><span class=\"ds-cx-estado\">pronto</span></span></label><label class=\"ds-cx\"><span class=\"ds-cx-box\"><input type=\"checkbox\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></span><span><span class=\"ds-cx-nome\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" class=\"ds-cx-ic\"><path d=\"M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7\"/></svg>Twitch</span><span class=\"ds-cx-estado\">não conectado</span></span></label></div>",
+      "css": ".ds-cx-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; max-width: 400px; font-family: Poppins, system-ui, sans-serif; } .ds-cx { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 0; cursor: pointer; } .ds-cx-box { position: relative; display: inline-flex; width: 20px; height: 20px; flex-shrink: 0; } .ds-cx-box input { appearance: none; margin: 0; width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--ink-dim, #A2ACB7); background: var(--well, #0A0B0C); cursor: pointer; transition: background-color 150ms, border-color 150ms; } .ds-cx-box input:checked { background: var(--ink-hi, #F0F5F9); border-color: var(--ink-hi, #F0F5F9); } .ds-cx-box input:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-cx-box svg { position: absolute; inset: 0; margin: auto; color: var(--bg, #111315); opacity: 0; pointer-events: none; } .ds-cx-box input:checked + svg { opacity: 1; } .ds-cx-nome { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-hi, #F0F5F9); } .ds-cx-ic { color: var(--ink-lo, #BEC7D1); flex-shrink: 0; } .ds-cx-estado { display: block; font-size: 12px; line-height: 1.33; color: var(--ink-lo, #BEC7D1); }"
+    },
+    {
       "name": "Segmentado",
       "kind": "input",
       "refersTo": "segmented-active",
@@ -487,6 +556,14 @@
       "css": ".ds-ed { font-family: Poppins, system-ui, sans-serif; max-width: 768px; padding: 16px 0; border-top: 1px solid var(--line, #30363B); border-bottom: 1px solid var(--line, #30363B); } .ds-ed-l { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-ed-in { display: block; width: 100%; height: 44px; margin-top: 8px; padding: 0 12px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--well, #0A0B0C); color: var(--ink-hi, #F0F5F9); font: inherit; font-size: 14px; } .ds-ed-in:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-ed-hint { margin: 8px 0 0; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); text-wrap: pretty; } .ds-ed-fail { display: flex; align-items: flex-start; gap: 8px; margin: 16px 0 0; font-size: 14px; line-height: 20px; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-ed-fail svg { flex-shrink: 0; margin-top: 2px; } .ds-ed-link { background: none; border: 0; padding: 0; font: inherit; color: var(--ink-hi, #F0F5F9); text-decoration: underline; text-decoration-color: var(--line-ctl, #3C4349); text-underline-offset: 4px; cursor: pointer; } .ds-ed-link:hover { text-decoration-color: var(--ink-hi, #F0F5F9); } .ds-ed-act { display: flex; flex-direction: column-reverse; gap: 12px; margin-top: 20px; } @media (min-width: 640px) { .ds-ed-act { flex-direction: row; justify-content: flex-end; } } .ds-ed-ghost, .ds-ed-pri { font: inherit; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 16px; cursor: pointer; transition: filter 110ms linear, background-color 110ms linear; } .ds-ed-ghost { background: transparent; color: var(--ink, #D9E1EA); border: 1px solid var(--line-ctl, #3C4349); } .ds-ed-ghost:hover { background: var(--raise, #282D31); } .ds-ed-pri { background: var(--color-brand-deep, #2C5FB0); color: #fff; border: 0; } .ds-ed-pri:hover { filter: brightness(1.1); } .ds-ed-pri:active { filter: brightness(0.93); } .ds-ed-ghost:focus-visible, .ds-ed-pri:focus-visible, .ds-ed-link:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     },
     {
+      "name": "Rodapé de diálogo com falha ao salvar",
+      "kind": "custom",
+      "refersTo": "modal-md",
+      "description": "Rodapé do Modal md (\"Novo webinar\"): a linha de falha role=\"alert\" fica 12px acima das ações, fora do corpo que rola; Cancelar fantasma e o primário com o verbo.",
+      "html": "<div class=\"ds-rod\"><p role=\"alert\" class=\"ds-rod-falha\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>Sua sessão expirou, então o webinar não foi agendado. <button type=\"button\" class=\"ds-rod-link\">Entrar de novo</button></span></p><div class=\"ds-rod-acoes\"><button type=\"button\" class=\"ds-rod-ghost\">Cancelar</button><button type=\"button\" class=\"ds-rod-prim\">Agendar webinar</button></div></div>",
+      "css": ".ds-rod { font-family: Poppins, system-ui, sans-serif; max-width: 448px; padding: 12px 20px 20px; border-top: 1px solid var(--line, #30363B); background: var(--surface, #181B1F); } .ds-rod-falha { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 12px; font-size: 14px; line-height: 1.43; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-rod-falha svg { flex-shrink: 0; margin-top: 2px; } .ds-rod-link { background: none; border: 0; padding: 0; font: inherit; color: var(--ink-hi, #F0F5F9); text-decoration: underline; text-decoration-color: var(--line-ctl, #3C4349); text-underline-offset: 4px; cursor: pointer; } .ds-rod-link:focus-visible, .ds-rod-ghost:focus-visible, .ds-rod-prim:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-rod-acoes { display: flex; justify-content: flex-end; gap: 12px; } .ds-rod-ghost, .ds-rod-prim { font: inherit; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 16px; cursor: pointer; transition: filter 110ms linear; } .ds-rod-ghost { background: transparent; color: var(--ink, #D9E1EA); border: 1px solid var(--line-ctl, #3C4349); } .ds-rod-ghost:hover { background: var(--raise, #282D31); } .ds-rod-prim { background: #2C5FB0; color: #fff; border: 0; } .ds-rod-prim:hover { filter: brightness(1.1); } .ds-rod-prim:active { filter: brightness(0.93); }"
+    },
+    {
       "name": "Lista de planos",
       "kind": "custom",
       "refersTo": "plan-row",
@@ -518,7 +595,7 @@
     "rules": [
       {
         "name": "Regra da Voz Única",
-        "body": "Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (--ink-hi, --raise), nunca pelo azul. Switch ligado é tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em --ink-hi.",
+        "body": "Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (--ink-hi, --raise), nunca pelo azul. Switch ligado e caixa marcada são tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em --ink-hi.",
         "section": "colors"
       },
       {
@@ -573,12 +650,17 @@
       },
       {
         "name": "Regra do Salvo de Verdade",
-        "body": "Uma tela só diz \"salvo\" (o aviso \"Nome salvo\") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão ou sem cota, \"tente de novo mais tarde\"; sem confirmação em 10 s, \"não deu para confirmar\"; sessão expirada, \"Entrar de novo\"; recusa, \"tente de novo\". A restauração da sessão é esperada (esperarSessao) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de \"salvo\" local que o banco não viu.",
+        "body": "Uma tela só diz \"salvo\" (o aviso \"Nome salvo\") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão ou sem cota, \"tente de novo mais tarde\"; sem confirmação em 10 s, \"não deu para confirmar\"; sessão expirada, \"Entrar de novo\"; recusa, \"tente de novo\". A restauração da sessão é esperada (esperarSessao) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de \"salvo\" local que o banco não viu. A regra tem uma implementação só, gravarComConfirmacao em src/lib/firestoreService.ts, que falha com ErroAoSalvar (motivo FalhaAoSalvar: sem-login, sem-conexao, sem-confirmacao, recusado); salvarNomeDoPerfil e agendarWebinar passam por ela, e toda gravação nova também passa. Enquanto grava, o primário fica em loading e Cancelar desabilita; o rascunho só se apaga depois da confirmação. Uma nova tentativa de criar algo reusa o id do rascunho, e uma escrita atrasada é repetida, nunca duplicada.",
         "section": "components"
       },
       {
         "name": "Regra do Dado com Uso",
         "body": "Um registro só pede o que algo no app já usa. Campo guardado \"para depois\" não entra; volta junto com o que o usa.",
+        "section": "components"
+      },
+      {
+        "name": "Regra do Horário Derivado",
+        "body": "\"Hoje, às…\" e \"Amanhã, às…\" são derivados na hora de mostrar, a partir de startsAt (ISO 8601), por rotuloDoHorario em src/lib/horario.ts, e nunca gravados: um \"Amanhã\" gravado vira mentira no dia seguinte. O campo time guarda a frase absoluta (\"Domingo, 27 de setembro, às 20:00\", por horarioPorExtenso) para quem lê só o texto (página pública, estúdio). Webinar antigo sem startsAt mostra o seu texto livre. Lista de webinars, Painel e aviso usam o mesmo rótulo, e a hora vai em mono pelo Horario.",
         "section": "components"
       }
     ],
@@ -599,6 +681,9 @@
       "Do mostrar planos só por <ListaDePlanos> e abrir planos só por abrirPlanos (página fora do estúdio, modal dentro dele).",
       "Do dizer em palavras o que ainda não abre (\"A assinatura abre em breve…\") e deixar a tela sem ação primária até abrir.",
       "Do colar número e unidade com espaço inseparável em textos que vão a linhas estreitas.",
+      "Do marcar opções com <CaixaDeSelecao> (a linha inteira é o alvo e o nome), e nunca com um <input type=\"checkbox\"> solto.",
+      "Do gravar horário como startsAt e derivar \"Hoje/Amanhã\" na tela com rotuloDoHorario.",
+      "Do gravar só por gravarComConfirmacao, com a falha no rodapé do diálogo, acima das ações.",
       "Do abrir o modal de canais por id (editarCanal(id)) quando a origem é um canal, e nunca pela plataforma.",
       "Do levar links para fora do app por <AcaoDeTexto href>, que abre em outra aba e avisa o leitor de tela.",
       "Do checar todo par novo de texto/superfície nos três escopos: npm run verify roda tipos, stylelint, o portão de contraste (WCAG AA em escuro, claro e console), a catraca de dívida, os botões só-ícone e os rótulos de formulário. O mesmo roda no CI (.github/workflows/design-system.yml)."
@@ -617,6 +702,8 @@
       "Don't marcar o plano atual ou um plano \"popular\" com cor, borda ou selo; o atual é dito em palavra.",
       "Don't descartar texto digitado ao trocar de plataforma ou ao salvar outra.",
       "Don't pedir nem guardar dado que nada no app usa ainda, nem tornar editável um valor que vem de outro sistema (o e-mail do login).",
+      "Don't gravar \"Hoje\" ou \"Amanhã\" em dado nenhum; só a frase absoluta.",
+      "Don't pintar a caixa marcada de azul da marca; marcada é tinta cheia.",
       "Don't simular um salvamento: sem espera de enfeite, sem \"atualizado com sucesso\" antes da confirmação do banco.",
       "Don't subir número nenhum de scripts/design-debt-baseline.json. A catraca deixa a dívida cair e nunca crescer sem um --update visível na revisão."
     ]
