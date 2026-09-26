@@ -19,8 +19,8 @@ interface HeaderProps {
   onSimulateExpiration?: () => void;
   onRestoreTrial?: () => void;
   onOpenPricing?: () => void;
-  onViewChange?: (view: 'dashboard' | 'studio' | 'admin' | 'super-admin' | 'public-webinar' | 'profile' | 'billing') => void;
-  currentView?: 'dashboard' | 'studio' | 'admin' | 'super-admin' | 'public-webinar' | 'profile' | 'billing';
+  onViewChange?: (view: 'dashboard' | 'studio' | 'super-admin' | 'public-webinar' | 'profile' | 'billing') => void;
+  currentView?: 'dashboard' | 'studio' | 'super-admin' | 'public-webinar' | 'profile' | 'billing';
   isLive?: boolean;
   /** `false` quando a troca não acontece (teste expirado, canais além do plano). */
   onToggleLive?: () => void | boolean | Promise<void | boolean>;

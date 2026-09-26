@@ -20,7 +20,6 @@ import { AuthAndPricing } from './components/AuthAndPricing';
 import { ScreenSharePickerModal } from './components/ScreenSharePickerModal';
 import { PwStreamLogo } from './components/PwStreamLogo';
 import { WebinarPublicPage } from './components/WebinarPublicPage';
-import { AdminPanel } from './components/AdminPanel';
 import { SuperAdminPanel } from './components/SuperAdminPanel';
 import { PlansModal } from './components/PlansModal';
 import { PlanoPagina } from './components/PlanoPagina';
@@ -188,7 +187,7 @@ export default function App() {
     }
   }, []);
 
-  // App views: 'dashboard' | 'studio' | 'admin' | 'super-admin' | 'public-webinar' | 'profile' | 'billing'
+  // App views: 'dashboard' | 'studio' | 'super-admin' | 'public-webinar' | 'profile' | 'billing'
   const [currentView, setCurrentView] = useState<VisaoDoApp>('dashboard');
 
   // Handle direct URL route navigation for /admin or #admin
@@ -3018,12 +3017,6 @@ export default function App() {
           allWebinars={webinars}
           onDeleteWebinar={handleDeleteWebinar}
         />
-      ) : currentView === 'admin' ? (
-        <AdminPanel 
-          onBack={() => setCurrentView('dashboard')} 
-          user={user} 
-          onNavigateSuperAdmin={() => setCurrentView('super-admin')}
-        />
       ) : currentView === 'public-webinar' ? (
         <WebinarPublicPage 
           webinarTitle={webinars.find(w => w.id === selectedWebinarId)?.title || title}
@@ -3235,46 +3228,15 @@ export default function App() {
             <div {...integracoesAbas.panel(integrationsModalTab)} className="p-6 max-h-[65vh] overflow-y-auto text-xs text-[var(--ink)] space-y-4">
               {integrationsModalTab === 'rtmp' && (
                 <div className="space-y-4">
-                  <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl">
-                    <p className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Configuração de Transmissão Externa (OBS / Streamlabs)</p>
-                    <p className="text-[11px] text-[var(--ink)] leading-relaxed">Você pode conectar encoders físicos ou softwares externos (como OBS Studio, vMix ou Streamlabs) ao PwStreamer. O servidor de ingestão recebe seu sinal em alta definição e faz o multicast simultâneo.</p>
-                  </div>
-
-                  <div className="space-y-3 bg-[var(--bg)] border border-[var(--line)] p-5 rounded-2xl">
-                    <p className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider">Parâmetros de Conexão Ativos</p>
-                    
-                    <div className="space-y-2.5">
-                      <div>
-                        <label htmlFor="app-url-do-servidor-rtmp-primario" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">URL do Servidor RTMP Primário (Ingestion)</label>
-                        <div className="flex gap-2 mt-1">
-                          <input id="app-url-do-servidor-rtmp-primario" 
-                            type="text" 
-                            readOnly 
-                            value="rtmp://stream.pwstreamer.com:1935/live" 
-                            className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-1.5 font-mono text-[11px] text-blue-400 focus:outline-none"
-                          />
-                          <Button variant="ghost" size="sm" onClick={() => copyText('rtmp://stream.pwstreamer.com:1935/live')}>
-                            Copiar
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label htmlFor="app-chave-de-transmissao-stream-key" className="block text-[10px] font-bold text-[var(--ink-lo)] uppercase tracking-wider">Chave de Transmissão (Stream Key)</label>
-                        <div className="flex gap-2 mt-1">
-                          <input id="app-chave-de-transmissao-stream-key" 
-                            type="password" 
-                            readOnly 
-                            value="live_5427901_pw_prod_99a8x72cd" 
-                            className="flex-1 bg-[var(--bg)] border border-[var(--line)] rounded-lg px-3 py-1.5 font-mono text-[11px] text-blue-400 focus:outline-none"
-                          />
-                          <Button variant="ghost" size="sm" onClick={() => copyText('live_5427901_pw_prod_99a8x72cd')}>
-                            Copiar
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Aqui havia "Parâmetros de Conexão Ativos": um servidor
+                      (stream.pwstreamer.com, que não resolve no DNS) e a MESMA
+                      chave fixa para todo mundo, com botões de copiar. Quem
+                      configurasse o OBS com eles não transmitiria para lugar
+                      nenhum. Volta quando o servidor de ingestão existir. */}
+                  <p className="max-w-prose text-pretty text-sm text-[var(--ink)]">
+                    Transmitir pelo OBS, vMix ou outro programa do seu computador ainda não está no ar: o servidor de
+                    ingestão do PwStreamer ainda não foi publicado, então não há endereço nem chave para configurar.
+                  </p>
 
                   <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl">
                     <p className="text-xs font-bold text-[var(--ink-hi)]">Requisitos Recomendados para o OBS:</p>

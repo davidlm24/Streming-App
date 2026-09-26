@@ -8,7 +8,7 @@ import { Menu, type ItemDeMenu } from './ui/Menu';
 
 export type VisaoDoApp =
   | 'dashboard' | 'channels' | 'webinars' | 'settings'
-  | 'studio' | 'admin' | 'super-admin' | 'public-webinar' | 'profile' | 'billing';
+  | 'studio' | 'super-admin' | 'public-webinar' | 'profile' | 'billing';
 
 interface AppHeaderProps {
   user: {

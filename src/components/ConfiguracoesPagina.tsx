@@ -8,7 +8,7 @@ type AbaDeIntegracao = 'rtmp' | 'social' | 'webhooks';
 interface ConfiguracoesPaginaProps {
   ehSuperAdmin: boolean;
   onAbrirIntegracao: (aba: AbaDeIntegracao) => void;
-  onIrPara: (visao: 'billing' | 'profile' | 'admin' | 'super-admin') => void;
+  onIrPara: (visao: 'billing' | 'profile' | 'super-admin') => void;
 }
 
 const TEMAS = [
@@ -26,6 +26,11 @@ const TEMAS = [
  * "Configurações Aplicadas!" sem aplicar nada. Os limites por plano dele
  * também contradiziam plans.ts. Volta quando a live existir, com os limites de
  * plans.ts.
+ *
+ * O "Painel técnico" também saiu. A chave de ingestão apontava para um
+ * servidor que não existe (stream.pwstreamer.com não resolve), os destinos
+ * repetiam a página Canais sem salvar nada, as estatísticas eram vazias ou
+ * inventadas, e os webhooks já estão em Integrações.
  */
 export function ConfiguracoesPagina({ ehSuperAdmin, onAbrirIntegracao, onIrPara }: ConfiguracoesPaginaProps) {
   const { theme, setTheme } = useTheme();
@@ -39,7 +44,7 @@ export function ConfiguracoesPagina({ ehSuperAdmin, onAbrirIntegracao, onIrPara 
           <li>
             <LinhaDeAcao
               titulo="OBS, vMix e RTMP externo"
-              descricao="Servidor e chave para transmitir de um programa no seu computador."
+              descricao="Transmitir de um programa no seu computador. Ainda não está no ar."
               onClick={() => onAbrirIntegracao('rtmp')}
             />
           </li>
@@ -83,16 +88,10 @@ export function ConfiguracoesPagina({ ehSuperAdmin, onAbrirIntegracao, onIrPara 
         </ul>
       </SecaoDePagina>
 
-      <SecaoDePagina id="config-avancado" titulo="Avançado">
-        <ul className="mt-2 divide-y divide-[var(--line)]">
-          <li>
-            <LinhaDeAcao
-              titulo="Painel técnico"
-              descricao="Chave de ingestão, estatísticas e validador de webhooks."
-              onClick={() => onIrPara('admin')}
-            />
-          </li>
-          {ehSuperAdmin && (
+      {/* Sem o painel técnico, Avançado só tem a administração: só aparece para quem é admin */}
+      {ehSuperAdmin && (
+        <SecaoDePagina id="config-avancado" titulo="Avançado">
+          <ul className="mt-2 divide-y divide-[var(--line)]">
             <li>
               <LinhaDeAcao
                 titulo="Administração da plataforma"
@@ -100,9 +99,9 @@ export function ConfiguracoesPagina({ ehSuperAdmin, onAbrirIntegracao, onIrPara 
                 onClick={() => onIrPara('super-admin')}
               />
             </li>
-          )}
-        </ul>
-      </SecaoDePagina>
+          </ul>
+        </SecaoDePagina>
+      )}
     </Pagina>
   );
 }
