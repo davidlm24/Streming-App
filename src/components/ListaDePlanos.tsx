@@ -31,16 +31,16 @@ function Preco({ plano, periodo }: { plano: Plan; periodo: Periodo }) {
 }
 
 /**
- * Os três limites que decidem a escolha, dos campos do plano (e não das
- * frases da vitrine): canais, pessoas na tela e o tempo — horas de
- * transmissão nos pagos, o limite de gravação no gratuito.
+ * Os limites que decidem a escolha, dos campos do plano (e não das
+ * frases da vitrine): canais, pessoas na tela e, nos pagos, as horas de
+ * transmissão. O limite de gravação do gratuito saiu com a gravação, que o
+ * estúdio ainda não faz (o botão só conta o tempo).
  */
 export function limitesDoPlano(plano: Plan): string {
   // Espaço inseparável ( ) entre número e unidade e no fim de cada
-  // limite: no celular a linha quebrava em "15 | min" e deixava "vivo" sozinho.
+  // limite: no celular a linha quebrava em "3 | horas" e deixava "vivo" sozinho.
   const partes = [`${plano.destinosSimultaneos} canais ao mesmo tempo`, `${plano.participantes} pessoas na tela`];
   if (plano.horasDeTransmissao) partes.push(`${plano.horasDeTransmissao} horas de transmissão ao vivo`);
-  else if (plano.minutosDeGravacaoPorLive) partes.push(`gravação de até ${plano.minutosDeGravacaoPorLive} min por live`);
   return partes.join(' · ');
 }
 
@@ -66,12 +66,26 @@ export function SeletorDePeriodo({ periodo, onChange }: { periodo: Periodo; onCh
  * duas tabelas de preço, uma em dólar, e dois checkouts.
  *
  * `semLinhaFinal`: dentro de um diálogo o rodapé já traz a linha de baixo.
+ * `semLinhaInicial`: quando a linha de cima já existe fora da lista (no
+ * início do site, ao lado do título da seção, ela dobraria a linha da seção).
  */
-export function ListaDePlanos({ planoAtual, periodo, semLinhaFinal = false }: { planoAtual?: PlanId; periodo: Periodo; semLinhaFinal?: boolean }) {
+export function ListaDePlanos({
+  planoAtual,
+  periodo,
+  semLinhaInicial = false,
+  semLinhaFinal = false,
+}: {
+  planoAtual?: PlanId;
+  periodo: Periodo;
+  semLinhaInicial?: boolean;
+  semLinhaFinal?: boolean;
+}) {
   const [aberto, setAberto] = useState<PlanId | null>(null);
 
   return (
-    <ul className={`divide-y divide-[var(--line)] border-t border-[var(--line)] ${semLinhaFinal ? '' : 'border-b'}`}>
+    <ul
+      className={`divide-y divide-[var(--line)] border-[var(--line)] ${semLinhaInicial ? '' : 'border-t'} ${semLinhaFinal ? '' : 'border-b'}`}
+    >
       {PLANS.map((plano) => {
         const idDaLista = `plano-${plano.id.replace(/\s+/g, '-').toLowerCase()}-itens`;
         const expandido = aberto === plano.id;

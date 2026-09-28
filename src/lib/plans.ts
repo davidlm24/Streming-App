@@ -41,8 +41,6 @@ export interface Plan {
   participantes: number;
   /** Horas de transmissão ao vivo que o plano anuncia ("3 horas da transmissão ao vivo"). */
   horasDeTransmissao?: number;
-  /** Limite de gravação por live, quando o plano tem um (o gratuito: 15 minutos). */
-  minutosDeGravacaoPorLive?: number;
   /** Duração do teste, no plano que é teste. */
   diasDeTeste?: number;
 }
@@ -75,15 +73,12 @@ export const PLANS: Plan[] = [
       'Acesso completo ao estúdio de transmissão',
       '30 dias de teste gratuito',
       'Até 3 participantes simultâneos',
-      'Conecte o OBS, vMix, etc.',
-      'Gravação de até 15 minutos por live',
       'Transmissão para até 2 destinos'
     ],
     popular: false,
     destinosSimultaneos: 2,
     rtmpProprio: false,
     participantes: 3,
-    minutosDeGravacaoPorLive: 15,
     diasDeTeste: 30
   },
   {
@@ -98,8 +93,6 @@ export const PLANS: Plan[] = [
       'Transmissão simultânea para 3 canais',
       'Destinos RTMP personalizados',
       'Compartilhamento de tela',
-      'Conecte o OBS, vMix, etc.',
-      'Gravações na nuvem',
       'Sem marca d\'água da plataforma',
       'Logos, fontes e gráficos personalizados',
       '3 horas da transmissão ao vivo',
@@ -126,8 +119,6 @@ export const PLANS: Plan[] = [
       'Transmissão simultânea para 5 canais',
       'Destinos RTMP personalizados',
       'Compartilhamento de tela',
-      'Conecte o OBS, vMix, etc.',
-      'Gravações na nuvem',
       'Sem marca d\'água da plataforma',
       'Logos, fontes e gráficos personalizados',
       '6 horas da transmissão ao vivo',
@@ -155,8 +146,6 @@ export const PLANS: Plan[] = [
       'Transmissão simultânea para 8 canais',
       'Destinos RTMP personalizados',
       'Compartilhamento de tela',
-      'Conecte o OBS, vMix, etc.',
-      'Gravações na nuvem',
       'Sem marca d\'água da plataforma',
       'Logos, fontes e gráficos personalizados',
       '10 horas da transmissão ao vivo',
