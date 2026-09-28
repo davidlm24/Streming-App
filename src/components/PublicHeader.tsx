@@ -1,126 +1,60 @@
-import { useEffect, useRef, useState } from 'react';
-import { Menu, X } from 'lucide-react';
 import { PwStreamLogo } from './PwStreamLogo';
+import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 
-export type DestinoPublico = 'landing' | 'features' | 'pricing' | 'login' | 'register';
+export type VisaoPublica = 'landing' | 'login' | 'register';
 
 interface PublicHeaderProps {
-  /** Página aberta agora — marcada com aria-current. */
-  atual?: string;
-  onNavegar: (destino: DestinoPublico) => void;
-  /** Preso ao topo ao rolar (a página de Recursos é longa). */
-  fixo?: boolean;
+  /** A tela aberta: a ação que leva a ela sai do cabeçalho. */
+  atual: VisaoPublica;
+  onNavegar: (visao: VisaoPublica) => void;
+  /** Leva à seção de planos do início. */
+  onPlanos: () => void;
 }
 
-const LINKS: { id: DestinoPublico; rotulo: string }[] = [
-  { id: 'landing', rotulo: 'Início' },
-  { id: 'features', rotulo: 'Recursos' },
-  { id: 'pricing', rotulo: 'Planos' },
-];
-
 /**
- * Cabeçalho do site público: landing, recursos, planos, login e cadastro.
+ * Cabeçalho do site público, no desenho do cabeçalho do app: barra de 56px
+ * sobre o fundo da página, com uma linha embaixo.
  *
- * Eram dois — um em AuthAndPricing, outro em FeaturesPage —, com itens e
- * rótulos diferentes ("Sign Up" num, "Criar conta" no outro; o de Recursos
- * nem tinha como entrar). E nenhum cabia no celular: a 375px os botões de
- * entrar e de criar conta ficavam cortados fora da tela, sem rolagem — no
- * aparelho mais comum, a porta de entrada do produto não era alcançável.
+ * Eram três destinos em pílulas (Início, Recursos, Planos) e um botão azul
+ * de criar conta disputando cor com o herói. A página de Recursos saiu (o
+ * início diz o que já funciona e o que vem), o logo leva ao início e
+ * "Criar conta" fica fantasma aqui: a cor é da ação da tela.
  *
- * A partir de `sm` tudo fica em linha. Abaixo, logo + botão de menu, e o
- * menu abre no fluxo, embaixo da barra — o mesmo desenho do Header logado.
+ * Cabe inteiro a 375px, então não há menu de celular; "Planos" some abaixo
+ * de `sm`, onde a seção fica logo ali, rolando.
  */
-export function PublicHeader({ atual, onNavegar, fixo = false }: PublicHeaderProps) {
-  const [aberto, setAberto] = useState(false);
-  const botaoMenuRef = useRef<HTMLButtonElement>(null);
-
-  // Esc fecha e devolve o foco ao botão que abriu
-  useEffect(() => {
-    if (!aberto) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      setAberto(false);
-      botaoMenuRef.current?.focus();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [aberto]);
-
-  const ir = (destino: DestinoPublico) => {
-    setAberto(false);
-    onNavegar(destino);
-  };
-
-  const classeLink = (id: DestinoPublico) =>
-    atual === id
-      ? 'text-[var(--ink-hi)] bg-[var(--surface)]'
-      : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--surface)]';
-
+export function PublicHeader({ atual, onNavegar, onPlanos }: PublicHeaderProps) {
   return (
-    <header className={`${fixo ? 'sticky top-0' : 'relative'} z-20 w-full border-b border-[var(--line)] bg-[var(--bg)]/90 backdrop-blur-md`}>
-      <div className="h-16 px-4 sm:px-6 flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-[var(--z-sticky)] border-b border-[var(--line)] bg-[var(--bg)]">
+      <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:px-6">
         <button
           type="button"
-          onClick={() => ir('landing')}
-          aria-label="PwStreamer, página inicial"
-          className="shrink-0 cursor-pointer"
+          onClick={() => onNavegar('landing')}
+          aria-label="PwStreamer, início"
+          className="flex shrink-0 items-center cursor-pointer"
         >
-          <PwStreamLogo iconSize={32} textSize="sm" />
+          <PwStreamLogo iconSize={28} textSize="sm" />
         </button>
 
-        <nav aria-label="Principal" className="hidden sm:flex items-center gap-1 text-xs font-semibold">
-          {LINKS.map(l => (
-            <button
-              key={l.id}
-              type="button"
-              onClick={() => ir(l.id)}
-              aria-current={atual === l.id ? 'page' : undefined}
-              className={`px-3 py-1.5 rounded-xl transition-colors cursor-pointer ${classeLink(l.id)}`}
-            >
-              {l.rotulo}
-            </button>
-          ))}
-          <Button variant="ghost" size="sm" className="ml-2" onClick={() => ir('login')}>Entrar</Button>
-          <Button size="sm" onClick={() => ir('register')}>Criar conta</Button>
+        <nav aria-label="Principal" className="ml-auto flex items-center gap-5">
+          <span className="hidden sm:inline-flex">
+            <AcaoDeTexto onClick={onPlanos} className="min-h-11">
+              Planos
+            </AcaoDeTexto>
+          </span>
+          {atual !== 'login' && (
+            <AcaoDeTexto onClick={() => onNavegar('login')} className="min-h-11">
+              Entrar
+            </AcaoDeTexto>
+          )}
+          {atual !== 'register' && (
+            <Button variant="ghost" onClick={() => onNavegar('register')} className="min-h-11">
+              Criar conta
+            </Button>
+          )}
         </nav>
-
-        <button
-          ref={botaoMenuRef}
-          type="button"
-          onClick={() => setAberto(a => !a)}
-          aria-expanded={aberto}
-          aria-controls="menu-publico"
-          aria-label={aberto ? 'Fechar menu' : 'Abrir menu'}
-          className="sm:hidden -mr-2 w-11 h-11 inline-flex items-center justify-center rounded-xl text-[var(--ink-hi)] hover:bg-[var(--surface)] cursor-pointer"
-        >
-          {aberto ? <X size={22} /> : <Menu size={22} />}
-        </button>
       </div>
-
-      {aberto && (
-        <nav
-          id="menu-publico"
-          aria-label="Principal"
-          className="sm:hidden border-t border-[var(--line)] px-4 pt-2 pb-4 flex flex-col gap-1"
-        >
-          {LINKS.map(l => (
-            <button
-              key={l.id}
-              type="button"
-              onClick={() => ir(l.id)}
-              aria-current={atual === l.id ? 'page' : undefined}
-              className={`min-h-11 px-3 rounded-xl text-left text-sm font-semibold transition-colors cursor-pointer ${classeLink(l.id)}`}
-            >
-              {l.rotulo}
-            </button>
-          ))}
-          <div className="grid grid-cols-2 gap-2 pt-2">
-            <Button variant="ghost" className="min-h-11" onClick={() => ir('login')}>Entrar</Button>
-            <Button className="min-h-11" onClick={() => ir('register')}>Criar conta</Button>
-          </div>
-        </nav>
-      )}
     </header>
   );
 }

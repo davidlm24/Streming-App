@@ -41,7 +41,7 @@ O produto dá certo quando o operador passa a live inteira sem precisar sair del
 - **Stack:** React 19, Tailwind v4 e Vite. A API roda na Vercel (`api/index.ts`) e o servidor local em `server.ts`. Firebase Auth e Firestore usam um banco com nome, e há integração com Cloudflare Stream.
 - **Login:** em produção é só pelo Google. Por enquanto, e-mail e senha só existem no ambiente de desenvolvimento.
 - **Planos e preços:** a fonte única é `src/lib/plans.ts`. Teste grátis de 30 dias; Standard R$ 49,90, Professional R$ 99,90 e Business R$ 199,90 por mês.
-- **Pagamento:** ainda não processa cobrança real, e o checkout diz isso ao usuário. O webhook do Stripe só existe no servidor local.
+- **Pagamento:** ainda não há cobrança nem checkout. O site público e o app mostram os planos e dizem que a assinatura abre em breve. O webhook do Stripe só existe no servidor local.
 - **Chat das plataformas:** ainda não chega ao estúdio, porque não há ingestão real de comentários. O chat mostra só o que é enviado do estúdio.
 - **Terminologia:** "PwStreamer" é o produto; "PW Stream Online" é a razão social, usada no copyright e em textos legais. As grafias são diferentes de propósito.
 
@@ -56,7 +56,7 @@ O produto dá certo quando o operador passa a live inteira sem precisar sair del
 
 **Não existe prova social real.** O produto está em alfa: sem clientes, sem depoimentos, sem métricas de uso, sem logos de clientes e sem imprensa. Nada disso pode ser inventado. Números, audiências e equipes fictícias já foram removidos do app.
 
-A captura do estúdio na landing e as imagens da página de Recursos ainda são placeholders (`TODO(imagem)`).
+A única imagem do site público é uma captura real do Painel, com dados de exemplo ditos na legenda (`src/assets/site/painel-exemplo.png`, com a proveniência embutida no PNG). A página de Recursos saiu: repetia o que o início já diz, com promessas que o produto não cumpre.
 
 ## Product Principles
 

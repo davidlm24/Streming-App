@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-26T11:10:31.575Z",
+  "generatedAt": "2026-09-27T16:58:39.014Z",
   "title": "Design System: PwStreamer",
   "extensions": {
     "colorMeta": {
@@ -181,11 +181,11 @@
     "typographyMeta": {
       "display": {
         "displayName": "Display (text-3xl)",
-        "purpose": "Uma por tela: h1 da página ou título da próxima live no Painel."
+        "purpose": "Uma por tela: h1 da página, título da próxima live no Painel, h1 do início, de Entrar e de Criar conta."
       },
       "title": {
         "displayName": "Título de seção (text-base)",
-        "purpose": "h2 das seções abertas por linha."
+        "purpose": "h2 das seções abertas por linha, também no início do site."
       },
       "body": {
         "displayName": "Corpo (text-sm)",
@@ -218,6 +218,11 @@
         "name": "overlay",
         "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
         "purpose": "Modal, ConfirmDialog e Toast (shadow-2xl)."
+      },
+      {
+        "name": "veu-do-contorno",
+        "value": "0 0 0 100vmax rgb(0 0 0 / 0.55)",
+        "purpose": "Não é profundidade: escurece a captura do Painel em volta do contorno, só enquanto o mouse aponta um item de \"Já funciona\"; em repouso, opacidade 0."
       }
     ],
     "motion": [
@@ -240,6 +245,11 @@
         "name": "chip-enter",
         "value": "300ms cubic-bezier(0.16, 1, 0.3, 1); fade + translateX(-0.5rem)",
         "purpose": "O único movimento de entrada no conteúdo da casca: chip de canal recém-conectado, uma vez, motion-safe."
+      },
+      {
+        "name": "contorno-da-captura",
+        "value": "left, top, width, height, opacity 300ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "O único movimento do site público: o contorno desliza entre as regiões da captura do Painel e some no lugar. Só com pointerType mouse; a pista na legenda só com pointer-fine; prefers-reduced-motion zera pela regra global."
       },
       {
         "name": "modal-enter",
@@ -306,11 +316,12 @@
       ".github/workflows/design-system.yml"
     ],
     "fieldError": {
-      "primitive": "ErroDeCampo (src/components/ui/ErroDeCampo.tsx); única, usada no modal de canais e em Dados de cadastro",
+      "primitive": "ErroDeCampo (src/components/ui/ErroDeCampo.tsx); única, usada no modal de canais, em Dados de cadastro e no \"Novo webinar\"",
       "border": "input/textarea/select[aria-invalid=\"true\"] { border-color: var(--ink-hi) } (index.css, global)",
       "message": "CircleAlert 14px + frase text-xs em --ink-hi com text-pretty, 8px abaixo do campo, no lugar da dica, ligada por aria-describedby",
       "saveFailure": "Linha role=\"alert\" acima das ações: CircleAlert 16px + frase text-sm em --ink-hi com text-pretty; pode terminar com uma AcaoDeTexto sublinhada que executa a saída que nomeia; um novo envio a apaga",
-      "purpose": "Erro de campo e falha ao salvar sem carmim."
+      "purpose": "Erro de campo e falha ao salvar sem carmim.",
+      "loginFailure": "A falha do login com Google (Entrar e Criar conta) usa a mesma linha da falha ao salvar: role=\"alert\", CircleAlert 16 + text-sm --ink-hi, acima do botão do Google. Fechar a janela de propósito não diz nada."
     },
     "planLimits": {
       "source": "src/lib/plans.ts",
@@ -331,13 +342,11 @@
         "Professional": 6,
         "Business": 10
       },
-      "minutosDeGravacaoPorLive": {
-        "Free Trial": 15
-      },
       "rtmpProprio": "Standard e acima",
       "precos": "priceMonthly e priceAnnual (por mês, anual 20% menor), sempre por formatPrice (BRL, pt-BR); tabular-nums em lista.",
-      "linhas": "Três limites por linha (canais, pessoas, tempo), por limitesDoPlano; espaço inseparável entre número e unidade.",
-      "rule": "Canal novo além do limite é salvo desligado e a tela diz por quê."
+      "linhas": "Por limitesDoPlano: canais e pessoas em todos os planos, horas de transmissão só nos pagos (o gratuito não tem limite de tempo); espaço inseparável entre número e unidade.",
+      "rule": "Canal novo além do limite é salvo desligado e a tela diz por quê.",
+      "features": "Só o que o produto faz ou fará com o plano: saíram \"Conecte o OBS, vMix, etc.\" e as linhas de gravação."
     },
     "pendencyVocabulary": {
       "source": "src/lib/canais.ts",
@@ -367,7 +376,8 @@
     },
     "navigation": {
       "verPlanos": "abrirPlanos: fora do estúdio navega para Plano e cobrança (billing); no estúdio abre o PlansModal por cima do palco.",
-      "entradas": "Menu da conta (\"Plano e cobrança\") e o aviso de teste no cabeçalho."
+      "entradas": "Menu da conta (\"Plano e cobrança\") e o aviso de teste no cabeçalho.",
+      "cabecalhoPublico": "PublicHeader: 56px em --bg, linha embaixo, sticky em --z-sticky, coluna max-w-6xl. Logo leva ao início; \"Planos\" e \"Entrar\" como ações de texto (text-sm, 44px), \"Criar conta\" fantasma, a 20px. Sem menu de celular; \"Planos\" some abaixo de sm. A ação da tela aberta sai do cabeçalho. Trocar de tela leva ao topo e foca o h1."
     },
     "truthfulSave": {
       "confirmTimeoutMs": 10000,
@@ -431,15 +441,41 @@
       }
     },
     "debtBaseline": {
-      "hex-arbitrario-em-classe": 7,
+      "hex-arbitrario-em-classe": 5,
       "hex-em-atributo-jsx": 19,
-      "botao-cru-fora-da-primitiva": 385,
-      "paleta-slate-gray-estrutural": 73,
+      "botao-cru-fora-da-primitiva": 348,
+      "paleta-slate-gray-estrutural": 71,
       "tamanho-de-fonte-avulso": 855,
       "dialogo-nativo-bloqueante": 0,
       "outline-none": 77,
       "important-no-css": 6,
       "z-index-avulso": 7
+    },
+    "publicSite": {
+      "source": "src/components/InicioPublico.tsx, src/components/AuthAndPricing.tsx, src/components/PublicHeader.tsx",
+      "column": "max-w-6xl, px 16px (24px a partir de sm), base 96px; a mesma do cabeçalho e do rodapé",
+      "hero": "grade de 12 colunas a partir de lg: 5 de texto, 7 da captura, centradas, gap 48px (40px empilhadas); topo 48px (64px a partir de sm)",
+      "sectionGap": "64px entre seções, cada uma aberta por linha de 1px e 24px até o título",
+      "jaFuncionaEmBreve": "duas colunas a partir de md, gap 48px, cada uma com lista divide-y; empilhada, a segunda abre com a própria linha 40px abaixo",
+      "planos": "4 + 8 colunas a partir de lg; ListaDePlanos com semLinhaInicial e -mt-4 (subida 16px) em lg; abaixo de lg a lista ganha a linha de cima de volta",
+      "fecho": "em linha a partir de sm: título e frase à esquerda, primário lg à direita",
+      "contas": "Entrar e Criar conta numa coluna max-w-sm (384px), topo 48px (64px a partir de sm)",
+      "primario": "\"Criar conta\" lg no herói e no fecho: a mesma ação, nunca no mesmo viewport. No cabeçalho, fantasma; \"Entrar\" é ação de texto.",
+      "captura": {
+        "file": "src/assets/site/painel-exemplo.png (1280 × 912), proveniência embutida no PNG",
+        "scope": "data-surface=\"console\": moldura e contorno escuros também no tema claro",
+        "frame": "raio 16px, borda --line; contorno raio 12px, outline 2px --ink-hi",
+        "regioes": "REGIOES em % da imagem; medir de novo sempre que a captura for refeita",
+        "datas": "absolutas; nada de \"Hoje\" ou \"Amanhã\" num raster (Regra do Horário Derivado)",
+        "legenda": "text-xs --ink-lo: \"O Painel de verdade, com dados de exemplo.\"; a pista do mouse só com pointer-fine",
+        "focus": "os itens de \"Já funciona\" não são paradas de foco: não são controles"
+      }
+    },
+    "foraDoSistema": {
+      "telas": "O estúdio (Header.tsx, LeftSidebar, o palco) e o super-admin ainda carregam o visual herdado do Google AI Studio. O site público saiu da dívida.",
+      "desvios": "Gatilho \"⋯\" do Menu (32px), avatar (32px), fechar do Modal (~34px), chip (36px), z-30 no cabeçalho do app, --line-ctl abaixo de 3:1, polegar da rolagem azul no hover.",
+      "googleG": "As quatro cores do G do Google contam em hex-em-atributo-jsx e ficam: são a marca do Google no botão de login.",
+      "formularioDeDesenvolvimento": "O formulário de e-mail e senha de Entrar e Criar conta existe só em desenvolvimento, não autentica e não é modelo; o primário azul dele não é a ação da tela."
     }
   },
   "components": [
@@ -447,7 +483,7 @@
       "name": "Botão primário (ação da tela)",
       "kind": "button",
       "refersTo": "button-primary-lg",
-      "description": "Um por tela. No Painel, 'Entrar no estúdio' em tamanho lg.",
+      "description": "Uma ação primária por tela, nunca dois no mesmo viewport. lg: \"Entrar no estúdio\" no Painel e \"Criar conta\" no herói e no fecho do início do site (a mesma ação, nunca no mesmo viewport).",
       "html": "<button class=\"ds-btn ds-btn-lg\">Entrar no estúdio <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
       "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 18px; border-radius: 16px; font-family: Poppins, system-ui, sans-serif; font-size: 14px; font-weight: 600; line-height: 1.2; background: var(--color-brand-deep, #2C5FB0); color: #FFFFFF; border: 1px solid transparent; cursor: pointer; transition: filter 110ms linear, background-color 110ms linear; } .ds-btn-lg { padding: 13px 24px; font-size: 16px; gap: 10px; min-width: 256px; } .ds-btn:hover { filter: brightness(1.1); } .ds-btn:active { filter: brightness(0.93); } .ds-btn:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     },
@@ -455,7 +491,7 @@
       "name": "Botão fantasma",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Secundário: 'Entrar' nas linhas de webinar (sm), atalho 'Estúdio', 'Cancelar'.",
+      "description": "Secundário: \"Entrar\" nas linhas de webinar (sm), atalho \"Estúdio\", \"Cancelar\" e \"Criar conta\" no cabeçalho público.",
       "html": "<button class=\"ds-btn-ghost ds-btn-sm\">Entrar</button>",
       "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 18px; border-radius: 16px; font-family: Poppins, system-ui, sans-serif; font-size: 14px; font-weight: 600; line-height: 1.2; background: transparent; color: var(--ink, #D9E1EA); border: 1px solid var(--line-ctl, #3C4349); cursor: pointer; transition: background-color 110ms linear; } .ds-btn-sm { padding: 5px 11px; font-size: 12px; border-radius: 10px; gap: 6px; } .ds-btn-ghost:hover { background: var(--raise, #282D31); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     },
@@ -567,8 +603,8 @@
       "name": "Lista de planos",
       "kind": "custom",
       "refersTo": "plan-row",
-      "description": "Linhas de ação expansíveis por plano: nome (e \"· seu plano\"), três limites e o preço na coluna lateral; abre a lista completa com ✓. Sem cor e sem botão de compra.",
-      "html": "<ul class=\"ds-pls\"><li><button class=\"ds-pl\" aria-expanded=\"false\"><span class=\"ds-pl-m\"><span class=\"ds-pl-t\">Plano Gratuito · seu plano</span><span class=\"ds-pl-d\">2&nbsp;canais ao mesmo tempo · 3&nbsp;pessoas na tela · gravação de até 15&nbsp;min por live</span></span><span class=\"ds-pl-p\"><span class=\"ds-pl-p1\">Grátis</span><span class=\"ds-pl-p2\">por 30 dias</span></span><svg class=\"ds-pl-i\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button></li><li><button class=\"ds-pl\" aria-expanded=\"true\"><span class=\"ds-pl-m\"><span class=\"ds-pl-t\">Standard</span><span class=\"ds-pl-d\">3&nbsp;canais ao mesmo tempo · 6&nbsp;pessoas na tela · 3&nbsp;horas de transmissão ao&nbsp;vivo</span></span><span class=\"ds-pl-p\"><span class=\"ds-pl-p1\">R$&nbsp;39,90/mês</span><span class=\"ds-pl-p2\">R$&nbsp;478,80 por ano</span></span><svg class=\"ds-pl-i\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button><ul class=\"ds-pl-f\"><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Transmissão simultânea para 3 canais</span></li><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Destinos RTMP personalizados</span></li><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Gravações na nuvem</span></li></ul></li></ul>",
+      "description": "Linhas de ação expansíveis por plano: nome (e \"· seu plano\"), canais e pessoas em todos e horas de transmissão só nos pagos, e o preço na coluna lateral; abre a lista completa com ✓. Sem cor e sem botão de compra. semLinhaFinal num diálogo; semLinhaInicial quando a linha de cima já existe fora da lista.",
+      "html": "<ul class=\"ds-pls\"><li><button class=\"ds-pl\" aria-expanded=\"false\"><span class=\"ds-pl-m\"><span class=\"ds-pl-t\">Plano Gratuito · seu plano</span><span class=\"ds-pl-d\">2&nbsp;canais ao mesmo tempo · 3&nbsp;pessoas na tela</span></span><span class=\"ds-pl-p\"><span class=\"ds-pl-p1\">Grátis</span><span class=\"ds-pl-p2\">por 30 dias</span></span><svg class=\"ds-pl-i\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button></li><li><button class=\"ds-pl\" aria-expanded=\"true\"><span class=\"ds-pl-m\"><span class=\"ds-pl-t\">Standard</span><span class=\"ds-pl-d\">3&nbsp;canais ao mesmo tempo · 6&nbsp;pessoas na tela · 3&nbsp;horas de transmissão ao&nbsp;vivo</span></span><span class=\"ds-pl-p\"><span class=\"ds-pl-p1\">R$&nbsp;39,90/mês</span><span class=\"ds-pl-p2\">R$&nbsp;478,80 por ano</span></span><svg class=\"ds-pl-i\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button><ul class=\"ds-pl-f\"><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Transmissão simultânea para 3 canais</span></li><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Destinos RTMP personalizados</span></li><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Compartilhamento de tela</span></li></ul></li></ul>",
       "css": ".ds-pls { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line, #30363B); border-bottom: 1px solid var(--line, #30363B); } .ds-pls > li + li { border-top: 1px solid var(--line, #30363B); } .ds-pl { display: flex; width: 100%; align-items: center; gap: 16px; padding: 16px 0; text-align: left; background: none; border: 0; cursor: pointer; font-family: Poppins, system-ui, sans-serif; } .ds-pl-m { flex: 1; min-width: 0; } .ds-pl-t { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-pl-d { display: block; margin-top: 4px; font-size: 12px; color: var(--ink-lo, #BEC7D1); } .ds-pl-p { flex-shrink: 0; text-align: right; font-variant-numeric: tabular-nums; } .ds-pl-p1 { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-pl-p2 { display: block; font-size: 12px; color: var(--ink-lo, #BEC7D1); } .ds-pl-i { flex-shrink: 0; color: var(--ink-lo, #BEC7D1); transition: transform 200ms ease-out, color 150ms; } .ds-pl:hover .ds-pl-i { color: var(--ink-hi, #F0F5F9); } .ds-pl[aria-expanded=\"true\"] .ds-pl-i { transform: rotate(180deg); } .ds-pl:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; border-radius: 4px; } .ds-pl-f { list-style: none; margin: 0; padding: 0 0 20px; display: grid; gap: 8px; } .ds-pl-f li { display: flex; align-items: flex-start; gap: 8px; font-family: Poppins, system-ui, sans-serif; font-size: 14px; color: var(--ink, #D9E1EA); } .ds-pl-f svg { margin-top: 4px; flex-shrink: 0; color: var(--ink-lo, #BEC7D1); }"
     },
     {
@@ -578,11 +614,35 @@
       "description": "Segmentado Mensal / \"Anual, 20% menos\" na ação da seção Planos; reescreve os preços de todas as linhas.",
       "html": "<div class=\"ds-seg\" role=\"group\" aria-label=\"Período de cobrança\"><button type=\"button\" aria-pressed=\"false\">Mensal</button><button type=\"button\" aria-pressed=\"true\">Anual, 20% menos</button></div>",
       "css": ".ds-seg { display: inline-flex; padding: 2px; border: 1px solid var(--line-ctl, #3C4349); border-radius: 16px; } .ds-seg button { padding: 6px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink-lo, #BEC7D1); font-family: Poppins, system-ui, sans-serif; font-size: 14px; cursor: pointer; transition: color 150ms, background-color 150ms; } .ds-seg button:hover { color: var(--ink-hi, #F0F5F9); } .ds-seg button[aria-pressed=\"true\"] { background: var(--raise, #282D31); color: var(--ink-hi, #F0F5F9); } .ds-seg button:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Botão do Google (Entrar e Criar conta)",
+      "kind": "button",
+      "refersTo": "button-google",
+      "description": "Fantasma na largura toda, 44px, com o G nas cores do Google (exceção à Regra da Marca Monocromática). É a ação da tela e não tem cor. A falha vem acima, na linha role=\"alert\" da falha ao salvar.",
+      "html": "<div class=\"ds-g\"><p role=\"alert\" class=\"ds-g-falha\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>O navegador bloqueou a janela do Google. Permita janelas para este site e tente de novo.</span></p><button type=\"button\" class=\"ds-g-btn\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"#EA4335\" d=\"M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z\"/><path fill=\"#4285F4\" d=\"M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z\"/><path fill=\"#FBBC05\" d=\"M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12s.7 2.3 1.9 4.7l3.7-2.9z\"/><path fill=\"#34A853\" d=\"M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z\"/></svg>Entrar com Google</button></div>",
+      "css": ".ds-g { font-family: Poppins, system-ui, sans-serif; max-width: 384px; } .ds-g-falha { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 32px; font-size: 14px; line-height: 1.43; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-g-falha svg { flex-shrink: 0; margin-top: 2px; } .ds-g-btn { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 9px 18px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: transparent; color: var(--ink, #D9E1EA); font: inherit; font-size: 14px; font-weight: 600; line-height: 1.2; cursor: pointer; transition: background-color 110ms linear; } .ds-g-btn:hover { background: var(--raise, #282D31); } .ds-g-btn:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Cabeçalho público",
+      "kind": "nav",
+      "refersTo": "public-header",
+      "description": "Barra de 56px em --bg, linha embaixo, sticky: logo, \"Planos\" e \"Entrar\" como ações de texto e \"Criar conta\" fantasma. Sem menu de celular; a ação da tela aberta sai da barra.",
+      "html": "<header class=\"ds-ph\"><span class=\"ds-ph-logo\">PwStreamer</span><nav class=\"ds-ph-nav\" aria-label=\"Principal\"><button type=\"button\" class=\"ds-ph-t\">Planos</button><button type=\"button\" class=\"ds-ph-t\">Entrar</button><button type=\"button\" class=\"ds-ph-g\">Criar conta</button></nav></header>",
+      "css": ".ds-ph { position: sticky; top: 0; display: flex; align-items: center; gap: 16px; height: 56px; padding: 0 24px; background: var(--bg, #111315); border-bottom: 1px solid var(--line, #30363B); font-family: Poppins, system-ui, sans-serif; } .ds-ph-logo { font-size: 14px; font-weight: 600; color: var(--ink-hi, #F0F5F9); } .ds-ph-nav { margin-left: auto; display: flex; align-items: center; gap: 20px; } .ds-ph-t { min-height: 44px; background: none; border: 0; padding: 0; font: inherit; font-size: 14px; color: var(--ink-lo, #BEC7D1); text-underline-offset: 4px; cursor: pointer; transition: color 150ms; } .ds-ph-t:hover { color: var(--ink-hi, #F0F5F9); text-decoration: underline; } .ds-ph-g { min-height: 44px; padding: 9px 18px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: transparent; color: var(--ink, #D9E1EA); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 110ms linear; } .ds-ph-g:hover { background: var(--raise, #282D31); } .ds-ph-t:focus-visible, .ds-ph-g:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; border-radius: 4px; } @media (max-width: 639px) { .ds-ph-t:first-child { display: none; } }"
+    },
+    {
+      "name": "Captura do Painel com contorno",
+      "kind": "custom",
+      "refersTo": "capture-frame",
+      "description": "A única imagem do site: captura real do Painel no escopo console, com legenda que diz \"dados de exemplo\". O contorno de 2px em --ink-hi desliza entre regiões (300ms, cubic-bezier(0.16,1,0.3,1)) e escurece o resto, só com mouse.",
+      "html": "<figure class=\"ds-cap\"><div class=\"ds-cap-f\" data-surface=\"console\"><div class=\"ds-cap-img\" role=\"img\" aria-label=\"Captura do Painel com dados de exemplo\"></div><div class=\"ds-cap-c\" aria-hidden=\"true\"></div></div><figcaption class=\"ds-cap-l\">O Painel de verdade, com dados de exemplo.<span class=\"ds-cap-pista\"> Passe o mouse em “Já funciona”, abaixo, para ver cada parte nele.</span></figcaption></figure>",
+      "css": ".ds-cap { margin: 0; max-width: 560px; font-family: Poppins, system-ui, sans-serif; } .ds-cap-f { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--line, #30363B); } .ds-cap-img { aspect-ratio: 1280 / 912; background: #0A0B0C; } .ds-cap-c { position: absolute; left: 11.2%; top: 48.8%; width: 77.6%; height: 14.1%; border-radius: 12px; outline: 2px solid var(--ink-hi, #F0F5F9); box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.55); opacity: 0; pointer-events: none; transition: left 300ms cubic-bezier(0.16, 1, 0.3, 1), top 300ms cubic-bezier(0.16, 1, 0.3, 1), width 300ms cubic-bezier(0.16, 1, 0.3, 1), height 300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-cap:hover .ds-cap-c { opacity: 1; } .ds-cap-l { margin-top: 12px; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); text-wrap: pretty; } .ds-cap-pista { display: none; } @media (pointer: fine) { .ds-cap-pista { display: inline; } } @media (prefers-reduced-motion: reduce) { .ds-cap-c { transition: none; } }"
     }
   ],
   "narrative": {
     "northStar": "O Lançador",
-    "overview": "A casca do PwStreamer (tudo fora do estúdio) existe para levar o anfitrião ao ar. Cada tela tem uma ação, e o resto é estado. No Painel, essa ação é \"Entrar no estúdio\". A tela diz o que vem a seguir, para onde a live vai e o que falta consertar. Não mostra indicadores, cartões nem nada do que o produto sabe fazer sem que a tarefa do momento peça. É uma coluna estreita sobre uma rampa azul-marinho de 18 degraus, em Poppins e em quatro tamanhos. A estrutura é feita de linhas de 1px.\n\nA cor é escassa de propósito. O azul da marca preenche só o botão da ação da tela, e o vermelho do tally pertence ao ar (e, como texto, às ações que apagam algo). Todo o resto, inclusive os estados \"ligado\", \"selecionado\" e \"atual\", sobe ou desce na rampa neutra. O estado é dito por ícone e palavra, e não por matiz. A rampa foi gerada com luminância casada contra o cinza neutro, e por isso o marinho não custa contraste.\n\nA densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo ([data-surface=\"console\"]), escuro sempre, mesmo no tema claro, porque o operador se adapta à luminância do entorno do vídeo e ela não pode mudar no meio de uma live.",
+    "overview": "A casca do PwStreamer (tudo fora do estúdio) existe para levar o anfitrião ao ar. Cada tela tem uma ação, e o resto é estado. No Painel, essa ação é \"Entrar no estúdio\". A tela diz o que vem a seguir, para onde a live vai e o que falta consertar. Não mostra indicadores, cartões nem nada do que o produto sabe fazer sem que a tarefa do momento peça. É uma coluna estreita sobre uma rampa azul-marinho de 18 degraus, em Poppins e em quatro tamanhos. A estrutura é feita de linhas de 1px.\n\nA cor é escassa de propósito. O azul da marca preenche só o botão da ação da tela, e o vermelho do tally pertence ao ar (e, como texto, às ações que apagam algo). Todo o resto, inclusive os estados \"ligado\", \"selecionado\" e \"atual\", sobe ou desce na rampa neutra. O estado é dito por ícone e palavra, e não por matiz. A rampa foi gerada com luminância casada contra o cinza neutro, e por isso o marinho não custa contraste.\n\nO site público (início, Entrar e Criar conta) fala com a mesma voz. A ação da tela é \"Criar conta\", a única imagem é uma captura real do Painel, e o que ainda não está no ar é dito em \"Em breve\", em palavras, sem promessa.\n\nA densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo ([data-surface=\"console\"]), escuro sempre, mesmo no tema claro, porque o operador se adapta à luminância do entorno do vídeo e ela não pode mudar no meio de uma live.",
     "keyCharacteristics": [
       "Uma ação colorida por tela; o resto em tinta neutra.",
       "Vermelho = ar. Não entra em gráfico, em alerta, em erro de campo nem em decoração.",
@@ -590,7 +650,7 @@
       "Poppins em text-xs, text-sm, text-base e text-3xl; mono tabular só para medidas.",
       "Estado por ícone + texto, sempre com o nome acessível completo.",
       "Três escopos de tema sobre as mesmas primitivas: escuro (padrão), claro e console.",
-      "Um único momento de movimento na página: o chip de um canal recém-conectado entra deslizando uma vez. Diálogos entram só pela primitiva Modal."
+      "Um único momento de movimento por página. Na casca, o chip de um canal recém-conectado entra deslizando uma vez; no site público, o contorno desliza sobre a captura do Painel. Diálogos entram só pela primitiva Modal."
     ],
     "rules": [
       {
@@ -615,7 +675,7 @@
       },
       {
         "name": "Regra da Marca Monocromática",
-        "body": "Ícones de plataforma (YouTube, Twitch…) ficam em currentColor, traço 1,75, nunca nas cores do dono da marca. Vêm do Lucide; onde o Lucide não tem a marca, o ícone é desenhado no mesmo traço (o K do Kick).",
+        "body": "Ícones de plataforma (YouTube, Twitch…) ficam em currentColor, traço 1,75, nunca nas cores do dono da marca. Vêm do Lucide; onde o Lucide não tem a marca, o ícone é desenhado no mesmo traço (o K do Kick). A exceção é o G do botão de entrar com Google, nas quatro cores do Google: ali ele não é ícone de plataforma, é a marca de um login de terceiros, e as regras de marca do Google pedem o G colorido.",
         "section": "colors"
       },
       {
@@ -630,7 +690,7 @@
       },
       {
         "name": "Regra do Número Colado",
-        "body": "Entre um número e sua unidade vai um espaço inseparável (U+00A0: \"3 horas\", \"15 min\"), e o último par de palavras de um limite também (\"ao vivo\"), para que nenhuma linha estreita quebre em \"15 | min\" nem deixe uma palavra sozinha. As frases de várias linhas em text-xs e text-sm que vão a colunas estreitas (erro e dica de campo, linha de origem, linha de falha ao salvar) levam text-pretty, que faz o mesmo pela última linha do parágrafo; os dois se somam, um não substitui o outro.",
+        "body": "Entre um número e sua unidade vai um espaço inseparável (U+00A0: \"3 horas\", \"30 dias\"), e o último par de palavras de um limite ou de uma frase também (\"ao vivo\", \"no ar\"), para que nenhuma linha estreita quebre em \"30 | dias\" nem deixe uma palavra sozinha. As frases de várias linhas em text-xs e text-sm que vão a colunas estreitas (erro e dica de campo, linha de origem, linha de falha ao salvar) levam text-pretty, que faz o mesmo pela última linha do parágrafo; os dois se somam, um não substitui o outro.",
         "section": "typography"
       },
       {
@@ -662,6 +722,11 @@
         "name": "Regra do Horário Derivado",
         "body": "\"Hoje, às…\" e \"Amanhã, às…\" são derivados na hora de mostrar, a partir de startsAt (ISO 8601), por rotuloDoHorario em src/lib/horario.ts, e nunca gravados: um \"Amanhã\" gravado vira mentira no dia seguinte. O campo time guarda a frase absoluta (\"Domingo, 27 de setembro, às 20:00\", por horarioPorExtenso) para quem lê só o texto (página pública, estúdio). Webinar antigo sem startsAt mostra o seu texto livre. Lista de webinars, Painel e aviso usam o mesmo rótulo, e a hora vai em mono pelo Horario.",
         "section": "components"
+      },
+      {
+        "name": "Regra da Captura de Verdade",
+        "body": "O site mostra o produto só por captura real do app, nunca por ilustração, espaço reservado ou tela montada. Os dados de exemplo são ditos na legenda. As datas na captura são absolutas (\"sábado, 14 de novembro\"), nunca \"Hoje\" ou \"Amanhã\", que num raster viram mentira no dia seguinte (Regra do Horário Derivado). A proveniência vai embutida no PNG (commit, janela, escala, tema e dados). Ao refazer a captura, as REGIOES do contorno são medidas de novo.",
+        "section": "components"
       }
     ],
     "dos": [
@@ -678,7 +743,9 @@
       "Do pôr text-pretty nas frases de várias linhas em text-xs/text-sm que vão a colunas estreitas.",
       "Do ler limites e disponibilidade por plano de src/lib/plans.ts, e pendências e nomes de plataforma de src/lib/canais.ts.",
       "Do formatar todo preço com formatPrice (BRL) e, em lista, com tabular-nums; nunca $, toFixed nem cifra escrita à mão.",
-      "Do mostrar planos só por <ListaDePlanos> e abrir planos só por abrirPlanos (página fora do estúdio, modal dentro dele).",
+      "Do mostrar planos só por <ListaDePlanos> (também no site) e abrir planos só por abrirPlanos (página fora do estúdio, modal dentro dele).",
+      "Do mostrar o produto no site só por captura real do app, com os dados de exemplo ditos na legenda, as datas absolutas e a proveniência no PNG; ao refazer a captura, medir as REGIOES de novo.",
+      "Do dizer no site, em \"Em breve\", o que ainda não está no ar, e deixar em \"Já funciona\" só o que funciona.",
       "Do dizer em palavras o que ainda não abre (\"A assinatura abre em breve…\") e deixar a tela sem ação primária até abrir.",
       "Do colar número e unidade com espaço inseparável em textos que vão a linhas estreitas.",
       "Do marcar opções com <CaixaDeSelecao> (a linha inteira é o alvo e o nome), e nunca com um <input type=\"checkbox\"> solto.",
@@ -694,7 +761,8 @@
       "Don't montar a casca com cartões de indicador, fundos de bloco ou sombras em repouso.",
       "Don't usar tamanho de fonte em px avulso nem um quinto tamanho na casca; a catraca tamanho-de-fonte-avulso só pode descer.",
       "Don't pôr mais de uma ação visível por linha de lista; o resto vai para o \"⋯\".",
-      "Don't colorir ícones de plataforma com as cores das marcas, nem dar o mesmo ícone a duas plataformas.",
+      "Don't colorir ícones de plataforma com as cores das marcas, nem dar o mesmo ícone a duas plataformas. O G do botão do Google é a única marca colorida.",
+      "Don't pôr dois primários no mesmo viewport, nem dar cor a \"Criar conta\" no cabeçalho público.",
       "Don't usar borda tracejada para nada além de \"adicionar\".",
       "Don't fazer o tema claro alcançar o estúdio: o escopo console é invariante.",
       "Don't fazer o título de um diálogo seguir a seleção interna; o verbo vai no botão.",
