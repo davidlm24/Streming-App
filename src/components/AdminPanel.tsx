@@ -466,7 +466,6 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
         <div {...clienteAbas.panel('webhooks')} className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6 shadow-xl">
           <WebhookPanel 
             userId={user?.email || 'mgdlms@gmail.com'}
-            isLive={false}
           />
         </div>
       )}

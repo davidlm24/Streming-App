@@ -790,7 +790,6 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
         <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6">
           <WebhookPanel 
             userId={user?.email || 'admin@pwstreamer.com'}
-            isLive={false}
             onSaveToFirestore={async (logItem) => {
               await addAuditLogToFirestore({
                 action: 'WEBHOOK_MANUAL_TEST' as any,

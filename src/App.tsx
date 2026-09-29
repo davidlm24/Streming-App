@@ -61,8 +61,6 @@ import {
   subscribeTransmissionSettings,
   saveTransmissionSettingsToFirestore,
   saveDestinationsToFirestore,
-  subscribeWebhooksConfig,
-  saveWebhooksConfigToFirestore,
   subscribeWebhookLogs,
   addWebhookLogToFirestore,
   subscribeSceneLayouts,
@@ -419,18 +417,12 @@ export default function App() {
   const [isResizingScenes, setIsResizingScenes] = useState(false);
   const [isResizingSidebar, setIsResizingSidebar] = useState(false);
 
-  // Webhooks Manager states
-  const [selectedWebhookPlatform, setSelectedWebhookPlatform] = useState<'youtube' | 'facebook' | 'twitch'>('youtube');
-  const [webhooksConfig, setWebhooksConfig] = useState({
-    youtube: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/youtube', secret: 'whsec_yt_99b1a0f83', events: ['stream_state', 'chat_message'] },
-    facebook: { active: true, url: 'https://api.pwstreamer.com/v1/webhooks/facebook', secret: 'whsec_fb_55c3a2f11', events: ['stream_state', 'chat_message', 'new_follower'] },
-    twitch: { active: false, url: 'https://api.pwstreamer.com/v1/webhooks/twitch', secret: 'whsec_tw_77e4c1d22', events: ['stream_state'] }
-  });
-  const [webhookLogs, setWebhookLogs] = useState<Array<{ id: string; time: string; method: string; path: string; status: number; payload: string; platform: string }>>([
-    { id: 'log-1', time: '12:01:05', method: 'POST', path: '/v1/webhooks/youtube', status: 200, payload: '{"event": "ping", "message": "Connection verification successful"}', platform: 'youtube' },
-    { id: 'log-2', time: '12:05:40', method: 'POST', path: '/v1/webhooks/facebook', status: 200, payload: '{"event": "subscribe", "page_id": "1098273618"}', platform: 'facebook' },
-    { id: 'log-3', time: '12:10:15', method: 'POST', path: '/v1/webhooks/youtube', status: 200, payload: '{"event": "stream_created", "broadcast_id": "yt_live_883"}', platform: 'youtube' },
-  ]);
+  // Histórico de webhooks: só os disparos de teste que o painel de webhooks
+  // grava no Firestore. Antes começava com três entregas inventadas, e um
+  // simulador somava outra a cada 8 s de live (chat, assinatura, audiência),
+  // alimentado por uma configuração fixa, com segredos de exemplo, que nenhuma
+  // tela lia e que era gravada no Firestore de cada conta.
+  const [webhookLogs, setWebhookLogs] = useState<Array<{ id: string; time: string; method: string; path: string; status: number; payload: string; platform: string }>>([]);
 
   // Firestore Quota Resilience state
   const [isQuotaExceeded, setIsQuotaExceeded] = useState(false);
@@ -1469,51 +1461,6 @@ export default function App() {
     };
   }, [isLive, isAiModerationEnabled]);
 
-  // Webhook Event simulator effect
-  useEffect(() => {
-    let intervalId: any = null;
-    if (isLive) {
-      intervalId = setInterval(() => {
-        const platforms: Array<'youtube' | 'facebook' | 'twitch'> = ['youtube', 'facebook', 'twitch'];
-        const randomPlatform = platforms[Math.floor(Math.random() * platforms.length)];
-        
-        // Check if platform webhook is active
-        const isAct = webhooksConfig[randomPlatform].active;
-        
-        const now = new Date();
-        const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-        
-        const events = [
-          { name: 'stream_metrics_update', payload: { viewers: Math.floor(Math.random() * 50 + 20), status: 'live', health: 'excellent' } },
-          { name: 'chat_message_received', payload: { author: 'User_' + Math.floor(Math.random() * 100), text: 'Muito boa a transmissão!', timestamp: Date.now() } },
-          { name: 'subscription_gained', payload: { plan: 'Professional', user_id: 'usr_' + Math.random().toString(36).substr(2, 5) } }
-        ];
-        const selectedEvent = events[Math.floor(Math.random() * events.length)];
-
-        const newLog = {
-          id: `wh-log-${Date.now()}`,
-          time: timeStr,
-          method: 'POST',
-          path: webhooksConfig[randomPlatform].url,
-          status: isAct ? 200 : 503,
-          payload: JSON.stringify({ 
-            event: selectedEvent.name, 
-            platform: randomPlatform,
-            data: selectedEvent.payload, 
-            timestamp: Date.now() 
-          }, null, 2),
-          platform: randomPlatform
-        };
-
-        setWebhookLogs(prev => [newLog, ...prev].slice(0, 50));
-      }, 8000); // add a webhook event log in state every 8 seconds if live
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [isLive, webhooksConfig]);
-
   // Destinations toggler
   // Ligar além do plano não liga: o canal fica como estava e o aviso diz por
   // quê e o que fazer. Antes o interruptor de Canais e a lista do estúdio
@@ -1694,10 +1641,6 @@ export default function App() {
       if (settings.textStyle) setTextStyle(settings.textStyle as any);
     });
 
-    const unsubWebhooksConf = subscribeWebhooksConfig(user.uid, (config) => {
-      setWebhooksConfig(prev => JSON.stringify(prev) === JSON.stringify(config) ? prev : config);
-    });
-
     const unsubWebhookLogs = subscribeWebhookLogs(user.uid, (logs) => {
       setWebhookLogs(logs);
     });
@@ -1714,7 +1657,6 @@ export default function App() {
       unsubBanners();
       unsubSnapshots();
       unsubSettings();
-      unsubWebhooksConf();
       unsubWebhookLogs();
       unsubScenes();
     };
@@ -1751,15 +1693,6 @@ export default function App() {
     }, 1500);
     return () => clearTimeout(timeout);
   }, [user?.uid, destinations, rtmpServer, streamKey, recordingFormat, recordingQuality, logoAnimation, bannerAnimation, streamColor, textStyle, isFirestoreSettingsLoaded]);
-
-  // Debounced Auto-save Webhooks config to Firestore
-  useEffect(() => {
-    if (!user?.uid || !isFirestoreSettingsLoaded) return;
-    const timeout = setTimeout(() => {
-      saveWebhooksConfigToFirestore(user.uid, webhooksConfig);
-    }, 1500);
-    return () => clearTimeout(timeout);
-  }, [user?.uid, webhooksConfig, isFirestoreSettingsLoaded]);
 
   // Synthesizer background music player and custom audio player
   const customAudioPlayerRef = useRef<HTMLAudioElement | null>(null);
@@ -3505,9 +3438,8 @@ export default function App() {
               )}
 
               {integrationsModalTab === 'webhooks' && (
-                <WebhookPanel 
-                  userId={user?.uid} 
-                  isLive={isLive}
+                <WebhookPanel
+                  userId={user?.uid}
                   onSaveToFirestore={async (logItem) => {
                     if (user?.uid) {
                       await addWebhookLogToFirestore(user.uid, logItem);

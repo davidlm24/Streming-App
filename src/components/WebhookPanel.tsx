@@ -40,7 +40,6 @@ import { Modal } from './ui/Modal';
 
 interface WebhookPanelProps {
   userId?: string;
-  isLive?: boolean;
   onSaveToFirestore?: (log: any) => Promise<void>;
   initialLogs?: any[];
 }
@@ -478,7 +477,7 @@ const PLATFORM_PRESETS: Record<WebhookPlatform, {
   }
 };
 
-export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initialLogs = [] }: WebhookPanelProps) {
+export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: WebhookPanelProps) {
   const confirm = useConfirm();
   const toast = useToast();
   // Navigation sub-tab inside webhook manager
@@ -511,7 +510,7 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
         endpointUrl: l.endpointUrl || l.path || 'https://api.pwstreamer.com/v1/webhooks',
         status: l.status || 200,
         statusText: l.status === 200 ? 'OK' : 'Error',
-        latencyMs: l.latencyMs || Math.floor(Math.random() * 40 + 15),
+        latencyMs: l.latencyMs,
         requestHeaders: l.requestHeaders || { 'Content-Type': 'application/json' },
         requestPayload: typeof l.payload === 'string' ? safeParseJson(l.payload) : (l.requestPayload || l.payload || {}),
         responseHeaders: l.responseHeaders || { 'content-type': 'application/json' },
@@ -520,59 +519,9 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
         isSuccess: l.status === 200
       }));
     }
-    return [
-      {
-        id: 'evt-init-1',
-        timestamp: new Date(Date.now() - 1000 * 60 * 12).toLocaleTimeString(),
-        platform: 'twitch',
-        eventType: 'stream.online',
-        method: 'POST',
-        endpointUrl: 'https://api.pwstreamer.com/v1/webhooks/twitch',
-        status: 200,
-        statusText: 'OK',
-        latencyMs: 24,
-        requestHeaders: {
-          'Content-Type': 'application/json',
-          'Twitch-Eventsub-Message-Id': 'f1c2a92b-9bf8-40de-958b-d7982f79cd7a',
-          'Twitch-Eventsub-Message-Type': 'notification',
-          'Twitch-Eventsub-Subscription-Type': 'stream.online',
-          'Twitch-Eventsub-Message-Signature': 'sha256=9b48f981273948bf81726a...'
-        },
-        requestPayload: {
-          event: {
-            broadcaster_user_name: "PwStreamer Studio",
-            type: "live",
-            started_at: new Date(Date.now() - 1000 * 60 * 12).toISOString()
-          }
-        },
-        responseHeaders: { 'content-type': 'application/json' },
-        responseBody: { received: true, message: "Twitch webhook processado com sucesso" },
-        mode: 'manual_test',
-        isSuccess: true
-      },
-      {
-        id: 'evt-init-2',
-        timestamp: new Date(Date.now() - 1000 * 60 * 5).toLocaleTimeString(),
-        platform: 'facebook',
-        eventType: 'live_video.started',
-        method: 'POST',
-        endpointUrl: 'https://api.pwstreamer.com/v1/webhooks/facebook',
-        status: 200,
-        statusText: 'OK',
-        latencyMs: 31,
-        requestHeaders: {
-          'Content-Type': 'application/json',
-          'X-Hub-Signature-256': 'sha256=44a981cba90123847...'
-        },
-        requestPayload: {
-          entry: [{ changes: [{ field: "live_videos", value: { status: "LIVE", title: "Live Streaming Multi-Canal" } }] }]
-        },
-        responseHeaders: { 'content-type': 'application/json' },
-        responseBody: { success: true, verified: true },
-        mode: 'manual_test',
-        isSuccess: true
-      }
-    ];
+    // Sem disparos, a lista começa vazia. Antes trazia dois de exemplo
+    // (Twitch e Facebook, 12 e 5 min atrás) como se a pessoa os tivesse feito.
+    return [];
   });
 
   // Filters for history
@@ -760,11 +709,6 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
               <span className="bg-emerald-500/20 text-emerald-300 text-[9px] font-black px-2 py-0.5 rounded border border-emerald-500/30 uppercase">
                 Dispatcher v2.0 Ativo
               </span>
-              {isLive && (
-                <span className="bg-red-500/20 text-red-400 text-[9px] font-black px-2 py-0.5 rounded border border-red-500/30 uppercase flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping"></span> Live Capturing
-                </span>
-              )}
             </div>
             <p className="text-[11px] text-[var(--ink)] mt-0.5 leading-relaxed">
               Configure disparos manuais com payloads reais para validação de integrações com Twitch (EventSub), Facebook (Meta Graph), YouTube e Cloudflare Stream, além de acompanhar o histórico completo de requisições e assinaturas criptográficas HMAC.
@@ -1205,7 +1149,9 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
                 {filteredLogs.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="p-8 text-center text-[var(--ink-dim)] italic">
-                      Nenhum registro de webhook encontrado com os filtros aplicados.
+                      {logs.length === 0
+                        ? 'Nenhum webhook disparado ainda. Os testes que você disparar aparecem aqui.'
+                        : 'Nenhum registro de webhook encontrado com os filtros aplicados.'}
                     </td>
                   </tr>
                 ) : (
