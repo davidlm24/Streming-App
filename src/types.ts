@@ -169,7 +169,6 @@ export type StudioTab =
   | 'theme'
   | 'third'      // Prompter
   | 'video'
-  | 'audience'
   | 'settings'
   | 'apps';
 

@@ -2519,7 +2519,6 @@ export default function App() {
                         { id: 'theme', label: 'Styles', icon: Sliders, desc: 'Cores' },
                         { id: 'third', label: 'Prompter', icon: FileText, desc: 'Teleprompter do apresentador' },
                         { id: 'video', label: 'Video', icon: Film, desc: 'Vídeos' },
-                        { id: 'audience', label: 'Audience', icon: Users, desc: 'Usuários' },
                         { id: 'settings', label: 'Settings', icon: Settings, desc: 'Ajustes' },
                         { id: 'apps', label: 'Apps', icon: Puzzle, desc: 'Apps' },
                       ] as const).filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
@@ -2938,7 +2937,6 @@ export default function App() {
                       { id: 'theme', label: 'Temas', icon: Sliders, desc: 'Tema Claro/Escuro do estúdio, cores da marca e tipografia' },
                       { id: 'third', label: 'Prompter', icon: FileText, desc: 'Teleprompter do apresentador' },
                       { id: 'video', label: 'Video', icon: Film, desc: 'Videoclipes e fundo virtual' },
-                      { id: 'audience', label: 'Audience', icon: Users, desc: 'Base de Usuários e CRM do Estúdio' },
                       { id: 'settings', label: 'Settings', icon: Settings, desc: 'Configurações de transmissão e palco' },
                       { id: 'apps', label: 'Apps', icon: Puzzle, desc: 'Integrações, QR Code e Notas' },
                     ] as const).filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
