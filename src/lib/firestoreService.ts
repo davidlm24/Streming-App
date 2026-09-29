@@ -67,7 +67,7 @@ export interface WebhookLogItem {
   isSuccess?: boolean;
   /** Por que não houve resposta (destino recusado, conexão que falhou). */
   error?: string;
-  /** Só neste navegador: o Firestore ainda não aceitou a gravação (login de desenvolvimento, cota). */
+  /** Só neste navegador: o Firestore ainda não aceitou a gravação (cota, recusa, sem resposta). */
   local?: boolean;
 }
 
@@ -732,8 +732,10 @@ export async function deleteCustomDestinationFromFirestore(userId: string, curre
 // Webhook Event Logs Persistence
 //
 // O histórico fica no Firestore da conta e numa cópia local, como os
-// webinars. A cópia é o que guarda o histórico do login de desenvolvimento:
-// ele não tem sessão no Firebase, e as regras recusam leitura e gravação.
+// webinars. A cópia mostra o histórico enquanto o Firestore não responde e
+// guarda o que ele não aceitou (cota esgotada, recusa, página fechada antes
+// da resposta). O login de desenvolvimento não chega aqui: não tem uid, e o
+// servidor recusa os testes dele (401) antes de haver o que guardar.
 // Ela tem a última lista que veio do servidor e, marcado como local, o que o
 // Firestore ainda não aceitou; isso sobe quando ele volta a aceitar.
 // Diferente dos webinars, quem mostra o histórico não tem estado próprio, então
@@ -781,10 +783,10 @@ function confirmarWebhookLog(userId: string, id: string) {
 
 /**
  * Sobe o que ficou só neste navegador, quando o Firestore volta a aceitar.
- * Só com a sessão do Firebase da própria conta: o login de desenvolvimento
- * não tem sessão, e o que ele guardou fica aqui. Sobe com o id original, e na
- * conta as regras deixam regravar: se uma tentativa anterior já tinha subido,
- * o registro só é gravado de novo, sem cópia.
+ * Só com a sessão do Firebase da própria conta: as regras só deixam o dono
+ * gravar nela. Sobe com o id original, e na conta as regras deixam regravar:
+ * se uma tentativa anterior já tinha subido, o registro só é gravado de novo,
+ * sem cópia.
  */
 function subirWebhookLogsLocais(userId: string): Promise<void> {
   const emAndamento = subindoWebhookLogs.get(userId);
@@ -817,9 +819,9 @@ function subirWebhookLogsLocais(userId: string): Promise<void> {
 }
 
 export function subscribeWebhookLogs(userId: string, onUpdate: (logs: WebhookLogItem[]) => void) {
-  // Até o servidor responder vale a cópia local; se ele recusar (login de
-  // desenvolvimento), ela vale sempre. Depois, vale a lista dele mais o que
-  // ele ainda não aceitou.
+  // Até o servidor responder vale a cópia local; sem resposta dele (sem rede,
+  // cota esgotada, leitura recusada), ela vale sempre. Depois, vale a lista
+  // dele mais o que ele ainda não aceitou.
   let doFirestore: WebhookLogItem[] | null = null;
   let locais = lerWebhookLogsLocais(userId);
   const avisar = () => onUpdate(doFirestore ? comOsPendentes(doFirestore, locais) : locais);
@@ -935,17 +937,20 @@ export interface AuditLogEntry {
   actorEmail: string;
   targetEmail?: string;
   details: string;
-  /** Só neste navegador: o Firestore recusou a gravação (login de desenvolvimento, cota). */
+  /** Só neste navegador: o Firestore recusou a gravação (cota esgotada, sem sessão no Firebase). */
   local?: boolean;
   /** Sessão do Firebase de quem gravou, quando havia uma. Só ela sobe o registro depois. */
   autorUid?: string | null;
 }
 
-// Auditoria que o Firestore recusa. O login de desenvolvimento não tem sessão
-// no Firebase e as regras recusam gravar em auditLogs; com a cota esgotada,
-// também não grava. Antes o registro sumia; agora fica neste navegador,
-// marcado como local. A cópia guarda só o que falhou: a auditoria de verdade,
-// com as ações de outras pessoas, não é copiada para o navegador.
+// Auditoria que o Firestore recusa: com a cota esgotada, ou sem sessão no
+// Firebase (as regras exigem uma para gravar em auditLogs), a gravação não
+// passa. Antes o registro sumia; agora fica neste navegador, marcado como
+// local. A cópia guarda só o que falhou: a auditoria de verdade, com as ações
+// de outras pessoas, não é copiada para o navegador. Hoje o login de
+// desenvolvimento não chega a gravar auditoria: as ações que gravam dependem
+// de dados que ele não carrega, ou vêm depois de uma escrita que as regras
+// recusam antes.
 const CHAVE_DA_AUDITORIA_LOCAL = 'pwstream_audit_logs_local';
 const MAXIMO_DA_AUDITORIA_LOCAL = 200;
 const ouvintesDaAuditoriaLocal = new Set<(logs: AuditLogEntry[]) => void>();
