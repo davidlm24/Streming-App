@@ -105,6 +105,18 @@ export interface WebhookTriggerConfig {
   headers?: Record<string, string>;
 }
 
+/**
+ * Onde e como o card da câmera fica sobre a tela, nas cenas com card: o canto
+ * de cima à esquerda em % do palco, a escala e o formato. Vai ao programa no
+ * corte, como o resto da cena.
+ */
+export interface GeometriaDoCard {
+  x: number;
+  y: number;
+  escala: number;
+  formato: 'rounded' | 'circle' | 'compact';
+}
+
 export interface StudioSceneState {
   sceneId?: string;
   layout: '1-cam' | 'dual' | 'screen-share' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery';
@@ -122,6 +134,7 @@ export interface StudioSceneState {
   qrCodeText?: string;
   qrCodeConfig?: QrCodeConfig;
   timestamp?: number;
+  cardDaCamera?: GeometriaDoCard;
 }
 
 export interface QrCodeConfig {

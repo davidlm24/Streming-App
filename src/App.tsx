@@ -3,7 +3,6 @@ import { BotaoDeIcone } from './components/ui/BotaoDeIcone';
 import { Button } from './components/ui/Button';
 import { apiFetch } from './lib/apiFetch';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Header } from './components/Header';
 import { AppHeader, type VisaoDoApp } from './components/AppHeader';
 import { Dashboard } from './components/Dashboard';
 import { CanaisPagina } from './components/CanaisPagina';
@@ -13,8 +12,12 @@ import { rotuloDoHorario } from './lib/horario';
 import { ConfiguracoesPagina } from './components/ConfiguracoesPagina';
 import { LeftSidebar } from './components/LeftSidebar';
 import { StudioPreview } from './components/StudioPreview';
-import { ControlTray } from './components/ControlTray';
-import { InviteModal } from './components/InviteModal';
+import { BarraDoEstudio } from './components/BarraDoEstudio';
+import { TrilhoDeCenas, BotoesDeTransicao, DURACAO_DA_FUSAO, type Transicao } from './components/TrilhoDeCenas';
+import { MesaDeMonitores, ProximoCorte } from './components/MonitoresDoEstudio';
+import { PainelDoEstudio, FERRAMENTA_INICIAL, type Ferramenta } from './components/PainelDoEstudio';
+import { BandejaDoEstudio } from './components/BandejaDoEstudio';
+import { CARD_PADRAO, CENA_INICIAL, cenaPeloId, layoutUsaCard, lerCardSalvo, mudancaNoCard, precisaDaTela, salvarCard, type Cena } from './lib/cenas';
 import { AuthAndPricing } from './components/AuthAndPricing';
 import { ScreenSharePickerModal } from './components/ScreenSharePickerModal';
 import { PwStreamLogo } from './components/PwStreamLogo';
@@ -23,28 +26,24 @@ import { SuperAdminPanel } from './components/SuperAdminPanel';
 import { PlansModal } from './components/PlansModal';
 import { PlanoPagina } from './components/PlanoPagina';
 import { CadastroPagina } from './components/CadastroPagina';
-import { StreamReportModal, StreamReportData, downloadStreamReportJSON } from './components/StreamReportModal';
 import { CloudflareStreamModal } from './components/CloudflareStreamModal';
 import { CustomDestinationModal } from './components/CustomDestinationModal';
 import { AddChannelsModal } from './components/AddChannelsModal';
 import { QrCodeModal } from './components/QrCodeModal';
-import { StudioScenePreviewControls } from './components/StudioScenePreviewControls';
 import { CLOUDFLARE_STREAM_CONFIG } from './lib/cloudflareStreamConfig';
 
-import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, QrCodeConfig, StudioTab, SceneTransitionType, isWipeTransition } from './types';
+import { Destination, Banner, TickerItem, BannerPosition, Comment, Participant, StudioSceneState, GeometriaDoCard, QrCodeConfig, StudioTab, SceneTransitionType, isWipeTransition } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_BANNERS, INITIAL_TICKERS, INITIAL_COMMENTS, AUDIO_LIBRARY } from './data';
 import { startSynth, stopSynth, setVolume as setSynthVolume } from './audioEngine';
 import { CircleAlert, Play, Calendar, Users, Tv, BarChart3, Plus, ArrowRight, Settings, ExternalLink, Palette, ListTodo, QrCode, FileText, MessageSquare, Music, Sliders, ShieldAlert, Sparkles, X, Maximize2, Minimize2, CheckCircle2, Type, Film, Bell, Puzzle, Activity, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
 import { ThumbnailEditor } from './components/ThumbnailEditor';
-import { ScenesPanel, Scene, DEFAULT_STUDIO_SCENES } from './components/ScenesPanel';
 import { LegalModal } from './components/LegalModals';
 import { useSceneTransition } from './hooks/useSceneTransition';
 import { useMediaManager } from './context/MediaManagerContext';
 import { Modal } from './components/ui/Modal';
 import { useToast } from './components/ui/Toast';
-import { CanaisAcimaDoPlano } from './components/CanaisAcimaDoPlano';
 import { limiteDeCanaisLigados } from './lib/plans';
-import { cabeLigado } from './lib/canais';
+import { cabeLigado, estadoDoCanal } from './lib/canais';
 import { 
   loginWithGoogle, 
   logoutFirebase, 
@@ -124,22 +123,6 @@ export default function App() {
   const handleLogout = async () => {
     await logoutFirebase();
     setUser(null);
-  };
-
-  const handleSimulateExpiration = () => {
-    if (user) {
-      const updated = { ...user, isExpired: true, trialDays: 0 };
-      setUser(updated);
-      localStorage.setItem('pwstream_user', JSON.stringify(updated));
-    }
-  };
-
-  const handleRestoreTrial = () => {
-    if (user) {
-      const updated = { ...user, plan: 'Free Trial' as const, isExpired: false, trialDays: 30 };
-      setUser(updated);
-      localStorage.setItem('pwstream_user', JSON.stringify(updated));
-    }
   };
 
   const handleRequirePlan = (feature: 'live' | 'record') => {
@@ -289,7 +272,7 @@ export default function App() {
 
   // Tickers (Barra de Rolagem de Texto)
   const [tickers, setTickers] = useState<TickerItem[]>(INITIAL_TICKERS);
-  const [activeTickerId, setActiveTickerId] = useState<string | null>('ticker-1');
+  const [activeTickerId, setActiveTickerId] = useState<string | null>(null);
   const [tickerSpeed, setTickerSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
   const [tickerDirection, setTickerDirection] = useState<'left' | 'right'>('left');
 
@@ -299,7 +282,9 @@ export default function App() {
   const [musicLoop, setMusicLoop] = useState<boolean>(true);
 
   // Customization
-  const [streamColor, setStreamColor] = useState<string>('#FF3D38');
+  // A cor dos gráficos da live (nome no vídeo, banners) começa neutra. Era
+  // vermelha, e no estúdio o vermelho quer dizer "no ar".
+  const [streamColor, setStreamColor] = useState<string>('#202429');
   const [textStyle, setTextStyle] = useState<'default' | 'news' | 'rounded'>('default');
 
   // Chat/Comments
@@ -314,25 +299,26 @@ export default function App() {
       const saved = localStorage.getItem('pw_qrcode_config');
       if (saved) return JSON.parse(saved);
     } catch (e) {}
+    // Começa vazio: vinha um "Smartphone Pro Max 256GB" da Shopee, com foto do Unsplash.
     return {
       id: 'qr-default',
-      title: 'Smartphone Pro Max 256GB',
-      subtitle: 'Lançamento Exclusivo da Live',
-      price: 'R$ 1.899,00',
-      originalPrice: 'R$ 2.499,00',
-      discountBadge: '24% OFF + FRETE GRÁTIS',
-      storeUrl: 'https://shopee.com.br/smartphone-pro-max-live',
-      storeName: 'Shopee',
-      ctaLabel: 'Compre Agora',
-      imageUrl: 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&auto=format&fit=crop&q=80',
+      title: '',
+      subtitle: '',
+      price: '',
+      originalPrice: '',
+      discountBadge: '',
+      storeUrl: '',
+      storeName: '',
+      ctaLabel: '',
+      imageUrl: '',
       orientation: 'horizontal',
       cardTheme: 'dark',
       qrColor: '#000000',
       qrBgColor: '#ffffff',
-      showProductImage: true,
-      showPrice: true,
-      showDiscountBadge: true,
-      showStoreName: true,
+      showProductImage: false,
+      showPrice: false,
+      showDiscountBadge: false,
+      showStoreName: false,
       showScanPrompt: true,
       scale: 1,
       x: 75,
@@ -347,10 +333,10 @@ export default function App() {
         if (parsed.storeUrl) return parsed.storeUrl;
       }
     } catch (e) {}
-    return 'https://shopee.com.br/smartphone-pro-max-live';
+    return '';
   });
   const [presenterNotes, setPresenterNotes] = useState(
-    "1. Introdução: Boas-vindas a todos os participantes!\n2. Apresentar o tema: Como criar webinars profissionais.\n3. Demonstração prática do painel.\n4. Sessão de perguntas e respostas."
+    ''
   );
 
   // Teleprompter State
@@ -373,7 +359,6 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [isCamStopped, setIsCamStopped] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
-  const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isScreenSharePickerOpen, setIsScreenSharePickerOpen] = useState(false);
   const [screenPickerInitialTab, setScreenPickerInitialTab] = useState<'tab' | 'window' | 'screen' | 'pdf' | 'video'>('screen');
   const [selectedSharedSource, setSelectedSharedSource] = useState<{ 
@@ -402,25 +387,6 @@ export default function App() {
   // Toggle for showing/hiding text overlay on StudioPreview (Modo Preparação)
   const [isPresentationOverlayActive, setIsPresentationOverlayActive] = useState<boolean>(true);
 
-  // Quick Settings / Integrations modal state
-  const [isImmersiveMode, setIsImmersiveMode] = useState(false);
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
-  const [isMobileScenesOpen, setIsMobileScenesOpen] = useState(false);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
-  // Studio column resizing states (Fixed standard proportions)
-  const [scenesWidth, setScenesWidth] = useState<number>(() => {
-    const saved = localStorage.getItem('pw_scenes_width');
-    return saved ? Math.max(200, Math.min(parseInt(saved, 10), 300)) : 240;
-  });
-  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
-    const saved = localStorage.getItem('pw_sidebar_width');
-    return saved ? Math.max(320, Math.min(parseInt(saved, 10), 420)) : 360;
-  });
-  const [isResizingScenes, setIsResizingScenes] = useState(false);
-  const [isResizingSidebar, setIsResizingSidebar] = useState(false);
-
-
   // Firestore Quota Resilience state
   const [isQuotaExceeded, setIsQuotaExceeded] = useState(false);
   const [isQuotaBannerVisible, setIsQuotaBannerVisible] = useState(true);
@@ -432,15 +398,6 @@ export default function App() {
     return () => unsubQuota();
   }, []);
 
-  // Live state
-  const [isLive, setIsLive] = useState(false);
-  const [liveTime, setLiveTime] = useState(0);
-  const [liveStartTime, setLiveStartTime] = useState<string | null>(null);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [activeStreamReport, setActiveStreamReport] = useState<StreamReportData | null>(null);
-  // Mais canais ligados do que o plano transmite: escolher antes de entrar no ar
-  const [escolhaAoEntrarNoAr, setEscolhaAoEntrarNoAr] = useState(false);
-
   // Limite de canais ligados ao mesmo tempo, do plano (plans.ts)
   const limiteDeLigados = limiteDeCanaisLigados(user?.plan);
   // Fora do estúdio, "Ver planos" leva à página de plano. No estúdio, o modal
@@ -451,171 +408,6 @@ export default function App() {
       setIsPlansModalOpen(true);
     } else {
       setCurrentView('billing');
-    }
-  };
-
-  const iniciarLive = () => {
-    setLiveStartTime(new Date().toISOString());
-    setIsLive(true);
-  };
-
-  /**
-   * Devolve se o estado vai mesmo trocar. O cabeçalho do estúdio só soltava o
-   * botão quando `isLive` mudava — um teste expirado deixava o GO LIVE preso
-   * em "Entrando no ar…". Com `false`, ele volta na hora.
-   */
-  const handleToggleLive = async (): Promise<boolean> => {
-    if (!isLive) {
-      if (user) {
-        try {
-          const validation = await validateUserTrialStatus(user);
-          if (validation.isExpired || validation.trialDays === 0 || !validation.canBroadcast) {
-            const updated = {
-              ...user,
-              isExpired: true,
-              trialDays: 0,
-              subscriptionStatus: 'expired' as const
-            };
-            setUser(updated);
-            localStorage.setItem('pwstream_user', JSON.stringify(updated));
-            setPlansModalReason('live');
-            setIsPlansModalOpen(true);
-            return false;
-          }
-        } catch (err) {
-          console.warn('Erro ao validar período de testes:', err);
-          if (isTrialExpired) {
-            setPlansModalReason('live');
-            setIsPlansModalOpen(true);
-            return false;
-          }
-        }
-      } else if (isTrialExpired) {
-        setPlansModalReason('live');
-        setIsPlansModalOpen(true);
-        return false;
-      }
-      // Mais canais ligados do que o plano transmite (plano que mudou, dado
-      // antigo): antes ia ao ar para todos. Agora a pessoa escolhe quais
-      // ficam, e entra no ar pelo próprio diálogo.
-      if (destinations.filter(d => d.selected).length > limiteDeLigados) {
-        setEscolhaAoEntrarNoAr(true);
-        return false;
-      }
-      iniciarLive();
-      return true;
-    } else {
-      const formatTime = (secs: number) => {
-        const m = Math.floor(secs / 60);
-        const s = secs % 60;
-        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-      };
-
-      // `Destination` tem `selected`, não `active`: o filtro anterior nunca
-      // casava, então activeChannels era SEMPRE vazio e o relatório caía no
-      // fallback fixo abaixo — nunca listava os destinos reais da transmissão.
-      const activeChannels = destinations.filter(d => d.selected).map(d => d.platform);
-      const finalDestinations = activeChannels.length > 0 ? activeChannels : ["YouTube Live", "Facebook Live"];
-
-      const report: StreamReportData = {
-        app: "PwStreamer Studio Pro",
-        version: "2.5.0",
-        streamTitle: "Transmissão Ao Vivo PwStreamer",
-        streamDescription: "Sessão ao vivo gravada e transmitida pelo PwStreamer Studio Pro",
-        startTime: liveStartTime || new Date(Date.now() - (liveTime || 300) * 1000).toISOString(),
-        endTime: new Date().toISOString(),
-        durationSeconds: liveTime || 120,
-        formattedDuration: formatTime(liveTime || 120),
-        peakViewers: Math.max(148, Math.floor(Math.random() * 50) + 120),
-        averageViewers: Math.max(92, Math.floor(Math.random() * 30) + 85),
-        totalCommentsReceived: comments.length,
-        destinations: finalDestinations,
-        // Os nomes não batiam com o tipo `Comment` (authorName / timestamp /
-        // platform), então TODO comentário exportado saía com user, time e
-        // channel indefinidos. `isHighlight` passa a refletir o comentário
-        // realmente fixado, que é o conceito que existe no app.
-        comments: comments.map(c => ({
-          id: c.id,
-          user: c.authorName,
-          text: c.text,
-          time: c.timestamp,
-          channel: c.platform,
-          isHighlight: c.id === pinnedComment?.id
-        })),
-        systemPerformance: {
-          averageCpuUsage: "18.4%",
-          averageMemoryUsage: "1.85 GB / 8.00 GB",
-          fps: 60,
-          droppedFrames: 0,
-          bitrateKbps: 8000,
-          status: "Estável / Alta Performance"
-        }
-      };
-
-      setActiveStreamReport(report);
-      setIsReportModalOpen(true);
-      setIsLive(false);
-      return true;
-    }
-  };
-
-  // Escolhidos no diálogo: desliga estes (e grava) e entra no ar
-  const entrarNoArComEscolha = (idsParaDesligar: string[]) => {
-    setDestinations(prev => {
-      const updated = prev.map(d => (idsParaDesligar.includes(d.id) ? { ...d, selected: false } : d));
-      if (user?.uid) {
-        saveDestinationsToFirestore(user.uid, updated);
-      }
-      return updated;
-    });
-    setEscolhaAoEntrarNoAr(false);
-    iniciarLive();
-  };
-
-  // Recording state
-  const [isRecording, setIsRecording] = useState(false);
-
-  // Guarda de perda de dados. `beforeunload` não aparecia NENHUMA vez no app:
-  // recarregar ou fechar a aba durante uma transmissão a derrubava em
-  // silêncio — e, com a saída do estúdio ausente entre 768 e 1279 px,
-  // recarregar era exatamente o que sobrava para o operador tentar.
-  useEffect(() => {
-    if (!isLive && !isRecording) return;
-    const warn = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      // Navegadores modernos ignoram a mensagem e mostram texto próprio;
-      // returnValue continua sendo o que dispara o diálogo.
-      e.returnValue = '';
-      return '';
-    };
-    window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
-  }, [isLive, isRecording]);
-  const [recordingTime, setRecordingTime] = useState(0);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isRecording) {
-      interval = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-    } else {
-      setRecordingTime(0);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isRecording]);
-
-  const handleToggleRecording = () => {
-    if (!isRecording) {
-      if (isTrialExpired) {
-        handleRequirePlan('record');
-        return;
-      }
-      setIsRecording(true);
-    } else {
-      setIsRecording(false);
     }
   };
 
@@ -726,7 +518,9 @@ export default function App() {
   const [activeSpeaker, setActiveSpeaker] = useState<'p-local' | 'p-guest' | 'none'>('p-local');
 
   // Mirror camera state
-  const [mirrorCamera, setMirrorCamera] = useState<boolean>(true);
+  // Começa desligado: o espelho vale no programa também, e ligado de saída
+  // o público via os textos atrás de quem fala ao contrário.
+  const [mirrorCamera, setMirrorCamera] = useState<boolean>(false);
 
   // Transition duration state
   const [transitionDuration, setTransitionDuration] = useState<number>(300);
@@ -815,65 +609,34 @@ export default function App() {
   };
 
   // Scenes management
-  const [currentSceneId, setCurrentSceneId] = useState<string>('scene-1');
+  const [currentSceneId, setCurrentSceneId] = useState<string>(CENA_INICIAL.id);
 
-  // Studio Preview Mode & Program Live state
-  const [isStudioPreviewMode, setIsStudioPreviewMode] = useState<boolean>(false);
-  const [previewViewMode, setPreviewViewMode] = useState<'split' | 'preview-only' | 'program-only'>('split');
-  
+  // O card da câmera que o preview está montando; o do programa vai no estado do corte
+  const [cardDaCamera, setCardDaCamera] = useState<GeometriaDoCard>(lerCardSalvo);
+  useEffect(() => salvarCard(cardDaCamera), [cardDaCamera]);
+
   const [programSceneState, setProgramSceneState] = useState<StudioSceneState>(() => ({
-    sceneId: 'scene-1',
-    layout: '1-cam',
-    activeParticipantIds: ['p-local'],
-    activeBannerId: 'b-1',
-    activeTickerId: 'ticker-1',
+    sceneId: CENA_INICIAL.id,
+    cardDaCamera,
+    layout: CENA_INICIAL.layout,
+    activeParticipantIds: CENA_INICIAL.fontes,
+    activeBannerId: null,
+    activeTickerId: null,
     pinnedComment: null,
     bannerPosition: 'bottom',
     showQrCode: false,
-    qrCodeText: 'https://pwstreamer.com'
+    qrCodeText: ''
   }));
+  // Durante a fusão, o programa que sai fica por cima e some em DURACAO_DA_FUSAO.
+  const [programaQueSai, setProgramaQueSai] = useState<StudioSceneState | null>(null);
+  const [mostrarGuias, setMostrarGuias] = useState(false);
+  const [ferramenta, setFerramenta] = useState<Ferramenta>(FERRAMENTA_INICIAL);
 
-  const handleSelectScene = (scene: Scene) => {
-    const sceneConfig = sceneTransitions[scene.id] || { type: transitionType, duration: transitionDuration };
-    const currentType = sceneConfig.type;
-    const currentDuration = sceneConfig.duration;
-
-    const isColorTransition = ['dip-to-color', 'slide-wipe', 'shutter-wipe', 'radial-wipe', 'flash'].includes(currentType);
-
-    const applySceneChanges = () => {
-      setCurrentSceneId(scene.id);
-      setLayout(scene.layout);
-      
-      // Auto-update participants based on scene definition
-      setParticipants(prev => prev.map(p => ({
-        ...p,
-        isActive: scene.activeParticipantIds.includes(p.id)
-      })));
-
-      // Handle background and branding settings matching specific scene types
-      if (scene.type === 'welcome') {
-        // Set a nice space background for the wait/welcome stage
-        setActiveBackground('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=80');
-        const b = banners.find(x => x.text.toLowerCase().includes('bem-vindo') || x.text.toLowerCase().includes('começará'));
-        if (b) {
-          setActiveBannerId(b.id);
-        }
-      } else if (scene.type === 'video') {
-        // Select institutional or promo screen-share placeholder
-      }
-    };
-
-    if (currentType === 'cut') {
-      applySceneChanges();
-    } else if (isColorTransition) {
-      triggerTransition(applySceneChanges, {
-        color: transitionColor,
-        duration: currentDuration,
-        type: currentType as any
-      });
-    } else {
-      applySceneChanges();
-    }
+  // Escolher uma cena monta o preview; quem leva ao programa é o corte.
+  const handleSelectScene = (cena: Cena) => {
+    setCurrentSceneId(cena.id);
+    setLayout(cena.layout);
+    setParticipants(prev => prev.map(p => ({ ...p, isActive: cena.fontes.includes(p.id) })));
   };
 
   // Participants (Sources on/off stage)
@@ -882,7 +645,7 @@ export default function App() {
       id: 'p-local',
       // Placeholder até a sessão carregar — o efeito abaixo põe o nome real.
       name: 'Apresentador',
-      avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
+      avatarUrl: '',
       isLocal: true,
       isActive: true,
       hasVideo: true,
@@ -910,134 +673,118 @@ export default function App() {
     setParticipants(prev => prev.map(p => (p.id === 'p-local' ? { ...p, name: nome } : p)));
   }, [user?.name]);
 
-  // Track pending changes between Studio Preview (editing stage) and Program (Live On Air output)
+  // O que o próximo corte leva do preview ao programa, em palavras
   const pendingChanges = useMemo(() => {
     const changes: string[] = [];
-    if (layout !== programSceneState.layout) {
-      changes.push(`Layout alterado para "${layout}"`);
+    if (currentSceneId !== programSceneState.sceneId) {
+      changes.push(`Cena: ${cenaPeloId(currentSceneId)?.nome ?? currentSceneId}`);
+    } else if (layout !== programSceneState.layout) {
+      changes.push('Layout do palco');
     }
     const currentActiveIds = participants.filter(p => p.isActive).map(p => p.id).sort().join(',');
     const programActiveIds = (programSceneState.activeParticipantIds || []).slice().sort().join(',');
-    if (currentActiveIds !== programActiveIds) {
-      changes.push('Participantes em cena');
+    if (currentActiveIds !== programActiveIds && currentSceneId === programSceneState.sceneId) {
+      changes.push('Fontes em cena');
     }
     if (activeBannerId !== programSceneState.activeBannerId) {
-      changes.push('Banner / GC inferior');
+      changes.push(activeBannerId ? 'Entra o banner' : 'Sai o banner');
     }
     if (activeTickerId !== programSceneState.activeTickerId) {
-      changes.push('Ticker de notícias');
+      changes.push(activeTickerId ? 'Entra o ticker' : 'Sai o ticker');
     }
     if (bannerPosition !== programSceneState.bannerPosition) {
       changes.push('Posição do banner');
     }
     if (pinnedComment?.id !== programSceneState.pinnedComment?.id) {
-      changes.push('Comentário em destaque');
+      changes.push(pinnedComment ? 'Entra o comentário fixado' : 'Sai o comentário fixado');
     }
-    if (currentSceneId !== programSceneState.sceneId) {
-      const sceneObj = DEFAULT_STUDIO_SCENES.find(s => s.id === currentSceneId);
-      changes.push(`Cena "${sceneObj?.name || currentSceneId}"`);
+    if ((activeBackground || '') !== (programSceneState.activeBackground || '')) {
+      changes.push('Fundo');
     }
-    if (activeBackground !== programSceneState.activeBackground) {
-      changes.push('Plano de fundo da cena');
+    if (showQrCode !== (programSceneState.showQrCode ?? false)) {
+      changes.push(showQrCode ? 'Entra o QR code' : 'Sai o QR code');
+    }
+    // O card só conta quando o programa e o preview são cenas com card
+    if (layoutUsaCard(layout) && layoutUsaCard(programSceneState.layout)) {
+      const mudanca = mudancaNoCard(programSceneState.cardDaCamera ?? CARD_PADRAO, cardDaCamera);
+      if (mudanca) changes.push(`Card da câmera: ${mudanca}`);
     }
     return changes;
-  }, [layout, participants, activeBannerId, activeTickerId, bannerPosition, pinnedComment, currentSceneId, activeBackground, programSceneState]);
+  }, [layout, participants, activeBannerId, activeTickerId, bannerPosition, pinnedComment, currentSceneId, activeBackground, showQrCode, cardDaCamera, programSceneState]);
 
   const hasPendingChanges = pendingChanges.length > 0;
 
-  const handlePushToLive = () => {
-    triggerTransition(() => {
-      setProgramSceneState({
-        sceneId: currentSceneId,
-        layout,
-        activeParticipantIds: participants.filter(p => p.isActive).map(p => p.id),
-        activeBannerId,
-        activeTickerId,
-        pinnedComment,
-        bannerPosition,
-        activeBackground,
-        activeOverlay,
-        activeLogo: undefined,
-        activeSlide,
-        showQrCode,
-        qrCodeText
-      });
-    }, {
-      color: transitionColor,
-      duration: transitionDuration,
-      // O hook só desenha CORTINAS. As transições básicas (cut/fade/slide/
-      // zoom) são animadas pelo Motion no StudioPreview, não por sobreposição
-      // — antes a escolha do usuário era repassada inteira para uma API que
-      // não a entendia.
-      ...(isWipeTransition(transitionType) ? { type: transitionType } : {})
-    });
-  };
+  // O estado do preview, como ele iria ao programa
+  const estadoDoPreview = (): StudioSceneState => ({
+    sceneId: currentSceneId,
+    layout,
+    activeParticipantIds: participants.filter(p => p.isActive).map(p => p.id),
+    activeBannerId,
+    activeTickerId,
+    pinnedComment,
+    bannerPosition,
+    activeBackground,
+    activeOverlay,
+    activeLogo: undefined,
+    activeSlide,
+    showQrCode,
+    qrCodeText,
+    cardDaCamera
+  });
 
-  const handleRevertToLive = () => {
-    setLayout(programSceneState.layout);
-    setCurrentSceneId(programSceneState.sceneId || 'scene-1');
-    setParticipants(prev => prev.map(p => ({
-      ...p,
-      isActive: (programSceneState.activeParticipantIds || ['p-local']).includes(p.id)
-    })));
-    setActiveBannerId(programSceneState.activeBannerId || null);
-    setActiveTickerId(programSceneState.activeTickerId || null);
-    setPinnedComment(programSceneState.pinnedComment || null);
-    setBannerPosition(programSceneState.bannerPosition || 'bottom');
-    if (programSceneState.activeBackground !== undefined) {
-      setActiveBackground(programSceneState.activeBackground);
+  // Corte: o preview vai ao programa na hora. Fusão: o programa que sai fica
+  // por cima e some em DURACAO_DA_FUSAO. Antes o "take" desenhava cortinas no
+  // monitor de preview e o programa cortava seco, qualquer que fosse a escolha.
+  const fusaoRef = useRef<number | null>(null);
+  const cortar = (transicao: Transicao) => {
+    if (fusaoRef.current) window.clearTimeout(fusaoRef.current);
+    if (transicao === 'fusao') {
+      setProgramaQueSai(programSceneState);
+      fusaoRef.current = window.setTimeout(() => {
+        setProgramaQueSai(null);
+        fusaoRef.current = null;
+      }, DURACAO_DA_FUSAO);
+    } else {
+      setProgramaQueSai(null);
     }
+    setProgramSceneState(estadoDoPreview());
   };
 
-  const handleSwapPreviewAndLive = () => {
-    const currentPreview: StudioSceneState = {
-      sceneId: currentSceneId,
-      layout,
-      activeParticipantIds: participants.filter(p => p.isActive).map(p => p.id),
-      activeBannerId,
-      activeTickerId,
-      pinnedComment,
-      bannerPosition,
-      activeBackground,
-      activeOverlay,
-      activeLogo: undefined,
-      activeSlide,
-      showQrCode,
-      qrCodeText
-    };
-
-    // Apply old program to preview
-    handleRevertToLive();
-
-    // Push old preview to program
-    setProgramSceneState(currentPreview);
-  };
-
-  // Request Web Camera & Microphone access on load
+  // Câmera e microfone só no estúdio. Eram pedidos quando o app abria, antes
+  // do login, e ficavam ligados no painel inteiro; a limpeza usava uma
+  // referência antiga do stream e não desligava nada.
+  const noEstudio = currentView === 'studio';
+  const streamRef = useRef<MediaStream | null>(null);
+  const telaRef = useRef<MediaStream | null>(null);
+  useEffect(() => { streamRef.current = localStream; }, [localStream]);
+  useEffect(() => { telaRef.current = screenStream; }, [screenStream]);
   useEffect(() => {
-    async function requestCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 1280, height: 720 },
-          audio: true
-        });
+    if (!noEstudio) return;
+    let saiu = false;
+    navigator.mediaDevices?.getUserMedia({ video: { width: 1280, height: 720 }, audio: true })
+      .then((stream) => {
+        if (saiu) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        stream.getAudioTracks().forEach((t) => { t.enabled = !isMuted; });
+        stream.getVideoTracks().forEach((t) => { t.enabled = !isCamStopped; });
         setLocalStream(stream);
-        // Bind to local participant stream
         setParticipants(prev => prev.map(p => p.isLocal ? { ...p, stream } : p));
-      } catch (err) {
-        console.warn("Camera and Mic access not granted or unavailable, showing high-end moving avatar placeholder instead.", err);
-      }
-    }
-    requestCamera();
-
+      })
+      .catch((err) => console.warn('Câmera e microfone não liberados:', err));
     return () => {
-      // Release camera stream on unmount
-      if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-      }
-      stopSynth();
+      saiu = true;
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      telaRef.current?.getTracks().forEach((t) => t.stop());
+      setLocalStream(null);
+      setScreenStream(null);
+      setIsScreenSharing(false);
+      setParticipants(prev => prev.map(p => ({ ...p, stream: null })));
     };
-  }, []);
+  }, [noEstudio]);
+
+  useEffect(() => () => stopSynth(), []);
 
   // Update volume in sound engine (taking into account auto-fade/ducking)
   useEffect(() => {
@@ -1151,28 +898,6 @@ export default function App() {
     };
   }, [localStream, isMuted, isAutoFadeEnabled, autoFadeSensitivity]);
 
-  // Timer counting for Live mode
-  useEffect(() => {
-    let timer: NodeJS.Timeout | null = null;
-    if (isLive) {
-      timer = setInterval(() => {
-        setLiveTime(prev => prev + 1);
-      }, 1000);
-    } else {
-      setLiveTime(0);
-    }
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [isLive]);
-
-  // Smart Sidebar: Auto switch tab to Chat when live
-  useEffect(() => {
-    if (isLive && isSmartSidebarEnabled) {
-      setActiveTab('seven');
-    }
-  }, [isLive, isSmartSidebarEnabled]);
-
   // Listen to custom subtab switches (e.g. from the compact control tray)
   useEffect(() => {
     const handleSwitchSubtab = (e: Event) => {
@@ -1191,48 +916,6 @@ export default function App() {
       window.removeEventListener('switch-studio-subtab', handleSwitchSubtab);
     };
   }, []);
-
-  // Listen to window resize to determine if we are on a mobile device
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  // Column manual resizing window events
-  useEffect(() => {
-    if (!isResizingScenes && !isResizingSidebar) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isResizingScenes) {
-        const newWidth = Math.max(200, Math.min(450, e.clientX));
-        setScenesWidth(newWidth);
-        localStorage.setItem('pw_scenes_width', newWidth.toString());
-      } else if (isResizingSidebar) {
-        const newWidth = Math.max(300, Math.min(600, window.innerWidth - e.clientX));
-        setSidebarWidth(newWidth);
-        localStorage.setItem('pw_sidebar_width', newWidth.toString());
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsResizingScenes(false);
-      setIsResizingSidebar(false);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isResizingScenes, isResizingSidebar]);
 
   // Countdown Timer Tick Logic
   useEffect(() => {
@@ -1270,51 +953,6 @@ export default function App() {
       if (interval) clearInterval(interval);
     };
   }, [isCountdownActive, countdownTimeLeft, countdownDuration]);
-
-  // Voice Scene Automation Logic
-  useEffect(() => {
-    if (!isSceneAutomationEnabled) {
-      setActiveSpeaker('p-local');
-      return;
-    }
-
-    // Automação ligada: apresentador e convidado entram no palco
-    setParticipants(prev => prev.map(p => {
-      if (p.id === 'p-local' || p.id === 'p-guest') {
-        return { ...p, isActive: true };
-      }
-      return p;
-    }));
-
-    const speakInterval = setInterval(() => {
-      setActiveSpeaker(prev => {
-        // Simulate speech activity or silence (1/3 chance of silence)
-        const isSilent = Math.random() < 0.33;
-        
-        if (isSilent) {
-          // Detect silence -> switch to gallery view
-          changeLayoutWithTransition('gallery');
-          return 'none';
-        }
-
-        const nextSpeaker = prev === 'p-local' ? 'p-guest' : 'p-local';
-        
-        // Auto-change layout depending on speaker
-        if (nextSpeaker === 'p-local') {
-          const isSharing = isScreenSharing || (activeSlide !== null);
-          changeLayoutWithTransition(isSharing ? 'presentation' : '1-cam');
-        } else {
-          changeLayoutWithTransition('dual');
-        }
-
-        return nextSpeaker;
-      });
-    }, 6000);
-
-    return () => {
-      clearInterval(speakInterval);
-    };
-  }, [isSceneAutomationEnabled, isScreenSharing, activeSlide]);
 
   // AI Moderation fetcher and logic
   const moderateComment = async (text: string) => {
@@ -1371,67 +1009,6 @@ export default function App() {
       return c;
     }));
   };
-
-  // Plateia simulada — SÓ em desenvolvimento. Rodava em produção: com a
-  // transmissão no ar, um comentário inventado a cada 12s, atribuído ao
-  // YouTube ou ao Facebook (alguns ofensivos, para exercitar a moderação).
-  // O cliente via uma audiência que não existe e podia fixá-la na tela da
-  // live. Não há ingestão real de comentários das plataformas ainda; até
-  // haver, o chat de produção mostra só o que é enviado do estúdio.
-  // import.meta.env.DEV vira `false` no build e o bloco inteiro sai do bundle.
-  useEffect(() => {
-    let commentInterval: NodeJS.Timeout | null = null;
-    if (import.meta.env.DEV && isLive) {
-      commentInterval = setInterval(() => {
-        const names = ["Gabriel Lima", "Beatriz Rocha", "Lucas Mendes", "Renata Souza", "Thiago Silva", "Carla Dias", "Felipe Neto", "Patrícia Melo"];
-        const avatars = [
-          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-        ];
-        const responses = [
-          "Incrível o conteúdo do webinar de hoje!",
-          "O compartilhamento de tela está com excelente resolução.",
-          "Boa noite Marcos! Assistindo direto de São Paulo.",
-          "COMPRE SEGUIDORES AGORA! Acesse www.seguidoresrapidos.com para ganhar 5000 views grátis!!",
-          "Marcos, onde podemos baixar os slides?",
-          "Sua apresentação está uma bosta profunda, devolve meu tempo idiota!",
-          "Esse cara é um completo imbecil, não sabe de nada, que lixo de aula!",
-          "Alguém aí quer jogar Free fire agora?",
-          "Consigo participar da transmissão e enviar uma pergunta por áudio?",
-          "Sensacional a explicação, muito esclarecedora!",
-          "Melhor estúdio de webinars que já vi."
-        ];
-        
-        const randIdx = Math.floor(Math.random() * names.length);
-        const randResponse = responses[Math.floor(Math.random() * responses.length)];
-        const platform = Math.random() > 0.5 ? 'facebook' : 'youtube';
-
-        const now = new Date();
-        const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-
-        const newComment: Comment = {
-          id: `bot-comm-${Date.now()}`,
-          authorName: names[randIdx],
-          authorAvatar: avatars[randIdx],
-          text: randResponse,
-          platform,
-          timestamp
-        };
-
-        processNewComment(newComment);
-      }, 12000); // Add chat every 12 seconds
-    }
-    return () => {
-      if (commentInterval) clearInterval(commentInterval);
-    };
-  }, [isLive, isAiModerationEnabled]);
-
 
   // Destinations toggler
   // Ligar além do plano não liga: o canal fica como estava e o aviso diz por
@@ -1523,7 +1100,7 @@ export default function App() {
     const newBanner: Banner = {
       id: `banner-${Date.now()}`,
       text,
-      subtitle: subtitle || 'Stream like a Pro - OneStream Live Studio',
+      subtitle: subtitle || '',
       themeColor: themeColor || '#1d273b',
       accentColor: accentColor || '#84cc16'
     };
@@ -1742,7 +1319,7 @@ export default function App() {
     const newComment: Comment = {
       id: `user-comm-${Date.now()}`,
       authorName: user?.name ? `${user.name.split(' ')[0]} (Você)` : 'Você',
-      authorAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
+      authorAvatar: '',
       text,
       platform: 'studio',
       timestamp
@@ -1867,44 +1444,51 @@ export default function App() {
     }
   };
 
-  // Screen sharing activation
-  const handleToggleScreenShare = async (initialTab?: 'tab' | 'window' | 'screen' | 'pdf' | 'video') => {
-    if (isScreenSharing && !initialTab) {
-      if (screenStream) {
-        screenStream.getTracks().forEach(t => t.stop());
-        setScreenStream(null);
-      }
-      setIsScreenSharing(false);
-      setSelectedSharedSource(null);
-      setParticipants(prev => prev.map(p => p.isScreenShare ? { ...p, isActive: false, stream: null } : p));
-      if (layout === 'screen-share' || layout === 'picture-in-picture' || layout === 'presentation') {
-        changeLayoutWithTransition('1-cam');
-      }
-    } else {
-      if (initialTab === 'screen' || !initialTab) {
-        // Direct native screen share without opening the fake modal
-        try {
-          const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }).catch(() => null);
-          if (stream) {
-            setScreenStream(stream);
-            setIsScreenSharing(true);
-            setSelectedSharedSource({ type: 'screen', name: 'Tela Compartilhada', audioShared: true });
-            setParticipants(prev => prev.map(p => p.isScreenShare ? { ...p, isActive: true, stream } : p));
-            changeLayoutWithTransition('screen-share');
-            // Ensure any picker modal is closed if it was open
-            setIsScreenSharePickerOpen(false);
-          }
-        } catch (err) {
-          console.error("Screen share cancelled", err);
-        }
-      } else {
-        setScreenPickerInitialTab(initialTab);
-        setIsScreenSharePickerOpen(true);
-      }
-    }
+  // A cena do preview, para quem reage fora do render (o fim da tela pelo navegador)
+  const cenaDoPreviewRef = useRef(currentSceneId);
+  useEffect(() => { cenaDoPreviewRef.current = currentSceneId; }, [currentSceneId]);
+
+  // Parar a tela, pela bandeja ou pelo "Parar compartilhamento" do próprio
+  // navegador (esse caminho não era tratado). Se o preview mostrava a tela,
+  // volta para a câmera.
+  const pararTela = () => {
+    telaRef.current?.getTracks().forEach(t => t.stop());
+    setScreenStream(null);
+    setIsScreenSharing(false);
+    setSelectedSharedSource(null);
+    setParticipants(prev => prev.map(p => p.isScreenShare ? { ...p, stream: null } : p));
+    const cena = cenaPeloId(cenaDoPreviewRef.current);
+    if (cena && precisaDaTela(cena)) handleSelectScene(CENA_INICIAL);
   };
 
-  // Confirm screen share from picker modal
+  const handleToggleScreenShare = async (initialTab?: 'tab' | 'window' | 'screen' | 'pdf' | 'video') => {
+    // A barra lateral chamava isto com o evento de clique no lugar da aba:
+    // "Parar compartilhamento" abria o seletor em vez de parar.
+    const aba = typeof initialTab === 'string' ? initialTab : undefined;
+    if (isScreenSharing && !aba) {
+      pararTela();
+      return;
+    }
+    if (aba && aba !== 'screen') {
+      setScreenPickerInitialTab(aba);
+      setIsScreenSharePickerOpen(true);
+      return;
+    }
+    // Cancelar o seletor do navegador não muda nada. Antes o palco "simulava"
+    // o compartilhamento e dizia que a tela estava sendo transmitida.
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }).catch(() => null);
+    if (!stream) return;
+    setScreenStream(stream);
+    setIsScreenSharing(true);
+    setSelectedSharedSource({ type: 'screen', name: 'Tela compartilhada', audioShared: true });
+    setParticipants(prev => prev.map(p => p.isScreenShare ? { ...p, stream } : p));
+    stream.getVideoTracks()[0]?.addEventListener('ended', pararTela);
+    setIsScreenSharePickerOpen(false);
+    // A tela entra no preview, pronta para o corte
+    const comTela = cenaPeloId('cena-tela-e-camera');
+    if (comTela) handleSelectScene(comTela);
+  };
+
   const handleConfirmScreenShare = async (source: { 
     type: 'tab' | 'window' | 'screen' | 'pdf' | 'video'; 
     name: string; 
@@ -1950,16 +1534,9 @@ export default function App() {
           setParticipants(prev => prev.map(p => p.isScreenShare ? { ...p, isActive: false, stream: null } : p));
           changeLayoutWithTransition('1-cam');
         };
-      } else {
-        // Safe iframe fallback - toggle sharing without stream (simulates beautifully)
-        setIsScreenSharing(true);
-        setParticipants(prev => prev.map(p => p.isScreenShare ? { ...p, isActive: true } : p));
-        changeLayoutWithTransition('screen-share');
       }
     } catch (err) {
-      setIsScreenSharing(true);
-      setParticipants(prev => prev.map(p => p.isScreenShare ? { ...p, isActive: true } : p));
-      changeLayoutWithTransition('screen-share');
+      console.warn('Compartilhamento de tela não iniciado:', err);
     }
   };
 
@@ -1985,6 +1562,116 @@ export default function App() {
   const activeBanner = banners.find(b => b.id === activeBannerId) || null;
   const activeTicker = tickers.find(t => t.id === activeTickerId) || null;
 
+  // O monitor de programa: a mesma composição do preview, com o que o
+  // último corte levou (cena, fontes, banner, ticker, QR e fundo).
+  const palcoDoPrograma = (estado: StudioSceneState) => (
+    <StudioPreview
+      papel="programa"
+      fundoDoPrograma={estado.activeBackground ?? null}
+      sobreposicaoDoPrograma={estado.activeOverlay ?? null}
+      cardDaCamera={estado.cardDaCamera ?? CARD_PADRAO}
+      mostrarGuias={mostrarGuias}
+      semBarraDeLayouts
+      layout={estado.layout}
+      onLayoutChange={() => {}}
+      streamColor={streamColor}
+      textStyle={textStyle}
+      activeBannerText={null}
+      activeBanner={banners.find(b => b.id === estado.activeBannerId) || null}
+      activeTicker={tickers.find(t => t.id === estado.activeTickerId) || null}
+      tickerSpeed={tickerSpeed}
+      tickerDirection={tickerDirection}
+      onSetActiveTicker={() => {}}
+      pinnedComment={estado.pinnedComment || null}
+      participants={participants.map(p => ({ ...p, isActive: (estado.activeParticipantIds || []).includes(p.id) }))}
+      onToggleParticipantActive={() => {}}
+      localStream={localStream}
+      screenStream={screenStream}
+      isCamStopped={isCamStopped}
+      isLive={false}
+      liveTime={0}
+      showQrCode={estado.showQrCode ?? false}
+      qrCodeText={estado.qrCodeText ?? ''}
+      qrCodeConfig={qrCodeConfig}
+      onToggleShowQrCode={setShowQrCode}
+      onOpenQrCodeModal={() => setIsQrCodeModalOpen(true)}
+      teleprompterText={teleprompterText}
+      isTeleprompterPlaying={isTeleprompterPlaying}
+      onToggleTeleprompterPlaying={() => setIsTeleprompterPlaying(prev => !prev)}
+      teleprompterSpeed={teleprompterSpeed}
+      onTeleprompterSpeedChange={setTeleprompterSpeed}
+      teleprompterFontSize={teleprompterFontSize}
+      teleprompterMirrored={teleprompterMirrored}
+      showTeleprompterOnStudio={false}
+      onToggleShowTeleprompterOnStudio={() => setShowTeleprompterOnStudio(prev => !prev)}
+      transitionType={transitionType}
+      isTransitioning={isTransitioning}
+      transitionStage={transitionStage}
+      transitionColor={transitionColor}
+      onTransitionColorChange={setTransitionColor}
+      isMuted={isMuted}
+      cameraZoom={cameraZoom}
+      cameraOffsetX={cameraOffsetX}
+      cameraOffsetY={cameraOffsetY}
+      chromaKeyEnabled={chromaKeyEnabled}
+      chromaColor={chromaColor}
+      chromaTolerance={chromaTolerance}
+      selectedSharedSource={selectedSharedSource}
+      isPresentationOverlayActive={isPresentationOverlayActive}
+      onTogglePresentationOverlayActive={() => setIsPresentationOverlayActive(true)}
+      onPresentationOverlayActiveToggle={() => setIsPresentationOverlayActive(prev => !prev)}
+      transitionDuration={transitionDuration}
+      onAddSnapshot={handleAddSnapshot}
+      // O espelho é da câmera, como o zoom e o enquadramento: vale nos dois
+      // monitores. Antes o preview espelhava e o programa não, e o preview
+      // deixava de mostrar o que o corte levava.
+      mirrorCamera={mirrorCamera}
+      logoAnimation={logoAnimation}
+      bannerAnimation={bannerAnimation}
+      activeSlide={estado.activeSlide ?? null}
+      onTransitionTypeChange={setTransitionType}
+      onTransitionDurationChange={setTransitionDuration}
+      countdownTimeLeft={countdownTimeLeft}
+      isCountdownActive={isCountdownActive}
+      showCountdownOnScreen={showCountdownOnScreen}
+      isPlaylistActive={isPlaylistActive}
+      onVideoClipEnded={handleVideoClipEnded}
+      chromaEdgeSoftness={chromaEdgeSoftness}
+      chromaSpillSuppression={chromaSpillSuppression}
+      isSceneAutomationEnabled={isSceneAutomationEnabled}
+      activeSpeaker={activeSpeaker}
+      comments={comments}
+      onPinComment={(id) => setPinnedComment(id ? comments.find(c => c.id === id) || null : null)}
+      bannerPosition={estado.bannerPosition || 'bottom'}
+      onBannerPositionChange={setBannerPosition}
+      showWidgetChat={showWidgetChat}
+      onToggleShowWidgetChat={() => setShowWidgetChat(prev => !prev)}
+      chatWidgetOpacity={chatWidgetOpacity}
+      showWidgetLousa={showWidgetLousa}
+      onToggleShowWidgetLousa={() => setShowWidgetLousa(prev => !prev)}
+      showWidgetSnapshot={showWidgetSnapshot}
+      onToggleShowWidgetSnapshot={() => setShowWidgetSnapshot(prev => !prev)}
+      isFloatingChatOpen={isFloatingChatOpen}
+      onToggleFloatingChatOpen={() => setIsFloatingChatOpen(prev => !prev)}
+      isStreamHealthOpen={isStreamHealthOpen}
+      onToggleStreamHealthOpen={() => setIsStreamHealthOpen(prev => !prev)}
+      isDrawingMode={false}
+      onToggleDrawingMode={() => setIsDrawingMode(prev => !prev)}
+      isStudioPreviewMode
+      onToggleStudioPreviewMode={() => {}}
+      previewViewMode="split"
+      onPreviewViewModeChange={() => {}}
+      hasPendingChanges={hasPendingChanges}
+      pendingChanges={pendingChanges}
+      onPushToLive={() => cortar('corte')}
+      onRevertToLive={() => {}}
+      onSwapPreviewAndLive={() => {}}
+      programSceneState={programSceneState}
+      allBanners={banners}
+      allTickers={tickers}
+      />
+  );
+
   if (!user) {
     return (
       <AuthAndPricing 
@@ -2001,9 +1688,6 @@ export default function App() {
          fora do escopo e recebiam os tokens de texto do tema claro sobre
          fundo escuro: 2,24–3,55:1. */
       data-surface={currentView === 'studio' ? 'console' : undefined}
-      // O tally lê daqui. Ancestral de tudo, para que qualquer moldura de
-      // programa no console saiba que está no ar sem receber a prop na mão.
-      data-air={isLive ? 'on' : undefined}
       className={`bg-[var(--bg)] font-sans text-[var(--ink-hi)] flex flex-col ${currentView === 'studio' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'}`}>
       
       {/* O estúdio tem o cabeçalho de console (GO LIVE, gravação, canais do
@@ -2011,30 +1695,13 @@ export default function App() {
       {currentView !== 'studio' ? (
         <AppHeader user={user} currentView={currentView} onNavigate={setCurrentView} onLogout={handleLogout} />
       ) : (
-      <Header 
-        onExit={() => setCurrentView('dashboard')} 
-        user={user}
-        onLogout={handleLogout}
-        onSimulateExpiration={handleSimulateExpiration}
-        onRestoreTrial={handleRestoreTrial}
-        onOpenPricing={() => {
-          setPlansModalReason('upgrade');
-          setIsPlansModalOpen(true);
-        }}
-        onViewChange={setCurrentView}
-        currentView={currentView}
-        isLive={isLive}
-        onToggleLive={handleToggleLive}
-        liveTime={liveTime}
-        isTrialExpired={isTrialExpired}
-        onOpenAddChannelsModal={() => setIsAddChannelsModalOpen(true)}
-        activeDestinationsCount={destinations.filter(d => d.selected).length}
-        recordingQuality={recordingQuality}
-        onQualityChange={setRecordingQuality}
-        isRecording={isRecording}
-        onToggleRecording={handleToggleRecording}
-        recordingTime={recordingTime}
-      />
+        <BarraDoEstudio
+          sessao={title.trim() || undefined}
+          canaisLigados={destinations.filter(d => d.selected).length}
+          canaisProntos={destinations.filter(d => d.selected && estadoDoCanal(d) === 'pronto').length}
+          onCanais={() => setIsAddChannelsModalOpen(true)}
+          onSair={() => setCurrentView('dashboard')}
+        />
       )}
 
       {/* Cota do banco esgotada. Era um aviso de desenvolvedor para o cliente
@@ -2064,725 +1731,116 @@ export default function App() {
         </div>
       )}
 
-      {/* 2. PRODUCTION CONTROL ROOM VIEW */}
+      {/* O console do estúdio: cenas e transição, programa e preview, chat e
+          ferramentas, e a bandeja. Abaixo de lg vira uma coluna que rola. */}
       {currentView === 'studio' ? (
-        <main
-          data-surface="console"
-          className="flex-1 overflow-hidden w-full max-w-none px-0 mx-0 relative bg-[var(--bg)] text-[var(--ink)]"
-          style={{
-            display: 'grid',
-            gridTemplateAreas: isMobile
-              ? '"preview"' 
-              : isImmersiveMode 
-                ? '"scenes preview sidebar"' 
-                : '"scenes preview sidebar"',
-            gridTemplateColumns: isMobile 
-              ? '1fr' 
-              : isImmersiveMode 
-                ? '0px 1fr 0px' 
-                : `${scenesWidth}px minmax(0, 1fr) ${sidebarWidth}px`,
-            transition: (isResizingScenes || isResizingSidebar) ? 'none' : 'grid-template-columns 500ms cubic-bezier(0.4, 0, 0.2, 1)',
-            height: '100%'
-          }}
-        >
-          {/* Floating Expand Handles for Immersive Mode */}
-          {isImmersiveMode && !isMobile && (
-            <>
-              <button
-                onClick={() => setIsImmersiveMode(false)}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-50 bg-[var(--surface)]/95 hover:bg-blue-600 hover:text-white text-[var(--ink-lo)] p-2 rounded-r-xl border-y border-r border-[var(--line)]/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
-                title="Expandir Painel de Participantes"
-              >
-                <ChevronRight size={16} className="transition-transform group-hover:scale-110" />
-              </button>
-              <button
-                onClick={() => setIsImmersiveMode(false)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-50 bg-[var(--surface)]/95 hover:bg-blue-600 hover:text-white text-[var(--ink-lo)] p-2 rounded-l-xl border-y border-l border-[var(--line)]/80 shadow-2xl transition-all flex items-center justify-center h-16 cursor-pointer group"
-                title="Expandir Painel de Configurações"
-              >
-                <ChevronLeft size={16} className="transition-transform group-hover:scale-110" />
-              </button>
-            </>
-          )}
-          
-          {/* Scenes Sidebar Panel on the far left - Desktop Only */}
-          {!isMobile && (
-            <div 
-              style={{ 
-                gridArea: 'scenes',
-                width: isImmersiveMode ? 0 : scenesWidth,
-                transition: (isResizingScenes || isResizingSidebar) ? 'none' : 'width 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms'
-              }}
-              className={`hidden md:flex shrink-0 overflow-hidden h-full ${isImmersiveMode ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-            >
-              <div className="flex flex-col h-full w-full min-h-0 gap-2">
-              {/* ── MONITOR DE PROGRAMA ──────────────────────────────────────
-                  O que o público está vendo. Até aqui o operador não tinha
-                  NENHUMA visão disso: o palco grande mostra o estado de
-                  edição, e `programSceneState` — que já existia, com take,
-                  revert e swap prontos — nunca era renderizado. Dava para
-                  editar no escuro sem saber o que estava indo ao ar. */}
-              {/* `previewViewMode` era declarado no StudioPreview e nunca lido:
-                  os botões "Lado a Lado / Prévia / Ao Vivo" existiam e não
-                  faziam nada. Agora governam este monitor. */}
-              <div className={`shrink-0 px-1 pt-1 ${previewViewMode === 'preview-only' ? 'hidden' : ''}`}>
-                <StudioPreview
-                  monitorOnly
-                  monitorRole="pgm"
-                  layout={programSceneState.layout}
-                  onLayoutChange={() => {}}
-                  streamColor={streamColor}
-                  textStyle={textStyle}
-                  activeBannerText={null}
-                  activeBanner={banners.find(b => b.id === programSceneState.activeBannerId) || null}
-                  activeTicker={tickers.find(t => t.id === programSceneState.activeTickerId) || null}
-                  pinnedComment={programSceneState.pinnedComment || null}
-                  bannerPosition={programSceneState.bannerPosition || 'bottom'}
-                  participants={participants.map(p => ({
-                    ...p,
-                    isActive: (programSceneState.activeParticipantIds || ['p-local']).includes(p.id),
-                  }))}
-                  onToggleParticipantActive={() => {}}
-                  localStream={localStream}
-                  screenStream={screenStream}
-                  isCamStopped={isCamStopped}
-                  isLive={isLive}
-                  liveTime={liveTime}
-                />
-              </div>
-
-              {/* ── CONTROLES DE CORTE ────────────────────────────────────────
-                  TAKE, SWAP e reverter. Este painel ja existia INTEIRO, com
-                  os tres botoes ligados — e era importado sem nunca ser
-                  renderizado. Os handlers iam para o StudioPreview, que so
-                  desenha o "PUSH TO LIVE". `onRevertToLive` e
-                  `onSwapPreviewAndLive` eram declarados, recebidos e
-                  descartados — o mesmo que acontecia com `onExit`.
-                  Ficam entre PGM e PVW, que e o lugar deles numa mesa. */}
-              <div className="shrink-0 px-1">
-                <StudioScenePreviewControls
-                  isStudioPreviewMode={isStudioPreviewMode}
-                  onToggleStudioPreviewMode={() => setIsStudioPreviewMode(prev => !prev)}
-                  previewViewMode={previewViewMode}
-                  onPreviewViewModeChange={setPreviewViewMode}
-                  hasPendingChanges={hasPendingChanges}
-                  pendingChanges={pendingChanges}
-                  onPushToLive={handlePushToLive}
-                  onRevertToLive={handleRevertToLive}
-                  onSwapPreviewAndLive={handleSwapPreviewAndLive}
-                  isTransitioning={isTransitioning}
-                  transitionType={transitionType}
-                  isLive={isLive}
-                />
-              </div>
-
-              <ScenesPanel
-                participants={participants}
-                onToggleParticipantActive={handleToggleParticipantActive}
-                isMuted={isMuted}
-                isSceneAutomationEnabled={isSceneAutomationEnabled}
-                activeSpeaker={activeSpeaker}
-                onToggleImmersiveMode={() => setIsImmersiveMode(true)}
-                currentSceneId={currentSceneId}
-                onSelectScene={handleSelectScene}
-                sceneTransitions={sceneTransitions}
+        <>
+          <main className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[14rem_minmax(0,1fr)_23rem] lg:overflow-hidden">
+            <aside aria-label="Cenas e transição" className="order-2 border-t border-[var(--line)] bg-[var(--surface)] lg:order-1 lg:overflow-y-auto lg:border-r lg:border-t-0">
+              <TrilhoDeCenas
+                idDoPrograma={programSceneState.sceneId || CENA_INICIAL.id}
+                idDoPreview={currentSceneId}
+                temTela={isScreenSharing}
+                temMudanca={hasPendingChanges}
+                cortando={programaQueSai !== null}
+                onEscolher={handleSelectScene}
+                onCortar={cortar}
               />
-              </div>
-            </div>
-          )}
+            </aside>
 
-          {/* Mobile Overlay Drawer: Scenes/Participants Panel */}
-          {isMobile && isMobileScenesOpen && (
-            <>
-              {/* Backdrop */}
-              <div 
-                onClick={() => setIsMobileScenesOpen(false)}
-                className="absolute inset-0 bg-black/60 z-[98] backdrop-blur-sm transition-all"
-              />
-              <div className="absolute inset-y-0 left-0 w-[280px] z-[99] bg-[var(--surface)] shadow-2xl border-r border-[var(--line)] flex flex-col h-full animate-in slide-in-from-left duration-300">
-                <ScenesPanel
-                  participants={participants}
-                  onToggleParticipantActive={handleToggleParticipantActive}
-                  isMuted={isMuted}
-                  isSceneAutomationEnabled={isSceneAutomationEnabled}
-                  activeSpeaker={activeSpeaker}
-                  onToggleImmersiveMode={() => setIsMobileScenesOpen(false)}
-                  currentSceneId={currentSceneId}
-                  onSelectScene={handleSelectScene}
-                  sceneTransitions={sceneTransitions}
-                />
-              </div>
-            </>
-          )}
-
-          {/* Mobile Overlay Drawer: Settings & Subpanels Right Sidebar */}
-          {isMobile && isMobileSidebarOpen && (
-            <>
-              {/* Backdrop */}
-              <div 
-                onClick={() => setIsMobileSidebarOpen(false)}
-                className="absolute inset-0 bg-black/60 z-[98] backdrop-blur-sm transition-all"
-              />
-              <div className="absolute inset-y-0 right-0 w-[330px] z-[99] bg-[var(--surface)] shadow-2xl border-l border-[var(--line)] flex flex-col h-full animate-in slide-in-from-right duration-300">
-                <div className="flex w-full bg-[var(--surface)] h-full shrink-0">
-                  
-                  {/* LeftSidebar Content container */}
-                  <div className="flex-1 h-full min-h-0 border-r border-[var(--line)]/60 overflow-y-auto">
-                    <LeftSidebar
-                      activeTab={activeTab}
-                      destinations={destinations}
-                      onToggleDestination={handleToggleDestination}
-                      title={title}
-                      setTitle={setTitle}
-                      description={description}
-                      setDescription={setDescription}
-                      isThumbnailEnabled={isThumbnailEnabled}
-                      setIsThumbnailEnabled={setIsThumbnailEnabled}
-                      isScheduleEnabled={isScheduleEnabled}
-                      setIsScheduleEnabled={setIsScheduleEnabled}
-                      banners={banners}
-                      onAddBanner={handleAddBanner}
-                      onUpdateBanner={handleUpdateBanner}
-                      onDeleteBanner={handleDeleteBanner}
-                      activeBannerId={activeBannerId}
-                      onSetActiveBanner={setActiveBannerId}
-                      tickers={tickers}
-                      onAddTicker={handleAddTicker}
-                      onUpdateTicker={handleUpdateTicker}
-                      onDeleteTicker={handleDeleteTicker}
-                      activeTickerId={activeTickerId}
-                      onSetActiveTicker={setActiveTickerId}
-                      tickerSpeed={tickerSpeed}
-                      onSetTickerSpeed={setTickerSpeed}
-                      tickerDirection={tickerDirection}
-                      onSetTickerDirection={setTickerDirection}
-                      bannerPosition={bannerPosition}
-                      onBannerPositionChange={setBannerPosition}
-                      isPresentationOverlayActive={isPresentationOverlayActive}
-                      onTogglePresentationOverlayActive={() => setIsPresentationOverlayActive(prev => !prev)}
-                      teleprompterText={teleprompterText}
-                      onTeleprompterTextChange={setTeleprompterText}
-                      isTeleprompterPlaying={isTeleprompterPlaying}
-                      onToggleTeleprompterPlaying={() => setIsTeleprompterPlaying(prev => !prev)}
-                      teleprompterSpeed={teleprompterSpeed}
-                      onTeleprompterSpeedChange={setTeleprompterSpeed}
-                      teleprompterFontSize={teleprompterFontSize}
-                      onTeleprompterFontSizeChange={setTeleprompterFontSize}
-                      teleprompterMirrored={teleprompterMirrored}
-                      onToggleTeleprompterMirrored={() => setTeleprompterMirrored(prev => !prev)}
-                      showTeleprompterOnStudio={showTeleprompterOnStudio}
-                      onToggleShowTeleprompterOnStudio={() => setShowTeleprompterOnStudio(prev => !prev)}
-                      showWidgetChat={showWidgetChat}
-                      onToggleShowWidgetChat={() => setShowWidgetChat(prev => !prev)}
-                      chatWidgetOpacity={chatWidgetOpacity}
-                      onChatWidgetOpacityChange={setChatWidgetOpacity}
-                      showWidgetLousa={showWidgetLousa}
-                      onToggleShowWidgetLousa={() => setShowWidgetLousa(prev => !prev)}
-                      showWidgetSnapshot={showWidgetSnapshot}
-                      onToggleShowWidgetSnapshot={() => setShowWidgetSnapshot(prev => !prev)}
-                      isFloatingChatOpen={isFloatingChatOpen}
-                      onToggleFloatingChatOpen={() => setIsFloatingChatOpen(prev => !prev)}
-                      isStreamHealthOpen={isStreamHealthOpen}
-                      onToggleStreamHealthOpen={() => setIsStreamHealthOpen(prev => !prev)}
-                      isDrawingMode={isDrawingMode}
-                      onToggleDrawingMode={() => setIsDrawingMode(prev => !prev)}
-                      onTakeSnapshot={() => handleAddSnapshot({ id: Date.now().toString(), name: `Snapshot ${snapshots.length + 1}`, url: '', timestamp: new Date().toLocaleTimeString() })}
-                      isSmartSidebarEnabled={isSmartSidebarEnabled}
-                      setIsSmartSidebarEnabled={setIsSmartSidebarEnabled}
-                      currentPlayingTrackId={currentPlayingTrackId}
-                      onPlayTrack={handlePlayTrack}
-                      volume={volume}
-                      onVolumeChange={setVolume}
-                      musicLoop={musicLoop}
-                      setMusicLoop={setMusicLoop}
-                      streamColor={streamColor}
-                      onStreamColorChange={setStreamColor}
-                      textStyle={textStyle}
-                      setTextStyle={setTextStyle}
-                      comments={comments}
-                      pinnedComment={pinnedComment}
-                      onPinComment={(id) => setPinnedComment(id ? comments.find(c => c.id === id) || null : null)}
-                      onPostComment={handlePostComment}
-                      onBatchAddComments={handleBatchAddComments}
-                      onClearComments={handleClearComments}
-                      currentUserName={user?.name?.split(' ')[0]}
-                      isAiModerationEnabled={isAiModerationEnabled}
-                      onToggleAiModeration={setIsAiModerationEnabled}
-                      aiModerationMode={aiModerationMode}
-                      onChangeAiModerationMode={setAiModerationMode}
-                      onApproveComment={handleApproveComment}
-                      isLive={isLive}
-                      isScreenSharing={isScreenSharing}
-                      onToggleScreenShare={handleToggleScreenShare}
-                      isMuted={isMuted}
-                      onToggleMute={handleToggleMute}
-                      layout={layout}
-                      onLayoutChange={changeLayoutWithTransition}
-                      participants={participants}
-                      onToggleParticipantActive={handleToggleParticipantActive}
-                      transitionType={transitionType}
-                      onTransitionTypeChange={setTransitionType}
-                      showQrCode={showQrCode}
-                      setShowQrCode={setShowQrCode}
-                      qrCodeText={qrCodeText}
-                      setQrCodeText={setQrCodeText}
-                      presenterNotes={presenterNotes}
-                      setPresenterNotes={setPresenterNotes}
-                      cameraZoom={cameraZoom}
-                      onCameraZoomChange={setCameraZoom}
-                      cameraOffsetX={cameraOffsetX}
-                      onCameraOffsetXChange={setCameraOffsetX}
-                      cameraOffsetY={cameraOffsetY}
-                      onCameraOffsetYChange={setCameraOffsetY}
-                      chromaKeyEnabled={chromaKeyEnabled}
-                      onChromaKeyEnabledChange={setChromaKeyEnabled}
-                      chromaColor={chromaColor}
-                      onChromaColorChange={setChromaColor}
-                      chromaTolerance={chromaTolerance}
-                      onChromaToleranceChange={setChromaTolerance}
-                      chromaEdgeSoftness={chromaEdgeSoftness}
-                      onChromaEdgeSoftnessChange={setChromaEdgeSoftness}
-                      chromaSpillSuppression={chromaSpillSuppression}
-                      onChromaSpillSuppressionChange={setChromaSpillSuppression}
-                      transitionDuration={transitionDuration}
-                      onTransitionDurationChange={setTransitionDuration}
-                      sceneTransitions={sceneTransitions}
-                      onUpdateSceneTransition={handleUpdateSceneTransition}
-                      snapshots={snapshots}
-                      onDeleteSnapshot={handleDeleteSnapshot}
-                      mirrorCamera={mirrorCamera}
-                      onMirrorCameraChange={setMirrorCamera}
-                      recordingFormat={recordingFormat}
-                      setRecordingFormat={setRecordingFormat}
-                      recordingQuality={recordingQuality}
-                      setRecordingQuality={setRecordingQuality}
-                      logoAnimation={logoAnimation}
-                      setLogoAnimation={setLogoAnimation}
-                      bannerAnimation={bannerAnimation}
-                      setBannerAnimation={setBannerAnimation}
-                      webinars={webinars}
-                      setWebinars={setWebinars}
-                      rtmpServer={rtmpServer}
-                      setRtmpServer={setRtmpServer}
-                      streamKey={streamKey}
-                      setStreamKey={setStreamKey}
-                      countdownDuration={countdownDuration}
-                      setCountdownDuration={setCountdownDuration}
-                      countdownTimeLeft={countdownTimeLeft}
-                      setCountdownTimeLeft={setCountdownTimeLeft}
-                      isCountdownActive={isCountdownActive}
-                      setIsCountdownActive={setIsCountdownActive}
-                      showCountdownOnScreen={showCountdownOnScreen}
-                      setShowCountdownOnScreen={setShowCountdownOnScreen}
-                      isSceneAutomationEnabled={isSceneAutomationEnabled}
-                      onToggleSceneAutomation={setIsSceneAutomationEnabled}
-                      activeSpeaker={activeSpeaker}
-                      onOpenCloudflareModal={() => setIsCloudflareModalOpen(true)}
-                      onOpenCustomDestinationsModal={() => setIsCustomDestinationsModalOpen(true)}
-                      onOpenAddChannelsModal={() => setIsAddChannelsModalOpen(true)}
-                      userId={user?.uid}
-                    />
-                  </div>
-
-                  {/* Vertical Tabs Bar on the far right of the overlay */}
-                  <div className="w-[60px] bg-[var(--bg)] flex flex-col items-center py-4 border-l border-[var(--line)]/60 gap-2 h-full shrink-0 justify-between">
-                    <div className="flex flex-col gap-2 items-center w-full overflow-y-auto flex-1 no-scrollbar">
-                      {/* Smart Sidebar Toggle */}
-                      <button
-                        onClick={() => setIsSmartSidebarEnabled(!isSmartSidebarEnabled)}
-                        className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 border relative ${
-                          isSmartSidebarEnabled 
-                            ? 'bg-[var(--color-brand-deep)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
-                            : 'bg-[var(--surface)]/40 border-[var(--line)] text-[var(--ink-dim)] hover:text-[var(--ink)]'
-                        }`}
-                        title="Smart Sidebar: Durante a Live, recolhe abas inativas mantendo o foco no Chat para economizar processamento e espaço visual."
-                      >
-                        <Sparkles size={14} className={`transition-transform group-hover:scale-105 ${isLive && isSmartSidebarEnabled ? 'animate-pulse text-amber-400' : ''}`} />
-                        <span className="text-[6px] font-black uppercase tracking-wider">{isLive && isSmartSidebarEnabled ? 'SMART ON' : 'SMART'}</span>
-                        {isLive && isSmartSidebarEnabled && (
-                          <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                          </span>
-                        )}
-                      </button>
-
-                      {/* Divider */}
-                      <div className="w-6 h-[1px] bg-[var(--panel)]/80 my-1" />
-
-                      {([
-                        { id: 'seven', label: 'Chat', icon: MessageSquare, desc: 'Chat' },
-                        { id: 'widgets', label: 'Widgets', icon: LayoutGrid, desc: 'Widgets e ferramentas do estúdio' },
-                        { id: 'schedule', label: 'Schedule', icon: Calendar, desc: 'Agenda' },
-                        { id: 'design', label: 'Design', icon: Palette, desc: 'Logos, banners e tickers' },
-                        { id: 'theme', label: 'Styles', icon: Sliders, desc: 'Cores' },
-                        { id: 'third', label: 'Prompter', icon: FileText, desc: 'Teleprompter do apresentador' },
-                        { id: 'video', label: 'Video', icon: Film, desc: 'Vídeos' },
-                        { id: 'audience', label: 'Audience', icon: Users, desc: 'Usuários' },
-                        { id: 'settings', label: 'Settings', icon: Settings, desc: 'Ajustes' },
-                        { id: 'apps', label: 'Apps', icon: Puzzle, desc: 'Apps' },
-                      ] as const).filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
-                        const isActive = activeTab === tab.id;
-                        const IconComponent = tab.icon;
-                        return (
-                          <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 ${
-                              isActive 
-                                ? 'bg-[var(--color-brand-deep)] text-white shadow-lg ring-1 ring-blue-400/20' 
-                                : 'text-[var(--ink-lo)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)]'
-                            }`}
-                            title={`${tab.label}: ${tab.desc}`}
-                          >
-                            <IconComponent size={14} className="transition-transform group-hover:scale-105" />
-                            <span className="text-[7px] font-bold uppercase tracking-wide truncate max-w-full px-0.5">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Close overlay button */}
-                    <div className="pt-2 border-t border-[var(--line)]/60 w-full flex justify-center shrink-0">
-                      <button
-                        onClick={() => setIsMobileSidebarOpen(false)}
-                        className="w-11 h-11 md:w-10 md:h-10 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all group shrink-0 text-[var(--ink-dim)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)] cursor-pointer"
-                        title="Fechar Painel"
-                      >
-                        <X size={14} />
-                        <span className="text-[7px] font-bold uppercase tracking-wide">Fechar</span>
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </>
-          )}
-
-          
-          {/* LEFT: Main Video Preview Area and bottom control tray */}
-          <div 
-            style={{ gridArea: 'preview' }}
-            className="flex flex-col justify-between p-2 md:p-3 overflow-hidden h-full min-h-0 w-full"
-          >
-            {/* Mobile Drawer Toggles (only on mobile) */}
-            {isMobile && (
-              <div className="flex items-center justify-between gap-2 mb-2 px-1 shrink-0">
-                <button
-                  onClick={() => {
-                    setIsMobileScenesOpen(!isMobileScenesOpen);
-                    setIsMobileSidebarOpen(false); // close other drawer
-                  }}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all border shadow-lg cursor-pointer touch-action-btn ${
-                    isMobileScenesOpen
-                      ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-[var(--surface)] text-[var(--ink)] border-[var(--line)] hover:text-[var(--ink-hi)]'
-                  }`}
-                >
-                  <Users size={16} className={isMobileScenesOpen ? 'text-[var(--ink-hi)]' : 'text-blue-400'} />
-                  <span>Participantes ({participants.length})</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setIsMobileSidebarOpen(!isMobileSidebarOpen);
-                    setIsMobileScenesOpen(false); // close other drawer
-                  }}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-bold transition-all border shadow-lg cursor-pointer touch-action-btn ${
-                    isMobileSidebarOpen
-                      ? 'bg-blue-600 text-white border-blue-500'
-                      : 'bg-[var(--surface)] text-[var(--ink)] border-[var(--line)] hover:text-[var(--ink-hi)]'
-                  }`}
-                >
-                  <Sliders size={16} className={isMobileSidebarOpen ? 'text-[var(--ink-hi)]' : 'text-emerald-400'} />
-                  <span>Painel & Ferramentas</span>
-                </button>
-              </div>
-            )}
-
-            {/* Top stream row */}
-            <div className="flex-1 min-h-0 w-full flex flex-col overflow-hidden">
-              <StudioPreview
-                layout={layout}
-                onLayoutChange={changeLayoutWithTransition}
-                streamColor={streamColor}
-                textStyle={textStyle}
-                activeBannerText={null}
-                activeBanner={activeBanner}
-                activeTicker={activeTicker}
-                tickerSpeed={tickerSpeed}
-                tickerDirection={tickerDirection}
-                onSetActiveTicker={setActiveTickerId}
-                pinnedComment={pinnedComment}
-                participants={participants}
-                onToggleParticipantActive={handleToggleParticipantActive}
-                localStream={localStream}
-                screenStream={screenStream}
-                isCamStopped={isCamStopped}
-                isLive={isLive}
-                liveTime={liveTime}
-                showQrCode={showQrCode}
-                qrCodeText={qrCodeText}
-                qrCodeConfig={qrCodeConfig}
-                onToggleShowQrCode={setShowQrCode}
-                onOpenQrCodeModal={() => setIsQrCodeModalOpen(true)}
-                teleprompterText={teleprompterText}
-                isTeleprompterPlaying={isTeleprompterPlaying}
-                onToggleTeleprompterPlaying={() => setIsTeleprompterPlaying(prev => !prev)}
-                teleprompterSpeed={teleprompterSpeed}
-                onTeleprompterSpeedChange={setTeleprompterSpeed}
-                teleprompterFontSize={teleprompterFontSize}
-                teleprompterMirrored={teleprompterMirrored}
-                showTeleprompterOnStudio={showTeleprompterOnStudio}
-                onToggleShowTeleprompterOnStudio={() => setShowTeleprompterOnStudio(prev => !prev)}
-                transitionType={transitionType}
-                isTransitioning={isTransitioning}
-                transitionStage={transitionStage}
-                transitionColor={transitionColor}
-                onTransitionColorChange={setTransitionColor}
-                isMuted={isMuted}
-                cameraZoom={cameraZoom}
-                cameraOffsetX={cameraOffsetX}
-                cameraOffsetY={cameraOffsetY}
-                chromaKeyEnabled={chromaKeyEnabled}
-                chromaColor={chromaColor}
-                chromaTolerance={chromaTolerance}
-                selectedSharedSource={selectedSharedSource}
-                isPresentationOverlayActive={isPresentationOverlayActive}
-                onTogglePresentationOverlayActive={() => setIsPresentationOverlayActive(true)}
-                onPresentationOverlayActiveToggle={() => setIsPresentationOverlayActive(prev => !prev)}
-                transitionDuration={transitionDuration}
-                onAddSnapshot={handleAddSnapshot}
-                mirrorCamera={mirrorCamera}
-                logoAnimation={logoAnimation}
-                bannerAnimation={bannerAnimation}
-                activeSlide={activeSlide}
-                onTransitionTypeChange={setTransitionType}
-                onTransitionDurationChange={setTransitionDuration}
-                countdownTimeLeft={countdownTimeLeft}
-                isCountdownActive={isCountdownActive}
-                showCountdownOnScreen={showCountdownOnScreen}
-                isPlaylistActive={isPlaylistActive}
-                onVideoClipEnded={handleVideoClipEnded}
-                chromaEdgeSoftness={chromaEdgeSoftness}
-                chromaSpillSuppression={chromaSpillSuppression}
-                isSceneAutomationEnabled={isSceneAutomationEnabled}
-                activeSpeaker={activeSpeaker}
-                comments={comments}
-                onPinComment={(id) => setPinnedComment(id ? comments.find(c => c.id === id) || null : null)}
-                bannerPosition={bannerPosition}
-                onBannerPositionChange={setBannerPosition}
-                showWidgetChat={showWidgetChat}
-                onToggleShowWidgetChat={() => setShowWidgetChat(prev => !prev)}
-                chatWidgetOpacity={chatWidgetOpacity}
-                showWidgetLousa={showWidgetLousa}
-                onToggleShowWidgetLousa={() => setShowWidgetLousa(prev => !prev)}
-                showWidgetSnapshot={showWidgetSnapshot}
-                onToggleShowWidgetSnapshot={() => setShowWidgetSnapshot(prev => !prev)}
-                isFloatingChatOpen={isFloatingChatOpen}
-                onToggleFloatingChatOpen={() => setIsFloatingChatOpen(prev => !prev)}
-                isStreamHealthOpen={isStreamHealthOpen}
-                onToggleStreamHealthOpen={() => setIsStreamHealthOpen(prev => !prev)}
-                isDrawingMode={isDrawingMode}
-                onToggleDrawingMode={() => setIsDrawingMode(prev => !prev)}
-                isStudioPreviewMode={isStudioPreviewMode}
-                onToggleStudioPreviewMode={() => setIsStudioPreviewMode(prev => !prev)}
-                previewViewMode={previewViewMode}
-                onPreviewViewModeChange={setPreviewViewMode}
-                hasPendingChanges={hasPendingChanges}
-                pendingChanges={pendingChanges}
-                onPushToLive={handlePushToLive}
-                onRevertToLive={handleRevertToLive}
-                onSwapPreviewAndLive={handleSwapPreviewAndLive}
-                programSceneState={programSceneState}
-                allBanners={banners}
-                allTickers={tickers}
-              />
-            </div>
-
-            {/* Bottom Console actions panel */}
-            <div className="mt-3">
-              <ControlTray
-                isMuted={isMuted}
-                onToggleMute={handleToggleMute}
-                isCamStopped={isCamStopped}
-                onToggleCam={handleToggleCam}
-                isScreenSharing={isScreenSharing}
-                onToggleScreenShare={handleToggleScreenShare}
-                onInviteOpen={() => setIsInviteOpen(true)}
-                isLive={isLive}
-                onToggleLive={handleToggleLive}
-                onExit={() => setCurrentView('dashboard')}
-                onSelectDevice={handleSelectDevice}
-                isTrialExpired={isTrialExpired}
-                onRequirePlan={handleRequirePlan}
-                isRecording={isRecording}
-                onToggleRecording={handleToggleRecording}
-                recordingTime={recordingTime}
-              />
-            </div>
-          </div>
-
-          {/* RIGHT SIDE: Subpanels & Vertical Tabs - Desktop Only */}
-          {!isMobile && (
-            <div 
-              style={{ 
-                gridArea: 'sidebar',
-                width: isImmersiveMode ? 0 : sidebarWidth,
-                transition: (isResizingScenes || isResizingSidebar) ? 'none' : 'width 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms'
-              }}
-              className={`flex shrink-0 overflow-hidden h-full ${isImmersiveMode ? 'opacity-0 pointer-events-none border-l-0' : 'border-l border-[var(--line)]'}`}
-            >
-              <div 
-                style={{ width: sidebarWidth }}
-                className="flex bg-[var(--surface)] h-full shrink-0"
-              >
-                
-                {/* 1. Subpanel container (takes full width of sidebar, minus tab bar width) */}
-                <div className="flex-1 h-full min-h-0 border-r border-[var(--line)]/60 overflow-y-auto">
-                  <LeftSidebar
-                    activeTab={activeTab}
-                    destinations={destinations}
-                    onToggleDestination={handleToggleDestination}
-                    title={title}
-                    setTitle={setTitle}
-                    description={description}
-                    setDescription={setDescription}
-                    isThumbnailEnabled={isThumbnailEnabled}
-                    setIsThumbnailEnabled={setIsThumbnailEnabled}
-                    isScheduleEnabled={isScheduleEnabled}
-                    setIsScheduleEnabled={setIsScheduleEnabled}
-                    banners={banners}
-                    onAddBanner={handleAddBanner}
-                    onUpdateBanner={handleUpdateBanner}
-                    onDeleteBanner={handleDeleteBanner}
-                    activeBannerId={activeBannerId}
-                    onSetActiveBanner={setActiveBannerId}
-                    tickers={tickers}
-                    onAddTicker={handleAddTicker}
-                    onUpdateTicker={handleUpdateTicker}
-                    onDeleteTicker={handleDeleteTicker}
-                    activeTickerId={activeTickerId}
-                    onSetActiveTicker={setActiveTickerId}
+            <div className="order-1 min-w-0 p-3 sm:p-4 lg:order-2 lg:min-h-0">
+              <MesaDeMonitores
+                cenaDoPrograma={cenaPeloId(programSceneState.sceneId)?.nome ?? ''}
+                cenaDoPreview={cenaPeloId(currentSceneId)?.nome ?? ''}
+                programa={
+                  <>
+                    {palcoDoPrograma(programSceneState)}
+                    {programaQueSai && (
+                      <div aria-hidden="true" className="pointer-events-none absolute inset-0 animate-[fusao-sai_400ms_ease-out_forwards]">
+                        {palcoDoPrograma(programaQueSai)}
+                      </div>
+                    )}
+                  </>
+                }
+                preview={
+                    <StudioPreview
+                    papel="preview"
+                    cardDaCamera={cardDaCamera}
+                    onCardDaCamera={setCardDaCamera}
+                    mostrarGuias={mostrarGuias}
+                    semBarraDeLayouts
+                    layout={layout}
+                    onLayoutChange={changeLayoutWithTransition}
+                    streamColor={streamColor}
+                    textStyle={textStyle}
+                    activeBannerText={null}
+                    activeBanner={activeBanner}
+                    activeTicker={activeTicker}
                     tickerSpeed={tickerSpeed}
-                    onSetTickerSpeed={setTickerSpeed}
                     tickerDirection={tickerDirection}
-                    onSetTickerDirection={setTickerDirection}
-                    bannerPosition={bannerPosition}
-                    onBannerPositionChange={setBannerPosition}
-                    isPresentationOverlayActive={isPresentationOverlayActive}
-                    onTogglePresentationOverlayActive={() => setIsPresentationOverlayActive(prev => !prev)}
+                    onSetActiveTicker={setActiveTickerId}
+                    pinnedComment={pinnedComment}
+                    participants={participants}
+                    onToggleParticipantActive={handleToggleParticipantActive}
+                    localStream={localStream}
+                    screenStream={screenStream}
+                    isCamStopped={isCamStopped}
+                    isLive={false}
+                    liveTime={0}
+                    showQrCode={showQrCode}
+                    qrCodeText={qrCodeText}
+                    qrCodeConfig={qrCodeConfig}
+                    onToggleShowQrCode={setShowQrCode}
+                    onOpenQrCodeModal={() => setIsQrCodeModalOpen(true)}
                     teleprompterText={teleprompterText}
-                    onTeleprompterTextChange={setTeleprompterText}
                     isTeleprompterPlaying={isTeleprompterPlaying}
                     onToggleTeleprompterPlaying={() => setIsTeleprompterPlaying(prev => !prev)}
                     teleprompterSpeed={teleprompterSpeed}
                     onTeleprompterSpeedChange={setTeleprompterSpeed}
                     teleprompterFontSize={teleprompterFontSize}
-                    onTeleprompterFontSizeChange={setTeleprompterFontSize}
                     teleprompterMirrored={teleprompterMirrored}
-                    onToggleTeleprompterMirrored={() => setTeleprompterMirrored(prev => !prev)}
                     showTeleprompterOnStudio={showTeleprompterOnStudio}
                     onToggleShowTeleprompterOnStudio={() => setShowTeleprompterOnStudio(prev => !prev)}
-                    currentPlayingTrackId={currentPlayingTrackId}
-                    onPlayTrack={handlePlayTrack}
-                    volume={volume}
-                    onVolumeChange={setVolume}
-                    musicLoop={musicLoop}
-                    setMusicLoop={setMusicLoop}
-                    streamColor={streamColor}
-                    onStreamColorChange={setStreamColor}
-                    textStyle={textStyle}
-                    setTextStyle={setTextStyle}
-                    comments={comments}
-                    pinnedComment={pinnedComment}
-                    onPinComment={(id) => setPinnedComment(id ? comments.find(c => c.id === id) || null : null)}
-                    onPostComment={handlePostComment}
-                    onBatchAddComments={handleBatchAddComments}
-                    onClearComments={handleClearComments}
-                    currentUserName={user?.name?.split(' ')[0]}
-                    isAiModerationEnabled={isAiModerationEnabled}
-                    onToggleAiModeration={setIsAiModerationEnabled}
-                    aiModerationMode={aiModerationMode}
-                    onChangeAiModerationMode={setAiModerationMode}
-                    onApproveComment={handleApproveComment}
-                    isLive={isLive}
-                    isScreenSharing={isScreenSharing}
-                    onToggleScreenShare={handleToggleScreenShare}
-                    isMuted={isMuted}
-                    onToggleMute={handleToggleMute}
-                    layout={layout}
-                    onLayoutChange={changeLayoutWithTransition}
-                    participants={participants}
-                    onToggleParticipantActive={handleToggleParticipantActive}
                     transitionType={transitionType}
-                    onTransitionTypeChange={setTransitionType}
-                    showQrCode={showQrCode}
-                    setShowQrCode={setShowQrCode}
-                    qrCodeText={qrCodeText}
-                    setQrCodeText={setQrCodeText}
-                    qrCodeConfig={qrCodeConfig}
-                    onUpdateQrCodeConfig={(cfg) => {
-                      setQrCodeConfig(cfg);
-                      localStorage.setItem('pw_qrcode_config', JSON.stringify(cfg));
-                      if (cfg.storeUrl) setQrCodeText(cfg.storeUrl);
-                    }}
-                    onOpenQrCodeModal={() => setIsQrCodeModalOpen(true)}
-                    presenterNotes={presenterNotes}
-                    setPresenterNotes={setPresenterNotes}
+                    isTransitioning={isTransitioning}
+                    transitionStage={transitionStage}
+                    transitionColor={transitionColor}
+                    onTransitionColorChange={setTransitionColor}
+                    isMuted={isMuted}
                     cameraZoom={cameraZoom}
-                    onCameraZoomChange={setCameraZoom}
                     cameraOffsetX={cameraOffsetX}
-                    onCameraOffsetXChange={setCameraOffsetX}
                     cameraOffsetY={cameraOffsetY}
-                    onCameraOffsetYChange={setCameraOffsetY}
                     chromaKeyEnabled={chromaKeyEnabled}
-                    onChromaKeyEnabledChange={setChromaKeyEnabled}
                     chromaColor={chromaColor}
-                    onChromaColorChange={setChromaColor}
                     chromaTolerance={chromaTolerance}
-                    onChromaToleranceChange={setChromaTolerance}
-                    chromaEdgeSoftness={chromaEdgeSoftness}
-                    onChromaEdgeSoftnessChange={setChromaEdgeSoftness}
-                    chromaSpillSuppression={chromaSpillSuppression}
-                    onChromaSpillSuppressionChange={setChromaSpillSuppression}
+                    selectedSharedSource={selectedSharedSource}
+                    isPresentationOverlayActive={isPresentationOverlayActive}
+                    onTogglePresentationOverlayActive={() => setIsPresentationOverlayActive(true)}
+                    onPresentationOverlayActiveToggle={() => setIsPresentationOverlayActive(prev => !prev)}
                     transitionDuration={transitionDuration}
-                    onTransitionDurationChange={setTransitionDuration}
-                    sceneTransitions={sceneTransitions}
-                    onUpdateSceneTransition={handleUpdateSceneTransition}
-                    snapshots={snapshots}
-                    onDeleteSnapshot={handleDeleteSnapshot}
+                    onAddSnapshot={handleAddSnapshot}
                     mirrorCamera={mirrorCamera}
-                    onMirrorCameraChange={setMirrorCamera}
-                    recordingFormat={recordingFormat}
-                    setRecordingFormat={setRecordingFormat}
-                    recordingQuality={recordingQuality}
-                    setRecordingQuality={setRecordingQuality}
                     logoAnimation={logoAnimation}
-                    setLogoAnimation={setLogoAnimation}
                     bannerAnimation={bannerAnimation}
-                    setBannerAnimation={setBannerAnimation}
-                    webinars={webinars}
-                    setWebinars={setWebinars}
-                    rtmpServer={rtmpServer}
-                    setRtmpServer={setRtmpServer}
-                    streamKey={streamKey}
-                    setStreamKey={setStreamKey}
-                    countdownDuration={countdownDuration}
-                    setCountdownDuration={setCountdownDuration}
+                    activeSlide={activeSlide}
+                    onTransitionTypeChange={setTransitionType}
+                    onTransitionDurationChange={setTransitionDuration}
                     countdownTimeLeft={countdownTimeLeft}
-                    setCountdownTimeLeft={setCountdownTimeLeft}
                     isCountdownActive={isCountdownActive}
-                    setIsCountdownActive={setIsCountdownActive}
                     showCountdownOnScreen={showCountdownOnScreen}
-                    setShowCountdownOnScreen={setShowCountdownOnScreen}
+                    isPlaylistActive={isPlaylistActive}
+                    onVideoClipEnded={handleVideoClipEnded}
+                    chromaEdgeSoftness={chromaEdgeSoftness}
+                    chromaSpillSuppression={chromaSpillSuppression}
                     isSceneAutomationEnabled={isSceneAutomationEnabled}
-                    onToggleSceneAutomation={setIsSceneAutomationEnabled}
                     activeSpeaker={activeSpeaker}
+                    comments={comments}
+                    onPinComment={(id) => setPinnedComment(id ? comments.find(c => c.id === id) || null : null)}
+                    bannerPosition={bannerPosition}
+                    onBannerPositionChange={setBannerPosition}
                     showWidgetChat={showWidgetChat}
                     onToggleShowWidgetChat={() => setShowWidgetChat(prev => !prev)}
                     chatWidgetOpacity={chatWidgetOpacity}
-                    onChatWidgetOpacityChange={setChatWidgetOpacity}
                     showWidgetLousa={showWidgetLousa}
                     onToggleShowWidgetLousa={() => setShowWidgetLousa(prev => !prev)}
                     showWidgetSnapshot={showWidgetSnapshot}
@@ -2793,138 +1851,207 @@ export default function App() {
                     onToggleStreamHealthOpen={() => setIsStreamHealthOpen(prev => !prev)}
                     isDrawingMode={isDrawingMode}
                     onToggleDrawingMode={() => setIsDrawingMode(prev => !prev)}
-                    onTakeSnapshot={() => handleAddSnapshot({ id: Date.now().toString(), name: `Snapshot ${snapshots.length + 1}`, url: '', timestamp: new Date().toLocaleTimeString() })}
-                    isSmartSidebarEnabled={isSmartSidebarEnabled}
-                    setIsSmartSidebarEnabled={setIsSmartSidebarEnabled}
-                    onOpenCloudflareModal={() => setIsCloudflareModalOpen(true)}
-                    onOpenCustomDestinationsModal={() => setIsCustomDestinationsModalOpen(true)}
-                    onOpenAddChannelsModal={() => setIsAddChannelsModalOpen(true)}
-                    userId={user?.uid}
-                  />
-                </div>
-
-                {/* 2. Vertical Tabs Bar on the far right (styled like Restream vertical menu) */}
-                <div className="w-[75px] bg-[var(--bg)] flex flex-col items-center py-4 border-l border-[var(--line)]/60 gap-2.5 h-full shrink-0 justify-between">
-                  <div className="flex flex-col gap-2.5 items-center w-full overflow-y-auto flex-1 no-scrollbar">
-                    {/* Smart Sidebar Toggle */}
-                    <button
-                      onClick={() => setIsSmartSidebarEnabled(!isSmartSidebarEnabled)}
-                      className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 border relative cursor-pointer ${
-                        isSmartSidebarEnabled 
-                          ? 'bg-[var(--color-brand-deep)]/15 border-[var(--color-brand)]/35 text-[var(--color-brand)]' 
-                          : 'bg-[var(--surface)]/40 border-[var(--line)] text-[var(--ink-dim)] hover:text-[var(--ink)]'
-                      }`}
-                      title="Smart Sidebar: Durante a Live, recolhe abas inativas mantendo o foco no Chat para economizar processamento e espaço visual."
-                    >
-                      <Sparkles size={16} className={`transition-transform group-hover:scale-105 ${isLive && isSmartSidebarEnabled ? 'animate-pulse text-amber-400' : ''}`} />
-                      <span className="text-[7px] font-black uppercase tracking-wider">{isLive && isSmartSidebarEnabled ? 'SMART ON' : 'SMART'}</span>
-                      {isLive && isSmartSidebarEnabled && (
-                        <span className="absolute top-0.5 right-0.5 flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                        </span>
-                      )}
-                    </button>
-
-                    {/* Divider */}
-                    <div className="w-8 h-[1px] bg-[var(--panel)]/80 my-1" />
-
-                    {([
-                      { id: 'seven', label: 'Chat', icon: MessageSquare, desc: 'Chat unificado do webinar' },
-                      { id: 'widgets', label: 'Widgets', icon: LayoutGrid, desc: 'Widgets e ferramentas do estúdio' },
-                      { id: 'schedule', label: 'Schedule', icon: Calendar, desc: 'Agendar e gerenciar webinars' },
-                      { id: 'design', label: 'Design', icon: Palette, desc: 'Logos, banners, tickers e overlays' },
-                      { id: 'theme', label: 'Temas', icon: Sliders, desc: 'Tema Claro/Escuro do estúdio, cores da marca e tipografia' },
-                      { id: 'third', label: 'Prompter', icon: FileText, desc: 'Teleprompter do apresentador' },
-                      { id: 'video', label: 'Video', icon: Film, desc: 'Videoclipes e fundo virtual' },
-                      { id: 'audience', label: 'Audience', icon: Users, desc: 'Base de Usuários e CRM do Estúdio' },
-                      { id: 'settings', label: 'Settings', icon: Settings, desc: 'Configurações de transmissão e palco' },
-                      { id: 'apps', label: 'Apps', icon: Puzzle, desc: 'Integrações, QR Code e Notas' },
-                    ] as const).filter(tab => !(isLive && isSmartSidebarEnabled) || tab.id === 'seven').map(tab => {
-                      const isActive = activeTab === tab.id;
-                      const IconComponent = tab.icon;
-                      return (
-                        <button
-                          key={tab.id}
-                          onClick={() => setActiveTab(tab.id)}
-                          className={`w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 cursor-pointer ${
-                            isActive 
-                              ? 'bg-[var(--color-brand-deep)] text-white shadow-lg ring-1 ring-blue-400/20' 
-                              : 'text-[var(--ink-lo)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)]'
-                          }`}
-                          title={`${tab.label}: ${tab.desc}`}
-                        >
-                          <IconComponent size={16} className="transition-transform group-hover:scale-105" />
-                          <span className="text-[8px] font-bold uppercase tracking-wide truncate max-w-full px-0.5">{tab.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Fixed bottom collapse button */}
-                  <div className="pt-2 border-t border-[var(--line)]/60 w-full flex justify-center shrink-0">
-                    <button
-                      onClick={() => setIsImmersiveMode(true)}
-                      className="w-13 h-13 rounded-xl flex flex-col items-center justify-center gap-1 transition-all group shrink-0 text-[var(--ink-dim)] hover:bg-[var(--surface)] hover:text-[var(--ink-hi)] cursor-pointer"
-                      title="Recuar Painel Lateral"
-                    >
-                      <ChevronRight size={18} className="transition-transform group-hover:translate-x-0.5" />
-                      <span className="text-[8px] font-bold uppercase tracking-wide">Recuar</span>
-                    </button>
-                  </div>
-                </div>
-
-              </div>
+                    isStudioPreviewMode
+                    onToggleStudioPreviewMode={() => {}}
+                    previewViewMode="split"
+                    onPreviewViewModeChange={() => {}}
+                    hasPendingChanges={hasPendingChanges}
+                    pendingChanges={pendingChanges}
+                    onPushToLive={() => cortar('corte')}
+                    onRevertToLive={() => {}}
+                    onSwapPreviewAndLive={() => {}}
+                    programSceneState={programSceneState}
+                    allBanners={banners}
+                    allTickers={tickers}
+                    />
+                }
+                proximoCorte={<ProximoCorte mudancas={pendingChanges} />}
+                transicaoNoCelular={
+                  <BotoesDeTransicao temMudanca={hasPendingChanges} cortando={programaQueSai !== null} onCortar={cortar} />
+                }
+              />
             </div>
-          )}
 
-          {/* Invitation popup dialog */}
-          <InviteModal
-            isOpen={isInviteOpen}
-            onClose={() => setIsInviteOpen(false)}
-            inviteUrl={`https://stream.pwstreamer.com/guest-studio?id=5427`}
+            <aside aria-label="Chat e ferramentas" className="order-3 h-[36rem] border-t border-[var(--line)] bg-[var(--surface)] lg:h-auto lg:min-h-0 lg:border-l lg:border-t-0">
+              <PainelDoEstudio ativa={ferramenta} onEscolher={setFerramenta}>
+                <LeftSidebar
+                activeTab={ferramenta}
+                destinations={destinations}
+                onToggleDestination={handleToggleDestination}
+                title={title}
+                setTitle={setTitle}
+                description={description}
+                setDescription={setDescription}
+                isThumbnailEnabled={isThumbnailEnabled}
+                setIsThumbnailEnabled={setIsThumbnailEnabled}
+                isScheduleEnabled={isScheduleEnabled}
+                setIsScheduleEnabled={setIsScheduleEnabled}
+                banners={banners}
+                onAddBanner={handleAddBanner}
+                onUpdateBanner={handleUpdateBanner}
+                onDeleteBanner={handleDeleteBanner}
+                activeBannerId={activeBannerId}
+                onSetActiveBanner={setActiveBannerId}
+                tickers={tickers}
+                onAddTicker={handleAddTicker}
+                onUpdateTicker={handleUpdateTicker}
+                onDeleteTicker={handleDeleteTicker}
+                activeTickerId={activeTickerId}
+                onSetActiveTicker={setActiveTickerId}
+                tickerSpeed={tickerSpeed}
+                onSetTickerSpeed={setTickerSpeed}
+                tickerDirection={tickerDirection}
+                onSetTickerDirection={setTickerDirection}
+                bannerPosition={bannerPosition}
+                onBannerPositionChange={setBannerPosition}
+                isPresentationOverlayActive={isPresentationOverlayActive}
+                onTogglePresentationOverlayActive={() => setIsPresentationOverlayActive(prev => !prev)}
+                teleprompterText={teleprompterText}
+                onTeleprompterTextChange={setTeleprompterText}
+                isTeleprompterPlaying={isTeleprompterPlaying}
+                onToggleTeleprompterPlaying={() => setIsTeleprompterPlaying(prev => !prev)}
+                teleprompterSpeed={teleprompterSpeed}
+                onTeleprompterSpeedChange={setTeleprompterSpeed}
+                teleprompterFontSize={teleprompterFontSize}
+                onTeleprompterFontSizeChange={setTeleprompterFontSize}
+                teleprompterMirrored={teleprompterMirrored}
+                onToggleTeleprompterMirrored={() => setTeleprompterMirrored(prev => !prev)}
+                showTeleprompterOnStudio={showTeleprompterOnStudio}
+                onToggleShowTeleprompterOnStudio={() => setShowTeleprompterOnStudio(prev => !prev)}
+                currentPlayingTrackId={currentPlayingTrackId}
+                onPlayTrack={handlePlayTrack}
+                volume={volume}
+                onVolumeChange={setVolume}
+                musicLoop={musicLoop}
+                setMusicLoop={setMusicLoop}
+                streamColor={streamColor}
+                onStreamColorChange={setStreamColor}
+                textStyle={textStyle}
+                setTextStyle={setTextStyle}
+                comments={comments}
+                pinnedComment={pinnedComment}
+                onPinComment={(id) => setPinnedComment(id ? comments.find(c => c.id === id) || null : null)}
+                onPostComment={handlePostComment}
+                onBatchAddComments={handleBatchAddComments}
+                onClearComments={handleClearComments}
+                currentUserName={user?.name?.split(' ')[0]}
+                isAiModerationEnabled={isAiModerationEnabled}
+                onToggleAiModeration={setIsAiModerationEnabled}
+                aiModerationMode={aiModerationMode}
+                onChangeAiModerationMode={setAiModerationMode}
+                onApproveComment={handleApproveComment}
+                isLive={false}
+                isScreenSharing={isScreenSharing}
+                onToggleScreenShare={handleToggleScreenShare}
+                isMuted={isMuted}
+                onToggleMute={handleToggleMute}
+                layout={layout}
+                onLayoutChange={changeLayoutWithTransition}
+                participants={participants}
+                onToggleParticipantActive={handleToggleParticipantActive}
+                transitionType={transitionType}
+                onTransitionTypeChange={setTransitionType}
+                showQrCode={showQrCode}
+                setShowQrCode={setShowQrCode}
+                qrCodeText={qrCodeText}
+                setQrCodeText={setQrCodeText}
+                qrCodeConfig={qrCodeConfig}
+                onUpdateQrCodeConfig={(cfg) => {
+                setQrCodeConfig(cfg);
+                localStorage.setItem('pw_qrcode_config', JSON.stringify(cfg));
+                if (cfg.storeUrl) setQrCodeText(cfg.storeUrl);
+                }}
+                onOpenQrCodeModal={() => setIsQrCodeModalOpen(true)}
+                presenterNotes={presenterNotes}
+                setPresenterNotes={setPresenterNotes}
+                cameraZoom={cameraZoom}
+                onCameraZoomChange={setCameraZoom}
+                cameraOffsetX={cameraOffsetX}
+                onCameraOffsetXChange={setCameraOffsetX}
+                cameraOffsetY={cameraOffsetY}
+                onCameraOffsetYChange={setCameraOffsetY}
+                chromaKeyEnabled={chromaKeyEnabled}
+                onChromaKeyEnabledChange={setChromaKeyEnabled}
+                chromaColor={chromaColor}
+                onChromaColorChange={setChromaColor}
+                chromaTolerance={chromaTolerance}
+                onChromaToleranceChange={setChromaTolerance}
+                chromaEdgeSoftness={chromaEdgeSoftness}
+                onChromaEdgeSoftnessChange={setChromaEdgeSoftness}
+                chromaSpillSuppression={chromaSpillSuppression}
+                onChromaSpillSuppressionChange={setChromaSpillSuppression}
+                transitionDuration={transitionDuration}
+                onTransitionDurationChange={setTransitionDuration}
+                sceneTransitions={sceneTransitions}
+                onUpdateSceneTransition={handleUpdateSceneTransition}
+                snapshots={snapshots}
+                onDeleteSnapshot={handleDeleteSnapshot}
+                mirrorCamera={mirrorCamera}
+                onMirrorCameraChange={setMirrorCamera}
+                recordingFormat={recordingFormat}
+                setRecordingFormat={setRecordingFormat}
+                recordingQuality={recordingQuality}
+                setRecordingQuality={setRecordingQuality}
+                logoAnimation={logoAnimation}
+                setLogoAnimation={setLogoAnimation}
+                bannerAnimation={bannerAnimation}
+                setBannerAnimation={setBannerAnimation}
+                webinars={webinars}
+                setWebinars={setWebinars}
+                rtmpServer={rtmpServer}
+                setRtmpServer={setRtmpServer}
+                streamKey={streamKey}
+                setStreamKey={setStreamKey}
+                countdownDuration={countdownDuration}
+                setCountdownDuration={setCountdownDuration}
+                countdownTimeLeft={countdownTimeLeft}
+                setCountdownTimeLeft={setCountdownTimeLeft}
+                isCountdownActive={isCountdownActive}
+                setIsCountdownActive={setIsCountdownActive}
+                showCountdownOnScreen={showCountdownOnScreen}
+                setShowCountdownOnScreen={setShowCountdownOnScreen}
+                isSceneAutomationEnabled={isSceneAutomationEnabled}
+                onToggleSceneAutomation={setIsSceneAutomationEnabled}
+                activeSpeaker={activeSpeaker}
+                showWidgetChat={showWidgetChat}
+                onToggleShowWidgetChat={() => setShowWidgetChat(prev => !prev)}
+                chatWidgetOpacity={chatWidgetOpacity}
+                onChatWidgetOpacityChange={setChatWidgetOpacity}
+                showWidgetLousa={showWidgetLousa}
+                onToggleShowWidgetLousa={() => setShowWidgetLousa(prev => !prev)}
+                showWidgetSnapshot={showWidgetSnapshot}
+                onToggleShowWidgetSnapshot={() => setShowWidgetSnapshot(prev => !prev)}
+                isFloatingChatOpen={isFloatingChatOpen}
+                onToggleFloatingChatOpen={() => setIsFloatingChatOpen(prev => !prev)}
+                isStreamHealthOpen={isStreamHealthOpen}
+                onToggleStreamHealthOpen={() => setIsStreamHealthOpen(prev => !prev)}
+                isDrawingMode={isDrawingMode}
+                onToggleDrawingMode={() => setIsDrawingMode(prev => !prev)}
+                onTakeSnapshot={() => handleAddSnapshot({ id: Date.now().toString(), name: `Snapshot ${snapshots.length + 1}`, url: '', timestamp: new Date().toLocaleTimeString() })}
+                isSmartSidebarEnabled={false}
+                setIsSmartSidebarEnabled={() => {}}
+                onOpenCloudflareModal={() => setIsCloudflareModalOpen(true)}
+                onOpenCustomDestinationsModal={() => setIsCustomDestinationsModalOpen(true)}
+                onOpenAddChannelsModal={() => setIsAddChannelsModalOpen(true)}
+                userId={user?.uid}
+                />
+              </PainelDoEstudio>
+            </aside>
+          </main>
+
+          <BandejaDoEstudio
+            stream={localStream}
+            mudo={isMuted}
+            onAlternarMicrofone={handleToggleMute}
+            cameraDesligada={isCamStopped}
+            onAlternarCamera={handleToggleCam}
+            compartilhando={isScreenSharing}
+            onAlternarTela={() => handleToggleScreenShare()}
+            mostrarGuias={mostrarGuias}
+            onAlternarGuias={() => setMostrarGuias(v => !v)}
+            onEscolherDispositivo={handleSelectDevice}
           />
-
-          {/* Manual Resize partition handles */}
-          {!isImmersiveMode && !isMobile && (
-            <>
-              {/* Left partition handle between Scenes and Preview */}
-              <div
-                onMouseDown={() => setIsResizingScenes(true)}
-                style={{ left: `${scenesWidth - 4}px` }}
-                className="absolute top-0 bottom-0 w-2 cursor-col-resize z-40 group select-none flex items-center justify-center transition-all"
-                title="Arraste para redimensionar"
-              >
-                <div className={`w-[2px] h-full transition-colors duration-200 ${isResizingScenes ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-[var(--panel)]/80 group-hover:bg-blue-500/80 group-hover:shadow-[0_0_4px_#3b82f6]'}`} />
-                
-                {/* Visual grab dot accent indicator */}
-                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-full bg-[var(--panel)] border border-[var(--line-ctl)] flex flex-col gap-0.5 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl pointer-events-none">
-                  <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
-                  <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
-                  <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
-                </div>
-              </div>
-
-              {/* Right partition handle between Preview and Sidebar */}
-              <div
-                onMouseDown={() => setIsResizingSidebar(true)}
-                style={{ right: `${sidebarWidth - 4}px` }}
-                className="absolute top-0 bottom-0 w-2 cursor-col-resize z-40 group select-none flex items-center justify-center transition-all"
-                title="Arraste para redimensionar"
-              >
-                <div className={`w-[2px] h-full transition-colors duration-200 ${isResizingSidebar ? 'bg-blue-500 shadow-[0_0_8px_#3b82f6]' : 'bg-[var(--panel)]/80 group-hover:bg-blue-500/80 group-hover:shadow-[0_0_4px_#3b82f6]'}`} />
-                
-                {/* Visual grab dot accent indicator */}
-                <div className="absolute top-1/2 -translate-y-1/2 w-4 h-6 rounded-full bg-[var(--panel)] border border-[var(--line-ctl)] flex flex-col gap-0.5 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-xl pointer-events-none">
-                  <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
-                  <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
-                  <div className="w-1.5 h-0.5 bg-slate-400 rounded-full" />
-                </div>
-              </div>
-            </>
-          )}
-
-        </main>
+        </>
       ) : currentView === 'super-admin' ? (
         <SuperAdminPanel 
           onBack={() => setCurrentView('dashboard')} 
@@ -2941,7 +2068,7 @@ export default function App() {
           // deriva. Os webinares semeados não têm — e sem ele a página
           // mostra o horário anunciado em vez de inventar uma contagem.
           startsAt={webinars.find(w => w.id === selectedWebinarId)?.startsAt}
-          isLive={isLive}
+          isLive={false}
           thumbnailUrl={activeBackground}
           onBackToDashboard={() => setCurrentView('dashboard')}
           streamColor={streamColor}
@@ -2952,7 +2079,7 @@ export default function App() {
             const newComment: Comment = {
               id: `pub-comm-${Date.now()}`,
               authorName: author,
-              authorAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
+              authorAvatar: '',
               text,
               platform: 'youtube',
               timestamp
@@ -3090,13 +2217,6 @@ export default function App() {
         onClose={() => setLegalModalOpen(false)}
       />
 
-      {/* Stream JSON Statistics Report Modal */}
-      <StreamReportModal 
-        isOpen={isReportModalOpen} 
-        onClose={() => setIsReportModalOpen(false)} 
-        reportData={activeStreamReport} 
-      />
-
       {/* Cloudflare Stream Integration Modal */}
       <CloudflareStreamModal
         isOpen={isCloudflareModalOpen}
@@ -3105,19 +2225,7 @@ export default function App() {
           setRtmpServer(url);
           setStreamKey(key);
         }}
-        isLive={isLive}
-      />
-
-      <CanaisAcimaDoPlano
-        aberto={escolhaAoEntrarNoAr}
-        ligados={destinations.filter(d => d.selected)}
-        limite={limiteDeLigados}
-        onCancelar={() => setEscolhaAoEntrarNoAr(false)}
-        onEntrarNoAr={entrarNoArComEscolha}
-        onVerPlanos={() => {
-          setEscolhaAoEntrarNoAr(false);
-          abrirPlanos();
-        }}
+        isLive={false}
       />
 
       {/* Custom RTMP & NGINX Destinations Modal */}

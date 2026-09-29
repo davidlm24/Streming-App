@@ -18,6 +18,10 @@ interface MenuProps {
   classeDoGatilho?: string;
   /** Linha fixa no topo do menu, fora dos itens (ex.: nome e e-mail). */
   cabecalho?: ReactNode;
+  /** `cima` para gatilhos no pé da tela (a bandeja do estúdio), onde o menu abrindo para baixo sairia dela. */
+  lado?: 'baixo' | 'cima';
+  /** De que lado do gatilho o menu se alinha; `esquerda` para gatilhos colados à borda esquerda. */
+  alinhar?: 'direita' | 'esquerda';
 }
 
 /**
@@ -29,7 +33,7 @@ interface MenuProps {
  * Home/End vão às pontas, Esc fecha e devolve o foco ao gatilho, clicar fora
  * fecha.
  */
-export function Menu({ rotulo, itens, gatilho, classeDoGatilho, cabecalho }: MenuProps) {
+export function Menu({ rotulo, itens, gatilho, classeDoGatilho, cabecalho, lado = 'baixo', alinhar = 'direita' }: MenuProps) {
   const [aberto, setAberto] = useState(false);
   const idMenu = useId();
   const raiz = useRef<HTMLDivElement>(null);
@@ -84,7 +88,7 @@ export function Menu({ rotulo, itens, gatilho, classeDoGatilho, cabecalho }: Men
           role="menu"
           aria-label={rotulo}
           onKeyDown={onKeyDown}
-          className="absolute right-0 top-full z-40 mt-1 min-w-48 rounded-xl border border-[var(--line)] bg-[var(--raise)] p-1 shadow-[0_8px_24px_-8px_rgb(0_0_0/0.45)]"
+          className={`absolute ${alinhar === 'esquerda' ? 'left-0' : 'right-0'} ${lado === 'cima' ? 'bottom-full mb-1' : 'top-full mt-1'} z-40 min-w-48 rounded-xl border border-[var(--line)] bg-[var(--raise)] p-1 shadow-[0_8px_24px_-8px_rgb(0_0_0/0.45)]`}
         >
           {cabecalho && <div className="border-b border-[var(--line)] px-3 pb-2.5 pt-2 mb-1">{cabecalho}</div>}
           {itens.map((item, i) => (

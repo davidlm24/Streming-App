@@ -74,14 +74,18 @@ export function MediaManagerProvider({ children }: { children: ReactNode }) {
   const getSaved = <T,>(key: string, initialValue: T): T => {
     try {
       const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      const valor = item ? JSON.parse(item) : initialValue;
+      // O logo e o fundo padrão eram fotos do Unsplash e ficaram salvos no
+      // navegador de quem já usou o estúdio. Esses valores antigos não voltam.
+      if (typeof valor === 'string' && valor.includes('images.unsplash.com')) return initialValue;
+      return valor;
     } catch {
       return initialValue;
     }
   };
 
   const [activeLogo, setActiveLogo] = useState<string>(
-    getSaved('pwstreamer_activeLogo', 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=100&auto=format&fit=crop&q=80')
+    getSaved('pwstreamer_activeLogo', '')
   );
   const [activeWatermark, setActiveWatermark] = useState<string>(
     getSaved('pwstreamer_activeWatermark', '')
@@ -90,7 +94,7 @@ export function MediaManagerProvider({ children }: { children: ReactNode }) {
     getSaved('pwstreamer_activeOverlay', '')
   );
   const [activeBackground, setActiveBackground] = useState<string>(
-    getSaved('pwstreamer_activeBackground', 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=80')
+    getSaved('pwstreamer_activeBackground', '')
   );
 
   const [customLogos, setCustomLogos] = useState<CustomMedia[]>(
@@ -212,7 +216,7 @@ export function MediaManagerProvider({ children }: { children: ReactNode }) {
             name: asset.name.replace(/\.[^/.]+$/, ""),
             duration: 'Vídeo na Nuvem',
             url: asset.url,
-            thumbnail: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=120&auto=format&fit=crop&q=80',
+            thumbnail: '',
             isPlaying: false,
             isCustom: true,
             storagePath: asset.storagePath
@@ -581,7 +585,7 @@ export function MediaManagerProvider({ children }: { children: ReactNode }) {
         duration: storagePath ? 'Vídeo na Nuvem' : 'Vídeo Local',
         url: clipUrl,
         isPlaying: true,
-        thumbnail: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=120&auto=format&fit=crop&q=80',
+        thumbnail: '',
         isCustom: true,
         storagePath
       };
