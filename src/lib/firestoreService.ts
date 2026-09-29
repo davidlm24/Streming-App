@@ -719,29 +719,7 @@ export async function deleteCustomDestinationFromFirestore(userId: string, curre
   return updated;
 }
 
-// Webhooks and Event Logs Persistence
-export function subscribeWebhooksConfig(userId: string, onUpdate: (config: any) => void) {
-  const docRef = doc(db, 'users', userId, 'studioSettings', 'webhooksConfig');
-  return onSnapshot(docRef, (snapshot) => {
-    if (snapshot.exists()) {
-      onUpdate(snapshot.data());
-    }
-  }, (err) => {
-    if (isQuotaExceededError(err)) {
-      markQuotaExceeded();
-    } else {
-      console.warn('Firestore webhooks config error:', err?.message || err);
-    }
-  });
-}
-
-export async function saveWebhooksConfigToFirestore(userId: string, config: any) {
-  await safeFirestoreWrite(() => {
-    const docRef = doc(db, 'users', userId, 'studioSettings', 'webhooksConfig');
-    return setDoc(docRef, { ...config, uid: userId }, { merge: true });
-  });
-}
-
+// Webhook Event Logs Persistence
 export function subscribeWebhookLogs(userId: string, onUpdate: (logs: WebhookLogItem[]) => void) {
   const colRef = collection(db, 'users', userId, 'webhookLogs');
   return onSnapshot(colRef, (snapshot) => {
