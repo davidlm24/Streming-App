@@ -1004,7 +1004,7 @@ function subirAuditoriaLocal(): Promise<void> {
           subiu = (await getDoc(docRef)).exists();
         } catch {}
       }
-      // Ainda recusado: fica para a próxima vez que o Firestore responder.
+      // Ainda recusado: fica para a próxima subida.
       if (!subiu) break;
       gravarAuditoriaLocal(lerAuditoriaLocal().filter((e) => e.id !== entrada.id));
     }
@@ -1030,15 +1030,22 @@ export function subscribeAuditLogs(onUpdate: (logs: AuditLogEntry[]) => void) {
   avisar();
 
   const colRef = collection(db, 'auditLogs');
-  const pararDeOuvir = onSnapshot(colRef, (snapshot) => {
+  let servidorRespondeu = false;
+  // Com os metadados, a resposta do servidor avisa mesmo quando a lista é a
+  // mesma que já tinha vindo do cache.
+  const pararDeOuvir = onSnapshot(colRef, { includeMetadataChanges: true }, (snapshot) => {
     const list: AuditLogEntry[] = [];
     snapshot.forEach((docSnap) => {
       list.push({ id: docSnap.id, ...docSnap.data() } as AuditLogEntry);
     });
     doFirestore = list;
     avisar();
-    // Resposta do servidor, não do cache: o Firestore está no ar.
-    if (!snapshot.metadata.fromCache) void subirAuditoriaLocal();
+    // A primeira resposta do servidor, não do cache, mostra que o Firestore
+    // está no ar. As outras não pedem subida: uma gravação que o servidor
+    // recusa também gera respostas, e cada uma pediria outra tentativa.
+    if (snapshot.metadata.fromCache || servidorRespondeu) return;
+    servidorRespondeu = true;
+    void subirAuditoriaLocal();
   }, (err) => {
     if (isQuotaExceededError(err)) {
       markQuotaExceeded();
