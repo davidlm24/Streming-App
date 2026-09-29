@@ -593,6 +593,12 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
                       }`}>
                         {log.action}
                       </span>
+                      {/* O Firestore recusou a gravação: o registro não está na auditoria compartilhada. */}
+                      {log.local && (
+                        <span className="text-xs text-[var(--ink-lo)] border border-[var(--line-ctl)] rounded px-1.5">
+                          Só neste navegador
+                        </span>
+                      )}
                       <span className="text-[var(--ink-hi)] font-bold text-xs">{log.actorEmail}</span>
                       {log.targetEmail && (
                         <span className="text-[var(--ink-lo)] text-[10px]">➜ {log.targetEmail}</span>

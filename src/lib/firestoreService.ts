@@ -848,17 +848,59 @@ export interface AuditLogEntry {
   actorEmail: string;
   targetEmail?: string;
   details: string;
+  /** Só neste navegador: o Firestore recusou a gravação (login de desenvolvimento, cota). */
+  local?: boolean;
 }
 
+// Auditoria que o Firestore recusa. O login de desenvolvimento não tem sessão
+// no Firebase e as regras recusam gravar em auditLogs; com a cota esgotada,
+// também não grava. Antes o registro sumia; agora fica neste navegador,
+// marcado como local. A cópia guarda só o que falhou: a auditoria de verdade,
+// com as ações de outras pessoas, não é copiada para o navegador.
+const CHAVE_DA_AUDITORIA_LOCAL = 'pwstream_audit_logs_local';
+const MAXIMO_DA_AUDITORIA_LOCAL = 200;
+const ouvintesDaAuditoriaLocal = new Set<(logs: AuditLogEntry[]) => void>();
+
+function lerAuditoriaLocal(): AuditLogEntry[] {
+  try {
+    const salvos = JSON.parse(localStorage.getItem(CHAVE_DA_AUDITORIA_LOCAL) || '[]');
+    return Array.isArray(salvos) ? salvos : [];
+  } catch {
+    return [];
+  }
+}
+
+function guardarNaAuditoriaLocal(entrada: AuditLogEntry) {
+  const logs = [...lerAuditoriaLocal(), entrada].slice(-MAXIMO_DA_AUDITORIA_LOCAL);
+  try {
+    localStorage.setItem(CHAVE_DA_AUDITORIA_LOCAL, JSON.stringify(logs));
+  } catch {}
+  ouvintesDaAuditoriaLocal.forEach((ouvir) => ouvir(logs));
+}
+
+const maisNovoPrimeiro = (a: AuditLogEntry, b: AuditLogEntry) =>
+  new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+
+/** A auditoria do Firestore e, junto, o que só ficou neste navegador. */
 export function subscribeAuditLogs(onUpdate: (logs: AuditLogEntry[]) => void) {
+  let doFirestore: AuditLogEntry[] = [];
+  let locais = lerAuditoriaLocal();
+  const avisar = () => onUpdate([...doFirestore, ...locais].sort(maisNovoPrimeiro));
+  const ouvirLocais = (logs: AuditLogEntry[]) => {
+    locais = logs;
+    avisar();
+  };
+  ouvintesDaAuditoriaLocal.add(ouvirLocais);
+  avisar();
+
   const colRef = collection(db, 'auditLogs');
-  return onSnapshot(colRef, (snapshot) => {
+  const pararDeOuvir = onSnapshot(colRef, (snapshot) => {
     const list: AuditLogEntry[] = [];
     snapshot.forEach((docSnap) => {
       list.push({ id: docSnap.id, ...docSnap.data() } as AuditLogEntry);
     });
-    list.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-    onUpdate(list);
+    doFirestore = list;
+    avisar();
   }, (err) => {
     if (isQuotaExceededError(err)) {
       markQuotaExceeded();
@@ -866,6 +908,11 @@ export function subscribeAuditLogs(onUpdate: (logs: AuditLogEntry[]) => void) {
       console.warn('Firestore audit logs error:', err?.message || err);
     }
   });
+
+  return () => {
+    ouvintesDaAuditoriaLocal.delete(ouvirLocais);
+    pararDeOuvir();
+  };
 }
 
 // Perfis de todos os clientes, para a lista do painel de administração. As
@@ -911,15 +958,18 @@ export function subscribeUserProfiles(
 }
 
 export async function addAuditLogToFirestore(entry: Omit<AuditLogEntry, 'id' | 'timestamp'> & { timestamp?: string }) {
-  await safeFirestoreWrite(() => {
-    const docRef = doc(collection(db, 'auditLogs'));
-    const logItem: AuditLogEntry = {
-      ...entry,
-      id: docRef.id,
-      timestamp: entry.timestamp || new Date().toISOString()
-    };
-    return setDoc(docRef, logItem);
+  const docRef = doc(collection(db, 'auditLogs'));
+  const logItem: AuditLogEntry = {
+    ...entry,
+    id: docRef.id,
+    timestamp: entry.timestamp || new Date().toISOString()
+  };
+  let gravou = false;
+  await safeFirestoreWrite(async () => {
+    await setDoc(docRef, logItem);
+    gravou = true;
   });
+  if (!gravou) guardarNaAuditoriaLocal({ ...logItem, local: true });
 }
 
 /**
