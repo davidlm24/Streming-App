@@ -84,10 +84,13 @@ export interface WebhookEventLog {
   eventType: string;
   method: 'POST' | 'GET' | 'PUT';
   endpointUrl: string;
-  status: number;
+  /** Código HTTP da resposta; `null` quando não houve resposta (pré-visualização, falha antes do envio). */
+  status: number | null;
   statusText: string;
-  latencyMs: number;
-  requestHeaders: Record<string, string>;
+  /** Tempo medido do envio; `null` quando nada foi enviado. */
+  latencyMs: number | null;
+  /** Ausente quando não foi registrado (o histórico do Firestore não guarda os cabeçalhos). */
+  requestHeaders?: Record<string, string>;
   requestPayload: any;
   responseHeaders?: Record<string, string>;
   responseBody?: any;

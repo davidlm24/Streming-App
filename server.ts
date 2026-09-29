@@ -757,7 +757,8 @@ Retorne estritamente um JSON estruturado com:
         headers['Twitch-Eventsub-Message-Signature'] = `sha256=${hmac.digest('hex')}`;
       }
     } else if (platform === 'facebook') {
-      headers['X-Hub-Signature'] = `sha1=mock_${Date.now()}`;
+      // Só a assinatura real, feita com a chave. Ia junto um "X-Hub-Signature:
+      // sha1=mock_…" falso, até para endpoints de verdade.
       if (secretKey) {
         const hmac = crypto.createHmac('sha256', secretKey);
         hmac.update(payloadString);
@@ -776,22 +777,10 @@ Retorne estritamente um JSON estruturado com:
     const isInternalReceiver = !endpointUrl || endpointUrl.includes('/api/webhooks/receiver') || endpointUrl === 'internal';
 
     if (isInternalReceiver) {
-      const latencyMs = Math.floor(Math.random() * 35) + 15; // simulate real network latency 15-50ms
-      const responseData = {
-        received: true,
-        status: "success",
-        platform,
-        eventType,
-        eventId,
-        message: `Webhook de teste [${platform} / ${eventType}] processado com sucesso pelo receptor PwStreamer.`,
-        verifiedSignature: !!secretKey,
-        timestamp: new Date().toISOString(),
-        echoSummary: {
-          payloadKeys: Object.keys(parsedPayload),
-          headersCount: Object.keys(headers).length
-        }
-      };
-
+      // Pré-visualização: nada é enviado. O log leva os cabeçalhos e a
+      // assinatura que iriam no envio, sem status, resposta nem latência.
+      // Antes inventava um 200, uma resposta de "processado com sucesso" e
+      // uma latência sorteada entre 15 e 50 ms.
       return res.json({
         success: true,
         log: {
@@ -801,16 +790,11 @@ Retorne estritamente um JSON estruturado com:
           eventType,
           method: 'POST',
           endpointUrl: endpointUrl || 'https://pwstreamer.local/api/webhooks/receiver',
-          status: 200,
-          statusText: 'OK (Simulado / Receptor Interno)',
-          latencyMs,
+          status: null,
+          statusText: 'Não enviado (pré-visualização)',
+          latencyMs: null,
           requestHeaders: headers,
           requestPayload: parsedPayload,
-          responseHeaders: {
-            'content-type': 'application/json',
-            'x-powered-by': 'PwStreamer Webhook Engine v2.0'
-          },
-          responseBody: responseData,
           mode: 'manual_test',
           isSuccess: true
         }
@@ -820,6 +804,8 @@ Retorne estritamente um JSON estruturado com:
     const destino = await urlDeWebhookPermitida(endpointUrl);
     if (!destino) {
       const motivo = "Destino não permitido: use https:// num endereço público (porta 443 ou 8443).";
+      // Nada foi enviado: o próprio servidor recusou o destino. Sem código HTTP
+      // nem latência (antes, um "400" que o endpoint nunca deu).
       return res.json({
         success: false,
         log: {
@@ -829,12 +815,11 @@ Retorne estritamente um JSON estruturado com:
           eventType,
           method: 'POST',
           endpointUrl,
-          status: 400,
-          statusText: 'Destino não permitido',
-          latencyMs: Date.now() - startTime,
+          status: null,
+          statusText: 'Não enviado: destino não permitido',
+          latencyMs: null,
           requestHeaders: headers,
           requestPayload: parsedPayload,
-          responseBody: { error: motivo },
           mode: 'manual_test',
           isSuccess: false,
           error: motivo
@@ -842,7 +827,11 @@ Retorne estritamente um JSON estruturado com:
       });
     }
 
-    // If an external URL is provided, perform an actual HTTP request
+    // If an external URL is provided, perform an actual HTTP request.
+    // Fora do try: se a resposta chegar e só a leitura do corpo falhar, o
+    // código e a latência dela continuam valendo.
+    let resposta: globalThis.Response | undefined;
+    let latenciaAteResposta: number | undefined;
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
@@ -856,8 +845,10 @@ Retorne estritamente um JSON estruturado com:
         redirect: 'manual',
         signal: controller.signal
       });
+      resposta = response;
 
       const latencyMs = Date.now() - startTime;
+      latenciaAteResposta = latencyMs;
       let resBody: any;
       const resText = await lerTextoLimitado(response);
       clearTimeout(timeoutId);
@@ -884,7 +875,8 @@ Retorne estritamente um JSON estruturado com:
           method: 'POST',
           endpointUrl,
           status: response.status,
-          statusText: response.statusText || (isSuccess ? 'OK' : 'Error'),
+          // Sem frase de status (HTTP/2), fica vazio: o "OK"/"Error" era inventado.
+          statusText: response.statusText,
           latencyMs,
           requestHeaders: headers,
           requestPayload: parsedPayload,
@@ -895,9 +887,15 @@ Retorne estritamente um JSON estruturado com:
         }
       });
     } catch (fetchErr: any) {
-      const latencyMs = Date.now() - startTime;
+      // Sem resposta HTTP não há código: antes virava um "504 Gateway Timeout"
+      // que o endpoint nunca deu. Se a resposta chegou e só o corpo falhou
+      // (o prazo de 8 s acabou no meio dele), vale o código que chegou.
+      const r = resposta;
+      const causa = fetchErr?.cause?.code || fetchErr?.name;
+      const erro = `${fetchErr?.message || 'Falha ao conectar ao endpoint'}${causa ? ` (${causa})` : ''}`;
+      const isSuccess = !!r && r.status >= 200 && r.status < 300;
       return res.json({
-        success: false,
+        success: isSuccess,
         log: {
           id: eventId,
           timestamp: timestampIso,
@@ -905,18 +903,16 @@ Retorne estritamente um JSON estruturado com:
           eventType,
           method: 'POST',
           endpointUrl,
-          status: 504,
-          statusText: 'Gateway Timeout / Connection Failed',
-          latencyMs,
+          status: r ? r.status : null,
+          statusText: r
+            ? r.statusText
+            : fetchErr?.name === 'AbortError' ? 'Sem resposta em 8 s' : 'Sem resposta: a conexão falhou',
+          latencyMs: latenciaAteResposta ?? Date.now() - startTime,
           requestHeaders: headers,
           requestPayload: parsedPayload,
-          responseBody: {
-            error: fetchErr.message || 'Falha ao conectar ao endpoint externo',
-            code: fetchErr.name || 'FETCH_ERROR'
-          },
           mode: 'manual_test',
-          isSuccess: false,
-          error: fetchErr.message
+          isSuccess,
+          error: r ? `O corpo da resposta não pôde ser lido: ${erro}` : erro
         }
       });
     }
@@ -924,12 +920,20 @@ Retorne estritamente um JSON estruturado com:
 
   // Local Webhook Receiver Endpoint for testing
   app.post("/api/webhooks/receiver", (req, res) => {
-    const signature = req.headers['twitch-eventsub-message-signature'] || req.headers['x-hub-signature-256'] || req.headers['webhook-signature'];
-    
+    // O receptor não tem a chave de quem envia, então não confere assinatura
+    // nenhuma: só diz se veio uma, e de que tipo. Antes respondia
+    // "signatureVerified: true" para qualquer cabeçalho de assinatura, e
+    // chamava a do Cloudflare de "Meta".
+    const signatureType =
+      req.headers['twitch-eventsub-message-signature'] ? 'Twitch EventSub (HMAC-SHA256)'
+      : req.headers['x-hub-signature-256'] ? 'Meta (HMAC-SHA256)'
+      : req.headers['webhook-signature'] ? 'Cloudflare Stream'
+      : null;
+
     return res.status(200).json({
       received: true,
-      signatureVerified: !!signature,
-      signatureType: signature ? (req.headers['twitch-eventsub-message-signature'] ? 'Twitch EventSub SHA256' : 'Meta Graph SHA256') : 'None',
+      signaturePresent: signatureType !== null,
+      signatureType,
       receivedAt: new Date().toISOString(),
       body: req.body,
       headers: req.headers

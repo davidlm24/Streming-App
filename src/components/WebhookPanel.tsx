@@ -477,6 +477,28 @@ const PLATFORM_PRESETS: Record<WebhookPlatform, {
   }
 };
 
+/** Status para exibir. Sem resposta HTTP, só o texto ("Não enviado (pré-visualização)"). */
+function rotuloDoStatus(log: WebhookEventLog): string {
+  return log.status === null ? log.statusText : `${log.status} ${log.statusText}`.trim();
+}
+
+/** Latência medida; travessão quando nada foi medido. */
+function rotuloDaLatencia(latencyMs: number | null): string {
+  return latencyMs === null ? '—' : `${latencyMs} ms`;
+}
+
+/** O corpo da resposta, ou por que não há um. Nunca uma resposta de exemplo. */
+function textoDaResposta(log: WebhookEventLog): string {
+  if (log.responseBody !== undefined && log.responseBody !== null) {
+    return JSON.stringify(log.responseBody, null, 2);
+  }
+  if (log.error) return log.status === null ? `Sem resposta. Erro: ${log.error}` : log.error;
+  // Sem status: ou era só a pré-visualização (nada foi enviado), ou o envio
+  // não teve resposta.
+  if (log.status === null) return log.isSuccess ? 'Sem resposta: nada foi enviado.' : 'Sem resposta.';
+  return 'A resposta não fica no histórico: só aparece na sessão em que o teste foi disparado.';
+}
+
 export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: WebhookPanelProps) {
   const confirm = useConfirm();
   const toast = useToast();
@@ -498,26 +520,36 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
   const [lastExecutionResult, setLastExecutionResult] = useState<WebhookEventLog | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
 
-  // History state
+  // History state. O Firestore guarda só parte de cada disparo: o que não foi
+  // guardado fica ausente, em vez de ganhar cabeçalhos e uma resposta de
+  // sucesso inventados — antes até um disparo que falhou voltava assim.
   const [logs, setLogs] = useState<WebhookEventLog[]>(() => {
     if (initialLogs && initialLogs.length > 0) {
-      return initialLogs.map(l => ({
-        id: l.id || `wh-${Date.now()}`,
-        timestamp: l.timestamp || l.time || new Date().toLocaleTimeString(),
-        platform: (l.platform || 'twitch') as WebhookPlatform,
-        eventType: l.eventType || l.path || 'test_event',
-        method: (l.method || 'POST') as any,
-        endpointUrl: l.endpointUrl || l.path || 'https://api.pwstreamer.com/v1/webhooks',
-        status: l.status || 200,
-        statusText: l.status === 200 ? 'OK' : 'Error',
-        latencyMs: l.latencyMs,
-        requestHeaders: l.requestHeaders || { 'Content-Type': 'application/json' },
-        requestPayload: typeof l.payload === 'string' ? safeParseJson(l.payload) : (l.requestPayload || l.payload || {}),
-        responseHeaders: l.responseHeaders || { 'content-type': 'application/json' },
-        responseBody: l.responseBody || { received: true, status: 'success' },
-        mode: l.mode || 'manual_test',
-        isSuccess: l.status === 200
-      }));
+      return initialLogs.map(l => {
+        const endpoint = l.endpointUrl || l.path || 'https://api.pwstreamer.com/v1/webhooks';
+        // Disparos antigos do receptor local: nada foi enviado, e o 200 e a
+        // latência gravados com eles eram inventados.
+        const semEnvio = endpoint.includes('pwstreamer.local');
+        const status = semEnvio || typeof l.status !== 'number' ? null : l.status;
+        return {
+          id: l.id || `wh-${Date.now()}`,
+          timestamp: l.timestamp || l.time || new Date().toLocaleTimeString(),
+          platform: (l.platform || 'twitch') as WebhookPlatform,
+          eventType: l.eventType || l.path || 'test_event',
+          method: (l.method || 'POST') as any,
+          endpointUrl: endpoint,
+          status,
+          statusText: semEnvio ? 'Não enviado (pré-visualização)' : (l.statusText ?? ''),
+          latencyMs: semEnvio ? null : (l.latencyMs ?? null),
+          requestHeaders: l.requestHeaders,
+          requestPayload: typeof l.payload === 'string' ? safeParseJson(l.payload) : (l.requestPayload || l.payload || {}),
+          responseHeaders: l.responseHeaders,
+          responseBody: l.responseBody,
+          mode: l.mode || 'manual_test',
+          isSuccess: semEnvio || (l.isSuccess ?? (status !== null && status >= 200 && status < 300)),
+          error: l.error
+        };
+      });
     }
     // Sem disparos, a lista começa vazia. Antes trazia dois de exemplo
     // (Twitch e Facebook, 12 e 5 min atrás) como se a pessoa os tivesse feito.
@@ -576,6 +608,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
       parsedHeaders = {};
     }
 
+    const inicio = Date.now();
     try {
       const response = await apiFetch('/api/webhooks/test-trigger', {
         method: 'POST',
@@ -590,8 +623,8 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
         })
       });
 
-      const data = await response.json();
-      if (data.log) {
+      const data = await response.json().catch(() => null);
+      if (data?.log) {
         const logItem: WebhookEventLog = data.log;
         setLastExecutionResult(logItem);
         setLogs(prev => [logItem, ...prev]);
@@ -603,15 +636,42 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
             method: logItem.method,
             path: logItem.endpointUrl,
             status: logItem.status,
+            statusText: logItem.statusText,
             payload: JSON.stringify(logItem.requestPayload),
             platform: logItem.platform,
             latencyMs: logItem.latencyMs,
             eventType: logItem.eventType,
-            isSuccess: logItem.isSuccess
+            isSuccess: logItem.isSuccess,
+            // O Firestore recusa campo `undefined`: o erro só vai quando existe.
+            ...(logItem.error ? { error: logItem.error } : {})
           }).catch(console.error);
         }
+      } else {
+        // O próprio servidor recusou o pedido (401 sem login, 413 com payload
+        // grande demais…): sem registro de envio, às vezes nem JSON. Antes a
+        // tela não dizia nada; agora vira um "Não enviado" com o motivo.
+        const recusa: WebhookEventLog = {
+          id: `wh_recusa_${Date.now()}`,
+          timestamp: new Date().toLocaleTimeString(),
+          platform: selectedPlatform,
+          eventType: selectedEventTypeId,
+          method: 'POST',
+          endpointUrl: targetEndpointUrl,
+          status: null,
+          statusText: `Não enviado: o servidor do PwStreamer respondeu ${response.status}`,
+          latencyMs: null,
+          requestPayload: parsedPayload,
+          mode: 'manual_test',
+          isSuccess: false,
+          error: data?.error || response.statusText || 'Resposta sem registro de envio'
+        };
+        setLastExecutionResult(recusa);
+        setLogs(prev => [recusa, ...prev]);
       }
     } catch (err: any) {
+      // O pedido nem chegou ao servidor do PwStreamer: não há código HTTP nem
+      // resposta. Antes virava um "500" com 12 ms inventados. O tempo até a
+      // falha é medido.
       const fallbackLog: WebhookEventLog = {
         id: `wh_err_${Date.now()}`,
         timestamp: new Date().toLocaleTimeString(),
@@ -619,15 +679,13 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
         eventType: selectedEventTypeId,
         method: 'POST',
         endpointUrl: targetEndpointUrl,
-        status: 500,
-        statusText: 'Client Fetch Error',
-        latencyMs: 12,
-        requestHeaders: { 'Content-Type': 'application/json' },
+        status: null,
+        statusText: 'Sem resposta do servidor do PwStreamer',
+        latencyMs: Date.now() - inicio,
         requestPayload: parsedPayload,
-        responseBody: { error: err.message || 'Falha ao despachar webhook' },
         mode: 'manual_test',
         isSuccess: false,
-        error: err.message
+        error: err.message || 'Falha ao despachar webhook'
       };
       setLastExecutionResult(fallbackLog);
       setLogs(prev => [fallbackLog, ...prev]);
@@ -711,7 +769,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
               </span>
             </div>
             <p className="text-[11px] text-[var(--ink)] mt-0.5 leading-relaxed">
-              Configure disparos manuais com payloads reais para validação de integrações com Twitch (EventSub), Facebook (Meta Graph), YouTube e Cloudflare Stream, além de acompanhar o histórico completo de requisições e assinaturas criptográficas HMAC.
+              Configure disparos manuais com payloads reais para validação de integrações com Twitch (EventSub), Facebook (Meta Graph), YouTube e Cloudflare Stream, além de acompanhar o histórico de requisições e assinaturas criptográficas HMAC.
             </p>
           </div>
         </div>
@@ -838,7 +896,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                         : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)] bg-[var(--panel)]'
                     }`}
                   >
-                    Receptor Local
+                    Pré-visualizar
                   </button>
                   <button
                     type="button"
@@ -856,7 +914,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
 
               <input id="webhookpanel-destino-http-endpoint"
                 type="text"
-                value={targetEndpointUrl === 'internal' ? 'https://pwstreamer.local/api/webhooks/receiver (Receptor Local Embutido)' : targetEndpointUrl}
+                value={targetEndpointUrl === 'internal' ? 'Nenhum envio: só pré-visualização' : targetEndpointUrl}
                 onChange={(e) => setTargetEndpointUrl(e.target.value)}
                 readOnly={targetEndpointUrl === 'internal'}
                 placeholder="https://sua-api.com/webhooks/listener"
@@ -864,7 +922,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
               />
               <p className="text-[9px] text-[var(--ink-dim)] leading-tight">
                 {targetEndpointUrl === 'internal' 
-                  ? 'Modo receptor local: Simula e valida cabeçalhos, assinaturas HMAC e latência sem depender de servidor externo.'
+                  ? 'Pré-visualização: monta os cabeçalhos e a assinatura HMAC sem enviar nada. Não há status, resposta nem latência.'
                   : 'Modo externo: Disparará um POST real para a URL informada através do backend Express.'}
               </p>
             </div>
@@ -937,7 +995,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
               ) : (
                 <>
                   <Send size={16} />
-                  <span>Disparar Webhook de Teste Agora</span>
+                  <span>{targetEndpointUrl === 'internal' ? 'Gerar pré-visualização' : 'Disparar Webhook de Teste Agora'}</span>
                 </>
               )}
             </button>
@@ -1007,31 +1065,33 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                       <AlertTriangle size={18} className="text-red-400" />
                     )}
                     <span className="text-xs font-bold text-[var(--ink-hi)] uppercase tracking-wider">
-                      {lastExecutionResult.isSuccess ? 'Webhook Disparado com Sucesso!' : 'Falha no Disparo do Webhook'}
+                      {lastExecutionResult.status === null && lastExecutionResult.isSuccess
+                        ? 'Pré-visualização pronta: nada foi enviado'
+                        : lastExecutionResult.isSuccess ? 'Webhook Disparado com Sucesso!' : 'Falha no Disparo do Webhook'}
                     </span>
                     <span className={`text-[10px] font-black px-2 py-0.5 rounded ${
                       lastExecutionResult.isSuccess ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'
                     }`}>
-                      HTTP {lastExecutionResult.status} {lastExecutionResult.statusText}
+                      {lastExecutionResult.status === null ? rotuloDoStatus(lastExecutionResult) : `HTTP ${rotuloDoStatus(lastExecutionResult)}`}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-[var(--ink-lo)] font-mono flex items-center gap-1">
-                      <Clock size={11} /> {lastExecutionResult.latencyMs}ms
+                      <Clock size={11} /> {rotuloDaLatencia(lastExecutionResult.latencyMs)}
                     </span>
                     <button
                       type="button"
                       onClick={() => setInspectingLog(lastExecutionResult)}
                       className="px-2.5 py-1 bg-[var(--panel)] hover:bg-[var(--raise)] text-blue-300 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1"
                     >
-                      <Eye size={11} /> Inspecionar Resposta
+                      <Eye size={11} /> Inspecionar
                     </button>
                   </div>
                 </div>
 
                 <div className="bg-[var(--bg)]/80 p-3 rounded-xl border border-[var(--line)] font-mono text-[10px] text-[var(--ink)] overflow-x-auto max-h-32">
-                  <pre>{JSON.stringify(lastExecutionResult.responseBody, null, 2)}</pre>
+                  <pre>{textoDaResposta(lastExecutionResult)}</pre>
                 </div>
               </div>
             )}
@@ -1051,7 +1111,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                 Histórico Detalhado de Webhooks Disparados
               </h3>
               <p className="text-[11px] text-[var(--ink-lo)] mt-0.5">
-                Auditoria de todas as chamadas manuais e automáticas com status HTTP, latência de rede e dados de requisição/resposta.
+                Os testes disparados neste painel, com status HTTP e latência. A resposta e os cabeçalhos só ficam na sessão em que o teste foi disparado.
               </p>
             </div>
 
@@ -1131,8 +1191,6 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
             >
               <option value="all">Todos os Modos</option>
               <option value="manual_test">Disparos de Teste Manual</option>
-              <option value="incoming">Tráfego Recebido</option>
-              <option value="automated">Simulações em Live</option>
             </select>
           </div>
 
@@ -1181,11 +1239,11 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                               ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' 
                               : 'bg-red-500/15 text-red-400 border border-red-500/20'
                           }`}>
-                            {log.status} {log.statusText}
+                            {rotuloDoStatus(log)}
                           </span>
                         </td>
                         <td className="p-3.5 font-mono text-[11px] text-[var(--ink-lo)]">
-                          {log.latencyMs}ms
+                          {rotuloDaLatencia(log.latencyMs)}
                         </td>
                         <td className="p-3.5">
                           <span className="text-[10px] text-[var(--ink-lo)] bg-[var(--panel)] px-2 py-0.5 rounded font-semibold">
@@ -1306,11 +1364,12 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                     <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${
                       inspectingLog.isSuccess ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'
                     }`}>
-                      {inspectingLog.status} {inspectingLog.statusText}
+                      {rotuloDoStatus(inspectingLog)}
                     </span>
                   </div>
                   <p className="text-[10px] text-[var(--ink-lo)] font-mono mt-0.5">
-                    {inspectingLog.platform.toUpperCase()} ➜ {inspectingLog.eventType} ({inspectingLog.latencyMs}ms)
+                    {inspectingLog.platform.toUpperCase()} ➜ {inspectingLog.eventType}
+                    {inspectingLog.latencyMs !== null && ` (${inspectingLog.latencyMs} ms)`}
                   </p>
                 </div>
               </div>
@@ -1361,12 +1420,12 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                     <div className="p-3 bg-[var(--surface)] border border-[var(--line)] rounded-xl">
                       <span className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block">Status Code</span>
                       <span className={`font-bold text-sm ${inspectingLog.isSuccess ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {inspectingLog.status} {inspectingLog.statusText}
+                        {rotuloDoStatus(inspectingLog)}
                       </span>
                     </div>
                     <div className="p-3 bg-[var(--surface)] border border-[var(--line)] rounded-xl">
                       <span className="text-[10px] text-[var(--ink-lo)] font-bold uppercase block">Latência de Ida e Volta</span>
-                      <span className="text-blue-400 font-bold text-sm">{inspectingLog.latencyMs} ms</span>
+                      <span className="text-blue-400 font-bold text-sm">{rotuloDaLatencia(inspectingLog.latencyMs)}</span>
                     </div>
                   </div>
 
@@ -1405,12 +1464,18 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                 <div className="space-y-2">
                   <span className="text-[10px] text-[var(--ink-lo)] block">Cabeçalhos HTTP Enviados:</span>
                   <div className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-blue-300 text-[11px] space-y-1 overflow-x-auto select-all">
-                    {Object.entries(inspectingLog.requestHeaders).map(([key, val]) => (
-                      <div key={key} className="flex gap-2">
-                        <span className="text-[var(--ink-lo)] font-bold">{key}:</span>
-                        <span className="text-[var(--ink-hi)]">{val}</span>
-                      </div>
-                    ))}
+                    {inspectingLog.requestHeaders ? (
+                      Object.entries(inspectingLog.requestHeaders).map(([key, val]) => (
+                        <div key={key} className="flex gap-2">
+                          <span className="text-[var(--ink-lo)] font-bold">{key}:</span>
+                          <span className="text-[var(--ink-hi)]">{val}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-[var(--ink-dim)] italic">
+                        Cabeçalhos não registrados para este disparo: o histórico não os guarda.
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
@@ -1421,7 +1486,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                     <span>Corpo da Resposta do Servidor:</span>
                     <button
                       type="button"
-                      onClick={() => handleCopy(JSON.stringify(inspectingLog.responseBody, null, 2), 'modal-res')}
+                      onClick={() => handleCopy(textoDaResposta(inspectingLog), 'modal-res')}
                       className="text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer font-sans font-bold"
                     >
                       {copySuccess === 'modal-res' ? <Check size={12} /> : <Copy size={12} />}
@@ -1429,7 +1494,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                     </button>
                   </div>
                   <pre className="p-4 bg-[var(--bg)] border border-[var(--line)] rounded-xl text-yellow-300 text-[11px] overflow-x-auto leading-relaxed select-all">
-                    {JSON.stringify(inspectingLog.responseBody, null, 2)}
+                    {textoDaResposta(inspectingLog)}
                   </pre>
                 </div>
               )}
@@ -1446,7 +1511,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                         </div>
                       ))
                     ) : (
-                      <p className="text-[var(--ink-dim)] italic">Nenhum cabeçalho retornado ou receptor interno simulado.</p>
+                      <p className="text-[var(--ink-dim)] italic">Nenhum cabeçalho de resposta registrado.</p>
                     )}
                   </div>
                 </div>
