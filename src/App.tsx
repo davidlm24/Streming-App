@@ -63,6 +63,7 @@ import {
   saveDestinationsToFirestore,
   subscribeWebhookLogs,
   addWebhookLogToFirestore,
+  type WebhookLogItem,
   subscribeSceneLayouts,
   saveSceneLayoutsToFirestore,
   validateUserTrialStatus,
@@ -422,7 +423,7 @@ export default function App() {
   // simulador somava outra a cada 8 s de live (chat, assinatura, audiência),
   // alimentado por uma configuração fixa, com segredos de exemplo, que nenhuma
   // tela lia e que era gravada no Firestore de cada conta.
-  const [webhookLogs, setWebhookLogs] = useState<Array<{ id: string; time: string; method: string; path: string; status: number; payload: string; platform: string }>>([]);
+  const [webhookLogs, setWebhookLogs] = useState<WebhookLogItem[]>([]);
 
   // Firestore Quota Resilience state
   const [isQuotaExceeded, setIsQuotaExceeded] = useState(false);

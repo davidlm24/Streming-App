@@ -794,7 +794,11 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
               await addAuditLogToFirestore({
                 action: 'WEBHOOK_MANUAL_TEST' as any,
                 actorEmail: user?.email || 'admin@pwstreamer.com',
-                details: `Webhook de teste [${logItem.platform.toUpperCase()} - ${logItem.eventType}] disparado. Status: ${logItem.status} (${logItem.latencyMs}ms)`
+                details: logItem.status !== null
+                  ? `Webhook de teste [${logItem.platform.toUpperCase()} - ${logItem.eventType}] disparado. Status: ${logItem.status} (${logItem.latencyMs} ms)`
+                  : logItem.isSuccess
+                    ? `Webhook de teste [${logItem.platform.toUpperCase()} - ${logItem.eventType}] pré-visualizado, sem envio.`
+                    : `Webhook de teste [${logItem.platform.toUpperCase()} - ${logItem.eventType}] falhou: ${logItem.statusText}.`
               });
             }}
           />

@@ -53,9 +53,16 @@ export interface WebhookLogItem {
   time: string;
   method: string;
   path: string;
-  status: number;
+  /** `null` quando não houve resposta HTTP (pré-visualização, falha antes do envio). */
+  status: number | null;
   payload: string;
   platform: string;
+  statusText?: string;
+  latencyMs?: number | null;
+  eventType?: string;
+  isSuccess?: boolean;
+  /** Por que não houve resposta (destino recusado, conexão que falhou). */
+  error?: string;
 }
 
 // -------------------------------------------------------------
