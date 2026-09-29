@@ -229,25 +229,6 @@ export async function loginWithGoogle(): Promise<UserProfile> {
   }
 }
 
-export function createDirectUserProfile(email = 'mgdlms@gmail.com', name = 'Marcos Gonçalves'): UserProfile {
-  // Somente o email oficial autorizado é reconhecido como super-admin inicialmente
-  const isAuthorizedSuperAdmin = email.trim().toLowerCase() === 'mgdlms@gmail.com';
-  const profile: UserProfile = {
-    uid: 'google-user-' + Math.random().toString(36).substr(2, 9),
-    email,
-    name,
-    photoURL: 'https://lh3.googleusercontent.com/a/default-user=s96-c',
-    plan: 'Free Trial',
-    isExpired: false,
-    trialDays: 30,
-    role: isAuthorizedSuperAdmin ? 'super-admin' : 'client',
-    subscriptionStatus: 'trial',
-    trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-  };
-  localStorage.setItem('pwstream_user', JSON.stringify(profile));
-  return profile;
-}
-
 /**
  * Só lê email, plano, dias de teste e datas — `uid` vai adiante apenas como
  * campo do corpo do POST e tolera ausência. Pedir `UserProfile` inteiro
