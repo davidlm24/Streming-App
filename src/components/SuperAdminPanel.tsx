@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Crown, Server, ShieldAlert, Activity, Users, Database, Globe, 
+  Crown, Server, ShieldAlert, Users, Database,
   Terminal, ShieldCheck, Cpu, HardDrive, RefreshCw, Key, 
   Plus, Trash2, Code, FileText, Ban, AlertTriangle, Copy, Check,
   ExternalLink, Lock, Eye, Settings, Video, Edit3, ArrowLeft,
   Search, Filter, CheckCircle2, XCircle, Unlock, RotateCw, History,
   BarChart3, Mail, Radio
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, 
-  CartesianGrid, Tooltip 
-} from 'recharts';
 import { 
   subscribeAuditLogs, 
   addAuditLogToFirestore, 
@@ -26,7 +22,6 @@ import {
 } from '../lib/firestoreService';
 import { getPlan, type PlanId } from '../lib/plans';
 import { SuperAdminAnalytics } from './SuperAdminAnalytics';
-import { StudioPerformanceMonitor } from './StudioPerformanceMonitor';
 import { WebhookPanel } from './WebhookPanel';
 import { useConfirm } from './ui/ConfirmDialog';
 import { copyText } from './ui/clipboard';
@@ -56,7 +51,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   const eu = user?.email ?? '';
 
   // Tabs for Super Admin
-  const [activeTab, setActiveTab] = useState<'analytics' | 'clients' | 'webinars' | 'master-rtmp' | 'servers' | 'webhooks' | 'logs'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'clients' | 'webinars' | 'master-rtmp' | 'webhooks' | 'logs'>('analytics');
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -104,17 +99,6 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   const [newKeyLabel, setNewKeyLabel] = useState('');
   const [newKeyClientEmail, setNewKeyClientEmail] = useState('');
   const [newKeyBitrate, setNewKeyBitrate] = useState('8000 kbps');
-
-  // Server Bandwidth Usage Data
-  const bandwidthData = [
-    { hour: '00:00', ingress: 120, egress: 850 },
-    { hour: '04:00', ingress: 80, egress: 540 },
-    { hour: '08:00', ingress: 150, egress: 1200 },
-    { hour: '12:00', ingress: 310, egress: 2800 },
-    { hour: '16:00', ingress: 450, egress: 4300 },
-    { hour: '20:00', ingress: 580, egress: 5900 },
-    { hour: '24:00', ingress: 200, egress: 1800 }
-  ];
 
   const externalAdminUrl = `${window.location.origin}/admin`;
 
@@ -248,7 +232,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             <Crown className="text-amber-400" /> Painel de Controle Mestre - Admin Principal
           </h1>
           <p className="text-xs text-[var(--ink-lo)] mt-1.5 leading-relaxed">
-            Gerenciamento centralizado de todos os clientes, transmissões de webinars, atribuição de chaves RTMP master e telemetria de servidores de mídia.
+            Gerenciamento centralizado de todos os clientes, transmissões de webinars e atribuição de chaves RTMP master.
           </p>
         </div>
         
@@ -270,7 +254,9 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
       </div>
 
       {/* Infrastructure KPI Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Sem "Status da Rede Ingest": dizia "100% Online" fixo, sem nada
+          medindo a rede. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
           {
             label: 'Clientes Ativos',
@@ -280,8 +266,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
             icon: Users
           },
           { label: 'Transmissões / Webinars', value: allWebinars.length.toString(), desc: 'Agendadas e ao vivo', color: 'text-blue-400', icon: Video },
-          { label: 'Chaves RTMP Master', value: masterRtmpKeys.length.toString(), desc: masterRtmpKeys.filter(k => k.active).length + ' Ativas no Ingest', color: 'text-emerald-400', icon: Key },
-          { label: 'Status da Rede Ingest', value: '100% Online', desc: 'MediaMTX / Nginx RTMP', color: 'text-indigo-400', icon: Server }
+          { label: 'Chaves RTMP Master', value: masterRtmpKeys.length.toString(), desc: masterRtmpKeys.filter(k => k.active).length + ' Ativas no Ingest', color: 'text-emerald-400', icon: Key }
         ].map((met, i) => (
           <div key={i} className="bg-[var(--surface)] border border-[var(--line)] p-5 rounded-2xl flex items-center justify-between shadow-lg">
             <div className="text-left">
@@ -303,7 +288,6 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
           { id: 'clients', label: 'Lista de Clientes Final', icon: Users },
           { id: 'webinars', label: 'Todos os Webinars & Transmissões', icon: Video },
           { id: 'master-rtmp', label: 'Gerenciador Global de Chaves RTMP', icon: Key },
-          { id: 'servers', label: 'Monitor de Servidores', icon: Server },
           { id: 'webhooks', label: 'Disparador & Webhooks API', icon: Radio },
           { id: 'logs', label: 'Audit Logs & API', icon: Terminal }
         ].map(tab => (
@@ -558,57 +542,9 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
         </div>
       )}
 
-      {/* TAB 4: SERVERS & INFRASTRUCTURE */}
-      {activeTab === 'servers' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-4">
-              <h3 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
-                <Activity size={18} className="text-blue-500" /> Tráfego de Banda do Servidor Principal
-              </h3>
-
-              <div className="h-64 text-xs font-mono">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={bandwidthData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorEgressSuper" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
-                    <XAxis dataKey="hour" stroke="var(--chart-axis)" />
-                    <YAxis stroke="var(--chart-axis)" unit=" Mbps" />
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--panel)', borderColor: 'var(--line)' }} />
-                    <Area type="monotone" dataKey="egress" name="Saída Mídia (Mbps)" stroke="var(--chart-1)" fillOpacity={1} fill="url(#colorEgressSuper)" strokeWidth={2.5} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-4">
-              <h3 className="text-base font-bold text-[var(--ink-hi)] flex items-center gap-2">
-                <Globe size={18} className="text-blue-500" /> Cluster de Ingestão MediaMTX
-              </h3>
-              
-              <div className="space-y-3 text-xs">
-                {[
-                  { name: 'Gateway Frankfurt', status: 'Online', latency: '12ms' },
-                  { name: 'Gateway São Paulo', status: 'Online', latency: '24ms' },
-                  { name: 'CDN Edge Anycast', status: 'Online', latency: '15ms' }
-                ].map((s, i) => (
-                  <div key={i} className="p-3 bg-[var(--bg)] border border-[var(--line)] rounded-xl flex justify-between items-center">
-                    <span className="font-bold text-[var(--ink-hi)]">{s.name}</span>
-                    <span className="text-emerald-400 font-bold">{s.status} ({s.latency})</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <StudioPerformanceMonitor />
-        </div>
-      )}
+      {/* A aba "Monitor de Servidores" saiu: o gráfico de banda vinha de uma
+          tabela fixa e os gateways de ingest estavam sempre "Online" com
+          latência fixa. O app não monitora servidores. */}
 
       {/* TAB 5: AUDIT LOGS */}
       {activeTab === 'logs' && (
