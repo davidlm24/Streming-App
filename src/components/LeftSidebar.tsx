@@ -13,7 +13,6 @@ import { Destination, AudioTrack, Banner, BannerPosition, Comment, Participant, 
 import { AUDIO_LIBRARY, BACKGROUND_TEMPLATES, OVERLAY_TEMPLATES, LOGO_TEMPLATES } from '../data';
 import { ThumbnailEditor } from './ThumbnailEditor';
 import { AudioVUMeter } from './AudioVUMeter';
-import { AudiencePanel } from './AudiencePanel';
 import { VirtualizedChat } from './VirtualizedChat';
 import { useTheme } from '../context/ThemeContext';
 import { CLOUDFLARE_STREAM_CONFIG } from '../lib/cloudflareStreamConfig';
@@ -4188,11 +4187,6 @@ export function LeftSidebar({
             )}
           </div>
         </div>
-      )}
-
-      {/* 5. AUDIENCE TAB PANEL */}
-      {activeTab === 'audience' && (
-        <AudiencePanel />
       )}
 
       {/* 6. CHAT/COMMENTS TAB PANEL (VIRTUALIZED HIGH PERFORMANCE) */}

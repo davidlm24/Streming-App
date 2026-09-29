@@ -1,11 +1,11 @@
 {
   "hex-arbitrario-em-classe": 0,
   "hex-em-atributo-jsx": 18,
-  "botao-cru-fora-da-primitiva": 256,
+  "botao-cru-fora-da-primitiva": 255,
   "paleta-slate-gray-estrutural": 56,
-  "tamanho-de-fonte-avulso": 636,
+  "tamanho-de-fonte-avulso": 633,
   "dialogo-nativo-bloqueante": 0,
-  "outline-none": 73,
+  "outline-none": 71,
   "important-no-css": 6,
   "z-index-avulso": 3
 }
