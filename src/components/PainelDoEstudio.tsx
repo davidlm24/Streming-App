@@ -1,21 +1,19 @@
 import type { ReactNode } from 'react';
-import { Film, LayoutGrid, Layers, MessageSquare, QrCode, ScrollText, SlidersHorizontal } from 'lucide-react';
+import { Camera, Film, Layers, MessageSquare, QrCode, ScrollText } from 'lucide-react';
 import { useTabs } from './ui/Tabs';
 
-/** Os ids são os das abas do LeftSidebar, que desenha o conteúdo de cada uma. */
-export type Ferramenta = 'seven' | 'design' | 'third' | 'apps' | 'video' | 'theme' | 'widgets';
+export type Ferramenta = 'chat' | 'graficos' | 'roteiro' | 'qr' | 'midia' | 'camera';
 
 const FERRAMENTAS: { id: Ferramenta; rotulo: string; descricao: string; Icone: typeof MessageSquare }[] = [
-  { id: 'seven', rotulo: 'Chat', descricao: 'Chat do estúdio', Icone: MessageSquare },
-  { id: 'design', rotulo: 'Gráficos', descricao: 'Logo, banners, tickers, overlays e fundos', Icone: Layers },
-  { id: 'third', rotulo: 'Roteiro', descricao: 'Roteiro e teleprompter', Icone: ScrollText },
-  { id: 'apps', rotulo: 'QR code', descricao: 'QR code e notas do apresentador', Icone: QrCode },
-  { id: 'video', rotulo: 'Mídia', descricao: 'Vídeos e trilha sonora', Icone: Film },
-  { id: 'theme', rotulo: 'Estilo', descricao: 'Cores, texto, enquadramento, croma e cronômetro', Icone: SlidersHorizontal },
-  { id: 'widgets', rotulo: 'Extras', descricao: 'Chat no palco, lousa e captura de quadro', Icone: LayoutGrid },
+  { id: 'chat', rotulo: 'Chat', descricao: 'Chat do estúdio', Icone: MessageSquare },
+  { id: 'graficos', rotulo: 'Gráficos', descricao: 'Banner, ticker, logo, cronômetro, cor, fundo e sobreposição', Icone: Layers },
+  { id: 'roteiro', rotulo: 'Roteiro', descricao: 'Roteiro, teleprompter e notas', Icone: ScrollText },
+  { id: 'qr', rotulo: 'QR code', descricao: 'QR code com título e preço', Icone: QrCode },
+  { id: 'midia', rotulo: 'Mídia', descricao: 'Clipes de vídeo', Icone: Film },
+  { id: 'camera', rotulo: 'Câmera', descricao: 'Card, enquadramento, espelho e croma', Icone: Camera },
 ];
 
-export const FERRAMENTA_INICIAL: Ferramenta = 'seven';
+export const FERRAMENTA_INICIAL: Ferramenta = 'chat';
 
 /**
  * A coluna da direita do console: o painel da ferramenta aberta e, na borda,
@@ -25,7 +23,9 @@ export const FERRAMENTA_INICIAL: Ferramenta = 'seven';
  * mais um "SMART" que, durante a "live", escondia tudo menos o chat. Saíram
  * as abas de agenda (agendar é em Webinars), de audiência (só se enchia com
  * um botão de usuário de teste) e de ajustes, que misturava o que já está na
- * bandeja com transmissão, gravação e OBS que ainda não existem.
+ * bandeja com transmissão, gravação e OBS que ainda não existem. Na fase 2
+ * saiu Extras (chat flutuante, lousa e captura, que não chegavam ao
+ * programa ou não mostravam o palco), e Estilo virou Câmera.
  */
 export function PainelDoEstudio({
   ativa,
@@ -45,14 +45,18 @@ export function PainelDoEstudio({
   );
 
   return (
-    <div className="flex h-full min-h-0">
-      <div {...abas.panel(ativa)} className="min-w-0 flex-1 overflow-y-auto">
+    // No desktop, a coluna tem a altura do console e o painel rola por dentro.
+    // Abaixo de lg, o painel cresce com a página e a lista das ferramentas
+    // fica presa no alto enquanto ele passa. A linha entre os dois é do
+    // painel, para ir até o fim dele.
+    <div className="flex lg:h-full lg:min-h-0">
+      <div {...abas.panel(ativa)} className="min-w-0 flex-1 border-r border-[var(--line)] lg:overflow-y-auto">
         {children}
       </div>
       <div
         {...abas.tablist}
         aria-label="Ferramentas"
-        className="flex w-[4.5rem] shrink-0 flex-col gap-1 overflow-y-auto border-l border-[var(--line)] p-1.5"
+        className="sticky top-0 flex w-[4.5rem] shrink-0 flex-col gap-1 self-start p-1.5 lg:static lg:self-stretch lg:overflow-y-auto"
       >
         {FERRAMENTAS.map(({ id, rotulo, descricao, Icone }) => {
           const atual = id === ativa;
