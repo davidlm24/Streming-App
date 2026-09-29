@@ -850,6 +850,8 @@ export interface AuditLogEntry {
   details: string;
   /** Só neste navegador: o Firestore recusou a gravação (login de desenvolvimento, cota). */
   local?: boolean;
+  /** Sessão do Firebase de quem gravou, quando havia uma. Só ela sobe o registro depois. */
+  autorUid?: string | null;
 }
 
 // Auditoria que o Firestore recusa. O login de desenvolvimento não tem sessão
@@ -870,12 +872,59 @@ function lerAuditoriaLocal(): AuditLogEntry[] {
   }
 }
 
-function guardarNaAuditoriaLocal(entrada: AuditLogEntry) {
-  const logs = [...lerAuditoriaLocal(), entrada].slice(-MAXIMO_DA_AUDITORIA_LOCAL);
+function gravarAuditoriaLocal(logs: AuditLogEntry[]) {
+  const recentes = logs.slice(-MAXIMO_DA_AUDITORIA_LOCAL);
   try {
-    localStorage.setItem(CHAVE_DA_AUDITORIA_LOCAL, JSON.stringify(logs));
+    localStorage.setItem(CHAVE_DA_AUDITORIA_LOCAL, JSON.stringify(recentes));
   } catch {}
-  ouvintesDaAuditoriaLocal.forEach((ouvir) => ouvir(logs));
+  ouvintesDaAuditoriaLocal.forEach((ouvir) => ouvir(recentes));
+}
+
+function guardarNaAuditoriaLocal(entrada: AuditLogEntry) {
+  gravarAuditoriaLocal([...lerAuditoriaLocal(), entrada]);
+}
+
+let subindoAuditoriaLocal: Promise<void> | null = null;
+
+/**
+ * Sobe para o Firestore o que ficou neste navegador, quando ele volta a
+ * aceitar. Sobe só o que a sessão do Firebase aberta agora gravou: o login de
+ * desenvolvimento usa o e-mail do dono, e sem essa checagem as ações de uma
+ * sessão de teste entrariam na auditoria de verdade no primeiro login com
+ * Google. Sobe com o id original; as regras não deixam regravar um registro,
+ * então, se o Firestore recusa, confere se uma tentativa anterior já subiu.
+ */
+function subirAuditoriaLocal(): Promise<void> {
+  // O trabalho começa no próximo tique: assim a trava já está posta se a
+  // própria gravação avisar os ouvintes no meio e eles pedirem outra subida.
+  subindoAuditoriaLocal ??= Promise.resolve().then(async () => {
+    const uid = auth.currentUser?.uid;
+    if (!uid || isQuotaExceededFlag) return;
+    for (const entrada of lerAuditoriaLocal()) {
+      if (entrada.autorUid !== uid || !entrada.id) continue;
+      const { local, autorUid, ...registro } = entrada;
+      const docRef = doc(db, 'auditLogs', entrada.id);
+      let subiu = false;
+      try {
+        await setDoc(docRef, registro);
+        subiu = true;
+      } catch (err) {
+        if (isQuotaExceededError(err)) {
+          markQuotaExceeded();
+          break;
+        }
+        try {
+          subiu = (await getDoc(docRef)).exists();
+        } catch {}
+      }
+      // Ainda recusado: fica para a próxima vez que o Firestore responder.
+      if (!subiu) break;
+      gravarAuditoriaLocal(lerAuditoriaLocal().filter((e) => e.id !== entrada.id));
+    }
+  }).finally(() => {
+    subindoAuditoriaLocal = null;
+  });
+  return subindoAuditoriaLocal;
 }
 
 const maisNovoPrimeiro = (a: AuditLogEntry, b: AuditLogEntry) =>
@@ -901,6 +950,8 @@ export function subscribeAuditLogs(onUpdate: (logs: AuditLogEntry[]) => void) {
     });
     doFirestore = list;
     avisar();
+    // Resposta do servidor, não do cache: o Firestore está no ar.
+    if (!snapshot.metadata.fromCache) void subirAuditoriaLocal();
   }, (err) => {
     if (isQuotaExceededError(err)) {
       markQuotaExceeded();
@@ -969,7 +1020,12 @@ export async function addAuditLogToFirestore(entry: Omit<AuditLogEntry, 'id' | '
     await setDoc(docRef, logItem);
     gravou = true;
   });
-  if (!gravou) guardarNaAuditoriaLocal({ ...logItem, local: true });
+  if (!gravou) {
+    guardarNaAuditoriaLocal({ ...logItem, local: true, autorUid: auth.currentUser?.uid ?? null });
+    return;
+  }
+  // O Firestore aceitou: é a hora de subir o que tinha ficado aqui.
+  void subirAuditoriaLocal();
 }
 
 /**
