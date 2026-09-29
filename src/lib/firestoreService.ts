@@ -1021,7 +1021,13 @@ const maisNovoPrimeiro = (a: AuditLogEntry, b: AuditLogEntry) =>
 export function subscribeAuditLogs(onUpdate: (logs: AuditLogEntry[]) => void) {
   let doFirestore: AuditLogEntry[] = [];
   let locais = lerAuditoriaLocal();
-  const avisar = () => onUpdate([...doFirestore, ...locais].sort(maisNovoPrimeiro));
+  // O que sobe continua na cópia até a subida terminar, e o que uma
+  // tentativa anterior já subiu fica nela até a conferência: na tela, vale o
+  // do Firestore, uma vez só.
+  const avisar = () => {
+    const idsDoFirestore = new Set(doFirestore.map((l) => l.id));
+    onUpdate([...doFirestore, ...locais.filter((l) => !idsDoFirestore.has(l.id))].sort(maisNovoPrimeiro));
+  };
   const ouvirLocais = (logs: AuditLogEntry[]) => {
     locais = logs;
     avisar();
