@@ -728,13 +728,53 @@ export async function deleteCustomDestinationFromFirestore(userId: string, curre
 }
 
 // Webhook Event Logs Persistence
+//
+// O histórico fica no Firestore da conta e numa cópia local, como os
+// webinars. A cópia é o que guarda o histórico do login de desenvolvimento:
+// ele não tem sessão no Firebase, e as regras recusam leitura e gravação.
+// Diferente dos webinars, quem mostra o histórico não tem estado próprio, então
+// a cópia avisa quem escuta quando muda — até o Firestore responder.
+const MAXIMO_DE_WEBHOOK_LOGS_LOCAIS = 200;
+const chaveDosWebhookLogs = (userId: string) => `pwstream_webhook_logs_${userId}`;
+const ouvintesDosWebhookLogs = new Map<string, Set<(logs: WebhookLogItem[]) => void>>();
+
+function lerWebhookLogsLocais(userId: string): WebhookLogItem[] {
+  try {
+    const salvos = JSON.parse(localStorage.getItem(chaveDosWebhookLogs(userId)) || '[]');
+    return Array.isArray(salvos) ? salvos : [];
+  } catch {
+    return [];
+  }
+}
+
+function gravarWebhookLogsLocais(userId: string, logs: WebhookLogItem[], avisar: boolean) {
+  const recentes = logs.slice(-MAXIMO_DE_WEBHOOK_LOGS_LOCAIS);
+  try {
+    localStorage.setItem(chaveDosWebhookLogs(userId), JSON.stringify(recentes));
+  } catch {}
+  if (avisar) ouvintesDosWebhookLogs.get(userId)?.forEach((ouvir) => ouvir(recentes));
+}
+
 export function subscribeWebhookLogs(userId: string, onUpdate: (logs: WebhookLogItem[]) => void) {
+  // Até o Firestore responder vale a cópia local; se ele recusar (login de
+  // desenvolvimento), ela vale sempre.
+  let firestoreRespondeu = false;
+  const ouvirCopiaLocal = (logs: WebhookLogItem[]) => {
+    if (!firestoreRespondeu) onUpdate(logs);
+  };
+  const ouvintes = ouvintesDosWebhookLogs.get(userId) ?? new Set();
+  ouvintes.add(ouvirCopiaLocal);
+  ouvintesDosWebhookLogs.set(userId, ouvintes);
+  onUpdate(lerWebhookLogsLocais(userId));
+
   const colRef = collection(db, 'users', userId, 'webhookLogs');
-  return onSnapshot(colRef, (snapshot) => {
+  const pararDeOuvir = onSnapshot(colRef, (snapshot) => {
+    firestoreRespondeu = true;
     const list: WebhookLogItem[] = [];
     snapshot.forEach((docSnap) => {
       list.push({ id: docSnap.id, ...docSnap.data() } as WebhookLogItem);
     });
+    gravarWebhookLogsLocais(userId, list, false);
     // Vazio também avisa: depois de limpar, a lista tem de esvaziar. O filtro
     // de lista vazia protegia os registros de exemplo, que já não existem.
     onUpdate(list);
@@ -745,17 +785,25 @@ export function subscribeWebhookLogs(userId: string, onUpdate: (logs: WebhookLog
       console.warn('Firestore webhook logs error:', err?.message || err);
     }
   });
+
+  return () => {
+    ouvintes.delete(ouvirCopiaLocal);
+    pararDeOuvir();
+  };
 }
 
 export async function addWebhookLogToFirestore(userId: string, log: WebhookLogItem) {
+  const registro = { ...log, uid: userId };
+  gravarWebhookLogsLocais(userId, [...lerWebhookLogsLocais(userId).filter((l) => l.id !== log.id), registro], true);
   await safeFirestoreWrite(() => {
     const docRef = doc(db, 'users', userId, 'webhookLogs', log.id);
-    return setDoc(docRef, { ...log, uid: userId });
+    return setDoc(docRef, registro);
   });
 }
 
-/** Apaga todo o histórico de disparos de webhook guardado na conta. */
+/** Apaga todo o histórico de disparos de webhook guardado na conta (e a cópia local). */
 export async function clearWebhookLogsInFirestore(userId: string) {
+  gravarWebhookLogsLocais(userId, [], true);
   await safeFirestoreWrite(async () => {
     const registros = await getDocs(collection(db, 'users', userId, 'webhookLogs'));
     await Promise.all(registros.docs.map((registro) => deleteDoc(registro.ref)));
