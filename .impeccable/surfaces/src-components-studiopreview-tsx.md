@@ -2,7 +2,7 @@
 version: 1
 slug: "src-components-studiopreview-tsx"
 primary_target: "src/components/StudioPreview.tsx"
-related_targets: ["src/App.tsx","src/components/BarraDoEstudio.tsx","src/components/TrilhoDeCenas.tsx","src/components/MonitoresDoEstudio.tsx","src/components/PainelDoEstudio.tsx","src/components/BandejaDoEstudio.tsx","src/components/VirtualizedChat.tsx","src/components/LeftSidebar.tsx"]
+related_targets: ["src/App.tsx","src/components/Estudio.tsx","src/components/BarraDoEstudio.tsx","src/components/TrilhoDeCenas.tsx","src/components/MonitoresDoEstudio.tsx","src/components/PainelDoEstudio.tsx","src/components/BandejaDoEstudio.tsx","src/components/VirtualizedChat.tsx","src/components/GraficosDoPalco.tsx","src/components/CodigoQr.tsx","src/components/PecasDoPainel.tsx","src/components/PainelGraficos.tsx","src/components/PainelRoteiro.tsx","src/components/Teleprompter.tsx","src/components/PainelQrCode.tsx","src/components/PainelMidia.tsx","src/components/PainelCamera.tsx","src/lib/graficos.ts","src/lib/camera.ts","src/lib/useRoteiro.ts","src/lib/useListaDaConta.ts"]
 ---
 
 # Estúdio (console de corte)
@@ -19,7 +19,15 @@ related_targets: ["src/App.tsx","src/components/BarraDoEstudio.tsx","src/compone
 - Tudo o que é simulado sai: gravação, dispositivos "Simulado", slides e telas falsas, "+500 msgs", audiência de teste, convite com link morto, indicadores inventados, o rótulo "Gemini" quando não é, "Simular 30 dias".
 - O estúdio começa vazio: nenhum ticker, banner, logo, fundo ou overlay de terceiros.
 - Câmera e microfone só são pedidos no estúdio e se desligam ao sair.
-- Fase 1 é a casca: barra, trilho de cenas, programa e preview, coluna da direita e bandeja. Os painéis de ferramentas e os modais ficam para as fases 2 e 3.
+- Fase 1 foi a casca: barra, trilho de cenas, programa e preview, coluna da direita e bandeja.
+
+**Fase 2, os painéis (decidida com o usuário em 2026-09-29):**
+- Todo gráfico que vai ao ar passa pelo corte e é medido em fração do palco: logo, banner, ticker, QR code, cronômetro, sobreposição, fundo e a cor dos gráficos. O programa guarda o conteúdo, e não ids.
+- Clipes de vídeo são fonte de cena: parados no preview, tocando no programa a partir do corte, com som só ali.
+- O teleprompter fica no painel Roteiro e numa janela própria, perto da câmera; nunca sobre o preview. O roteiro é salvo na conta, um por webinar.
+- O QR code tem título e preço opcionais e é gerado no navegador.
+- Saem capturas, lousa, chat flutuante, trilha sonora, presets de marca, estilo de texto e o modo claro do estúdio. Estilo vira Câmera; Extras sai do trilho.
+- Os modais do estúdio ficam para a fase 3.
 
 **Momento memorável:** o corte. A cena escolhida vai para o preview, e ao lado dele está a lista do que muda no próximo corte; "Corte" ou "Fusão" leva tudo ao programa.
 

@@ -21,33 +21,23 @@ export interface Destination {
   updatedAt?: string;
 }
 
-export interface AudioTrack {
-  id: string;
-  name: string;
-  url?: string;
-  duration?: string;
-}
-
+/** Um ticker da lista do estúdio. A velocidade e o sentido são do estúdio e vão ao programa no corte. */
 export interface TickerItem {
   id: string;
   text: string;
   badgeText?: string;
-  speed?: 'slow' | 'normal' | 'fast';
-  direction?: 'left' | 'right';
 }
 
+/**
+ * Um banner da lista do estúdio: título e subtítulo. O desenho é um só, com a
+ * cor dos gráficos; saíram as cores próprias de cada banner (o tema "OneStream
+ * Green" era o padrão) e a posição e a escala que cada monitor guardava.
+ */
 export interface Banner {
   id: string;
   text: string;
   subtitle?: string;
-  themeColor?: string;
-  accentColor?: string;
-  x?: number;
-  y?: number;
-  scale?: number;
 }
-
-export type BannerPosition = 'bottom' | 'top' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'lateral';
 
 export interface Comment {
   id: string;
@@ -117,96 +107,82 @@ export interface GeometriaDoCard {
   formato: 'rounded' | 'circle' | 'compact';
 }
 
+/** Um canto do palco, para os gráficos que moram num canto: o logo e o QR code. */
+export type CantoDoPalco = 'cima-esquerda' | 'cima-direita' | 'baixo-esquerda' | 'baixo-direita';
+
+/** O logo no palco. O tamanho é a largura em % do palco; a opacidade vai de 0,2 a 1. */
+export interface LogoNoPalco {
+  url: string;
+  canto: CantoDoPalco;
+  tamanho: number;
+  opacidade: number;
+}
+
+/** O banner no palco: o texto dele, e não o id, para editar a lista não mudar o programa. */
+export interface BannerNoPalco {
+  /** De que banner da lista veio: só para os painéis dizerem onde ele está. O desenho usa o texto. */
+  id?: string;
+  titulo: string;
+  subtitulo: string;
+  posicao: 'embaixo' | 'em-cima';
+}
+
+export interface TickerNoPalco {
+  /** De que ticker da lista veio: só para os painéis dizerem onde ele está. */
+  id?: string;
+  texto: string;
+  selo: string;
+  velocidade: 'lenta' | 'normal' | 'rapida';
+  direcao: 'esquerda' | 'direita';
+}
+
+/** O QR code no palco, com título e preço opcionais. O tamanho é a largura do QR em % do palco. */
+export interface QrNoPalco {
+  url: string;
+  titulo: string;
+  preco: string;
+  canto: CantoDoPalco;
+  tamanho: number;
+}
+
+/** O cronômetro no palco. O relógio é um só e anda nos dois monitores; o corte leva o cronômetro e o título. */
+export interface CronometroNoPalco {
+  titulo: string;
+}
+
+/** Um clipe de vídeo no lugar da tela: parado no preview, tocando no programa a partir do corte. */
+export interface ClipeNoPalco {
+  id: string;
+  nome: string;
+  url: string;
+}
+
+/** Os gráficos de um monitor. Tudo aqui vai ao programa no corte, e só no corte. */
+export interface GraficosDoPalco {
+  /** A cor dos gráficos: a borda do card da câmera, o subtítulo do banner, o selo do ticker e o cronômetro. */
+  cor: string;
+  logo: LogoNoPalco | null;
+  banner: BannerNoPalco | null;
+  ticker: TickerNoPalco | null;
+  qr: QrNoPalco | null;
+  cronometro: CronometroNoPalco | null;
+}
+
+/**
+ * O que um monitor mostra. O preview mostra o estado em edição e o programa,
+ * o do último corte: os dois são desenhados pelo mesmo compositor a partir
+ * deste estado. Antes o corte levava ids (do banner, do ticker) e o programa
+ * buscava o conteúdo atual por eles, então editar a lista mudava o programa
+ * sem corte.
+ */
 export interface StudioSceneState {
   sceneId?: string;
   layout: '1-cam' | 'dual' | 'screen-share' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery';
   activeParticipantIds: string[];
-  activeBannerId: string | null;
-  activeTickerId: string | null;
-  pinnedComment: Comment | null;
-  bannerPosition: BannerPosition;
-  activeOverlay?: string;
-  activeBackground?: string;
-  activeLogo?: string;
-  activeSlide?: { name: string; currentPage: number; totalPages: number } | null;
-  selectedSharedSourceName?: string | null;
-  showQrCode?: boolean;
-  qrCodeText?: string;
-  qrCodeConfig?: QrCodeConfig;
-  timestamp?: number;
   cardDaCamera?: GeometriaDoCard;
+  activeBackground?: string;
+  activeOverlay?: string;
+  pinnedComment: Comment | null;
+  graficos: GraficosDoPalco;
+  clipe: ClipeNoPalco | null;
 }
-
-export interface QrCodeConfig {
-  id?: string;
-  title: string;
-  subtitle?: string;
-  price?: string;
-  originalPrice?: string;
-  discountBadge?: string;
-  storeUrl: string;
-  storeName?: string;
-  ctaLabel?: string;
-  imageUrl?: string;
-  orientation: 'horizontal' | 'vertical';
-  cardTheme: 'dark' | 'light' | 'brand' | 'glass' | 'neon' | 'gold';
-  qrColor?: string;
-  qrBgColor?: string;
-  showProductImage: boolean;
-  showPrice: boolean;
-  showDiscountBadge: boolean;
-  showStoreName: boolean;
-  showScanPrompt: boolean;
-  scale?: number;
-  x?: number;
-  y?: number;
-}
-
-/**
- * Abas do painel lateral do estúdio.
- *
- * Existe como união e não como `string` porque o app entrava no estúdio com
- * `useState<string>('first')` — um id que NENHUM painel tratava, então a
- * primeira visita abria numa barra lateral vazia. Sendo `string`, o
- * TypeScript não tinha como perceber. Agora um id inválido é erro de
- * compilação.
- *
- * Os ordinais ('seven', 'third') são herança do código atual; renomeá-los é
- * uma migração à parte, com os mesmos riscos de qualquer renomeação ampla.
- */
-export type StudioTab =
-  | 'seven'      // Chat — primeira aba do trilho, e o padrão
-  | 'widgets'
-  | 'schedule'
-  | 'design'
-  | 'theme'
-  | 'third'      // Prompter
-  | 'video'
-  | 'audience'
-  | 'settings'
-  | 'apps';
-
-/**
- * Transições de cena.
- *
- * Existiam QUATRO grafias desta união em cinco arquivos: o hook tinha só as
- * seis cortinas, o App tinha nove (sem 'smooth-wipe'), a LeftSidebar tinha
- * só as quatro básicas e o StudioPreview tinha as dez. Os erros de tipo
- * eram exatamente as costuras entre elas.
- *
- * São dois conceitos, e por isso dois nomes:
- *  - WipeTransitionType: efeitos de cortina, desenhados por sobreposição.
- *  - SceneTransitionType: tudo que o usuário pode escolher na interface.
- */
-export type WipeTransitionType =
-  | 'dip-to-color' | 'slide-wipe' | 'smooth-wipe'
-  | 'shutter-wipe' | 'radial-wipe' | 'flash';
-
-export type BasicTransitionType = 'cut' | 'fade' | 'slide' | 'zoom';
-
-export type SceneTransitionType = BasicTransitionType | WipeTransitionType;
-
-/** Estreita uma escolha da interface para o subconjunto que o hook aceita. */
-export const isWipeTransition = (t: SceneTransitionType): t is WipeTransitionType =>
-  t === 'dip-to-color' || t === 'slide-wipe' || t === 'smooth-wipe' ||
-  t === 'shutter-wipe' || t === 'radial-wipe' || t === 'flash';

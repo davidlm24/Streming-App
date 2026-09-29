@@ -1,4 +1,4 @@
-import type { GeometriaDoCard } from '../types';
+import type { CantoDoPalco, GeometriaDoCard } from '../types';
 
 /**
  * As cenas do estúdio: cada uma é um layout do palco e as fontes que entram
@@ -59,6 +59,30 @@ export function medidasDoCard(card: GeometriaDoCard) {
   const formato = FORMATOS_DO_CARD[card.formato];
   const largura = formato.largura * card.escala;
   return { largura, altura: (largura * 16) / 9 / formato.proporcao };
+}
+
+// A margem do card nos cantos, a mesma à vista dos dois lados: 3% da largura, 5,33% da altura (16:9)
+const MARGEM_X = 3;
+const MARGEM_Y = (3 * 16) / 9;
+
+/** Onde o canto do card fica, pelo tamanho que ele tem agora. */
+export function lugarDoCanto(card: GeometriaDoCard, canto: CantoDoPalco): { x: number; y: number } {
+  const { largura, altura } = medidasDoCard(card);
+  return {
+    x: canto.endsWith('esquerda') ? MARGEM_X : 100 - largura - MARGEM_X,
+    y: canto.startsWith('cima') ? MARGEM_Y : 100 - altura - MARGEM_Y,
+  };
+}
+
+/** Em que canto o card está, ou null se ele está solto no palco. */
+export function cantoDoCard(card: GeometriaDoCard): CantoDoPalco | null {
+  const cantos: CantoDoPalco[] = ['cima-esquerda', 'cima-direita', 'baixo-esquerda', 'baixo-direita'];
+  return (
+    cantos.find((canto) => {
+      const lugar = lugarDoCanto(card, canto);
+      return Math.abs(lugar.x - card.x) < 0.5 && Math.abs(lugar.y - card.y) < 0.5;
+    }) ?? null
+  );
 }
 
 /** O card inteiro dentro do palco, qualquer que seja o ajuste que o levou para fora. */

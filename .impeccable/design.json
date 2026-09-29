@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-28T22:16:29.126Z",
+  "generatedAt": "2026-09-29T10:54:10.840Z",
   "title": "Design System: PwStreamer",
   "extensions": {
     "colorMeta": {
@@ -386,7 +386,7 @@
     },
     "truthfulSave": {
       "confirmTimeoutMs": 10000,
-      "implementation": "gravarComConfirmacao (src/lib/firestoreService.ts): a única implementação da regra; salvarNomeDoPerfil e agendarWebinar passam por ela. Falha com ErroAoSalvar(motivo: FalhaAoSalvar).",
+      "implementation": "gravarComConfirmacao (src/lib/firestoreService.ts): a única implementação da regra; salvarNomeDoPerfil, agendarWebinar, salvarRoteiro e gravarLista passam por ela. Falha com ErroAoSalvar(motivo: FalhaAoSalvar).",
       "failures": {
         "sem-conexao": "offline ou sem cota: \"Sem conexão com a sua conta agora. Tente de novo mais tarde.\"",
         "sem-confirmacao": "sem confirmação em 10 s: \"Não deu para confirmar que o nome foi salvo / o webinar foi agendado. Confira a conexão e tente de novo.\"",
@@ -397,7 +397,16 @@
       "retry": "uma nova tentativa reusa o id do rascunho: escrita atrasada é repetida, nunca duplicada",
       "failureLine": "role=\"alert\", CircleAlert 16 + text-sm --ink-hi, text-pretty; num diálogo, no rodapé do Modal 12px acima das ações, fora do corpo que rola; o foco vai a \"Entrar de novo\" (sem-login) ou volta ao primário",
       "success": "aviso (\"Nome salvo\", \"Webinar agendado\" + rótulo do horário) só depois de o banco confirmar",
-      "source": "src/lib/firestoreService.ts (gravarComConfirmacao, salvarNomeDoPerfil, agendarWebinar, ErroAoSalvar, FalhaAoSalvar)"
+      "source": "src/lib/firestoreService.ts (gravarComConfirmacao, salvarNomeDoPerfil, agendarWebinar, salvarRoteiro, gravarLista, ErroAoSalvar, FalhaAoSalvar), src/lib/useListaDaConta.ts, src/lib/useRoteiro.ts",
+      "listas": {
+        "source": "src/lib/useListaDaConta.ts, src/lib/useRoteiro.ts, src/lib/firestoreService.ts (assinarLista, gravarLista, salvarRoteiro, lerRoteiro)",
+        "listaDaConta": "useListaDaConta (banners e tickers): grava a lista inteira por gravarLista; o item novo ou editado já vai ao preview, mas só conta como salvo com a confirmação. A última gravação decide (uma resposta atrasada não desfaz a situação). O que vem da conta não apaga uma mudança que a tela ainda não salvou.",
+        "assinatura": "assinarLista ignora escritas pendentes (hasPendingWrites, com includeMetadataChanges).",
+        "copiaDoAparelho": "O localStorage guarda só a lista que o banco confirmou, para abrir antes da conta responder; o não salvo some ao recarregar.",
+        "item": "\"não salvo\" com PenLine 12px em --ink-hi, ou \"salvando…\" em --ink-lo, depois de um ponto no EstadoNoPalco.",
+        "falha": "FalhaNoPainel embaixo da lista, com FRASE_DA_FALHA_DA_LISTA e \"Tentar de novo\".",
+        "roteiro": "salvarRoteiro 1,2 s depois da última tecla. Linha sob o título: \"Abrindo o roteiro salvo…\", \"Alterado\", \"Salvando…\", \"Salvo na sua conta às HH:MM\" (só depois da confirmação) ou \"Ainda não há roteiro salvo.\". Falhas: FRASE_DA_FALHA (ao salvar) e FRASE_DA_FALHA_AO_LER (o salvo não abriu; nada é salvo, para não sobrescrever a conta)."
+      }
     },
     "checkbox": {
       "primitive": "CaixaDeSelecao (src/components/ui/CaixaDeSelecao.tsx)",
@@ -447,14 +456,14 @@
     },
     "debtBaseline": {
       "hex-arbitrario-em-classe": 0,
-      "hex-em-atributo-jsx": 18,
-      "botao-cru-fora-da-primitiva": 256,
-      "paleta-slate-gray-estrutural": 56,
-      "tamanho-de-fonte-avulso": 636,
+      "hex-em-atributo-jsx": 9,
+      "botao-cru-fora-da-primitiva": 59,
+      "paleta-slate-gray-estrutural": 2,
+      "tamanho-de-fonte-avulso": 142,
       "dialogo-nativo-bloqueante": 0,
-      "outline-none": 73,
+      "outline-none": 20,
       "important-no-css": 6,
-      "z-index-avulso": 3
+      "z-index-avulso": 0
     },
     "publicSite": {
       "source": "src/components/InicioPublico.tsx, src/components/AuthAndPricing.tsx, src/components/PublicHeader.tsx",
@@ -477,19 +486,19 @@
       }
     },
     "foraDoSistema": {
-      "telas": "Os painéis de ferramentas do estúdio (o conteúdo do LeftSidebar, fase 2), incluindo o que eles ligam no palco (widgets flutuantes e os botões deles sobre o preview, teleprompter, ticker, banners, QR e lousa, ainda com cores cruas e px); os modais do estúdio (fase 3); e o super-admin ainda carregam o visual herdado do Google AI Studio. O console do estúdio (barra, trilho de cenas, monitores, coluna da direita e bandeja) e o site público saíram da dívida.",
-      "desvios": "Gatilho \"⋯\" do Menu (32px), avatar (32px), fechar do Modal (~34px), chip (36px), z-30 no cabeçalho do app, --line-ctl abaixo de 3:1, polegar da rolagem azul no hover. No console: o botão de fixar do chat (36px) e o gatilho de chevron dos aparelhos (36px de largura) abaixo de 44px; a borda do card da câmera na cor dos gráficos escolhida em Estilo (fase 2).",
-      "googleG": "As quatro cores do G do Google contam em hex-em-atributo-jsx e ficam: são a marca do Google no botão de login.",
+      "telas": "Os modais do estúdio (fase 3) e o super-admin ainda carregam o visual herdado do Google AI Studio. O console do estúdio (barra, trilho de cenas, monitores, coluna da direita, bandeja), os painéis de ferramentas e os gráficos do palco (fase 2) e o site público saíram da dívida.",
+      "desvios": "Gatilho \"⋯\" do Menu (32px), avatar (32px), fechar do Modal (~34px), chip (36px), z-30 no cabeçalho do app, --line-ctl abaixo de 3:1, polegar da rolagem azul no hover. No console: o botão de fixar do chat (36px) e o gatilho de chevron dos aparelhos (36px de largura) abaixo de 44px; a borda do card da câmera na cor dos gráficos, escolhida em Gráficos. Nos painéis: as cores dos gráficos em grid-cols-6 com ~41px no desktop (coluna de 264px; ~44px no celular); trocar de cena com um clipe tocando no programa remonta o vídeo quando o layout muda de ramo, e ele volta ao começo (fase 3).",
+      "googleG": "As quatro cores do G do Google contam nos 9 de hex-em-atributo-jsx e ficam: são a marca do Google no botão de login.",
       "formularioDeDesenvolvimento": "O formulário de e-mail e senha de Entrar e Criar conta existe só em desenvolvimento, não autentica e não é modelo; o primário azul dele não é a ação da tela."
     },
     "console": {
       "tokens": {
         "guia": "rgb(255 255 255 / 0.6): só no escopo console, as guias sobre a imagem do monitor, em mix-blend-difference"
       },
-      "source": "src/App.tsx (ramo do estúdio), src/components/BarraDoEstudio.tsx, TrilhoDeCenas.tsx, MonitoresDoEstudio.tsx, PainelDoEstudio.tsx, BandejaDoEstudio.tsx, MedidorDeAudio.tsx, VirtualizedChat.tsx, StudioPreview.tsx (o palco), src/lib/cenas.ts",
+      "source": "src/components/Estudio.tsx (dono do estado do estúdio; o App só o renderiza), BarraDoEstudio.tsx, TrilhoDeCenas.tsx, MonitoresDoEstudio.tsx, PainelDoEstudio.tsx, BandejaDoEstudio.tsx, MedidorDeAudio.tsx, VirtualizedChat.tsx, StudioPreview.tsx (o palco), GraficosDoPalco.tsx, src/lib/cenas.ts, src/lib/graficos.ts, src/lib/camera.ts",
       "scope": "data-surface=\"console\" na tela inteira do estúdio; escuro sempre, também no tema claro. Zero cor: sem ação colorida e sem vermelho enquanto o ar não existe; data-air=\"on\" nunca é posto.",
       "semAr": "Ir ao ar, relógio de ar, gravação e relatório saíram até a transmissão existir. A bandeja diz \"Transmitir para os canais ainda não está no ar.\" (a partir de lg).",
-      "grade": "h-[100dvh]; barra 48px em cima e bandeja embaixo, fora da rolagem; lg:grid-cols-[14rem_minmax(0,1fr)_23rem] (trilho de cenas, mesa de monitores, coluna da direita), cada coluna rola sozinha. Abaixo de lg, uma coluna que rola: monitores, cenas, coluna da direita (h-[36rem]).",
+      "grade": "h-[100dvh]; barra 48px em cima e bandeja embaixo, fora da rolagem; lg:grid-cols-[14rem_minmax(0,1fr)_23rem] (trilho de cenas, mesa de monitores, coluna da direita), cada coluna rola sozinha. Abaixo de lg, uma coluna que rola: monitores, cenas, coluna da direita (o painel cresce com a página; o chat em h-[36rem]).",
       "barra": "h-12 em --surface, linha embaixo: logo monocromático (leva ao Painel), h1 \"Estúdio · {sessão}\", ação de texto xs dos canais (\"Nenhum canal ligado\" / \"Canais: N de M prontos\", só a partir de md), \"Sair do estúdio\" ghost sm.",
       "cenas": {
         "fonte": "CENAS em src/lib/cenas.ts: Câmera, Tela com câmera, Câmera e tela lado a lado, Tela",
@@ -508,14 +517,30 @@
         "rotulo": "Fora da imagem, 8px acima: papel text-xs 500 --ink-hi, cena text-xs --ink-lo.",
         "anel": ".pw-frame com --pw-frame-radius 0px (canto reto): programa n-14 em repouso, preview n-89. O programa é inert."
       },
-      "proximoCorte": "Rótulo fora; caixa de canto reto em --panel, borda e divide-y 1px --line, altura do conteúdo, rola só acima da altura do preview. Linhas text-sm --ink com ArrowRight 14px --ink-lo, em palavras (pendingChanges em App.tsx). Vazia: \"Nada muda: o preview está igual ao programa.\". Ocupa o lugar da telemetria do console aprovado.",
-      "modelo": "Preview = estado em edição. Programa = StudioSceneState do último corte (cena, layout, fontes, banner, ticker, comentário fixado, QR, fundo, sobreposição, cardDaCamera), desenhado pelo mesmo StudioPreview com papel=\"programa\". Corte copia estadoDoPreview().",
+      "proximoCorte": {
+        "caixa": "Rótulo fora; caixa de canto reto em --panel, borda e divide-y 1px --line, altura do conteúdo, rola só acima da altura do preview. Linhas text-sm --ink com ArrowRight 14px --ink-lo. Ocupa o lugar da telemetria do console aprovado.",
+        "fonte": "mudancasNoCorte (src/lib/graficos.ts); é por ela que Corte e Fusão se acendem. Cada gráfico diz uma coisa só: entra, sai, troca ou muda.",
+        "ordem": "Cena (\"Cena: Tela com câmera\") ou \"Fontes em cena\"; card; clipe; fundo; sobreposição; logo; banner; ticker; QR code; cronômetro; comentário fixado; cor dos gráficos.",
+        "entra": "Com nome: \"Entra o banner: {título}\", \"Entra o ticker: {começo do texto}\", \"Entra o clipe: {nome}\". Sem nome: logo, fundo, sobreposição, QR code, cronômetro e comentário fixado (\"Entra o QR code\").",
+        "troca": "Outro item no lugar do que está no programa. Com nome: \"Troca o banner: {título}\", \"Troca o ticker: {começo do texto}\", \"Troca o clipe: {nome}\". Sem nome: \"Troca o logo\", \"Troca o fundo\", \"Troca a sobreposição\", \"Troca o comentário fixado\".",
+        "muda": "\"{Item}: partes\", juntadas por juntar: \"Card da câmera: posição, tamanho e formato\" (só com card nos dois), \"Logo: canto, tamanho e opacidade\", \"Banner: texto e posição\", \"Ticker: texto, velocidade e direção\", \"QR code: link, título, preço, canto e tamanho\", \"Cronômetro: título\".",
+        "sai": "\"Sai o …\" / \"Sai a …\".",
+        "cor": "\"Cor dos gráficos\" só quando há no preview algo desenhado com ela (banner, ticker, QR code, cronômetro ou o card).",
+        "resumo": "O texto do ticker resumido em 40 caracteres, cortado entre palavras, com \"…\".",
+        "vazia": "\"Nada muda: o preview está igual ao programa.\" em text-xs --ink-lo."
+      },
+      "modelo": {
+        "resumo": "Preview = estado em edição. Programa = StudioSceneState do último corte, desenhado pelo mesmo StudioPreview com papel=\"programa\". O corte copia estadoDoPreview. O programa abre na cena inicial sem gráficos (graficosVazios).",
+        "studioSceneState": "sceneId, layout, activeParticipantIds, cardDaCamera, activeBackground, activeOverlay, pinnedComment, graficos, clipe (ClipeNoPalco: id, nome, url | null).",
+        "graficos": "GraficosDoPalco: cor, logo (url, canto, tamanho, opacidade), banner (id?, titulo, subtitulo, posicao), ticker (id?, texto, selo, velocidade, direcao), qr (url, titulo, preco, canto, tamanho), cronometro (titulo); null quando fora.",
+        "conteudoNaoIds": "O programa guarda conteúdo, não ids: editar ou apagar um item da lista não muda o programa até o próximo corte. banner e ticker levam id opcional só para os painéis dizerem onde cada item está."
+      },
       "card": {
         "geometria": "GeometriaDoCard: x, y em % do palco; escala 0,6–1,8; formato. Largura em % da largura do palco: rounded 26, compact 21,6, circle 19,4, cada um com a sua proporção. Padrão x 71, y 64.",
         "limite": "dentroDoPalco mantém o card inteiro no palco.",
-        "edicao": "Só a mão no palco: arrastar move; alça neutra de 20px (borda --ink-hi sobre --surface; sem alça no círculo) muda o tamanho; leitura mono xs --ink sobre --surface (\"X 71% · Y 64%\" ou \"120%\") só durante o ajuste. Cantos, formato e tamanho exato em Estilo (fase 2)."
+        "edicao": "Só a mão no palco: arrastar move; alça neutra de 20px (borda --ink-hi sobre --surface; sem alça no círculo) muda o tamanho; leitura mono xs --ink sobre --surface (\"X 71% · Y 64%\" ou \"120%\") só durante o ajuste. Cantos, formato e tamanho exato no painel Câmera. A borda do card vai na cor dos gráficos."
       },
-      "espelho": "Propriedade da câmera, como o zoom e o enquadramento: vale nos dois monitores. Começa desligado.",
+      "espelho": "Propriedade da câmera, como o zoom e o enquadramento: vale nos dois monitores na hora, sem corte. Liga no painel Câmera; começa desligado.",
       "guias": "Ligadas pela bandeja. Terços, área segura inset 7% 6%, cruz central de 18px; linhas de 1px em --guia com mix-blend-difference; aria-hidden, sem clique.",
       "bandeja": {
         "controle": "CONTROLE: Button ghost min-h-11, aria-pressed. Ligado: --raise + --ink-hi. Desligado: --well + --ink-lo. Ícone e palavra; abaixo de sm, quadrado de 44px só com ícone e a palavra em sr-only.",
@@ -526,10 +551,57 @@
       "medidor": "RMS pelo Web Audio (piso −60 dB). Trilho reto h-2 em --well, 96px (64px abaixo de sm), segmentos de 5px com vão de 1px. Barra --ink-lo, --ink-hi acima de −12 dB; sem vermelho. Pico retido 1s, marcador de 2px --ink-hi. Leitura \"−xx dB\" mono xs --ink-lo a cada 120ms, oculta abaixo de sm. aria-hidden.",
       "colunaDaDireita": {
         "largura": "23rem",
-        "ferramentas": "tablist vertical w-[4.5rem], borda à esquerda: Chat, Gráficos, Roteiro, QR code, Mídia, Estilo, Extras. Aba min-h-14, ícone 18px sobre a palavra text-xs, raio 16px; aberta em --raise --ink-hi.",
+        "ferramentas": "tablist vertical w-[4.5rem] com seis abas: Chat, Gráficos, Roteiro, QR code, Mídia, Câmera (Câmera substituiu Estilo; Extras saiu). Aba min-h-14, ícone 18px sobre a palavra text-xs, raio 16px; aberta em --raise --ink-hi; title com o que há nela. A linha entre painel e trilho é do painel (border-r --line).",
         "chat": "Cabeçalho \"Chat\" + contagem text-xs --ink-lo, busca, \"⋯\" com Exportar o chat (.json) e Limpar o chat (--sig-texto, useConfirm); vazio honesto; linhas com divisória --line, nome xs 500 --ink-hi, hora mono --ink-lo, fixar com aria-pressed (fixada em --raise, \"fixado\"); campo \"Mensagem\" 44px e envio por ícone; nota \"Você escreve como {nome}. As mensagens ficam só neste estúdio.\"",
-        "paineis": "O conteúdo dos outros painéis continua fora do sistema (fase 2)."
-      }
+        "rolagem": "Desktop: a coluna tem a altura do console; painel e trilho rolam por dentro. Abaixo de lg: o painel cresce com a página, o trilho fica sticky top-0, e o chat tem h-[36rem] (lg:h-full)."
+      },
+      "excecoesDoCorte": "Valem nos dois monitores na hora, sem corte, por serem propriedades da fonte ao vivo: enquadramento (zoom, x, y), espelho, croma e o relógio do cronômetro (RelogioDoCronometro; o corte leva o cronômetro e o título). Todo o resto passa pelo corte, e as dicas dos painéis dizem isso.",
+      "paineis": {
+        "source": "src/components/PecasDoPainel.tsx, PainelGraficos.tsx, PainelRoteiro.tsx, PainelQrCode.tsx, PainelMidia.tsx, PainelCamera.tsx, Teleprompter.tsx, CodigoQr.tsx, ui/Segmentado.tsx",
+        "principio": "Coluna de ~260px ao lado do trilho. O painel é o único editor e o palco o único desenho: nada de alça, botão ou barra sobre a imagem. O que o painel liga vai ao preview; o corte leva ao programa (fora as exceções do corte). Movimento: só cor em 150ms.",
+        "pecas": {
+          "SecaoDoPainel": "section aberta por linha 1px --line (a primeira sem), sem cartão, px/py 16px; título text-sm 500 --ink-hi em linha min-h-8 com a acao à direita; estado logo sob o título; dica text-xs --ink-lo text-pretty; conteúdo 12px abaixo, 12px entre peças.",
+          "EscolhaDoPainel": "Nome em cima (text-xs --ink, aria-hidden), controle embaixo.",
+          "Deslizante": "Campo dentro do label; nome text-xs --ink à esquerda, medida mono xs tabular-nums --ink-lo à direita (também aria-valuetext). .deslizante: trilho 4px --line-ctl, polegar 16px --ink-hi, alvo 24px; desativado a 45 %.",
+          "SeletorDeCanto": "radiogroup 2×2 na posição dos cantos na imagem; opções size-11 (44px), raio 10px, seta 16px; borda --line-ctl raio 16px; marcada --raise --ink-hi, outras --ink-lo; sem valor, nenhuma marcada.",
+          "EnviarArquivo": "label min-h-11 com borda tracejada --line-ctl (porque adiciona), + 16px; \"Enviando…\" a 60 %; foco no rótulo por .envio; falha em ErroDeCampo logo embaixo.",
+          "GradeDeImagens": "radiogroup de 3 colunas quadradas em --well, \"Nenhum\" primeiro; marcada com borda e anel 1px --ink-hi. Embaixo, uma linha para a imagem do preview e outra para a do programa quando é outra: nome, EstadoNoPalco, ondeFicou e \"Excluir\" (com confirmação).",
+          "CampoDoPainel": "Campo h-11 em --well dentro do label, rótulo text-xs --ink em cima; dica ou ErroDeCampo embaixo por aria-describedby.",
+          "EstadoNoPalco": "ondeEsta: \"no programa\", \"no preview\", \"no programa e no preview\"; no programa em 500 --ink-hi, só no preview em --ink-lo; extra depois de \"·\".",
+          "FalhaNoPainel": "role=\"alert\": CircleAlert 16px + frase text-sm --ink-hi, terminada por \"Tentar de novo\" sublinhado.",
+          "useSetasDoGrupo": "Só a marcada no Tab; setas marcam a vizinha; Home/End; numa grade, ↑/↓ pulam uma linha.",
+          "Segmentado": "largura=\"cheia\" (flex-1, divide a coluna por igual; todo segmentado de painel) e desativado (todas as opções a 45 %)."
+        },
+        "graficos": "Banner, Ticker (listas da conta com divide-y: texto, detalhe, EstadoNoPalco, \"Pôr/Tirar do preview\" ghost sm, \"Editar\" e \"Excluir\" xs; editar e \"Novo …\" abrem um formulário de dois campos no lugar), Logo (canto, 4–30 % da largura, opacidade 20–100 %), Cronômetro (Switch, título, duração 5/10/15/30 min só com o relógio zerado, tempo mono text-base, Iniciar/Pausar/Continuar e Zerar), Cor dos gráficos, Fundo e Sobreposição.",
+        "corDosGraficos": "Mora em Gráficos. CORES_DOS_GRAFICOS (Grafite = COR_PADRAO, Branco, Azul, Verde, Amarelo, Roxo) num radiogroup grid-cols-6, marcada com borda --ink-hi, e \"Outra cor\" (seletor nativo, 44px). Pinta a borda do card, o subtítulo do banner, o selo do ticker, o preço do QR e a barra do cronômetro; texto preto ou branco por corDoTextoSobre. É cor da live, não do console.",
+        "roteiro": "Teleprompter, \"Roteiro do webinar …\" (ou geral) e Notas (o teleprompter não lê). Um roteiro por webinar, salvo na conta.",
+        "qr": "Link (normalizarLink; sem esquema ganha https://), título e preço opcionais, canto e tamanho (8–24 % da largura). O Switch só liga com link válido. Canto padrão em cima à esquerda (QR_PADRAO).",
+        "midia": "Clipes MP4 ou WebM em lista divide-y: Film 16px, nome, EstadoNoPalco, ondeFicou, \"Pôr/Tirar do preview\" e \"Excluir\". Vazio: \"Nenhum clipe ainda.\"",
+        "camera": "Card da câmera (canto, formato Retângulo/Compacto/Círculo, tamanho 60–180 %, \"Voltar ao padrão\"; só na cena com card; vai pelo corte), Enquadramento (zoom 1–2,5×, horizontal/vertical até deslocamentoMaximo; desativados com zoom 1), Espelhar a câmera e Croma (verde/azul, tolerância, suavização, reflexo). Enquadramento, espelho e croma valem na hora.",
+        "preferencias": "Ajustes da câmera e escolhas dos painéis em localStorage (usePreferencia); o que estava no preview não volta: cada visita começa sem gráficos."
+      },
+      "graficosDoPalco": {
+        "source": "src/components/GraficosDoPalco.tsx, src/index.css (GRÁFICOS DO PALCO)",
+        "palco": ".palco é container palco / size; tudo em cqw/cqh. Área segura: --g-margem-x 6cqw, --g-margem-y 7cqh. .palco--com-ticker: --g-ticker 6.5cqh, e o que fica embaixo sobe acima dele.",
+        "cores": "Da imagem, não do console: --g-fundo rgb(11 13 16 / 0.92), --g-texto branco, --g-texto-2 branco a 78 %, e a cor dos gráficos.",
+        "mouse": "pointer-events: none em tudo.",
+        "cantos": ".grafico--{canto} para logo e QR, dentro da área segura; logo com largura em cqw, no máximo 22cqh.",
+        "pilha": "Banner e comentário fixado à esquerda, gap 1.4cqh, max 64cqw. Banner embaixo: colado à área segura, o comentário sobe (column-reverse); em cima: cada um no seu lugar. Título 2.5cqw 600 sobre --g-fundo; subtítulo 1.5cqw 500 na cor.",
+        "ticker": "Faixa inteira no pé, 6.5cqh; selo 1.6cqw 600 na cor; texto 1.9cqw 500; duração por duracaoDoTicker (cresce com o texto, não com o monitor). Com movimento reduzido, parado, lido da esquerda.",
+        "qr": "Cartão branco; código em SVG; título 1.3cqw 600; preço 1.5cqw 600 tabular-nums na cor.",
+        "cronometro": "No meio; só título (1.7cqw) e tempo (6.4cqw 600 tabular-nums); barra 0.6cqh na cor que encolhe com o resto."
+      },
+      "teleprompter": {
+        "source": "src/components/Teleprompter.tsx",
+        "leitor": "LeitorDoRoteiro no painel Roteiro (h-48, --bg, borda --line, raio 16px) ou numa janela; nunca sobre o preview. Linha dos olhos 1px --line-ctl a 40 %. Texto --ink-hi 500, entrelinha 1.4.",
+        "tamanhos": "P/M/G/GG: 16/20/24/28px no painel, 28/40/56/72px na janela.",
+        "janela": "Aberta no próprio clique: Picture-in-Picture de documento, ou popup 960 × 360; escopo console; controles em cima (Tocar/Pausar, − e + da velocidade, \"velocidade N\" em mono, \"Fechar a janela\"). Um estado só: trocar de lugar continua de onde parou.",
+        "velocidade": "1 a 10, proporcional ao tamanho do texto; conta o tempo entre quadros; para no fim do texto.",
+        "espelho": "Só na janela (\"Espelhar na janela\").",
+        "teclado": "Espaço toca e pausa; ↑/↓ mudam a velocidade."
+      },
+      "clipe": "Fonte de cena, no lugar da tela: parado e mudo no preview; toca com som no programa a partir do corte, sem controles do navegador. Na Fusão, a camada que sai mostra o quadro congelado no instante do corte (congelarQuadro).",
+      "qrCode": "CodigoQr: gerado no navegador com uqr (ecc M, borda de 2 módulos), SVG em currentColor; sem serviço de terceiros."
     }
   },
   "components": [
@@ -745,9 +817,17 @@
       "name": "Trilho de ferramentas do estúdio",
       "kind": "nav",
       "refersTo": "tool-tab-active",
-      "description": "Tablist vertical de 72px na borda da coluna da direita: abas de 56px com ícone de 18px sobre a palavra em text-xs; a aberta em --raise --ink-hi.",
-      "html": "<div class=\"ds-tt\" data-surface=\"console\" role=\"tablist\" aria-orientation=\"vertical\" aria-label=\"Ferramentas\"><button type=\"button\" role=\"tab\" class=\"ds-tt-b\" aria-selected=\"true\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg><span>Chat</span></button><button type=\"button\" role=\"tab\" class=\"ds-tt-b\" aria-selected=\"false\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m12 2 10 5-10 5L2 7z\"/><path d=\"m2 17 10 5 10-5\"/><path d=\"m2 12 10 5 10-5\"/></svg><span>Gráficos</span></button><button type=\"button\" role=\"tab\" class=\"ds-tt-b\" aria-selected=\"false\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><line x1=\"4\" x2=\"20\" y1=\"7\" y2=\"7\"/><line x1=\"4\" x2=\"20\" y1=\"12\" y2=\"12\"/><line x1=\"4\" x2=\"20\" y1=\"17\" y2=\"17\"/></svg><span>Estilo</span></button></div>",
-      "css": ".ds-tt { display: flex; flex-direction: column; gap: 4px; width: 72px; padding: 6px; border-left: 1px solid var(--line, #282D31); background: var(--surface, #111315); font-family: Poppins, system-ui, sans-serif; } .ds-tt-b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 56px; padding: 0 4px; border: 0; border-radius: 16px; background: transparent; color: var(--ink-lo, #A2ACB7); font: inherit; font-size: 12px; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-tt-b:hover { background: var(--panel, #181B1F); color: var(--ink-hi, #F0F5F9); } .ds-tt-b[aria-selected=\"true\"] { background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); } .ds-tt-b:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+      "description": "Tablist vertical de 72px na borda da coluna da direita, com seis abas (Chat, Gráficos, Roteiro, QR code, Mídia, Câmera): 56px, ícone de 18px sobre a palavra em text-xs; a aberta em --raise --ink-hi. A linha entre painel e trilho é do painel.",
+      "html": "<div class=\"ds-tt\" data-surface=\"console\" role=\"tablist\" aria-orientation=\"vertical\" aria-label=\"Ferramentas\"><button type=\"button\" role=\"tab\" class=\"ds-tt-b\" aria-selected=\"true\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z\"/><circle cx=\"12\" cy=\"13\" r=\"3\"/></svg><span>Câmera</span></button></div>",
+      "css": ".ds-tt { display: flex; flex-direction: column; gap: 4px; width: 72px; padding: 6px; background: var(--surface, #111315); font-family: Poppins, system-ui, sans-serif; } .ds-tt-b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 56px; padding: 0 4px; border: 0; border-radius: 16px; background: transparent; color: var(--ink-lo, #A2ACB7); font: inherit; font-size: 12px; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-tt-b:hover { background: var(--panel, #181B1F); color: var(--ink-hi, #F0F5F9); } .ds-tt-b[aria-selected=\"true\"] { background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); } .ds-tt-b:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Seção do painel (estúdio)",
+      "kind": "custom",
+      "refersTo": "corner-picker-selected",
+      "description": "SecaoDoPainel com um item de lista e o SeletorDeCanto: seção aberta por linha, sem cartão; título text-sm 500 --ink-hi; estado sob o nome no peso das cenas; cantos 2×2 de 44px com o marcado em --raise.",
+      "html": "<section class=\"ds-sp\" data-surface=\"console\" aria-labelledby=\"ds-sp-t\"><h3 id=\"ds-sp-t\" class=\"ds-sp-t\">Banner</h3><p class=\"ds-sp-d\">Título e subtítulo, embaixo ou em cima da imagem.</p><ul class=\"ds-sp-l\"><li><p class=\"ds-sp-n\">Ana Souza</p><p class=\"ds-sp-e\"><span class=\"ds-sp-pg\">no programa</span> · <span class=\"ds-sp-ns\">não salvo</span></p></li></ul><div class=\"ds-sp-c\" role=\"radiogroup\" aria-label=\"Canto do logo\"><button type=\"button\" role=\"radio\" aria-checked=\"false\" aria-label=\"Em cima, à esquerda\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 17V7h10\"/><path d=\"M17 17 7 7\"/></svg></button><button type=\"button\" role=\"radio\" aria-checked=\"true\" aria-label=\"Em cima, à direita\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 7h10v10\"/><path d=\"M7 17 17 7\"/></svg></button><button type=\"button\" role=\"radio\" aria-checked=\"false\" aria-label=\"Embaixo, à esquerda\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M17 7 7 17\"/><path d=\"M17 17H7V7\"/></svg></button><button type=\"button\" role=\"radio\" aria-checked=\"false\" aria-label=\"Embaixo, à direita\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m7 7 10 10\"/><path d=\"M17 7v10H7\"/></svg></button></div></section>",
+      "css": ".ds-sp { width: 260px; padding: 16px; border-top: 1px solid var(--line, #282D31); background: var(--surface, #111315); font-family: Poppins, system-ui, sans-serif; } .ds-sp-t { margin: 0; min-height: 32px; display: flex; align-items: center; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-sp-d { margin: 4px 0 0; font-size: 12px; color: var(--ink-lo, #A2ACB7); } .ds-sp-l { list-style: none; margin: 12px 0; padding: 12px 0; border-block: 1px solid var(--line, #282D31); } .ds-sp-n { margin: 0; font-size: 14px; color: var(--ink-hi, #F0F5F9); } .ds-sp-e { margin: 2px 0 0; font-size: 12px; color: var(--ink-lo, #A2ACB7); } .ds-sp-pg { font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-sp-ns { color: var(--ink-hi, #F0F5F9); } .ds-sp-c { display: grid; grid-template-columns: repeat(2, 44px); gap: 4px; width: fit-content; padding: 2px; border: 1px solid var(--line-ctl, #3C4349); border-radius: 16px; } .ds-sp-c button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--ink-lo, #A2ACB7); font: inherit; cursor: pointer; transition: color 150ms; } .ds-sp-c button:hover { color: var(--ink-hi, #F0F5F9); } .ds-sp-c button[aria-checked=\"true\"] { background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); } .ds-sp-c button:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     }
   ],
   "narrative": {
@@ -821,7 +901,7 @@
       },
       {
         "name": "Regra do Salvo de Verdade",
-        "body": "Uma tela só diz \"salvo\" (o aviso \"Nome salvo\") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão ou sem cota, \"tente de novo mais tarde\"; sem confirmação em 10 s, \"não deu para confirmar\"; sessão expirada, \"Entrar de novo\"; recusa, \"tente de novo\". A restauração da sessão é esperada (esperarSessao) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de \"salvo\" local que o banco não viu. A regra tem uma implementação só, gravarComConfirmacao em src/lib/firestoreService.ts, que falha com ErroAoSalvar (motivo FalhaAoSalvar: sem-login, sem-conexao, sem-confirmacao, recusado); salvarNomeDoPerfil e agendarWebinar passam por ela, e toda gravação nova também passa. Enquanto grava, o primário fica em loading e Cancelar desabilita; o rascunho só se apaga depois da confirmação. Uma nova tentativa de criar algo reusa o id do rascunho, e uma escrita atrasada é repetida, nunca duplicada.",
+        "body": "Uma tela só diz \"salvo\" (o aviso \"Nome salvo\") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão ou sem cota, \"tente de novo mais tarde\"; sem confirmação em 10 s, \"não deu para confirmar\"; sessão expirada, \"Entrar de novo\"; recusa, \"tente de novo\". A restauração da sessão é esperada (esperarSessao) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de \"salvo\" local que o banco não viu. A regra tem uma implementação só, gravarComConfirmacao em src/lib/firestoreService.ts, que falha com ErroAoSalvar (motivo FalhaAoSalvar: sem-login, sem-conexao, sem-confirmacao, recusado); salvarNomeDoPerfil, agendarWebinar, salvarRoteiro e gravarLista passam por ela, e toda gravação nova também passa. Enquanto grava, o primário fica em loading e Cancelar desabilita; o rascunho só se apaga depois da confirmação. Uma nova tentativa de criar algo reusa o id do rascunho, e uma escrita atrasada é repetida, nunca duplicada.",
         "section": "components"
       },
       {
@@ -841,7 +921,17 @@
       },
       {
         "name": "Regra do Preview Fiel",
-        "body": "O preview mostra exatamente o que o corte leva: a mesma composição, a mesma proporção e o mesmo espelho do programa, desenhados pelo mesmo compositor. Nada vai sobre a imagem que não iria ao ar: o papel, a cena e o estado ficam no rótulo, fora dela. Sobre a imagem só entram, sob a mão, a alça e a leitura do card enquanto ele é ajustado, e as guias, que o operador liga e que valem nos dois monitores. Os gráficos do palco são medidos em fração do palco (%), nunca em px, para ocuparem a mesma parte da imagem num monitor pequeno e num grande.",
+        "body": "O preview mostra exatamente o que o corte leva: a mesma composição, a mesma proporção e o mesmo espelho do programa, desenhados pelo mesmo compositor. Nada vai sobre a imagem que não iria ao ar: o papel, a cena e o estado ficam no rótulo, fora dela. Sobre a imagem só entram, sob a mão, a alça e a leitura do card enquanto ele é ajustado, e as guias, que o operador liga e que valem nos dois monitores. Os gráficos do palco são medidos em fração do palco (cqw, cqh ou %), nunca em px, para ocuparem a mesma parte da imagem num monitor pequeno e num grande. Tudo passa pelo corte, com quatro exceções, que valem nos dois monitores na hora, por serem propriedades da fonte ao vivo, como a própria câmera e a tela: o enquadramento (zoom, x, y), o espelho, o croma e o relógio do cronômetro. Os painéis dizem isso nas dicas.",
+        "section": "components"
+      },
+      {
+        "name": "Regra do Onde Está",
+        "body": "Todo item que um painel põe no palco diz onde está, com as palavras das cenas: \"no programa\", \"no preview\" ou \"no programa e no preview\" (ondeEsta), logo sob o nome dele (EstadoNoPalco). No programa, em 500 --ink-hi; só no preview, em --ink-lo; fora dos dois, nada. O que o item precisa vem depois de um ponto (\"no preview · não salvo\").",
+        "section": "components"
+      },
+      {
+        "name": "O Salvo de Verdade nas listas",
+        "body": "Banners e tickers (useListaDaConta) só contam como salvos com a confirmação do banco; a última gravação decide; a assinatura ignora escritas pendentes; a cópia do aparelho só guarda o que o banco confirmou. O item diz \"não salvo\" (PenLine 12px, --ink-hi) ou \"salvando…\" (--ink-lo); a falha é FalhaNoPainel. O roteiro é salvo por salvarRoteiro, com FRASE_DA_FALHA e FRASE_DA_FALHA_AO_LER, e \"Salvo na sua conta às HH:MM\" só depois da confirmação.",
         "section": "components"
       }
     ],
@@ -871,7 +961,10 @@
       "Do levar links para fora do app por <AcaoDeTexto href>, que abre em outra aba e avisa o leitor de tela.",
       "Do desenhar o programa com o mesmo StudioPreview do preview (papel=\"programa\"), alimentado pelo estado do último corte, e dizer em palavras, no próximo corte, o que o corte leva.",
       "Do pôr o papel e a cena de cada monitor no rótulo, fora da imagem, e dar a cada monitor o lugar da moldura inteira (palco em 16:9 mais o anel).",
-      "Do medir a posição e o tamanho de todo gráfico do palco em % do palco, e manter o card da câmera dentro dele por dentroDoPalco.",
+      "Do medir a posição e o tamanho de todo gráfico do palco em fração do palco (cqw, cqh ou %), dentro da área segura, e manter o card da câmera dentro dele por dentroDoPalco.",
+      "Do fazer todo gráfico passar pelo corte; só o enquadramento, o espelho, o croma e o relógio do cronômetro valem na hora, e a dica do painel diz qual é qual.",
+      "Do montar painel de coluna estreita com as peças de PecasDoPainel, com todo segmentado em largura=\"cheia\", e dizer sob cada item onde ele está (EstadoNoPalco).",
+      "Do dar a todo radiogroup de painel o teclado de useSetasDoGrupo: uma parada no Tab, setas entre as opções.",
       "Do dizer o estado de uma cena e de um controle da bandeja em palavra, com aria-current ou aria-pressed, e a subida na rampa.",
       "Do checar todo par novo de texto/superfície nos três escopos: npm run verify roda tipos, stylelint, o portão de contraste (WCAG AA em escuro, claro e console), a catraca de dívida, os botões só-ícone e os rótulos de formulário. O mesmo roda no CI (.github/workflows/design-system.yml)."
     ],
@@ -896,6 +989,8 @@
       "Don't espelhar só um monitor: o espelho é da câmera e vale no preview e no programa.",
       "Don't desenhar selo, etiqueta ou botão sobre a imagem de um monitor (\"PRÉVIA\", \"AO VIVO\", \"PUSH TO LIVE\"); o rótulo fica fora.",
       "Don't dimensionar gráfico do palco em px.",
+      "Don't editar gráfico sobre a imagem, nem pôr o teleprompter sobre o preview: o painel edita, e o teleprompter lê no painel ou na janela.",
+      "Don't guardar no aparelho, como salva, uma lista que o banco não confirmou, nem mandar o link de um QR code a serviço de terceiros.",
       "Don't mostrar no estúdio o que ainda não existe: nada de ir ao ar, relógio de ar, gravação, telemetria nem aparelho \"Simulado\". O que falta vira frase.",
       "Don't pôr cor no console: nem no controle ligado, nem na tecla de transição, nem no medidor perto do limite.",
       "Don't subir número nenhum de scripts/design-debt-baseline.json. A catraca deixa a dívida cair e nunca crescer sem um --update visível na revisão."

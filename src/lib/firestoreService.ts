@@ -21,7 +21,7 @@ import {
 } from 'firebase/firestore';
 import { auth, googleAuthProvider, db, storage, disableNetwork } from './firebase.ts';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { Banner, Destination } from '../types.ts';
+import { Banner, Destination, TickerItem } from '../types.ts';
 
 export interface UserProfile {
   uid: string;
@@ -376,6 +376,34 @@ export async function agendarWebinar(webinar: WebinarData): Promise<void> {
   );
 }
 
+/** O roteiro do teleprompter e as notas de quem apresenta, de um webinar ou o geral. */
+export interface RoteiroSalvo {
+  texto: string;
+  notas: string;
+  atualizadoEm: string;
+}
+
+/**
+ * O roteiro de um webinar (`users/{uid}/roteiros/{id do webinar}`), ou o
+ * geral (`…/roteiros/geral`) quando o estúdio abre sem webinar. Confirmado
+ * pelo banco, pela Regra do Salvo de Verdade. Antes o roteiro não era salvo
+ * em lugar nenhum e voltava ao texto padrão ao recarregar.
+ */
+export async function salvarRoteiro(id: string, dados: { texto: string; notas: string }): Promise<void> {
+  await gravarComConfirmacao((uid) =>
+    setDoc(doc(db, 'users', uid, 'roteiros', id), { ...dados, atualizadoEm: new Date().toISOString() })
+  );
+}
+
+/** Lê o roteiro salvo; null se ainda não há. Falha com `ErroAoSalvar` sem sessão. */
+export async function lerRoteiro(id: string): Promise<RoteiroSalvo | null> {
+  await esperarSessao();
+  const uid = auth.currentUser?.uid;
+  if (!uid) throw new ErroAoSalvar('sem-login');
+  const snap = await getDoc(doc(db, 'users', uid, 'roteiros', id));
+  return snap.exists() ? (snap.data() as RoteiroSalvo) : null;
+}
+
 /** Se a sessão atual entrou pelo Google, de onde vem o e-mail da conta. */
 export function entrouComGoogle(): boolean {
   return auth.currentUser?.providerData.some((p) => p.providerId === 'google.com') ?? false;
@@ -531,109 +559,71 @@ export async function deleteWebinarFromFirestore(userId: string, webinarId: stri
   });
 }
 
-// Banners Persistence
-export function subscribeBanners(userId: string, onUpdate: (banners: Banner[]) => void) {
-  const localKey = `pwstream_banners_${userId}`;
-  const localSaved = localStorage.getItem(localKey);
-  if (localSaved) {
-    try {
-      const parsed = JSON.parse(localSaved);
-      if (Array.isArray(parsed) && parsed.length > 0) onUpdate(parsed);
-    } catch {}
+// ── Listas do estúdio (banners e tickers) ──────────────────────────────────
+// Cada lista é um documento em studioSettings. O aparelho guarda só a última
+// lista que o banco confirmou, para ela abrir antes de a conta responder: uma
+// mudança que não foi salva some ao recarregar, como a tela avisa. Antes a
+// cópia do aparelho era escrita antes de o banco responder, e um banner que
+// não chegou à conta parecia salvo neste navegador.
+
+function guardarNoAparelho(chave: string, lista: unknown[]) {
+  try {
+    localStorage.setItem(chave, JSON.stringify(lista));
+  } catch {
+    // Sem armazenamento, a lista abre quando a conta responder
+  }
+}
+
+/**
+ * Assina uma lista do estúdio. Entrega a cópia do aparelho e, depois, só o
+ * que o banco confirmou: as escritas deste aparelho ainda pendentes não
+ * contam, para a tela não tomar por salvo o que o banco não viu.
+ */
+function assinarLista<T>(userId: string, documento: string, campo: string, onUpdate: (lista: T[]) => void) {
+  const chave = `pwstream_${campo}_${userId}`;
+  try {
+    const salva = JSON.parse(localStorage.getItem(chave) ?? 'null');
+    if (Array.isArray(salva)) onUpdate(salva);
+  } catch {
+    // Cópia ilegível: a lista abre quando a conta responder
   }
 
-  const docRef = doc(db, 'users', userId, 'studioSettings', 'bannersDoc');
-  return onSnapshot(docRef, (snapshot) => {
-    if (snapshot.exists()) {
-      const data = snapshot.data();
-      if (data?.banners && Array.isArray(data.banners)) {
-        localStorage.setItem(localKey, JSON.stringify(data.banners));
-        onUpdate(data.banners);
-      }
-    }
-  }, (err) => {
-    if (isQuotaExceededError(err)) {
-      markQuotaExceeded();
-    } else {
-      console.warn('Firestore banners snapshot error:', err?.message || err);
-    }
+  return onSnapshot(
+    doc(db, 'users', userId, 'studioSettings', documento),
+    // Com os metadados, a confirmação de uma escrita que atrasou também chega
+    { includeMetadataChanges: true },
+    (snapshot) => {
+      if (snapshot.metadata.hasPendingWrites) return;
+      const lista = snapshot.exists() ? snapshot.data()[campo] : null;
+      if (!Array.isArray(lista)) return;
+      guardarNoAparelho(chave, lista);
+      onUpdate(lista);
+    },
+    (err) => {
+      if (isQuotaExceededError(err)) markQuotaExceeded();
+      else console.warn(`Firestore ${campo} snapshot error:`, err?.message || err);
+    },
+  );
+}
+
+/** Grava a lista inteira e só resolve depois de o banco confirmar (Regra do Salvo de Verdade). */
+async function gravarLista(documento: string, campo: string, lista: unknown[]): Promise<void> {
+  await gravarComConfirmacao(async (uid) => {
+    await setDoc(doc(db, 'users', uid, 'studioSettings', documento), { [campo]: lista, uid, updatedAt: new Date().toISOString() });
+    guardarNoAparelho(`pwstream_${campo}_${uid}`, lista);
   });
 }
 
-export async function saveBannersToFirestore(userId: string, banners: Banner[]) {
-  // Update local storage cache immediately
-  const localKey = `pwstream_banners_${userId}`;
-  try {
-    localStorage.setItem(localKey, JSON.stringify(banners));
-  } catch {}
+export const subscribeBanners = (userId: string, onUpdate: (banners: Banner[]) => void) =>
+  assinarLista(userId, 'bannersDoc', 'banners', onUpdate);
 
-  // Single doc write instead of looping through all banners
-  await safeFirestoreWrite(() => {
-    const docRef = doc(db, 'users', userId, 'studioSettings', 'bannersDoc');
-    return setDoc(docRef, { banners, uid: userId, updatedAt: new Date().toISOString() });
-  });
-}
+export const salvarBanners = (banners: Banner[]) => gravarLista('bannersDoc', 'banners', banners);
 
-// Snapshots Persistence
-export function subscribeSnapshots(userId: string, onUpdate: (snapshots: { id: string; name: string; url: string; timestamp: string }[]) => void) {
-  const localKey = `pwstream_snapshots_${userId}`;
-  const localSaved = localStorage.getItem(localKey);
-  if (localSaved) {
-    try {
-      const parsed = JSON.parse(localSaved);
-      if (Array.isArray(parsed) && parsed.length > 0) onUpdate(parsed);
-    } catch {}
-  }
+/** Os tickers, como os banners. Antes só existiam enquanto a página estava aberta. */
+export const subscribeTickers = (userId: string, onUpdate: (tickers: TickerItem[]) => void) =>
+  assinarLista(userId, 'tickersDoc', 'tickers', onUpdate);
 
-  const colRef = collection(db, 'users', userId, 'snapshots');
-  return onSnapshot(colRef, (snapshot) => {
-    const list: { id: string; name: string; url: string; timestamp: string }[] = [];
-    snapshot.forEach((docSnap) => {
-      list.push({ id: docSnap.id, ...docSnap.data() } as any);
-    });
-    if (list.length > 0) {
-      localStorage.setItem(localKey, JSON.stringify(list));
-      onUpdate(list);
-    }
-  }, (err) => {
-    if (isQuotaExceededError(err)) {
-      markQuotaExceeded();
-    } else {
-      console.warn('Firestore snapshots error:', err?.message || err);
-    }
-  });
-}
-
-export async function addSnapshotToFirestore(userId: string, snap: { id: string; name: string; url: string; timestamp: string }) {
-  const localKey = `pwstream_snapshots_${userId}`;
-  try {
-    const localSaved = localStorage.getItem(localKey);
-    const list = localSaved ? JSON.parse(localSaved) : [];
-    list.unshift(snap);
-    localStorage.setItem(localKey, JSON.stringify(list));
-  } catch {}
-
-  await safeFirestoreWrite(() => {
-    const docRef = doc(db, 'users', userId, 'snapshots', snap.id);
-    return setDoc(docRef, { ...snap, uid: userId });
-  });
-}
-
-export async function deleteSnapshotFromFirestore(userId: string, snapId: string) {
-  const localKey = `pwstream_snapshots_${userId}`;
-  try {
-    const localSaved = localStorage.getItem(localKey);
-    if (localSaved) {
-      const list = JSON.parse(localSaved);
-      const filtered = list.filter((s: any) => s.id !== snapId);
-      localStorage.setItem(localKey, JSON.stringify(filtered));
-    }
-  } catch {}
-
-  await safeFirestoreWrite(() => {
-    return deleteDoc(doc(db, 'users', userId, 'snapshots', snapId));
-  });
-}
+export const salvarTickers = (tickers: TickerItem[]) => gravarLista('tickersDoc', 'tickers', tickers);
 
 // Transmission Settings Persistence
 export interface TransmissionSettings {
@@ -765,36 +755,6 @@ export async function addWebhookLogToFirestore(userId: string, log: WebhookLogIt
   await safeFirestoreWrite(() => {
     const docRef = doc(db, 'users', userId, 'webhookLogs', log.id);
     return setDoc(docRef, { ...log, uid: userId });
-  });
-}
-
-// Scene Layout Auto-save
-export interface SceneLayoutSettings {
-  currentSceneId?: string;
-  scenes?: any[];
-  sceneTransitions?: any;
-  layout?: string;
-}
-
-export function subscribeSceneLayouts(userId: string, onUpdate: (data: SceneLayoutSettings) => void) {
-  const docRef = doc(db, 'users', userId, 'studioSettings', 'scenes');
-  return onSnapshot(docRef, (snapshot) => {
-    if (snapshot.exists()) {
-      onUpdate(snapshot.data() as SceneLayoutSettings);
-    }
-  }, (err) => {
-    if (isQuotaExceededError(err)) {
-      markQuotaExceeded();
-    } else {
-      console.warn('Firestore scene layouts error:', err?.message || err);
-    }
-  });
-}
-
-export async function saveSceneLayoutsToFirestore(userId: string, data: SceneLayoutSettings) {
-  await safeFirestoreWrite(() => {
-    const docRef = doc(db, 'users', userId, 'studioSettings', 'scenes');
-    return setDoc(docRef, { ...data, uid: userId }, { merge: true });
   });
 }
 
