@@ -16,9 +16,13 @@ import {
   regenerateRtmpKeyInFirestore,
   subscribeUserProfiles,
   gerarChaveDeTransmissao,
+  subscribeWebhookLogs,
+  addWebhookLogToFirestore,
+  clearWebhookLogsInFirestore,
   AuditLogEntry,
   RtmpKeyEntry,
-  PerfilDeCliente
+  PerfilDeCliente,
+  WebhookLogItem
 } from '../lib/firestoreService';
 import { getPlan, type PlanId } from '../lib/plans';
 import { SuperAdminAnalytics } from './SuperAdminAnalytics';
@@ -30,7 +34,7 @@ import { CabecalhoDePagina, Pagina } from './ui/Pagina';
 
 interface SuperAdminPanelProps {
   onBack: () => void;
-  user: { email: string; name: string; plan: string; role?: string } | null;
+  user: { email: string; name: string; plan: string; role?: string; uid?: string } | null;
   allWebinars: Array<{ id: string; title: string; desc: string; time: string; type: string; channels: string[]; ownerId?: string }>;
   onDeleteWebinar?: (id: string) => void;
 }
@@ -52,6 +56,15 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
 
   // Tabs for Super Admin
   const [activeTab, setActiveTab] = useState<'analytics' | 'clients' | 'webinars' | 'master-rtmp' | 'webhooks' | 'logs'>('analytics');
+
+  // Histórico do painel de webhooks, guardado na conta
+  // (users/{uid}/webhookLogs). Depois que o modal de Integrações saiu, nada
+  // mais lia nem gravava esse histórico. Escuta só com a aba aberta.
+  const [webhookLogs, setWebhookLogs] = useState<WebhookLogItem[]>([]);
+  useEffect(() => {
+    if (activeTab !== 'webhooks' || !user?.uid) return;
+    return subscribeWebhookLogs(user.uid, setWebhookLogs);
+  }, [activeTab, user?.uid]);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -600,7 +613,10 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
         <div className="bg-[var(--surface)] border border-[var(--line)] p-6 rounded-2xl text-left space-y-6">
           <WebhookPanel 
             userId={user?.email || 'admin@pwstreamer.com'}
+            initialLogs={webhookLogs}
+            onClearHistory={user?.uid ? () => clearWebhookLogsInFirestore(user.uid!) : undefined}
             onSaveToFirestore={async (logItem) => {
+              if (user?.uid) await addWebhookLogToFirestore(user.uid, logItem);
               await addAuditLogToFirestore({
                 action: 'WEBHOOK_MANUAL_TEST' as any,
                 actorEmail: user?.email || 'admin@pwstreamer.com',

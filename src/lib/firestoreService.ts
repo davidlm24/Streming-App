@@ -51,14 +51,22 @@ export interface WebinarData {
   startsAt?: string;
 }
 
+/** Um disparo de teste de webhook como fica guardado: sem resposta nem cabeçalhos. */
 export interface WebhookLogItem {
   id: string;
   time: string;
   method: string;
   path: string;
-  status: number;
+  /** `null` quando não houve resposta HTTP (pré-visualização, falha antes do envio). */
+  status: number | null;
   payload: string;
   platform: string;
+  statusText?: string;
+  latencyMs?: number | null;
+  eventType?: string;
+  isSuccess?: boolean;
+  /** Por que não houve resposta (destino recusado, conexão que falhou). */
+  error?: string;
 }
 
 // -------------------------------------------------------------
@@ -727,9 +735,9 @@ export function subscribeWebhookLogs(userId: string, onUpdate: (logs: WebhookLog
     snapshot.forEach((docSnap) => {
       list.push({ id: docSnap.id, ...docSnap.data() } as WebhookLogItem);
     });
-    if (list.length > 0) {
-      onUpdate(list);
-    }
+    // Vazio também avisa: depois de limpar, a lista tem de esvaziar. O filtro
+    // de lista vazia protegia os registros de exemplo, que já não existem.
+    onUpdate(list);
   }, (err) => {
     if (isQuotaExceededError(err)) {
       markQuotaExceeded();
@@ -743,6 +751,14 @@ export async function addWebhookLogToFirestore(userId: string, log: WebhookLogIt
   await safeFirestoreWrite(() => {
     const docRef = doc(db, 'users', userId, 'webhookLogs', log.id);
     return setDoc(docRef, { ...log, uid: userId });
+  });
+}
+
+/** Apaga todo o histórico de disparos de webhook guardado na conta. */
+export async function clearWebhookLogsInFirestore(userId: string) {
+  await safeFirestoreWrite(async () => {
+    const registros = await getDocs(collection(db, 'users', userId, 'webhookLogs'));
+    await Promise.all(registros.docs.map((registro) => deleteDoc(registro.ref)));
   });
 }
 

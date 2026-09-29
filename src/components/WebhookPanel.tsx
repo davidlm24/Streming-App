@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { apiFetch } from '../lib/apiFetch';
 import { 
   Radio, 
@@ -41,7 +41,10 @@ import { Modal } from './ui/Modal';
 interface WebhookPanelProps {
   userId?: string;
   onSaveToFirestore?: (log: any) => Promise<void>;
+  /** Disparos guardados (ex.: no Firestore). Podem chegar depois de o painel abrir. */
   initialLogs?: any[];
+  /** Apaga os disparos guardados; sem ela, "Limpar" só esvazia os desta sessão. */
+  onClearHistory?: () => Promise<void> | void;
 }
 
 const PLATFORM_PRESETS: Record<WebhookPlatform, {
@@ -477,6 +480,47 @@ const PLATFORM_PRESETS: Record<WebhookPlatform, {
   }
 };
 
+const SEM_REGISTROS: any[] = [];
+
+function safeParseJson(str: string) {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return { raw: str };
+  }
+}
+
+/**
+ * Um disparo guardado, no formato do painel. O que não foi guardado
+ * (resposta, cabeçalhos) fica ausente, em vez de ganhar cabeçalhos e uma
+ * resposta de sucesso inventados: antes até um disparo que falhou voltava assim.
+ */
+function normalizarRegistro(l: any): WebhookEventLog {
+  const endpoint = l.endpointUrl || l.path || 'https://api.pwstreamer.com/v1/webhooks';
+  // Disparos antigos do receptor local: nada foi enviado, e o 200 e a
+  // latência gravados com eles eram inventados.
+  const semEnvio = endpoint.includes('pwstreamer.local');
+  const status = semEnvio || typeof l.status !== 'number' ? null : l.status;
+  return {
+    id: l.id || `wh-${Date.now()}`,
+    timestamp: l.timestamp || l.time || new Date().toLocaleTimeString(),
+    platform: (l.platform || 'twitch') as WebhookPlatform,
+    eventType: l.eventType || l.path || 'test_event',
+    method: (l.method || 'POST') as any,
+    endpointUrl: endpoint,
+    status,
+    statusText: semEnvio ? 'Não enviado (pré-visualização)' : (l.statusText ?? ''),
+    latencyMs: semEnvio ? null : (l.latencyMs ?? null),
+    requestHeaders: l.requestHeaders,
+    requestPayload: typeof l.payload === 'string' ? safeParseJson(l.payload) : (l.requestPayload || l.payload || {}),
+    responseHeaders: l.responseHeaders,
+    responseBody: l.responseBody,
+    mode: l.mode || 'manual_test',
+    isSuccess: semEnvio || (l.isSuccess ?? (status !== null && status >= 200 && status < 300)),
+    error: l.error
+  };
+}
+
 /** Status para exibir. Sem resposta HTTP, só o texto ("Não enviado (pré-visualização)"). */
 function rotuloDoStatus(log: WebhookEventLog): string {
   return log.status === null ? log.statusText : `${log.status} ${log.statusText}`.trim();
@@ -499,7 +543,7 @@ function textoDaResposta(log: WebhookEventLog): string {
   return 'A resposta não fica no histórico: só aparece na sessão em que o teste foi disparado.';
 }
 
-export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: WebhookPanelProps) {
+export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = SEM_REGISTROS, onClearHistory }: WebhookPanelProps) {
   const confirm = useConfirm();
   const toast = useToast();
   // Navigation sub-tab inside webhook manager
@@ -520,41 +564,20 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
   const [lastExecutionResult, setLastExecutionResult] = useState<WebhookEventLog | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
 
-  // History state. O Firestore guarda só parte de cada disparo: o que não foi
-  // guardado fica ausente, em vez de ganhar cabeçalhos e uma resposta de
-  // sucesso inventados — antes até um disparo que falhou voltava assim.
-  const [logs, setLogs] = useState<WebhookEventLog[]>(() => {
-    if (initialLogs && initialLogs.length > 0) {
-      return initialLogs.map(l => {
-        const endpoint = l.endpointUrl || l.path || 'https://api.pwstreamer.com/v1/webhooks';
-        // Disparos antigos do receptor local: nada foi enviado, e o 200 e a
-        // latência gravados com eles eram inventados.
-        const semEnvio = endpoint.includes('pwstreamer.local');
-        const status = semEnvio || typeof l.status !== 'number' ? null : l.status;
-        return {
-          id: l.id || `wh-${Date.now()}`,
-          timestamp: l.timestamp || l.time || new Date().toLocaleTimeString(),
-          platform: (l.platform || 'twitch') as WebhookPlatform,
-          eventType: l.eventType || l.path || 'test_event',
-          method: (l.method || 'POST') as any,
-          endpointUrl: endpoint,
-          status,
-          statusText: semEnvio ? 'Não enviado (pré-visualização)' : (l.statusText ?? ''),
-          latencyMs: semEnvio ? null : (l.latencyMs ?? null),
-          requestHeaders: l.requestHeaders,
-          requestPayload: typeof l.payload === 'string' ? safeParseJson(l.payload) : (l.requestPayload || l.payload || {}),
-          responseHeaders: l.responseHeaders,
-          responseBody: l.responseBody,
-          mode: l.mode || 'manual_test',
-          isSuccess: semEnvio || (l.isSuccess ?? (status !== null && status >= 200 && status < 300)),
-          error: l.error
-        };
-      });
-    }
-    // Sem disparos, a lista começa vazia. Antes trazia dois de exemplo
-    // (Twitch e Facebook, 12 e 5 min atrás) como se a pessoa os tivesse feito.
-    return [];
-  });
+  // Histórico: os disparos desta sessão (com resposta e cabeçalhos) na frente
+  // e os guardados depois, do mais novo ao mais velho. Sem nenhum, a lista
+  // começa vazia; antes trazia dois disparos de exemplo como se a pessoa os
+  // tivesse feito. Os guardados podem chegar depois de o painel abrir, e a
+  // lista acompanha: antes initialLogs só era lido na montagem.
+  const [daSessao, setDaSessao] = useState<WebhookEventLog[]>([]);
+  const guardados = useMemo(() => initialLogs.map(normalizarRegistro), [initialLogs]);
+  const logs = useMemo(() => {
+    const idsDaSessao = new Set(daSessao.map((l) => l.id));
+    const anteriores = guardados
+      .filter((l) => !idsDaSessao.has(l.id))
+      .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
+    return [...daSessao, ...anteriores];
+  }, [daSessao, guardados]);
 
   // Filters for history
   const [searchFilter, setSearchFilter] = useState('');
@@ -565,14 +588,6 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
   // Selected Log for Deep Inspection Drawer/Modal
   const [inspectingLog, setInspectingLog] = useState<WebhookEventLog | null>(null);
   const [inspectTab, setInspectTab] = useState<'overview' | 'reqPayload' | 'reqHeaders' | 'resBody' | 'resHeaders'>('overview');
-
-  function safeParseJson(str: string) {
-    try {
-      return JSON.parse(str);
-    } catch {
-      return { raw: str };
-    }
-  }
 
   // Set default payload when platform or event type changes
   useEffect(() => {
@@ -627,7 +642,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
       if (data?.log) {
         const logItem: WebhookEventLog = data.log;
         setLastExecutionResult(logItem);
-        setLogs(prev => [logItem, ...prev]);
+        setDaSessao(prev => [logItem, ...prev]);
 
         if (onSaveToFirestore) {
           onSaveToFirestore({
@@ -666,7 +681,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
           error: data?.error || response.statusText || 'Resposta sem registro de envio'
         };
         setLastExecutionResult(recusa);
-        setLogs(prev => [recusa, ...prev]);
+        setDaSessao(prev => [recusa, ...prev]);
       }
     } catch (err: any) {
       // O pedido nem chegou ao servidor do PwStreamer: não há código HTTP nem
@@ -688,7 +703,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
         error: err.message || 'Falha ao despachar webhook'
       };
       setLastExecutionResult(fallbackLog);
-      setLogs(prev => [fallbackLog, ...prev]);
+      setDaSessao(prev => [fallbackLog, ...prev]);
     } finally {
       setIsExecuting(false);
     }
@@ -1129,11 +1144,15 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = [] }: We
                 onClick={async () => {
                   if (await confirm({
                     title: 'Limpar o histórico de logs?',
-                    description: 'Todos os registros de webhook recebidos são apagados. Não é possível recuperá-los.',
+                    description: onClearHistory
+                      ? 'Os disparos guardados nesta conta são apagados. Não é possível recuperá-los.'
+                      : 'Os disparos desta sessão saem da lista. Não é possível recuperá-los.',
                     confirmLabel: 'Limpar',
                     destructive: true
                   })) {
-                    setLogs([]);
+                    // Só esvaziar a tela não bastava: os guardados voltavam.
+                    setDaSessao([]);
+                    await onClearHistory?.();
                   }
                 }}
                 className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
