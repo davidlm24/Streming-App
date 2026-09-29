@@ -67,6 +67,8 @@ export interface WebhookLogItem {
   isSuccess?: boolean;
   /** Por que não houve resposta (destino recusado, conexão que falhou). */
   error?: string;
+  /** Só neste navegador: o Firestore ainda não aceitou a gravação (login de desenvolvimento, cota). */
+  local?: boolean;
 }
 
 // -------------------------------------------------------------
@@ -732,11 +734,14 @@ export async function deleteCustomDestinationFromFirestore(userId: string, curre
 // O histórico fica no Firestore da conta e numa cópia local, como os
 // webinars. A cópia é o que guarda o histórico do login de desenvolvimento:
 // ele não tem sessão no Firebase, e as regras recusam leitura e gravação.
+// Ela tem a última lista que veio do servidor e, marcado como local, o que o
+// Firestore ainda não aceitou; isso sobe quando ele volta a aceitar.
 // Diferente dos webinars, quem mostra o histórico não tem estado próprio, então
-// a cópia avisa quem escuta quando muda — até o Firestore responder.
+// a cópia avisa quem escuta quando muda.
 const MAXIMO_DE_WEBHOOK_LOGS_LOCAIS = 200;
 const chaveDosWebhookLogs = (userId: string) => `pwstream_webhook_logs_${userId}`;
 const ouvintesDosWebhookLogs = new Map<string, Set<(logs: WebhookLogItem[]) => void>>();
+const subindoWebhookLogs = new Map<string, Promise<void>>();
 
 function lerWebhookLogsLocais(userId: string): WebhookLogItem[] {
   try {
@@ -747,37 +752,106 @@ function lerWebhookLogsLocais(userId: string): WebhookLogItem[] {
   }
 }
 
-function gravarWebhookLogsLocais(userId: string, logs: WebhookLogItem[], avisar: boolean) {
+function gravarWebhookLogsLocais(userId: string, logs: WebhookLogItem[]) {
   const recentes = logs.slice(-MAXIMO_DE_WEBHOOK_LOGS_LOCAIS);
   try {
     localStorage.setItem(chaveDosWebhookLogs(userId), JSON.stringify(recentes));
   } catch {}
-  if (avisar) ouvintesDosWebhookLogs.get(userId)?.forEach((ouvir) => ouvir(recentes));
+  ouvintesDosWebhookLogs.get(userId)?.forEach((ouvir) => ouvir(recentes));
+}
+
+/** A lista do Firestore e, sem repetir, o que ele ainda não aceitou. */
+function comOsPendentes(doFirestore: WebhookLogItem[], locais: WebhookLogItem[]): WebhookLogItem[] {
+  const pendentes = locais.filter((l) => l.local);
+  const idsPendentes = new Set(pendentes.map((l) => l.id));
+  return [...doFirestore.filter((l) => !idsPendentes.has(l.id)), ...pendentes];
+}
+
+/** O Firestore aceitou a gravação: o registro deixa de ser só local. */
+function confirmarWebhookLog(userId: string, id: string) {
+  const logs = lerWebhookLogsLocais(userId);
+  // Já confirmado, ou apagado por "Limpar" no meio: nada a fazer.
+  if (!logs.some((l) => l.id === id && l.local)) return;
+  gravarWebhookLogsLocais(userId, logs.map((l) => {
+    if (l.id !== id) return l;
+    const { local, ...confirmado } = l;
+    return confirmado;
+  }));
+}
+
+/**
+ * Sobe o que ficou só neste navegador, quando o Firestore volta a aceitar.
+ * Só com a sessão do Firebase da própria conta: o login de desenvolvimento
+ * não tem sessão, e o que ele guardou fica aqui. Sobe com o id original, e na
+ * conta as regras deixam regravar: se uma tentativa anterior já tinha subido,
+ * o registro só é gravado de novo, sem cópia.
+ */
+function subirWebhookLogsLocais(userId: string): Promise<void> {
+  const emAndamento = subindoWebhookLogs.get(userId);
+  if (emAndamento) return emAndamento;
+  // O trabalho começa no próximo tique: assim a trava já está posta se a
+  // própria gravação avisar os ouvintes no meio e eles pedirem outra subida.
+  const subida = Promise.resolve().then(async () => {
+    const tentados = new Set<string>();
+    // Conferido a cada volta: a sessão pode sair e a cota acabar no meio.
+    while (auth.currentUser?.uid === userId && !isQuotaExceededFlag) {
+      // Relida a cada volta: "Limpar" pode ter esvaziado a cópia no meio.
+      const pendente = lerWebhookLogsLocais(userId).find((l) => l.local && !tentados.has(l.id));
+      if (!pendente) return;
+      tentados.add(pendente.id);
+      const { local, ...registro } = pendente;
+      try {
+        await setDoc(doc(db, 'users', userId, 'webhookLogs', pendente.id), registro);
+      } catch (err) {
+        if (isQuotaExceededError(err)) markQuotaExceeded();
+        // Recusado: fica para a próxima subida, e esta segue com os outros.
+        continue;
+      }
+      confirmarWebhookLog(userId, pendente.id);
+    }
+  }).finally(() => {
+    subindoWebhookLogs.delete(userId);
+  });
+  subindoWebhookLogs.set(userId, subida);
+  return subida;
 }
 
 export function subscribeWebhookLogs(userId: string, onUpdate: (logs: WebhookLogItem[]) => void) {
-  // Até o Firestore responder vale a cópia local; se ele recusar (login de
-  // desenvolvimento), ela vale sempre.
-  let firestoreRespondeu = false;
+  // Até o servidor responder vale a cópia local; se ele recusar (login de
+  // desenvolvimento), ela vale sempre. Depois, vale a lista dele mais o que
+  // ele ainda não aceitou.
+  let doFirestore: WebhookLogItem[] | null = null;
+  let locais = lerWebhookLogsLocais(userId);
+  const avisar = () => onUpdate(doFirestore ? comOsPendentes(doFirestore, locais) : locais);
   const ouvirCopiaLocal = (logs: WebhookLogItem[]) => {
-    if (!firestoreRespondeu) onUpdate(logs);
+    locais = logs;
+    avisar();
   };
   const ouvintes = ouvintesDosWebhookLogs.get(userId) ?? new Set();
   ouvintes.add(ouvirCopiaLocal);
   ouvintesDosWebhookLogs.set(userId, ouvintes);
-  onUpdate(lerWebhookLogsLocais(userId));
+  avisar();
 
   const colRef = collection(db, 'users', userId, 'webhookLogs');
-  const pararDeOuvir = onSnapshot(colRef, (snapshot) => {
-    firestoreRespondeu = true;
+  // Com os metadados, a resposta do servidor avisa mesmo quando a lista é a
+  // mesma que já tinha vindo do cache.
+  const pararDeOuvir = onSnapshot(colRef, { includeMetadataChanges: true }, (snapshot) => {
+    // Só a lista do servidor vale: a do cache pode vir vazia (rede desligada
+    // pela cota) e apagava a cópia.
+    if (snapshot.metadata.fromCache) return;
+    const primeiraResposta = doFirestore === null;
     const list: WebhookLogItem[] = [];
     snapshot.forEach((docSnap) => {
       list.push({ id: docSnap.id, ...docSnap.data() } as WebhookLogItem);
     });
-    gravarWebhookLogsLocais(userId, list, false);
-    // Vazio também avisa: depois de limpar, a lista tem de esvaziar. O filtro
-    // de lista vazia protegia os registros de exemplo, que já não existem.
-    onUpdate(list);
+    doFirestore = list;
+    // A cópia fica com a resposta e com o que segue pendente, e gravar avisa
+    // quem escuta. Vazio também avisa: depois de limpar, a lista esvazia.
+    gravarWebhookLogsLocais(userId, comOsPendentes(list, lerWebhookLogsLocais(userId)));
+    // A primeira resposta mostra que o Firestore está no ar. As outras não
+    // pedem subida: uma gravação que o servidor recusa também gera respostas,
+    // e cada uma pediria outra tentativa, sem fim.
+    if (primeiraResposta) void subirWebhookLogsLocais(userId);
   }, (err) => {
     if (isQuotaExceededError(err)) {
       markQuotaExceeded();
@@ -794,16 +868,29 @@ export function subscribeWebhookLogs(userId: string, onUpdate: (logs: WebhookLog
 
 export async function addWebhookLogToFirestore(userId: string, log: WebhookLogItem) {
   const registro = { ...log, uid: userId };
-  gravarWebhookLogsLocais(userId, [...lerWebhookLogsLocais(userId).filter((l) => l.id !== log.id), registro], true);
-  await safeFirestoreWrite(() => {
-    const docRef = doc(db, 'users', userId, 'webhookLogs', log.id);
-    return setDoc(docRef, registro);
+  // Local até o Firestore aceitar: se ele recusar, ou se a página fechar
+  // antes, o registro sobe depois.
+  gravarWebhookLogsLocais(userId, [
+    ...lerWebhookLogsLocais(userId).filter((l) => l.id !== log.id),
+    { ...registro, local: true },
+  ]);
+  let gravou = false;
+  await safeFirestoreWrite(async () => {
+    await setDoc(doc(db, 'users', userId, 'webhookLogs', log.id), registro);
+    gravou = true;
   });
+  if (!gravou) return;
+  confirmarWebhookLog(userId, log.id);
+  // O Firestore aceitou: é a hora de subir o que tinha ficado aqui.
+  void subirWebhookLogsLocais(userId);
 }
 
 /** Apaga todo o histórico de disparos de webhook guardado na conta (e a cópia local). */
 export async function clearWebhookLogsInFirestore(userId: string) {
-  gravarWebhookLogsLocais(userId, [], true);
+  gravarWebhookLogsLocais(userId, []);
+  // Uma subida no meio ainda pode gravar um registro: espera ela acabar, para
+  // que a lista abaixo o inclua e ele seja apagado também.
+  await subindoWebhookLogs.get(userId);
   await safeFirestoreWrite(async () => {
     const registros = await getDocs(collection(db, 'users', userId, 'webhookLogs'));
     await Promise.all(registros.docs.map((registro) => deleteDoc(registro.ref)));
