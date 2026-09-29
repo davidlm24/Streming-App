@@ -517,7 +517,8 @@ function normalizarRegistro(l: any): WebhookEventLog {
     responseBody: l.responseBody,
     mode: l.mode || 'manual_test',
     isSuccess: semEnvio || (l.isSuccess ?? (status !== null && status >= 200 && status < 300)),
-    error: l.error
+    error: l.error,
+    ...(l.local ? { local: true } : {})
   };
 }
 
@@ -570,14 +571,22 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = SEM_REGI
   // tivesse feito. Os guardados podem chegar depois de o painel abrir, e a
   // lista acompanha: antes initialLogs só era lido na montagem.
   const [daSessao, setDaSessao] = useState<WebhookEventLog[]>([]);
+  // Disparos desta sessão que ainda estão sendo guardados. Até a gravação
+  // responder, a cópia guardada fica marcada como local, e a marca piscaria
+  // na tela a cada teste.
+  const [salvando, setSalvando] = useState<ReadonlySet<string>>(() => new Set());
   const guardados = useMemo(() => initialLogs.map(normalizarRegistro), [initialLogs]);
   const logs = useMemo(() => {
     const idsDaSessao = new Set(daSessao.map((l) => l.id));
+    const locais = new Set(guardados.filter((l) => l.local).map((l) => l.id));
     const anteriores = guardados
       .filter((l) => !idsDaSessao.has(l.id))
       .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
-    return [...daSessao, ...anteriores];
-  }, [daSessao, guardados]);
+    // O disparo desta sessão aparece no lugar da cópia guardada; a marca de
+    // local vem dela.
+    const desta = daSessao.map((l) => (locais.has(l.id) && !salvando.has(l.id) ? { ...l, local: true } : l));
+    return [...desta, ...anteriores];
+  }, [daSessao, guardados, salvando]);
 
   // Filters for history
   const [searchFilter, setSearchFilter] = useState('');
@@ -645,6 +654,7 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = SEM_REGI
         setDaSessao(prev => [logItem, ...prev]);
 
         if (onSaveToFirestore) {
+          setSalvando((atual) => new Set(atual).add(logItem.id));
           onSaveToFirestore({
             id: logItem.id,
             time: logItem.timestamp,
@@ -659,7 +669,13 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = SEM_REGI
             isSuccess: logItem.isSuccess,
             // O Firestore recusa campo `undefined`: o erro só vai quando existe.
             ...(logItem.error ? { error: logItem.error } : {})
-          }).catch(console.error);
+          })
+            .catch(console.error)
+            .finally(() => setSalvando((atual) => {
+              const resto = new Set(atual);
+              resto.delete(logItem.id);
+              return resto;
+            }));
         }
       } else {
         // O próprio servidor recusou o pedido (401 sem login, 413 com payload
@@ -1243,6 +1259,12 @@ export function WebhookPanel({ userId, onSaveToFirestore, initialLogs = SEM_REGI
                       <tr key={log.id} className="hover:bg-[var(--panel)]/30 transition-colors">
                         <td className="p-3.5 font-mono text-[11px] text-[var(--ink-lo)]">
                           {log.timestamp}
+                          {/* O Firestore ainda não aceitou: o registro não está na conta. */}
+                          {log.local && (
+                            <span className="mt-1 block w-fit whitespace-nowrap font-sans text-xs text-[var(--ink-lo)] border border-[var(--line-ctl)] rounded px-1.5">
+                              Só neste navegador
+                            </span>
+                          )}
                         </td>
                         <td className="p-3.5">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase border ${platInfo.badgeBg} ${platInfo.badgeBorder}`}>

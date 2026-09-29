@@ -97,6 +97,8 @@ export interface WebhookEventLog {
   mode: 'manual_test' | 'incoming' | 'automated';
   isSuccess: boolean;
   error?: string;
+  /** Só neste navegador: o Firestore ainda não aceitou o registro guardado. */
+  local?: boolean;
 }
 
 export interface WebhookTriggerConfig {
