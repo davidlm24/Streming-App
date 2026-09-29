@@ -212,6 +212,10 @@
   --ink:     var(--color-n-89);
   --ink-hi:  var(--color-n-96);
 
+  /* Guias sobre a imagem (terços e área segura). Brancas em mistura por
+     diferença: aparecem sobre imagem clara ou escura, sem cor própria. */
+  --guia:    rgb(255 255 255 / 0.6);
+
   /* O console é escuro SEMPRE, inclusive dentro do tema claro. Então os tons
      300/400 voltam aos valores originais aqui — escurecê-los sobre grafite
      seria o erro inverso do que a regra do tema claro corrige. */
@@ -548,6 +552,11 @@ html { scrollbar-gutter: stable; }
   100% { opacity: 1; transform: scale(1); }
 }
 .animate-confirm-in { animation: confirm-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Fusão do monitor de programa: o programa que sai fica por cima do que
+   entra e some. A duração vem de DURACAO_DA_FUSAO (TrilhoDeCenas). Com
+   movimento reduzido, a regra abaixo faz a fusão virar corte. */
+@keyframes fusao-sai { from { opacity: 1; } to { opacity: 0; } }
 
 /* ══════════════════════════════════════════════════════════════════════════
    MOVIMENTO REDUZIDO — a auditoria encontrou 127 animações infinitas e

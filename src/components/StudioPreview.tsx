@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Monitor, User, Video, ShieldAlert, CheckCircle2, Pencil, Trash2, X, Sparkles, Compass, Youtube, Mail, Globe, Server, Play, Pause, ChevronLeft, ChevronRight, Activity, MessageSquare, Camera, Download, Presentation, Clock, Pin, PinOff, Move, RotateCcw, ArrowUpLeft, ArrowUpRight, ArrowDownLeft, ArrowDownRight, ArrowUp, ArrowDown, FileText, Maximize2, Check, Eye, EyeOff, Radio, RefreshCw, Columns, QrCode, ShoppingBag, Tag, ExternalLink } from 'lucide-react';
+import { User, Video, Pencil, Trash2, X, Play, Pause, MessageSquare, Camera, Clock, Pin, PinOff, Move, RotateCcw, FileText, Maximize2, EyeOff } from 'lucide-react';
+import { Button } from './ui/Button';
 import { motion, AnimatePresence } from 'motion/react';
-import { Participant, BannerPosition, StudioSceneState, Banner, TickerItem, QrCodeConfig, SceneTransitionType } from '../types';
-import { AudioVUMeter } from './AudioVUMeter';
+import { Participant, BannerPosition, StudioSceneState, Banner, TickerItem, QrCodeConfig, SceneTransitionType, GeometriaDoCard } from '../types';
+import { CARD_PADRAO, FORMATOS_DO_CARD, dentroDoPalco } from '../lib/cenas';
 import { useMediaManager } from '../context/MediaManagerContext';
-import { ProgramMonitorView } from './ProgramMonitorView';
 
 interface StudioPreviewProps {
   layout: '1-cam' | 'dual' | 'screen-share' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery';
@@ -113,6 +113,25 @@ interface StudioPreviewProps {
    *  Serve para instanciar um segundo monitor alimentado por outro estado —
    *  é assim que o PGM existe sem duplicar o compositor. */
   monitorOnly?: boolean;
+  /**
+   * `programa` desenha a mesma composição do preview sem nenhum controle de
+   * edição e inerte: é o monitor do que iria ao ar. O antigo `monitorOnly`
+   * mostrava só as fontes, sem banner, ticker, logo nem QR.
+   */
+  papel?: 'preview' | 'programa';
+  /** Terços e área segura sobre a imagem ("Guias", na bandeja do estúdio). */
+  mostrarGuias?: boolean;
+  /** No estúdio o layout vem das cenas; a barra de layouts some. */
+  semBarraDeLayouts?: boolean;
+  /** No programa, o fundo e a sobreposição são os do último corte, não os que o preview está montando. */
+  fundoDoPrograma?: string | null;
+  sobreposicaoDoPrograma?: string | null;
+  /**
+   * O card da câmera: no preview, o que se está montando, e `onCardDaCamera`
+   * devolve cada ajuste ao App; no programa, o que o último corte levou.
+   */
+  cardDaCamera?: GeometriaDoCard;
+  onCardDaCamera?: (card: GeometriaDoCard) => void;
   /** Qual barramento este monitor representa. Decide a moldura do tally. */
   monitorRole?: 'pgm' | 'pvw';
   onToggleStudioPreviewMode?: () => void;
@@ -128,6 +147,9 @@ interface StudioPreviewProps {
   allTickers?: TickerItem[];
 }
 
+/** A espessura do anel da moldura do monitor (`.pw-frame` no index.css). */
+const ANEL_DA_MOLDURA = 2;
+
 function useAspectRatio(aspectRatio: number = 16 / 9) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -138,8 +160,11 @@ function useAspectRatio(aspectRatio: number = 16 / 9) {
 
     const updateSize = () => {
       const rect = container.getBoundingClientRect();
-      const containerWidth = rect.width;
-      const containerHeight = rect.height;
+      // O palco cabe no contêiner menos o anel da moldura (.pw-frame, 2px de
+      // cada lado). Sem descontar, a moldura passava 4px do contêiner, e o
+      // overflow-hidden cortava o anel da direita e o de baixo.
+      const containerWidth = rect.width - 2 * ANEL_DA_MOLDURA;
+      const containerHeight = rect.height - 2 * ANEL_DA_MOLDURA;
 
       if (containerWidth === 0 || containerHeight === 0) return;
 
@@ -254,6 +279,13 @@ export function StudioPreview({
   onToggleDrawingMode,
   isStudioPreviewMode = false,
   monitorOnly = false,
+  papel = 'preview',
+  mostrarGuias = false,
+  semBarraDeLayouts = false,
+  fundoDoPrograma = null,
+  sobreposicaoDoPrograma = null,
+  cardDaCamera,
+  onCardDaCamera,
   monitorRole = 'pvw',
   onToggleStudioPreviewMode,
   previewViewMode = 'split',
@@ -267,7 +299,9 @@ export function StudioPreview({
   allBanners = [],
   allTickers = []
 }: StudioPreviewProps) {
-  const { activeLogo, setActiveLogo, activeWatermark, activeOverlay, activeBackground, activeVideoClip } = useMediaManager();
+  const { activeLogo, setActiveLogo, activeWatermark, activeOverlay: sobreposicaoDoPreview, activeBackground: fundoDoPreview, activeVideoClip } = useMediaManager();
+  const activeBackground = papel === 'programa' ? fundoDoPrograma ?? '' : fundoDoPreview;
+  const activeOverlay = papel === 'programa' ? sobreposicaoDoPrograma ?? '' : sobreposicaoDoPreview;
 
   const [internalFloatingChat, setInternalFloatingChat] = useState<boolean>(false);
   const isFloatingChatOpen = isFloatingChatOpenProp !== undefined ? isFloatingChatOpenProp : internalFloatingChat;
@@ -276,16 +310,6 @@ export function StudioPreview({
       onToggleFloatingChatOpen();
     } else {
       setInternalFloatingChat(val);
-    }
-  };
-
-  const [internalStreamHealth, setInternalStreamHealth] = useState<boolean>(false);
-  const isStreamHealthOpen = isStreamHealthOpenProp !== undefined ? isStreamHealthOpenProp : internalStreamHealth;
-  const setIsStreamHealthOpen = (val: boolean | ((prev: boolean) => boolean)) => {
-    if (onToggleStreamHealthOpen) {
-      onToggleStreamHealthOpen();
-    } else {
-      setInternalStreamHealth(val);
     }
   };
 
@@ -539,96 +563,59 @@ export function StudioPreview({
     window.addEventListener('touchend', handleUp);
   };
 
-  // Speaker Card Draggable Position, Scale, Shape & Presets
-  const [speakerCardPos, setSpeakerCardPos] = useState<{ x: number; y: number }>(() => {
-    try {
-      const saved = localStorage.getItem('pw_speaker_pip_pos');
-      return saved ? JSON.parse(saved) : { x: 74, y: 66 }; // Default bottom-right standard
-    } catch {
-      return { x: 74, y: 66 };
-    }
-  });
-
-  const [speakerCardScale, setSpeakerCardScale] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('pw_speaker_pip_scale');
-      return saved ? parseFloat(saved) : 1.0;
-    } catch {
-      return 1.0;
-    }
-  });
-
-  const [speakerCardShape, setSpeakerCardShape] = useState<'rounded' | 'circle' | 'compact'>(() => {
-    try {
-      const saved = localStorage.getItem('pw_speaker_pip_shape') as any;
-      return (saved === 'rounded' || saved === 'circle' || saved === 'compact') ? saved : 'rounded';
-    } catch {
-      return 'rounded';
-    }
-  });
+  // O card da câmera é da cena, não do monitor: o preview ajusta o do App e o
+  // programa mostra o que o último corte levou. Antes cada monitor guardava o
+  // seu, lido do localStorage na montagem: mover o card no preview e cortar
+  // deixava o programa com o lugar antigo, e os controles da barra lateral
+  // mexiam no programa ao vivo, sem corte.
+  const card = cardDaCamera ?? CARD_PADRAO;
+  const cardAtual = useRef(card);
+  cardAtual.current = card;
+  const mudarCard = (parcial: Partial<GeometriaDoCard>) => {
+    if (papel === 'programa') return;
+    const novo = dentroDoPalco({ ...cardAtual.current, ...parcial });
+    cardAtual.current = novo;
+    onCardDaCamera?.(novo);
+  };
+  const speakerCardPos = { x: card.x, y: card.y };
+  const speakerCardScale = card.escala;
+  const speakerCardShape = card.formato;
+  const setSpeakerCardPos = (pos: { x: number; y: number }) => mudarCard(pos);
+  const setSpeakerCardScale = (escala: number | ((atual: number) => number)) =>
+    mudarCard({ escala: typeof escala === 'function' ? escala(cardAtual.current.escala) : escala });
+  const setSpeakerCardShape = (
+    formato: GeometriaDoCard['formato'] | ((atual: GeometriaDoCard['formato']) => GeometriaDoCard['formato'])
+  ) => mudarCard({ formato: typeof formato === 'function' ? formato(cardAtual.current.formato) : formato });
 
   const [isHoveringSpeakerCard, setIsHoveringSpeakerCard] = useState(false);
   const [isDraggingSpeakerCard, setIsDraggingSpeakerCard] = useState(false);
   const [isResizingSpeakerCard, setIsResizingSpeakerCard] = useState(false);
 
+  // A barra lateral acompanha o card do preview, e os controles dela ajustam o
+  // card do preview, nunca o do programa.
   useEffect(() => {
-    try {
-      localStorage.setItem('pw_speaker_pip_pos', JSON.stringify(speakerCardPos));
-      localStorage.setItem('pw_speaker_pip_scale', speakerCardScale.toString());
-      localStorage.setItem('pw_speaker_pip_shape', speakerCardShape);
-    } catch {}
-
-    // Dispatch sync event so LeftSidebar controls stay perfectly in sync
-    window.dispatchEvent(new CustomEvent('studio-speaker-pos-updated', {
-      detail: { pos: speakerCardPos, scale: speakerCardScale, shape: speakerCardShape }
-    }));
-  }, [speakerCardPos, speakerCardScale, speakerCardShape]);
+    if (papel === 'programa') return;
+    window.dispatchEvent(
+      new CustomEvent('studio-speaker-pos-updated', {
+        detail: { pos: { x: card.x, y: card.y }, scale: card.escala, shape: card.formato },
+      })
+    );
+  }, [papel, card.x, card.y, card.escala, card.formato]);
 
   useEffect(() => {
-    const handleRemoteSpeakerPosChange = (e: any) => {
-      if (!e.detail) return;
-      if (e.detail.pos) setSpeakerCardPos(e.detail.pos);
-      if (e.detail.scale !== undefined) setSpeakerCardScale(e.detail.scale);
-      if (e.detail.shape) setSpeakerCardShape(e.detail.shape);
+    if (papel === 'programa') return;
+    const aoAjustarNaBarra = (e: Event) => {
+      const d = (e as CustomEvent).detail;
+      if (!d) return;
+      mudarCard({
+        ...(d.pos ? { x: d.pos.x, y: d.pos.y } : {}),
+        ...(d.scale !== undefined ? { escala: d.scale } : {}),
+        ...(d.shape ? { formato: d.shape } : {}),
+      });
     };
-
-    window.addEventListener('studio-speaker-pos-change', handleRemoteSpeakerPosChange);
-    return () => {
-      window.removeEventListener('studio-speaker-pos-change', handleRemoteSpeakerPosChange);
-    };
-  }, []);
-
-  const resetSpeakerCardPos = () => {
-    setSpeakerCardPos({ x: 74, y: 66 });
-    setSpeakerCardScale(1.0);
-    setSpeakerCardShape('rounded');
-  };
-
-  const setSpeakerPresetPos = (preset: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center' | 'center') => {
-    switch (preset) {
-      case 'top-left':
-        setSpeakerCardPos({ x: 3, y: 4 });
-        break;
-      case 'top-right':
-        setSpeakerCardPos({ x: 74, y: 4 });
-        break;
-      case 'bottom-left':
-        setSpeakerCardPos({ x: 3, y: 66 });
-        break;
-      case 'bottom-right':
-        setSpeakerCardPos({ x: 74, y: 66 });
-        break;
-      case 'top-center':
-        setSpeakerCardPos({ x: 38, y: 4 });
-        break;
-      case 'bottom-center':
-        setSpeakerCardPos({ x: 38, y: 66 });
-        break;
-      case 'center':
-        setSpeakerCardPos({ x: 38, y: 35 });
-        break;
-    }
-  };
+    window.addEventListener('studio-speaker-pos-change', aoAjustarNaBarra);
+    return () => window.removeEventListener('studio-speaker-pos-change', aoAjustarNaBarra);
+  }, [papel]);
 
   const startDragSpeakerCard = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
@@ -646,10 +633,7 @@ export function StudioPreview({
       const currentY = 'touches' in moveEvt ? moveEvt.touches[0].clientY : moveEvt.clientY;
       const deltaX = ((currentX - startX) / rect.width) * 100;
       const deltaY = ((currentY - startY) / rect.height) * 100;
-      setSpeakerCardPos({
-        x: Math.max(1, Math.min(80, initialX + deltaX)),
-        y: Math.max(1, Math.min(74, initialY + deltaY))
-      });
+      setSpeakerCardPos({ x: initialX + deltaX, y: initialY + deltaY });
     };
 
     const handleUp = () => {
@@ -795,130 +779,9 @@ export function StudioPreview({
     window.addEventListener('touchend', handleUp);
   };
 
-  // Regime de rede simulado, pegajoso entre ticks. Ver o comentário no
-  // intervalo abaixo — existe para que o estado de aviso seja atingível.
-  const regimeRef = useRef<'nominal' | 'degraded' | 'critical'>('nominal');
-
-  const [streamMetrics, setStreamMetrics] = useState({
-    fps: 60,
-    bitrate: 4850,
-    packetLoss: 0.02,
-    status: 'excellent' as 'excellent' | 'good' | 'warning',
-    rtt: 18,
-    resolution: '1080p (1920x1080)',
-    codec: 'H.264 / Opus 48kHz',
-    bitrateHistory: [4600, 4700, 4850, 4800, 4900, 4850, 4820, 4880, 4850]
-  });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const baseFps = localStream || screenStream || isLive ? 60 : 30;
-      // ── Regime de rede ───────────────────────────────────────────────────
-      // A geração anterior tornava o aviso INALCANÇÁVEL: `lossVar` ia no
-      // máximo a 0,06 contra limiares de > 2 e > 0,5, e `fpsVar` caía no
-      // mínimo a 29,2 contra < 24. `status` só podia valer 'excellent' ou
-      // 'good' — a única superfície que precisa avisar um cliente pagante de
-      // que a transmissão está degradando era incapaz de fazê-lo.
-      //
-      // Enquanto não existe telemetria real do servidor de ingestão, o regime
-      // é pegajoso (não pisca a cada 1,5 s) e percorre os três estados, de
-      // modo que o caminho de aviso existe, é atingível e pode ser testado.
-      // Ver `simulatedMetrics` abaixo: a origem simulada é declarada, não
-      // apresentada como medição.
-      const r = Math.random();
-      const prevRegime = regimeRef.current;
-      if (prevRegime === 'nominal' && r > 0.97) regimeRef.current = 'degraded';
-      else if (prevRegime === 'degraded') {
-        if (r > 0.93) regimeRef.current = 'critical';
-        else if (r < 0.45) regimeRef.current = 'nominal';
-      } else if (prevRegime === 'critical' && r < 0.35) regimeRef.current = 'degraded';
-      const regime = regimeRef.current;
-
-      const fpsVar = Number((
-        regime === 'critical' ? 20 + Math.random() * 3.5
-        : regime === 'degraded' ? baseFps - 16 - Math.random() * 6
-        : baseFps - Math.random() * 0.8
-      ).toFixed(1));
-      const baseBitrate = isLive ? 6200 : (localStream || screenStream ? 4800 : 2500);
-      const bitrateVar = Math.round(baseBitrate + (Math.random() * 260 - 130));
-      const lossVar = Number((
-        regime === 'critical' ? 2.2 + Math.random() * 2.8
-        : regime === 'degraded' ? 0.6 + Math.random() * 1.1
-        : Math.random() * 0.06
-      ).toFixed(2));
-      const rttVar = Math.round(16 + Math.random() * 6);
-
-      let status: 'excellent' | 'good' | 'warning' = 'excellent';
-      if (lossVar > 2 || fpsVar < 24) {
-        status = 'warning';
-      } else if (lossVar > 0.5 || fpsVar < 45) {
-        status = 'good';
-      }
-
-      setStreamMetrics(prev => ({
-        fps: fpsVar,
-        bitrate: bitrateVar,
-        packetLoss: lossVar,
-        status,
-        rtt: rttVar,
-        resolution: screenStream ? '1080p (1920x1080)' : (localStream ? '1080p (1920x1080)' : '720p (1280x720)'),
-        codec: 'H.264 / Opus 48kHz',
-        bitrateHistory: [...prev.bitrateHistory.slice(1), bitrateVar]
-      }));
-    }, 1500);
-
-    return () => clearInterval(interval);
-  }, [localStream, screenStream, isLive]);
-
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const screenVideoRef = useRef<HTMLVideoElement>(null);
   const { containerRef, dimensions } = useAspectRatio(16 / 9);
-
-  // Floating Reactions State
-  const [floatingReactions, setFloatingReactions] = useState<{ id: string; emoji: string; x: number }[]>([]);
-  // Current PDF Slide State
-  const [pdfCurrentPage, setPdfCurrentPage] = useState<number>(1);
-  // Recording State
-  const [recordingState, setRecordingState] = useState<{ isRecording: boolean; formattedTime: string }>({
-    isRecording: false,
-    formattedTime: '00:00:00'
-  });
-
-  useEffect(() => {
-    if (selectedSharedSource?.type === 'pdf' && selectedSharedSource.initialPage) {
-      setPdfCurrentPage(selectedSharedSource.initialPage);
-    } else {
-      setPdfCurrentPage(1);
-    }
-  }, [selectedSharedSource]);
-
-  useEffect(() => {
-    const handleReaction = (e: any) => {
-      if (!e.detail) return;
-      const { emoji } = e.detail;
-      const id = Math.random().toString();
-      // Generate random coordinate between 15% and 85%
-      const x = 15 + Math.random() * 70;
-      setFloatingReactions(prev => [...prev, { id, emoji, x }]);
-
-      setTimeout(() => {
-        setFloatingReactions(prev => prev.filter(r => r.id !== id));
-      }, 2500);
-    };
-
-    const handleRecordingState = (e: any) => {
-      if (!e.detail) return;
-      setRecordingState(e.detail);
-    };
-
-    window.addEventListener('studio-reaction', handleReaction);
-    window.addEventListener('studio-recording-state', handleRecordingState);
-
-    return () => {
-      window.removeEventListener('studio-reaction', handleReaction);
-      window.removeEventListener('studio-recording-state', handleRecordingState);
-    };
-  }, []);
 
   // Helpers for logo entrance animation
   const getLogoInitial = () => {
@@ -1301,13 +1164,6 @@ export function StudioPreview({
     }
   }, [screenStream]);
 
-  // Format live timer
-  const formatTime = (secs: number) => {
-    const mins = Math.floor(secs / 60);
-    const remainingSecs = secs % 60;
-    return `${mins.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
-  };
-
   // Synthesize a quick modern camera shutter sound effect using Web Audio API!
   const playShutterSound = () => {
     try {
@@ -1365,36 +1221,23 @@ export function StudioPreview({
         ctx.drawImage(video, x, y, w, h);
         return;
       } else {
-        // No real track, let's render high fidelity slides on the canvas snapshot
-        ctx.fillStyle = '#1e1f29';
+        // Sem captura: o quadro vazio, como no palco. Antes a imagem baixada
+        // trazia um PowerPoint inventado no lugar da tela.
+        ctx.fillStyle = '#000000';
         ctx.fillRect(x, y, w, h);
-
-        // Draw PowerPoint template mockup on canvas
-        ctx.fillStyle = '#e0533c';
-        ctx.fillRect(x, y, w, 40);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 14px sans-serif';
-        ctx.fillText('Apresentação de Vendas.pptx', x + 20, y + 25);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 22px sans-serif';
-        ctx.fillText('Vega6: Métricas de Crescimento 2026', x + 40, y + 140);
-
-        ctx.fillStyle = '#a59ebf';
-        ctx.font = '12px sans-serif';
-        ctx.fillText('Demonstração das estatísticas consolidadas da plataforma.', x + 40, y + 180);
-
-        // Chart mockup
-        ctx.fillStyle = '#16191e';
-        ctx.fillRect(x + 40, y + 240, 160, 80);
-        ctx.fillStyle = '#10b981';
-        ctx.fillRect(x + 40, y + 290, 160, 30);
+        ctx.fillStyle = '#A2ACB7';
+        ctx.font = '16px Poppins, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Nenhuma tela compartilhada.', x + w / 2, y + h / 2);
+        ctx.textAlign = 'start';
         return;
       }
     }
 
     // Render avatar for external guests or placeholder when camera is stopped
-    const avatarUrl = feed.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80';
+    // Sem foto, fica o fundo: nada de rosto de banco de imagens no lugar de alguém.
+    const avatarUrl = feed.avatarUrl;
+    if (!avatarUrl) return;
     const avatarImg = new Image();
     avatarImg.crossOrigin = 'anonymous';
     avatarImg.src = avatarUrl;
@@ -1736,33 +1579,10 @@ export function StudioPreview({
     } as any);
   }
   
-  if (activeSlide) {
-    activeFeeds.push({
-      id: 'p-slides',
-      name: `Slides: ${activeSlide.name}`,
-      avatarUrl: '',
-      isLocal: false,
-      isScreenShare: true,
-      isActive: true,
-      hasVideo: true,
-      hasAudio: false,
-      isSlides: true
-    } as any);
-  } else if (selectedSharedSource && (selectedSharedSource.type === 'pdf' || selectedSharedSource.type === 'window' || selectedSharedSource.type === 'tab' || selectedSharedSource.type === 'screen' || selectedSharedSource.name.toLowerCase().includes('powerpoint') || selectedSharedSource.name.toLowerCase().includes('.pptx'))) {
-    const hasScreenInFeeds = activeFeeds.some(f => f.isScreenShare);
-    if (!hasScreenInFeeds) {
-      activeFeeds.push({
-        id: 'p-shared-source',
-        name: selectedSharedSource.name,
-        avatarUrl: '',
-        isLocal: false,
-        isScreenShare: true,
-        isActive: true,
-        hasVideo: true,
-        hasAudio: false
-      } as any);
-    }
-  }
+  // A tela entra no palco só quando a cena põe o participante de tela em
+  // cena. Havia aqui um atalho que acrescentava a tela sempre que existisse
+  // um compartilhamento, e o monitor de programa mostrava a tela numa cena
+  // que era só a câmera.
 
   // Define animation variants based on transitionType and duration (in seconds)
   const durationSecs = transitionDuration / 1000;
@@ -1801,14 +1621,15 @@ export function StudioPreview({
   const renderParticipantFeed = (p: Participant | undefined, customClass = '') => {
     if (!p) return null;
     if (p.isLocal) {
-      const virtualBg = activeBackground || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80';
+      // Sem fundo escolhido, o croma recorta sobre o palco, não sobre uma foto de banco de imagens.
+      const virtualBg = activeBackground || '';
       return (
         <div 
           key={p.id} 
-          className={`relative w-full h-full overflow-hidden rounded-xl flex items-center justify-center ${customClass}`}
+          className={`relative w-full h-full overflow-hidden flex items-center justify-center ${customClass}`}
           style={{
-            backgroundColor: '#0F1115',
-            backgroundImage: chromaKeyEnabled ? `url(${virtualBg})` : 'none',
+            backgroundColor: 'var(--stage)',
+            backgroundImage: chromaKeyEnabled && virtualBg ? `url(${virtualBg})` : 'none',
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
@@ -1816,6 +1637,7 @@ export function StudioPreview({
           {!isCamStopped && localStream ? (
             <video
               ref={(el) => {
+                localVideoRef.current = el;
                 if (el && localStream && el.srcObject !== localStream) {
                   el.srcObject = localStream;
                 }
@@ -1833,27 +1655,23 @@ export function StudioPreview({
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-center p-4">
-              <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-[var(--color-brand)] mb-3 animate-pulse">
-                <User size={32} />
+              <div className="mb-3 flex size-16 items-center justify-center rounded-full bg-[var(--raise)] text-[var(--ink-lo)]">
+                <User size={32} aria-hidden="true" />
               </div>
-              <p className="text-sm font-semibold text-[var(--ink-hi)]">{p.name}</p>
-              <p className="text-[10px] text-[var(--ink-lo)]">Câmera Desativada</p>
+              <p className="text-sm font-medium text-[var(--ink-hi)]">{p.name}</p>
+              {/* Desligada é escolha de quem opera; sem stream é a câmera que não veio (permissão ou aparelho) */}
+              <p className="text-xs text-[var(--ink-lo)]">{isCamStopped ? 'Câmera desligada' : 'Sem imagem da câmera'}</p>
             </div>
           )}
-          {/* Label Tag */}
-          <div 
-            style={{ backgroundColor: streamColor }}
-            className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-[var(--ink-hi)] tracking-wide"
-          >
-            {p.name} (Palestrante)
-          </div>
+          {/* Aqui havia um rótulo "{nome} (Palestrante)" sobre a imagem, que ninguém
+              autorou. O nome no vídeo volta como gráfico escolhido (fase 2). */}
         </div>
       );
     }
 
     if ((p as any).isVideoClip && activeVideoClip) {
       return (
-        <div key={p.id} className={`relative w-full h-full bg-black overflow-hidden rounded-xl flex items-center justify-center ${customClass}`}>
+        <div key={p.id} className={`relative w-full h-full bg-[var(--stage)] overflow-hidden flex items-center justify-center ${customClass}`}>
           {activeVideoClip.url ? (
             <video
               src={activeVideoClip.url}
@@ -1867,91 +1685,41 @@ export function StudioPreview({
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-center p-4">
-              <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 mb-3 animate-pulse">
-                <Video size={32} />
+              <div className="mb-3 flex size-16 items-center justify-center rounded-full bg-[var(--raise)] text-[var(--ink-lo)]">
+                <Video size={32} aria-hidden="true" />
               </div>
-              <p className="text-sm font-semibold text-[var(--ink-hi)]">Vídeo: {activeVideoClip.name}</p>
-              <p className="text-[10px] text-[var(--ink-lo)]">Reproduzindo no estúdio</p>
+              <p className="text-sm font-medium text-[var(--ink-hi)]">{activeVideoClip.name}</p>
+              {/* Sem url não há o que tocar: antes dizia "Reproduzindo no estúdio" */}
+              <p className="text-xs text-[var(--ink-lo)]">O arquivo deste vídeo não está disponível.</p>
             </div>
           )}
-          {/* Label Tag */}
-          <div 
-            style={{ backgroundColor: streamColor }}
-            className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md text-[var(--ink-hi)] tracking-wide z-10 flex items-center gap-1"
-          >
-            <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping" />
-            <span>CLIPE DE VÍDEO ATIVO</span>
-          </div>
-        </div>
-      );
-    }
-
-    if ((p as any).isSlides && activeSlide) {
-      return (
-        <div key={p.id} className={`relative w-full h-full bg-[var(--bg)] overflow-hidden rounded-xl flex flex-col justify-between border border-[var(--line)]/80 ${customClass}`}>
-          {/* Slide Header */}
-          <div className="bg-[var(--surface)]/90 px-4 py-2 flex items-center justify-between border-b border-[var(--line)] z-10">
-            <div className="flex items-center gap-2">
-              <Presentation size={14} className="text-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-black uppercase text-[var(--ink)] truncate max-w-[160px] tracking-wider">{activeSlide.name}</span>
-            </div>
-            <span className="text-[9px] font-mono text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
-              PÁGINA {activeSlide.currentPage} de {activeSlide.totalPages}
-            </span>
-          </div>
-
-          {/* Dynamic Content */}
-          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4 bg-gradient-to-br from-[var(--bg)] to-[var(--well)] relative overflow-hidden">
-            {/* Ambient visual background glow */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
-
-            {activeSlide.currentPage === 1 && (
-              <div className="space-y-2 animate-in fade-in duration-300 z-10">
-                <Sparkles size={36} className="text-emerald-400 mx-auto mb-2 animate-pulse" />
-                <h2 className="text-base font-black text-[var(--ink-hi)] tracking-tight">Planejamento Estratégico & Metas</h2>
-                <p className="text-[11px] text-[var(--ink-lo)] max-w-sm mx-auto leading-relaxed">Evolução do mercado corporativo, canais de streaming e estratégias digitais de alta performance.</p>
-              </div>
-            )}
-            {activeSlide.currentPage === 2 && (
-              <div className="space-y-3 w-full max-w-xs animate-in slide-in-from-right duration-300 z-10">
-                <h2 className="text-[11px] font-bold uppercase tracking-wider text-[var(--ink-lo)]">Público-Alvo & Engajamento</h2>
-                <div className="h-2 w-full bg-[var(--panel)] rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: '85%' }} />
-                </div>
-                <p className="text-[10px] text-[var(--ink-lo)] leading-normal">85% dos usuários interagem ativamente através do chat integrado ou perguntas e respostas.</p>
-              </div>
-            )}
-            {activeSlide.currentPage >= 3 && (
-              <div className="space-y-2 animate-in zoom-in-95 duration-300 z-10">
-                <Activity size={32} className="text-blue-400 mx-auto mb-1 animate-pulse" />
-                <h2 className="text-[11px] font-bold text-[var(--ink-hi)] uppercase tracking-wider">Crescimento de Audiência</h2>
-                <p className="text-[10px] text-[var(--ink-lo)] max-w-xs leading-normal">Análise preditiva de métricas em tempo real e canais de distribuição CDN unificados de alta disponibilidade.</p>
-              </div>
-            )}
-          </div>
-
-          {/* Slide Footer */}
-          <div className="bg-[var(--bg)] px-4 py-1.5 flex items-center justify-between text-[8px] font-mono text-[var(--ink-dim)] border-t border-[var(--line)] z-10">
-            <span>PwStreamer Presentations™</span>
-            <span>Apresentado por {participants.find(f => f.isLocal)?.name ?? 'Apresentador'}</span>
-          </div>
         </div>
       );
     }
 
     if (p.isScreenShare) {
-      const hasMockUI = selectedSharedSource && (
-        selectedSharedSource.type === 'pdf' ||
-        selectedSharedSource.type === 'video' ||
-        ['PwStreamer', 'Caixa', 'Powerpoint', 'Como funciona'].some(key => selectedSharedSource.name.includes(key))
-      );
+      // Só o que é real: o arquivo de vídeo local enviado, a captura de tela
+      // ou um estado vazio. O arquivo vem antes da captura porque escolher um
+      // vídeo não encerra um compartilhamento anterior, e ele é a escolha mais
+      // recente.
+      const localVideoUrl = selectedSharedSource?.type === 'video' ? selectedSharedSource.fileUrl : undefined;
 
       return (
-        <div key={p.id} className={`relative w-full h-full bg-[var(--surface)] overflow-hidden rounded-xl flex items-center justify-center ${customClass}`}>
-          {screenStream && !hasMockUI ? (
+        <div key={p.id} className={`relative w-full h-full bg-[var(--stage)] overflow-hidden flex items-center justify-center ${customClass}`}>
+          {localVideoUrl ? (
+            <div className="w-full h-full bg-[var(--stage)]">
+              <video
+                src={localVideoUrl}
+                controls
+                autoPlay
+                loop
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ) : screenStream ? (
             <video
               ref={(el) => {
+                screenVideoRef.current = el;
                 if (el && screenStream && el.srcObject !== screenStream) {
                   el.srcObject = screenStream;
                 }
@@ -1961,526 +1729,26 @@ export function StudioPreview({
               playsInline
               className="w-full h-full object-contain"
             />
-          ) : selectedSharedSource ? (
-            <div className="w-full h-full bg-[var(--bg)] text-[var(--ink-hi)] flex flex-col overflow-hidden select-none font-sans">
-              
-              {/* Simulated browser search bar / top window header */}
-              <div className="bg-[var(--surface)] border-b border-[var(--line)] px-3.5 py-1.5 flex items-center gap-3 shrink-0">
-                <div className="flex gap-1.5 shrink-0">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
-                </div>
-                <div className="bg-[var(--surface)]/90 border border-[var(--line)] rounded px-3 py-0.5 text-[10px] text-[var(--ink-lo)] flex items-center gap-1.5 flex-1 max-w-md mx-auto">
-                  <Globe size={10} className="text-blue-400" />
-                  <span className="truncate">https://{selectedSharedSource.name.includes('PwStreamer') ? 'pwstreamer.com' : selectedSharedSource.name.includes('Caixa') ? 'mail.google.com' : 'app.restream.io'}/studio</span>
-                </div>
-                <span className="text-[9px] font-mono text-[var(--ink-dim)] uppercase font-black tracking-widest bg-[var(--surface)]/60 px-1.5 py-0.5 rounded border border-[var(--line)] shrink-0">
-                  {selectedSharedSource.type === 'tab' ? 'Guia' : selectedSharedSource.type === 'window' ? 'Janela' : selectedSharedSource.type === 'screen' ? 'Tela' : selectedSharedSource.type === 'pdf' ? 'PDF' : 'Vídeo'}
-                </span>
-              </div>
-
-              {/* Mock content rendering according to selection */}
-              <div className="flex-1 flex overflow-hidden bg-[var(--bg)]">
-                
-                {/* 1. PWSTREAMER MOCK */}
-                {selectedSharedSource.name.includes('PwStreamer') && (
-                  <div className="flex-1 flex overflow-hidden">
-                    {/* Main content */}
-                    <div className="flex-[3] p-4 flex flex-col justify-between border-r border-[var(--line)] bg-gradient-to-b from-[var(--surface)] to-[var(--bg)]">
-                      <div className="flex justify-between items-center mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1 rounded bg-rose-600/15 text-rose-500">
-                            <Compass size={14} />
-                          </div>
-                          <span className="text-xs font-black tracking-wider uppercase text-[var(--ink)]">PwStreamer Live Studio</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                          <span className="text-[10px] font-semibold text-emerald-400 font-mono">1,402 ONLINE</span>
-                        </div>
-                      </div>
-
-                      {/* Animated live statistics or slideshow mockup */}
-                      <div className="flex-1 rounded-xl bg-[var(--surface)]/60 border border-[var(--line)] p-4 flex flex-col justify-center text-center space-y-3 relative overflow-hidden">
-                        <div className="absolute top-2 right-2 flex items-center gap-1 text-[8px] text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full font-bold">
-                          <Activity size={8} /> METRICS UPDATE
-                        </div>
-                        <h4 className="text-sm font-black text-[var(--ink-hi)] tracking-tight">Estratégias de Engajamento 2026</h4>
-                        <p className="text-[10px] text-[var(--ink-lo)] max-w-sm mx-auto leading-relaxed">
-                          A evolução dos webinars corporativos e o uso de inteligência artificial generativa em tempo real.
-                        </p>
-                        
-                        {/* Micro visual bars dashboard */}
-                        <div className="grid grid-cols-4 gap-2.5 max-w-xs mx-auto pt-2">
-                          {[
-                            { label: 'Retenção', val: '84%', color: 'bg-rose-500' },
-                            { label: 'Interação', val: '92%', color: 'bg-amber-500' },
-                            { label: 'Chat Q&A', val: '148', color: 'bg-blue-500' },
-                            { label: 'Conversão', val: '18.5%', color: 'bg-emerald-500' }
-                          ].map(metric => (
-                            <div key={metric.label} className="bg-[var(--bg)]/70 border border-[var(--line)]/80 p-2 rounded-lg text-center">
-                              <span className="text-[7px] text-[var(--ink-dim)] block uppercase font-bold">{metric.label}</span>
-                              <span className="text-[11px] font-black font-mono text-[var(--ink-hi)] mt-0.5 block">{metric.val}</span>
-                              <div className="w-full h-1 bg-[var(--surface)] rounded-full mt-1.5 overflow-hidden">
-                                <div className={`h-full ${metric.color} rounded-full`} style={{ width: '75%' }} />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Chat Sidebar */}
-                    <div className="flex-1 bg-[var(--bg)] p-3 flex flex-col justify-between text-[9px] text-[var(--ink-lo)]">
-                      <div className="border-b border-[var(--line)] pb-2 mb-2 flex items-center justify-between">
-                        <span className="font-extrabold text-[var(--ink-hi)] flex items-center gap-1.5 uppercase tracking-wide">
-                          <MessageSquare size={10} className="text-rose-500" /> Bate-papo (Guia)
-                        </span>
-                        <span className="bg-[var(--panel)]/80 text-[8px] font-bold px-1 rounded text-[var(--ink)]">Chat</span>
-                      </div>
-                      
-                      <div className="flex-1 space-y-2 overflow-y-auto pr-1">
-                        <div className="bg-[var(--surface)]/50 p-2 rounded border border-[var(--line)]/40">
-                          <strong className="text-rose-400">Ana Souza:</strong> Olá Marcos! Webinar fantástico!
-                        </div>
-                        <div className="bg-[var(--surface)]/50 p-2 rounded border border-[var(--line)]/40">
-                          <strong className="text-amber-400">Carlos Lima:</strong> O recurso de lousa digital está excelente.
-                        </div>
-                        <div className="bg-[var(--surface)]/50 p-2 rounded border border-[var(--line)]/40">
-                          <strong className="text-sky-400">Marcos:</strong> Obrigado pessoal! Próximo slide em instantes.
-                        </div>
-                      </div>
-
-                      <div className="mt-2 pt-2 border-t border-[var(--line)] text-[8px] text-[var(--ink-dim)] text-center uppercase tracking-wider font-bold">
-                        Enviando como restream-bot
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 2. GMAIL MOCK */}
-                {selectedSharedSource.name.includes('Caixa') && (
-                  <div className="flex-1 flex overflow-hidden">
-                    {/* Gmail Sidebar */}
-                    <div className="w-1/4 bg-[var(--surface)] p-3 border-r border-[var(--line)]/80 flex flex-col justify-between">
-                      <div className="space-y-1 text-[10px]">
-                        <div className="bg-rose-500/15 text-rose-400 px-3 py-1.5 rounded-lg font-black tracking-wide text-center uppercase mb-3 border border-rose-500/10">
-                          ✉️ Escrever
-                        </div>
-                        <div className="bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded font-bold flex items-center justify-between">
-                          <span>📥 Entrada</span>
-                          <span className="text-[8px] font-mono font-black bg-blue-500 text-white px-1.5 rounded-full">192</span>
-                        </div>
-                        <div className="hover:bg-[var(--panel)]/40 text-[var(--ink-lo)] px-2.5 py-1 rounded">⭐ Com Estrela</div>
-                        <div className="hover:bg-[var(--panel)]/40 text-[var(--ink-lo)] px-2.5 py-1 rounded">📤 Enviados</div>
-                        <div className="hover:bg-[var(--panel)]/40 text-[var(--ink-lo)] px-2.5 py-1 rounded">📝 Rascunhos</div>
-                      </div>
-                      <span className="text-[7px] text-[var(--ink-dim)] font-mono text-center block">Google Workspace</span>
-                    </div>
-
-                    {/* Gmail List */}
-                    <div className="flex-1 p-3 bg-[var(--bg)] flex flex-col">
-                      <div className="border-b border-[var(--line)]/60 pb-2 mb-2 flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-[var(--ink)]">Caixa de Entrada (mgdlms@gmail.com)</span>
-                        <span className="text-[8px] text-[var(--ink-dim)]">Filtrado por: Mais Recentes</span>
-                      </div>
-                      
-                      <div className="flex-1 space-y-1.5 overflow-y-auto">
-                        {[
-                          { sender: 'Vega6 Dev Team', title: '🚀 Deploy do pwstreamer-studio concluído com sucesso', time: '11:45', desc: 'Olá Marcos, seu ambiente de desenvolvimento foi compilado e publicado.' },
-                          { sender: 'PwStreamer Support', title: '🎓 Confirmação de Palestrante Convidado', time: '10:30', desc: 'Olá! Gostaríamos de confirmar os dados de acesso para a transmissão de hoje.' },
-                          { sender: 'Marcos (Você)', title: '📝 Pauta da Transmissão da Comunidade', time: 'Ontem', desc: 'Olá time, segue a pauta e os tópicos que abordaremos na apresentação.' },
-                          { sender: 'Felipe Ramos', title: '⚡ Feedback da nova Lousa Digital', time: 'Ontem', desc: 'Impressionante como os traços ficaram responsivos e sem latência na transmissão.' }
-                        ].map((email, idx) => (
-                          <div key={idx} className="bg-[var(--surface)]/60 border border-[var(--line)]/60 p-2 rounded-lg hover:border-blue-500/40 transition-all flex items-start gap-2.5">
-                            <span className="text-[11px] shrink-0 mt-0.5">✉️</span>
-                            <div className="flex-1 min-w-0 text-[9px]">
-                              <div className="flex justify-between font-bold text-[var(--ink-hi)]">
-                                <span className="truncate">{email.sender}</span>
-                                <span className="text-[var(--ink-dim)] font-mono text-[8px]">{email.time}</span>
-                              </div>
-                              <p className="text-blue-400 font-medium truncate mt-0.5">{email.title}</p>
-                              <p className="text-[var(--ink-lo)] truncate mt-0.5 text-[8px]">{email.desc}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 3. POWERPOINT MOCK */}
-                {selectedSharedSource.name.includes('Powerpoint') && (
-                  <div className="flex-1 flex flex-col bg-[var(--surface)]/20 p-4 justify-between font-sans">
-                    {/* PowerPoint top menu simulation */}
-                    <div className="flex justify-between items-center border-b border-orange-500/20 pb-2 mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="p-1 rounded bg-orange-600 text-white font-extrabold text-[9px] tracking-wide uppercase">P</span>
-                        <span className="text-xs font-bold text-[var(--ink-hi)]">Powerpoint - Apresentação de Vendas.pptx [Modo de Exibição]</span>
-                      </div>
-                      <span className="text-[8px] text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 shrink-0">SLIDE {pdfCurrentPage} / 12</span>
-                    </div>
-
-                    {/* Slide main graphics */}
-                    <div className="flex-1 bg-[var(--bg)]/60 border border-[var(--line)] rounded-xl p-4 flex flex-col justify-center text-center space-y-4">
-                      <div className="space-y-1">
-                        <span className="text-[8px] font-mono tracking-widest text-orange-500 font-black uppercase">
-                          {pdfCurrentPage === 1 && "Apresentação de Abertura"}
-                          {pdfCurrentPage === 2 && "Estatísticas de Vendas"}
-                          {pdfCurrentPage === 3 && "Retenção & CSAT"}
-                          {pdfCurrentPage === 4 && "Suporte de Alto Nível"}
-                          {pdfCurrentPage === 5 && "Novos Recursos de Transmissão"}
-                          {pdfCurrentPage === 6 && "Otimização de Infraestrutura"}
-                          {pdfCurrentPage === 7 && "Escala Enterprise"}
-                          {pdfCurrentPage === 8 && "ROI e Custos"}
-                          {pdfCurrentPage === 9 && "Cronograma Geral"}
-                          {pdfCurrentPage === 10 && "SLA de Transmissão"}
-                          {pdfCurrentPage === 11 && "FAQ de Suporte"}
-                          {pdfCurrentPage === 12 && "Fechamento & Contato"}
-                        </span>
-                        <h3 className="text-base font-extrabold text-[var(--ink-hi)] tracking-tight">
-                          {pdfCurrentPage === 1 && "Estratégia de Expansão Global Vega6"}
-                          {pdfCurrentPage === 2 && "Vega6: Métricas de Crescimento 2026"}
-                          {pdfCurrentPage === 3 && "Retenção de Clientes e Crescimento YoY"}
-                          {pdfCurrentPage === 4 && "Pontuação CSAT e Satisfação do Cliente"}
-                          {pdfCurrentPage === 5 && "Transmissão em Baixíssima Latência"}
-                          {pdfCurrentPage === 6 && "Eficiência Operacional em Nuvem"}
-                          {pdfCurrentPage === 7 && "Expansão de Pacotes Corporativos"}
-                          {pdfCurrentPage === 8 && "Redução de Custos de CDN"}
-                          {pdfCurrentPage === 9 && "Marcos de Desenvolvimento Q3-Q4"}
-                          {pdfCurrentPage === 10 && "Suporte 24/7 com SLA de 99.9%"}
-                          {pdfCurrentPage === 11 && "Canais de Atendimento Prioritários"}
-                          {pdfCurrentPage === 12 && "Perguntas & Respostas (Q&A)"}
-                        </h3>
-                        <p className="text-[10px] text-[var(--ink-lo)] max-w-md mx-auto">
-                          {pdfCurrentPage === 1 && "Bem-vindo à apresentação executiva do plano de aceleração corporativa para o ano de 2026."}
-                          {pdfCurrentPage === 2 && "Demonstração das estatísticas consolidadas do último trimestre da plataforma."}
-                          {pdfCurrentPage === 3 && "Foco absoluto em diminuir o Churn rate e expandir o Net Promoter Score por meio de ferramentas interativas."}
-                          {pdfCurrentPage === 4 && "Análise comparativa das taxas de cliques, retenção em webinars ao vivo e volume de mensagens enviadas."}
-                          {pdfCurrentPage === 5 && "Por que nossa tecnologia de transmissão de baixíssima latência é o pilar principal de retenção."}
-                          {pdfCurrentPage === 6 && "Redução de custos de banda através de otimização de codecs de codificação em tempo real."}
-                          {pdfCurrentPage === 7 && "Projeção de expansão de pacotes enterprise e expansão de faturamento por assentos adicionais."}
-                          {pdfCurrentPage === 8 && "Redução de custos de banda através de otimização de codecs de codificação em tempo real."}
-                          {pdfCurrentPage === 9 && "Visão geral de crescimento líquido estimado de 2.4M USD até o fechamento de dezembro."}
-                          {pdfCurrentPage === 10 && "Fases de testes beta, auditoria de segurança de dados e implantação em servidores CDN."}
-                          {pdfCurrentPage === 11 && "Monitoramento proativo e canais de comunicação direta de alta prioridade para contas VIP."}
-                          {pdfCurrentPage === 12 && "Abriremos espaço para que palestrantes e convidados do estúdio tragam suas perguntas."}
-                        </p>
-                      </div>
-
-                      {/* Charts and columns */}
-                      <div className="grid grid-cols-3 gap-3 max-w-md mx-auto w-full">
-                        <div className="bg-[var(--surface)]/80 border border-[var(--line)] p-2.5 rounded-lg text-center">
-                          <span className="text-[8px] text-[var(--ink-lo)] block uppercase font-bold">Crescimento MRR</span>
-                          <span className="text-xs font-black text-emerald-400 block mt-0.5">+{30 + pdfCurrentPage * 2}% YoY</span>
-                          <div className="h-1 bg-[var(--bg)] rounded-full mt-2 overflow-hidden">
-                            <div className="h-full bg-emerald-500" style={{ width: `${60 + pdfCurrentPage * 3}%` }} />
-                          </div>
-                        </div>
-                        <div className="bg-[var(--surface)]/80 border border-[var(--line)] p-2.5 rounded-lg text-center">
-                          <span className="text-[8px] text-[var(--ink-lo)] block uppercase font-bold">Retenção de Clientes</span>
-                          <span className="text-xs font-black text-amber-400 block mt-0.5">{90 + (pdfCurrentPage * 0.4).toFixed(1)}%</span>
-                          <div className="h-1 bg-[var(--bg)] rounded-full mt-2 overflow-hidden">
-                            <div className="h-full bg-amber-500" style={{ width: `${80 + pdfCurrentPage * 1.5}%` }} />
-                          </div>
-                        </div>
-                        <div className="bg-[var(--surface)]/80 border border-[var(--line)] p-2.5 rounded-lg text-center">
-                          <span className="text-[8px] text-[var(--ink-lo)] block uppercase font-bold">Suporte CSAT</span>
-                          <span className="text-xs font-black text-sky-400 block mt-0.5">{(4.0 + pdfCurrentPage * 0.08).toFixed(1)} / 5.0</span>
-                          <div className="h-1 bg-[var(--bg)] rounded-full mt-2 overflow-hidden">
-                            <div className="h-full bg-sky-500" style={{ width: `${70 + pdfCurrentPage * 2}%` }} />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center text-[8px] text-[var(--ink-dim)] pt-1.5 border-t border-[var(--line)]/40 shrink-0">
-                      <span>Navegação do Apresentador</span>
-                      <div className="flex gap-1.5">
-                        <button 
-                          onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
-                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
-                        >
-                          Anterior
-                        </button>
-                        <button 
-                          onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
-                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
-                        >
-                          Próximo
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 4. YOUTUBE MOCK */}
-                {selectedSharedSource.name.includes('Como funciona') && (
-                  <div className="flex-1 flex flex-col bg-[var(--bg)] p-4 justify-between">
-                    <div className="flex justify-between items-center border-b border-red-500/10 pb-1.5 mb-2">
-                      <span className="text-xs font-bold text-[var(--ink-hi)] flex items-center gap-1.5"><Youtube size={14} className="text-red-500" /> YouTube Premium Player</span>
-                      <span className="text-[8px] bg-red-600 text-white font-bold px-1.5 rounded uppercase">Reproduzindo</span>
-                    </div>
-
-                    <div className="flex-1 bg-[var(--surface)]/80 border border-[var(--line)] rounded-xl overflow-hidden flex flex-col justify-between p-3 relative">
-                      {/* Video Simulated Poster/Illustration */}
-                      <div className="flex-1 flex flex-col justify-center items-center text-center space-y-2">
-                        <div className="w-10 h-10 rounded-full bg-red-600/10 flex items-center justify-center text-red-500">
-                          <Play size={16} fill="currentColor" />
-                        </div>
-                        <h4 className="text-[11px] font-black text-[var(--ink-hi)] px-4">Como funciona a tecnologia x prevenção na saúde inteligente</h4>
-                        <p className="text-[9px] text-[var(--ink-lo)]">Vega6 Webinars & Palestras Acadêmicas</p>
-                      </div>
-
-                      {/* YouTube Player Controller Bar */}
-                      <div className="bg-black/80 p-2 rounded-lg border border-[var(--line)] mt-2 space-y-1 text-[8px] text-[var(--ink-lo)]">
-                        <div className="w-full h-1 bg-[var(--panel)] rounded-full overflow-hidden">
-                          <div className="w-1/3 h-full bg-red-600" />
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span>04:12 / 12:45</span>
-                          <span>1080p HD</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 5. PDF SLIDESHOW TEMPLATE */}
-                {selectedSharedSource.type === 'pdf' && (
-                  <div className="flex-1 flex flex-col justify-between p-4 bg-gradient-to-br from-[var(--bg)] to-[var(--well)] min-h-0">
-                    <div className="flex justify-between items-center border-b border-orange-500/20 pb-2 mb-2">
-                      <div className="flex items-center gap-2 overflow-hidden">
-                        <span className="p-1 px-1.5 rounded bg-orange-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">PDF</span>
-                        <span className="text-[11px] font-bold text-[var(--ink-hi)] truncate max-w-sm">{selectedSharedSource.name}</span>
-                      </div>
-                      <span className="text-[8px] text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 shrink-0">SLIDE {pdfCurrentPage} DE 12</span>
-                    </div>
-
-                    <div className="flex-1 bg-[var(--bg)]/70 border border-[var(--line)] rounded-xl p-3 flex flex-col justify-center text-center space-y-2 relative group min-h-0 overflow-hidden">
-                      <button aria-label="Página anterior" 
-                        onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
-                        disabled={pdfCurrentPage === 1}
-                        className={`absolute left-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-white transition-all shadow z-10 ${
-                          pdfCurrentPage === 1 ? 'opacity-20 cursor-not-allowed' : 'opacity-100 cursor-pointer'
-                        }`}
-                      >
-                        <ChevronLeft size={14} />
-                      </button>
-
-                      <button aria-label="Próxima página" 
-                        onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
-                        disabled={pdfCurrentPage === 12}
-                        className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[var(--panel)]/80 hover:bg-[var(--raise)] text-[var(--ink-hi)] transition-all shadow z-10 ${
-                          pdfCurrentPage === 12 ? 'opacity-20 cursor-not-allowed' : 'opacity-100 cursor-pointer'
-                        }`}
-                      >
-                        <ChevronRight size={14} />
-                      </button>
-
-                      <div className="space-y-1 animate-in fade-in duration-150">
-                        <span className="text-[8px] font-mono tracking-widest text-orange-500 font-extrabold uppercase block">
-                          {pdfCurrentPage === 1 && "Apresentação de Abertura"}
-                          {pdfCurrentPage === 2 && "Objetivos Estratégicos"}
-                          {pdfCurrentPage === 3 && "Mercado e Demografia"}
-                          {pdfCurrentPage === 4 && "Estatísticas Consolidadas"}
-                          {pdfCurrentPage === 5 && "Plano de Marketing 2026"}
-                          {pdfCurrentPage === 6 && "Análise da Concorrência"}
-                          {pdfCurrentPage === 7 && "Modelos de Receita"}
-                          {pdfCurrentPage === 8 && "Estrutura de Custos"}
-                          {pdfCurrentPage === 9 && "Projeção de Lucro Semestral"}
-                          {pdfCurrentPage === 10 && "Cronograma de Lançamento"}
-                          {pdfCurrentPage === 11 && "Garantia de Qualidade"}
-                          {pdfCurrentPage === 12 && "Conclusão & Próximos Passos"}
-                        </span>
-
-                        <h3 className="text-sm font-black text-[var(--ink-hi)] tracking-tight leading-snug">
-                          {pdfCurrentPage === 1 && "Estratégia de Expansão Global Vega6"}
-                          {pdfCurrentPage === 2 && "Maximização de Engajamento & Retenção"}
-                          {pdfCurrentPage === 3 && "Análise Demográfica do Público-Alvo"}
-                          {pdfCurrentPage === 4 && "Resultados e Métricas Trimestrais"}
-                          {pdfCurrentPage === 5 && "Canais de Aquisição Multicanal"}
-                          {pdfCurrentPage === 6 && "Vantagem Competitiva Exclusiva"}
-                          {pdfCurrentPage === 7 && "Escalabilidade de SaaS Recorrente"}
-                          {pdfCurrentPage === 8 && "Eficiência Operacional & Custo de Infra"}
-                          {pdfCurrentPage === 9 && "Crescimento Líquido Projetado"}
-                          {pdfCurrentPage === 10 && "Marcos de Desenvolvimento Q3-Q4"}
-                          {pdfCurrentPage === 11 && "Suporte ao Cliente & SLA de 99.9%"}
-                          {pdfCurrentPage === 12 && "Sessão de Perguntas & Respostas (Q&A)"}
-                        </h3>
-
-                        <p className="text-[10px] text-[var(--ink-lo)] max-w-md mx-auto leading-normal">
-                          {pdfCurrentPage === 1 && "Bem-vindo à apresentação executiva do plano de aceleração corporativa para o ano de 2026."}
-                          {pdfCurrentPage === 2 && "Foco absoluto em diminuir o Churn rate e expandir o Net Promoter Score por meio de ferramentas interativas."}
-                          {pdfCurrentPage === 3 && "Identificação dos segmentos de usuários com maior propensão de conversão para planos anuais."}
-                          {pdfCurrentPage === 4 && "Análise comparativa das taxas de cliques, retenção em webinars ao vivo e volume de mensagens enviadas."}
-                          {pdfCurrentPage === 5 && "Lançamento de campanhas via Google Ads, tráfego orgânico, marketing de influência e parcerias com agências."}
-                          {pdfCurrentPage === 6 && "Por que nossa tecnologia de transmissão de baixíssima latência é o pilar principal de retenção."}
-                          {pdfCurrentPage === 7 && "Projeção de expansão de pacotes enterprise e expansão de faturamento por assentos adicionais."}
-                          {pdfCurrentPage === 8 && "Redução de custos de banda através de otimização de codecs de codificação em tempo real."}
-                          {pdfCurrentPage === 9 && "Visão geral de crescimento líquido estimado de 2.4M USD até o fechamento de dezembro."}
-                          {pdfCurrentPage === 10 && "Fases de testes beta, auditoria de segurança de dados e implantação em servidores CDN."}
-                          {pdfCurrentPage === 11 && "Monitoramento proativo e canais de comunicação direta de alta prioridade para contas VIP."}
-                          {pdfCurrentPage === 12 && "Abriremos espaço para que palestrantes e convidados do estúdio tragam suas perguntas."}
-                        </p>
-                      </div>
-
-                      {pdfCurrentPage % 2 === 0 && (
-                        <div className="grid grid-cols-4 gap-1.5 max-w-xs mx-auto w-full pt-1">
-                          <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-[var(--ink-dim)] block uppercase font-bold">Conversão</span>
-                            <span className="text-[8px] font-bold text-emerald-400 block font-mono">14.2%</span>
-                          </div>
-                          <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-[var(--ink-dim)] block uppercase font-bold">Interações</span>
-                            <span className="text-[8px] font-bold text-rose-400 block font-mono">82/min</span>
-                          </div>
-                          <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-[var(--ink-dim)] block uppercase font-bold">Tempo Médio</span>
-                            <span className="text-[8px] font-bold text-blue-400 block font-mono">48m</span>
-                          </div>
-                          <div className="bg-[var(--surface)] border border-[var(--line)] p-1 rounded-lg text-center">
-                            <span className="text-[6px] text-[var(--ink-dim)] block uppercase font-bold">Suporte</span>
-                            <span className="text-[8px] font-bold text-amber-400 block font-mono">99.9%</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex justify-between items-center text-[8px] text-[var(--ink-dim)] pt-1.5 border-t border-[var(--line)]/40 shrink-0">
-                      <span>Navegação do Apresentador</span>
-                      <div className="flex gap-1.5">
-                        <button 
-                          onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
-                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
-                        >
-                          Anterior
-                        </button>
-                        <button 
-                          onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
-                          className="px-2 py-0.5 rounded bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] cursor-pointer text-[8px]"
-                        >
-                          Próximo
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 6. VIDEO PLAYBACK TEMPLATE */}
-                {selectedSharedSource.type === 'video' && (
-                  <div className="flex-1 flex flex-col bg-black justify-between relative min-h-0">
-                    {selectedSharedSource.fileUrl ? (
-                      <video 
-                        src={selectedSharedSource.fileUrl}
-                        controls
-                        autoPlay
-                        loop
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <div className="flex-1 flex flex-col justify-between p-4 bg-[var(--well)] text-[var(--ink-hi)] font-sans min-h-0">
-                        <div className="flex justify-between items-center border-b border-emerald-500/20 pb-1.5 mb-2 shrink-0">
-                          <div className="flex items-center gap-1.5 overflow-hidden">
-                            <span className="p-0.5 px-1.5 rounded bg-emerald-600 text-white font-black text-[9px] tracking-wide uppercase shrink-0">VIDEO</span>
-                            <span className="text-[11px] font-bold text-[var(--ink-hi)] truncate max-w-sm">{selectedSharedSource.name}</span>
-                          </div>
-                          <span className="text-[8px] bg-emerald-600 text-white font-bold px-1.5 rounded uppercase animate-pulse shrink-0">REPRODUZINDO</span>
-                        </div>
-
-                        <div className="flex-1 flex flex-col justify-center items-center text-center space-y-2 p-3 bg-[var(--bg)]/60 border border-[var(--line)] rounded-xl min-h-0">
-                          <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 animate-pulse shrink-0">
-                            <Play size={16} fill="currentColor" />
-                          </div>
-                          <div className="space-y-0.5">
-                            <h4 className="text-[11px] font-extrabold text-[var(--ink-hi)]">Transmissão de Vídeo Digital Ativa</h4>
-                            <p className="text-[9px] text-[var(--ink-lo)] max-w-xs leading-normal">
-                              O reprodutor está processando áudio e vídeo integrados no palco de streaming.
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="bg-[var(--bg)]/80 p-2 rounded-lg border border-[var(--line)] mt-2 flex items-center justify-between gap-3 text-[8px] font-mono text-[var(--ink-lo)] shrink-0">
-                          <span>01:45 / 03:00</span>
-                          <div className="flex-1 h-1 bg-[var(--panel)] rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 w-[58%]" />
-                          </div>
-                          <span>1080p Stream</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* 7. GENERAL / FALLBACK TEMPLATE */}
-                {selectedSharedSource.type !== 'pdf' && selectedSharedSource.type !== 'video' && !['PwStreamer', 'Caixa', 'Powerpoint', 'Como funciona'].some(key => selectedSharedSource.name.includes(key)) && (
-                  <div className="flex-1 flex flex-col justify-between p-4 bg-gradient-to-br from-[var(--bg)] to-[var(--well)] min-h-0">
-                    <div className="flex justify-between items-center border-b border-[var(--line)] pb-2 shrink-0">
-                      <div className="flex items-center gap-1.5 overflow-hidden">
-                        <Monitor size={12} className="text-blue-400 shrink-0" />
-                        <span className="text-xs font-bold text-[var(--ink-hi)] truncate max-w-xs">{selectedSharedSource.name}</span>
-                      </div>
-                      <span className="text-[8px] font-mono font-bold text-[var(--ink-lo)] shrink-0">DISPOSITIVO VIRTUAL</span>
-                    </div>
-
-                    <div className="flex-1 flex flex-col justify-center items-center text-center space-y-2 p-3 bg-[var(--surface)]/30 border border-[var(--line)]/50 rounded-xl my-2 min-h-0">
-                      <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 animate-pulse shrink-0">
-                        <Activity size={16} />
-                      </div>
-                      <div className="space-y-0.5">
-                        <h4 className="text-[11px] font-extrabold text-[var(--ink-hi)]">Transmissão Compartilhada Ativa</h4>
-                        <p className="text-[9px] text-[var(--ink-lo)] max-w-xs mx-auto">Sua tela está sendo transmitida em tempo real para os servidores de distribuição.</p>
-                      </div>
-                    </div>
-
-                    <div className="text-[8px] text-[var(--ink-dim)] text-center font-mono uppercase tracking-wide shrink-0">
-                      Compartilhamento de Áudio: {selectedSharedSource.audioShared ? 'ATIVADO' : 'DESATIVADO'}
-                    </div>
-                  </div>
-                )}
-
-              </div>
-            </div>
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-center bg-gradient-to-br from-[var(--bg)] to-[var(--surface)] p-6">
-              <Monitor size={48} className="text-[var(--color-brand)] mb-3 animate-pulse" />
-              <p className="text-sm font-semibold text-[var(--ink-hi)]">Compartilhamento de Tela Ativo</p>
-              <p className="text-[11px] text-[var(--ink-lo)] max-w-xs mt-1">Exibindo slides ou janelas do apresentador para os participantes.</p>
+            <div className="w-full h-full flex items-center justify-center text-center p-4 bg-[var(--stage)]">
+              <p className="text-sm text-[var(--ink-lo)]">Nenhuma tela compartilhada.</p>
             </div>
           )}
-          {/* Label Tag */}
-          <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/60 text-[var(--ink-hi)] tracking-wide flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-[var(--color-brand-deep)] rounded-full animate-ping"></span>
-            <span>Tela Compartilhada</span>
-            {selectedSharedSource && (
-              <span className="text-[var(--ink-lo)] font-mono text-[9px] border-l border-[var(--line-ctl)] pl-1.5 ml-0.5">
-                {selectedSharedSource.resolution || '1080p'} @ {selectedSharedSource.frameRate ? selectedSharedSource.frameRate.replace('fps', ' FPS') : '30 FPS'}
-              </span>
-            )}
-          </div>
         </div>
       );
     }
 
     // Guest participant
     return (
-      <div key={p.id} className={`relative w-full h-full bg-[var(--bg)] overflow-hidden rounded-xl flex items-center justify-center ${customClass}`}>
+      <div key={p.id} className={`relative w-full h-full bg-[var(--stage)] overflow-hidden flex items-center justify-center ${customClass}`}>
         <div className="flex flex-col items-center justify-center text-center p-4">
           <img 
             src={p.avatarUrl} 
             alt={p.name} 
-            className="w-16 h-16 rounded-full object-cover border-2 border-dashed border-[var(--line-ctl)] mb-2 animate-pulse"
+            className="mb-2 size-16 rounded-full object-cover"
             referrerPolicy="no-referrer"
           />
           <p className="text-xs font-semibold text-[var(--ink-hi)]">{p.name}</p>
-          <p className="text-[9px] text-blue-400 flex items-center gap-1 mt-0.5">
-            <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Convidado Conectado
-          </p>
-        </div>
-        {/* Label Tag */}
-        <div className="absolute bottom-3 left-3 px-3 py-1 rounded text-[10px] font-bold shadow-md bg-black/50 text-[var(--ink-hi)] tracking-wide">
-          {p.name}
         </div>
       </div>
     );
@@ -2490,15 +1758,9 @@ export function StudioPreview({
   const renderDraggableSpeakerCard = (camFeed: Participant) => {
     const isCircle = speakerCardShape === 'circle';
     const isCompact = speakerCardShape === 'compact';
+    const emAjuste = isDraggingSpeakerCard || isResizingSpeakerCard;
 
-    let dimensionClasses = 'w-48 h-32';
-    if (isCircle) {
-      dimensionClasses = 'w-36 h-36';
-    } else if (isCompact) {
-      dimensionClasses = 'w-40 h-26';
-    } else {
-      dimensionClasses = 'w-48 h-32';
-    }
+    const formato = FORMATOS_DO_CARD[speakerCardShape];
 
     return (
       <div 
@@ -2508,161 +1770,60 @@ export function StudioPreview({
         style={{
           left: `${speakerCardPos.x}%`,
           top: `${speakerCardPos.y}%`,
-          transform: `scale(${speakerCardScale})`,
-          transformOrigin: 'top left',
+          // Em % da largura do palco: o mesmo card no preview e no programa
+          width: `${formato.largura * speakerCardScale}%`,
+          aspectRatio: formato.proporcao,
           touchAction: 'none'
         }}
-        className={`absolute z-30 shadow-2xl transition-shadow select-none group/speakercard ${dimensionClasses} ${
-          isDraggingSpeakerCard ? 'ring-4 ring-blue-400 ring-opacity-80 cursor-grabbing' : ''
+        className={`absolute z-30 shadow-2xl transition-shadow select-none group/speakercard ${
+          isDraggingSpeakerCard ? 'ring-2 ring-[var(--ink-hi)] cursor-grabbing' : ''
         }`}
       >
         {/* Main Card Content */}
+        {/* A borda é gráfico da live: vai na cor dos gráficos que a pessoa escolhe
+            (Estilo), não no azul fixo de antes. O destaque de edição é neutro. */}
         <div 
-          className={`w-full h-full relative overflow-hidden bg-[var(--bg)] border-2 transition-all ${
+          style={{ borderColor: streamColor }}
+          className={`w-full h-full relative overflow-hidden bg-[var(--bg)] border-2 shadow-2xl transition-shadow ${
             isCircle ? 'rounded-full' : isCompact ? 'rounded-lg' : 'rounded-xl'
-          } ${
-            isHoveringSpeakerCard || isDraggingSpeakerCard 
-              ? 'border-blue-400 shadow-[0_0_25px_rgba(59,130,246,0.6)]' 
-              : 'border-blue-500/90 shadow-2xl'
-          }`}
+          } ${isHoveringSpeakerCard || isDraggingSpeakerCard ? 'ring-2 ring-[var(--ink-hi)]' : ''}`}
         >
           {renderParticipantFeed(camFeed, isCircle ? 'rounded-full' : '')}
 
-          {/* Drag Overlay Handle */}
-          <div 
+          {/* A alça de arrasto é o card inteiro; o destaque de edição é o anel neutro acima */}
+          <div
             onMouseDown={startDragSpeakerCard}
             onTouchStart={startDragSpeakerCard}
-            title="Arraste para reposicionar o card do palestrante em qualquer lugar"
-            className={`absolute inset-0 z-20 flex flex-col justify-between p-1.5 transition-opacity cursor-grab active:cursor-grabbing ${
-              isDraggingSpeakerCard ? 'bg-blue-600/15' : 'bg-transparent hover:bg-black/25'
-            }`}
-          >
-            {/* Top Bar with Drag Grip & Quick Scale Tools */}
-            <div className="flex items-center justify-between opacity-0 group-hover/speakercard:opacity-100 transition-opacity bg-black/85 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10 text-[var(--ink-hi)] text-[9px] pointer-events-auto">
-              <span className="flex items-center gap-1 font-bold text-[8px] uppercase tracking-wider text-blue-300">
-                <Move size={10} className="animate-pulse" />
-                <span>Mover</span>
-              </span>
-              
-              <div className="flex items-center gap-1">
-                {/* Scale buttons */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSpeakerCardScale(prev => Math.max(0.6, Number((prev - 0.1).toFixed(1))));
-                  }}
-                  className="w-4 h-4 rounded bg-[var(--panel)] hover:bg-[var(--raise)] flex items-center justify-center text-[var(--ink-hi)]"
-                  title="Diminuir tamanho"
-                >
-                  -
-                </button>
-                <span className="font-mono text-[8px] text-[var(--ink)]">{Math.round(speakerCardScale * 100)}%</span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSpeakerCardScale(prev => Math.min(1.8, Number((prev + 0.1).toFixed(1))));
-                  }}
-                  className="w-4 h-4 rounded bg-[var(--panel)] hover:bg-[var(--raise)] flex items-center justify-center text-[var(--ink-hi)]"
-                  title="Aumentar tamanho"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            {/* Bottom Floating Quick Preset Dock on Hover */}
-            <div className="flex items-center justify-center gap-1 opacity-0 group-hover/speakercard:opacity-100 transition-opacity pointer-events-auto">
-              <div className="flex items-center gap-0.5 bg-black/90 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-[var(--line-ctl)]/80 shadow-lg">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSpeakerPresetPos('top-left');
-                  }}
-                  className="p-1 hover:bg-blue-600 rounded text-[var(--ink)] hover:text-white transition-colors"
-                  title="Fixar no Topo Esquerdo (↖)"
-                >
-                  <ArrowUpLeft size={10} />
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSpeakerPresetPos('top-right');
-                  }}
-                  className="p-1 hover:bg-blue-600 rounded text-[var(--ink)] hover:text-white transition-colors"
-                  title="Fixar no Topo Direito (↗)"
-                >
-                  <ArrowUpRight size={10} />
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSpeakerPresetPos('bottom-left');
-                  }}
-                  className="p-1 hover:bg-blue-600 rounded text-[var(--ink)] hover:text-white transition-colors"
-                  title="Fixar na Base Esquerda (↙)"
-                >
-                  <ArrowDownLeft size={10} />
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSpeakerPresetPos('bottom-right');
-                  }}
-                  className="p-1 hover:bg-blue-600 rounded text-[var(--ink)] hover:text-white transition-colors"
-                  title="Fixar na Base Direita (↘)"
-                >
-                  <ArrowDownRight size={10} />
-                </button>
-                <div className="w-[1px] h-2.5 bg-[var(--raise)] mx-0.5" />
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSpeakerCardShape(prev => prev === 'rounded' ? 'circle' : prev === 'circle' ? 'compact' : 'rounded');
-                  }}
-                  className="px-1 py-0.5 hover:bg-blue-600 rounded text-[8px] font-bold text-[var(--ink)] hover:text-white transition-colors"
-                  title="Alterar Formato do Card (Retângulo / Círculo / Compacto)"
-                >
-                  {isCircle ? 'Circ' : isCompact ? 'Mini' : 'Ret'}
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    resetSpeakerCardPos();
-                  }}
-                  className="p-1 hover:bg-rose-600 rounded text-[var(--ink)] hover:text-white transition-colors"
-                  title="Resetar Posição Padrão"
-                >
-                  <RotateCcw size={10} />
-                </button>
-              </div>
-            </div>
-          </div>
+            title="Arraste para mudar o card de lugar"
+            className={`absolute inset-0 z-20 cursor-grab active:cursor-grabbing ${isDraggingSpeakerCard ? 'bg-[var(--ink-hi)]/10' : ''}`}
+          />
         </div>
 
-        {/* Bottom Right Resize Handle */}
-        {!isCircle && (
-          <div 
-            onMouseDown={startResizeSpeakerCard}
-            onTouchStart={startResizeSpeakerCard}
-            title="Arraste para redimensionar o card do palestrante"
-            className="absolute -bottom-1.5 -right-1.5 w-5 h-5 bg-blue-600 hover:bg-blue-500 rounded-full border border-white shadow flex items-center justify-center text-white cursor-nwse-resize z-40 opacity-0 group-hover/speakercard:opacity-100 transition-opacity pointer-events-auto"
-          >
-            <Maximize2 size={9} />
-          </div>
+        {/* No palco, o editor do card é só a mão: arrastar move, a alça muda o
+            tamanho, e a leitura aparece enquanto se ajusta. Os cantos, o
+            formato e o tamanho exato ficam em Estilo, com teclado. Era uma
+            barra "MOVER" em caixa alta, azul e pulsando, em letras de 8 e
+            9px, e outra com os cantos e o formato abreviado em "Circ", "Mini"
+            e "Ret": Estilo repetido dentro de um card de 130px. */}
+        {emAjuste && (
+          <span className="pointer-events-none absolute left-1/2 top-1.5 z-20 -translate-x-1/2 whitespace-nowrap rounded-md border border-[var(--line-ctl)] bg-[var(--surface)] px-1.5 py-0.5 font-mono text-xs tabular-nums text-[var(--ink)]">
+            {isResizingSpeakerCard
+              ? `${Math.round(speakerCardScale * 100)}%`
+              : `X ${Math.round(speakerCardPos.x)}% · Y ${Math.round(speakerCardPos.y)}%`}
+          </span>
         )}
 
-        {/* Live Coordinate Badge during Drag */}
-        {isDraggingSpeakerCard && (
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-blue-600 text-white font-mono text-[8px] font-black px-1.5 py-0.5 rounded shadow-lg whitespace-nowrap z-50 animate-pulse">
-            X: {Math.round(speakerCardPos.x)}% | Y: {Math.round(speakerCardPos.y)}%
+        {/* A alça de tamanho, no canto de baixo à direita */}
+        {!isCircle && (
+          <div
+            onMouseDown={startResizeSpeakerCard}
+            onTouchStart={startResizeSpeakerCard}
+            title="Arraste para mudar o tamanho do card"
+            className={`absolute -bottom-1.5 -right-1.5 z-30 flex size-5 cursor-nwse-resize items-center justify-center rounded-full border border-[var(--ink-hi)] bg-[var(--surface)] text-[var(--ink-hi)] transition-opacity duration-150 ${
+              emAjuste ? 'opacity-100' : 'opacity-0 group-hover/speakercard:opacity-100'
+            }`}
+          >
+            <Maximize2 size={10} aria-hidden="true" />
           </div>
         )}
       </div>
@@ -2673,16 +1834,15 @@ export function StudioPreview({
   const renderLayoutContent = () => {
     if (activeFeeds.length === 0) {
       return (
-        <div className="w-full h-full flex flex-col items-center justify-center bg-[var(--bg)]/95 text-center p-6">
-          <ShieldAlert size={48} className="text-[var(--color-brand)] mb-3" />
-          <p className="text-base font-semibold text-[var(--ink-hi)]">Transmissão Vazia</p>
-          <p className="text-xs text-[var(--ink-lo)] max-w-sm mt-1">Adicione o seu vídeo ou compartilhamento de tela ao palco para começar.</p>
-          <button 
-            onClick={() => onToggleParticipantActive('p-local')}
-            className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white text-xs font-semibold rounded-lg transition-all"
-          >
-            Adicionar Minha Câmera
-          </button>
+        // Era "Transmissão Vazia" com um escudo de alerta na cor da marca e um
+        // botão azul: o palco sem fonte não é um alerta, e não há transmissão.
+        <div className="flex h-full w-full flex-col items-center justify-center bg-[var(--stage)] p-6 text-center">
+          <p className="text-sm text-[var(--ink)]">Nenhuma fonte nesta cena.</p>
+          {papel !== 'programa' && (
+            <Button variant="ghost" size="sm" onClick={() => onToggleParticipantActive('p-local')} className="mt-3">
+              Pôr a câmera no palco
+            </Button>
+          )}
         </div>
       );
     }
@@ -2706,12 +1866,20 @@ export function StudioPreview({
         const camFeeds = activeFeeds.filter(f => !f.isScreenShare);
         if (screenFeed && camFeeds.length > 0) {
           return (
-            <div className="flex gap-3 p-3 w-full h-full">
-              <div className="flex-[3] h-full">
+            // Lado a lado: a tela com três quartos da largura e a câmera em 16:9
+            // ao lado, centrada na altura. Margem e vão em % da largura, para o
+            // preview e o programa terem a mesma composição. A câmera era uma
+            // faixa de 120px de altura, com outro recorte em cada monitor.
+            <div className="flex h-full w-full gap-[1.6%] p-[1.6%]">
+              <div className="h-full flex-[3]">
                 {renderParticipantFeed(screenFeed)}
               </div>
-              <div className="flex-1 flex flex-col gap-3 h-full overflow-y-auto">
-                {camFeeds.map(f => renderParticipantFeed(f, 'h-[120px] shrink-0'))}
+              <div className="flex flex-1 flex-col justify-center gap-3">
+                {camFeeds.map(f => (
+                  <div key={f.id} className="aspect-video w-full shrink-0">
+                    {renderParticipantFeed(f)}
+                  </div>
+                ))}
               </div>
             </div>
           );
@@ -2793,47 +1961,23 @@ export function StudioPreview({
     }
   };
 
-  // ── MODO MONITOR ───────────────────────────────────────────────────────────
-  // Só o palco e a composição. Todos os hooks já rodaram acima, então sair
-  // aqui é legal. Reaproveitar `renderLayoutContent` é o ponto: o PGM compõe
-  // pelo MESMO caminho que o PVW, senão os dois monitores divergiriam pelo
-  // motivo mais bobo possível — duas implementações do mesmo layout.
-  if (monitorOnly) {
-    const isPgm = monitorRole === 'pgm';
-    return (
-      <div className={`pw-frame ${isPgm ? 'pw-frame--pgm' : 'pw-frame--pvw'} w-full`}
-           style={{ ['--pw-frame-radius' as string]: 'var(--radius-lg)' }}>
-        <div className="relative w-full aspect-video rounded-[var(--radius-lg)] overflow-hidden bg-[var(--stage)] flex items-center justify-center">
-          {renderLayoutContent()}
-          <span className={`absolute top-1 left-1 px-1.5 py-px rounded-[var(--radius-sm)] text-xs font-black tracking-widest tabular-nums ${
-            isPgm ? 'bg-[var(--color-sig)] text-[var(--color-n-100)]' : 'bg-[var(--raise)] text-[var(--ink-hi)]'
-          }`}>
-            {isPgm ? 'PGM' : 'PVW'}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex-1 flex flex-col h-full w-full justify-between gap-1.5 md:gap-2 overflow-hidden min-h-0">
       {/* 1. Main Live Screen Player */}
-      <div ref={containerRef} className="flex-1 min-h-0 w-full flex items-center justify-center overflow-hidden">
+      {/* No console os monitores alinham à esquerda, sob o próprio rótulo */}
+      <div ref={containerRef} className={`flex-1 min-h-0 w-full flex items-center ${semBarraDeLayouts ? 'justify-start' : 'justify-center'} overflow-hidden`}>
         {/* Tally. A moldura e as marcas de canto vivem FORA do palco:
             ele tem `overflow-hidden` e recortaria as marcas. */}
         {/* Este palco é o PVW: ele renderiza o estado de EDIÇÃO, não o que
             está no ar. Eu tinha marcado como PGM — errado. O vermelho do
             tally pertence ao monitor de programa, e uma moldura que acende
             no barramento errado é pior que nenhuma. */}
-        <div className="pw-frame pw-frame--pvw">
+        <div className={`pw-frame ${papel === 'programa' ? 'pw-frame--pgm' : 'pw-frame--pvw'}`} style={{ ['--pw-frame-radius' as string]: '0px' }}>
         <div 
           ref={stageRef}
+          inert={papel === 'programa' || undefined}
           style={dimensions.width > 0 ? { width: `${dimensions.width}px`, height: `${dimensions.height}px` } : {}}
-          className={`relative rounded-2xl overflow-hidden shadow-2xl bg-black flex items-center justify-center transition-all duration-150 ${
-            isStudioPreviewMode
-              ? 'border-2 border-cyan-500/70 ring-2 ring-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.15)]'
-              : 'border border-[var(--line)]'
-          }`}
+          className="relative flex items-center justify-center overflow-hidden bg-[var(--stage)]"
         >
         {/* Active background selection */}
         <AnimatePresence>
@@ -2856,47 +2000,27 @@ export function StudioPreview({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8 }}
-              className="absolute inset-0 bg-gradient-to-br from-[var(--bg)] to-[var(--surface)]"
+              className="absolute inset-0 bg-[var(--stage)]"
             ></motion.div>
           )}
         </AnimatePresence>
 
-        {/* Live Status indicator */}
-        <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-30 flex flex-wrap items-center gap-1 sm:gap-2 max-w-[calc(100%-60px)]">
-          {/* AO VIVO / STUDIO PREVIEW tag */}
-          {isStudioPreviewMode ? (
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <span className="bg-cyan-500 text-slate-950 text-[8px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded tracking-widest flex items-center gap-1 shadow-md">
-                <Eye size={11} className="text-slate-950" />
-                PRÉVIA (OFFLINE)
-              </span>
-              {hasPendingChanges && onPushToLive && (
-                <button
-                  type="button"
-                  onClick={onPushToLive}
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[8px] sm:text-[9px] font-black px-2 py-0.5 rounded flex items-center gap-1 animate-pulse shadow-lg cursor-pointer transition-all active:scale-95"
-                  title="Enviar alterações preparadas para o Ao Vivo"
-                >
-                  <Sparkles size={10} />
-                  PUSH TO LIVE ➔
-                </button>
-              )}
-            </div>
-          ) : isLive ? (
-            <>
-              <span className="bg-red-600 text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded tracking-widest text-white animate-blink">
-                AO VIVO
-              </span>
-              <span className="bg-black/60 text-[8px] sm:text-[10px] font-mono font-semibold px-1.5 sm:px-2 py-0.5 rounded text-[var(--ink-hi)]">
-                {formatTime(liveTime)}
-              </span>
-            </>
-          ) : (
-            <span className="bg-[var(--raise)] text-[8px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded tracking-wide text-[var(--ink-hi)]">
-              PREVIEW
-            </span>
-          )}
+        {/* Guias: terços e área segura, por cima de tudo e sem receber clique. A
+            mistura por diferença deixa a linha visível sobre imagem clara ou escura. */}
+        {mostrarGuias && (
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-40 mix-blend-difference">
+            <span className="absolute inset-y-0 left-1/3 w-px bg-[var(--guia)]" />
+            <span className="absolute inset-y-0 left-2/3 w-px bg-[var(--guia)]" />
+            <span className="absolute inset-x-0 top-1/3 h-px bg-[var(--guia)]" />
+            <span className="absolute inset-x-0 top-2/3 h-px bg-[var(--guia)]" />
+            <span className="absolute border border-[var(--guia)]" style={{ inset: '7% 6%' }} />
+            <span className="absolute left-1/2 top-1/2 h-px w-[18px] -translate-x-1/2 -translate-y-1/2 bg-[var(--guia)]" />
+            <span className="absolute left-1/2 top-1/2 h-[18px] w-px -translate-x-1/2 -translate-y-1/2 bg-[var(--guia)]" />
+          </div>
+        )}
 
+        {/* Botões flutuantes do palco: Chat, Lousa e Snapshot. Só no preview. */}
+        <div className={`absolute top-2 left-2 sm:top-3 sm:left-3 z-30 flex flex-wrap items-center gap-1 sm:gap-2 max-w-[calc(100%-60px)] ${papel === 'programa' ? 'hidden' : ''}`}>
           {/* Floating Chat toggle button */}
           {showWidgetChat && (
             <button
@@ -2947,33 +2071,6 @@ export function StudioPreview({
               SNAPSHOT
             </button>
           )}
-        </div>
-
-        {/* Recording indicator */}
-        {recordingState.isRecording && (
-          <div className="absolute top-3 right-3 z-30 flex items-center gap-1.5 bg-black/60 text-[10px] font-mono font-black px-2.5 py-1 rounded text-red-500 shadow-md">
-            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></span>
-            <span>REC {recordingState.formattedTime}</span>
-          </div>
-        )}
-
-        {/* Floating Reactions Overlay */}
-        <div className="absolute inset-0 z-40 pointer-events-none overflow-hidden">
-          <AnimatePresence>
-            {floatingReactions.map(reaction => (
-              <motion.div
-                key={reaction.id}
-                initial={{ y: '105%', x: `${reaction.x}%`, scale: 0.5, opacity: 0 }}
-                animate={{ y: '-10%', scale: [1, 1.3, 1], opacity: [0, 1, 1, 0] }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 2.2, ease: 'easeOut' }}
-                style={{ left: `${reaction.x}%` }}
-                className="absolute text-3xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
-              >
-                {reaction.emoji}
-              </motion.div>
-            ))}
-          </AnimatePresence>
         </div>
 
         {/* Shutter Visual Flash Effect */}
@@ -3222,105 +2319,6 @@ export function StudioPreview({
           )}
         </AnimatePresence>
 
-        {/* Presentation Loading Preload Component (Slides Sandbox Preview) */}
-        <AnimatePresence>
-          {selectedSharedSource && (selectedSharedSource.type === 'pdf' || selectedSharedSource.name.toLowerCase().includes('powerpoint') || selectedSharedSource.name.toLowerCase().includes('.pptx')) && layout !== 'presentation' && (
-            <motion.div 
-              key="presentation-preload-sandbox"
-              initial={{ opacity: 0, x: 36, scale: 0.94, filter: 'blur(6px)' }}
-              animate={{ opacity: 1, x: 0, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, x: 28, scale: 0.94, filter: 'blur(4px)', transition: { duration: 0.22, ease: [0.4, 0, 1, 1] as const } }}
-              transition={{ type: 'spring' as const, damping: 25, stiffness: 280, mass: 0.85 }}
-              className="absolute top-16 right-4 z-40 w-[240px] bg-[var(--bg)]/95 backdrop-blur-md border border-blue-500/30 rounded-2xl p-3.5 shadow-2xl flex flex-col gap-2.5 text-left"
-            >
-              {/* Status indicator */}
-              <div className="flex items-center justify-between border-b border-[var(--line)]/80 pb-1.5">
-                <span className="flex items-center gap-1.5 text-[8px] font-black text-blue-400 uppercase tracking-wider">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                  Slides: Modo Sandbox
-                </span>
-                <span className="text-[8px] bg-amber-500/10 text-amber-400 font-bold px-1.5 rounded">PREPARAÇÃO</span>
-              </div>
-
-              {/* Thumbnail Preview box */}
-              <div className="relative aspect-video w-full rounded-xl bg-[var(--bg)] border border-[var(--line)]/80 overflow-hidden flex flex-col justify-between p-2.5 shadow-inner">
-                <div className="flex justify-between items-center text-[7px] text-[var(--ink-dim)] uppercase tracking-wider">
-                  <span className="truncate max-w-[120px] font-bold text-[var(--ink)]">{selectedSharedSource.name}</span>
-                  <span className="shrink-0 font-bold text-orange-400 bg-orange-500/10 px-1.5 py-0.2 rounded border border-orange-500/20">
-                    SLIDE {pdfCurrentPage} / 12
-                  </span>
-                </div>
-
-                {/* Dynamic Thumbnail Content based on current page */}
-                <div className="flex-1 flex flex-col justify-center items-center text-center p-1 space-y-1">
-                  <Presentation size={14} className="text-blue-400 animate-pulse" />
-                  <h4 className="text-[8px] font-extrabold text-[var(--ink-hi)] leading-tight truncate max-w-full">
-                    {pdfCurrentPage === 1 && "Estratégia de Expansão Global Vega6"}
-                    {pdfCurrentPage === 2 && (selectedSharedSource.type === 'pdf' ? "Maximização de Engajamento & Retenção" : "Vega6: Métricas de Crescimento 2026")}
-                    {pdfCurrentPage === 3 && (selectedSharedSource.type === 'pdf' ? "Análise Demográfica do Público-Alvo" : "Retenção de Clientes e Crescimento YoY")}
-                    {pdfCurrentPage === 4 && (selectedSharedSource.type === 'pdf' ? "Resultados e Métricas Trimestrais" : "Pontuação CSAT e Satisfação do Cliente")}
-                    {pdfCurrentPage === 5 && (selectedSharedSource.type === 'pdf' ? "Canais de Aquisição Multicanal" : "Transmissão em Baixíssima Latência")}
-                    {pdfCurrentPage === 6 && (selectedSharedSource.type === 'pdf' ? "Vantagem Competitiva Exclusiva" : "Eficiência Operacional em Nuvem")}
-                    {pdfCurrentPage === 7 && (selectedSharedSource.type === 'pdf' ? "Escalabilidade de SaaS Recorrente" : "Expansão de Pacotes Corporativos")}
-                    {pdfCurrentPage === 8 && (selectedSharedSource.type === 'pdf' ? "Eficiência Operacional & Custo de Infra" : "Redução de Custos de CDN")}
-                    {pdfCurrentPage === 9 && (selectedSharedSource.type === 'pdf' ? "Crescimento Líquido Projetado" : "Marcos de Desenvolvimento Q3-Q4")}
-                    {pdfCurrentPage === 10 && (selectedSharedSource.type === 'pdf' ? "Marcos de Desenvolvimento Q3-Q4" : "Suporte 24/7 com SLA de 99.9%")}
-                    {pdfCurrentPage === 11 && (selectedSharedSource.type === 'pdf' ? "Suporte ao Cliente & SLA de 99.9%" : "Canais de Atendimento Prioritários")}
-                    {pdfCurrentPage === 12 && "Sessão de Perguntas & Respostas (Q&A)"}
-                  </h4>
-                  <p className="text-[6.5px] text-[var(--ink-dim)] uppercase tracking-wide font-mono">
-                    Slide Pré-carregado
-                  </p>
-                </div>
-
-                {/* Progress bar */}
-                <div className="w-full bg-[var(--surface)] h-1 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-blue-500 rounded-full transition-all duration-300" 
-                    style={{ width: `${(pdfCurrentPage / 12) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Slide Navigation Controls */}
-              <div className="flex items-center justify-between gap-2">
-                <button 
-                  type="button"
-                  onClick={() => setPdfCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={pdfCurrentPage === 1}
-                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] hover:text-[var(--ink-hi)] transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
-                >
-                  <ChevronLeft size={10} />
-                  Anterior
-                </button>
-                
-                <button 
-                  type="button"
-                  onClick={() => setPdfCurrentPage(prev => Math.min(12, prev + 1))}
-                  disabled={pdfCurrentPage === 12}
-                  className="flex-1 py-1.5 rounded-xl bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:bg-[var(--panel)] hover:text-[var(--ink-hi)] transition-all disabled:opacity-25 disabled:pointer-events-none flex items-center justify-center gap-1 text-[9px] font-bold cursor-pointer"
-                >
-                  Próximo
-                  <ChevronRight size={10} />
-                </button>
-              </div>
-
-              {/* Broadcast action button */}
-              <button
-                type="button"
-                onClick={() => {
-                  onLayoutChange('presentation');
-                  onTogglePresentationOverlayActive(); // Set isPresentationOverlayActive to true!
-                }}
-                className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(59,130,246,0.35)] hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all cursor-pointer hover:scale-102 active:scale-98"
-              >
-                <Play size={11} fill="currentColor" />
-                Apresentar no Studio
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Pinned Comment Overlay */}
         <AnimatePresence>
           {pinnedComment && isPresentationOverlayActive && (
@@ -3334,12 +2332,14 @@ export function StudioPreview({
                 activeTicker && isPresentationOverlayActive ? 'bottom-14 sm:bottom-16' : 'bottom-4'
               }`}
             >
-              <img 
-                src={pinnedComment.authorAvatar} 
-                alt={pinnedComment.authorName} 
-                className="w-8 h-8 rounded-full object-cover mt-0.5 border border-white/25 shadow-md shrink-0"
-                referrerPolicy="no-referrer"
-              />
+              {pinnedComment.authorAvatar && (
+                <img
+                  src={pinnedComment.authorAvatar}
+                  alt=""
+                  className="w-8 h-8 rounded-full object-cover mt-0.5 border border-white/25 shadow-md shrink-0"
+                  referrerPolicy="no-referrer"
+                />
+              )}
               <div className="flex-1 min-w-0 flex flex-col justify-center">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="font-bold text-[var(--ink-hi)] text-[10px] truncate leading-none">{pinnedComment.authorName}</span>
@@ -3417,12 +2417,14 @@ export function StudioPreview({
                             : `rgba(22, 25, 30, ${(chatWidgetOpacity / 100) * 0.9})`
                         }}
                       >
-                        <img
-                          src={comm.authorAvatar}
-                          alt={comm.authorName}
-                          className="w-6 h-6 rounded-full object-cover shrink-0 mt-0.5 border border-white/10"
-                          referrerPolicy="no-referrer"
-                        />
+                        {comm.authorAvatar && (
+                          <img
+                            src={comm.authorAvatar}
+                            alt=""
+                            className="w-6 h-6 rounded-full object-cover shrink-0 mt-0.5 border border-white/10"
+                            referrerPolicy="no-referrer"
+                          />
+                        )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1">
                             <span className="font-semibold text-[var(--ink-hi)] text-[10px] truncate">{comm.authorName}</span>
@@ -4185,7 +3187,7 @@ export function StudioPreview({
         </div>
     </div>
 
-      {/* Rounded Layout Selector Bar (Matches the User's Screenshot Exactly!) */}
+      {!semBarraDeLayouts && (
       <div className="flex justify-center shrink-0 py-1 px-1 w-full overflow-hidden" id="minimalist-layout-selector-bar">
         <div className="bg-[var(--bg)]/95 border border-[var(--line)]/80 px-2 sm:px-3.5 py-1.5 rounded-xl flex flex-wrap xl:flex-nowrap items-center justify-center gap-2 md:gap-3 shadow-2xl max-w-full overflow-x-auto custom-scrollbar">
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto max-w-full pb-0.5 custom-scrollbar shrink-0">
@@ -4268,10 +3270,9 @@ export function StudioPreview({
             })}
           </div>
 
-          {/* Divider */}
-          
         </div>
       </div>
+      )}
     </div>
   );
 }

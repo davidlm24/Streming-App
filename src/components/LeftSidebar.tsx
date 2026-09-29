@@ -5066,12 +5066,12 @@ export function LeftSidebar({
               <div className="pt-3.5 border-t border-[var(--line)]/60 flex items-center justify-between">
                 <div className="text-left pr-2">
                   <span className="text-[11px] text-[var(--ink)] font-bold flex items-center gap-1">
-                    Espelhar Câmera (Mirror)
+                    Espelhar a câmera
                   </span>
-                  <p className="text-[9px] text-[var(--ink-lo)] leading-tight mt-0.5">Mantenha habilitado para visualização natural ou desative para que textos em slides ou no fundo fiquem legíveis.</p>
+                  <p className="text-[9px] text-[var(--ink-lo)] leading-tight mt-0.5">Vira a imagem no preview e no programa: o público também vê espelhado, e os textos atrás de você ficam ao contrário.</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                  <input aria-label="Espelhar Câmera (Mirror)" 
+                  <input aria-label="Espelhar a câmera"  
                     type="checkbox" 
                     checked={mirrorCamera}
                     onChange={(e) => onMirrorCameraChange(e.target.checked)}

@@ -214,11 +214,69 @@ components:
     width: "100%"
   capture-frame:
     rounded: "{rounded.xl}"
+  studio-bar:
+    backgroundColor: "{colors.navy-6}"
+    textColor: "{colors.navy-96}"
+    height: "48px"
+  scene-row:
+    backgroundColor: "transparent"
+    textColor: "{colors.navy-96}"
+    typography: "{typography.body}"
+    rounded: "{rounded.xl}"
+    height: "56px"
+    padding: "8px"
+  scene-row-preview:
+    backgroundColor: "{colors.navy-14}"
+  transition-key:
+    backgroundColor: "{colors.navy-14}"
+    textColor: "{colors.navy-96}"
+    typography: "{typography.button}"
+    rounded: "{rounded.xl}"
+    height: "56px"
+  transition-key-pressed:
+    backgroundColor: "{colors.navy-10}"
+  monitor-program:
+    backgroundColor: "{colors.navy-14}"
+    rounded: "0px"
+    padding: "2px"
+  monitor-preview:
+    backgroundColor: "{colors.navy-89}"
+    rounded: "0px"
+    padding: "2px"
+  next-cut:
+    backgroundColor: "{colors.navy-10}"
+    textColor: "{colors.navy-89}"
+    typography: "{typography.body}"
+    rounded: "0px"
+    padding: "10px 16px"
+  tray-control-on:
+    backgroundColor: "{colors.navy-14}"
+    textColor: "{colors.navy-96}"
+    typography: "{typography.button}"
+    rounded: "{rounded.xl}"
+    height: "44px"
+  tray-control-off:
+    backgroundColor: "{colors.navy-0}"
+    textColor: "{colors.navy-70}"
+    typography: "{typography.button}"
+    rounded: "{rounded.xl}"
+    height: "44px"
+  level-meter:
+    backgroundColor: "{colors.navy-0}"
+    rounded: "0px"
+    height: "8px"
+    width: "96px"
+  tool-tab-active:
+    backgroundColor: "{colors.navy-14}"
+    textColor: "{colors.navy-96}"
+    typography: "{typography.label}"
+    rounded: "{rounded.xl}"
+    height: "56px"
 ---
 
 # Design System: PwStreamer
 
-<!-- Registrado a partir do código entregue (casca do app, Painel, Canais, Webinars, Configurações, Plano e cobrança, Dados de cadastro, rodapé, o modal de canais, o modal de planos, o diálogo "Novo webinar" e o site público: início, Entrar e Criar conta). Onde o mock mockups/design-system.html e o código divergem, vale o código. Valores em hex: os do tema escuro, que é o padrão; a troca por tema está em Colors. -->
+<!-- Registrado a partir do código entregue (casca do app, Painel, Canais, Webinars, Configurações, Plano e cobrança, Dados de cadastro, rodapé, o modal de canais, o modal de planos, o diálogo "Novo webinar", o site público: início, Entrar e Criar conta, e o console do estúdio, fase 1: barra, trilho de cenas, monitores, coluna da direita e bandeja). Onde o mock mockups/design-system.html e o código divergem, vale o código. Valores em hex: os do tema escuro, que é o padrão; a troca por tema está em Colors. -->
 
 ## Overview
 
@@ -232,6 +290,8 @@ O site público (início, Entrar e Criar conta) fala com a mesma voz. A ação d
 
 A densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo (`[data-surface="console"]`), escuro sempre, mesmo no tema claro, porque o operador se adapta à luminância do entorno do vídeo e ela não pode mudar no meio de uma live.
 
+O estúdio é uma mesa de corte para montar e ensaiar o programa: as cenas à esquerda, o programa e o preview no centro, o chat e as ferramentas à direita e a bandeja embaixo. Escolher uma cena a leva ao preview; "Corte" ou "Fusão" leva o preview ao programa. O ar ainda não existe, e por isso o estúdio não tem cor nenhuma: nem ação colorida, nem vermelho. O botão de ir ao ar, o relógio, a gravação e o relatório saíram até a transmissão existir, e a bandeja diz isso em palavras.
+
 **Key Characteristics:**
 - Uma ação colorida por tela; o resto em tinta neutra.
 - Vermelho = ar. Não entra em gráfico, em alerta, em erro de campo nem em decoração.
@@ -239,23 +299,24 @@ A densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo (`[
 - Poppins em `text-xs`, `text-sm`, `text-base` e `text-3xl`; mono tabular só para medidas.
 - Estado por ícone + texto, sempre com o nome acessível completo.
 - Três escopos de tema sobre as mesmas primitivas: escuro (padrão), claro e console.
-- Um único momento de movimento por página. Na casca, o chip de um canal recém-conectado entra deslizando uma vez; no site público, o contorno desliza sobre a captura do Painel. Diálogos entram só pela primitiva `Modal`.
+- Um único momento de movimento por página. Na casca, o chip de um canal recém-conectado entra deslizando uma vez; no site público, o contorno desliza sobre a captura do Painel; no estúdio, o programa que sai some na fusão. Diálogos entram só pela primitiva `Modal`.
+- No estúdio, o preview mostra exatamente o que o corte leva, e nada que não iria ao ar fica sobre a imagem.
 
 ## Colors
 
 Uma rampa azul-marinho de luminância casada carrega quase tudo. Dois acentos cromáticos, cada um com um único lugar.
 
 ### Primary
-- **Azul da Marca Profundo** (`brand-deep`): o preenchimento do botão primário (`.btn`). É a única área cromática da casca. Texto branco sobre ele. Há um botão primário por tela: "Entrar no estúdio" (tamanho `lg`) no Painel, "Conectar canal" em Canais, "Agendar webinar" em Webinars (e o envio do diálogo "Novo webinar", com o mesmo verbo) e, no modal de canais, o envio do formulário ("Conectar canal" ou "Salvar alterações"; "Ver planos" quando a plataforma está bloqueada pelo plano). Plano e cobrança e o modal de planos não têm botão primário enquanto a assinatura não abre, e por isso não têm cor nenhuma (ver a Regra da Vitrine sem Balcão). Dados de cadastro não tem cor em repouso: o primário "Salvar nome" só existe enquanto o nome está sendo editado. No site público, o primário é "Criar conta" (`lg`), no herói do início e no fecho da página; Entrar e Criar conta não têm cor, porque a ação delas é o botão do Google, fantasma (ver Buttons).
+- **Azul da Marca Profundo** (`brand-deep`): o preenchimento do botão primário (`.btn`). É a única área cromática da casca. Texto branco sobre ele. Há um botão primário por tela: "Entrar no estúdio" (tamanho `lg`) no Painel, "Conectar canal" em Canais, "Agendar webinar" em Webinars (e o envio do diálogo "Novo webinar", com o mesmo verbo) e, no modal de canais, o envio do formulário ("Conectar canal" ou "Salvar alterações"; "Ver planos" quando a plataforma está bloqueada pelo plano). Plano e cobrança e o modal de planos não têm botão primário enquanto a assinatura não abre, e por isso não têm cor nenhuma (ver a Regra da Vitrine sem Balcão). Dados de cadastro não tem cor em repouso: o primário "Salvar nome" só existe enquanto o nome está sendo editado. No site público, o primário é "Criar conta" (`lg`), no herói do início e no fecho da página; Entrar e Criar conta não têm cor, porque a ação delas é o botão do Google, fantasma (ver Buttons). O console do estúdio não tem primário nem cor: cortar e montar são operação, e a ação que teria cor, ir ao ar, ainda não existe.
 - **Azul da Marca** (`brand`): a cor nominal da marca e a ponta inicial do gradiente do logo. Na casca, não é superfície de nada.
 - **Azul da Marca Claro** (`brand-lift`): só o anel de foco (`:focus-visible`, 2px, afastado 2px). O foco precisa ser visível em qualquer superfície, e por isso é a exceção à regra da voz única.
 
 ### Secondary
-- **Carmim do Tally** (`tally`): o sinal de "no ar". Moldura PGM ao vivo (`[data-air="on"] .pw-frame--pgm`) e o botão de encerrar (`.btn--danger`, 5,02:1 com branco). Também é o fundo do botão de confirmação em diálogos destrutivos (`useConfirm` com `destructive`).
+- **Carmim do Tally** (`tally`): o sinal de "no ar". A moldura do programa no ar (`[data-air="on"] .pw-frame--pgm`, com as marcas de canto em `n-92`); hoje nada põe `data-air="on"`, e a moldura nunca acende. E o botão de perigo (`.btn--danger`, 5,02:1 com branco): o fundo do botão de confirmação em diálogos destrutivos (`useConfirm` com `destructive`) e, quando a transmissão existir, o de encerrar.
 - **Carmim como texto** (`--sig-texto`: `tally-lift` sobre escuro e console, `tally-deep` sobre claro): itens de menu destrutivos ("Remover canal", "Excluir webinar").
 
 ### Tertiary
-- **Gradiente da Marca** (`brand-grad-from` → `brand-grad-mid` → `brand-grad-to`): existe só dentro do logo (`PwStreamLogo`). As três paradas têm a mesma luminância (Y ≈ 22,9 %), e o gradiente é uma rotação pura de matiz. Não é usado como fundo, borda nem texto fora do logo.
+- **Gradiente da Marca** (`brand-grad-from` → `brand-grad-mid` → `brand-grad-to`): existe só dentro do logo (`PwStreamLogo`). As três paradas têm a mesma luminância (Y ≈ 22,9 %), e o gradiente é uma rotação pura de matiz. Não é usado como fundo, borda nem texto fora do logo. No console, o logo vai monocromático (`PwStreamLogo` com `monocromatico`): o mesmo desenho em `currentColor` (`--ink-hi`), sem gradiente, sem brilho e sem o círculo que pisca.
 
 ### Neutral
 Os papéis semânticos trocam com o escopo; as primitivas `navy-*` nunca. Use sempre o papel (`var(--ink)`), nunca a primitiva.
@@ -274,13 +335,14 @@ Os papéis semânticos trocam com o escopo; as primitivas `navy-*` nunca. Use se
 | `--ink-lo` | texto secundário, descrições, dicas de campo, ação de texto em repouso, destinos não atuais | navy-80 | navy-28 | navy-70 |
 | `--ink-dim` | placeholder; borda da caixa de seleção desmarcada (3:1 contra toda superfície, conferido pelo portão) | navy-70 | navy-36 | navy-58 |
 | `--stage` | letterbox do vídeo; nunca clareia | navy-0 | navy-0 | navy-0 |
+| `--guia` | as guias sobre a imagem do monitor, em `mix-blend-difference` | — | — | branco a 60 % |
 
 Gráficos usam a rampa por **valor**, nunca por matiz (`--chart-1..5`, `--chart-grid`, `--chart-axis`). A separação sobrevive a protanopia, deuteranopia e escala de cinza.
 
 ### Named Rules
-**Regra da Voz Única.** Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (`--ink-hi`, `--raise`), nunca pelo azul. Switch ligado e caixa marcada são tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em `--ink-hi`.
+**Regra da Voz Única.** Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (`--ink-hi`, `--raise`), nunca pelo azul. Switch ligado e caixa marcada são tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em `--ink-hi`. No console, a Voz Única dá zero cor: não há ação da tela enquanto o ar não existe. A cena no preview, a tecla apertada, o controle ligado e a ferramenta aberta sobem na rampa.
 
-**Regra do Ar.** O carmim é o sinal de "no ar". Fora do ar, aparece só onde algo é apagado ou encerrado. Não entra em pendência, em aviso, em erro de campo, em gráfico nem em ícone de marca. Uma pendência de canal ("sem chave") fica na tinta do nome, com ícone de alerta.
+**Regra do Ar.** O carmim é o sinal de "no ar". Fora do ar, aparece só onde algo é apagado ou encerrado. Não entra em pendência, em aviso, em erro de campo, em gráfico nem em ícone de marca. Uma pendência de canal ("sem chave") fica na tinta do nome, com ícone de alerta. No estúdio, o vermelho é só da moldura do programa no ar, que hoje nunca acende; o medidor de áudio perto do limite sobe para `--ink-hi`, não fica vermelho.
 
 **Regra da Vitrine sem Balcão.** Uma tela que mostra algo que ainda não se pode fazer (hoje: assinar um plano) não tem ação primária e, portanto, não tem cor. Nada de botão desabilitado, selo "em breve" ou checkout de mentira: o "em breve" é uma frase em palavras simples, em `text-sm` `--ink-lo`, junto do que ainda não abre ("A assinatura abre em breve, por aqui mesmo. Hoje nenhuma cobrança é feita."). O plano atual é dito em palavra ("· seu plano"), não por destaque, e um diálogo assim fecha com "Fechar" fantasma.
 
@@ -303,13 +365,13 @@ Gráficos usam a rampa por **valor**, nunca por matiz (`--chart-1..5`, `--chart-
 - **Body** (400 ou 500, `text-sm`): descrições (`max-w-prose`), nomes em linhas de lista (500), rótulos de campo (500, em `--ink-hi`), rótulos de botão e de chip, ações de texto, os itens de um plano aberto (em `--ink`).
 - **Label** (400, `text-xs`): a linha de metadados abaixo de um nome (plataforma · estado, horário · canais), a palavra de estado na lista mestre, a linha de origem de um registro ("É o e-mail com que você entra."), dicas e erros de campo, rodapé e aviso de teste no cabeçalho.
 - **Button** (600, 14px; `lg` 16px; `sm` 12px): definido em `.btn`, e os três caem sobre os degraus `sm`/`base`/`xs` da escala.
-- **Measure** (mono, tabular, na tinta `--ink`): só a hora dentro do rótulo do horário (`Horario` isola `20:00` e deixa "Hoje, às" ou "Domingo, 27 de setembro, às" na fonte do texto). Ver a Regra do Horário Derivado.
+- **Measure** (mono, tabular, na tinta `--ink`): só a hora dentro do rótulo do horário (`Horario` isola `20:00` e deixa "Hoje, às" ou "Domingo, 27 de setembro, às" na fonte do texto). Ver a Regra do Horário Derivado. No estúdio, também a leitura do medidor ("−25 dB"), a duração dentro das teclas de transição ("0 ms", "400 ms") e a hora das mensagens do chat, em `text-xs` `--ink-lo`, e a leitura do card da câmera durante o ajuste ("X 71% · Y 64%", "120%"), em `--ink`.
 - **Preço** (Poppins, `text-sm` 500, `tabular-nums`, `--ink-hi`; o total do ano abaixo em `text-xs` `--ink-lo`, também tabular): preço não é instrumento, então fica na fonte do texto, mas em algarismos tabulares para as linhas se lerem em coluna. Sempre por `formatPrice` (BRL, "R$ 39,90").
 
 ### Named Rules
 **Regra dos Quatro Tamanhos.** A casca usa `text-xs`, `text-sm`, `text-base` e `text-3xl`, e nada mais. Tamanho em px avulso (`text-[13px]`) é dívida contada pela catraca (`tamanho-de-fonte-avulso`).
 
-**Regra do Mono como Medida.** Mono aparece só em medidas (hora, e no estúdio bitrate e contadores), sempre com `tabular-nums`. Nunca como rótulo, sobretítulo ou enfeite. Dinheiro não é medida: preço fica em Poppins com `tabular-nums`.
+**Regra do Mono como Medida.** Mono aparece só em medidas (a hora; no estúdio, a leitura em dB do medidor, a duração das transições, a hora do chat e a leitura de posição e tamanho do card da câmera), sempre com `tabular-nums`. Não há bitrate nem contador de rede: sem transmissão, esses números não existem. Nunca como rótulo, sobretítulo ou enfeite. Dinheiro não é medida: preço fica em Poppins com `tabular-nums`.
 
 **Regra do Número Colado.** Entre um número e sua unidade vai um espaço inseparável (U+00A0: "3 horas", "30 dias"), e o último par de palavras de um limite ou de uma frase também ("ao vivo", "no ar"), para que nenhuma linha estreita quebre em "30 | dias" nem deixe uma palavra sozinha. As frases de várias linhas em `text-xs` e `text-sm` que vão a colunas estreitas (erro e dica de campo, linha de origem, linha de falha ao salvar) levam `text-pretty`, que faz o mesmo pela última linha do parágrafo; os dois se somam, um não substitui o outro.
 
@@ -348,6 +410,8 @@ Responsivo: abaixo de `md` (768px) a navegação principal vira um botão de men
 - **Fecho:** em linha a partir de `sm`, o título e a frase à esquerda e o primário à direita; no celular empilham a 24px.
 - **Telas de conta (Entrar, Criar conta):** uma coluna `max-w-sm` (384px) centralizada, topo de 48px (64px a partir de `sm`). O `h1`, a frase a 8px, a linha de falha a 24px, o botão do Google a 32px e, a 32px, "Já tem conta? Entrar" (ou "Ainda não tem conta? Criar conta") como ação de texto sublinhada.
 
+**Console do estúdio.** A tela inteira, sem rolar a página (`h-[100dvh]`), no escopo console: a barra de 48px em cima, a bandeja embaixo e, entre elas, a partir de `lg`, uma grade de três colunas (`lg:grid-cols-[14rem_minmax(0,1fr)_23rem]`). À esquerda, o trilho de cenas (224px, em `--surface`, linha à direita); no centro, a mesa de monitores (em `--bg`, 12px de respiro, 16px a partir de `sm`); à direita, a coluna do chat e das ferramentas (368px, em `--surface`, linha à esquerda). Cada coluna rola sozinha. Abaixo de `lg`, vira uma coluna que rola, na ordem monitores, cenas e coluna da direita (com 576px de altura, `h-[36rem]`, e linha em cima); a barra e a bandeja ficam fixas, fora da rolagem, e a bandeja cabe numa linha só com os ícones.
+
 Camadas de empilhamento em quatro degraus nomeados: `--z-sticky` 20, `--z-dropdown` 40, `--z-scrim` 60, `--z-modal` 70, `--z-toast` 80.
 
 ## Elevation & Depth
@@ -362,13 +426,15 @@ A casca é plana. A profundidade vem da rampa: página em `--bg`, superfícies f
 ### Named Rules
 **Regra da Linha, Não do Cartão.** Estrutura é uma linha de 1px em `--line`. Seção, lista e rodapé são separados por borda; nenhum bloco da casca tem fundo próprio para se destacar. Se parece precisar de um cartão, precisa de uma seção.
 
-**Regra do Chão Plano.** Nada em repouso na página tem sombra. Sombra só em camada que flutua (menu, diálogo, aviso).
+**Regra do Chão Plano.** Nada em repouso na página tem sombra. Sombra só em camada que flutua (menu, diálogo, aviso). O console segue a mesma regra: a barra, as colunas, a mesa e a bandeja se separam por linhas de 1px, e o único flutuante é o menu dos aparelhos.
 
 ## Shapes
 
 Cantos generosos e consistentes, e uma geometria que distingue controle de estrutura. Os controles são arredondados (botão 16px, botão denso 10px, botão de ícone 16px, campo de formulário 16px, linha da lista mestre 16px, menu 16px com itens de 12px, segmentado 16px por fora e 10px por dentro, modal 20px). Chips e switches são pílulas completas. A caixa de seleção é a única exceção abaixo da escala: 20px com 5px de raio, porque os raios nomeados (8px para cima) a fariam ler como botão de rádio. A estrutura (linhas, seções, a divisória do mestre-detalhe) é reta e sem raio. O anel de foco tem 4px de raio.
 
 A borda sólida é o padrão de todo controle com contorno (`--line-ctl`). O tracejado é reservado para "adicionar": uma pendência nunca pode parecer uma vaga vazia. O ícone de plataforma na página de Canais fica numa moldura quadrada de 40px, com 16px de raio e borda em `--line`. A captura do Painel fica numa moldura de 16px de raio com borda `--line`, e o contorno dentro dela tem 12px.
+
+No console, o que mostra imagem ou medida é reto, como numa mesa: os monitores (a moldura `.pw-frame` com `--pw-frame-radius: 0px`), a caixa do próximo corte e o trilho do medidor não têm raio. Os controles do console seguem a escala: a linha de cena, a tecla de transição, o controle da bandeja e a aba de ferramenta têm 16px.
 
 ## Components
 
@@ -380,7 +446,7 @@ Firmes e sem enfeite. A aparência mora na classe `.btn` do `index.css` (em `@la
 - **Hover / Focus / Active:** só `filter` anima: `brightness(1.1)` no hover e `0.93` no pressionado, 110ms linear. O foco é o anel global em `brand-lift`. Desabilitado fica a 45 % de opacidade. `loading` desabilita **e** marca `aria-busy`, trocando o ícone por um spinner.
 - **Ghost (secundário):** transparente, texto `--ink`, borda `--line-ctl`, hover em `--raise`. Usado em "Entrar" nas linhas de webinar (`sm`), no atalho "Estúdio" do cabeçalho, em "Cancelar" nos diálogos e em "Criar conta" no cabeçalho público, onde a cor é da ação da tela.
 - **Botão do Google:** fantasma, na largura toda da coluna, com alvo de 44px (`min-h-11`) e o G nas cores do Google (16px) antes do rótulo: "Entrar com Google" em Entrar e "Criar conta com Google" em Criar conta. É a ação dessas telas, e não tem cor (ver a Regra da Marca Monocromática). Enquanto a janela do Google está aberta, fica em `loading`. Fechar a janela de propósito não é erro e não diz nada. As outras falhas vão numa linha `role="alert"` acima do botão: `CircleAlert` (16px) e uma frase em `text-sm` `--ink-hi` com `text-pretty`, a mesma da falha ao salvar, com a saída dita ("Permita janelas para este site e tente de novo."). Quando o endereço não está liberado no Firebase, a linha diz isso e ganha, embaixo, o endereço e "Copiar endereço" (`AcaoDeTexto` `xs`).
-- **Danger:** preenchimento carmim, para encerrar a transmissão e confirmar exclusões.
+- **Danger:** preenchimento carmim, para confirmar exclusões e, quando a transmissão existir, encerrá-la.
 - **Botão de ícone (`BotaoDeIcone`):** 44 × 44px, sem fundo, hover em `--raise`. O nome acessível (`rotulo`) é obrigatório na assinatura.
 
 ### Text actions (`AcaoDeTexto`)
@@ -441,7 +507,7 @@ A mesma lista na página Plano e cobrança, no modal de planos do estúdio e na 
 - **Sem ação de compra na linha** enquanto a assinatura não abre (Regra da Vitrine sem Balcão). Quando abrir, o sistema ganha um botão primário por tela, não um por linha.
 
 ### Menu (`Menu`)
-Ações secundárias atrás de um "⋯", para que cada linha de lista tenha **uma** ação visível. Segue o padrão WAI-ARIA Menu Button: setas, Home/End, Esc devolve o foco ao gatilho e clicar fora fecha. O popover fica em `--raise`, com borda `--line`, cantos de 16px e itens de 12px em `text-sm`. Itens destrutivos ficam em `--sig-texto` e sempre passam por `useConfirm`, nunca `confirm()`.
+Ações secundárias atrás de um "⋯", para que cada linha de lista tenha **uma** ação visível. Segue o padrão WAI-ARIA Menu Button: setas, Home/End, Esc devolve o foco ao gatilho e clicar fora fecha. O popover fica em `--raise`, com borda `--line`, cantos de 16px e itens de 12px em `text-sm`. Itens destrutivos ficam em `--sig-texto` e sempre passam por `useConfirm`, nunca `confirm()`. O popover abre abaixo do gatilho e alinhado à direita dele; `lado="cima"` o abre acima, para gatilhos no pé da tela (a bandeja do estúdio), e `alinhar="esquerda"` o alinha pela borda esquerda, para gatilhos colados à borda esquerda.
 
 ### Linha de prontidão (assinatura do Painel)
 É a resposta a "para onde a live vai". O título "Canais" traz a contagem honesta ("1 de 3 prontos", que cobre exatamente os chips mostrados). Seguem os chips dos canais ligados e as pendências da próxima live (plataforma anunciada mas desligada ou não conectada). À direita, "N outros desligados" e "+ Conectar canal" como ações de texto. O estado de cada canal vem de uma regra só, `src/lib/canais.ts` (`pronto` | `incompleto` | `desligado`), lida pelo Painel, pela página de Canais e pelo modal de canais.
@@ -483,6 +549,26 @@ Dizer quando e para onde. Vive num `Modal` `size="md"` com o título neutro "Nov
 
 **Regra do Horário Derivado.** "Hoje, às…" e "Amanhã, às…" são derivados na hora de mostrar, a partir de `startsAt` (ISO 8601), por `rotuloDoHorario` em `src/lib/horario.ts`, e nunca gravados: um "Amanhã" gravado vira mentira no dia seguinte. O campo `time` guarda a frase absoluta ("Domingo, 27 de setembro, às 20:00", por `horarioPorExtenso`) para quem lê só o texto (página pública, estúdio). Webinar antigo sem `startsAt` mostra o seu texto livre. Lista de webinars, Painel e aviso usam o mesmo rótulo, e a hora vai em mono pelo `Horario`.
 
+### Console do estúdio (assinatura do estúdio)
+Uma mesa de corte para montar e ensaiar o programa: escolher a cena no preview, ver o que muda e cortar. Vive no ramo do estúdio de `App.tsx` e em `BarraDoEstudio`, `TrilhoDeCenas`, `MonitoresDoEstudio`, `PainelDoEstudio`, `BandejaDoEstudio`, `MedidorDeAudio` e `src/lib/cenas.ts`; o palco é o `StudioPreview`. O que o estúdio ainda não faz é dito em palavras (Regra da Vitrine sem Balcão): a frase da bandeja no lugar do ar, e o próximo corte no lugar da telemetria.
+- **Barra (`BarraDoEstudio`):** 48px em `--surface`, com linha embaixo. O logo monocromático (24px; só o ícone abaixo de `sm`) leva ao Painel ("PwStreamer, voltar ao Painel"). O `h1` é "Estúdio" em `text-sm` 500 `--ink-hi`, seguido de " · {sessão}" (o título do webinar) em 400 `--ink-lo`, truncado. À direita, a 16px: a ação de texto `xs` dos canais ("Nenhum canal ligado" ou "Canais: 2 de 3 prontos"), que abre o modal de canais, só a partir de `md`; e "Sair do estúdio", fantasma `sm`.
+- **Cenas (`TrilhoDeCenas`):** as quatro cenas de `CENAS` (Câmera; Tela com câmera; Câmera e tela lado a lado; Tela), sob o título "Cenas" em `text-xs` `--ink-lo`. Cada linha tem altura fixa (`min-h-14`, 16px de raio): o nome em cima, em `text-sm` `--ink-hi`, e o estado embaixo, em palavras e em `text-xs`: "programa", "preview" ou "programa e preview", com "· sem tela" quando a cena precisa da tela e ninguém compartilha; fora dos dois, "sem tela compartilhada". O estado da cena no programa fica em 500 `--ink-hi`, os outros em `--ink-lo`. A linha no preview sobe para `--raise` e leva `aria-current`; as outras ganham `--panel` no hover. Escolher uma cena a leva ao preview, nunca ao programa. A altura é fixa para o corte não mexer a lista embaixo do ponteiro.
+- **Transição (`BotoesDeTransicao`):** "Corte" e "Fusão", duas teclas lado a lado a 8px, sob uma linha e o título "Transição". A tecla (`TECLA`) é o `Button` fantasma com 56px de altura, fundo `--raise` e borda `--line-ctl`; no hover a borda sobe para `--ink-lo`, e no aperto (`:active`) para `--ink-hi`, com o fundo descendo para `--panel`. A duração vai dentro, sob o nome, em mono `xs` `--ink-lo` ("0 ms", "400 ms"). As duas ficam desativadas quando nada muda e durante a fusão; sem mudança, a frase "O preview está igual ao programa." vem embaixo. No celular, as teclas ficam logo abaixo do preview.
+- **Fusão:** real. O programa que sai é desenhado por cima do que entra e some em 400ms (`@keyframes fusao-sai`, `ease-out`; a duração é `DURACAO_DA_FUSAO`), inerte e `aria-hidden`. Com movimento reduzido, a regra global a faz virar corte. É o único movimento do console.
+- **Mesa de monitores (`MesaDeMonitores`):** no desktop, a mesa mede a própria coluna. O programa fica centralizado, com 60 % da altura das imagens e largura = altura × 16/9, limitada pela coluna. A linha de baixo tem a largura do programa: o preview, medido pela imagem na altura que sobra, e ao lado, a 16px, o próximo corte, com no mínimo 224px. O lugar de cada monitor é a moldura inteira, o palco em 16:9 mais o anel de 2px (`alturaDaMoldura`), no desktop e no celular. No celular, tudo empilha na largura da coluna, a 16px: programa, preview, as teclas de transição e o próximo corte.
+- **Monitor (`Monitor`):** o rótulo fica fora da imagem, 8px acima dela: o papel ("Programa", "Preview") em `text-xs` 500 `--ink-hi` e a cena em `text-xs` `--ink-lo`, truncada. A imagem fica na moldura `.pw-frame`, de canto reto, com o anel de 2px: `n-14` no programa em repouso e `n-89` no preview, o que aponta o monitor que se edita sem usar cor. O programa é inerte (`inert`): nenhum controle e nenhum clique.
+- **No próximo corte (`ProximoCorte`):** o rótulo fica fora, como o dos monitores. A caixa tem canto reto, fundo `--panel`, borda e divisões de 1px em `--line`, e a altura do que lista; rola só se passar da altura do preview. Cada linha diz em palavras o que o corte leva, com uma seta (`ArrowRight` 14px, `--ink-lo`) e o texto em `text-sm` `--ink`: "Cena: Tela com câmera", "Layout do palco", "Fontes em cena", "Entra o banner" / "Sai o banner", "Entra o ticker", "Posição do banner", "Entra o comentário fixado", "Fundo", "Entra o QR code", "Card da câmera: posição e formato". Vazia, diz "Nada muda: o preview está igual ao programa." em `text-xs` `--ink-lo`. É o lugar que o console aprovado dava à telemetria, que não existe sem transmissão.
+- **Preview e programa:** o preview é o estado em edição. O programa mostra o estado do último corte (`StudioSceneState`: cena, layout, fontes, banner, ticker, comentário fixado, QR, fundo, sobreposição e `cardDaCamera`), desenhado pelo mesmo `StudioPreview`, com `papel="programa"`. A mesma composição e a mesma proporção nos dois monitores. O corte copia o estado do preview (`estadoDoPreview()`) para o programa. Ver a Regra do Preview Fiel.
+- **Card da câmera:** nas cenas com card (`picture-in-picture` e `presentation`), a câmera fica num card que é geometria da cena (`GeometriaDoCard`): `x` e `y` em % do palco, `escala` (de 0,6 a 1,8) e `formato`, com a largura em % da largura do palco (`FORMATOS_DO_CARD`: `rounded` 26 %, `compact` 21,6 % e `circle` 19,4 %, cada um com a sua proporção). `dentroDoPalco` mantém o card inteiro dentro do palco depois de qualquer ajuste. O padrão fica embaixo à direita (`x` 71, `y` 64). O card do preview é o que se monta, e o corte o leva ao programa. No palco, o editor é só a mão: arrastar o card o move; a alça neutra do canto (20px, borda `--ink-hi` sobre `--surface`, só no hover e no ajuste, e sem alça no círculo) muda o tamanho; o anel de edição é `--ink-hi`; e, só durante o ajuste, uma leitura em mono `xs` `--ink` sobre `--surface` diz "X 71% · Y 64%" ou "120%". Cantos, formato e tamanho exato ficam em Estilo (fase 2).
+- **Espelho:** é propriedade da câmera, como o zoom e o enquadramento, e vale nos dois monitores. Começa desligado.
+- **Guias:** ligadas pelo controle "Guias" da bandeja, valem nos dois monitores. São os terços, a área segura (7 % em cima e embaixo, 6 % dos lados) e a cruz central de 18px, em linhas de 1px no token `--guia` (branco a 60 %) com `mix-blend-difference`, para aparecerem sobre imagem clara ou escura sem cor própria. São `aria-hidden` e não recebem clique.
+- **Bandeja (`BandejaDoEstudio`):** em `--surface`, com linha em cima e controles a 8px: Microfone (com o medidor ao lado), Câmera, Compartilhar tela, um separador de 1px em `--line` (a partir de `sm`) e Guias. Cada controle é um `Button` fantasma de 44px com ícone e palavra, e o estado mora em `aria-pressed`: ligado sobe para `--raise` com `--ink-hi`; desligado fica no `--well` com `--ink-lo`, e o ícone e a palavra mudam ("Microfone mudo", "Câmera desligada", "Parar de compartilhar"). Abaixo de `sm`, o controle vira um quadrado de 44px só com o ícone, e a palavra vai para `sr-only`. Microfone e câmera ganham, colado, um gatilho de chevron (mesma borda e mesmo fundo) que abre um `Menu` para cima com os aparelhos reais (`enumerateDevices`), o atual marcado com ✓; o gatilho só aparece com mais de um aparelho. O botão de tela some onde o navegador não tem `getDisplayMedia`. À direita, a partir de `lg`, a frase do ar em `text-xs` `--ink-lo`: "Transmitir para os canais ainda não está no ar."
+- **Medidor (`MedidorDeAudio`):** o nível do microfone, lido do próprio stream pelo Web Audio (RMS, piso de −60 dB) e escrito direto no DOM a cada quadro. É um trilho reto de 8px em `--well` (96px; 64px abaixo de `sm`), segmentado por vãos de 1px a cada 6px, na cor da bandeja. A barra é `--ink-lo` e sobe para `--ink-hi` acima de −12 dB: graduação de valor, sem vermelho. O pico fica retido por 1s num marcador de 2px em `--ink-hi`. A leitura ("−25 dB", mono `xs` `--ink-lo`) muda a cada 120ms e some abaixo de `sm`; em silêncio, no mudo ou sem Web Audio, diz "—". O medidor é `aria-hidden`.
+- **Coluna da direita (`PainelDoEstudio`):** o painel da ferramenta aberta e, na borda direita, o trilho de ferramentas: uma `tablist` vertical de 72px (`w-[4.5rem]`, linha à esquerda) com Chat, Gráficos, Roteiro, QR code, Mídia, Estilo e Extras. Cada aba tem 56px, o ícone de 18px sobre a palavra em `text-xs` e 16px de raio; a aberta sobe para `--raise` e `--ink-hi`, as outras ficam em `--ink-lo`, com `--panel` no hover. O conteúdo dos painéis, fora o chat, continua fora do sistema (fase 2).
+- **Chat (`VirtualizedChat`):** o cabeçalho traz "Chat" (`text-sm` 500 `--ink-hi`) e a contagem ao lado ("1 mensagem", "12 mensagens", em `text-xs` `--ink-lo`), a busca (um `BotaoDeIcone` que abre o campo "Nome ou mensagem") e, havendo mensagens, o "⋯" com "Exportar o chat (.json)" e "Limpar o chat" (em `--sig-texto`, com confirmação). Vazio, diz "Nenhuma mensagem ainda." e que os comentários dos canais ainda não chegam ao estúdio. Cada mensagem é uma linha com divisória em `--line`: o nome em `text-xs` 500 `--ink-hi`, a hora em mono `--ink-lo` e o botão de fixar ("Fixar no palco a mensagem de …", com `aria-pressed`); a fixada sobe para `--raise` e diz "fixado". Embaixo, o campo "Mensagem" de 44px e o envio por ícone, com a nota "Você escreve como {nome}. As mensagens ficam só neste estúdio."
+
+**Regra do Preview Fiel.** O preview mostra exatamente o que o corte leva: a mesma composição, a mesma proporção e o mesmo espelho do programa, desenhados pelo mesmo compositor. Nada vai sobre a imagem que não iria ao ar: o papel, a cena e o estado ficam no rótulo, fora dela. Sobre a imagem só entram, sob a mão, a alça e a leitura do card enquanto ele é ajustado, e as guias, que o operador liga e que valem nos dois monitores. Os gráficos do palco são medidos em fração do palco (%), nunca em px, para ocuparem a mesma parte da imagem num monitor pequeno e num grande.
+
 ### Limites do plano
 `src/lib/plans.ts` é a fonte única dos limites e dos preços. Os campos estruturados decidem; as frases de `features` só descrevem:
 - `destinosSimultaneos`: canais ligados ao mesmo tempo (Plano Gratuito 2, Standard 3, Professional 5, Business 8).
@@ -519,6 +605,10 @@ A frase de cada linha da lista de planos é montada desses campos por `limitesDo
 - **Do** gravar só por `gravarComConfirmacao`, com a falha no rodapé do diálogo, acima das ações.
 - **Do** abrir o modal de canais por id (`editarCanal(id)`) quando a origem é um canal, e nunca pela plataforma.
 - **Do** levar links para fora do app por `<AcaoDeTexto href>`, que abre em outra aba e avisa o leitor de tela.
+- **Do** desenhar o programa com o mesmo `StudioPreview` do preview (`papel="programa"`), alimentado pelo estado do último corte, e dizer em palavras, no próximo corte, o que o corte leva.
+- **Do** pôr o papel e a cena de cada monitor no rótulo, fora da imagem, e dar a cada monitor o lugar da moldura inteira (palco em 16:9 mais o anel).
+- **Do** medir a posição e o tamanho de todo gráfico do palco em % do palco, e manter o card da câmera dentro dele por `dentroDoPalco`.
+- **Do** dizer o estado de uma cena e de um controle da bandeja em palavra, com `aria-current` ou `aria-pressed`, e a subida na rampa.
 - **Do** checar todo par novo de texto/superfície nos três escopos: `npm run verify` roda tipos, stylelint, o portão de contraste (WCAG AA em escuro, claro e console), a catraca de dívida, os botões só-ícone e os rótulos de formulário. O mesmo roda no CI (`.github/workflows/design-system.yml`).
 
 ### Don't:
@@ -539,9 +629,14 @@ A frase de cada linha da lista de planos é montada desses campos por `limitesDo
 - **Don't** gravar "Hoje" ou "Amanhã" em dado nenhum; só a frase absoluta.
 - **Don't** pintar a caixa marcada de azul da marca; marcada é tinta cheia.
 - **Don't** simular um salvamento: sem espera de enfeite, sem "atualizado com sucesso" antes da confirmação do banco.
+- **Don't** espelhar só um monitor: o espelho é da câmera e vale no preview e no programa.
+- **Don't** desenhar selo, etiqueta ou botão sobre a imagem de um monitor ("PRÉVIA", "AO VIVO", "PUSH TO LIVE"); o rótulo fica fora.
+- **Don't** dimensionar gráfico do palco em px.
+- **Don't** mostrar no estúdio o que ainda não existe: nada de ir ao ar, relógio de ar, gravação, telemetria nem aparelho "Simulado". O que falta vira frase.
+- **Don't** pôr cor no console: nem no controle ligado, nem na tecla de transição, nem no medidor perto do limite.
 - **Don't** subir número nenhum de `scripts/design-debt-baseline.json`. A catraca deixa a dívida cair e nunca crescer sem um `--update` visível na revisão.
 
 ### Fora do sistema (dívida conhecida)
-Estas partes ainda carregam o visual herdado do Google AI Studio e **não** são referência: o estúdio (`Header.tsx`, `LeftSidebar`, o palco), e o super-admin. A lista de canais do estúdio já mostra o ícone da plataforma no lugar da foto de banco de imagens, mas o resto do `LeftSidebar` continua fora. Os sinais típicos são tamanhos em px avulsos, `slate`/`gray`/`blue-500` crus, rótulos em caixa alta e sombras de brilho. A catraca mede essa dívida (na linha de base atual: 855 tamanhos avulsos, 348 `<button>` crus fora das primitivas, 71 usos estruturais de `slate`/`gray`, 77 `outline-none`, 5 hex arbitrários em classe, 19 em atributo JSX, 7 `z-index` avulsos e 6 `!important` no CSS; nenhum diálogo nativo bloqueante). As quatro cores do G do Google entram nos 19 em atributo JSX e ficam: são a marca do Google. Ao tocar numa dessas telas, migre para as primitivas e os papéis deste documento, sem copiar o que está lá.
+Estas partes ainda carregam o visual herdado do Google AI Studio e **não** são referência: os painéis de ferramentas do estúdio (o conteúdo do `LeftSidebar`, fase 2), incluindo o que eles ligam no palco (os widgets flutuantes e os botões deles sobre o preview, o teleprompter, o ticker, os banners, o QR e a lousa, ainda com cores cruas e tamanhos em px); os modais do estúdio (fase 3); e o super-admin. Os sinais típicos são tamanhos em px avulsos, `slate`/`gray`/`blue-500` crus, rótulos em caixa alta e sombras de brilho. A catraca mede essa dívida (na linha de base atual: 636 tamanhos avulsos, 256 `<button>` crus fora das primitivas, 56 usos estruturais de `slate`/`gray`, 73 `outline-none`, nenhum hex arbitrário em classe, 18 em atributo JSX, 3 `z-index` avulsos e 6 `!important` no CSS; nenhum diálogo nativo bloqueante). As quatro cores do G do Google entram nos 18 em atributo JSX e ficam: são a marca do Google. Ao tocar numa dessas telas, migre para as primitivas e os papéis deste documento, sem copiar o que está lá.
 
-Dentro das superfícies redesenhadas, alguns desvios também ficam fora do sistema: o gatilho "⋯" do `Menu` (32px), o avatar da conta (32px) e o botão de fechar do `Modal` (cerca de 34px) estão abaixo do alvo de 44px, o chip tem 36px, o cabeçalho do app usa `z-30` em vez de `--z-sticky` (o público já usa o degrau), a borda de campo e de controle (`--line-ctl`) fica entre 1,38:1 e 2,30:1 contra as cinco superfícies nos três escopos (1,72–2,24:1 contra `--bg` e `--surface`, onde os campos pousam), abaixo dos 3:1 da WCAG 1.4.11 (o campo se lê pelo preenchimento `--well` e pelo rótulo, e a caixa de seleção não usa essa borda), e o polegar da barra de rolagem fica azul no hover. A linha "ONLINE STUDIO" do logo (9px, mono, caixa alta) faz parte da marca e não é modelo de rótulo. No site, o formulário de e-mail e senha de Entrar e Criar conta existe só em desenvolvimento, não autentica ninguém e não é modelo: o primário azul dele não conta como a ação da tela.
+Dentro das superfícies redesenhadas, alguns desvios também ficam fora do sistema: o gatilho "⋯" do `Menu` (32px), o avatar da conta (32px) e o botão de fechar do `Modal` (cerca de 34px) estão abaixo do alvo de 44px, o chip tem 36px, o cabeçalho do app usa `z-30` em vez de `--z-sticky` (o público já usa o degrau), a borda de campo e de controle (`--line-ctl`) fica entre 1,38:1 e 2,30:1 contra as cinco superfícies nos três escopos (1,72–2,24:1 contra `--bg` e `--surface`, onde os campos pousam), abaixo dos 3:1 da WCAG 1.4.11 (o campo se lê pelo preenchimento `--well` e pelo rótulo, e a caixa de seleção não usa essa borda), e o polegar da barra de rolagem fica azul no hover. No console, o botão de fixar do chat (36px) e o gatilho de chevron dos aparelhos (36px de largura) também ficam abaixo dos 44px, e a borda do card da câmera vai na cor dos gráficos escolhida em Estilo (fase 2). A linha "ONLINE STUDIO" do logo (9px, mono, caixa alta) faz parte da marca e não é modelo de rótulo. No site, o formulário de e-mail e senha de Entrar e Criar conta existe só em desenvolvimento, não autentica ninguém e não é modelo: o primário azul dele não conta como a ação da tela.

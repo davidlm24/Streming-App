@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-27T16:58:39.014Z",
+  "generatedAt": "2026-09-28T22:16:29.126Z",
   "title": "Design System: PwStreamer",
   "extensions": {
     "colorMeta": {
@@ -265,6 +265,11 @@
         "name": "ease-exit",
         "value": "cubic-bezier(0.4, 0, 1, 1)",
         "purpose": "Saídas (.animate-out, 150ms padrão)."
+      },
+      {
+        "name": "fusao",
+        "value": "@keyframes fusao-sai (opacity 1 → 0) 400ms ease-out forwards; DURACAO_DA_FUSAO",
+        "purpose": "O único movimento do console: na Fusão, o programa que sai fica por cima do que entra e some. Inerte e aria-hidden. Com prefers-reduced-motion, a regra global a faz virar corte."
       }
     ],
     "breakpoints": [
@@ -441,15 +446,15 @@
       }
     },
     "debtBaseline": {
-      "hex-arbitrario-em-classe": 5,
-      "hex-em-atributo-jsx": 19,
-      "botao-cru-fora-da-primitiva": 348,
-      "paleta-slate-gray-estrutural": 71,
-      "tamanho-de-fonte-avulso": 855,
+      "hex-arbitrario-em-classe": 0,
+      "hex-em-atributo-jsx": 18,
+      "botao-cru-fora-da-primitiva": 256,
+      "paleta-slate-gray-estrutural": 56,
+      "tamanho-de-fonte-avulso": 636,
       "dialogo-nativo-bloqueante": 0,
-      "outline-none": 77,
+      "outline-none": 73,
       "important-no-css": 6,
-      "z-index-avulso": 7
+      "z-index-avulso": 3
     },
     "publicSite": {
       "source": "src/components/InicioPublico.tsx, src/components/AuthAndPricing.tsx, src/components/PublicHeader.tsx",
@@ -472,10 +477,59 @@
       }
     },
     "foraDoSistema": {
-      "telas": "O estúdio (Header.tsx, LeftSidebar, o palco) e o super-admin ainda carregam o visual herdado do Google AI Studio. O site público saiu da dívida.",
-      "desvios": "Gatilho \"⋯\" do Menu (32px), avatar (32px), fechar do Modal (~34px), chip (36px), z-30 no cabeçalho do app, --line-ctl abaixo de 3:1, polegar da rolagem azul no hover.",
+      "telas": "Os painéis de ferramentas do estúdio (o conteúdo do LeftSidebar, fase 2), incluindo o que eles ligam no palco (widgets flutuantes e os botões deles sobre o preview, teleprompter, ticker, banners, QR e lousa, ainda com cores cruas e px); os modais do estúdio (fase 3); e o super-admin ainda carregam o visual herdado do Google AI Studio. O console do estúdio (barra, trilho de cenas, monitores, coluna da direita e bandeja) e o site público saíram da dívida.",
+      "desvios": "Gatilho \"⋯\" do Menu (32px), avatar (32px), fechar do Modal (~34px), chip (36px), z-30 no cabeçalho do app, --line-ctl abaixo de 3:1, polegar da rolagem azul no hover. No console: o botão de fixar do chat (36px) e o gatilho de chevron dos aparelhos (36px de largura) abaixo de 44px; a borda do card da câmera na cor dos gráficos escolhida em Estilo (fase 2).",
       "googleG": "As quatro cores do G do Google contam em hex-em-atributo-jsx e ficam: são a marca do Google no botão de login.",
       "formularioDeDesenvolvimento": "O formulário de e-mail e senha de Entrar e Criar conta existe só em desenvolvimento, não autentica e não é modelo; o primário azul dele não é a ação da tela."
+    },
+    "console": {
+      "tokens": {
+        "guia": "rgb(255 255 255 / 0.6): só no escopo console, as guias sobre a imagem do monitor, em mix-blend-difference"
+      },
+      "source": "src/App.tsx (ramo do estúdio), src/components/BarraDoEstudio.tsx, TrilhoDeCenas.tsx, MonitoresDoEstudio.tsx, PainelDoEstudio.tsx, BandejaDoEstudio.tsx, MedidorDeAudio.tsx, VirtualizedChat.tsx, StudioPreview.tsx (o palco), src/lib/cenas.ts",
+      "scope": "data-surface=\"console\" na tela inteira do estúdio; escuro sempre, também no tema claro. Zero cor: sem ação colorida e sem vermelho enquanto o ar não existe; data-air=\"on\" nunca é posto.",
+      "semAr": "Ir ao ar, relógio de ar, gravação e relatório saíram até a transmissão existir. A bandeja diz \"Transmitir para os canais ainda não está no ar.\" (a partir de lg).",
+      "grade": "h-[100dvh]; barra 48px em cima e bandeja embaixo, fora da rolagem; lg:grid-cols-[14rem_minmax(0,1fr)_23rem] (trilho de cenas, mesa de monitores, coluna da direita), cada coluna rola sozinha. Abaixo de lg, uma coluna que rola: monitores, cenas, coluna da direita (h-[36rem]).",
+      "barra": "h-12 em --surface, linha embaixo: logo monocromático (leva ao Painel), h1 \"Estúdio · {sessão}\", ação de texto xs dos canais (\"Nenhum canal ligado\" / \"Canais: N de M prontos\", só a partir de md), \"Sair do estúdio\" ghost sm.",
+      "cenas": {
+        "fonte": "CENAS em src/lib/cenas.ts: Câmera, Tela com câmera, Câmera e tela lado a lado, Tela",
+        "linha": "min-h-14, raio 16px: nome text-sm --ink-hi em cima; estado text-xs embaixo, em palavras (\"programa\", \"preview\", \"programa e preview\", \"· sem tela\", \"sem tela compartilhada\"). Estado do programa 500 --ink-hi; linha do preview em --raise com aria-current; hover --panel.",
+        "porque": "Altura fixa para o corte não mexer a lista embaixo do ponteiro."
+      },
+      "transicao": {
+        "tecla": "TECLA: Button ghost min-h-14, bg --raise, borda --line-ctl; hover borda --ink-lo; :active borda --ink-hi e bg --panel. Duração dentro, mono xs --ink-lo (\"0 ms\", \"400 ms\").",
+        "parada": "Desativadas sem mudança e durante a fusão; sem mudança, \"O preview está igual ao programa.\" embaixo.",
+        "celular": "Logo abaixo do preview."
+      },
+      "mesa": {
+        "programa": "Centralizado; 60 % da altura das imagens; largura = altura × 16/9, limitada pela coluna.",
+        "linhaDeBaixo": "Largura do programa: preview medido pela imagem + \"No próximo corte\" ao lado, a 16px, com no mínimo 224px.",
+        "moldura": "O lugar de cada monitor é o palco em 16:9 mais o anel de 2px (alturaDaMoldura em MonitoresDoEstudio, ANEL_DA_MOLDURA em useAspectRatio), no desktop e no celular.",
+        "rotulo": "Fora da imagem, 8px acima: papel text-xs 500 --ink-hi, cena text-xs --ink-lo.",
+        "anel": ".pw-frame com --pw-frame-radius 0px (canto reto): programa n-14 em repouso, preview n-89. O programa é inert."
+      },
+      "proximoCorte": "Rótulo fora; caixa de canto reto em --panel, borda e divide-y 1px --line, altura do conteúdo, rola só acima da altura do preview. Linhas text-sm --ink com ArrowRight 14px --ink-lo, em palavras (pendingChanges em App.tsx). Vazia: \"Nada muda: o preview está igual ao programa.\". Ocupa o lugar da telemetria do console aprovado.",
+      "modelo": "Preview = estado em edição. Programa = StudioSceneState do último corte (cena, layout, fontes, banner, ticker, comentário fixado, QR, fundo, sobreposição, cardDaCamera), desenhado pelo mesmo StudioPreview com papel=\"programa\". Corte copia estadoDoPreview().",
+      "card": {
+        "geometria": "GeometriaDoCard: x, y em % do palco; escala 0,6–1,8; formato. Largura em % da largura do palco: rounded 26, compact 21,6, circle 19,4, cada um com a sua proporção. Padrão x 71, y 64.",
+        "limite": "dentroDoPalco mantém o card inteiro no palco.",
+        "edicao": "Só a mão no palco: arrastar move; alça neutra de 20px (borda --ink-hi sobre --surface; sem alça no círculo) muda o tamanho; leitura mono xs --ink sobre --surface (\"X 71% · Y 64%\" ou \"120%\") só durante o ajuste. Cantos, formato e tamanho exato em Estilo (fase 2)."
+      },
+      "espelho": "Propriedade da câmera, como o zoom e o enquadramento: vale nos dois monitores. Começa desligado.",
+      "guias": "Ligadas pela bandeja. Terços, área segura inset 7% 6%, cruz central de 18px; linhas de 1px em --guia com mix-blend-difference; aria-hidden, sem clique.",
+      "bandeja": {
+        "controle": "CONTROLE: Button ghost min-h-11, aria-pressed. Ligado: --raise + --ink-hi. Desligado: --well + --ink-lo. Ícone e palavra; abaixo de sm, quadrado de 44px só com ícone e a palavra em sr-only.",
+        "aparelhos": "Menu lado=\"cima\" alinhar=\"esquerda\" com enumerateDevices, gatilho de chevron colado, só com mais de um aparelho; o atual com ✓.",
+        "tela": "O botão some sem getDisplayMedia.",
+        "ordem": "Microfone + medidor, Câmera, Compartilhar tela, separador 1px --line (a partir de sm), Guias; a frase do ar à direita a partir de lg."
+      },
+      "medidor": "RMS pelo Web Audio (piso −60 dB). Trilho reto h-2 em --well, 96px (64px abaixo de sm), segmentos de 5px com vão de 1px. Barra --ink-lo, --ink-hi acima de −12 dB; sem vermelho. Pico retido 1s, marcador de 2px --ink-hi. Leitura \"−xx dB\" mono xs --ink-lo a cada 120ms, oculta abaixo de sm. aria-hidden.",
+      "colunaDaDireita": {
+        "largura": "23rem",
+        "ferramentas": "tablist vertical w-[4.5rem], borda à esquerda: Chat, Gráficos, Roteiro, QR code, Mídia, Estilo, Extras. Aba min-h-14, ícone 18px sobre a palavra text-xs, raio 16px; aberta em --raise --ink-hi.",
+        "chat": "Cabeçalho \"Chat\" + contagem text-xs --ink-lo, busca, \"⋯\" com Exportar o chat (.json) e Limpar o chat (--sig-texto, useConfirm); vazio honesto; linhas com divisória --line, nome xs 500 --ink-hi, hora mono --ink-lo, fixar com aria-pressed (fixada em --raise, \"fixado\"); campo \"Mensagem\" 44px e envio por ícone; nota \"Você escreve como {nome}. As mensagens ficam só neste estúdio.\"",
+        "paineis": "O conteúdo dos outros painéis continua fora do sistema (fase 2)."
+      }
     }
   },
   "components": [
@@ -638,11 +692,67 @@
       "description": "A única imagem do site: captura real do Painel no escopo console, com legenda que diz \"dados de exemplo\". O contorno de 2px em --ink-hi desliza entre regiões (300ms, cubic-bezier(0.16,1,0.3,1)) e escurece o resto, só com mouse.",
       "html": "<figure class=\"ds-cap\"><div class=\"ds-cap-f\" data-surface=\"console\"><div class=\"ds-cap-img\" role=\"img\" aria-label=\"Captura do Painel com dados de exemplo\"></div><div class=\"ds-cap-c\" aria-hidden=\"true\"></div></div><figcaption class=\"ds-cap-l\">O Painel de verdade, com dados de exemplo.<span class=\"ds-cap-pista\"> Passe o mouse em “Já funciona”, abaixo, para ver cada parte nele.</span></figcaption></figure>",
       "css": ".ds-cap { margin: 0; max-width: 560px; font-family: Poppins, system-ui, sans-serif; } .ds-cap-f { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--line, #30363B); } .ds-cap-img { aspect-ratio: 1280 / 912; background: #0A0B0C; } .ds-cap-c { position: absolute; left: 11.2%; top: 48.8%; width: 77.6%; height: 14.1%; border-radius: 12px; outline: 2px solid var(--ink-hi, #F0F5F9); box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.55); opacity: 0; pointer-events: none; transition: left 300ms cubic-bezier(0.16, 1, 0.3, 1), top 300ms cubic-bezier(0.16, 1, 0.3, 1), width 300ms cubic-bezier(0.16, 1, 0.3, 1), height 300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-cap:hover .ds-cap-c { opacity: 1; } .ds-cap-l { margin-top: 12px; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); text-wrap: pretty; } .ds-cap-pista { display: none; } @media (pointer: fine) { .ds-cap-pista { display: inline; } } @media (prefers-reduced-motion: reduce) { .ds-cap-c { transition: none; } }"
+    },
+    {
+      "name": "Barra do estúdio",
+      "kind": "nav",
+      "refersTo": "studio-bar",
+      "description": "48px em --surface, linha embaixo: logo monocromático (leva ao Painel), \"Estúdio · {sessão}\", a ação de texto dos canais (a partir de md) e \"Sair do estúdio\" fantasma sm. Sem ar, sem cor.",
+      "html": "<header class=\"ds-sb\" data-surface=\"console\"><span class=\"ds-sb-logo\">PwStreamer</span><h1 class=\"ds-sb-t\">Estúdio<span class=\"ds-sb-s\"> · Aula de iluminação</span></h1><div class=\"ds-sb-r\"><button type=\"button\" class=\"ds-sb-c\">Canais: 2 de 3 prontos</button><button type=\"button\" class=\"ds-sb-g\">Sair do estúdio</button></div></header>",
+      "css": ".ds-sb { display: flex; align-items: center; gap: 16px; height: 48px; padding: 0 16px; background: var(--surface, #111315); border-bottom: 1px solid var(--line, #282D31); font-family: Poppins, system-ui, sans-serif; } .ds-sb-logo { font-size: 16px; font-weight: 900; color: var(--ink-hi, #F0F5F9); } .ds-sb-t { margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-sb-s { font-weight: 400; color: var(--ink-lo, #A2ACB7); } .ds-sb-r { margin-left: auto; display: flex; align-items: center; gap: 16px; } .ds-sb-c { min-height: 44px; background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--ink-lo, #A2ACB7); cursor: pointer; } .ds-sb-c:hover { color: var(--ink-hi, #F0F5F9); text-decoration: underline; } .ds-sb-g { padding: 5px 11px; border-radius: 10px; border: 1px solid var(--line-ctl, #3C4349); background: transparent; color: var(--ink, #D9E1EA); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; } .ds-sb-g:hover { background: var(--raise, #202429); } @media (max-width: 767px) { .ds-sb-c { display: none; } }"
+    },
+    {
+      "name": "Trilho de cenas",
+      "kind": "custom",
+      "refersTo": "scene-row",
+      "description": "As quatro cenas em linhas de altura fixa: nome em cima, estado em palavras embaixo. A linha do preview em --raise com aria-current; o estado do programa em 500 --ink-hi. Altura fixa para o corte não mexer a lista.",
+      "html": "<section class=\"ds-sc\" data-surface=\"console\" aria-labelledby=\"ds-sc-t\"><h2 id=\"ds-sc-t\" class=\"ds-sc-t\">Cenas</h2><ul class=\"ds-sc-l\"><li><button type=\"button\" class=\"ds-sc-r\"><span class=\"ds-sc-n\">Câmera</span><span class=\"ds-sc-e ds-sc-pgm\">programa</span></button></li><li><button type=\"button\" class=\"ds-sc-r\" aria-current=\"true\"><span class=\"ds-sc-n\">Tela com câmera</span><span class=\"ds-sc-e\">preview</span></button></li><li><button type=\"button\" class=\"ds-sc-r\"><span class=\"ds-sc-n\">Câmera e tela lado a lado</span></button></li><li><button type=\"button\" class=\"ds-sc-r\"><span class=\"ds-sc-n\">Tela</span><span class=\"ds-sc-e\">sem tela compartilhada</span></button></li></ul></section>",
+      "css": ".ds-sc { width: 224px; padding: 16px 8px; background: var(--surface, #111315); font-family: Poppins, system-ui, sans-serif; } .ds-sc-t { margin: 0; padding: 0 8px 8px; font-size: 12px; font-weight: 400; color: var(--ink-lo, #A2ACB7); } .ds-sc-l { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; } .ds-sc-r { display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: 56px; padding: 8px; border: 0; border-radius: 16px; background: transparent; text-align: left; font: inherit; cursor: pointer; transition: background-color 150ms; } .ds-sc-r:hover { background: var(--panel, #181B1F); } .ds-sc-r[aria-current=\"true\"] { background: var(--raise, #202429); } .ds-sc-n { font-size: 14px; color: var(--ink-hi, #F0F5F9); } .ds-sc-e { font-size: 12px; color: var(--ink-lo, #A2ACB7); } .ds-sc-pgm { font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-sc-r:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Teclas de transição (Corte e Fusão)",
+      "kind": "button",
+      "refersTo": "transition-key",
+      "description": "A tecla elevada: --raise com borda --line-ctl, borda --ink-hi e fundo --panel no aperto, duração em mono dentro. Desativadas quando nada muda, com a frase embaixo.",
+      "html": "<div class=\"ds-tk\" data-surface=\"console\"><div class=\"ds-tk-g\"><button type=\"button\" class=\"ds-tk-b\"><span>Corte</span><span class=\"ds-tk-d\">0&nbsp;ms</span></button><button type=\"button\" class=\"ds-tk-b\"><span>Fusão</span><span class=\"ds-tk-d\">400&nbsp;ms</span></button></div></div>",
+      "css": ".ds-tk { width: 192px; font-family: Poppins, system-ui, sans-serif; } .ds-tk-g { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .ds-tk-b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: filter 110ms linear; } .ds-tk-b:hover { border-color: var(--ink-lo, #A2ACB7); } .ds-tk-b:active { border-color: var(--ink-hi, #F0F5F9); background: var(--panel, #181B1F); } .ds-tk-b:disabled { opacity: 0.45; cursor: default; } .ds-tk-d { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; font-size: 12px; font-weight: 400; color: var(--ink-lo, #A2ACB7); } .ds-tk-b:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Monitor do console (programa e preview)",
+      "kind": "custom",
+      "refersTo": "monitor-preview",
+      "description": "Rótulo fora da imagem (papel xs 500 --ink-hi, cena xs --ink-lo); moldura reta com anel de 2px, n-14 no programa e n-89 no preview. Nada sobre a imagem que não iria ao ar (Regra do Preview Fiel).",
+      "html": "<div class=\"ds-mon\" data-surface=\"console\"><section class=\"ds-mon-m\" aria-label=\"Programa: Câmera\"><div class=\"ds-mon-r\"><h2 class=\"ds-mon-p\">Programa</h2><span class=\"ds-mon-c\">Câmera</span></div><div class=\"ds-mon-f ds-mon-pgm\"><div class=\"ds-mon-i\"></div></div></section><section class=\"ds-mon-m\" aria-label=\"Preview: Tela com câmera\"><div class=\"ds-mon-r\"><h2 class=\"ds-mon-p\">Preview</h2><span class=\"ds-mon-c\">Tela com câmera</span></div><div class=\"ds-mon-f ds-mon-pvw\"><div class=\"ds-mon-i\"></div></div></section></div>",
+      "css": ".ds-mon { display: flex; flex-direction: column; gap: 16px; width: 360px; font-family: Poppins, system-ui, sans-serif; } .ds-mon-r { display: flex; align-items: baseline; gap: 8px; height: 16px; margin-bottom: 8px; } .ds-mon-p { margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-mon-c { font-size: 12px; line-height: 16px; color: var(--ink-lo, #A2ACB7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-mon-f { padding: 2px; border-radius: 0; } .ds-mon-pgm { background: #202429; } .ds-mon-pvw { background: #D9E1EA; } .ds-mon-i { aspect-ratio: 16 / 9; background: var(--stage, #000000); }"
+    },
+    {
+      "name": "No próximo corte",
+      "kind": "custom",
+      "refersTo": "next-cut",
+      "description": "O que o corte leva, em palavras: caixa reta em --panel com borda e divisões de 1px --line, altura do conteúdo, rótulo fora. Vazia: \"Nada muda: o preview está igual ao programa.\".",
+      "html": "<section class=\"ds-nc\" data-surface=\"console\" aria-labelledby=\"ds-nc-t\"><h2 id=\"ds-nc-t\" class=\"ds-nc-t\">No próximo corte</h2><ul class=\"ds-nc-l\"><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg><span>Cena: Tela com câmera</span></li><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg><span>Card da câmera: posição e formato</span></li></ul></section>",
+      "css": ".ds-nc { width: 240px; font-family: Poppins, system-ui, sans-serif; } .ds-nc-t { margin: 0 0 8px; height: 16px; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-nc-l { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line, #282D31); background: var(--panel, #181B1F); } .ds-nc-l li { display: flex; align-items: flex-start; gap: 8px; padding: 10px 16px; font-size: 14px; color: var(--ink, #D9E1EA); } .ds-nc-l li + li { border-top: 1px solid var(--line, #282D31); } .ds-nc-l svg { flex-shrink: 0; margin-top: 4px; color: var(--ink-lo, #A2ACB7); }"
+    },
+    {
+      "name": "Controle da bandeja com medidor",
+      "kind": "button",
+      "refersTo": "tray-control-on",
+      "description": "Controle de 44px com ícone e palavra e aria-pressed: ligado em --raise --ink-hi, desligado no --well --ink-lo. Medidor ao lado: trilho reto de 8px segmentado, --ink-lo, --ink-hi acima de −12 dB, pico de 2px, leitura em mono. Sem cor.",
+      "html": "<footer class=\"ds-tr\" data-surface=\"console\"><button type=\"button\" class=\"ds-tr-b\" aria-pressed=\"true\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"/><line x1=\"12\" x2=\"12\" y1=\"19\" y2=\"22\"/></svg><span>Microfone</span></button><span class=\"ds-tr-m\" aria-hidden=\"true\"><span class=\"ds-tr-t\"><span class=\"ds-tr-n\"></span><span class=\"ds-tr-p\"></span><span class=\"ds-tr-s\"></span></span><span class=\"ds-tr-l\">−25 dB</span></span><button type=\"button\" class=\"ds-tr-b\" aria-pressed=\"false\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 3h18v18H3z\"/><path d=\"M3 9h18\"/><path d=\"M3 15h18\"/><path d=\"M9 3v18\"/><path d=\"M15 3v18\"/></svg><span>Guias</span></button><p class=\"ds-tr-f\">Transmitir para os canais ainda não está no&nbsp;ar.</p></footer>",
+      "css": ".ds-tr { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--surface, #111315); border-top: 1px solid var(--line, #282D31); font-family: Poppins, system-ui, sans-serif; } .ds-tr-b { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 9px 18px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--well, #000000); color: var(--ink-lo, #A2ACB7); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; } .ds-tr-b[aria-pressed=\"true\"] { background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); } .ds-tr-m { display: flex; align-items: center; gap: 8px; } .ds-tr-t { position: relative; display: block; width: 96px; height: 8px; overflow: hidden; background: var(--well, #000000); } .ds-tr-n { position: absolute; inset: 0 40% 0 0; background: var(--ink-lo, #A2ACB7); } .ds-tr-p { position: absolute; top: 0; bottom: 0; left: 70%; width: 2px; background: var(--ink-hi, #F0F5F9); } .ds-tr-s { position: absolute; inset: 0; background-image: repeating-linear-gradient(90deg, transparent 0 5px, var(--surface, #111315) 5px 6px); } .ds-tr-l { width: 48px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: var(--ink-lo, #A2ACB7); } .ds-tr-f { margin: 0 0 0 auto; font-size: 12px; color: var(--ink-lo, #A2ACB7); text-wrap: pretty; } @media (max-width: 639px) { .ds-tr-b { width: 44px; padding: 0; justify-content: center; } .ds-tr-b span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .ds-tr-t { width: 64px; } .ds-tr-l { display: none; } } @media (max-width: 1023px) { .ds-tr-f { display: none; } }"
+    },
+    {
+      "name": "Trilho de ferramentas do estúdio",
+      "kind": "nav",
+      "refersTo": "tool-tab-active",
+      "description": "Tablist vertical de 72px na borda da coluna da direita: abas de 56px com ícone de 18px sobre a palavra em text-xs; a aberta em --raise --ink-hi.",
+      "html": "<div class=\"ds-tt\" data-surface=\"console\" role=\"tablist\" aria-orientation=\"vertical\" aria-label=\"Ferramentas\"><button type=\"button\" role=\"tab\" class=\"ds-tt-b\" aria-selected=\"true\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg><span>Chat</span></button><button type=\"button\" role=\"tab\" class=\"ds-tt-b\" aria-selected=\"false\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m12 2 10 5-10 5L2 7z\"/><path d=\"m2 17 10 5 10-5\"/><path d=\"m2 12 10 5 10-5\"/></svg><span>Gráficos</span></button><button type=\"button\" role=\"tab\" class=\"ds-tt-b\" aria-selected=\"false\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><line x1=\"4\" x2=\"20\" y1=\"7\" y2=\"7\"/><line x1=\"4\" x2=\"20\" y1=\"12\" y2=\"12\"/><line x1=\"4\" x2=\"20\" y1=\"17\" y2=\"17\"/></svg><span>Estilo</span></button></div>",
+      "css": ".ds-tt { display: flex; flex-direction: column; gap: 4px; width: 72px; padding: 6px; border-left: 1px solid var(--line, #282D31); background: var(--surface, #111315); font-family: Poppins, system-ui, sans-serif; } .ds-tt-b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 56px; padding: 0 4px; border: 0; border-radius: 16px; background: transparent; color: var(--ink-lo, #A2ACB7); font: inherit; font-size: 12px; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-tt-b:hover { background: var(--panel, #181B1F); color: var(--ink-hi, #F0F5F9); } .ds-tt-b[aria-selected=\"true\"] { background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); } .ds-tt-b:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     }
   ],
   "narrative": {
     "northStar": "O Lançador",
-    "overview": "A casca do PwStreamer (tudo fora do estúdio) existe para levar o anfitrião ao ar. Cada tela tem uma ação, e o resto é estado. No Painel, essa ação é \"Entrar no estúdio\". A tela diz o que vem a seguir, para onde a live vai e o que falta consertar. Não mostra indicadores, cartões nem nada do que o produto sabe fazer sem que a tarefa do momento peça. É uma coluna estreita sobre uma rampa azul-marinho de 18 degraus, em Poppins e em quatro tamanhos. A estrutura é feita de linhas de 1px.\n\nA cor é escassa de propósito. O azul da marca preenche só o botão da ação da tela, e o vermelho do tally pertence ao ar (e, como texto, às ações que apagam algo). Todo o resto, inclusive os estados \"ligado\", \"selecionado\" e \"atual\", sobe ou desce na rampa neutra. O estado é dito por ícone e palavra, e não por matiz. A rampa foi gerada com luminância casada contra o cinza neutro, e por isso o marinho não custa contraste.\n\nO site público (início, Entrar e Criar conta) fala com a mesma voz. A ação da tela é \"Criar conta\", a única imagem é uma captura real do Painel, e o que ainda não está no ar é dito em \"Em breve\", em palavras, sem promessa.\n\nA densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo ([data-surface=\"console\"]), escuro sempre, mesmo no tema claro, porque o operador se adapta à luminância do entorno do vídeo e ela não pode mudar no meio de uma live.",
+    "overview": "A casca do PwStreamer (tudo fora do estúdio) existe para levar o anfitrião ao ar. Cada tela tem uma ação, e o resto é estado. No Painel, essa ação é \"Entrar no estúdio\". A tela diz o que vem a seguir, para onde a live vai e o que falta consertar. Não mostra indicadores, cartões nem nada do que o produto sabe fazer sem que a tarefa do momento peça. É uma coluna estreita sobre uma rampa azul-marinho de 18 degraus, em Poppins e em quatro tamanhos. A estrutura é feita de linhas de 1px.\n\nA cor é escassa de propósito. O azul da marca preenche só o botão da ação da tela, e o vermelho do tally pertence ao ar (e, como texto, às ações que apagam algo). Todo o resto, inclusive os estados \"ligado\", \"selecionado\" e \"atual\", sobe ou desce na rampa neutra. O estado é dito por ícone e palavra, e não por matiz. A rampa foi gerada com luminância casada contra o cinza neutro, e por isso o marinho não custa contraste.\n\nO site público (início, Entrar e Criar conta) fala com a mesma voz. A ação da tela é \"Criar conta\", a única imagem é uma captura real do Painel, e o que ainda não está no ar é dito em \"Em breve\", em palavras, sem promessa.\n\nA densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo ([data-surface=\"console\"]), escuro sempre, mesmo no tema claro, porque o operador se adapta à luminância do entorno do vídeo e ela não pode mudar no meio de uma live.\n\nO estúdio é uma mesa de corte para montar e ensaiar o programa: as cenas à esquerda, o programa e o preview no centro, o chat e as ferramentas à direita e a bandeja embaixo. Escolher uma cena a leva ao preview; \"Corte\" ou \"Fusão\" leva o preview ao programa. O ar ainda não existe, e por isso o estúdio não tem cor nenhuma: nem ação colorida, nem vermelho. O botão de ir ao ar, o relógio, a gravação e o relatório saíram até a transmissão existir, e a bandeja diz isso em palavras.",
     "keyCharacteristics": [
       "Uma ação colorida por tela; o resto em tinta neutra.",
       "Vermelho = ar. Não entra em gráfico, em alerta, em erro de campo nem em decoração.",
@@ -650,17 +760,18 @@
       "Poppins em text-xs, text-sm, text-base e text-3xl; mono tabular só para medidas.",
       "Estado por ícone + texto, sempre com o nome acessível completo.",
       "Três escopos de tema sobre as mesmas primitivas: escuro (padrão), claro e console.",
-      "Um único momento de movimento por página. Na casca, o chip de um canal recém-conectado entra deslizando uma vez; no site público, o contorno desliza sobre a captura do Painel. Diálogos entram só pela primitiva Modal."
+      "Um único momento de movimento por página. Na casca, o chip de um canal recém-conectado entra deslizando uma vez; no site público, o contorno desliza sobre a captura do Painel; no estúdio, o programa que sai some na fusão. Diálogos entram só pela primitiva Modal.",
+      "No estúdio, o preview mostra exatamente o que o corte leva, e nada que não iria ao ar fica sobre a imagem."
     ],
     "rules": [
       {
         "name": "Regra da Voz Única",
-        "body": "Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (--ink-hi, --raise), nunca pelo azul. Switch ligado e caixa marcada são tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em --ink-hi.",
+        "body": "Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (--ink-hi, --raise), nunca pelo azul. Switch ligado e caixa marcada são tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em --ink-hi. No console, a Voz Única dá zero cor: não há ação da tela enquanto o ar não existe. A cena no preview, a tecla apertada, o controle ligado e a ferramenta aberta sobem na rampa.",
         "section": "colors"
       },
       {
         "name": "Regra do Ar",
-        "body": "O carmim é o sinal de \"no ar\". Fora do ar, aparece só onde algo é apagado ou encerrado. Não entra em pendência, em aviso, em erro de campo, em gráfico nem em ícone de marca. Uma pendência de canal (\"sem chave\") fica na tinta do nome, com ícone de alerta.",
+        "body": "O carmim é o sinal de \"no ar\". Fora do ar, aparece só onde algo é apagado ou encerrado. Não entra em pendência, em aviso, em erro de campo, em gráfico nem em ícone de marca. Uma pendência de canal (\"sem chave\") fica na tinta do nome, com ícone de alerta. No estúdio, o vermelho é só da moldura do programa no ar, que hoje nunca acende; o medidor de áudio perto do limite sobe para --ink-hi, não fica vermelho.",
         "section": "colors"
       },
       {
@@ -685,7 +796,7 @@
       },
       {
         "name": "Regra do Mono como Medida",
-        "body": "Mono aparece só em medidas (hora, e no estúdio bitrate e contadores), sempre com tabular-nums. Nunca como rótulo, sobretítulo ou enfeite. Dinheiro não é medida: preço fica em Poppins com tabular-nums.",
+        "body": "Mono aparece só em medidas (a hora; no estúdio, a leitura em dB do medidor, a duração das transições, a hora do chat e a leitura de posição e tamanho do card da câmera), sempre com tabular-nums. Não há bitrate nem contador de rede: sem transmissão, esses números não existem. Nunca como rótulo, sobretítulo ou enfeite. Dinheiro não é medida: preço fica em Poppins com tabular-nums.",
         "section": "typography"
       },
       {
@@ -705,7 +816,7 @@
       },
       {
         "name": "Regra do Chão Plano",
-        "body": "Nada em repouso na página tem sombra. Sombra só em camada que flutua (menu, diálogo, aviso).",
+        "body": "Nada em repouso na página tem sombra. Sombra só em camada que flutua (menu, diálogo, aviso). O console segue a mesma regra: a barra, as colunas, a mesa e a bandeja se separam por linhas de 1px, e o único flutuante é o menu dos aparelhos.",
         "section": "elevation"
       },
       {
@@ -726,6 +837,11 @@
       {
         "name": "Regra da Captura de Verdade",
         "body": "O site mostra o produto só por captura real do app, nunca por ilustração, espaço reservado ou tela montada. Os dados de exemplo são ditos na legenda. As datas na captura são absolutas (\"sábado, 14 de novembro\"), nunca \"Hoje\" ou \"Amanhã\", que num raster viram mentira no dia seguinte (Regra do Horário Derivado). A proveniência vai embutida no PNG (commit, janela, escala, tema e dados). Ao refazer a captura, as REGIOES do contorno são medidas de novo.",
+        "section": "components"
+      },
+      {
+        "name": "Regra do Preview Fiel",
+        "body": "O preview mostra exatamente o que o corte leva: a mesma composição, a mesma proporção e o mesmo espelho do programa, desenhados pelo mesmo compositor. Nada vai sobre a imagem que não iria ao ar: o papel, a cena e o estado ficam no rótulo, fora dela. Sobre a imagem só entram, sob a mão, a alça e a leitura do card enquanto ele é ajustado, e as guias, que o operador liga e que valem nos dois monitores. Os gráficos do palco são medidos em fração do palco (%), nunca em px, para ocuparem a mesma parte da imagem num monitor pequeno e num grande.",
         "section": "components"
       }
     ],
@@ -753,6 +869,10 @@
       "Do gravar só por gravarComConfirmacao, com a falha no rodapé do diálogo, acima das ações.",
       "Do abrir o modal de canais por id (editarCanal(id)) quando a origem é um canal, e nunca pela plataforma.",
       "Do levar links para fora do app por <AcaoDeTexto href>, que abre em outra aba e avisa o leitor de tela.",
+      "Do desenhar o programa com o mesmo StudioPreview do preview (papel=\"programa\"), alimentado pelo estado do último corte, e dizer em palavras, no próximo corte, o que o corte leva.",
+      "Do pôr o papel e a cena de cada monitor no rótulo, fora da imagem, e dar a cada monitor o lugar da moldura inteira (palco em 16:9 mais o anel).",
+      "Do medir a posição e o tamanho de todo gráfico do palco em % do palco, e manter o card da câmera dentro dele por dentroDoPalco.",
+      "Do dizer o estado de uma cena e de um controle da bandeja em palavra, com aria-current ou aria-pressed, e a subida na rampa.",
       "Do checar todo par novo de texto/superfície nos três escopos: npm run verify roda tipos, stylelint, o portão de contraste (WCAG AA em escuro, claro e console), a catraca de dívida, os botões só-ícone e os rótulos de formulário. O mesmo roda no CI (.github/workflows/design-system.yml)."
     ],
     "donts": [
@@ -773,6 +893,11 @@
       "Don't gravar \"Hoje\" ou \"Amanhã\" em dado nenhum; só a frase absoluta.",
       "Don't pintar a caixa marcada de azul da marca; marcada é tinta cheia.",
       "Don't simular um salvamento: sem espera de enfeite, sem \"atualizado com sucesso\" antes da confirmação do banco.",
+      "Don't espelhar só um monitor: o espelho é da câmera e vale no preview e no programa.",
+      "Don't desenhar selo, etiqueta ou botão sobre a imagem de um monitor (\"PRÉVIA\", \"AO VIVO\", \"PUSH TO LIVE\"); o rótulo fica fora.",
+      "Don't dimensionar gráfico do palco em px.",
+      "Don't mostrar no estúdio o que ainda não existe: nada de ir ao ar, relógio de ar, gravação, telemetria nem aparelho \"Simulado\". O que falta vira frase.",
+      "Don't pôr cor no console: nem no controle ligado, nem na tecla de transição, nem no medidor perto do limite.",
       "Don't subir número nenhum de scripts/design-debt-baseline.json. A catraca deixa a dívida cair e nunca crescer sem um --update visível na revisão."
     ]
   }
