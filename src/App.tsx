@@ -45,7 +45,7 @@ import { Modal } from './components/ui/Modal';
 import { useToast } from './components/ui/Toast';
 import { CanaisAcimaDoPlano } from './components/CanaisAcimaDoPlano';
 import { limiteDeCanaisLigados } from './lib/plans';
-import { cabeLigado } from './lib/canais';
+import { cabeLigado, estadoDoCanal, nomeDaPlataforma, pendenciaCurta, plataformaPeloNome } from './lib/canais';
 import { 
   loginWithGoogle, 
   logoutFirebase, 
@@ -459,10 +459,29 @@ export default function App() {
     setIsPlansModalOpen(true);
   };
 
+  // Canais ligados em algum momento da live, pelo id. O relatório lia só os
+  // ligados no fim, e o estúdio liga e desliga canais no ar: quem saía no
+  // meio sumia do relatório. `recebeu` diz se o canal esteve pronto (servidor
+  // e chave) enquanto ligado — ligado sem chave não recebe a live.
+  const canaisDaLiveRef = useRef(new Map<string, { canal: Destination; recebeu: boolean }>());
+
   const iniciarLive = () => {
+    canaisDaLiveRef.current = new Map();
     setLiveStartTime(new Date().toISOString());
     setIsLive(true);
   };
+
+  useEffect(() => {
+    if (!isLive) return;
+    for (const canal of destinations) {
+      if (!canal.selected) continue;
+      const antes = canaisDaLiveRef.current.get(canal.id);
+      canaisDaLiveRef.current.set(canal.id, {
+        canal,
+        recebeu: Boolean(antes?.recebeu) || estadoDoCanal(canal) === 'pronto',
+      });
+    }
+  }, [isLive, destinations]);
 
   /**
    * Devolve se o estado vai mesmo trocar. O cabeçalho do estúdio só soltava o
@@ -516,25 +535,46 @@ export default function App() {
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
       };
 
-      // `Destination` tem `selected`, não `active`: o filtro anterior nunca
-      // casava, então activeChannels era SEMPRE vazio e o relatório caía no
-      // fallback fixo abaixo — nunca listava os destinos reais da transmissão.
-      const activeChannels = destinations.filter(d => d.selected).map(d => d.platform);
-      const finalDestinations = activeChannels.length > 0 ? activeChannels : ["YouTube Live", "Facebook Live"];
+      // Sem canal ligado, o relatório dizia que a live tinha ido para "YouTube
+      // Live" e "Facebook Live" — um destino inventado, mostrado ao cliente.
+      // Agora lista só os canais que receberam a live e, sem nenhum, a lista
+      // fica vazia e o relatório diz que a live não foi retransmitida.
+      // O canal aparece pelo nome que a pessoa deu, com a plataforma quando o
+      // nome não a diz ("Canal da igreja (YouTube)"), nunca pelo id cru.
+      const rotuloDoCanal = (canal: Destination) => {
+        const plataforma = nomeDaPlataforma(canal.platform);
+        const nome = canal.name?.trim();
+        if (!nome || nome.toLowerCase() === plataforma.toLowerCase()) return plataforma;
+        return plataformaPeloNome(nome) === canal.platform ? nome : `${nome} (${plataforma})`;
+      };
+      const canaisDaLive = [...canaisDaLiveRef.current.values()];
+      const destinos = canaisDaLive.filter(c => c.recebeu).map(c => rotuloDoCanal(c.canal));
+      const ligadosSemReceber = canaisDaLive.flatMap(({ canal, recebeu }) => {
+        const falta = recebeu ? null : pendenciaCurta(canal);
+        return falta ? [{ name: rotuloDoCanal(canal), reason: falta }] : [];
+      });
 
       const report: StreamReportData = {
+        // Sem "version": era um "2.5.0" inventado; o app não tem versão publicada.
         app: "PwStreamer Studio Pro",
-        version: "2.5.0",
-        streamTitle: "Transmissão Ao Vivo PwStreamer",
-        streamDescription: "Sessão ao vivo gravada e transmitida pelo PwStreamer Studio Pro",
-        startTime: liveStartTime || new Date(Date.now() - (liveTime || 300) * 1000).toISOString(),
+        // O título e a descrição que a pessoa deu à live (campos do estúdio ou
+        // o webinar carregado). Antes eram fixos: todo relatório se chamava
+        // "Transmissão Ao Vivo PwStreamer" e dizia "gravada e transmitida",
+        // mesmo sem gravação e sem canal ligado. Em branco, fica `null`.
+        streamTitle: title.trim() || null,
+        streamDescription: description.trim() || null,
+        startTime: liveStartTime || new Date(Date.now() - liveTime * 1000).toISOString(),
         endTime: new Date().toISOString(),
-        durationSeconds: liveTime || 120,
-        formattedDuration: formatTime(liveTime || 120),
-        peakViewers: Math.max(148, Math.floor(Math.random() * 50) + 120),
-        averageViewers: Math.max(92, Math.floor(Math.random() * 30) + 85),
+        // A duração contada, mesmo zero: `liveTime || 120` dava 2 min a uma
+        // live encerrada no primeiro segundo.
+        durationSeconds: liveTime,
+        formattedDuration: formatTime(liveTime),
+        // Espectadores e desempenho saíram do relatório: o público era sorteado
+        // (pico nunca abaixo de 148) e o desempenho era fixo (CPU 18,4 %, 60 fps,
+        // 8000 kbps, "Estável"). O app não mede nenhum dos dois.
         totalCommentsReceived: comments.length,
-        destinations: finalDestinations,
+        destinations: destinos,
+        destinationsNotReached: ligadosSemReceber,
         // Os nomes não batiam com o tipo `Comment` (authorName / timestamp /
         // platform), então TODO comentário exportado saía com user, time e
         // channel indefinidos. `isHighlight` passa a refletir o comentário
@@ -547,14 +587,6 @@ export default function App() {
           channel: c.platform,
           isHighlight: c.id === pinnedComment?.id
         })),
-        systemPerformance: {
-          averageCpuUsage: "18.4%",
-          averageMemoryUsage: "1.85 GB / 8.00 GB",
-          fps: 60,
-          droppedFrames: 0,
-          bitrateKbps: 8000,
-          status: "Estável / Alta Performance"
-        }
       };
 
       setActiveStreamReport(report);
