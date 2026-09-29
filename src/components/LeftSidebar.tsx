@@ -8,7 +8,6 @@ import {
   Move, ArrowUpLeft, ArrowUpRight, ArrowDownLeft, ArrowDownRight, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Bookmark, Edit3, Layers, FastForward, Gauge, LayoutGrid, Maximize2, Pencil, Video,
   Sun, Moon, ShoppingBag, Tag, ExternalLink
 } from 'lucide-react';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { ImagePlaceholder } from './ImagePlaceholder';
 import { Destination, AudioTrack, Banner, BannerPosition, Comment, Participant, QrCodeConfig, StudioTab, SceneTransitionType } from '../types';
 import { AUDIO_LIBRARY, BACKGROUND_TEMPLATES, OVERLAY_TEMPLATES, LOGO_TEMPLATES } from '../data';
@@ -942,48 +941,6 @@ export function LeftSidebar({
     e.target.value = '';
   };
 
-  // Real-time viewer count simulation states
-  const [viewerHistory, setViewerHistory] = useState<{ time: string; viewers: number }[]>(() => {
-    const data = [];
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const past = new Date(now.getTime() - i * 15 * 1000);
-      data.push({
-        time: past.toTimeString().split(' ')[0].substring(3), // "MM:SS" format
-        viewers: Math.floor(100 + Math.random() * 50)
-      });
-    }
-    return data;
-  });
-
-  useEffect(() => {
-    if (!isLive) return;
-
-    const interval = setInterval(() => {
-      setViewerHistory(prev => {
-        const lastValue = prev[prev.length - 1]?.viewers ?? 120;
-        // Fluctuates slightly, with slightly positive trend overall
-        const change = Math.floor(Math.random() * 11) - 4; // -4 to +6
-        const newValue = Math.max(10, lastValue + change);
-        const nowStr = new Date().toTimeString().split(' ')[0].substring(3); // "MM:SS"
-
-        const nextHistory = [...prev, { time: nowStr, viewers: newValue }];
-        if (nextHistory.length > 12) {
-          nextHistory.shift();
-        }
-        return nextHistory;
-      });
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [isLive]);
-
-  const currentViewers = isLive && viewerHistory.length > 0 ? viewerHistory[viewerHistory.length - 1].viewers : 0;
-  const activeViewersArray = isLive ? viewerHistory.map(h => h.viewers) : [0];
-  const minViewers = isLive ? Math.min(...activeViewersArray) : 0;
-  const maxViewers = isLive ? Math.max(...activeViewersArray) : 0;
-  const avgViewers = isLive ? Math.round(activeViewersArray.reduce((a, b) => a + b, 0) / activeViewersArray.length) : 0;
-  
   // Local state for comments filter
   const [commentFilter, setCommentFilter] = useState<'all' | 'facebook' | 'youtube'>('all');
   const [typedComment, setTypedComment] = useState('');
