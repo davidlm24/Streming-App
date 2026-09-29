@@ -12,7 +12,6 @@ import {
 } from '../lib/firestoreService';
 import { OBSIntegrationModal } from "./OBSIntegrationModal";
 import { RTMPConfigModal } from "./RTMPConfigModal";
-import { StudioPerformanceMonitor } from './StudioPerformanceMonitor';
 import { WebhookPanel } from './WebhookPanel';
 import { useConfirm } from './ui/ConfirmDialog';
 import { copyText } from './ui/clipboard';
@@ -459,8 +458,6 @@ export function AdminPanel({ onBack, user, onNavigateSuperAdmin }: AdminPanelPro
               </div>
             ))}
           </div>
-
-          <StudioPerformanceMonitor />
         </div>
       )}
 
