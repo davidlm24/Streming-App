@@ -53,17 +53,7 @@ export default function App() {
     role?: 'super-admin' | 'client';
     subscriptionStatus?: 'trial' | 'active' | 'past_due' | 'canceled' | 'expired';
     trialEndsAt?: string;
-  } | null>(() => {
-    const saved = localStorage.getItem('pwstream_user');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
+  } | null>(null);
 
   const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
   const [isAddChannelsModalOpen, setIsAddChannelsModalOpen] = useState(false);
@@ -74,18 +64,22 @@ export default function App() {
   const [plansModalReason, setPlansModalReason] = useState<'live' | 'record' | 'upgrade' | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<'success' | 'cancelled' | null>(null);
 
+  // Quando a conta desta aba sai ou dá lugar a outra (sair da conta, a sessão
+  // acabar, outra aba entrar com outra conta), a página recarrega: os canais
+  // com as chaves, os webinars e o resto da conta moram na memória do app. Sem
+  // recarregar, ficavam para quem entrasse depois nesta aba e, se essa pessoa
+  // não tivesse canais salvos, eram gravados na conta dela.
   useEffect(() => {
-    const unsubscribe = subscribeAuth((userProfile) => {
-      if (userProfile) {
-        setUser(userProfile);
-      }
-    });
+    const unsubscribe = subscribeAuth(
+      (userProfile) => setUser(userProfile),
+      () => window.location.replace('/'),
+    );
     return () => unsubscribe();
   }, []);
 
   const handleLogout = async () => {
     await logoutFirebase();
-    setUser(null);
+    window.location.replace('/');
   };
 
   const handleRequirePlan = (feature: 'live' | 'record') => {
@@ -97,35 +91,34 @@ export default function App() {
     user && user.plan === 'Free Trial' && (user.isExpired || (user.trialDays !== undefined && user.trialDays <= 0))
   );
 
-  const handleAuthSuccess = (newUser: { email: string; name: string; plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial'; isExpired: boolean; trialDays: number }) => {
+  const handleAuthSuccess = (newUser: { uid?: string; email: string; name: string; plan: 'Standard' | 'Professional' | 'Business' | 'Free Trial'; isExpired: boolean; trialDays: number; role?: 'super-admin' | 'client' }) => {
     setUser(newUser);
-    localStorage.setItem('pwstream_user', JSON.stringify(newUser));
   };
 
-  // Depois de o banco confirmar o nome (Dados de cadastro): o menu, o palco e
-  // o cache do login passam a usar o nome novo sem esperar o próximo login.
+  // Depois de o banco confirmar o nome (Dados de cadastro): o menu e o palco
+  // passam a usar o nome novo sem esperar o próximo login.
   const atualizarNome = (nome: string) => {
     if (!user) return;
-    const atualizado = { ...user, name: nome };
-    setUser(atualizado);
-    localStorage.setItem('pwstream_user', JSON.stringify(atualizado));
+    setUser({ ...user, name: nome });
   };
 
-  // Dados que telas apagadas guardavam só neste navegador e que nada lê mais:
-  // os dados fiscais do cadastro antigo (razão social, CPF/CNPJ, endereço;
-  // voltam com a cobrança), as faturas e o consumo inventados da cobrança
-  // antiga e a configuração do painel de qualidade de vídeo, que não chegava
-  // à live.
+  // Dados que o app guardava só neste navegador e que nada lê mais: a cópia do
+  // perfil do login antigo (o perfil agora vem do servidor), os dados fiscais do
+  // cadastro antigo (razão social, CPF/CNPJ, endereço; voltam com a cobrança),
+  // as faturas e o consumo inventados da cobrança antiga e a configuração do
+  // painel de qualidade de vídeo, que não chegava à live.
   useEffect(() => {
     try {
       [
-        'pwstream_billing_profile', 'pwstream_invoices', 'pwstream_member_minutes', 'pwstream_member_storage', 'pwstream_video_quality_config',
+        'pwstream_user', 'pwstream_billing_profile', 'pwstream_invoices', 'pwstream_member_minutes', 'pwstream_member_storage', 'pwstream_video_quality_config',
         // As abas e os recursos do estúdio que saíram na fase 2: a audiência de teste, os modelos de cena, o QR antigo,
         // o seletor de tela com PDF, as posições do logo e do banner de cada monitor e a trilha sonora
         'pwstream_audience_local', 'pwstream_scene_templates_v2', 'pw_qrcode_config', 'pwstreamer_selectedSharedSource',
         'pw_logo_pos', 'pw_logo_scale', 'pw_banner_pos', 'pw_banner_scale', 'pw_banner_width',
         // A página pública que saiu na fase 3 guardava as inscrições só neste navegador
         'webinar_registrations',
+        // O painel técnico, que saiu, guardava os perfis de RTMP com as chaves em texto claro; a barra lateral, os presets
+        'pw_rtmp_profiles', 'pwstream_custom_presets',
       ].forEach((chave) =>
         localStorage.removeItem(chave)
       );
@@ -144,12 +137,13 @@ export default function App() {
       const search = window.location.search;
 
       // A rota /admin, #admin e ?mode=admin promoviam QUALQUER visitante à
-      // visão de super-admin. Agora exigem o papel do perfil.
+      // visão de super-admin. Agora exigem o papel do perfil, que vem do
+      // servidor.
       //
       // Isto é defesa em profundidade, NÃO autorização: qualquer verificação
-      // no cliente é contornável, e o PIN do painel está no bundle. A
-      // autorização de verdade tem de ser feita no servidor, a cada request
-      // — o SUPER_ADMIN_EMAILS do .env existe justamente para isso.
+      // no cliente é contornável. Quem autoriza é o servidor, a cada request
+      // (SUPER_ADMIN_EMAILS, em src/middleware/auth.ts), e as regras do banco
+      // (isAdmin() em firestore.rules), que precisam listar os mesmos e-mails.
       const isSuperAdmin = user?.role === 'super-admin';
       if (pathname.endsWith('/admin') || hash === '#admin' || search.includes('mode=admin')) {
         if (isSuperAdmin) {
@@ -253,6 +247,9 @@ export default function App() {
   const [legalModalType, setLegalModalType] = useState<'terms' | 'privacy'>('terms');
 
   const [isFirestoreSettingsLoaded, setIsFirestoreSettingsLoaded] = useState(false);
+  // O banco já respondeu às configurações de transmissão desta conta (com ou
+  // sem o documento). Só então o salvamento automático pode gravar.
+  const [configuracoesDoBanco, setConfiguracoesDoBanco] = useState(false);
 
   // A moderação sempre confere cada mensagem; o interruptor dela ficava numa aba que saiu
   const isAiModerationEnabled = true;
@@ -324,7 +321,20 @@ export default function App() {
       { label: 'Ver planos', onClick: abrirPlanos },
     );
 
+  // Os canais só mudam depois de o banco responder. Antes disso a lista na
+  // memória é a vazia do começo (ou a cópia deste navegador), e cada mudança
+  // grava a lista inteira: salvar por cima dela apagava os canais da conta.
+  // Com a cota esgotada o banco não responde, e a mudança fica só neste
+  // navegador, como o aviso da cota diz.
+  const canaisProntos = configuracoesDoBanco || isQuotaExceeded;
+  const avisarCanaisCarregando = () =>
+    toast.info('Seus canais ainda estão carregando', 'Espere um instante e tente de novo. Se não carregar, confira sua conexão.');
+
   const handleToggleDestination = (id: string) => {
+    if (!canaisProntos) {
+      avisarCanaisCarregando();
+      return;
+    }
     const canal = destinations.find(d => d.id === id);
     if (canal && !canal.selected && !cabeLigado(destinations, id, limiteDeLigados)) {
       avisarLimiteDeCanais(canal.name);
@@ -339,8 +349,13 @@ export default function App() {
     });
   };
 
-  // Add or Update Destination (from AddChannelsModal)
-  const handleAddOrUpdateDestination = (newDest: Destination) => {
+  // Add or Update Destination (from AddChannelsModal). Devolve se salvou: sem
+  // os canais carregados, o modal fica aberto com o que foi digitado.
+  const handleAddOrUpdateDestination = (newDest: Destination): boolean => {
+    if (!canaisProntos) {
+      avisarCanaisCarregando();
+      return false;
+    }
     setDestinations(prev => {
       // Pelo id, só. Casar também pela plataforma sobrescrevia o primeiro canal
       // dela — com dois servidores RTMP, editar o segundo apagava o primeiro.
@@ -359,10 +374,15 @@ export default function App() {
       }
       return updated;
     });
+    return true;
   };
 
   // Remover canal: não existia — um canal conectado ficava para sempre.
   const handleRemoveDestination = (id: string) => {
+    if (!canaisProntos) {
+      avisarCanaisCarregando();
+      return;
+    }
     setDestinations(prev => {
       const updated = prev.filter(dest => dest.id !== id);
       if (user?.uid) {
@@ -397,6 +417,7 @@ export default function App() {
     if (!user?.uid) return;
 
     setIsFirestoreSettingsLoaded(false);
+    setConfiguracoesDoBanco(false);
     const timer = setTimeout(() => setIsFirestoreSettingsLoaded(true), 2000);
 
     const unsubWebinars = subscribeWebinars(user.uid, (firestoreWebinars) => {
@@ -404,10 +425,14 @@ export default function App() {
     });
 
     // Banners, tickers e roteiros são do estúdio, que os assina quando abre
-    const unsubSettings = subscribeTransmissionSettings(user.uid, (settings) => {
-      if (settings.destinations) setDestinations(prev => JSON.stringify(prev) === JSON.stringify(settings.destinations) ? prev : settings.destinations);
-      if (settings.streamColor) setStreamColor(settings.streamColor);
-    });
+    const unsubSettings = subscribeTransmissionSettings(
+      user.uid,
+      (settings) => {
+        if (settings.destinations) setDestinations(prev => JSON.stringify(prev) === JSON.stringify(settings.destinations) ? prev : settings.destinations);
+        if (settings.streamColor) setStreamColor(settings.streamColor);
+      },
+      () => setConfiguracoesDoBanco(true),
+    );
 
     return () => {
       clearTimeout(timer);
@@ -416,12 +441,16 @@ export default function App() {
     };
   }, [user?.uid]);
 
-  // Salva os canais e a cor dos gráficos pouco depois de mudarem. Saíram daqui o
-  // servidor e a chave de exemplo (gravados em toda conta), o formato e a
-  // qualidade de uma gravação que não existe, as animações antigas do logo e do
-  // banner e o estilo de texto, que o palco não lia.
+  // Salva os canais e a cor dos gráficos pouco depois de mudarem, e só depois de
+  // o banco responder: antes disso a memória tem a lista vazia do começo, e
+  // gravá-la por cima apagava os canais da conta quando o banco demorava mais
+  // que o salvamento. Com a cota esgotada o banco não responde, e o salvamento
+  // guarda só neste navegador. Saíram daqui o servidor e a chave de exemplo
+  // (gravados em toda conta), o formato e a qualidade de uma gravação que não
+  // existe, as animações antigas do logo e do banner e o estilo de texto, que o
+  // palco não lia.
   useEffect(() => {
-    if (!user?.uid || !isFirestoreSettingsLoaded) return;
+    if (!user?.uid || !(configuracoesDoBanco || isQuotaExceeded)) return;
     const timeout = setTimeout(() => {
       saveTransmissionSettingsToFirestore(user.uid, {
         destinations,
@@ -429,7 +458,7 @@ export default function App() {
       });
     }, 1500);
     return () => clearTimeout(timeout);
-  }, [user?.uid, destinations, streamColor, isFirestoreSettingsLoaded]);
+  }, [user?.uid, destinations, streamColor, configuracoesDoBanco, isQuotaExceeded]);
 
   // Post chat comments manually
   const handlePostComment = (text: string) => {

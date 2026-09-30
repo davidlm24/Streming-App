@@ -1,26 +1,27 @@
 import { 
   signInWithPopup, 
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
   signOut, 
   onAuthStateChanged, 
   GoogleAuthProvider,
   User as FirebaseUser 
 } from 'firebase/auth';
 import { apiFetch } from './apiFetch';
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  collection, 
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
   onSnapshot, 
-  query, 
-  where, 
+  query,
   deleteDoc,
-  getDocs,
   updateDoc,
   setDoc as setDocFs
 } from 'firebase/firestore';
 import { auth, googleAuthProvider, db, storage, disableNetwork } from './firebase.ts';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Banner, Destination, TickerItem } from '../types.ts';
 
 export interface UserProfile {
@@ -50,16 +51,6 @@ export interface WebinarData {
   ownerId?: string;
   /** Horário em ISO 8601 (webinars agendados pelo formulário). `time` fica como texto por extenso. */
   startsAt?: string;
-}
-
-export interface WebhookLogItem {
-  id: string;
-  time: string;
-  method: string;
-  path: string;
-  status: number;
-  payload: string;
-  platform: string;
 }
 
 // -------------------------------------------------------------
@@ -147,70 +138,38 @@ export async function safeFirestoreWrite<T>(
 }
 
 // Auth functions
+function defaultProfile(user: FirebaseUser): UserProfile {
+  return {
+    uid: user.uid,
+    email: user.email || '',
+    name: user.displayName || 'Usuário PwStreamer',
+    photoURL: user.photoURL || '',
+    plan: 'Free Trial',
+    isExpired: false,
+    trialDays: 30,
+    role: 'client',
+    subscriptionStatus: 'trial',
+    trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+  };
+}
+
+async function loadAuthenticatedProfile(user: FirebaseUser): Promise<UserProfile> {
+  const response = await apiFetch('/api/auth/profile');
+  if (!response.ok) {
+    throw new Error(response.status === 503
+      ? 'O serviço de perfil está temporariamente indisponível.'
+      : 'Não foi possível validar o perfil autenticado.');
+  }
+  const profile = await response.json();
+  return { ...defaultProfile(user), ...profile };
+}
+
 export async function loginWithGoogle(): Promise<UserProfile> {
   try {
     const result = await signInWithPopup(auth, googleAuthProvider);
-    const user = result.user;
-    
-    let profile: UserProfile;
-
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        profile = {
-          uid: user.uid,
-          email: user.email || '',
-          name: data.name || user.displayName || 'Usuário PwStreamer',
-          photoURL: user.photoURL || '',
-          plan: data.plan || 'Free Trial',
-          isExpired: data.isExpired || false,
-          trialDays: data.trialDays ?? 30,
-          role: data.role || (user.email === 'mgdlms@gmail.com' ? 'super-admin' : 'client'),
-          subscriptionStatus: data.subscriptionStatus || 'trial',
-          trialEndsAt: data.trialEndsAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          stripeCustomerId: data.stripeCustomerId || '',
-        };
-      } else {
-        profile = {
-          uid: user.uid,
-          email: user.email || '',
-          name: user.displayName || 'Usuário PwStreamer',
-          photoURL: user.photoURL || '',
-          plan: 'Free Trial',
-          isExpired: false,
-          trialDays: 30,
-          role: user.email === 'mgdlms@gmail.com' ? 'super-admin' : 'client',
-          subscriptionStatus: 'trial',
-          trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        };
-        await safeFirestoreWrite(() => setDoc(userRef, profile));
-      }
-    } catch (dbErr: any) {
-      if (isQuotaExceededError(dbErr)) {
-        markQuotaExceeded();
-      }
-      profile = {
-        uid: user.uid,
-        email: user.email || '',
-        name: user.displayName || 'Usuário PwStreamer',
-        photoURL: user.photoURL || '',
-        plan: 'Free Trial',
-        isExpired: false,
-        trialDays: 30,
-        role: user.email === 'mgdlms@gmail.com' ? 'super-admin' : 'client',
-        subscriptionStatus: 'trial',
-        trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      };
-    }
-
-    localStorage.setItem('pwstream_user', JSON.stringify(profile));
-    return profile;
+    return await loadAuthenticatedProfile(result.user);
   } catch (err: any) {
     if (err?.code === 'auth/unauthorized-domain' || err?.message?.includes('unauthorized-domain')) {
-      console.warn('Firebase Auth unauthorized domain warning for host:', window.location.hostname);
       const customErr: any = new Error('unauthorized-domain');
       customErr.code = 'auth/unauthorized-domain';
       customErr.domain = window.location.hostname;
@@ -220,23 +179,16 @@ export async function loginWithGoogle(): Promise<UserProfile> {
   }
 }
 
-export function createDirectUserProfile(email = 'mgdlms@gmail.com', name = 'Marcos Gonçalves'): UserProfile {
-  // Somente o email oficial autorizado é reconhecido como super-admin inicialmente
-  const isAuthorizedSuperAdmin = email.trim().toLowerCase() === 'mgdlms@gmail.com';
-  const profile: UserProfile = {
-    uid: 'google-user-' + Math.random().toString(36).substr(2, 9),
-    email,
-    name,
-    photoURL: 'https://lh3.googleusercontent.com/a/default-user=s96-c',
-    plan: 'Free Trial',
-    isExpired: false,
-    trialDays: 30,
-    role: isAuthorizedSuperAdmin ? 'super-admin' : 'client',
-    subscriptionStatus: 'trial',
-    trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-  };
-  localStorage.setItem('pwstream_user', JSON.stringify(profile));
-  return profile;
+export async function loginWithEmail(email: string, password: string): Promise<UserProfile> {
+  const result = await signInWithEmailAndPassword(auth, email.trim(), password);
+  return loadAuthenticatedProfile(result.user);
+}
+
+export async function registerWithEmail(email: string, password: string, name: string): Promise<UserProfile> {
+  const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
+  await updateProfile(result.user, { displayName: name.trim() });
+  await result.user.getIdToken(true);
+  return loadAuthenticatedProfile(result.user);
 }
 
 /**
@@ -256,46 +208,14 @@ export async function validateUserTrialStatus(
   trialEndsAt?: string;
   plan: string;
 }> {
-  // 1. Paid subscriptions have unlimited access
-  if (user.plan && user.plan !== 'Free Trial') {
-    return {
-      isExpired: false,
-      trialDays: 30,
-      canBroadcast: true,
-      canRecord: true,
-      plan: user.plan
-    };
+  const res = await apiFetch('/api/validate-trial', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!res.ok) {
+    throw new Error(`Unable to verify subscription status (${res.status}).`);
   }
-
-  // 2. Query the backend validation service
-  try {
-    // O servidor lê o perfil no banco com o token de login; não recebe
-    // (nem aceitaria) plano ou datas do cliente.
-    const res = await apiFetch('/api/validate-trial', { method: 'POST' });
-    if (res.ok) {
-      const data = await res.json();
-      return data;
-    }
-  } catch (apiErr) {
-    console.warn('Backend validate-trial API not reachable, running client validation:', apiErr);
-  }
-
-  // 3. Fallback validation directly against stored dates
-  let trialEndsAt = user.trialEndsAt;
-  const endsAtMs = trialEndsAt ? new Date(trialEndsAt).getTime() : Date.now() - 1000;
-  const now = Date.now();
-  const diffDays = Math.ceil((endsAtMs - now) / (1000 * 60 * 60 * 24));
-  const isExpired = user.isExpired === true || user.trialDays === 0 || diffDays <= 0;
-  const remainingDays = isExpired ? 0 : Math.max(0, diffDays);
-
-  return {
-    isExpired,
-    trialDays: remainingDays,
-    canBroadcast: !isExpired,
-    canRecord: !isExpired,
-    trialEndsAt,
-    plan: user.plan || 'Free Trial'
-  };
+  return res.json();
 }
 
 /** Por que uma gravação não foi confirmada. A tela diz cada caso com a sua saída. */
@@ -315,6 +235,14 @@ const ESPERA_DA_CONFIRMACAO_MS = 10_000;
 /** Resolve quando o Firebase termina de restaurar a sessão salva (logo depois de recarregar a página). */
 export const esperarSessao = () => auth.authStateReady();
 
+// A conta que esta aba viu entrar, e se ela já saiu ou deu lugar a outra (ver
+// subscribeAuth). Quando outra aba entra com outra conta, `auth.currentUser`
+// muda antes de o aviso chegar, e o app ainda tem na memória a conta anterior:
+// uma gravação nesse intervalo, que pega a conta da sessão, levaria o roteiro,
+// os banners ou os tickers de uma conta para a outra.
+let contaDaAba: string | null = null;
+let contaTrocada = false;
+
 /**
  * Grava e só resolve depois de o banco confirmar (Regra do Salvo de Verdade).
  * Este Firestore guarda escritas pendentes só em memória: uma escrita feita
@@ -327,7 +255,7 @@ async function gravarComConfirmacao(gravar: (uid: string) => Promise<unknown>): 
   // válida seria dada como expirada.
   await esperarSessao();
   const uid = auth.currentUser?.uid;
-  if (!uid) throw new ErroAoSalvar('sem-login');
+  if (!uid || contaTrocada || (contaDaAba && uid !== contaDaAba)) throw new ErroAoSalvar('sem-login');
   if (isQuotaExceededFlag || (typeof navigator !== 'undefined' && navigator.onLine === false)) {
     throw new ErroAoSalvar('sem-conexao');
   }
@@ -410,83 +338,57 @@ export function entrouComGoogle(): boolean {
   return auth.currentUser?.providerData.some((p) => p.providerId === 'google.com') ?? false;
 }
 
+// O que a conta deixa neste navegador: o perfil do login antigo e as cópias das
+// listas e das configurações, com as chaves dos canais. Sai quando a pessoa sai
+// da conta e quando a sessão acaba, para não ficar para o próximo num computador
+// compartilhado.
+const COPIAS_DA_CONTA = ['pwstream_user', 'pwstream_transmission_settings_', 'pwstream_destinations_', 'pwstream_webinars_', 'pwstream_banners_', 'pwstream_tickers_'];
+
+function apagarCopiasDaConta() {
+  try {
+    Object.keys(localStorage)
+      .filter((chave) => COPIAS_DA_CONTA.some((prefixo) => chave.startsWith(prefixo)))
+      .forEach((chave) => localStorage.removeItem(chave));
+  } catch {
+    // Sem armazenamento, não há o que apagar
+  }
+}
+
 export async function logoutFirebase(): Promise<void> {
   try {
     await signOut(auth);
   } catch (e) {
     console.warn('Sign out warning:', e);
   }
-  localStorage.removeItem('pwstream_user');
+  apagarCopiasDaConta();
 }
 
-export function subscribeAuth(onUser: (user: UserProfile | null) => void) {
+/**
+ * Assina a sessão. `onContaTrocou` é chamado quando a conta desta aba sai ou dá
+ * lugar a outra (sair da conta, a sessão acabar, outra aba entrar com outra
+ * conta); a partir daí, nada mais é gravado pela sessão. A troca é vista aqui,
+ * antes de esperar o perfil: durante a espera, `auth.currentUser` já é a conta
+ * nova.
+ */
+export function subscribeAuth(onUser: (user: UserProfile | null) => void, onContaTrocou: () => void) {
   return onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
+    const conta = fbUser?.uid ?? null;
+    if (contaTrocada || (contaDaAba && conta !== contaDaAba)) {
+      contaTrocada = true;
+      apagarCopiasDaConta();
+      onContaTrocou();
+      return;
+    }
+    contaDaAba = conta;
     if (fbUser) {
       try {
-        let profile: UserProfile;
-        const saved = localStorage.getItem('pwstream_user');
-        const defaultProfile: UserProfile = {
-          uid: fbUser.uid,
-          email: fbUser.email || '',
-          name: fbUser.displayName || 'Usuário PwStreamer',
-          photoURL: fbUser.photoURL || '',
-          plan: 'Free Trial',
-          isExpired: false,
-          trialDays: 30,
-          role: fbUser.email === 'mgdlms@gmail.com' ? 'super-admin' : 'client',
-          subscriptionStatus: 'trial',
-          trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        };
-
-        if (saved) {
-          try {
-            profile = { ...defaultProfile, ...JSON.parse(saved) };
-          } catch {
-            profile = defaultProfile;
-          }
-        } else {
-          profile = defaultProfile;
-        }
-        // O uid e o e-mail são sempre os do login. O formulário de cadastro
-        // antigo deixava trocar o e-mail, e o valor guardado aqui passava por
-        // cima do login: o app mostrava e usava um e-mail que não era o da conta.
-        profile = { ...profile, uid: fbUser.uid, email: fbUser.email || profile.email };
-
-        if (!isQuotaExceededFlag) {
-          try {
-            const userRef = doc(db, 'users', fbUser.uid);
-            const userSnap = await getDoc(userRef);
-            if (userSnap.exists()) {
-              const data = userSnap.data();
-              profile = {
-                ...profile,
-                name: data.name || profile.name,
-                plan: data.plan || profile.plan,
-                isExpired: data.isExpired ?? profile.isExpired,
-                trialDays: data.trialDays ?? profile.trialDays,
-                role: data.role || profile.role,
-                subscriptionStatus: data.subscriptionStatus || profile.subscriptionStatus,
-                trialEndsAt: data.trialEndsAt || profile.trialEndsAt,
-                stripeCustomerId: data.stripeCustomerId || profile.stripeCustomerId,
-              };
-            }
-          } catch (err: any) {
-            if (isQuotaExceededError(err)) {
-              markQuotaExceeded();
-            }
-          }
-        }
-
-        localStorage.setItem('pwstream_user', JSON.stringify(profile));
-        onUser(profile);
+        onUser(await loadAuthenticatedProfile(fbUser));
       } catch (err) {
         console.error('Error fetching user profile:', err);
-        const saved = localStorage.getItem('pwstream_user');
-        if (saved) {
-          try { onUser(JSON.parse(saved)); } catch { onUser(null); }
-        }
+        onUser(null);
       }
     } else {
+      apagarCopiasDaConta();
       onUser(null);
     }
   });
@@ -641,23 +543,60 @@ export interface TransmissionSettings {
   customRtmpProfiles?: any[];
 }
 
-export function subscribeTransmissionSettings(userId: string, onUpdate: (settings: TransmissionSettings) => void) {
+// A chave de transmissão de cada canal fica na conta: só o dono lê
+// users/{uid}/studioSettings (firestore.rules), e a prontidão do canal
+// (pendenciaDoCanal) depende dela. Tirá-la ao salvar deixava todo canal com
+// "Falta a chave" logo depois de salvo, porque a lista volta do banco sem ela.
+// A senha, que nenhuma tela usa, continua fora.
+const stripDestinationSecrets = (destination: Destination): Destination => {
+  const { password: _password, ...safeDestination } = destination;
+  return safeDestination;
+};
+
+const stripTransmissionSecrets = (settings: TransmissionSettings): TransmissionSettings => {
+  const { streamKey: _streamKey, destinations, customRtmpProfiles, ...safeSettings } = settings;
+  return {
+    ...safeSettings,
+    destinations: destinations?.map(stripDestinationSecrets),
+    customRtmpProfiles: Array.isArray(customRtmpProfiles)
+      ? customRtmpProfiles.map((profile) => {
+          const { streamKey: _profileStreamKey, password: _profilePassword, ...safeProfile } = profile || {};
+          return safeProfile;
+        })
+      : customRtmpProfiles,
+  };
+};
+
+/**
+ * Assina as configurações de transmissão (canais e cor). `onBancoRespondeu` é
+ * chamado quando a resposta vem do banco, com ou sem o documento: antes disso,
+ * o que o app tem na memória não é a lista da conta.
+ */
+export function subscribeTransmissionSettings(
+  userId: string,
+  onUpdate: (settings: TransmissionSettings) => void,
+  onBancoRespondeu?: () => void,
+) {
   const localKey = `pwstream_transmission_settings_${userId}`;
   const localSaved = localStorage.getItem(localKey);
   if (localSaved) {
     try {
-      const parsed = JSON.parse(localSaved);
+      const parsed = stripTransmissionSecrets(JSON.parse(localSaved));
+      localStorage.setItem(localKey, JSON.stringify(parsed));
       onUpdate(parsed);
     } catch {}
   }
 
   const docRef = doc(db, 'users', userId, 'studioSettings', 'transmission');
-  return onSnapshot(docRef, (snapshot) => {
+  // Com os metadados, a resposta do banco chega mesmo quando só confirma o que
+  // o cache já dizia (um documento que não existe, depois de voltar a conexão)
+  return onSnapshot(docRef, { includeMetadataChanges: true }, (snapshot) => {
     if (snapshot.exists()) {
-      const data = snapshot.data() as TransmissionSettings;
+      const data = stripTransmissionSecrets(snapshot.data() as TransmissionSettings);
       localStorage.setItem(localKey, JSON.stringify(data));
       onUpdate(data);
     }
+    if (!snapshot.metadata.fromCache) onBancoRespondeu?.();
   }, (err) => {
     if (isQuotaExceededError(err)) {
       markQuotaExceeded();
@@ -669,26 +608,28 @@ export function subscribeTransmissionSettings(userId: string, onUpdate: (setting
 
 export async function saveTransmissionSettingsToFirestore(userId: string, settings: TransmissionSettings) {
   const localKey = `pwstream_transmission_settings_${userId}`;
+  const safeSettings = stripTransmissionSecrets(settings);
   try {
-    localStorage.setItem(localKey, JSON.stringify(settings));
+    localStorage.setItem(localKey, JSON.stringify(safeSettings));
   } catch {}
 
   await safeFirestoreWrite(() => {
     const docRef = doc(db, 'users', userId, 'studioSettings', 'transmission');
-    return setDoc(docRef, { ...settings, uid: userId, updatedAt: new Date().toISOString() }, { merge: true });
+    return setDoc(docRef, { ...safeSettings, uid: userId, updatedAt: new Date().toISOString() });
   });
 }
 
 // Custom RTMP & Third-Party Platforms Persistence
 export async function saveDestinationsToFirestore(userId: string, destinations: Destination[]) {
   const localKey = `pwstream_destinations_${userId}`;
+  const safeDestinations = destinations.map(stripDestinationSecrets);
   try {
-    localStorage.setItem(localKey, JSON.stringify(destinations));
+    localStorage.setItem(localKey, JSON.stringify(safeDestinations));
   } catch {}
 
   await safeFirestoreWrite(() => {
     const docRef = doc(db, 'users', userId, 'studioSettings', 'transmission');
-    return setDoc(docRef, { destinations, uid: userId, updatedAt: new Date().toISOString() }, { merge: true });
+    return setDoc(docRef, { destinations: safeDestinations, uid: userId, updatedAt: new Date().toISOString() }, { merge: true });
   });
 }
 
@@ -708,55 +649,6 @@ export async function deleteCustomDestinationFromFirestore(userId: string, curre
   const updated = currentDestinations.filter(d => d.id !== destId);
   await saveDestinationsToFirestore(userId, updated);
   return updated;
-}
-
-// Webhooks and Event Logs Persistence
-export function subscribeWebhooksConfig(userId: string, onUpdate: (config: any) => void) {
-  const docRef = doc(db, 'users', userId, 'studioSettings', 'webhooksConfig');
-  return onSnapshot(docRef, (snapshot) => {
-    if (snapshot.exists()) {
-      onUpdate(snapshot.data());
-    }
-  }, (err) => {
-    if (isQuotaExceededError(err)) {
-      markQuotaExceeded();
-    } else {
-      console.warn('Firestore webhooks config error:', err?.message || err);
-    }
-  });
-}
-
-export async function saveWebhooksConfigToFirestore(userId: string, config: any) {
-  await safeFirestoreWrite(() => {
-    const docRef = doc(db, 'users', userId, 'studioSettings', 'webhooksConfig');
-    return setDoc(docRef, { ...config, uid: userId }, { merge: true });
-  });
-}
-
-export function subscribeWebhookLogs(userId: string, onUpdate: (logs: WebhookLogItem[]) => void) {
-  const colRef = collection(db, 'users', userId, 'webhookLogs');
-  return onSnapshot(colRef, (snapshot) => {
-    const list: WebhookLogItem[] = [];
-    snapshot.forEach((docSnap) => {
-      list.push({ id: docSnap.id, ...docSnap.data() } as WebhookLogItem);
-    });
-    if (list.length > 0) {
-      onUpdate(list);
-    }
-  }, (err) => {
-    if (isQuotaExceededError(err)) {
-      markQuotaExceeded();
-    } else {
-      console.warn('Firestore webhook logs error:', err?.message || err);
-    }
-  });
-}
-
-export async function addWebhookLogToFirestore(userId: string, log: WebhookLogItem) {
-  await safeFirestoreWrite(() => {
-    const docRef = doc(db, 'users', userId, 'webhookLogs', log.id);
-    return setDoc(docRef, { ...log, uid: userId });
-  });
 }
 
 // Perfis de todos os clientes, para a lista da administração. O papel e a
@@ -816,15 +708,15 @@ export function subscribeUserProfiles(
 export async function uploadMediaToStorage(
   file: File, 
   type: 'logo' | 'watermark' | 'overlay' | 'background' | 'video',
-  userEmail?: string
+  _userEmail?: string
 ): Promise<{ id: string; name: string; url: string; storagePath: string }> {
-  // Sem conta, sem envio: o padrão antigo punha o arquivo na pasta do dono do app.
-  const email = userEmail || auth.currentUser?.email;
-  if (!email) throw new Error('Entre na sua conta para enviar arquivos.');
-  const cleanEmail = email.replace(/[^a-zA-Z0-9]/g, '_');
+  const email = auth.currentUser?.email;
+  if (!email) throw new Error('Authentication is required to upload media');
+  const ownerId = auth.currentUser.uid;
+  const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const timestamp = Date.now();
   const assetId = `${type}-${timestamp}`;
-  const storagePath = `media_assets/${cleanEmail}/${type}/${timestamp}_${file.name}`;
+  const storagePath = `media_assets/${ownerId}/${type}/${timestamp}_${safeFileName}`;
 
   let downloadUrl = '';
 
@@ -848,6 +740,7 @@ export async function uploadMediaToStorage(
     url: downloadUrl,
     type,
     ownerEmail: email,
+    ownerId,
     storagePath,
     createdAt: new Date().toISOString()
   };
@@ -859,5 +752,3 @@ export async function uploadMediaToStorage(
 
   return asset;
 }
-
-

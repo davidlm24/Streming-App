@@ -3,7 +3,7 @@ import { ArrowRight, CircleAlert, Copy } from 'lucide-react';
 import { LegalModal } from './LegalModals';
 import { InicioPublico } from './InicioPublico';
 import { PublicHeader, type VisaoPublica } from './PublicHeader';
-import { loginWithGoogle } from '../lib/firestoreService';
+import { loginWithGoogle, loginWithEmail, registerWithEmail } from '../lib/firestoreService';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { copyText } from './ui/clipboard';
@@ -114,14 +114,13 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // CONTENÇÃO. Este formulário não autentica: não chama o Firebase nem
-    // servidor nenhum, só confere se os campos estão preenchidos. Qualquer
-    // e-mail com qualquer senha entrava — e 'mgdlms@gmail.com' ganhava o
-    // papel de super-admin. Em produção o formulário nem é renderizado e só
-    // o Google (autenticação real) entra. Volta quando o login por e-mail
-    // for do Firebase (signInWithEmailAndPassword).
+    // E-mail e senha agora autenticam no Firebase (antes o formulário só
+    // conferia se os campos estavam preenchidos, e qualquer senha entrava).
+    // Seguem só em desenvolvimento: uma conta por e-mail nasce com o e-mail
+    // não verificado, e as regras do banco e o servidor só reconhecem dono e
+    // admin por e-mail verificado. Em produção, entra-se pelo Google.
     if (!IS_DEV) return;
     if (isSubmittingAuth) return;
     if (!email || !password) {
@@ -129,22 +128,21 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
       return;
     }
     setIsSubmittingAuth(true);
-    // Validação estrita de super-admin
-    const isSuperAdmin = email.trim().toLowerCase() === 'mgdlms@gmail.com';
-    const userRole = isSuperAdmin ? 'super-admin' : 'client';
-    onAuthSuccess({
-      email,
-      name: name || (isSuperAdmin ? 'Marcos Gonçalves' : email.split('@')[0]),
-      role: userRole,
-      plan: 'Free Trial',
-      isExpired: false,
-      trialDays: 30
-    });
+    try {
+      setAuthError('');
+      onAuthSuccess(await loginWithEmail(email, password));
+    } catch (err: any) {
+      setAuthError(err?.code === 'auth/invalid-credential'
+        ? 'E-mail ou senha inválidos.'
+        : (err?.message || 'Não foi possível entrar.'));
+    } finally {
+      setIsSubmittingAuth(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mesma contenção de handleLogin: este cadastro não cria conta nenhuma.
+    // Mesma regra de handleLogin: cadastro real no Firebase, só em desenvolvimento.
     if (!IS_DEV) return;
     if (isSubmittingAuth) return;
     if (!email || !password || !name) {
@@ -152,14 +150,16 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
       return;
     }
     setIsSubmittingAuth(true);
-    // Entra diretamente na conta com 30 dias de teste grátis
-    onAuthSuccess({
-      email,
-      name,
-      plan: 'Free Trial',
-      isExpired: false,
-      trialDays: 30
-    });
+    try {
+      setAuthError('');
+      onAuthSuccess(await registerWithEmail(email, password, name));
+    } catch (err: any) {
+      setAuthError(err?.code === 'auth/email-already-in-use'
+        ? 'Este e-mail já possui uma conta.'
+        : (err?.message || 'Não foi possível criar a conta.'));
+    } finally {
+      setIsSubmittingAuth(false);
+    }
   };
 
   // Trocar de tela leva ao topo e põe o foco no título da nova tela; "Planos"
