@@ -520,12 +520,7 @@ export default function App() {
           onCor={setStreamColor}
         />
       ) : currentView === 'super-admin' ? (
-        <SuperAdminPanel 
-          onBack={() => setCurrentView('dashboard')} 
-          user={user} 
-          allWebinars={webinars}
-          onDeleteWebinar={handleDeleteWebinar}
-        />
+        <SuperAdminPanel onBack={() => setCurrentView('dashboard')} onSair={handleLogout} user={user} />
       ) : currentView === 'billing' ? (
         <PlanoPagina user={user} />
       ) : currentView === 'profile' ? (

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-30T07:35:00.748Z",
+  "generatedAt": "2026-09-30T09:22:01.454Z",
   "title": "Design System: PwStreamer",
   "extensions": {
     "colorMeta": {
@@ -427,7 +427,7 @@
       "rendered": "rotuloDoHorario: \"Hoje, às 20:00\" / \"Amanhã, às 20:00\" / a frase absoluta; sem startsAt, o texto livre de time",
       "measure": "Horario isola hh:mm em font-mono tabular-nums --ink",
       "source": "src/lib/horario.ts",
-      "readBy": "rotuloDoHorario, quando o webinar é antigo e não tem startsAt (o texto livre) ou quando startsAt não é uma data; o super-admin o mostra como está."
+      "readBy": "rotuloDoHorario, quando o webinar é antigo e não tem startsAt (o texto livre) ou quando startsAt não é uma data; nenhuma outra tela lê time."
     },
     "webinars": {
       "source": "src/components/WebinarLista.tsx, WebinarsPagina.tsx, Dashboard.tsx, CriarWebinarModal.tsx",
@@ -445,6 +445,29 @@
         "semDescricao": "A Descrição saiu com a página pública, a única tela que a mostrava (Regra do Dado com Uso); desc fica opcional só para webinars antigos."
       },
       "foraAteExistir": "\"Página de inscrição\" (WebinarPublicPage, a visão public-webinar, cloudflareStreamConfig) até existir o link público; \"Criar capa\" (ThumbnailEditor) até a capa ter onde aparecer."
+    },
+    "administracao": {
+      "source": "src/components/SuperAdminPanel.tsx; subscribeUserProfiles e PerfilDeCliente em src/lib/firestoreService.ts",
+      "forma": "Lista de leitura na casca: Pagina, CabecalhoDePagina, uma seção aberta por linha, lista divide-y. Sem indicador, cartão, cor nem ação sobre o cliente.",
+      "cabecalho": "\"Administração\" + \"Os clientes cadastrados na plataforma, só para leitura. A mudança de plano, as chaves de transmissão e o registro de auditoria voltam quando houver ingestão, feitos pelo servidor.\"",
+      "secao": "SecaoDePagina: border-t --line, mt 48px, pt 24px; h2 \"Clientes\" text-base 600 --ink-hi; contagem (ml 8px) \"N cadastrados\" / \"1 cadastrado\" em text-sm 400 --ink-lo, só com a lista aberta e não vazia.",
+      "busca": "type=search, h-11 (44px), --well, borda --line-ctl, raio 16px, text-sm, pl 36px; Search 16px --ink-lo à esquerda, aria-hidden; placeholder \"Nome ou e-mail\" (--ink-dim); aria-label \"Buscar cliente por nome ou e-mail\". É a acao da SecaoDePagina: sm:w-72 à direita do título, centrada na linha dele (gap-x 16px); largura toda e abaixo do título no celular (gap-y 12px). Compara nome e e-mail sem acento e sem caixa. Só com a lista aberta (estado ok) e com clientes.",
+      "lista": "ul divide-y --line com border-y, 16px abaixo do título; ordem alfabética por nome (ou e-mail), localeCompare pt-BR.",
+      "linha": "py 16px, gap 16px. Esquerda: nome text-sm 500 --ink-hi; e-mail text-xs --ink-lo 4px abaixo; ambos truncados; sem nome, o e-mail no lugar do nome. Direita (text-right, shrink-0): plano (getPlan) text-sm --ink; só no Free Trial, \"teste até {dia}\" / \"teste encerrado em {dia}\" em text-xs --ink-lo, derivado de trialEndsAt na hora de mostrar, ano só se não for o corrente. Sem clique, sem \"⋯\", sem ação.",
+      "estados": {
+        "carregando": "Carregando os clientes…",
+        "sem-login": "\"Sua sessão expirou, então a lista de clientes não abriu.\" + AcaoDeTexto sublinhada \"Entrar de novo\", que sai da conta",
+        "recusado": "O banco recusou a lista de clientes. Confira se este e-mail está na lista de administradores das regras.",
+        "sem-conexao": "Sem conexão com o banco agora. A lista aparece quando ele voltar. (Também quando a lista chega vazia e só do cache.)",
+        "vazio": "Nenhum cliente cadastrado ainda.",
+        "buscaVazia": "Nenhum cliente com esse nome ou e-mail.",
+        "forma": "uma frase no lugar da lista, text-sm --ink-lo, max-w-prose; role=status no carregamento e nas falhas. subscribeUserProfiles classifica pelo código do erro: permission-denied/unauthenticated → sem-login (sem sessão, depois de esperarSessao) ou recusado (com sessão); cota, rede e o resto → sem-conexao. A busca é anunciada numa região sr-only aria-live sempre montada (\"N encontrados\" / \"Nenhum cliente com esse nome ou e-mail.\")."
+      },
+      "semPapel": "\"Acesso restrito\" + \"Esta área é só para a administração da plataforma.\" + ação de texto \"Voltar ao painel\". Sem formulário e sem senha.",
+      "entradas": "Item \"Administração\" (Shield 14px) no menu da conta, antes de \"Sair\"; Configurações › Avançado, \"Administração da plataforma\" com \"Os clientes cadastrados, só para leitura.\" (a seção só existe para o admin); a rota /admin (e #admin, ?mode=admin), que leva quem não tem o papel ao Painel, sem aviso. Todas dependem de role === 'super-admin' na sessão; quem decide o que se lê são as regras do banco.",
+      "perfil": "PerfilDeCliente: uid, name, email, plan, trialEndsAt?.",
+      "naoLido": "role, subscriptionStatus e isExpired do perfil não são lidos: o servidor do PR #9 grava role: 'client' em todo perfil, e nada atualiza a situação quando o teste vence. O teste sai de trialEndsAt (Regra do Horário Derivado).",
+      "foraAteOIngest": "Mudar planos, as chaves de transmissão e o registro de auditoria: o navegador os gravava direto no banco. Voltam com o ingest, feitos pelo servidor."
     },
     "lineCtlDebt": {
       "note": "Dívida conhecida: --line-ctl fica abaixo de 3:1 (WCAG 1.4.11). O campo se lê pelo preenchimento --well e pelo rótulo; a caixa de seleção não usa essa borda.",
@@ -475,11 +498,11 @@
     "debtBaseline": {
       "hex-arbitrario-em-classe": 0,
       "hex-em-atributo-jsx": 9,
-      "botao-cru-fora-da-primitiva": 47,
-      "paleta-slate-gray-estrutural": 2,
-      "tamanho-de-fonte-avulso": 105,
+      "botao-cru-fora-da-primitiva": 13,
+      "paleta-slate-gray-estrutural": 0,
+      "tamanho-de-fonte-avulso": 1,
       "dialogo-nativo-bloqueante": 0,
-      "outline-none": 13,
+      "outline-none": 0,
       "important-no-css": 6,
       "z-index-avulso": 0
     },
@@ -504,10 +527,11 @@
       }
     },
     "foraDoSistema": {
-      "telas": "Só o super-admin (com o monitor de desempenho, os webhooks e as análises que ele abre) ainda carrega o visual herdado do Google AI Studio. Os modais do estúdio saíram na fase 2, e a fase 3 fecha o estúdio; com ela saíram a página pública do webinar e o editor de capas. O console do estúdio, os painéis de ferramentas, os gráficos do palco e o site público saíram da dívida.",
+      "telas": "Não sobra tela fora do sistema. A última com o visual herdado do Google AI Studio, o super-admin, virou a Administração, e com ele saíram as análises, o monitor de desempenho e os webhooks. Os modais do estúdio saíram na fase 2; a fase 3 fechou o estúdio e levou a página pública do webinar e o editor de capas. Tamanho em px avulso, slate/gray/blue-500 cru, rótulo em caixa alta ou sombra de brilho numa tela é dívida nova.",
       "desvios": "Gatilho \"⋯\" do Menu (32px), avatar (32px), fechar do Modal (~34px), chip (36px), z-30 no cabeçalho do app, --line-ctl abaixo de 3:1, polegar da rolagem azul no hover. No console: o botão de fixar do chat (36px) e o gatilho de chevron dos aparelhos (36px de largura) abaixo de 44px; a borda do card da câmera na cor dos gráficos, escolhida em Gráficos. Nos painéis: as cores dos gráficos em grid-cols-6 com ~41px no desktop (coluna de 264px; ~44px no celular).",
       "googleG": "As quatro cores do G do Google contam nos 9 de hex-em-atributo-jsx e ficam: são a marca do Google no botão de login.",
-      "formularioDeDesenvolvimento": "O formulário de e-mail e senha de Entrar e Criar conta existe só em desenvolvimento, não autentica e não é modelo; o primário azul dele não é a ação da tela."
+      "formularioDeDesenvolvimento": "O formulário de e-mail e senha de Entrar e Criar conta existe só em desenvolvimento, não autentica e não é modelo; o primário azul dele não é a ação da tela.",
+      "tamanhoAvulso": "O único que resta é o \"ONLINE STUDIO\" do logo (9px, mono, caixa alta): parte da marca, não modelo de rótulo."
     },
     "console": {
       "tokens": {
@@ -708,7 +732,7 @@
       "kind": "custom",
       "refersTo": "row-action",
       "description": "Unidade de Configurações: título, frase, chevron; separada por linha de 1px. Aceita um valor à direita (lateral), como o preço na lista de planos.",
-      "html": "<ul class=\"ds-rows\"><li><button class=\"ds-row\"><span><span class=\"ds-row-t\">Webhooks</span><span class=\"ds-row-d\">Avisos para outros sistemas quando a live começa, termina ou recebe um evento.</span></span><svg class=\"ds-row-i\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></button></li></ul>",
+      "html": "<ul class=\"ds-rows\"><li><button class=\"ds-row\"><span><span class=\"ds-row-t\">Plano e cobrança</span><span class=\"ds-row-d\">Seu plano e o que cada plano inclui.</span></span><svg class=\"ds-row-i\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></button></li></ul>",
       "css": ".ds-rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line, #30363B); border-bottom: 1px solid var(--line, #30363B); } .ds-row { display: flex; width: 100%; align-items: center; gap: 16px; padding: 16px 0; text-align: left; background: none; border: 0; cursor: pointer; font-family: Poppins, system-ui, sans-serif; } .ds-row > span { flex: 1; min-width: 0; } .ds-row-t { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-row-d { display: block; margin-top: 4px; font-size: 12px; color: var(--ink-lo, #BEC7D1); } .ds-row-i { flex-shrink: 0; color: var(--ink-lo, #BEC7D1); transition: transform 200ms ease-out, color 150ms; } .ds-row:hover .ds-row-i { color: var(--ink-hi, #F0F5F9); transform: translateX(2px); } .ds-row:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; border-radius: 4px; }"
     },
     {
@@ -929,7 +953,7 @@
       },
       {
         "name": "Regra do Horário Derivado",
-        "body": "\"Hoje, às…\" e \"Amanhã, às…\" são derivados na hora de mostrar, a partir de startsAt (ISO 8601), por rotuloDoHorario em src/lib/horario.ts, e nunca gravados: um \"Amanhã\" gravado vira mentira no dia seguinte. O campo time guarda a frase absoluta (\"Domingo, 27 de setembro, às 20:00\", por horarioPorExtenso) para quem só tem o texto: rotuloDoHorario cai nele quando o webinar é antigo, sem startsAt (e mostra o seu texto livre), ou quando startsAt não é uma data, e o super-admin o mostra como está. Lista de webinars, Painel e aviso usam o mesmo rótulo, e a hora vai em mono pelo Horario.",
+        "body": "\"Hoje, às…\" e \"Amanhã, às…\" são derivados na hora de mostrar, a partir de startsAt (ISO 8601), por rotuloDoHorario em src/lib/horario.ts, e nunca gravados: um \"Amanhã\" gravado vira mentira no dia seguinte. O campo time guarda a frase absoluta (\"Domingo, 27 de setembro, às 20:00\", por horarioPorExtenso) para quem só tem o texto: rotuloDoHorario cai nele quando o webinar é antigo, sem startsAt (e mostra o seu texto livre), ou quando startsAt não é uma data; nenhuma outra tela lê time. Lista de webinars, Painel e aviso usam o mesmo rótulo, e a hora vai em mono pelo Horario.",
         "section": "components"
       },
       {
