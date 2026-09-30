@@ -1,12 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
-import { adminAuth } from '../lib/firebase-admin.ts';
-import { DecodedIdToken } from 'firebase-admin/auth';
+import { getSupabaseUserFromAccessToken, isSupabaseServerConfigured } from '../lib/supabase-admin.ts';
 
-export interface AuthRequest extends Request {
-  user?: DecodedIdToken;
+/**
+ * Quem fez o pedido, como o serviço de autenticação do Supabase o validou. Os
+ * nomes dos campos são os que o servidor já usava com o Firebase.
+ */
+export interface UsuarioDoPedido {
+  uid: string;
+  email: string;
+  /** O e-mail foi confirmado. No login do Google, sempre. */
+  email_verified: boolean;
+  name: string;
+  picture: string;
 }
 
-function configuredSuperAdmins(): Set<string> {
+export interface AuthRequest extends Request {
+  user?: UsuarioDoPedido;
+}
+
+/** Os e-mails de SUPER_ADMIN_EMAILS, em minúsculas. */
+export function configuredSuperAdmins(): Set<string> {
   return new Set(
     (process.env.SUPER_ADMIN_EMAILS || '')
       .split(',')
@@ -16,15 +29,15 @@ function configuredSuperAdmins(): Set<string> {
 }
 
 /**
- * Admin é quem tem o e-mail VERIFICADO na lista SUPER_ADMIN_EMAILS — a mesma
- * lista de `isAdmin()` nas regras do Firestore (firestore.rules). Não há claim
- * personalizada: uma claim gravada no login ficava para sempre, mesmo depois de
- * o e-mail sair da lista, e sem verificação uma conta por e-mail e senha podia
- * se cadastrar com o endereço de um admin.
+ * Admin é quem tem o e-mail CONFIRMADO na lista SUPER_ADMIN_EMAILS. O servidor
+ * decide a cada pedido e mantém public.user_roles igual, para a RLS
+ * (app_private.is_super_admin()) dizer o mesmo. Não vem de metadados que o
+ * próprio usuário edita, e sem a confirmação uma conta por e-mail e senha
+ * poderia se cadastrar com o endereço de um admin.
  */
-export function isSuperAdmin(user?: DecodedIdToken): boolean {
+export function isSuperAdmin(user?: UsuarioDoPedido): boolean {
   if (!user || user.email_verified !== true) return false;
-  const email = user.email?.trim().toLowerCase() || '';
+  const email = user.email.trim().toLowerCase();
   return configuredSuperAdmins().has(email);
 }
 
@@ -42,13 +55,28 @@ export const requireAuth = async (
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized: Missing token' });
   }
+  if (!isSupabaseServerConfigured()) {
+    console.error('Supabase server configuration is missing: set SUPABASE_URL and SUPABASE_SECRET_KEY.');
+    return res.status(503).json({ error: 'Authentication service unavailable' });
+  }
   try {
-    const decodedToken = await adminAuth.verifyIdToken(token);
-    req.user = decodedToken;
+    // O serviço de autenticação valida o token e recusa o de uma sessão encerrada
+    const usuario = await getSupabaseUserFromAccessToken(token);
+    if (!usuario) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    }
+    const metadados = usuario.user_metadata ?? {};
+    req.user = {
+      uid: usuario.id,
+      email: usuario.email ?? '',
+      email_verified: Boolean(usuario.email_confirmed_at),
+      name: String(metadados.full_name ?? metadados.name ?? ''),
+      picture: String(metadados.avatar_url ?? metadados.picture ?? ''),
+    };
     next();
   } catch (error) {
-    console.error('Error verifying Firebase ID token:', error);
-    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+    console.error('Error validating Supabase access token:', error);
+    return res.status(503).json({ error: 'Authentication service unavailable' });
   }
 };
 

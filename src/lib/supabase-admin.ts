@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
+import { createClient, isAuthApiError, isAuthSessionMissingError, type SupabaseClient, type User } from '@supabase/supabase-js';
 
 let adminClient: SupabaseClient | undefined;
 
@@ -41,10 +41,15 @@ export function getSupabaseAdminClient(): SupabaseClient {
 /**
  * Validates a bearer token against Supabase Auth. Unlike decoding a JWT in the
  * application process, getUser performs an Auth service request and can be
- * used as an authorization decision.
+ * used as an authorization decision. A token the service rejects (invalid,
+ * expired, or from a signed-out session) returns null; a service that cannot
+ * be reached throws, so the caller answers 503 instead of 401.
  */
 export async function getSupabaseUserFromAccessToken(accessToken: string): Promise<User | null> {
   const { data, error } = await getSupabaseAdminClient().auth.getUser(accessToken);
-  if (error) return null;
-  return data.user;
+  if (!error) return data.user;
+  if (isAuthApiError(error) && error.status < 500) return null;
+  // O token de uma sessão encerrada volta como AuthSessionMissingError, não como erro da API
+  if (isAuthSessionMissingError(error)) return null;
+  throw error;
 }

@@ -5,14 +5,26 @@ import net from "net";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
-import { adminDb } from "./src/lib/firebase-admin.ts";
-import { AuthRequest, isSuperAdmin, requireAuth } from "./src/middleware/auth.ts";
+import { getSupabaseAdminClient, isSupabaseServerConfigured } from "./src/lib/supabase-admin.ts";
+import { AuthRequest, configuredSuperAdmins, isSuperAdmin, requireAuth } from "./src/middleware/auth.ts";
 import { resolvePublicAddress } from "./src/server/safe-http.ts";
 
 dotenv.config();
 
 export async function createApiApp({ serveFrontend = false } = {}) {
   const app = express();
+
+  // O papel de admin no banco segue o SUPER_ADMIN_EMAILS também para quem não
+  // passa pelo servidor: ao subir, o servidor rebaixa quem saiu da lista e
+  // promove quem entrou (sync_super_admins). Mudar a lista pede subir o
+  // servidor de novo (na Vercel, um novo deploy). Os testes esperam por isto.
+  app.locals.papeisSincronizados = isSupabaseServerConfigured()
+    ? Promise.resolve(
+        getSupabaseAdminClient().rpc('sync_super_admins', { p_emails: [...configuredSuperAdmins()] }),
+      ).then(({ error }) => {
+        if (error) console.error('Admin role sync failed:', error);
+      })
+    : Promise.resolve();
 
   const rateLimitBuckets = new Map<string, { count: number; resetsAt: number }>();
   const userRateLimit = (scope: string, limit: number, windowMs = 60_000): express.RequestHandler =>
@@ -133,67 +145,88 @@ Retorne estritamente um JSON estruturado com:
   });
 
   const paidPlans = new Set(['Standard', 'Professional', 'Business']);
-  // O papel devolvido abaixo vem de isSuperAdmin (e-mail verificado na lista),
-  // nunca de um campo do perfil: nenhuma claim é gravada no token.
+  // Os planos como o app os nomeia e como o banco os guarda (public.app_plan)
+  const PLANO_NO_BANCO: Record<string, string> = { Standard: 'standard', Professional: 'professional', Business: 'business' };
+  const PLANO_NO_APP: Record<string, 'Free Trial' | 'Standard' | 'Professional' | 'Business'> = {
+    free_trial: 'Free Trial',
+    standard: 'Standard',
+    professional: 'Professional',
+    business: 'Business',
+  };
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  // O plano de uma assinatura pelo preço dela, que acompanha uma troca de plano
+  // feita no portal de cobrança; o metadado planId fica como veio do checkout
+  const planoDoPreco = (precoId: unknown): string | undefined => {
+    const precos: Record<string, string> = {};
+    if (process.env.STRIPE_PRICE_STANDARD) precos[process.env.STRIPE_PRICE_STANDARD] = 'standard';
+    if (process.env.STRIPE_PRICE_PRO) precos[process.env.STRIPE_PRICE_PRO] = 'professional';
+    if (process.env.STRIPE_PRICE_BUSINESS) precos[process.env.STRIPE_PRICE_BUSINESS] = 'business';
+    return typeof precoId === 'string' ? precos[precoId] : undefined;
+  };
+
+  // O perfil nasce no banco com a conta, pelo gatilho de auth.users, com o
+  // teste de 30 dias. O servidor lê o perfil, mantém o papel de admin igual ao
+  // SUPER_ADMIN_EMAILS (public.user_roles, que a RLS consulta) e calcula o que
+  // o app mostra. O papel devolvido vem de isSuperAdmin (e-mail confirmado na
+  // lista), nunca de um campo que o usuário edita.
+  const COLUNAS_DO_PERFIL = 'display_name, avatar_url, plan, subscription_status, trial_ends_at, stripe_subscription_id';
   const ensureServerManagedProfile = async (user: NonNullable<AuthRequest['user']>) => {
-    const userRef = adminDb.collection('users').doc(user.uid);
-    return adminDb.runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(userRef);
-      const existing = snapshot.data() || {};
-      const now = new Date();
-      const hasManagedEntitlements = existing.entitlementsVersion === 1;
+    const banco = getSupabaseAdminClient();
+    const lido = await banco.from('profiles').select(COLUNAS_DO_PERFIL).eq('id', user.uid).maybeSingle();
+    if (lido.error) throw lido.error;
+    let perfil = lido.data;
+    if (!perfil) {
+      // Sem perfil (apagado pela administração): nasce de novo, com um teste novo
+      const criado = await banco
+        .from('profiles')
+        .upsert(
+          {
+            id: user.uid,
+            email: user.email,
+            display_name: (user.name || 'Usuário PwStreamer').slice(0, 120),
+            avatar_url: user.picture || null,
+          },
+          { onConflict: 'id' },
+        )
+        .select(COLUNAS_DO_PERFIL)
+        .single();
+      if (criado.error) throw criado.error;
+      perfil = criado.data;
+    }
 
-      const profile = hasManagedEntitlements ? existing : {
-        uid: user.uid,
-        email: user.email || '',
-        name: existing.name || user.name || 'Usuário PwStreamer',
-        photoURL: existing.photoURL || user.picture || '',
-        role: 'client',
-        plan: 'Free Trial',
-        subscriptionStatus: 'trial',
-        subscriptionSource: 'server',
-        entitlementsVersion: 1,
-        isExpired: false,
-        trialDays: 30,
-        trialStartedAt: now.toISOString(),
-        trialEndsAt: new Date(now.getTime() + 30 * 86_400_000).toISOString(),
-        createdAt: existing.createdAt || now.toISOString(),
-        updatedAt: now.toISOString(),
-      };
+    const papel = isSuperAdmin(user) ? 'super_admin' : 'client';
+    const papelGravado = await banco.from('user_roles').select('role').eq('user_id', user.uid).maybeSingle();
+    if (papelGravado.error) throw papelGravado.error;
+    if (papelGravado.data?.role !== papel) {
+      const gravado = await banco
+        .from('user_roles')
+        .upsert({ user_id: user.uid, role: papel, assigned_at: new Date().toISOString() }, { onConflict: 'user_id' });
+      if (gravado.error) throw gravado.error;
+    }
 
-      const identityUpdateRequired = profile.uid !== user.uid || profile.email !== (user.email || '');
-      if (!hasManagedEntitlements) {
-        transaction.set(userRef, profile, { merge: true });
-      } else if (identityUpdateRequired) {
-        transaction.set(userRef, {
-          uid: user.uid,
-          email: user.email || '',
-          updatedAt: now.toISOString(),
-        }, { merge: true });
-      }
+    const now = Date.now();
+    const plano = PLANO_NO_APP[perfil.plan] ?? 'Free Trial';
+    const paidPlanIsActive = paidPlans.has(plano)
+      && perfil.subscription_status === 'active'
+      && Boolean(perfil.stripe_subscription_id);
+    const trialEndsAtMs = perfil.trial_ends_at ? new Date(perfil.trial_ends_at).getTime() : 0;
+    const trialDays = Math.max(0, Math.ceil((trialEndsAtMs - now) / 86_400_000));
+    const inactiveStripeSubscription = Boolean(perfil.stripe_subscription_id)
+      && perfil.subscription_status !== 'active';
+    const isExpired = !paidPlanIsActive && (inactiveStripeSubscription || trialDays === 0);
 
-      const paidPlanIsActive = paidPlans.has(profile.plan)
-        && profile.subscriptionStatus === 'active'
-        && profile.subscriptionSource === 'stripe';
-      const trialEndsAtMs = typeof profile.trialEndsAt === 'string' ? new Date(profile.trialEndsAt).getTime() : 0;
-      const trialDays = Math.max(0, Math.ceil((trialEndsAtMs - now.getTime()) / 86_400_000));
-      const inactiveStripeSubscription = profile.subscriptionSource === 'stripe'
-        && profile.subscriptionStatus !== 'active';
-      const isExpired = !paidPlanIsActive && (inactiveStripeSubscription || trialDays === 0);
-
-      return {
-        uid: user.uid,
-        email: user.email || '',
-        name: profile.name || user.name || 'Usuário PwStreamer',
-        photoURL: profile.photoURL || user.picture || '',
-        role: isSuperAdmin(user) ? 'super-admin' : 'client',
-        plan: paidPlanIsActive ? profile.plan : 'Free Trial',
-        subscriptionStatus: paidPlanIsActive ? 'active' : (isExpired ? 'canceled' : 'trial'),
-        isExpired,
-        trialDays: paidPlanIsActive ? 0 : trialDays,
-        trialEndsAt: profile.trialEndsAt || null,
-      };
-    });
+    return {
+      uid: user.uid,
+      email: user.email,
+      name: perfil.display_name || user.name || 'Usuário PwStreamer',
+      photoURL: perfil.avatar_url || user.picture || '',
+      role: papel === 'super_admin' ? 'super-admin' : 'client',
+      plan: paidPlanIsActive ? plano : 'Free Trial',
+      subscriptionStatus: paidPlanIsActive ? 'active' : (isExpired ? 'canceled' : 'trial'),
+      isExpired,
+      trialDays: paidPlanIsActive ? 0 : trialDays,
+      trialEndsAt: perfil.trial_ends_at ?? null,
+    };
   };
 
   app.get('/api/auth/profile', requireAuth, async (req: AuthRequest, res) => {
@@ -304,9 +337,13 @@ Retorne estritamente um JSON estruturado com:
       if (!process.env.STRIPE_SECRET_KEY) {
         return res.status(503).json({ error: 'Stripe is not configured' });
       }
-      const snapshot = await adminDb.collection('users').doc(req.user!.uid).get();
-      const profile = snapshot.data() || {};
-      if (profile.subscriptionSource !== 'stripe' || typeof profile.stripeCustomerId !== 'string' || !profile.stripeCustomerId) {
+      const { data: perfil, error } = await getSupabaseAdminClient()
+        .from('profiles')
+        .select('stripe_customer_id')
+        .eq('id', req.user!.uid)
+        .maybeSingle();
+      if (error) throw error;
+      if (!perfil?.stripe_customer_id) {
         return res.status(404).json({ error: 'No Stripe subscription is associated with this account' });
       }
 
@@ -320,7 +357,7 @@ Retorne estritamente um JSON estruturado com:
       const Stripe = (await import('stripe')).default;
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' as any });
       const session = await stripe.billingPortal.sessions.create({
-        customer: profile.stripeCustomerId,
+        customer: perfil.stripe_customer_id,
         return_url: `${returnUrl.origin}/`,
       });
       return res.json({ url: session.url });
@@ -658,48 +695,10 @@ Retorne estritamente um JSON estruturado com:
     }
   });
 
-  app.post('/api/rtmp/keys/:id/regenerate', requireAuth, userRateLimit('rtmp-key-regenerate', 5), async (req: AuthRequest, res) => {
-    const keyId = String(req.params.id);
-    if (!/^[A-Za-z0-9_-]{1,128}$/.test(keyId)) {
-      return res.status(400).json({ error: 'Invalid RTMP key identifier' });
-    }
-
-    try {
-      const keyRef = adminDb.collection('rtmpKeys').doc(keyId);
-      const createdAt = new Date().toISOString();
-      const newStreamKey = `pw_live_${crypto.randomBytes(24).toString('hex')}`;
-      await adminDb.runTransaction(async (transaction) => {
-        const snapshot = await transaction.get(keyRef);
-        if (!snapshot.exists) {
-          throw Object.assign(new Error('RTMP key not found'), { statusCode: 404 });
-        }
-        const key = snapshot.data() || {};
-        // Dono por e-mail só com e-mail verificado (como nas regras do banco):
-        // uma conta por e-mail e senha nasce sem verificação e poderia usar o
-        // endereço de outra pessoa.
-        const donoVerificado = req.user!.email_verified === true && key.clientEmail === req.user!.email;
-        if (!isSuperAdmin(req.user) && !donoVerificado) {
-          throw Object.assign(new Error('Forbidden'), { statusCode: 403 });
-        }
-
-        transaction.update(keyRef, { key: newStreamKey, createdAt });
-        const auditRef = adminDb.collection('auditLogs').doc();
-        transaction.set(auditRef, {
-          id: auditRef.id,
-          timestamp: createdAt,
-          action: 'REGENERATE_RTMP_KEY',
-          actorEmail: req.user!.email || req.user!.uid,
-          targetEmail: key.clientEmail || '',
-          details: `Regenerada chave RTMP '${key.label || keyId}'.`,
-        });
-      });
-      return res.json({ key: newStreamKey, createdAt });
-    } catch (error: any) {
-      const statusCode = Number(error?.statusCode) || 503;
-      if (statusCode >= 500) console.error('RTMP key regeneration failed:', error);
-      return res.status(statusCode).json({ error: statusCode === 503 ? 'RTMP key service unavailable' : error.message });
-    }
-  });
+  // A rota de gerar de novo uma chave RTMP saiu: sem tela nem ingestão que a
+  // usassem, ela gravava nas coleções rtmpKeys e auditLogs do Firestore. As
+  // tabelas de chaves do Supabase (public.rtmp_keys e o segredo cifrado em
+  // app_private) ficam para quando a ingestão chegar.
 
   // ==========================================
   // CLOUDFLARE STREAM SECURE CONFIG & LIVE INPUTS
@@ -795,70 +794,74 @@ Retorne estritamente um JSON estruturado com:
     if (!sig || !webhookSecret) {
       return res.status(503).json({ error: 'Stripe webhook verification is not configured' });
     }
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(503).json({ error: 'Stripe is not configured' });
+    }
 
     let event: any;
     try {
-      if (!process.env.STRIPE_SECRET_KEY) {
-        return res.status(503).json({ error: 'Stripe is not configured' });
-      }
       const Stripe = (await import("stripe")).default;
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" as any });
-      const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-      const eventRef = adminDb.collection('stripeEvents').doc(event.id);
-      let duplicate = false;
-
-      await adminDb.runTransaction(async (transaction) => {
-        const existingEvent = await transaction.get(eventRef);
-        if (existingEvent.exists) {
-          duplicate = true;
-          return;
-        }
-
-        const object = event.data.object as any;
-        const userId = object.client_reference_id || object.metadata?.userId;
-        if (userId && event.type === 'checkout.session.completed') {
-          const planId = object.metadata?.planId;
-          if (object.payment_status === 'paid' && paidPlans.has(planId)) {
-            transaction.set(adminDb.collection('users').doc(userId), {
-              plan: planId,
-              subscriptionStatus: 'active',
-              subscriptionSource: 'stripe',
-              entitlementsVersion: 1,
-              isExpired: false,
-              stripeCustomerId: object.customer || null,
-              updatedAt: new Date().toISOString(),
-            }, { merge: true });
-          }
-        } else if (userId && event.type === 'customer.subscription.updated') {
-          const planId = object.metadata?.planId;
-          transaction.set(adminDb.collection('users').doc(userId), {
-            ...(paidPlans.has(planId) ? { plan: planId } : {}),
-            subscriptionStatus: object.status === 'active' || object.status === 'trialing' ? 'active' : 'past_due',
-            subscriptionSource: 'stripe',
-            entitlementsVersion: 1,
-            updatedAt: new Date().toISOString(),
-          }, { merge: true });
-        } else if (userId && event.type === 'customer.subscription.deleted') {
-          transaction.set(adminDb.collection('users').doc(userId), {
-            plan: 'Free Trial',
-            subscriptionStatus: 'canceled',
-            subscriptionSource: 'stripe',
-            entitlementsVersion: 1,
-            isExpired: true,
-            updatedAt: new Date().toISOString(),
-          }, { merge: true });
-        }
-
-        transaction.set(eventRef, {
-          type: event.type,
-          processedAt: new Date().toISOString(),
-        });
-      });
-
-      return res.json({ received: true, duplicate });
+      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
     } catch (err: any) {
       console.error("[STRIPE WEBHOOK] Verification failed:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // O que o evento muda no perfil. Os outros tipos só ficam registrados
+    const object = event.data.object as any;
+    const planId = object.metadata?.planId;
+    let mudanca: Record<string, string | null> = {};
+    if (event.type === 'checkout.session.completed') {
+      if (object.payment_status === 'paid' && paidPlans.has(planId)) {
+        mudanca = {
+          p_plan: PLANO_NO_BANCO[planId],
+          p_subscription_status: 'active',
+          p_stripe_customer_id: object.customer ?? null,
+          p_stripe_subscription_id: object.subscription ?? null,
+        };
+      }
+    } else if (event.type === 'customer.subscription.updated') {
+      const plano = planoDoPreco(object.items?.data?.[0]?.price?.id) ?? (paidPlans.has(planId) ? PLANO_NO_BANCO[planId] : undefined);
+      mudanca = {
+        ...(plano ? { p_plan: plano } : {}),
+        p_subscription_status: object.status === 'active' || object.status === 'trialing' ? 'active' : 'past_due',
+        p_stripe_customer_id: object.customer ?? null,
+        p_stripe_subscription_id: object.id ?? null,
+      };
+    } else if (event.type === 'customer.subscription.deleted') {
+      mudanca = { p_plan: 'free_trial', p_subscription_status: 'canceled' };
+    }
+
+    // As mudanças de uma assinatura valem só para a assinatura do perfil; o
+    // checkout traz uma nova, e pode substituir a anterior
+    const escopo = event.type.startsWith('customer.subscription.') ? (object.id ?? null) : null;
+    // A hora do evento no Stripe: um evento mais velho que o último aplicado só fica registrado
+    const criadoEm = new Date((Number(event.created) || Math.floor(Date.now() / 1000)) * 1000).toISOString();
+
+    // Um id que não é do Supabase (de um evento de antes da migração) não muda perfil
+    const idDoUsuario = object.client_reference_id || object.metadata?.userId;
+    const conta = Object.keys(mudanca).length > 0 && typeof idDoUsuario === 'string' && UUID.test(idDoUsuario)
+      ? idDoUsuario
+      : null;
+
+    try {
+      // O evento e a mudança no perfil numa transação só; o evento repetido não muda nada
+      const { data: novo, error } = await getSupabaseAdminClient().rpc('apply_stripe_event', {
+        p_event_id: event.id,
+        p_event_type: event.type,
+        p_event_created: criadoEm,
+        p_payload: event,
+        p_user_id: conta,
+        p_subscription_scope: escopo,
+        ...mudanca,
+      });
+      if (error) throw error;
+      return res.json({ received: true, duplicate: novo === false });
+    } catch (err) {
+      // Sem uma resposta 2xx, o Stripe entrega o evento de novo mais tarde
+      console.error('[STRIPE WEBHOOK] Recording failed:', err);
+      return res.status(503).json({ error: 'Stripe event could not be recorded' });
     }
   });
 
