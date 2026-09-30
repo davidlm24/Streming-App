@@ -759,52 +759,28 @@ export async function addWebhookLogToFirestore(userId: string, log: WebhookLogIt
   });
 }
 
-// Audit Logs Persistence
-export interface AuditLogEntry {
-  id?: string;
-  timestamp: string;
-  action: 'DELETE_WEBINAR' | 'REGENERATE_RTMP_KEY' | 'CREATE_RTMP_KEY' | 'DELETE_RTMP_KEY' | 'CHANGE_PLAN' | 'TOGGLE_CLIENT_STATUS' | 'SUPER_ADMIN_LOGIN';
-  actorEmail: string;
-  targetEmail?: string;
-  details: string;
-}
-
-export function subscribeAuditLogs(onUpdate: (logs: AuditLogEntry[]) => void) {
-  const colRef = collection(db, 'auditLogs');
-  return onSnapshot(colRef, (snapshot) => {
-    const list: AuditLogEntry[] = [];
-    snapshot.forEach((docSnap) => {
-      list.push({ id: docSnap.id, ...docSnap.data() } as AuditLogEntry);
-    });
-    list.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-    onUpdate(list);
-  }, (err) => {
-    if (isQuotaExceededError(err)) {
-      markQuotaExceeded();
-    } else {
-      console.warn('Firestore audit logs error:', err?.message || err);
-    }
-  });
-}
-
-// Perfis de todos os clientes, para a lista do painel de administração. As
-// regras só deixam o admin ler a coleção inteira; para os demais, o erro
-// chega aqui e a lista fica vazia. Era uma lista fixa de clientes inventados.
+// Perfis de todos os clientes, para a lista da administração. O papel e a
+// situação gravados no documento não entram: nada atualiza a situação quando o
+// teste vence, e o servidor grava o papel por conta própria. O teste sai de
+// `trialEndsAt`, na hora de mostrar. As chaves de transmissão e o registro de
+// auditoria saíram daqui: o navegador os gravava direto no banco, e eles
+// voltam com o ingest, feitos pelo servidor.
 export interface PerfilDeCliente {
   uid: string;
   name: string;
   email: string;
   plan: string;
-  role: string;
-  subscriptionStatus: string;
-  isExpired: boolean;
+  /** Até quando vai o teste, em ISO 8601, quando o perfil tem. */
+  trialEndsAt?: string;
 }
 
 export function subscribeUserProfiles(
   // `doCache`: a lista veio do cache local, sem o banco (rede desligada pela
   // cota, por exemplo). Vazia assim, ela não prova que não há clientes.
   onUpdate: (perfis: PerfilDeCliente[], doCache: boolean) => void,
-  onError?: (err: unknown) => void,
+  // Cada falha com o seu motivo: recusa por permissão (sem sessão, ou sem o
+  // papel nas regras) ou falta de conexão (cota, rede, banco fora do ar)
+  onError?: (motivo: 'sem-login' | 'recusado' | 'sem-conexao') => void,
 ) {
   return onSnapshot(collection(db, 'users'), (snapshot) => {
     const perfis: PerfilDeCliente[] = [];
@@ -815,9 +791,7 @@ export function subscribeUserProfiles(
         name: d.name || '',
         email: d.email || '',
         plan: d.plan || 'Free Trial',
-        role: d.role || 'client',
-        subscriptionStatus: d.subscriptionStatus || 'trial',
-        isExpired: Boolean(d.isExpired),
+        trialEndsAt: typeof d.trialEndsAt === 'string' ? d.trialEndsAt : undefined,
       });
     });
     perfis.sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email, 'pt-BR'));
@@ -825,130 +799,15 @@ export function subscribeUserProfiles(
   }, (err) => {
     if (isQuotaExceededError(err)) markQuotaExceeded();
     else console.warn('Firestore user profiles error:', (err as any)?.message || err);
-    onError?.(err);
-  });
-}
-
-export async function addAuditLogToFirestore(entry: Omit<AuditLogEntry, 'id' | 'timestamp'> & { timestamp?: string }) {
-  await safeFirestoreWrite(() => {
-    const docRef = doc(collection(db, 'auditLogs'));
-    const logItem: AuditLogEntry = {
-      ...entry,
-      id: docRef.id,
-      timestamp: entry.timestamp || new Date().toISOString()
-    };
-    return setDoc(docRef, logItem);
-  });
-}
-
-/**
- * Chave de transmissão aleatória de verdade (crypto), sem nada da pessoa nela.
- * As antigas eram o e-mail do cliente mais um carimbo de tempo, ou
- * `Math.random` — dá para adivinhar, e chave de transmissão é senha.
- */
-export function gerarChaveDeTransmissao(): string {
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return 'pw_live_' + Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-// RTMP Transmission Keys Isolation Persistence
-export interface RtmpKeyEntry {
-  id: string;
-  label: string;
-  clientEmail: string;
-  key: string;
-  server: string;
-  maxBitrate: string;
-  active: boolean;
-  createdAt: string;
-}
-
-export function subscribeClientRtmpKeys(clientEmail: string, onUpdate: (keys: RtmpKeyEntry[]) => void) {
-  if (!clientEmail) {
-    onUpdate([]);
-    return () => {};
-  }
-  const q = query(collection(db, 'rtmpKeys'), where('clientEmail', '==', clientEmail));
-  return onSnapshot(q, (snapshot) => {
-    const list: RtmpKeyEntry[] = [];
-    snapshot.forEach((docSnap) => {
-      list.push({ id: docSnap.id, ...docSnap.data() } as RtmpKeyEntry);
-    });
-    onUpdate(list);
-  }, (err) => {
-    if (isQuotaExceededError(err)) {
-      markQuotaExceeded();
-    } else {
-      console.warn('Firestore client RTMP keys error:', err?.message || err);
+    const codigo = (err as { code?: string })?.code;
+    if (codigo !== 'permission-denied' && codigo !== 'unauthenticated') {
+      onError?.('sem-conexao');
+      return;
     }
+    // Logo depois de recarregar, a sessão ainda está voltando: sem esperar,
+    // uma sessão válida seria dada como expirada
+    void esperarSessao().then(() => onError?.(auth.currentUser ? 'recusado' : 'sem-login'));
   });
-}
-
-export function subscribeAllRtmpKeys(onUpdate: (keys: RtmpKeyEntry[]) => void) {
-  const colRef = collection(db, 'rtmpKeys');
-  return onSnapshot(colRef, (snapshot) => {
-    const list: RtmpKeyEntry[] = [];
-    snapshot.forEach((docSnap) => {
-      list.push({ id: docSnap.id, ...docSnap.data() } as RtmpKeyEntry);
-    });
-    onUpdate(list);
-  }, (err) => {
-    if (isQuotaExceededError(err)) {
-      markQuotaExceeded();
-    } else {
-      console.warn('Firestore all RTMP keys error:', err?.message || err);
-    }
-  });
-}
-
-export async function saveRtmpKeyToFirestore(key: RtmpKeyEntry, actorEmail?: string) {
-  await safeFirestoreWrite(async () => {
-    const docRef = doc(db, 'rtmpKeys', key.id);
-    await setDoc(docRef, key, { merge: true });
-
-    if (actorEmail) {
-      // O registro diz o que aconteceu, nunca o segredo: a chave fica só no
-      // documento dela, onde as regras decidem quem lê.
-      await addAuditLogToFirestore({
-        action: 'CREATE_RTMP_KEY',
-        actorEmail,
-        targetEmail: key.clientEmail,
-        details: `Criada/atualizada chave RTMP '${key.label}' para ${key.clientEmail}`
-      });
-    }
-  });
-}
-
-export async function deleteRtmpKeyFromFirestore(keyId: string, actorEmail?: string, clientEmail?: string, keyLabel?: string) {
-  await safeFirestoreWrite(async () => {
-    await deleteDoc(doc(db, 'rtmpKeys', keyId));
-
-    if (actorEmail) {
-      await addAuditLogToFirestore({
-        action: 'DELETE_RTMP_KEY',
-        actorEmail,
-        targetEmail: clientEmail,
-        details: `Excluída/revogada chave RTMP '${keyLabel || keyId}' do cliente ${clientEmail || 'N/A'}`
-      });
-    }
-  });
-}
-
-export async function regenerateRtmpKeyInFirestore(keyId: string, clientEmail: string, actorEmail: string, currentLabel?: string): Promise<string> {
-  const newStreamKey = gerarChaveDeTransmissao();
-  await safeFirestoreWrite(async () => {
-    const docRef = doc(db, 'rtmpKeys', keyId);
-    await setDoc(docRef, { key: newStreamKey, createdAt: new Date().toISOString() }, { merge: true });
-
-    await addAuditLogToFirestore({
-      action: 'REGENERATE_RTMP_KEY',
-      actorEmail,
-      targetEmail: clientEmail,
-      details: `Regenerada chave de transmissão RTMP do cliente ${clientEmail} (Rótulo: '${currentLabel || keyId}')`
-    });
-  });
-  return newStreamKey;
 }
 
 /**

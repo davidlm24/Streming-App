@@ -15,7 +15,7 @@ O produto tem quatro públicos, em situações diferentes:
 - **Operador no estúdio, durante a live.** É o momento de maior pressão. A atenção dele está no que vai ao ar: câmeras, cenas, banners, chat. Ele troca de cena (preview → programa), modera comentários e aciona ofertas. Um erro aqui é público.
 - **Anfitrião entre as lives, no painel.** Agenda webinars, conecta canais e destinos, configura a ingestão por OBS/vMix, cuida do plano e da conta.
 - **Espectador na página pública do webinar** (ainda não está no ar: volta com o link público e a transmissão). Faz a inscrição, espera a contagem regressiva, assiste, conversa no chat e vota em enquetes. Não tem conta no produto.
-- **Administração da plataforma** (interno): chaves de transmissão dos clientes e visão geral dos clientes.
+- **Administração da plataforma** (interno): a lista de clientes. As chaves de transmissão dos clientes e o registro de auditoria voltam quando houver ingestão, feitos pelo servidor.
 
 ## Product Purpose
 

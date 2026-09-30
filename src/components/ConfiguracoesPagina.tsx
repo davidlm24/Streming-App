@@ -81,7 +81,7 @@ export function ConfiguracoesPagina({ ehSuperAdmin, onIrPara }: ConfiguracoesPag
             <li>
               <LinhaDeAcao
                 titulo="Administração da plataforma"
-                descricao="Clientes, chaves de transmissão e registro de auditoria."
+                descricao="Os clientes cadastrados, só para leitura."
                 onClick={() => onIrPara('super-admin')}
               />
             </li>
