@@ -1,0 +1,40 @@
+name: Banco do Supabase
+
+# O esquema e a RLS são a barreira entre o banco e a internet: a chave
+# publicável vai no bundle, e qualquer pessoa fala com a API direto. Cada
+# mudança em supabase/ recria o banco do zero, com todas as migrações em
+# ordem, e roda os testes de supabase/tests: o que o app usa tem de passar, o
+# dado de outra conta tem de ser negado.
+
+on:
+  push:
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/supabase.yml'
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/supabase.yml'
+  workflow_dispatch:
+
+jobs:
+  banco:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # A mesma versão da CLI do package.json
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.118.0
+
+      # Sem o painel, as análises e as funções de borda: as migrações e os
+      # testes precisam do banco, da autenticação e do armazenamento
+      - name: Supabase local, com as migrações
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor
+
+      - name: Testes do banco (RLS)
+        run: supabase test db
+
+      - name: Funções do banco
+        run: supabase db lint --schema public,app_private --fail-on error
