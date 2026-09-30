@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { CircleAlert } from 'lucide-react';
-import { ErroAoSalvar, entrouComGoogle, esperarSessao, salvarNomeDoPerfil, type FalhaAoSalvar } from '../lib/firestoreService';
+import { ErroAoSalvar, entrouComGoogle, esperarSessao, salvarNomeDoPerfil, type FalhaAoSalvar } from '../lib/dadosDaConta';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { ErroDeCampo } from './ui/ErroDeCampo';

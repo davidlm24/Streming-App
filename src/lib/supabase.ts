@@ -33,6 +33,11 @@ export function getSupabaseBrowserClient(): SupabaseClient {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        // O retorno do Google traz um código que só este navegador troca pela
+        // sessão (PKCE). No fluxo implícito, o padrão, a sessão vinha no próprio
+        // link: um link com os tokens da conta de outra pessoa entrava nela, e o
+        // que se salvasse depois (as chaves dos canais) ia para a conta dela.
+        flowType: 'pkce',
       },
     });
   }

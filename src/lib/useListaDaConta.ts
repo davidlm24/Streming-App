@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ErroAoSalvar, type FalhaAoSalvar } from './firestoreService';
+import { ErroAoSalvar, type FalhaAoSalvar } from './dadosDaConta';
 
 export type SituacaoDaLista = { tipo: 'salva' } | { tipo: 'salvando' } | { tipo: 'falhou'; motivo: FalhaAoSalvar };
 
