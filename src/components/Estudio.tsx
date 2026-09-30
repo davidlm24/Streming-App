@@ -8,7 +8,7 @@ import { useListaDaConta } from '../lib/useListaDaConta';
 import { EVENTOS_DO_PLAYER, ajustarPlayer, criarPlayer, desenhaATela, situacaoDoClipe, soltarPlayer, tocar, type PlayerDoClipe } from '../lib/playerDoClipe';
 import { estadoDoCanal } from '../lib/canais';
 import { salvarBanners, salvarTickers, subscribeBanners, subscribeTickers } from '../lib/firestoreService';
-import { useMediaManager } from '../context/MediaManagerContext';
+import { useMidiaDoEstudio } from '../context/MidiaDoEstudio';
 import { BarraDoEstudio } from './BarraDoEstudio';
 import { BotoesDeTransicao, DURACAO_DA_FUSAO, TrilhoDeCenas, type Transicao } from './TrilhoDeCenas';
 import { MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
@@ -66,7 +66,8 @@ const ESCOLHA_INICIAL: EscolhaDosGraficos = {
 const QR_INICIAL: QrDoEstudio = { link: '', titulo: '', preco: '', ...QR_PADRAO, noPreview: false };
 
 interface EstudioProps {
-  usuario: { uid?: string; name?: string };
+  /** A conta: a mídia, o QR code, os banners e os tickers do estúdio são dela. */
+  usuario: { uid: string; name?: string };
   /** O webinar pelo qual se entrou no estúdio, quando houver. O roteiro é dele. */
   webinar?: { id: string; title: string };
   canais: Destination[];
@@ -107,7 +108,7 @@ export function Estudio({
   onCor,
 }: EstudioProps) {
   const toast = useToast();
-  const midia = useMediaManager();
+  const midia = useMidiaDoEstudio();
 
   // ── Fontes: a câmera de quem opera e a tela compartilhada ─────────────────
   const nome = usuario.name?.trim().split(/\s+/)[0] || 'Apresentador';
@@ -198,7 +199,8 @@ export function Estudio({
     tickerId: null,
     cronometro: { ...e.cronometro, noPreview: false },
   }));
-  const [qr, setQr] = usePreferencia<QrDoEstudio>('pw_qr_do_estudio', QR_INICIAL, (q) => ({ ...q, noPreview: false }));
+  // O QR code é da conta, como a mídia: outra conta no mesmo navegador não vê o link nem o preço
+  const [qr, setQr] = usePreferencia<QrDoEstudio>(`pw_qr_do_estudio_${usuario.uid}`, QR_INICIAL, (q) => ({ ...q, noPreview: false }));
   const [clipeNoPreview, setClipeNoPreview] = useState<ClipeNoPalco | null>(null);
   const [comentarioFixado, setComentarioFixado] = useState<Comment | null>(null);
   const [relogio, setRelogio] = useState<RelogioDoCronometro>(() => relogioParado(300));
@@ -223,7 +225,7 @@ export function Estudio({
     const link = normalizarLink(qr.link);
     return {
       cor,
-      logo: midia.activeLogo ? { url: midia.activeLogo, ...escolha.logo } : null,
+      logo: midia.ativas.logo ? { url: midia.ativas.logo, ...escolha.logo } : null,
       banner: banner ? { id: banner.id, titulo: banner.text, subtitulo: banner.subtitle ?? '', posicao: escolha.bannerPosicao } : null,
       ticker: ticker
         ? { id: ticker.id, texto: ticker.text, selo: ticker.badgeText ?? '', velocidade: escolha.tickerVelocidade, direcao: escolha.tickerDirecao }
@@ -231,15 +233,15 @@ export function Estudio({
       qr: qr.noPreview && link ? { url: link, titulo: qr.titulo.trim(), preco: qr.preco.trim(), canto: qr.canto, tamanho: qr.tamanho } : null,
       cronometro: escolha.cronometro.noPreview ? { titulo: escolha.cronometro.titulo.trim() } : null,
     };
-  }, [cor, midia.activeLogo, escolha, banners.itens, tickers.itens, qr]);
+  }, [cor, midia.ativas.logo, escolha, banners.itens, tickers.itens, qr]);
 
   const estadoDoPreview: StudioSceneState = {
     sceneId: cena.id,
     layout: cena.layout,
     activeParticipantIds: cena.fontes,
     cardDaCamera,
-    activeBackground: midia.activeBackground,
-    activeOverlay: midia.activeOverlay,
+    activeBackground: midia.ativas.fundo,
+    activeOverlay: midia.ativas.sobreposicao,
     pinnedComment: comentarioFixado,
     graficos: graficosDoPreview,
     clipe: clipeNoPreview,

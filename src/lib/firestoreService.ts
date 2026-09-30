@@ -18,10 +18,8 @@ import {
   query,
   deleteDoc,
   updateDoc,
-  setDoc as setDocFs
 } from 'firebase/firestore';
-import { auth, googleAuthProvider, db, storage, disableNetwork } from './firebase.ts';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth, googleAuthProvider, db, disableNetwork } from './firebase.ts';
 import { Banner, Destination, TickerItem } from '../types.ts';
 
 export interface UserProfile {
@@ -700,55 +698,4 @@ export function subscribeUserProfiles(
     // uma sessão válida seria dada como expirada
     void esperarSessao().then(() => onError?.(auth.currentUser ? 'recusado' : 'sem-login'));
   });
-}
-
-/**
- * Uploads an image or video file to Firebase Storage and registers metadata in Firestore.
- */
-export async function uploadMediaToStorage(
-  file: File, 
-  type: 'logo' | 'watermark' | 'overlay' | 'background' | 'video',
-  _userEmail?: string
-): Promise<{ id: string; name: string; url: string; storagePath: string }> {
-  const email = auth.currentUser?.email;
-  if (!email) throw new Error('Authentication is required to upload media');
-  const ownerId = auth.currentUser.uid;
-  const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const timestamp = Date.now();
-  const assetId = `${type}-${timestamp}`;
-  const storagePath = `media_assets/${ownerId}/${type}/${timestamp}_${safeFileName}`;
-
-  let downloadUrl = '';
-
-  try {
-    const storageRef = ref(storage, storagePath);
-    const snapshot = await uploadBytes(storageRef, file);
-    downloadUrl = await getDownloadURL(snapshot.ref);
-  } catch (err) {
-    console.warn('Firebase Storage upload fallback to base64:', err);
-    downloadUrl = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-    });
-  }
-
-  const asset = {
-    id: assetId,
-    name: file.name,
-    url: downloadUrl,
-    type,
-    ownerEmail: email,
-    ownerId,
-    storagePath,
-    createdAt: new Date().toISOString()
-  };
-
-  await safeFirestoreWrite(async () => {
-    const docRef = doc(db, 'media_assets', assetId);
-    await setDocFs(docRef, asset);
-  });
-
-  return asset;
 }

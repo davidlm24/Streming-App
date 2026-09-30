@@ -16,6 +16,7 @@ import { PlansModal } from './components/PlansModal';
 import { PlanoPagina } from './components/PlanoPagina';
 import { CadastroPagina } from './components/CadastroPagina';
 import { AddChannelsModal } from './components/AddChannelsModal';
+import { MidiaDoEstudioProvider } from './context/MidiaDoEstudio';
 
 import { Destination, Comment } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_COMMENTS } from './data';
@@ -119,6 +120,12 @@ export default function App() {
         'webinar_registrations',
         // O painel técnico, que saiu, guardava os perfis de RTMP com as chaves em texto claro; a barra lateral, os presets
         'pw_rtmp_profiles', 'pwstream_custom_presets',
+        // A mídia e o QR code do estúdio, guardados sem dono antes de ficarem por conta: a de uma pessoa
+        // aparecia para quem entrasse depois no mesmo navegador. Saem, e quem usou envia de novo
+        'pwstreamer_customLogos', 'pwstreamer_customWatermarks', 'pwstreamer_customOverlays', 'pwstreamer_customBackgrounds',
+        'pwstreamer_customAudios', 'pwstreamer_videoClips', 'pwstreamer_activeVideoClip', 'pwstreamer_activeLogo',
+        'pwstreamer_activeWatermark', 'pwstreamer_activeOverlay', 'pwstreamer_activeBackground', 'pw_hidden_templates',
+        'pw_qr_do_estudio',
       ].forEach((chave) =>
         localStorage.removeItem(chave)
       );
@@ -534,20 +541,22 @@ export default function App() {
       )}
 
       {currentView === 'studio' ? (
-        <Estudio
-          usuario={{ uid: user.uid, name: user.name }}
-          webinar={webinarNoEstudio}
-          canais={destinations}
-          onCanais={() => setIsAddChannelsModalOpen(true)}
-          onSair={() => setCurrentView('dashboard')}
-          comentarios={comments}
-          onComentar={handlePostComment}
-          onAprovarComentario={handleApproveComment}
-          onLimparChat={handleClearComments}
-          moderacaoLigada={isAiModerationEnabled}
-          cor={streamColor}
-          onCor={setStreamColor}
-        />
+        <MidiaDoEstudioProvider key={user.uid} conta={user.uid}>
+          <Estudio
+            usuario={{ uid: user.uid, name: user.name }}
+            webinar={webinarNoEstudio}
+            canais={destinations}
+            onCanais={() => setIsAddChannelsModalOpen(true)}
+            onSair={() => setCurrentView('dashboard')}
+            comentarios={comments}
+            onComentar={handlePostComment}
+            onAprovarComentario={handleApproveComment}
+            onLimparChat={handleClearComments}
+            moderacaoLigada={isAiModerationEnabled}
+            cor={streamColor}
+            onCor={setStreamColor}
+          />
+        </MidiaDoEstudioProvider>
       ) : currentView === 'super-admin' ? (
         <SuperAdminPanel onBack={() => setCurrentView('dashboard')} onSair={handleLogout} user={user} />
       ) : currentView === 'billing' ? (

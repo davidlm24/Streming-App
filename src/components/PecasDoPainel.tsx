@@ -233,15 +233,25 @@ export function SeletorDeCanto({
 }
 
 /**
- * Onde o arquivo enviado ficou. O envio tenta a nuvem por 5 s e, se ela não
- * responde, guarda o arquivo no navegador: em base64 (fica neste navegador)
- * ou como endereço temporário (some ao recarregar). Antes isso acontecia sem
- * aviso, e o card do clipe dizia "Vídeo na Nuvem".
+ * Onde a mídia enviada fica, numa linha, no fim da seção: neste navegador, só
+ * para a conta (midiaDoNavegador). Quando o navegador não deixa abrir a
+ * biblioteca, a falha com a nova tentativa. Antes cada arquivo dizia se o envio
+ * para a nuvem tinha terminado; ele nunca terminava, porque a nuvem não existia.
  */
-export function ondeFicou(url: string): string | null {
-  if (url.startsWith('blob:')) return 'Só nesta sessão: o envio para a nuvem não terminou, e o arquivo some ao recarregar.';
-  if (url.startsWith('data:')) return 'Só neste navegador: o envio para a nuvem não terminou.';
-  return null;
+export function NotaDaMidia({
+  leitura,
+  onLerDeNovo,
+  anunciaFalha = true,
+}: {
+  leitura: 'lendo' | 'pronta' | 'indisponivel';
+  onLerDeNovo: () => void;
+  /** Num painel com várias seções de mídia, só a primeira diz a falha: o alerta não se repete. */
+  anunciaFalha?: boolean;
+}) {
+  if (leitura === 'indisponivel') {
+    return anunciaFalha ? <FalhaNoPainel frase="O navegador não deixou abrir a sua mídia." onTentarDeNovo={onLerDeNovo} /> : null;
+  }
+  return <p className="text-xs text-[var(--ink-lo)]">Fica neste navegador, só para a sua conta.</p>;
 }
 
 /** "Adicionar" um arquivo: o único lugar do painel com borda tracejada. */
@@ -353,13 +363,11 @@ export function GradeDeImagens({
         ))}
       </div>
       {linhas.map(({ url, item }) => {
-        const aviso = ondeFicou(url);
         return (
           <div key={url} className="mt-2 flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-xs text-[var(--ink)]">{item?.nome ?? 'Uma imagem que saiu da lista'}</p>
               <EstadoNoPalco noPrograma={url === noPrograma} noPreview={url === selecionada} />
-              {aviso && <p className="mt-0.5 text-pretty text-xs text-[var(--ink-lo)]">{aviso}</p>}
             </div>
             {item && (
               <AcaoDeTexto tamanho="xs" onClick={() => onExcluir(item)}>
