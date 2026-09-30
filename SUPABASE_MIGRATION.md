@@ -90,6 +90,18 @@ Every `public` table must have RLS enabled. Policies use the authenticated user'
 7. Replace `authenticatedFetch` so it sends the Supabase access token as `Authorization: Bearer <token>`.
 8. Remove Firebase packages, configuration, rules, and quota fallback messaging only after the cutover has passed.
 
+Done in stage 3:
+
+- `src/lib/dadosDaConta.ts` replaces `src/lib/firestoreService.ts` and `src/lib/firebase.ts`, keeping the function names the screens use (renamed only where they named Firebase: `sairDaConta`, `excluirWebinar`, `salvarTransmissao`, `salvarCanais`). Every query relies on RLS.
+- Sign-in: Google through `signInWithOAuth` (a redirect, not a popup), after checking that the provider is enabled (`/auth/v1/settings`); the Google Meet scopes are gone. Email and password stay in development. Returning from Google with an error opens the sign-in view with a message.
+- `subscribeAuth` keeps the account-switch protection: when the tab's account signs out or gives way to another (also from another tab), nothing else is written through the session and the app reloads. The profile loads outside the auth callback and once per account (token refreshes and tab refocus do not reload it).
+- Writes resolve only when Supabase answers (Regra do Salvo de Verdade); the timeout covers an answer that never comes. The Firestore quota mode and its banner are gone.
+- Webinars use UUIDs; the teleprompter script is `teleprompter_scripts` (one per webinar, one general); banners and tickers are separate `studio_settings` columns; channels and the graphics color are merged into `transmission` by `update_transmission` (`20260930170000_app.sql`), so saving one does not erase the other.
+- Webinars and studio settings arrive live from other tabs and devices through Realtime (inserts and updates; deletions are local).
+- `firebase`, `firebase-applet-config.json`, and the Firebase client code are removed: the client bundle drops from 1,115 kB to 671 kB (302 kB to 193 kB gzipped).
+- `npm run db:contas` creates local test accounts for the development sign-in.
+- Security review fixes: the browser client uses the PKCE flow (`flowType: 'pkce'`), so a link carrying another account's tokens in its fragment no longer signs anyone in; signing out removes the stored session even when the library gives up (expired token and a failed refresh); a Realtime row without the column (large unchanged values are left out) no longer discards the first read, which could have made the autosave write an empty channel list; a script save answers only for the edit it sent, and closing the studio saves the last edit; a failed webinar deletion puts the row back and says why.
+
 ### Express server
 
 1. Add a server-only Supabase client initialized with:
@@ -142,6 +154,7 @@ Not used: the migration starts from zero (decision of 2026-09-30). Kept as refer
 npm run db:start   # the local stack in Docker, with every migration applied
 npm run db:test    # the RLS tests in supabase/tests
 npm run db:reset   # rebuild the local database from the migrations
+npm run db:contas  # local test accounts (scripts/contas-de-teste.mjs)
 npm run db:stop
 ```
 

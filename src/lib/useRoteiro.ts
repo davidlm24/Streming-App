@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ErroAoSalvar, lerRoteiro, salvarRoteiro, type FalhaAoSalvar } from './firestoreService';
+import { ErroAoSalvar, lerRoteiro, salvarRoteiro, type FalhaAoSalvar } from './dadosDaConta';
 
 export type SituacaoDoRoteiro =
   | { tipo: 'carregando' }
@@ -62,7 +62,12 @@ export function useRoteiro(id: string) {
       });
     return () => {
       ativo = false;
-      if (espera.current) window.clearTimeout(espera.current);
+      // Fechar o estúdio (ou trocar de roteiro) antes da pausa não perde a última edição
+      if (espera.current) {
+        window.clearTimeout(espera.current);
+        espera.current = null;
+        if (abriu.current) void salvarRoteiro(id, atual.current).catch(() => {});
+      }
     };
   }, [id, carga]);
 
@@ -71,10 +76,15 @@ export function useRoteiro(id: string) {
     espera.current = null;
     if (!abriu.current) return;
     setSituacao({ tipo: 'salvando' });
+    // Uma edição feita enquanto este salvamento corria tem o seu próprio: a
+    // resposta deste não diz "salvo" (nem "falhou") por cima dela
+    const enviado = atual.current;
     try {
-      await salvarRoteiro(id, atual.current);
+      await salvarRoteiro(id, enviado);
+      if (atual.current !== enviado) return;
       setSituacao({ tipo: 'salvo', em: new Date().toISOString() });
     } catch (err) {
+      if (atual.current !== enviado) return;
       setSituacao({ tipo: 'falhou', motivo: err instanceof ErroAoSalvar ? err.motivo : 'recusado', aoLer: false });
     }
   }, [id]);

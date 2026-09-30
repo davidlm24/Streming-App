@@ -1,5 +1,4 @@
 import { AcaoDeTexto } from './components/ui/AcaoDeTexto';
-import { BotaoDeIcone } from './components/ui/BotaoDeIcone';
 import { apiFetch } from './lib/apiFetch';
 import { useState, useEffect } from 'react';
 import { AppHeader, type VisaoDoApp } from './components/AppHeader';
@@ -20,24 +19,32 @@ import { MidiaDoEstudioProvider } from './context/MidiaDoEstudio';
 
 import { Destination, Comment } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_COMMENTS } from './data';
-import { CircleAlert, X } from 'lucide-react';
 import { LegalModal } from './components/LegalModals';
 import { useToast } from './components/ui/Toast';
 import { limiteDeCanaisLigados } from './lib/plans';
 import { cabeLigado } from './lib/canais';
 import { COR_PADRAO } from './lib/graficos';
 import {
-  logoutFirebase,
+  ErroAoSalvar,
+  sairDaConta,
   subscribeAuth,
   subscribeWebinars,
   agendarWebinar,
-  deleteWebinarFromFirestore,
+  excluirWebinar,
   subscribeTransmissionSettings,
-  saveTransmissionSettingsToFirestore,
-  saveDestinationsToFirestore,
-  subscribeQuotaStatus,
-  FIRESTORE_UPGRADE_URL
-} from './lib/firestoreService';
+  salvarTransmissao,
+  salvarCanais,
+  type FalhaAoSalvar,
+} from './lib/dadosDaConta';
+import { FRASE_DA_FALHA_DA_LISTA } from './lib/useListaDaConta';
+
+/** O que a tela diz quando um webinar não saiu do banco, com a saída. */
+const FRASE_DA_EXCLUSAO: Record<FalhaAoSalvar, string> = {
+  'sem-login': 'Sua sessão expirou. Entre de novo e exclua outra vez.',
+  'sem-conexao': 'Sem conexão com a sua conta agora. Tente de novo em instantes.',
+  'sem-confirmacao': 'Não deu para confirmar a exclusão. Confira a conexão e tente de novo.',
+  recusado: 'O banco recusou a exclusão. Tente de novo.',
+};
 
 export default function App() {
   // User state
@@ -79,7 +86,7 @@ export default function App() {
   }, []);
 
   const handleLogout = async () => {
-    await logoutFirebase();
+    await sairDaConta();
     window.location.replace('/');
   };
 
@@ -149,8 +156,9 @@ export default function App() {
       //
       // Isto é defesa em profundidade, NÃO autorização: qualquer verificação
       // no cliente é contornável. Quem autoriza é o servidor, a cada request
-      // (SUPER_ADMIN_EMAILS, em src/middleware/auth.ts), e as regras do banco
-      // (isAdmin() em firestore.rules), que precisam listar os mesmos e-mails.
+      // (SUPER_ADMIN_EMAILS, em src/middleware/auth.ts), e o banco, pela RLS
+      // (app_private.is_super_admin(), com o papel que o servidor mantém igual
+      // à mesma lista).
       const isSuperAdmin = user?.role === 'super-admin';
       if (pathname.endsWith('/admin') || hash === '#admin' || search.includes('mode=admin')) {
         if (isSuperAdmin) {
@@ -200,13 +208,17 @@ export default function App() {
   }>>([]);
 
   const handleDeleteWebinar = async (id: string) => {
+    const excluido = webinars.find((w) => w.id === id);
     setWebinars(prev => prev.filter(w => w.id !== id));
     try {
       if (user) {
-        await deleteWebinarFromFirestore(user.uid, id);
+        await excluirWebinar(id);
       }
-    } catch (e) {
-      console.error('Error deleting webinar:', e);
+    } catch (erro) {
+      // Não saiu do banco: volta à lista, e o aviso diz o motivo
+      if (excluido) setWebinars((prev) => (prev.some((w) => w.id === id) ? prev : [...prev, excluido]));
+      const motivo = erro instanceof ErroAoSalvar ? erro.motivo : 'recusado';
+      toast.error('O webinar não foi excluído', FRASE_DA_EXCLUSAO[motivo]);
     }
   };
 
@@ -225,17 +237,6 @@ export default function App() {
   // O chat mora no app para sobreviver às idas e voltas do estúdio
   const [comments, setComments] = useState<Comment[]>(INITIAL_COMMENTS);
 
-  // Firestore Quota Resilience state
-  const [isQuotaExceeded, setIsQuotaExceeded] = useState(false);
-  const [isQuotaBannerVisible, setIsQuotaBannerVisible] = useState(true);
-
-  useEffect(() => {
-    const unsubQuota = subscribeQuotaStatus((exceeded) => {
-      setIsQuotaExceeded(exceeded);
-    });
-    return () => unsubQuota();
-  }, []);
-
   // Limite de canais ligados ao mesmo tempo, do plano (plans.ts)
   const limiteDeLigados = limiteDeCanaisLigados(user?.plan);
   // Fora do estúdio, "Ver planos" leva à página de plano. No estúdio, o modal
@@ -253,7 +254,7 @@ export default function App() {
   const [legalModalOpen, setLegalModalOpen] = useState(false);
   const [legalModalType, setLegalModalType] = useState<'terms' | 'privacy'>('terms');
 
-  const [isFirestoreSettingsLoaded, setIsFirestoreSettingsLoaded] = useState(false);
+  const [dadosCarregados, setDadosCarregados] = useState(false);
   // O banco já respondeu às configurações de transmissão desta conta (com ou
   // sem o documento). Só então o salvamento automático pode gravar.
   const [configuracoesDoBanco, setConfiguracoesDoBanco] = useState(false);
@@ -331,11 +332,18 @@ export default function App() {
   // Os canais só mudam depois de o banco responder. Antes disso a lista na
   // memória é a vazia do começo (ou a cópia deste navegador), e cada mudança
   // grava a lista inteira: salvar por cima dela apagava os canais da conta.
-  // Com a cota esgotada o banco não responde, e a mudança fica só neste
-  // navegador, como o aviso da cota diz.
-  const canaisProntos = configuracoesDoBanco || isQuotaExceeded;
+  const canaisProntos = configuracoesDoBanco;
   const avisarCanaisCarregando = () =>
     toast.info('Seus canais ainda estão carregando', 'Espere um instante e tente de novo. Se não carregar, confira sua conexão.');
+  // Cada mudança nos canais vai ao banco; a falha diz o motivo e a saída
+  const salvarCanaisDaConta = (canais: Destination[]) => {
+    void salvarCanais(canais).catch((erro) =>
+      toast.error(
+        'Os canais não foram salvos',
+        FRASE_DA_FALHA_DA_LISTA[erro instanceof ErroAoSalvar ? erro.motivo : 'recusado'],
+      ),
+    );
+  };
 
   const handleToggleDestination = (id: string) => {
     if (!canaisProntos) {
@@ -349,9 +357,7 @@ export default function App() {
     }
     setDestinations(prev => {
       const updated = prev.map(dest => dest.id === id ? { ...dest, selected: !dest.selected } : dest);
-      if (user?.uid) {
-        saveDestinationsToFirestore(user.uid, updated);
-      }
+      if (user?.uid) salvarCanaisDaConta(updated);
       return updated;
     });
   };
@@ -376,9 +382,7 @@ export default function App() {
       } else {
         updated = [newDest, ...prev];
       }
-      if (user?.uid) {
-        saveDestinationsToFirestore(user.uid, updated);
-      }
+      if (user?.uid) salvarCanaisDaConta(updated);
       return updated;
     });
     return true;
@@ -392,9 +396,7 @@ export default function App() {
     }
     setDestinations(prev => {
       const updated = prev.filter(dest => dest.id !== id);
-      if (user?.uid) {
-        saveDestinationsToFirestore(user.uid, updated);
-      }
+      if (user?.uid) salvarCanaisDaConta(updated);
       return updated;
     });
   };
@@ -418,17 +420,17 @@ export default function App() {
   };
 
   // -------------------------------------------------------------
-  // FIRESTORE SUBSCRIPTIONS & PERSISTENCE
+  // OS DADOS DA CONTA (Supabase)
   // -------------------------------------------------------------
   useEffect(() => {
     if (!user?.uid) return;
 
-    setIsFirestoreSettingsLoaded(false);
+    setDadosCarregados(false);
     setConfiguracoesDoBanco(false);
-    const timer = setTimeout(() => setIsFirestoreSettingsLoaded(true), 2000);
+    const timer = setTimeout(() => setDadosCarregados(true), 2000);
 
-    const unsubWebinars = subscribeWebinars(user.uid, (firestoreWebinars) => {
-      setWebinars(firestoreWebinars);
+    const unsubWebinars = subscribeWebinars(user.uid, (webinarsDaConta) => {
+      setWebinars(webinarsDaConta);
     });
 
     // Banners, tickers e roteiros são do estúdio, que os assina quando abre
@@ -451,21 +453,19 @@ export default function App() {
   // Salva os canais e a cor dos gráficos pouco depois de mudarem, e só depois de
   // o banco responder: antes disso a memória tem a lista vazia do começo, e
   // gravá-la por cima apagava os canais da conta quando o banco demorava mais
-  // que o salvamento. Com a cota esgotada o banco não responde, e o salvamento
-  // guarda só neste navegador. Saíram daqui o servidor e a chave de exemplo
-  // (gravados em toda conta), o formato e a qualidade de uma gravação que não
-  // existe, as animações antigas do logo e do banner e o estilo de texto, que o
-  // palco não lia.
+  // que o salvamento. Saíram daqui o servidor e a chave de exemplo (gravados em
+  // toda conta), o formato e a qualidade de uma gravação que não existe, as
+  // animações antigas do logo e do banner e o estilo de texto, que o palco não
+  // lia.
   useEffect(() => {
-    if (!user?.uid || !(configuracoesDoBanco || isQuotaExceeded)) return;
+    if (!user?.uid || !configuracoesDoBanco) return;
     const timeout = setTimeout(() => {
-      saveTransmissionSettingsToFirestore(user.uid, {
-        destinations,
-        streamColor
-      });
+      void salvarTransmissao({ destinations, streamColor }).catch((erro) =>
+        console.warn('Configurações de transmissão não salvas:', erro),
+      );
     }, 1500);
     return () => clearTimeout(timeout);
-  }, [user?.uid, destinations, streamColor, configuracoesDoBanco, isQuotaExceeded]);
+  }, [user?.uid, destinations, streamColor, configuracoesDoBanco]);
 
   // Post chat comments manually
   const handlePostComment = (text: string) => {
@@ -513,33 +513,6 @@ export default function App() {
         <AppHeader user={user} currentView={currentView} onNavigate={setCurrentView} onLogout={handleLogout} />
       )}
 
-      {/* Cota do banco esgotada. Era um aviso de desenvolvedor para o cliente
-          ("Limite diário de gravações do Firestore (Spark Free Tier)"), em
-          âmbar, com um link para o cliente fazer upgrade no Firebase — que
-          não é dele. Agora diz o que acontece com as alterações; a cota fica
-          só para o admin. */}
-      {isQuotaExceeded && isQuotaBannerVisible && (
-        <div id="firestore-quota-alert-banner" role="status" className="flex min-h-11 shrink-0 items-center justify-between gap-3 border-b border-[var(--line)] bg-[var(--surface)] pl-4 pr-1 text-xs text-[var(--ink-hi)]">
-          <p className="flex items-start gap-2 py-2">
-            <CircleAlert size={14} aria-hidden="true" className="mt-px shrink-0" />
-            <span>
-              Não foi possível salvar na nuvem agora. Suas alterações estão guardadas só neste navegador.
-              {user?.role === 'super-admin' && (
-                <>
-                  {' '}
-                  <AcaoDeTexto href={FIRESTORE_UPGRADE_URL} tamanho="xs" sublinhada>
-                    Ver a cota no Firebase
-                  </AcaoDeTexto>
-                </>
-              )}
-            </span>
-          </p>
-          <BotaoDeIcone rotulo="Fechar aviso" onClick={() => setIsQuotaBannerVisible(false)}>
-            <X size={16} aria-hidden="true" />
-          </BotaoDeIcone>
-        </div>
-      )}
-
       {currentView === 'studio' ? (
         <MidiaDoEstudioProvider key={user.uid} conta={user.uid}>
           <Estudio
@@ -575,7 +548,7 @@ export default function App() {
       ) : currentView === 'webinars' ? (
         <WebinarsPagina
           webinars={webinars}
-          carregado={isFirestoreSettingsLoaded}
+          carregado={dadosCarregados}
           onAgendar={() => setIsCreateWebinarOpen(true)}
           onEntrar={entrarNoEstudio}
           onExcluir={(webinar) => handleDeleteWebinar(webinar.id)}
@@ -588,7 +561,7 @@ export default function App() {
       ) : (
         <Dashboard
           webinars={webinars}
-          carregado={isFirestoreSettingsLoaded}
+          carregado={dadosCarregados}
           canais={destinations}
           onEntrarNoEstudio={entrarNoEstudio}
           onAgendar={() => setIsCreateWebinarOpen(true)}

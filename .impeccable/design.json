@@ -326,7 +326,7 @@
       "message": "CircleAlert 14px + frase text-xs em --ink-hi com text-pretty, 8px abaixo do campo, no lugar da dica, ligada por aria-describedby",
       "saveFailure": "Linha role=\"alert\" acima das ações: CircleAlert 16px + frase text-sm em --ink-hi com text-pretty; pode terminar com uma AcaoDeTexto sublinhada que executa a saída que nomeia; um novo envio a apaga",
       "purpose": "Erro de campo e falha ao salvar sem carmim.",
-      "loginFailure": "A falha do login com Google (Entrar e Criar conta) usa a mesma linha da falha ao salvar: role=\"alert\", CircleAlert 16 + text-sm --ink-hi, acima do botão do Google. Fechar a janela de propósito não diz nada."
+      "loginFailure": "A falha ao entrar (Entrar e Criar conta) usa a mesma linha da falha ao salvar: role=\"alert\", CircleAlert 16 + text-sm --ink-hi, acima do botão do Google, com a frase de FRASE_DA_FALHA_AO_ENTRAR pelo motivo (FalhaAoEntrar): \"O login com Google ainda não está ligado neste ambiente.\", \"Sem conexão agora. Confira a internet e tente de novo.\" ou \"Não deu para entrar. Tente de novo.\" (o formulário de e-mail e senha, só em desenvolvimento, usa o mesmo mapa). O botão leva a página ao Google (signInWithOAuth, redirecionamento, sem janela) e fica em loading até a página sair; antes, confere se o provedor Google está ligado. A volta com ?error= ou #error= abre Entrar com \"Não deu para entrar com o Google. Tente de novo.\" e limpa o endereço."
     },
     "planLimits": {
       "source": "src/lib/plans.ts",
@@ -386,26 +386,26 @@
     },
     "truthfulSave": {
       "confirmTimeoutMs": 10000,
-      "implementation": "gravarComConfirmacao (src/lib/firestoreService.ts): a única implementação da regra; salvarNomeDoPerfil, agendarWebinar, salvarRoteiro e gravarLista passam por ela. Falha com ErroAoSalvar(motivo: FalhaAoSalvar).",
+      "implementation": "gravarComConfirmacao (src/lib/dadosDaConta.ts): a única implementação da regra. O Supabase só responde depois de gravar, e a resposta é a confirmação; a espera de 10 s cobre a resposta que não chega. salvarNomeDoPerfil, agendarWebinar, excluirWebinar, salvarRoteiro, gravarLista e salvarTransmissao/salvarCanais passam por ela. Falha com ErroAoSalvar(motivo: FalhaAoSalvar). Os canais gravam sem esperar: a falha de salvarCanais chega depois num toast.error \"Os canais não foram salvos\" com a frase de FRASE_DA_FALHA_DA_LISTA; antes de o banco responder às configurações, mudar canais é bloqueado com \"Seus canais ainda estão carregando\".",
       "failures": {
-        "sem-conexao": "offline ou sem cota: \"Sem conexão com a sua conta agora. Tente de novo mais tarde.\"",
+        "sem-conexao": "aparelho offline ou falha de rede: \"Sem conexão com a sua conta agora. Tente de novo mais tarde.\"",
         "sem-confirmacao": "sem confirmação em 10 s: \"Não deu para confirmar que o nome foi salvo / o webinar foi agendado. Confira a conexão e tente de novo.\"",
-        "sem-login": "sessão expirada (depois de esperarSessao): \"Sua sessão expirou, então o nome não foi salvo / o webinar não foi agendado.\" + \"Entrar de novo\" sublinhado",
-        "recusado": "\"Não foi possível salvar o nome / agendar o webinar. Tente de novo.\""
+        "sem-login": "sem sessão (depois de esperarSessao), a conta desta aba trocada por outra, ou o token recusado pela API (PGRST301/PGRST303): \"Sua sessão expirou, então o nome não foi salvo / o webinar não foi agendado.\" + \"Entrar de novo\" sublinhado",
+        "recusado": "o resto, inclusive a troca de nome em que a RLS não atualizou linha nenhuma: \"Não foi possível salvar o nome / agendar o webinar. Tente de novo.\""
       },
       "whileSaving": "primário em loading (aria-busy), Cancelar desabilitado; o rascunho só se apaga depois da confirmação",
       "retry": "uma nova tentativa reusa o id do rascunho: escrita atrasada é repetida, nunca duplicada",
       "failureLine": "role=\"alert\", CircleAlert 16 + text-sm --ink-hi, text-pretty; num diálogo, no rodapé do Modal 12px acima das ações, fora do corpo que rola; o foco vai a \"Entrar de novo\" (sem-login) ou volta ao primário",
       "success": "aviso (\"Nome salvo\", \"Webinar agendado\" + rótulo do horário) só depois de o banco confirmar",
-      "source": "src/lib/firestoreService.ts (gravarComConfirmacao, salvarNomeDoPerfil, agendarWebinar, salvarRoteiro, gravarLista, ErroAoSalvar, FalhaAoSalvar), src/lib/useListaDaConta.ts, src/lib/useRoteiro.ts",
+      "source": "src/lib/dadosDaConta.ts (gravarComConfirmacao, salvarNomeDoPerfil, agendarWebinar, excluirWebinar, salvarRoteiro, gravarLista, salvarTransmissao, salvarCanais, ErroAoSalvar, FalhaAoSalvar), src/lib/useListaDaConta.ts, src/lib/useRoteiro.ts, src/App.tsx (salvarCanaisDaConta)",
       "listas": {
-        "source": "src/lib/useListaDaConta.ts, src/lib/useRoteiro.ts, src/lib/firestoreService.ts (assinarLista, gravarLista, salvarRoteiro, lerRoteiro)",
-        "listaDaConta": "useListaDaConta (banners e tickers): grava a lista inteira por gravarLista; o item novo ou editado já vai ao preview, mas só conta como salvo com a confirmação. A última gravação decide (uma resposta atrasada não desfaz a situação). O que vem da conta não apaga uma mudança que a tela ainda não salvou.",
-        "assinatura": "assinarLista ignora escritas pendentes (hasPendingWrites, com includeMetadataChanges).",
+        "source": "src/lib/useListaDaConta.ts, src/lib/useRoteiro.ts, src/lib/dadosDaConta.ts (assinarLista, gravarLista, salvarRoteiro, lerRoteiro)",
+        "listaDaConta": "useListaDaConta (banners e tickers, cada um numa coluna de studio_settings): grava a lista inteira por gravarLista; o item novo ou editado já vai ao preview, mas só conta como salvo com a confirmação. A última gravação decide (uma resposta atrasada não desfaz a situação). O que vem da conta não apaga uma mudança que a tela ainda não salvou.",
+        "assinatura": "assinarLista lê a coluna e ouve o que outras abas e aparelhos gravam (Supabase Realtime, INSERT e UPDATE); uma mudança que chega antes da leitura vale mais que ela. Exclusões não chegam: quem exclui é a própria aba. Webinars (subscribeWebinars) e canais (subscribeTransmissionSettings) chegam do mesmo jeito.",
         "copiaDoAparelho": "O localStorage guarda só a lista que o banco confirmou, para abrir antes da conta responder; o não salvo some ao recarregar.",
         "item": "\"não salvo\" com PenLine 12px em --ink-hi, ou \"salvando…\" em --ink-lo, depois de um ponto no EstadoNoPalco.",
         "falha": "FalhaNoPainel embaixo da lista, com FRASE_DA_FALHA_DA_LISTA e \"Tentar de novo\".",
-        "roteiro": "salvarRoteiro 1,2 s depois da última tecla. Linha sob o título: \"Abrindo o roteiro salvo…\", \"Alterado\", \"Salvando…\", \"Salvo na sua conta às HH:MM\" (só depois da confirmação) ou \"Ainda não há roteiro salvo.\". Falhas: FRASE_DA_FALHA (ao salvar) e FRASE_DA_FALHA_AO_LER (o salvo não abriu; nada é salvo, para não sobrescrever a conta)."
+        "roteiro": "public.teleprompter_scripts (um por webinar, e o geral sem webinar); salvarRoteiro 1,2 s depois da última tecla. Linha sob o título: \"Abrindo o roteiro salvo…\", \"Alterado\", \"Salvando…\", \"Salvo na sua conta às HH:MM\" (só depois da confirmação) ou \"Ainda não há roteiro salvo.\". Falhas: FRASE_DA_FALHA (ao salvar) e FRASE_DA_FALHA_AO_LER (o salvo não abriu; nada é salvo, para não sobrescrever a conta)."
       }
     },
     "checkbox": {
@@ -447,7 +447,7 @@
       "foraAteExistir": "\"Página de inscrição\" (WebinarPublicPage, a visão public-webinar, cloudflareStreamConfig) até existir o link público; \"Criar capa\" (ThumbnailEditor) até a capa ter onde aparecer."
     },
     "administracao": {
-      "source": "src/components/SuperAdminPanel.tsx; subscribeUserProfiles e PerfilDeCliente em src/lib/firestoreService.ts",
+      "source": "src/components/SuperAdminPanel.tsx; subscribeUserProfiles e PerfilDeCliente em src/lib/dadosDaConta.ts (lê public.profiles)",
       "forma": "Lista de leitura na casca: Pagina, CabecalhoDePagina, uma seção aberta por linha, lista divide-y. Sem indicador, cartão, cor nem ação sobre o cliente.",
       "cabecalho": "\"Administração\" + \"Os clientes cadastrados na plataforma, só para leitura. A mudança de plano, as chaves de transmissão e o registro de auditoria voltam quando houver ingestão, feitos pelo servidor.\"",
       "secao": "SecaoDePagina: border-t --line, mt 48px, pt 24px; h2 \"Clientes\" text-base 600 --ink-hi; contagem (ml 8px) \"N cadastrados\" / \"1 cadastrado\" em text-sm 400 --ink-lo, só com a lista aberta e não vazia.",
@@ -457,16 +457,16 @@
       "estados": {
         "carregando": "Carregando os clientes…",
         "sem-login": "\"Sua sessão expirou, então a lista de clientes não abriu.\" + AcaoDeTexto sublinhada \"Entrar de novo\", que sai da conta",
-        "recusado": "O banco recusou a lista de clientes. Confira se este e-mail está na lista de administradores das regras.",
-        "sem-conexao": "Sem conexão com o banco agora. A lista aparece quando ele voltar. (Também quando a lista chega vazia e só do cache.)",
+        "recusado": "O banco recusou a lista de clientes. Confira se este e-mail está na lista de administradores do servidor.",
+        "sem-conexao": "Sem conexão com o banco agora. A lista aparece quando ele voltar.",
         "vazio": "Nenhum cliente cadastrado ainda.",
         "buscaVazia": "Nenhum cliente com esse nome ou e-mail.",
-        "forma": "uma frase no lugar da lista, text-sm --ink-lo, max-w-prose; role=status no carregamento e nas falhas. subscribeUserProfiles classifica pelo código do erro: permission-denied/unauthenticated → sem-login (sem sessão, depois de esperarSessao) ou recusado (com sessão); cota, rede e o resto → sem-conexao. A busca é anunciada numa região sr-only aria-live sempre montada (\"N encontrados\" / \"Nenhum cliente com esse nome ou e-mail.\")."
+        "forma": "uma frase no lugar da lista, text-sm --ink-lo, max-w-prose; role=status no carregamento e nas falhas. A RLS só entrega os perfis de todos a um admin (app_private.is_super_admin(), pelo papel que o servidor mantém igual a SUPER_ADMIN_EMAILS); a outra conta, só o próprio. subscribeUserProfiles classifica: sem sessão (depois de esperarSessao) ou token recusado (PGRST301/PGRST303) → sem-login; falha de rede → sem-conexao; o resto → recusado. A busca é anunciada numa região sr-only aria-live sempre montada (\"N encontrados\" / \"Nenhum cliente com esse nome ou e-mail.\")."
       },
       "semPapel": "\"Acesso restrito\" + \"Esta área é só para a administração da plataforma.\" + ação de texto \"Voltar ao painel\". Sem formulário e sem senha.",
-      "entradas": "Item \"Administração\" (Shield 14px) no menu da conta, antes de \"Sair\"; Configurações › Avançado, \"Administração da plataforma\" com \"Os clientes cadastrados, só para leitura.\" (a seção só existe para o admin); a rota /admin (e #admin, ?mode=admin), que leva quem não tem o papel ao Painel, sem aviso. Todas dependem de role === 'super-admin' na sessão; quem decide o que se lê são as regras do banco.",
-      "perfil": "PerfilDeCliente: uid, name, email, plan, trialEndsAt?.",
-      "naoLido": "role, subscriptionStatus e isExpired do perfil não são lidos: o servidor do PR #9 grava role: 'client' em todo perfil, e nada atualiza a situação quando o teste vence. O teste sai de trialEndsAt (Regra do Horário Derivado).",
+      "entradas": "Item \"Administração\" (Shield 14px) no menu da conta, antes de \"Sair\"; Configurações › Avançado, \"Administração da plataforma\" com \"Os clientes cadastrados, só para leitura.\" (a seção só existe para o admin); a rota /admin (e #admin, ?mode=admin), que leva quem não tem o papel ao Painel, sem aviso. Todas dependem de role === 'super-admin' na sessão; quem decide o que se lê é a RLS do banco.",
+      "perfil": "PerfilDeCliente: uid, name, email, plan, trialEndsAt?. O plano vem do enum do banco (free_trial, standard, professional, business) com o nome do app (Free Trial, Standard, Professional, Business).",
+      "naoLido": "O papel e a situação não são lidos: o papel mora em public.user_roles, mantido pelo servidor, e public.profiles não tem coluna de papel; nada atualiza subscription_status quando o teste vence. O teste sai de trialEndsAt (Regra do Horário Derivado).",
       "foraAteOIngest": "Mudar planos, as chaves de transmissão e o registro de auditoria: o navegador os gravava direto no banco. Voltam com o ingest, feitos pelo servidor."
     },
     "lineCtlDebt": {
@@ -789,7 +789,7 @@
       "kind": "button",
       "refersTo": "button-google",
       "description": "Fantasma na largura toda, 44px, com o G nas cores do Google (exceção à Regra da Marca Monocromática). É a ação da tela e não tem cor. A falha vem acima, na linha role=\"alert\" da falha ao salvar.",
-      "html": "<div class=\"ds-g\"><p role=\"alert\" class=\"ds-g-falha\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>O navegador bloqueou a janela do Google. Permita janelas para este site e tente de novo.</span></p><button type=\"button\" class=\"ds-g-btn\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"#EA4335\" d=\"M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z\"/><path fill=\"#4285F4\" d=\"M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z\"/><path fill=\"#FBBC05\" d=\"M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12s.7 2.3 1.9 4.7l3.7-2.9z\"/><path fill=\"#34A853\" d=\"M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z\"/></svg>Entrar com Google</button></div>",
+      "html": "<div class=\"ds-g\"><p role=\"alert\" class=\"ds-g-falha\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>O login com Google ainda não está ligado neste ambiente.</span></p><button type=\"button\" class=\"ds-g-btn\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"#EA4335\" d=\"M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z\"/><path fill=\"#4285F4\" d=\"M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z\"/><path fill=\"#FBBC05\" d=\"M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12s.7 2.3 1.9 4.7l3.7-2.9z\"/><path fill=\"#34A853\" d=\"M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z\"/></svg>Entrar com Google</button></div>",
       "css": ".ds-g { font-family: Poppins, system-ui, sans-serif; max-width: 384px; } .ds-g-falha { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 32px; font-size: 14px; line-height: 1.43; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-g-falha svg { flex-shrink: 0; margin-top: 2px; } .ds-g-btn { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 9px 18px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: transparent; color: var(--ink, #D9E1EA); font: inherit; font-size: 14px; font-weight: 600; line-height: 1.2; cursor: pointer; transition: background-color 110ms linear; } .ds-g-btn:hover { background: var(--raise, #282D31); } .ds-g-btn:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     },
     {
@@ -944,7 +944,7 @@
       },
       {
         "name": "Regra do Salvo de Verdade",
-        "body": "Uma tela só diz \"salvo\" (o aviso \"Nome salvo\") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão ou sem cota, \"tente de novo mais tarde\"; sem confirmação em 10 s, \"não deu para confirmar\"; sessão expirada, \"Entrar de novo\"; recusa, \"tente de novo\". A restauração da sessão é esperada (esperarSessao) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de \"salvo\" local que o banco não viu. A regra tem uma implementação só, gravarComConfirmacao em src/lib/firestoreService.ts, que falha com ErroAoSalvar (motivo FalhaAoSalvar: sem-login, sem-conexao, sem-confirmacao, recusado); salvarNomeDoPerfil, agendarWebinar, salvarRoteiro e gravarLista passam por ela, e toda gravação nova também passa. Enquanto grava, o primário fica em loading e Cancelar desabilita; o rascunho só se apaga depois da confirmação. Uma nova tentativa de criar algo reusa o id do rascunho, e uma escrita atrasada é repetida, nunca duplicada.",
+        "body": "Uma tela só diz \"salvo\" (o aviso \"Nome salvo\") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão, \"tente de novo mais tarde\"; sem confirmação em 10 s, \"não deu para confirmar\"; sessão expirada, \"Entrar de novo\"; recusa, \"tente de novo\". A restauração da sessão é esperada (esperarSessao) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de \"salvo\" local que o banco não viu. A regra tem uma implementação só, gravarComConfirmacao em src/lib/dadosDaConta.ts: o Supabase só responde depois de gravar, e a resposta é a confirmação; a espera de 10 s cobre a resposta que não chega. Falha com ErroAoSalvar (motivo FalhaAoSalvar): sem-login (sem sessão, a conta desta aba trocada por outra, ou o token recusado pela API, PGRST301/PGRST303), sem-conexao (aparelho offline ou falha de rede), sem-confirmacao (a espera acabou) e recusado (o resto, inclusive a troca de nome em que a RLS não atualizou linha nenhuma). salvarNomeDoPerfil, agendarWebinar, excluirWebinar, salvarRoteiro, gravarLista (banners e tickers do estúdio) e salvarTransmissao (com salvarCanais) passam por ela, e toda gravação nova também passa. Os canais gravam sem diálogo e sem esperar: cada mudança (ligar ou desligar, conectar ou editar, remover) vai por salvarCanais, e a falha chega depois, num toast.error \"Os canais não foram salvos\" com a frase de FRASE_DA_FALHA_DA_LISTA do motivo. Enquanto o banco não respondeu às configurações da conta, mudar os canais é bloqueado com o aviso \"Seus canais ainda estão carregando\". Enquanto grava, o primário fica em loading e Cancelar desabilita; o rascunho só se apaga depois da confirmação. Uma nova tentativa de criar algo reusa o id do rascunho, e uma escrita atrasada é repetida, nunca duplicada.",
         "section": "components"
       },
       {

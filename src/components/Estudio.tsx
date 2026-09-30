@@ -7,7 +7,7 @@ import { useRoteiro } from '../lib/useRoteiro';
 import { useListaDaConta } from '../lib/useListaDaConta';
 import { EVENTOS_DO_PLAYER, ajustarPlayer, criarPlayer, desenhaATela, situacaoDoClipe, soltarPlayer, tocar, type PlayerDoClipe } from '../lib/playerDoClipe';
 import { estadoDoCanal } from '../lib/canais';
-import { salvarBanners, salvarTickers, subscribeBanners, subscribeTickers } from '../lib/firestoreService';
+import { salvarBanners, salvarTickers, subscribeBanners, subscribeTickers } from '../lib/dadosDaConta';
 import { useMidiaDoEstudio } from '../context/MidiaDoEstudio';
 import { BarraDoEstudio } from './BarraDoEstudio';
 import { BotoesDeTransicao, DURACAO_DA_FUSAO, TrilhoDeCenas, type Transicao } from './TrilhoDeCenas';

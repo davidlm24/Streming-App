@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, CircleAlert, Copy } from 'lucide-react';
+import { ArrowRight, CircleAlert } from 'lucide-react';
 import { LegalModal } from './LegalModals';
 import { InicioPublico } from './InicioPublico';
 import { PublicHeader, type VisaoPublica } from './PublicHeader';
-import { loginWithGoogle, loginWithEmail, registerWithEmail } from '../lib/firestoreService';
+import { ErroAoEntrar, loginWithGoogle, loginWithEmail, registerWithEmail, type FalhaAoEntrar } from '../lib/dadosDaConta';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
-import { copyText } from './ui/clipboard';
 
 /** Vite remove o ramo inteiro no build de produção. */
 const IS_DEV = import.meta.env.DEV;
@@ -31,23 +30,20 @@ function LogoDoGoogle() {
 }
 
 /**
- * A frase de cada falha do login com Google. Antes a tela mostrava a
- * mensagem crua do Firebase ("Firebase: Error (auth/popup-blocked).").
- * Fechar a janela de propósito não é erro: não diz nada.
+ * A frase de cada falha ao entrar, pelo motivo que dadosDaConta dá. Antes a
+ * tela mostrava a mensagem crua do Firebase ("Firebase: Error
+ * (auth/popup-blocked).").
  */
-function mensagemDoGoogle(err: any): string | null {
-  switch (err?.code) {
-    case 'auth/popup-closed-by-user':
-    case 'auth/cancelled-popup-request':
-      return null;
-    case 'auth/popup-blocked':
-      return 'O navegador bloqueou a janela do Google. Permita janelas para este site e tente de novo.';
-    case 'auth/network-request-failed':
-      return 'Sem conexão com o Google. Confira a internet e tente de novo.';
-    default:
-      return 'Não deu para entrar com o Google. Tente de novo.';
-  }
-}
+const FRASE_DA_FALHA_AO_ENTRAR: Record<FalhaAoEntrar, string> = {
+  'google-desligado': 'O login com Google ainda não está ligado neste ambiente.',
+  credenciais: 'E-mail ou senha inválidos.',
+  'ja-existe': 'Este e-mail já possui uma conta.',
+  'confirmar-email': 'Enviamos um e-mail de confirmação. Confirme o endereço e entre de novo.',
+  'sem-conexao': 'Sem conexão agora. Confira a internet e tente de novo.',
+  outra: 'Não deu para entrar. Tente de novo.',
+};
+
+const fraseDaFalha = (err: unknown) => FRASE_DA_FALHA_AO_ENTRAR[err instanceof ErroAoEntrar ? err.motivo : 'outra'];
 
 interface AuthAndPricingProps {
   onAuthSuccess: (user: {
@@ -87,37 +83,41 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [authError, setAuthError] = useState('');
-  const [isUnauthorizedDomain, setIsUnauthorizedDomain] = useState(false);
-  const [domainCopied, setDomainCopied] = useState(false);
   // Nem o login nem o cadastro tinham estado pendente: dava para enviar o
   // formulario varias vezes sem nenhum retorno visual.
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
   const [entrandoComGoogle, setEntrandoComGoogle] = useState(false);
 
+  // O navegador sai para o Google e volta com a sessão, que o App recebe. O
+  // botão fica em espera até a página trocar.
   const handleGoogleLogin = async () => {
     if (entrandoComGoogle) return;
     setAuthError('');
-    setIsUnauthorizedDomain(false);
     setEntrandoComGoogle(true);
     try {
-      const userProfile = await loginWithGoogle();
-      onAuthSuccess(userProfile);
-    } catch (err: any) {
+      await loginWithGoogle();
+    } catch (err) {
       console.error('Google Sign-In Error:', err);
-      if (err?.code === 'auth/unauthorized-domain' || err?.message?.includes('unauthorized-domain')) {
-        setIsUnauthorizedDomain(true);
-      } else {
-        setAuthError(mensagemDoGoogle(err) ?? '');
-      }
-    } finally {
+      setAuthError(fraseDaFalha(err));
       setEntrandoComGoogle(false);
     }
   };
 
+  // De volta do Google sem sessão (a pessoa cancelou, ou o login foi recusado):
+  // a tela de entrar diz, e o endereço perde os parâmetros do erro
+  useEffect(() => {
+    const busca = new URLSearchParams(window.location.search);
+    const fragmento = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    if (!busca.has('error') && !fragmento.has('error')) return;
+    setView('login');
+    setAuthError('Não deu para entrar com o Google. Tente de novo.');
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // E-mail e senha agora autenticam no Firebase (antes o formulário só
-    // conferia se os campos estavam preenchidos, e qualquer senha entrava).
+    // E-mail e senha autenticam no Supabase (antes o formulário só conferia se
+    // os campos estavam preenchidos, e qualquer senha entrava).
     // Seguem só em desenvolvimento: uma conta por e-mail nasce com o e-mail
     // não verificado, e as regras do banco e o servidor só reconhecem dono e
     // admin por e-mail verificado. Em produção, entra-se pelo Google.
@@ -132,9 +132,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
       setAuthError('');
       onAuthSuccess(await loginWithEmail(email, password));
     } catch (err: any) {
-      setAuthError(err?.code === 'auth/invalid-credential'
-        ? 'E-mail ou senha inválidos.'
-        : (err?.message || 'Não foi possível entrar.'));
+      setAuthError(fraseDaFalha(err));
     } finally {
       setIsSubmittingAuth(false);
     }
@@ -142,7 +140,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mesma regra de handleLogin: cadastro real no Firebase, só em desenvolvimento.
+    // Mesma regra de handleLogin: cadastro real no Supabase, só em desenvolvimento.
     if (!IS_DEV) return;
     if (isSubmittingAuth) return;
     if (!email || !password || !name) {
@@ -154,9 +152,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
       setAuthError('');
       onAuthSuccess(await registerWithEmail(email, password, name));
     } catch (err: any) {
-      setAuthError(err?.code === 'auth/email-already-in-use'
-        ? 'Este e-mail já possui uma conta.'
-        : (err?.message || 'Não foi possível criar a conta.'));
+      setAuthError(fraseDaFalha(err));
     } finally {
       setIsSubmittingAuth(false);
     }
@@ -179,7 +175,6 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
 
   const irPara = (destino: VisaoPublica) => {
     setAuthError('');
-    setIsUnauthorizedDomain(false);
     setView(destino);
   };
 
@@ -204,31 +199,9 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
     document.getElementById(TITULO_DA_VISAO[view])?.focus({ preventScroll: true });
   }, [view]);
 
-  const copiarEndereco = () => {
-    copyText(window.location.hostname);
-    setDomainCopied(true);
-    setTimeout(() => setDomainCopied(false), 2000);
-  };
-
   // As falhas ficam acima do botão do Google, que é a ação da tela.
   const avisos = (
     <>
-      {isUnauthorizedDomain && (
-        <div role="alert" className="mt-6 text-pretty">
-          <p className="flex items-start gap-2 text-sm text-[var(--ink-hi)]">
-            <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-            <span>O login com Google ainda não está liberado neste endereço.</span>
-          </p>
-          <p className="mt-2 text-xs text-[var(--ink-lo)]">
-            Quem administra o PwStreamer precisa incluir{' '}
-            <span className="break-all text-[var(--ink)]">{window.location.hostname}</span> em Domínios autorizados, no
-            Firebase Authentication.
-          </p>
-          <AcaoDeTexto tamanho="xs" icone={<Copy size={12} />} onClick={copiarEndereco} className="mt-1 min-h-11">
-            {domainCopied ? 'Endereço copiado' : 'Copiar endereço'}
-          </AcaoDeTexto>
-        </div>
-      )}
       {authError && (
         <p role="alert" className="mt-6 flex items-start gap-2 text-pretty text-sm text-[var(--ink-hi)]">
           <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />

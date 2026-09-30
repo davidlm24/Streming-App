@@ -38,7 +38,7 @@ O produto dá certo quando o operador passa a live inteira sem precisar sair del
 
 ## Capabilities and Constraints
 
-- **Stack:** React 19, Tailwind v4 e Vite. A API é montada em `server.ts` (`createApiApp`) e roda na Vercel (`api/index.ts`) e no servidor local (`start-server.ts`). Firebase Auth e Firestore usam um banco com nome, e há integração com Cloudflare Stream.
+- **Stack:** React 19, Tailwind v4 e Vite. A API é montada em `server.ts` (`createApiApp`) e roda na Vercel (`api/index.ts`) e no servidor local (`start-server.ts`). O login e os dados são do Supabase (Auth e Postgres, com RLS em cada tabela e as listas em tempo real), e há integração com Cloudflare Stream.
 - **Login:** em produção é só pelo Google. Por enquanto, e-mail e senha só existem no ambiente de desenvolvimento.
 - **Planos e preços:** a fonte única é `src/lib/plans.ts`. Teste grátis de 30 dias; Standard R$ 49,90, Professional R$ 99,90 e Business R$ 199,90 por mês.
 - **Pagamento:** ainda não há cobrança nem checkout. O site público e o app mostram os planos e dizem que a assinatura abre em breve. O webhook do Stripe está no servidor, mas sem checkout nada o aciona.

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
-import { subscribeUserProfiles, type PerfilDeCliente } from '../lib/firestoreService';
+import { subscribeUserProfiles, type PerfilDeCliente } from '../lib/dadosDaConta';
 import { getPlan, type PlanId } from '../lib/plans';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { CabecalhoDePagina, Pagina, SecaoDePagina } from './ui/Pagina';
@@ -91,7 +91,7 @@ export function SuperAdminPanel({ onBack, onSair, user }: SuperAdminPanelProps) 
   const frase = (() => {
     if (estado === 'carregando') return 'Carregando os clientes…';
     if (estado === 'sem-login') return 'Sua sessão expirou, então a lista de clientes não abriu.';
-    if (estado === 'recusado') return 'O banco recusou a lista de clientes. Confira se este e-mail está na lista de administradores das regras.';
+    if (estado === 'recusado') return 'O banco recusou a lista de clientes. Confira se este e-mail está na lista de administradores do servidor.';
     if (estado === 'sem-conexao') return 'Sem conexão com o banco agora. A lista aparece quando ele voltar.';
     if (clientes.length === 0) return 'Nenhum cliente cadastrado ainda.';
     if (encontrados.length === 0) return 'Nenhum cliente com esse nome ou e-mail.';

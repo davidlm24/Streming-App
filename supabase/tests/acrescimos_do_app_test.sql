@@ -6,10 +6,10 @@ select plan(13);
 
 insert into auth.users (id, email, raw_app_meta_data, raw_user_meta_data)
 values
-  ('33333333-3333-3333-3333-333333333333', 'dona@example.test', '{}'::jsonb,
+  ('33333333-3333-3333-3333-333333333333', 'dona@rls.test', '{}'::jsonb,
    '{"full_name": "Maria Dona", "avatar_url": "https://example.test/maria.png"}'::jsonb),
-  ('44444444-4444-4444-4444-444444444444', 'outra@example.test', '{}'::jsonb, '{}'::jsonb),
-  ('55555555-5555-5555-5555-555555555555', 'longa@example.test', '{}'::jsonb,
+  ('44444444-4444-4444-4444-444444444444', 'outra@rls.test', '{}'::jsonb, '{}'::jsonb),
+  ('55555555-5555-5555-5555-555555555555', 'longa@rls.test', '{}'::jsonb,
    jsonb_build_object('name', repeat('Nome', 40)));
 
 insert into public.webinars (id, owner_id, title)

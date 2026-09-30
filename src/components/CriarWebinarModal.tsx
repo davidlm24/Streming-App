@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { CircleAlert } from 'lucide-react';
 import type { Destination } from '../types';
 import { PLATAFORMAS_NOMEADAS, estadoDoCanal, nomeDaPlataforma, pendenciaCurta } from '../lib/canais';
-import { ErroAoSalvar, type FalhaAoSalvar } from '../lib/firestoreService';
+import { ErroAoSalvar, type FalhaAoSalvar } from '../lib/dadosDaConta';
 import { horarioPorExtenso } from '../lib/horario';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
@@ -145,7 +145,8 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
       return;
     }
 
-    idDoRascunho.current ??= `webinar-${Date.now()}`;
+    // O id é o do banco (uuid), e a nova tentativa usa o mesmo: não cria outro webinar
+    idDoRascunho.current ??= crypto.randomUUID();
     setSalvando(true);
     try {
       await onAgendar({
