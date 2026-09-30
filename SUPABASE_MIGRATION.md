@@ -1,25 +1,24 @@
 # Supabase migration design
 
-## Decision required before implementation
+## Decisions (2026-09-30)
 
-PW Streamer needs a dedicated Supabase project. The existing active project in the account contains an unrelated application and live data, so it must not be reused for this migration.
+- **A dedicated project in a separate Supabase account.** PW Streamer gets its own account and project; the other account's projects hold unrelated applications and are not reused. The project is created at cutover, in `sa-east-1` (São Paulo), because the users are in Brazil. The free plan costs nothing, pauses a project after 7 days without use, and caps the database at 500 MB, file storage at 1 GB, and a single file at 50 MB.
+- **Local first.** The schema, the RLS tests, the server, and the client are built and tested against the local Supabase stack in Docker (`npm run db:start`, `npm run db:test`). The hosted project only receives what already passes locally.
+- **Start from zero.** Nothing is imported from Firebase: no Auth users, no Firestore documents, no Storage objects (the Firebase Storage bucket never existed). People sign in again with Google, and the 30-day trial starts again. The auth-migration and data-import sections below are kept as reference only.
+- **Google sign-in only in production**, as today. Email and password stay in development. The Google Meet scopes the Firebase sign-in requested are dropped: the app never used them.
+- **The full control-plane schema** (`20260924121120_streaming_control_plane.sql`), plus what the app uses today and that schema lacked (`20260930150000_acrescimos_do_app.sql`): teleprompter scripts, separate banner and ticker lists in `studio_settings`, and the profile photo and name from Google.
 
-Create a new project in the existing organization, in a region selected for the application's users. For European users, `eu-west-3` (Paris) is the preferred region. Project creation can incur a recurring cost and must be confirmed before it is created.
-
-The runtime is now Node 22 or newer. Current Supabase JavaScript libraries no longer support Node 20.
+The runtime is Node 22 or newer. Current Supabase JavaScript libraries no longer support Node 20.
 
 ## Migration strategy
 
-Use a staged cutover. Do not point the production client at Supabase until the complete copy, RLS verification, and acceptance tests pass.
+Use a staged cutover, one pull request per stage. Do not point the production client at Supabase until every stage passes locally.
 
-1. Create a dedicated Supabase project and configure Auth, Storage, and the Data API.
-2. Create the Postgres schema and RLS policies in an isolated Supabase branch or local development stack.
-3. Replace client Firebase Auth, Firestore, and Storage adapters with Supabase adapters while preserving the current React interfaces.
-4. Replace Firebase Admin verification and Firestore server writes with server-only Supabase clients.
-5. Export Firebase Auth users, Firestore collections, and Storage objects.
-6. Import data into Supabase, compare source and target counts, and test account ownership with two ordinary users and one administrator.
-7. Put Firebase writes into maintenance mode, run a final delta export/import, and switch the application environment variables.
-8. Keep Firebase read-only until the post-cutover monitoring window closes, then decommission it separately.
+1. **Database:** schema, RLS, and tests on the local stack, with a CI job that rebuilds the database from the migrations and runs `supabase/tests` on every change.
+2. **Server:** validate Supabase access tokens in `src/middleware/auth.ts`; read profiles created by the auth trigger; keep `user_roles` in step with `SUPER_ADMIN_EMAILS`; move the trial check and the Stripe webhook writes to Postgres.
+3. **Client:** Supabase Auth with the Google redirect flow, and Supabase-backed versions of the `firestoreService` functions (profile, webinars, studio settings, banners, tickers, scripts, and the admin client list), keeping the React interfaces.
+4. **Media:** the studio library moves from the browser (IndexedDB) to the `media-assets` bucket. The free plan's 50 MB per-file cap limits video clips.
+5. **Cutover:** create the project in the new account, link it and push the migrations with the CLI (the owner signs in to the CLI), configure the Google provider and redirect URLs, set the environment variables locally and on Vercel, then remove the Firebase packages, configuration, rules, and tests.
 
 ## Target services
 
@@ -43,7 +42,8 @@ The initial schema preserves current behavior while allowing relational improvem
 | --- | --- | --- |
 | `profiles` | `id uuid primary key references auth.users`, email, name, plan, subscription fields, trial dates, role | `/users/{uid}` |
 | `webinars` | id, owner_id, payload `jsonb`, created_at, updated_at | `/users/{uid}/webinars` and public webinar records |
-| `studio_settings` | `user_id primary key`, banners, transmission, destinations, webhooks, scenes as `jsonb` | `/users/{uid}/studioSettings/*` |
+| `studio_settings` | `user_id primary key`; `transmission` (channels with their stream keys, graphics color), `banners` and `tickers` lists, and the layout columns, as `jsonb` | `/users/{uid}/studioSettings/*` |
+| `teleprompter_scripts` | id, owner_id, webinar_id (null for the general script), script, notes; one per webinar and one general per owner | `/users/{uid}/roteiros` |
 | `snapshots` | id, user_id, name, url, captured_at | `/users/{uid}/snapshots` |
 | `audience_members` | id, user_id, payload `jsonb`, created_at | `/users/{uid}/audience` |
 | `webhook_logs` | id, user_id, payload `jsonb`, created_at | `/users/{uid}/webhookLogs` |
@@ -102,7 +102,7 @@ Every `public` table must have RLS enabled. Policies use the authenticated user'
 
 ## Auth migration choices
 
-Choose one before importing users:
+Not used: the migration starts from zero (decision of 2026-09-30). Kept as reference for a future import.
 
 1. **Password-hash import.** Export Firebase Auth users and Firebase's Scrypt hash parameters, then import supported accounts into Supabase Auth. This preserves passwords where the export data and hash configuration are available.
 2. **Password reset cutover.** Import identities and require all email/password users to set a new password on first Supabase login. This is simpler and preferred for a small user base.
@@ -112,6 +112,8 @@ Google users must be configured in Supabase Auth with the correct OAuth redirect
 
 ## Data and Storage import
 
+Not used: the migration starts from zero (decision of 2026-09-30). Kept as reference for a future import.
+
 1. Take a timestamped backup of Firestore, Firebase Auth, and Storage before any write freeze.
 2. Export Firestore collections using the official Firebase-to-Supabase tooling or a custom exporter that preserves Firestore document IDs and timestamp values.
 3. Convert nested user subcollections into the tables above. Keep legacy Firestore IDs as text IDs during the first import where it makes reconciliation easier.
@@ -119,6 +121,17 @@ Google users must be configured in Supabase Auth with the correct OAuth redirect
 5. Build an explicit Firebase UID to Supabase UUID mapping before importing owner-keyed rows or Storage files.
 6. For every imported table, record source count, target count, rejected rows, and checksum/ID samples.
 7. Keep a durable migration journal containing the export time, importer version, mapping-file checksum, and completion status.
+
+## Local development
+
+```text
+npm run db:start   # the local stack in Docker, with every migration applied
+npm run db:test    # the RLS tests in supabase/tests
+npm run db:reset   # rebuild the local database from the migrations
+npm run db:stop
+```
+
+`npx supabase status -o env` prints the local URL and keys for `.env`. They are the CLI's public development defaults, not secrets of any hosted project.
 
 ## Test and cutover gates
 
