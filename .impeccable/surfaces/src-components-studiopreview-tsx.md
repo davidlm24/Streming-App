@@ -2,7 +2,7 @@
 version: 1
 slug: "src-components-studiopreview-tsx"
 primary_target: "src/components/StudioPreview.tsx"
-related_targets: ["src/App.tsx","src/components/Estudio.tsx","src/components/BarraDoEstudio.tsx","src/components/TrilhoDeCenas.tsx","src/components/MonitoresDoEstudio.tsx","src/components/PainelDoEstudio.tsx","src/components/BandejaDoEstudio.tsx","src/components/VirtualizedChat.tsx","src/components/GraficosDoPalco.tsx","src/components/CodigoQr.tsx","src/components/PecasDoPainel.tsx","src/components/PainelGraficos.tsx","src/components/PainelRoteiro.tsx","src/components/Teleprompter.tsx","src/components/PainelQrCode.tsx","src/components/PainelMidia.tsx","src/components/PainelCamera.tsx","src/lib/graficos.ts","src/lib/camera.ts","src/lib/useRoteiro.ts","src/lib/useListaDaConta.ts"]
+related_targets: ["src/App.tsx","src/components/Estudio.tsx","src/components/BarraDoEstudio.tsx","src/components/TrilhoDeCenas.tsx","src/components/MonitoresDoEstudio.tsx","src/components/PainelDoEstudio.tsx","src/components/BandejaDoEstudio.tsx","src/components/VirtualizedChat.tsx","src/components/GraficosDoPalco.tsx","src/components/CodigoQr.tsx","src/components/PecasDoPainel.tsx","src/components/PainelGraficos.tsx","src/components/PainelRoteiro.tsx","src/components/Teleprompter.tsx","src/components/PainelQrCode.tsx","src/components/PainelMidia.tsx","src/components/PainelCamera.tsx","src/lib/graficos.ts","src/lib/camera.ts","src/lib/useRoteiro.ts","src/lib/useListaDaConta.ts","src/lib/playerDoClipe.ts","src/components/Dashboard.tsx","src/components/WebinarLista.tsx","src/components/WebinarsPagina.tsx","src/components/CriarWebinarModal.tsx"]
 ---
 
 # Estúdio (console de corte)
@@ -28,6 +28,11 @@ related_targets: ["src/App.tsx","src/components/Estudio.tsx","src/components/Bar
 - O QR code tem título e preço opcionais e é gerado no navegador.
 - Saem capturas, lousa, chat flutuante, trilha sonora, presets de marca, estilo de texto e o modo claro do estúdio. Estilo vira Câmera; Extras sai do trilho.
 - Os modais do estúdio ficam para a fase 3.
+
+**Fase 3 (decidida com o usuário em 2026-09-30):** os modais do estúdio já tinham saído na fase 2, órfãos das abas apagadas.
+- A página pública do webinar sai até existir o link público: só o anfitrião a abria, a inscrição ficava no navegador dele e a sala nunca recebia vídeo. Saem com ela o item "Página de inscrição", as frases que a prometiam e o campo Descrição do "Novo webinar" (Regra do Dado com Uso).
+- O editor de capas sai até a capa ter uso: só baixava um JPG diferente da prévia, com fundos do Unsplash, e a capa não aparecia em lugar nenhum.
+- O clipe do programa toca num player só, que muda de caixa entre as cenas sem recomeçar. Numa cena sem tela, pausa e continua quando a tela volta. O preview e a camada que sai na fusão desenham o quadro desse player.
 
 **Momento memorável:** o corte. A cena escolhida vai para o preview, e ao lado dele está a lista do que muda no próximo corte; "Corte" ou "Fusão" leva tudo ao programa.
 

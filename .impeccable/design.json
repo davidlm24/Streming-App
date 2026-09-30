@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-29T10:54:10.840Z",
+  "generatedAt": "2026-09-30T07:35:00.748Z",
   "title": "Design System: PwStreamer",
   "extensions": {
     "colorMeta": {
@@ -426,7 +426,25 @@
       },
       "rendered": "rotuloDoHorario: \"Hoje, às 20:00\" / \"Amanhã, às 20:00\" / a frase absoluta; sem startsAt, o texto livre de time",
       "measure": "Horario isola hh:mm em font-mono tabular-nums --ink",
-      "source": "src/lib/horario.ts"
+      "source": "src/lib/horario.ts",
+      "readBy": "rotuloDoHorario, quando o webinar é antigo e não tem startsAt (o texto livre) ou quando startsAt não é uma data; o super-admin o mostra como está."
+    },
+    "webinars": {
+      "source": "src/components/WebinarLista.tsx, WebinarsPagina.tsx, Dashboard.tsx, CriarWebinarModal.tsx",
+      "linha": "WebinarLinha: título text-sm 500 --ink-hi; embaixo, text-xs --ink-lo, Horario e canais; à direita uma ação visível, \"Entrar\" (ghost sm).",
+      "menu": "acoesDoWebinar só tem \"Excluir webinar\" (perigo, com useConfirm), e só na página Webinars. Sem ação, a linha não tem \"⋯\". No Painel, nem a próxima live nem as próximas têm \"⋯\".",
+      "confirmarExclusao": "Título \"Excluir \\\"{título}\\\"?\"; frase \"O webinar sai da lista, com o horário e os canais planejados.\"; confirmação \"Excluir webinar\", destrutiva.",
+      "frases": {
+        "cabecalho": "Cada webinar guarda o horário, os canais e o roteiro de uma live.",
+        "vazio": "Nenhum webinar agendado. Agende um para guardar o horário, os canais e o roteiro da próxima live.",
+        "painelVazio": "\"Nenhuma live agendada\" + \"Entre no estúdio para preparar a live agora, ou agende o próximo webinar.\" (\"agende o próximo webinar\" é a ação de texto sublinhada)."
+      },
+      "novoWebinar": {
+        "campos": "Título (44px); Data e Hora lado a lado (date e time nativos, 44px, data com mínimo em hoje); o fieldset Canais.",
+        "erroDoTitulo": "Falta o título. É o nome que aparece na lista e no estúdio.",
+        "semDescricao": "A Descrição saiu com a página pública, a única tela que a mostrava (Regra do Dado com Uso); desc fica opcional só para webinars antigos."
+      },
+      "foraAteExistir": "\"Página de inscrição\" (WebinarPublicPage, a visão public-webinar, cloudflareStreamConfig) até existir o link público; \"Criar capa\" (ThumbnailEditor) até a capa ter onde aparecer."
     },
     "lineCtlDebt": {
       "note": "Dívida conhecida: --line-ctl fica abaixo de 3:1 (WCAG 1.4.11). O campo se lê pelo preenchimento --well e pelo rótulo; a caixa de seleção não usa essa borda.",
@@ -457,11 +475,11 @@
     "debtBaseline": {
       "hex-arbitrario-em-classe": 0,
       "hex-em-atributo-jsx": 9,
-      "botao-cru-fora-da-primitiva": 59,
+      "botao-cru-fora-da-primitiva": 47,
       "paleta-slate-gray-estrutural": 2,
-      "tamanho-de-fonte-avulso": 142,
+      "tamanho-de-fonte-avulso": 105,
       "dialogo-nativo-bloqueante": 0,
-      "outline-none": 20,
+      "outline-none": 13,
       "important-no-css": 6,
       "z-index-avulso": 0
     },
@@ -486,8 +504,8 @@
       }
     },
     "foraDoSistema": {
-      "telas": "Os modais do estúdio (fase 3) e o super-admin ainda carregam o visual herdado do Google AI Studio. O console do estúdio (barra, trilho de cenas, monitores, coluna da direita, bandeja), os painéis de ferramentas e os gráficos do palco (fase 2) e o site público saíram da dívida.",
-      "desvios": "Gatilho \"⋯\" do Menu (32px), avatar (32px), fechar do Modal (~34px), chip (36px), z-30 no cabeçalho do app, --line-ctl abaixo de 3:1, polegar da rolagem azul no hover. No console: o botão de fixar do chat (36px) e o gatilho de chevron dos aparelhos (36px de largura) abaixo de 44px; a borda do card da câmera na cor dos gráficos, escolhida em Gráficos. Nos painéis: as cores dos gráficos em grid-cols-6 com ~41px no desktop (coluna de 264px; ~44px no celular); trocar de cena com um clipe tocando no programa remonta o vídeo quando o layout muda de ramo, e ele volta ao começo (fase 3).",
+      "telas": "Só o super-admin (com o monitor de desempenho, os webhooks e as análises que ele abre) ainda carrega o visual herdado do Google AI Studio. Os modais do estúdio saíram na fase 2, e a fase 3 fecha o estúdio; com ela saíram a página pública do webinar e o editor de capas. O console do estúdio, os painéis de ferramentas, os gráficos do palco e o site público saíram da dívida.",
+      "desvios": "Gatilho \"⋯\" do Menu (32px), avatar (32px), fechar do Modal (~34px), chip (36px), z-30 no cabeçalho do app, --line-ctl abaixo de 3:1, polegar da rolagem azul no hover. No console: o botão de fixar do chat (36px) e o gatilho de chevron dos aparelhos (36px de largura) abaixo de 44px; a borda do card da câmera na cor dos gráficos, escolhida em Gráficos. Nos painéis: as cores dos gráficos em grid-cols-6 com ~41px no desktop (coluna de 264px; ~44px no celular).",
       "googleG": "As quatro cores do G do Google contam nos 9 de hex-em-atributo-jsx e ficam: são a marca do Google no botão de login.",
       "formularioDeDesenvolvimento": "O formulário de e-mail e senha de Entrar e Criar conta existe só em desenvolvimento, não autentica e não é modelo; o primário azul dele não é a ação da tela."
     },
@@ -495,7 +513,7 @@
       "tokens": {
         "guia": "rgb(255 255 255 / 0.6): só no escopo console, as guias sobre a imagem do monitor, em mix-blend-difference"
       },
-      "source": "src/components/Estudio.tsx (dono do estado do estúdio; o App só o renderiza), BarraDoEstudio.tsx, TrilhoDeCenas.tsx, MonitoresDoEstudio.tsx, PainelDoEstudio.tsx, BandejaDoEstudio.tsx, MedidorDeAudio.tsx, VirtualizedChat.tsx, StudioPreview.tsx (o palco), GraficosDoPalco.tsx, src/lib/cenas.ts, src/lib/graficos.ts, src/lib/camera.ts",
+      "source": "src/components/Estudio.tsx (dono do estado do estúdio; o App só o renderiza), BarraDoEstudio.tsx, TrilhoDeCenas.tsx, MonitoresDoEstudio.tsx, PainelDoEstudio.tsx, BandejaDoEstudio.tsx, MedidorDeAudio.tsx, VirtualizedChat.tsx, StudioPreview.tsx (o palco), GraficosDoPalco.tsx, src/lib/cenas.ts, src/lib/graficos.ts, src/lib/camera.ts, src/lib/playerDoClipe.ts",
       "scope": "data-surface=\"console\" na tela inteira do estúdio; escuro sempre, também no tema claro. Zero cor: sem ação colorida e sem vermelho enquanto o ar não existe; data-air=\"on\" nunca é posto.",
       "semAr": "Ir ao ar, relógio de ar, gravação e relatório saíram até a transmissão existir. A bandeja diz \"Transmitir para os canais ainda não está no ar.\" (a partir de lg).",
       "grade": "h-[100dvh]; barra 48px em cima e bandeja embaixo, fora da rolagem; lg:grid-cols-[14rem_minmax(0,1fr)_23rem] (trilho de cenas, mesa de monitores, coluna da direita), cada coluna rola sozinha. Abaixo de lg, uma coluna que rola: monitores, cenas, coluna da direita (o painel cresce com a página; o chat em h-[36rem]).",
@@ -576,7 +594,7 @@
         "corDosGraficos": "Mora em Gráficos. CORES_DOS_GRAFICOS (Grafite = COR_PADRAO, Branco, Azul, Verde, Amarelo, Roxo) num radiogroup grid-cols-6, marcada com borda --ink-hi, e \"Outra cor\" (seletor nativo, 44px). Pinta a borda do card, o subtítulo do banner, o selo do ticker, o preço do QR e a barra do cronômetro; texto preto ou branco por corDoTextoSobre. É cor da live, não do console.",
         "roteiro": "Teleprompter, \"Roteiro do webinar …\" (ou geral) e Notas (o teleprompter não lê). Um roteiro por webinar, salvo na conta.",
         "qr": "Link (normalizarLink; sem esquema ganha https://), título e preço opcionais, canto e tamanho (8–24 % da largura). O Switch só liga com link válido. Canto padrão em cima à esquerda (QR_PADRAO).",
-        "midia": "Clipes MP4 ou WebM em lista divide-y: Film 16px, nome, EstadoNoPalco, ondeFicou, \"Pôr/Tirar do preview\" e \"Excluir\". Vazio: \"Nenhum clipe ainda.\"",
+        "midia": "Clipes MP4 ou WebM em lista divide-y: Film 16px, nome, EstadoNoPalco, ondeFicou, \"Pôr/Tirar do preview\" e \"Excluir\", que quebram de linha juntos sem partir o texto. O clipe do programa diz depois do ponto \"pausado\", \"no fim\" (com \"Tocar de novo\", que vale na hora; numa cena sem tela, \"Voltar ao começo\", que só volta) ou \"parado\" (FalhaNoPainel \"O navegador não deixou o clipe tocar no programa.\" com \"Tentar de novo\"). Vazio: \"Nenhum clipe ainda.\" A dica: o clipe toca no programa a partir do corte, com o som; trocar de cena não o recomeça, e numa cena sem tela ele pausa e continua quando a tela volta.",
         "camera": "Card da câmera (canto, formato Retângulo/Compacto/Círculo, tamanho 60–180 %, \"Voltar ao padrão\"; só na cena com card; vai pelo corte), Enquadramento (zoom 1–2,5×, horizontal/vertical até deslocamentoMaximo; desativados com zoom 1), Espelhar a câmera e Croma (verde/azul, tolerância, suavização, reflexo). Enquadramento, espelho e croma valem na hora.",
         "preferencias": "Ajustes da câmera e escolhas dos painéis em localStorage (usePreferencia); o que estava no preview não volta: cada visita começa sem gráficos."
       },
@@ -600,7 +618,7 @@
         "espelho": "Só na janela (\"Espelhar na janela\").",
         "teclado": "Espaço toca e pausa; ↑/↓ mudam a velocidade."
       },
-      "clipe": "Fonte de cena, no lugar da tela: parado e mudo no preview; toca com som no programa a partir do corte, sem controles do navegador. Na Fusão, a camada que sai mostra o quadro congelado no instante do corte (congelarQuadro).",
+      "clipe": "Fonte de cena, no lugar da tela. No programa toca com som a partir do corte, sem controles do navegador, num player só (src/lib/playerDoClipe.ts): criarPlayer no corte que o põe no programa (outro clipe começa do zero; o mesmo segue de onde está), soltarPlayer no corte que o tira ou ao sair do estúdio. O palco do programa encaixa o <video> na caixa da tela; trocar de cena não o recomeça. Numa cena sem tela (Câmera; desenhaATela), ajustarPlayer pausa e ele continua quando a tela volta; no fim, fica no último quadro: o evento ended zera o tocando, para uma caixa remontada (desktop↔celular) não recomeçar o clipe, e só \"Tocar de novo\" o recomeça. A situação (situacaoDoClipe: tocando, pausado, no fim, bloqueado) vem dos eventos do próprio vídeo; numa cena sem tela é \"pausado\", e nada toca o clipe ali (nunca som sem imagem). O preview com o mesmo clipe e a camada que sai na Fusão desenham o quadro desse player num canvas (EspelhoDoClipe, StudioPreview.tsx), sem som. Um clipe que ainda não está no programa fica parado e mudo no primeiro quadro.",
       "qrCode": "CodigoQr: gerado no navegador com uqr (ecc M, borda de 2 módulos), SVG em currentColor; sem serviço de terceiros."
     }
   },
@@ -911,7 +929,7 @@
       },
       {
         "name": "Regra do Horário Derivado",
-        "body": "\"Hoje, às…\" e \"Amanhã, às…\" são derivados na hora de mostrar, a partir de startsAt (ISO 8601), por rotuloDoHorario em src/lib/horario.ts, e nunca gravados: um \"Amanhã\" gravado vira mentira no dia seguinte. O campo time guarda a frase absoluta (\"Domingo, 27 de setembro, às 20:00\", por horarioPorExtenso) para quem lê só o texto (página pública, estúdio). Webinar antigo sem startsAt mostra o seu texto livre. Lista de webinars, Painel e aviso usam o mesmo rótulo, e a hora vai em mono pelo Horario.",
+        "body": "\"Hoje, às…\" e \"Amanhã, às…\" são derivados na hora de mostrar, a partir de startsAt (ISO 8601), por rotuloDoHorario em src/lib/horario.ts, e nunca gravados: um \"Amanhã\" gravado vira mentira no dia seguinte. O campo time guarda a frase absoluta (\"Domingo, 27 de setembro, às 20:00\", por horarioPorExtenso) para quem só tem o texto: rotuloDoHorario cai nele quando o webinar é antigo, sem startsAt (e mostra o seu texto livre), ou quando startsAt não é uma data, e o super-admin o mostra como está. Lista de webinars, Painel e aviso usam o mesmo rótulo, e a hora vai em mono pelo Horario.",
         "section": "components"
       },
       {

@@ -18,6 +18,7 @@ related_targets: ["src/components/Header.tsx","src/App.tsx"]
 - Canais começam vazios (sem os semeados).
 - Nada de números inventados.
 - O visual é o design system aprovado.
+- Fase 3 do estúdio (2026-09-30): saem "Página de inscrição" e "Criar capa" do menu dos webinars, até existir o link público e a capa ter onde aparecer. Sem ação no menu, a linha não tem "⋯".
 
 ## Direction contract
 

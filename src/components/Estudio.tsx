@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ClipeNoPalco, Comment, Destination, GeometriaDoCard, GraficosDoPalco, Participant, StudioSceneState } from '../types';
 import { CENA_INICIAL, FONTE_CAMERA, FONTE_TELA, cenaPeloId, layoutUsaCard, lerCardSalvo, precisaDaTela, salvarCard, type Cena } from '../lib/cenas';
 import { LOGO_PADRAO, QR_PADRAO, graficosVazios, mudancasNoCorte, normalizarLink, relogioParado, type RelogioDoCronometro } from '../lib/graficos';
 import { AJUSTES_PADRAO, dentroDoQuadro, type AjustesDaCamera } from '../lib/camera';
 import { useRoteiro } from '../lib/useRoteiro';
 import { useListaDaConta } from '../lib/useListaDaConta';
+import { EVENTOS_DO_PLAYER, ajustarPlayer, criarPlayer, desenhaATela, situacaoDoClipe, soltarPlayer, tocar, type PlayerDoClipe } from '../lib/playerDoClipe';
 import { estadoDoCanal } from '../lib/canais';
 import { salvarBanners, salvarTickers, subscribeBanners, subscribeTickers } from '../lib/firestoreService';
 import { useMediaManager } from '../context/MediaManagerContext';
@@ -64,22 +65,6 @@ const ESCOLHA_INICIAL: EscolhaDosGraficos = {
 
 const QR_INICIAL: QrDoEstudio = { link: '', titulo: '', preco: '', ...QR_PADRAO, noPreview: false };
 
-/**
- * O quadro do clipe no instante do corte. Na fusão, a camada do programa que
- * sai mostra esse quadro enquanto some; antes o clipe dela voltava ao
- * primeiro quadro durante os 400 ms. Desenhar um vídeo de outra origem no
- * canvas só impede ler os pixels, e aqui eles só são mostrados.
- */
-function congelarQuadro(video: HTMLVideoElement | null): HTMLCanvasElement | null {
-  if (!video || video.readyState < 2 || !video.videoWidth) return null;
-  const quadro = document.createElement('canvas');
-  quadro.width = video.videoWidth;
-  quadro.height = video.videoHeight;
-  quadro.getContext('2d')?.drawImage(video, 0, 0);
-  quadro.style.cssText = 'display:block;width:100%;height:100%;object-fit:contain';
-  return quadro;
-}
-
 interface EstudioProps {
   usuario: { uid?: string; name?: string };
   /** O webinar pelo qual se entrou no estúdio, quando houver. O roteiro é dele. */
@@ -87,7 +72,7 @@ interface EstudioProps {
   canais: Destination[];
   onCanais: () => void;
   onSair: () => void;
-  /** O chat é do app: a página pública do webinar também o usa. */
+  /** O chat mora no app: sobrevive às idas e voltas do estúdio. */
   comentarios: Comment[];
   onComentar: (texto: string) => void;
   onAprovarComentario: (id: string) => void;
@@ -272,30 +257,68 @@ export function Estudio({
     graficos: graficosVazios(cor),
     clipe: null,
   }));
-  // Na fusão, o programa que sai e o quadro do clipe dele no instante do corte
-  const [programaQueSai, setProgramaQueSai] = useState<{ estado: StudioSceneState; quadro: HTMLCanvasElement | null } | null>(null);
-  const videoDoClipe = useRef<HTMLVideoElement | null>(null);
-  const guardarVideoDoClipe = useCallback((el: HTMLVideoElement | null) => {
-    videoDoClipe.current = el;
-  }, []);
+  // O clipe do programa toca num player só (lib/playerDoClipe). Na fusão, o
+  // programa que sai leva o player dele, e a camada que some desenha o quadro
+  // desse player.
+  const [player, setPlayer] = useState<PlayerDoClipe | null>(null);
+  const playerRef = useRef<PlayerDoClipe | null>(null);
+  playerRef.current = player;
+  const [programaQueSai, setProgramaQueSai] = useState<{ estado: StudioSceneState; player: PlayerDoClipe | null } | null>(null);
+  // Tocar, pausar, chegar ao fim e o navegador recusar mudam o que a Mídia diz do clipe
+  const [, setMudancasDoPlayer] = useState(0);
+  useEffect(() => {
+    if (!player) return;
+    const mudou = () => setMudancasDoPlayer((n) => n + 1);
+    EVENTOS_DO_PLAYER.forEach((evento) => player.video.addEventListener(evento, mudou));
+    return () => EVENTOS_DO_PLAYER.forEach((evento) => player.video.removeEventListener(evento, mudou));
+  }, [player]);
   const mudancas = mudancasNoCorte(programa, estadoDoPreview);
   const temMudanca = mudancas.length > 0;
 
   // Corte: o preview vai ao programa na hora. Fusão: o programa que sai fica
   // por cima e some em DURACAO_DA_FUSAO.
   const fusaoRef = useRef<number | null>(null);
+  const saindoRef = useRef<PlayerDoClipe | null>(null);
+
+  // Ao sair do estúdio, o clipe para e os arquivos são soltos
+  useEffect(
+    () => () => {
+      if (fusaoRef.current) window.clearTimeout(fusaoRef.current);
+      if (saindoRef.current) soltarPlayer(saindoRef.current);
+      if (playerRef.current) soltarPlayer(playerRef.current);
+    },
+    [],
+  );
+
   const cortar = (transicao: Transicao) => {
     if (fusaoRef.current) window.clearTimeout(fusaoRef.current);
+    // Um player que ainda saía de uma fusão anterior já pode ser solto
+    if (saindoRef.current && saindoRef.current !== playerRef.current) soltarPlayer(saindoRef.current);
+    saindoRef.current = null;
+
+    const entra = estadoDoPreview;
+    const atual = playerRef.current;
+    // O mesmo clipe segue no mesmo player, de onde está; outro clipe começa do zero num player novo
+    const proximo = entra.clipe ? (atual?.id === entra.clipe.id ? atual : criarPlayer(entra.clipe)) : null;
+    const sai = atual && atual !== proximo ? atual : null;
+    if (proximo) ajustarPlayer(proximo, entra);
+    if (sai) sai.video.pause();
+
     if (transicao === 'fusao') {
-      setProgramaQueSai({ estado: programa, quadro: programa.clipe ? congelarQuadro(videoDoClipe.current) : null });
+      setProgramaQueSai({ estado: programa, player: atual });
+      saindoRef.current = sai;
       fusaoRef.current = window.setTimeout(() => {
         setProgramaQueSai(null);
         fusaoRef.current = null;
+        if (saindoRef.current) soltarPlayer(saindoRef.current);
+        saindoRef.current = null;
       }, DURACAO_DA_FUSAO);
     } else {
       setProgramaQueSai(null);
+      if (sai) soltarPlayer(sai);
     }
-    setPrograma(estadoDoPreview);
+    setPlayer(proximo);
+    setPrograma(entra);
   };
 
   // ── Tela compartilhada ────────────────────────────────────────────────────
@@ -431,7 +454,23 @@ export function Estudio({
       case 'qr':
         return <PainelQrCode qr={qr} onQr={setQr} noPrograma={!!programa.graficos.qr} />;
       case 'midia':
-        return <PainelMidia clipeNoPreview={clipeNoPreview} clipeNoPrograma={programa.clipe?.id ?? null} onClipe={porClipe} />;
+        return (
+          <PainelMidia
+            clipeNoPreview={clipeNoPreview}
+            clipeNoPrograma={programa.clipe?.id ?? null}
+            situacaoNoPrograma={player ? situacaoDoClipe(player, programa) : null}
+            telaNoPrograma={desenhaATela(programa)}
+            // Tocar de novo o clipe do programa é da fonte, como iniciar o cronômetro: vale na hora.
+            // Numa cena sem tela, só volta ao começo: tocar ali seria som sem imagem, e o clipe
+            // toca quando a tela voltar
+            onTocarNoPrograma={() => {
+              if (!player) return;
+              if (player.video.ended) player.video.currentTime = 0;
+              if (desenhaATela(programa)) tocar(player);
+            }}
+            onClipe={porClipe}
+          />
+        );
       case 'camera':
         return (
           <PainelCamera
@@ -456,6 +495,7 @@ export function Estudio({
       camera={ajustes}
       relogio={relogio}
       mostrarGuias={mostrarGuias}
+      playerDoClipe={player}
       {...extra}
     />
   );
@@ -498,14 +538,14 @@ export function Estudio({
             cenaDoPreview={cena.nome}
             programa={
               <>
-                {monitor('programa', programa, { onVideoDoClipe: guardarVideoDoClipe })}
+                {monitor('programa', programa)}
                 {programaQueSai && (
                   <div
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-0"
                     style={{ animation: `fusao-sai ${DURACAO_DA_FUSAO}ms ease-out forwards` }}
                   >
-                    {monitor('programa', programaQueSai.estado, { semSom: true, quadroDoClipe: programaQueSai.quadro })}
+                    {monitor('programa', programaQueSai.estado, { camadaQueSai: true, playerDoClipe: programaQueSai.player })}
                   </div>
                 )}
               </>

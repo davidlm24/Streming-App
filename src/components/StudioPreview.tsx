@@ -4,6 +4,7 @@ import type { GeometriaDoCard, Participant, StudioSceneState } from '../types';
 import { CARD_PADRAO, FORMATOS_DO_CARD, dentroDoPalco } from '../lib/cenas';
 import { matrizDaChave, matrizDoDescarte, suavizacaoEmPx, transformacaoDaCamera, type AjustesDaCamera } from '../lib/camera';
 import type { RelogioDoCronometro } from '../lib/graficos';
+import type { PlayerDoClipe } from '../lib/playerDoClipe';
 import { GraficosDoPalco } from './GraficosDoPalco';
 import { Button } from './ui/Button';
 
@@ -41,6 +42,65 @@ function useTamanhoDoPalco() {
   return { lugarRef, tamanho };
 }
 
+/**
+ * O clipe do programa desenhado noutro monitor: o preview, quando o mesmo
+ * clipe está nos dois, e a camada que sai na fusão. Um canvas copia a imagem
+ * do player a cada quadro novo do vídeo; o som fica só no programa. Desenhar
+ * um vídeo de outra origem só impede ler os pixels, e aqui eles só são
+ * mostrados.
+ */
+function EspelhoDoClipe({ video }: { video: HTMLVideoElement }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+    const desenhar = () => {
+      if (video.readyState < 2 || !video.videoWidth) return;
+      if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+      }
+      ctx.drawImage(video, 0, 0);
+    };
+    desenhar();
+    // Parado, o quadro só muda num salto ou quando os dados chegam
+    const eventos = ['loadeddata', 'seeked', 'pause', 'ended'];
+    eventos.forEach((e) => video.addEventListener(e, desenhar));
+    let vivo = true;
+    let pedido = 0;
+    const avisaQuadros = typeof (video as { requestVideoFrameCallback?: unknown }).requestVideoFrameCallback === 'function';
+    // Tocando, desenha a cada quadro novo do vídeo, e não a cada quadro da tela.
+    // Onde o navegador não avisa os quadros do vídeo, desenha quando o tempo anda.
+    if (avisaQuadros) {
+      const aCadaQuadro = () => {
+        if (!vivo) return;
+        desenhar();
+        pedido = video.requestVideoFrameCallback(aCadaQuadro);
+      };
+      pedido = video.requestVideoFrameCallback(aCadaQuadro);
+    } else {
+      let desenhado = video.currentTime;
+      const aCadaTela = () => {
+        if (!vivo) return;
+        if (video.currentTime !== desenhado) {
+          desenhar();
+          desenhado = video.currentTime;
+        }
+        pedido = requestAnimationFrame(aCadaTela);
+      };
+      pedido = requestAnimationFrame(aCadaTela);
+    }
+    return () => {
+      vivo = false;
+      if (avisaQuadros) video.cancelVideoFrameCallback(pedido);
+      else cancelAnimationFrame(pedido);
+      eventos.forEach((e) => video.removeEventListener(e, desenhar));
+    };
+  }, [video]);
+  return <canvas ref={ref} aria-hidden="true" className="h-full w-full object-contain" />;
+}
+
 interface StudioPreviewProps {
   papel: 'preview' | 'programa';
   /** O que este monitor mostra: o estado em edição (preview) ou o do último corte (programa). */
@@ -54,12 +114,10 @@ interface StudioPreviewProps {
   camera: AjustesDaCamera;
   relogio: RelogioDoCronometro;
   mostrarGuias: boolean;
-  /** A camada do programa que sai na fusão: o clipe fica parado e mudo. */
-  semSom?: boolean;
-  /** Na camada que sai na fusão: o quadro do clipe no instante do corte, no lugar do vídeo. */
-  quadroDoClipe?: HTMLCanvasElement | null;
-  /** O vídeo do clipe no programa, para o corte congelar o quadro dele. */
-  onVideoDoClipe?: (video: HTMLVideoElement | null) => void;
+  /** O player do clipe do programa (lib/playerDoClipe): o programa o encaixa, os outros monitores o espelham. */
+  playerDoClipe?: PlayerDoClipe | null;
+  /** A camada do programa que sai na fusão: desenha o clipe pelo espelho, sem som. */
+  camadaQueSai?: boolean;
   /** Só no preview: cada ajuste do card da câmera feito à mão sobre a imagem. */
   onCardDaCamera?: (card: GeometriaDoCard) => void;
   /** Só no preview: a saída do palco sem fonte. */
@@ -88,9 +146,8 @@ export function StudioPreview({
   camera,
   relogio,
   mostrarGuias,
-  semSom = false,
-  quadroDoClipe = null,
-  onVideoDoClipe,
+  playerDoClipe = null,
+  camadaQueSai = false,
   onCardDaCamera,
   onPorACamera,
 }: StudioPreviewProps) {
@@ -140,23 +197,31 @@ export function StudioPreview({
   );
 
   // ── Tela (ou o clipe no lugar dela) ──────────────────────────────────────
-  // O clipe fica parado no primeiro quadro no preview e toca no programa a
-  // partir do corte, com som só ali. Antes ele entrava nos dois monitores
-  // ao mesmo tempo, com os controles do navegador por cima e o som em dobro.
+  // O clipe toca no programa a partir do corte, com som só ali, num player só
+  // que o programa encaixa na caixa da tela: trocar de cena muda a caixa, e o
+  // clipe segue de onde está. Se o preview traz o mesmo clipe (ou é a camada
+  // que sai na fusão), desenha o quadro desse player; um clipe que ainda não
+  // está no programa fica parado no primeiro quadro, que é de onde o corte o
+  // começa. Antes o clipe entrava nos dois monitores ao mesmo tempo, com os
+  // controles do navegador por cima e o som em dobro.
   const desenharTela = () => {
     const clipe = estado.clipe;
+    const doPlayer = clipe && playerDoClipe?.id === clipe.id ? playerDoClipe : null;
     return (
       <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[var(--stage)]">
         {clipe ? (
-          quadroDoClipe ? (
+          doPlayer && noPrograma && !camadaQueSai ? (
             <div
               ref={(el) => {
-                if (el && quadroDoClipe.parentElement !== el) el.replaceChildren(quadroDoClipe);
+                if (!el || doPlayer.video.parentElement === el) return;
+                el.replaceChildren(doPlayer.video);
+                // Mudar o vídeo de caixa não deve pausar; se o navegador pausar, retoma
+                if (doPlayer.tocando && doPlayer.video.paused && !doPlayer.video.ended) void doPlayer.video.play().catch(() => {});
               }}
               className="h-full w-full"
             />
-          ) : noPrograma && !semSom ? (
-            <video key={clipe.id} ref={onVideoDoClipe} src={clipe.url} autoPlay playsInline className="h-full w-full object-contain" />
+          ) : doPlayer ? (
+            <EspelhoDoClipe video={doPlayer.video} />
           ) : (
             <video key={clipe.id} src={clipe.url} muted playsInline preload="auto" className="h-full w-full object-contain" />
           )

@@ -36,7 +36,7 @@ import { CabecalhoDePagina, Pagina } from './ui/Pagina';
 interface SuperAdminPanelProps {
   onBack: () => void;
   user: { email: string; name: string; plan: string; role?: string } | null;
-  allWebinars: Array<{ id: string; title: string; desc: string; time: string; type: string; channels: string[]; ownerId?: string }>;
+  allWebinars: Array<{ id: string; title: string; desc?: string; time: string; type: string; channels: string[]; ownerId?: string }>;
   onDeleteWebinar?: (id: string) => void;
 }
 
@@ -171,7 +171,7 @@ export function SuperAdminPanel({ onBack, user, allWebinars, onDeleteWebinar }: 
   };
 
   const handleDeleteWebinarAdmin = async (webinarId: string, webinarTitle: string) => {
-    if (!(await confirm({ title: 'Excluir este webinar?', description: `'${webinarTitle}' e seus dados de inscrição são apagados permanentemente.`, confirmLabel: 'Excluir', destructive: true }))) return;
+    if (!(await confirm({ title: `Excluir "${webinarTitle}"?`, description: 'O webinar sai da lista, com o horário e os canais planejados.', confirmLabel: 'Excluir webinar', destructive: true }))) return;
     if (onDeleteWebinar) {
       onDeleteWebinar(webinarId);
     }

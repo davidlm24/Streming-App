@@ -9,14 +9,15 @@ type Regiao = 'estudio' | 'canais' | 'webinars';
 
 /**
  * Onde cada item de "Já funciona" está na captura, em % da imagem, com uma
- * folga em volta. Medido no próprio Painel, com os dados de exemplo e na
- * janela da captura (954 × 680 px CSS). Se a captura for refeita, meça de
- * novo: o texto embutido no PNG diz como ela foi feita.
+ * folga em volta (8px no botão; 10px no conteúdo das seções, sem a linha de
+ * cima). Medido no próprio Painel, com os dados de exemplo e na janela da
+ * captura (954 × 680 px CSS, sem a calha da barra de rolagem). Se a captura
+ * for refeita, meça de novo: o texto embutido no PNG diz como ela foi feita.
  */
 const REGIOES: Record<Regiao, { x: number; y: number; w: number; h: number }> = {
-  estudio: { x: 11.43, y: 31.47, w: 28.51, h: 9.26 }, // o botão "Entrar no estúdio"
-  canais: { x: 11.22, y: 48.82, w: 77.57, h: 14.12 }, // "Canais · 2 de 3 prontos" e os chips
-  webinars: { x: 11.22, y: 70.74, w: 77.57, h: 28.38 }, // "Próximas lives"
+  estudio: { x: 11.43, y: 31.47, w: 28.51, h: 9.29 }, // o botão "Entrar no estúdio"
+  canais: { x: 11.22, y: 48.85, w: 77.57, h: 14.12 }, // "Canais · 2 de 3 prontos" e os chips
+  webinars: { x: 11.22, y: 70.76, w: 77.57, h: 28.38 }, // "Próximas lives"
 };
 
 const JA_FUNCIONA: { regiao: Regiao; titulo: string; texto: string }[] = [
