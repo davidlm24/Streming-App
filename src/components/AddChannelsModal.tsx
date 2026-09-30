@@ -15,7 +15,8 @@ interface AddChannelsModalProps {
   isOpen: boolean;
   onClose: () => void;
   destinations: Destination[];
-  onAddOrUpdateDestination: (destination: Destination) => void;
+  /** Devolve false quando não salvou (os canais da conta ainda não carregaram). */
+  onAddOrUpdateDestination: (destination: Destination) => boolean;
   currentPlan?: PlanId;
   onOpenUpgrade?: () => void;
   /** Abre direto no formulário desta plataforma (ex.: "não conectado" no painel). */
@@ -287,7 +288,8 @@ export function AddChannelsModal({
     // Editar não liga nem desliga; um canal novo liga se o plano comporta
     const ligar = existente ? existente.selected : !salvaDesligado;
     const nomeDoCanal = rascunho.nome.trim() || nome;
-    onAddOrUpdateDestination({
+    // Sem salvar, o diálogo fica com o que foi digitado; o aviso vem do app
+    const salvou = onAddOrUpdateDestination({
       ...existente,
       id: existente?.id ?? `dest-${ativa}-${Date.now()}`,
       name: nomeDoCanal,
@@ -300,6 +302,7 @@ export function AddChannelsModal({
       isCustom: existente?.isCustom ?? ativa === 'custom',
       updatedAt: new Date().toISOString(),
     });
+    if (!salvou) return;
 
     if (ligar) {
       toast.success(existente ? `${nomeDoCanal} salvo` : `${nomeDoCanal} conectado`, existente ? undefined : 'Ligado para a próxima live.');

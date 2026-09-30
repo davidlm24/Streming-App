@@ -23,6 +23,7 @@ export interface CloudMediaAsset {
   url: string;
   type: 'logo' | 'watermark' | 'overlay' | 'background' | 'video' | 'audio';
   ownerEmail: string;
+  ownerId: string;
   storagePath: string;
   createdAt: string;
   sizeBytes?: number;
@@ -44,14 +45,16 @@ const fileToBase64 = (file: File): Promise<string> => {
 export async function uploadMediaToCloudStorage(
   file: File, 
   type: 'logo' | 'watermark' | 'overlay' | 'background' | 'video' | 'audio',
-  userEmail?: string
+  _userEmail?: string
 ): Promise<CloudMediaAsset> {
-  const email = userEmail || auth.currentUser?.email || 'mgdlms@gmail.com';
-  const cleanEmail = email.replace(/[^a-zA-Z0-9]/g, '_');
-  const fileExtension = file.name.split('.').pop() || 'png';
+  const currentUser = auth.currentUser;
+  if (!currentUser?.email) throw new Error('Authentication is required to upload media');
+  const email = currentUser.email;
+  const ownerId = currentUser.uid;
+  const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const timestamp = Date.now();
   const assetId = `${type}-${timestamp}`;
-  const storagePath = `media_assets/${cleanEmail}/${type}/${timestamp}_${file.name}`;
+  const storagePath = `media_assets/${ownerId}/${type}/${timestamp}_${safeFileName}`;
 
   let downloadUrl = '';
 
@@ -78,6 +81,7 @@ export async function uploadMediaToCloudStorage(
     url: downloadUrl,
     type,
     ownerEmail: email,
+    ownerId,
     storagePath,
     createdAt: new Date().toISOString(),
     sizeBytes: file.size
@@ -115,14 +119,14 @@ export async function deleteMediaFromCloudStorage(id: string, storagePath?: stri
  * Real-time subscription to user's media assets in Firestore Cloud DB.
  */
 export function subscribeUserMediaAssets(
-  userEmail: string,
   onAssetsUpdate: (assets: CloudMediaAsset[]) => void
 ) {
-  if (!userEmail) return () => {};
+  const ownerId = auth.currentUser?.uid;
+  if (!ownerId) return () => {};
 
   const q = query(
     collection(db, 'media_assets'),
-    where('ownerEmail', '==', userEmail)
+    where('ownerId', '==', ownerId)
   );
 
   return onSnapshot(

@@ -65,36 +65,6 @@ export interface Participant {
   stream?: MediaStream | null;
 }
 
-export type WebhookPlatform = 'twitch' | 'facebook' | 'youtube' | 'cloudflare' | 'stripe' | 'discord' | 'custom';
-
-export interface WebhookEventLog {
-  id: string;
-  timestamp: string;
-  platform: WebhookPlatform;
-  eventType: string;
-  method: 'POST' | 'GET' | 'PUT';
-  endpointUrl: string;
-  status: number;
-  statusText: string;
-  latencyMs: number;
-  requestHeaders: Record<string, string>;
-  requestPayload: any;
-  responseHeaders?: Record<string, string>;
-  responseBody?: any;
-  mode: 'manual_test' | 'incoming' | 'automated';
-  isSuccess: boolean;
-  error?: string;
-}
-
-export interface WebhookTriggerConfig {
-  platform: WebhookPlatform;
-  eventType: string;
-  endpointUrl: string;
-  payload: string;
-  secretKey?: string;
-  headers?: Record<string, string>;
-}
-
 /**
  * Onde e como o card da câmera fica sobre a tela, nas cenas com card: o canto
  * de cima à esquerda em % do palco, a escala e o formato. Vai ao programa no
