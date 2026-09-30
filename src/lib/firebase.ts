@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { initializeFirestore, setLogLevel, disableNetwork, enableNetwork } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 // Silence verbose internal Firebase SDK backoff logs
@@ -26,5 +25,4 @@ export const db = initializeFirestore(app, {
 }, (firebaseConfig as any).firestoreDatabaseId || '(default)');
 
 export { disableNetwork, enableNetwork };
-export const storage = getStorage(app);
 

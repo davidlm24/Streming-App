@@ -1,7 +1,7 @@
 import { useState, type Dispatch, type FormEvent, type ReactNode, type SetStateAction } from 'react';
 import { PenLine, Plus } from 'lucide-react';
 import type { Banner, CantoDoPalco, StudioSceneState, TickerItem } from '../types';
-import { useMediaManager } from '../context/MediaManagerContext';
+import { fraseDaFalhaDoEnvio, useMidiaDoEstudio, type TipoDeImagem } from '../context/MidiaDoEstudio';
 import { CORES_DOS_GRAFICOS, formatarTempo, relogioParado, restanteDoRelogio, type RelogioDoCronometro } from '../lib/graficos';
 import { FRASE_DA_FALHA_DA_LISTA, type ListaDaConta } from '../lib/useListaDaConta';
 import {
@@ -12,6 +12,7 @@ import {
   EstadoNoPalco,
   FalhaNoPainel,
   GradeDeImagens,
+  NotaDaMidia,
   SecaoDoPainel,
   SeletorDeCanto,
   useSetasDoGrupo,
@@ -191,15 +192,28 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
   // Sempre a partir do estado atual: dois cliques no mesmo quadro não se desfazem
   const mudar = (parcial: Partial<EscolhaDosGraficos>) => onEscolha((atual) => ({ ...atual, ...parcial }));
   const confirmar = useConfirm();
-  const midia = useMediaManager();
+  const midia = useMidiaDoEstudio();
   const [editandoBanner, setEditandoBanner] = useState<string | 'novo' | null>(null);
   const [editandoTicker, setEditandoTicker] = useState<string | 'novo' | null>(null);
   // O erro do envio aparece embaixo do botão que enviou, e o botão é a nova tentativa
-  const [ultimoEnvio, setUltimoEnvio] = useState<'logo' | 'fundo' | 'sobreposicao' | null>(null);
-  const erroDoEnvio = (qual: 'logo' | 'fundo' | 'sobreposicao') =>
-    ultimoEnvio === qual && midia.mediaUploadError ? (
-      <ErroDeCampo id={`erro-do-envio-${qual}`}>A imagem não foi enviada. Confira o arquivo e envie de novo.</ErroDeCampo>
+  const erroDoEnvio = (tipo: TipoDeImagem) =>
+    midia.falhaDoEnvio?.tipo === tipo ? (
+      <ErroDeCampo id={`erro-do-envio-${tipo}`}>{fraseDaFalhaDoEnvio(tipo, midia.falhaDoEnvio.motivo)}</ErroDeCampo>
     ) : null;
+  // O envio de uma imagem, no fim da seção: o botão, a falha e onde o arquivo fica
+  const envioDeImagem = (tipo: TipoDeImagem, rotulo: string, aceita: string) => (
+    <>
+      <EnviarArquivo
+        rotulo={rotulo}
+        aceita={aceita}
+        enviando={midia.enviando.includes(tipo)}
+        onArquivo={(arquivo) => void midia.enviar(tipo, arquivo)}
+      />
+      {erroDoEnvio(tipo)}
+      {/* A falha de abrir a biblioteca aparece uma vez, no logo, a primeira seção de mídia */}
+      <NotaDaMidia leitura={midia.leitura} onLerDeNovo={midia.lerDeNovo} anunciaFalha={tipo === 'logo'} />
+    </>
+  );
 
   const excluirComConfirmacao = async (titulo: string, rotulo: string, excluir: () => void) => {
     const ok = await confirmar({
@@ -214,17 +228,9 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
   const naConta = (lista: ListaDaConta<unknown>, id: string) =>
     !lista.naoSalvos.has(id) ? null : lista.situacao.tipo === 'salvando' ? 'salvando…' : 'não salvo';
 
-  // O logo pode vir da lista de logos ou da de marcas d'água, que viraram uma só
-  const logos: ItemDaBiblioteca[] = [
-    ...midia.customLogos.map((m) => ({ id: m.id, nome: m.name, url: m.url })),
-    ...midia.customWatermarks.map((m) => ({ id: m.id, nome: m.name, url: m.url })),
-  ];
-  const excluirLogo = (item: ItemDaBiblioteca) =>
-    excluirComConfirmacao(`Excluir ${item.nome}?`, 'Excluir o logo', () => {
-      if (midia.activeLogo === item.url) midia.setActiveLogo('');
-      if (midia.customLogos.some((m) => m.id === item.id)) midia.deleteCustomLogo(item.id);
-      else midia.deleteCustomWatermark(item.id);
-    });
+  // Excluir a imagem escolhida também a tira do preview (a biblioteca desfaz a escolha)
+  const excluirImagem = (item: ItemDaBiblioteca, rotulo: string) =>
+    excluirComConfirmacao(`Excluir ${item.nome}?`, rotulo, () => void midia.excluir(item.id));
 
   const restante = restanteDoRelogio(relogio);
   const andando = relogio.fimEm !== null;
@@ -398,24 +404,14 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
       <SecaoDoPainel titulo="Logo" dica="Uma imagem num canto. PNG com fundo transparente fica melhor.">
         <GradeDeImagens
           rotulo="Logo no preview"
-          itens={logos}
-          selecionada={midia.activeLogo}
+          itens={midia.itens.logo}
+          selecionada={midia.ativas.logo}
           noPrograma={programa.graficos.logo?.url ?? ''}
           textoDoNenhum="Nenhum"
-          onSelecionar={midia.setActiveLogo}
-          onExcluir={excluirLogo}
+          onSelecionar={(url) => midia.escolher('logo', url)}
+          onExcluir={(item) => excluirImagem(item, 'Excluir o logo')}
         />
-        <EnviarArquivo
-          rotulo="Enviar logo"
-          aceita="image/png,image/jpeg,image/webp,image/svg+xml"
-          enviando={midia.isCloudUploading}
-          onArquivo={(arquivo) => {
-            setUltimoEnvio('logo');
-            void midia.uploadCustomLogo(arquivo);
-          }}
-        />
-        {erroDoEnvio('logo')}
-        {midia.activeLogo && (
+        {midia.ativas.logo && (
           <>
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs text-[var(--ink)]">Canto</span>
@@ -444,6 +440,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
             />
           </>
         )}
+        {envioDeImagem('logo', 'Enviar logo', 'image/png,image/jpeg,image/webp,image/svg+xml')}
       </SecaoDoPainel>
 
       {/* ── Cronômetro ── */}
@@ -555,28 +552,14 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
       >
         <GradeDeImagens
           rotulo="Fundo no preview"
-          itens={midia.customBackgrounds.map((m) => ({ id: m.id, nome: m.name, url: m.url }))}
-          selecionada={midia.activeBackground}
+          itens={midia.itens.fundo}
+          selecionada={midia.ativas.fundo}
           noPrograma={programa.activeBackground ?? ''}
           textoDoNenhum="Nenhum"
-          onSelecionar={midia.setActiveBackground}
-          onExcluir={(item) =>
-            excluirComConfirmacao(`Excluir ${item.nome}?`, 'Excluir o fundo', () => {
-              if (midia.activeBackground === item.url) midia.setActiveBackground('');
-              midia.deleteCustomBackground(item.id);
-            })
-          }
+          onSelecionar={(url) => midia.escolher('fundo', url)}
+          onExcluir={(item) => excluirImagem(item, 'Excluir o fundo')}
         />
-        <EnviarArquivo
-          rotulo="Enviar fundo"
-          aceita="image/png,image/jpeg,image/webp"
-          enviando={midia.isCloudUploading}
-          onArquivo={(arquivo) => {
-            setUltimoEnvio('fundo');
-            void midia.uploadCustomBackground(arquivo);
-          }}
-        />
-        {erroDoEnvio('fundo')}
+        {envioDeImagem('fundo', 'Enviar fundo', 'image/png,image/jpeg,image/webp')}
       </SecaoDoPainel>
 
       {/* ── Sobreposição ── */}
@@ -586,28 +569,14 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
       >
         <GradeDeImagens
           rotulo="Sobreposição no preview"
-          itens={midia.customOverlays.map((m) => ({ id: m.id, nome: m.name, url: m.url }))}
-          selecionada={midia.activeOverlay}
+          itens={midia.itens.sobreposicao}
+          selecionada={midia.ativas.sobreposicao}
           noPrograma={programa.activeOverlay ?? ''}
           textoDoNenhum="Nenhuma"
-          onSelecionar={midia.setActiveOverlay}
-          onExcluir={(item) =>
-            excluirComConfirmacao(`Excluir ${item.nome}?`, 'Excluir a sobreposição', () => {
-              if (midia.activeOverlay === item.url) midia.setActiveOverlay('');
-              midia.deleteCustomOverlay(item.id);
-            })
-          }
+          onSelecionar={(url) => midia.escolher('sobreposicao', url)}
+          onExcluir={(item) => excluirImagem(item, 'Excluir a sobreposição')}
         />
-        <EnviarArquivo
-          rotulo="Enviar sobreposição"
-          aceita="image/png,image/webp"
-          enviando={midia.isCloudUploading}
-          onArquivo={(arquivo) => {
-            setUltimoEnvio('sobreposicao');
-            void midia.uploadCustomOverlay(arquivo);
-          }}
-        />
-        {erroDoEnvio('sobreposicao')}
+        {envioDeImagem('sobreposicao', 'Enviar sobreposição', 'image/png,image/webp')}
       </SecaoDoPainel>
     </div>
   );

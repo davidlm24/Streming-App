@@ -1,8 +1,8 @@
 import { Film } from 'lucide-react';
 import type { ClipeNoPalco } from '../types';
 import type { SituacaoDoClipe } from '../lib/playerDoClipe';
-import { useMediaManager } from '../context/MediaManagerContext';
-import { EnviarArquivo, EstadoNoPalco, FalhaNoPainel, SecaoDoPainel, ondeFicou } from './PecasDoPainel';
+import { fraseDaFalhaDoEnvio, useMidiaDoEstudio } from '../context/MidiaDoEstudio';
+import { EnviarArquivo, EstadoNoPalco, FalhaNoPainel, NotaDaMidia, SecaoDoPainel } from './PecasDoPainel';
 import { Button } from './ui/Button';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { ErroDeCampo } from './ui/ErroDeCampo';
@@ -47,19 +47,20 @@ export function PainelMidia({
   onTocarNoPrograma: () => void;
   onClipe: (clipe: ClipeNoPalco | null) => void;
 }) {
-  const { videoClips, uploadVideoClip, deleteVideoClip, isCloudUploading, mediaUploadError } = useMediaManager();
+  const midia = useMidiaDoEstudio();
+  const clipes = midia.itens.clipe;
+  const falha = midia.falhaDoEnvio?.tipo === 'clipe' ? midia.falhaDoEnvio : null;
   const confirmar = useConfirm();
 
-  const excluir = async (clipe: { id: string; name: string }) => {
+  const excluir = async (clipe: { id: string; nome: string }) => {
     const ok = await confirmar({
-      title: `Excluir ${clipe.name}?`,
+      title: `Excluir ${clipe.nome}?`,
       description: 'O arquivo sai do estúdio. Se ele estiver no programa, continua lá até o próximo corte.',
       confirmLabel: 'Excluir o clipe',
       destructive: true,
     });
-    if (!ok) return;
+    if (!ok || !(await midia.excluir(clipe.id))) return;
     if (clipeNoPreview?.id === clipe.id) onClipe(null);
-    deleteVideoClip(clipe.id);
   };
 
   return (
@@ -68,21 +69,21 @@ export function PainelMidia({
         titulo="Clipes de vídeo"
         dica="O clipe entra no lugar da tela e toca no programa a partir do corte, com o som. Trocar de cena não o recomeça: numa cena sem tela, ele pausa e continua quando a tela volta."
       >
-        {videoClips.length === 0 ? (
+        {/* Enquanto o navegador abre a biblioteca, nada: dizer "nenhum" antes de saber seria mentira */}
+        {midia.leitura !== 'pronta' ? null : clipes.length === 0 ? (
           <p className="text-sm text-[var(--ink-lo)]">Nenhum clipe ainda.</p>
         ) : (
           <ul className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
-            {videoClips.map((clipe) => {
+            {clipes.map((clipe) => {
               const noPreview = clipeNoPreview?.id === clipe.id;
               const noPrograma = clipeNoPrograma === clipe.id;
               const situacao = noPrograma ? situacaoNoPrograma : null;
-              const aviso = clipe.url ? ondeFicou(clipe.url) : 'O arquivo deste clipe não está disponível.';
               return (
                 <li key={clipe.id} className="py-3">
                   <div className="flex items-start gap-3">
                     <Film size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-[var(--ink-lo)]" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm text-[var(--ink-hi)]">{clipe.name}</p>
+                      <p className="truncate text-sm text-[var(--ink-hi)]">{clipe.nome}</p>
                       <EstadoNoPalco
                         noPrograma={noPrograma}
                         noPreview={noPreview}
@@ -93,7 +94,6 @@ export function PainelMidia({
                           <FalhaNoPainel frase="O navegador não deixou o clipe tocar no programa." onTentarDeNovo={onTocarNoPrograma} />
                         </div>
                       )}
-                      {aviso && <p className="mt-0.5 text-pretty text-xs text-[var(--ink-lo)]">{aviso}</p>}
                     </div>
                   </div>
                   {/* As ações quebram de linha juntas, e o texto de cada uma não parte: na coluna estreita, "Tirar do preview" e "Tocar de novo" viravam duas linhas cada */}
@@ -106,8 +106,7 @@ export function PainelMidia({
                       <Button
                         variant="ghost"
                         size="sm"
-                        disabled={!clipe.url}
-                        onClick={() => onClipe({ id: clipe.id, nome: clipe.name, url: clipe.url })}
+                        onClick={() => onClipe({ id: clipe.id, nome: clipe.nome, url: clipe.url })}
                         className="whitespace-nowrap"
                       >
                         Pôr no preview
@@ -133,12 +132,11 @@ export function PainelMidia({
         <EnviarArquivo
           rotulo="Enviar vídeo (MP4 ou WebM)"
           aceita="video/mp4,video/webm"
-          enviando={isCloudUploading}
-          onArquivo={(arquivo) => void uploadVideoClip(arquivo)}
+          enviando={midia.enviando.includes('clipe')}
+          onArquivo={(arquivo) => void midia.enviar('clipe', arquivo)}
         />
-        {mediaUploadError && (
-          <ErroDeCampo id="erro-do-envio-de-video">O vídeo não foi enviado. Confira o arquivo e envie de novo.</ErroDeCampo>
-        )}
+        {falha && <ErroDeCampo id="erro-do-envio-de-video">{fraseDaFalhaDoEnvio('clipe', falha.motivo)}</ErroDeCampo>}
+        <NotaDaMidia leitura={midia.leitura} onLerDeNovo={midia.lerDeNovo} />
       </SecaoDoPainel>
     </div>
   );

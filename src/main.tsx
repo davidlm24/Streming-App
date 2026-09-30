@@ -2,7 +2,6 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { MediaManagerProvider } from './context/MediaManagerContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './components/ui/Toast';
 import { ConfirmProvider } from './components/ui/ConfirmDialog';
@@ -22,9 +21,7 @@ createRoot(document.getElementById('root')!).render(
           e o aviso precisa sobreviver ao fechamento do diálogo. */}
       <ToastProvider>
         <ConfirmProvider>
-          <MediaManagerProvider>
-            <App />
-          </MediaManagerProvider>
+          <App />
         </ConfirmProvider>
       </ToastProvider>
     </ThemeProvider>
