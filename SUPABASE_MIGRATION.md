@@ -7,6 +7,8 @@
 - **Start from zero.** Nothing is imported from Firebase: no Auth users, no Firestore documents, no Storage objects (the Firebase Storage bucket never existed). People sign in again with Google, and the 30-day trial starts again. The auth-migration and data-import sections below are kept as reference only.
 - **Google sign-in only in production**, as today. Email and password stay in development. The Google Meet scopes the Firebase sign-in requested are dropped: the app never used them.
 - **The full control-plane schema** (`20260924121120_streaming_control_plane.sql`), plus what the app uses today and that schema lacked (`20260930150000_acrescimos_do_app.sql`): teleprompter scripts, separate banner and ticker lists in `studio_settings`, and the profile photo and name from Google.
+- **The RTMP key regeneration route is removed** (stage 2). It had no screen and no ingest behind it, and it wrote to the Firestore `rtmpKeys` and `auditLogs` collections. The `rtmp_keys` tables stay in the schema for when ingest arrives.
+- **Stages 2 and 3 ship together, at the cutover.** After stage 2 the server accepts only Supabase sessions while the client still signs in with Firebase, so the stage 2 pull request stays a draft until stage 3 is ready.
 
 The runtime is Node 22 or newer. Current Supabase JavaScript libraries no longer support Node 20.
 
@@ -67,6 +69,7 @@ Every `public` table must have RLS enabled. Policies use the authenticated user'
 - Super-admin authorization comes from a server-maintained role table or `app_metadata`; it never comes from `user_metadata`. JWT role changes require a token refresh.
 - `app_private` is not exposed through the Data API. Stripe events, audit logs, API secrets, and decrypted RTMP credentials remain server-only.
 - The `media-assets` Storage policies require the first object-path segment to equal `auth.uid()`. Upsert operations need select, insert, and update policies.
+- **Every table needs explicit grants.** In this Supabase version, tables created in `public` grant no read or write to the API roles by default, including `service_role`, which bypasses RLS but still needs table privileges. The app role (`authenticated`) gets what the RLS policies allow; the server (`service_role`) gets only what it uses (`20260930160000_servidor.sql`): read, insert, and update on `profiles` and `user_roles`. New functions in `public` are not executable by the API roles either; server-only functions revoke and grant explicitly.
 
 ## Application changes
 
@@ -99,6 +102,17 @@ Every `public` table must have RLS enabled. Policies use the authenticated user'
 2. Replace Firebase ID-token verification in `src/middleware/auth.ts` with server-side Supabase token validation. Do not trust decoded JWT payloads without validation.
 3. Replace Admin SDK profile creation, Stripe entitlement writes, RTMP-key writes, audit logs, and Stripe idempotency with transactions or constrained writes to the new tables.
 4. Keep Stripe and Cloudflare endpoints in Express during this migration. Stripe signature verification requires the raw request body, and moving it to Edge Functions would widen the cutover unnecessarily.
+
+Done in stage 2:
+
+- `requireAuth` validates the bearer token with `auth.getUser` on the Auth service, which also rejects the token of a signed-out session. A rejected token answers 401; an unreachable Auth service answers 503.
+- `GET /api/auth/profile` and `POST /api/validate-trial` read the profile the auth trigger created, recreate it if the administration deleted it, and keep the caller's `user_roles` row equal to `SUPER_ADMIN_EMAILS` (a confirmed email in the list), which is what `app_private.is_super_admin()` and the RLS policies read.
+- On start, the server runs `public.sync_super_admins` with the list: it promotes confirmed emails in the list and demotes every other admin, including one who no longer goes through the server and would otherwise keep reading every profile through the Data API. Changing `SUPER_ADMIN_EMAILS` therefore requires restarting the server (on Vercel, a new deployment).
+- The Stripe webhook verifies the signature (400 when it fails), then records the event and the profile change in one transaction through `public.apply_stripe_event`, which only the secret key can execute. A repeated delivery changes nothing, and a failed write answers 503 so Stripe delivers again. Stripe does not guarantee order, so a change applies only when the event is newer than the last one applied (`profiles.stripe_synced_at`) and concerns the profile's current subscription: a late "active" retry cannot undo a later cancellation, and the cancellation of an old subscription cannot cancel the current one. A subscription's plan follows its price (`STRIPE_PRICE_*`), so a plan change made in the billing portal is kept. Events carrying a non-Supabase user id (from before the migration) are only recorded.
+- A token from a signed-out session answers 401, like any other rejected token.
+- The billing portal reads `stripe_customer_id` from `profiles`.
+- `firebase-admin` and `src/lib/firebase-admin.ts` are removed.
+- `tests/servidor/servidor.test.ts` runs the real `createApiApp` against the local stack (`npm run test:servidor`): sign-in, a signed-out session, profile, the admin role, its removal through the profile route and on start, an unconfirmed admin email, expired trial, signed Stripe events (a repeated delivery, an out-of-order retry, a cancellation, a portal plan change), and the billing portal. The CI job runs it after the database tests.
 
 ## Auth migration choices
 
@@ -135,9 +149,14 @@ npm run db:stop
 
 ## Test and cutover gates
 
-Before switching production traffic, verify:
+Before switching production traffic, configure the hosted project's Auth:
 
-- registration, email login, Google login, logout, and token refresh;
+- **Email and password sign-up is off** (Google only, as decided), **email confirmation stays on, and anonymous sign-ins stay off.** The Auth API is public with the publishable key, and the server treats a confirmed email in `SUPER_ADMIN_EMAILS` as an admin. With confirmation off, the Auth service confirms by itself an email that someone signs up with, or adds to an anonymous account: anyone could claim the admin's address and become admin. The local stack (`supabase/config.toml`) keeps confirmation off for development only.
+- The Google provider, the site URL, and the redirect allow list point at the production origin.
+
+Then verify:
+
+- Google login, logout, and token refresh (email login only in development);
 - a user cannot read or mutate another user's profile, media, webhook logs, stream sessions, or webinar drafts;
 - users cannot change their own plan, role, trial, or Stripe entitlement fields;
 - the admin account can perform its intended server-authorized operations;
