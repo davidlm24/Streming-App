@@ -14,19 +14,19 @@ O produto tem quatro públicos, em situações diferentes:
 
 - **Operador no estúdio, durante a live.** É o momento de maior pressão. A atenção dele está no que vai ao ar: câmeras, cenas, banners, chat. Ele troca de cena (preview → programa), modera comentários e aciona ofertas. Um erro aqui é público.
 - **Anfitrião entre as lives, no painel.** Agenda webinars, conecta canais e destinos, configura a ingestão por OBS/vMix, cuida do plano e da conta.
-- **Espectador na página pública do webinar.** Faz a inscrição, espera a contagem regressiva, assiste, conversa no chat e vota em enquetes. Não tem conta no produto.
+- **Espectador na página pública do webinar** (ainda não está no ar: volta com o link público e a transmissão). Faz a inscrição, espera a contagem regressiva, assiste, conversa no chat e vota em enquetes. Não tem conta no produto.
 - **Administração da plataforma** (interno): chaves de transmissão dos clientes e visão geral dos clientes.
 
 ## Product Purpose
 
-Transmitir uma live para todos os canais de uma vez, direto do navegador e sem instalar nada. O mesmo produto cobre o ciclo inteiro do webinar: agendar, divulgar a página de inscrição, transmitir com recursos de venda e acompanhar o público.
+Transmitir uma live para todos os canais de uma vez, direto do navegador e sem instalar nada. O mesmo produto cobre o ciclo inteiro do webinar: agendar, divulgar a página de inscrição, transmitir com recursos de venda e acompanhar o público. Hoje estão no ar o agendamento e o estúdio; a página de inscrição e a transmissão para os canais ainda não.
 
 O produto dá certo quando o operador passa a live inteira sem precisar sair dele e sem errar o que vai ao ar.
 
 ## Positioning
 
 - **Um Restream brasileiro:** a interface é em português e o preço é em reais, com PIX entre as formas de pagamento.
-- **Webinar completo:** agendamento, página de inscrição, sala do espectador e chat no mesmo lugar da transmissão.
+- **Webinar completo:** agendamento, página de inscrição, sala do espectador e chat no mesmo lugar da transmissão (a página e a sala ainda não estão no ar).
 - **Venda ao vivo:** ofertas, cupons, QR code de produto e banners, feitos para converter durante a live.
 
 ## Operating Context

@@ -11,7 +11,6 @@ import { rotuloDoHorario } from './lib/horario';
 import { ConfiguracoesPagina } from './components/ConfiguracoesPagina';
 import { Estudio } from './components/Estudio';
 import { AuthAndPricing } from './components/AuthAndPricing';
-import { WebinarPublicPage } from './components/WebinarPublicPage';
 import { SuperAdminPanel } from './components/SuperAdminPanel';
 import { PlansModal } from './components/PlansModal';
 import { PlanoPagina } from './components/PlanoPagina';
@@ -20,11 +19,8 @@ import { AddChannelsModal } from './components/AddChannelsModal';
 
 import { Destination, Comment } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_COMMENTS } from './data';
-import { CircleAlert, Palette, X } from 'lucide-react';
-import { ThumbnailEditor } from './components/ThumbnailEditor';
+import { CircleAlert, X } from 'lucide-react';
 import { LegalModal } from './components/LegalModals';
-import { useMediaManager } from './context/MediaManagerContext';
-import { Modal } from './components/ui/Modal';
 import { useToast } from './components/ui/Toast';
 import { limiteDeCanaisLigados } from './lib/plans';
 import { cabeLigado } from './lib/canais';
@@ -43,9 +39,6 @@ import {
 } from './lib/firestoreService';
 
 export default function App() {
-  // A página pública do webinar ainda usa o fundo escolhido no estúdio como capa
-  const { activeBackground } = useMediaManager();
-
   // User state
   const [user, setUser] = useState<{
     uid?: string;
@@ -131,6 +124,8 @@ export default function App() {
         // o seletor de tela com PDF, as posições do logo e do banner de cada monitor e a trilha sonora
         'pwstream_audience_local', 'pwstream_scene_templates_v2', 'pw_qrcode_config', 'pwstreamer_selectedSharedSource',
         'pw_logo_pos', 'pw_logo_scale', 'pw_banner_pos', 'pw_banner_scale', 'pw_banner_width',
+        // A página pública que saiu na fase 3 guardava as inscrições só neste navegador
+        'webinar_registrations',
       ].forEach((chave) =>
         localStorage.removeItem(chave)
       );
@@ -139,7 +134,6 @@ export default function App() {
     }
   }, []);
 
-  // App views: 'dashboard' | 'studio' | 'super-admin' | 'public-webinar' | 'profile' | 'billing'
   const [currentView, setCurrentView] = useState<VisaoDoApp>('dashboard');
 
   // Handle direct URL route navigation for /admin or #admin
@@ -191,19 +185,18 @@ export default function App() {
 
   // Dynamic webinars list
   const [webinars, setWebinars] = useState<Array<{
-    id: string; title: string; desc: string; time: string;
+    id: string; title: string;
+    /** Só em webinars antigos: o campo saiu junto com a página pública. */
+    desc?: string;
+    time: string;
     channels: string[]; type: string; videoName: string;
-    /** Horario de inicio em ISO 8601. A contagem regressiva da pagina
-     *  publica deriva DESTE campo — sem ele, nao ha contagem. Os webinares
-     *  semeados nao tem porque sao demonstracao: a pagina entao mostra o
-     *  horario anunciado em , que e o que de fato se sabe. */
+    /** Horário em ISO 8601: dele vêm a ordem da lista e "Hoje/Amanhã". */
     startsAt?: string;
   // Começa vazio. Eram dois webinars inventados ("Como Alavancar suas
   // Vendas...", "Webinar de Boas-vindas...") que ficavam na tela sempre que
   // o Firestore não respondia — e o painel novo os anunciaria como "a
   // próxima live". A lista real chega pela assinatura abaixo.
   }>>([]);
-  const [selectedWebinarId, setSelectedWebinarId] = useState<string>('');
 
   const handleDeleteWebinar = async (id: string) => {
     setWebinars(prev => prev.filter(w => w.id !== id));
@@ -223,16 +216,12 @@ export default function App() {
   // O webinar pelo qual se entrou no estúdio: dá o nome da sessão e o roteiro dela
   const [webinarNoEstudio, setWebinarNoEstudio] = useState<{ id: string; title: string } | undefined>(undefined);
 
-  // Dashboard Thumbnail Editor States
-  const [isDashboardEditorOpen, setIsDashboardEditorOpen] = useState(false);
-  const [dashboardEditorTitle, setDashboardEditorTitle] = useState('');
-
   // A cor dos gráficos da live (borda do card da câmera, banners, ticker, QR e
   // cronômetro) começa neutra. Era vermelha, e no estúdio o vermelho quer dizer
   // "no ar". Fica na conta, com as preferências de transmissão.
   const [streamColor, setStreamColor] = useState<string>(COR_PADRAO);
 
-  // O chat é do app: o estúdio e a página pública do webinar usam o mesmo
+  // O chat mora no app para sobreviver às idas e voltas do estúdio
   const [comments, setComments] = useState<Comment[]>(INITIAL_COMMENTS);
 
   // Firestore Quota Resilience state
@@ -400,14 +389,6 @@ export default function App() {
     setWebinarNoEstudio(webinar ? { id: webinar.id, title: webinar.title } : undefined);
     setCurrentView('studio');
   };
-  const abrirPaginaPublica = (webinar: { id: string }) => {
-    setSelectedWebinarId(webinar.id);
-    setCurrentView('public-webinar');
-  };
-  const abrirEditorDeCapa = (webinar: { title: string }) => {
-    setDashboardEditorTitle(webinar.title);
-    setIsDashboardEditorOpen(true);
-  };
 
   // -------------------------------------------------------------
   // FIRESTORE SUBSCRIPTIONS & PERSISTENCE
@@ -545,34 +526,6 @@ export default function App() {
           allWebinars={webinars}
           onDeleteWebinar={handleDeleteWebinar}
         />
-      ) : currentView === 'public-webinar' ? (
-        <WebinarPublicPage 
-          webinarTitle={webinars.find(w => w.id === selectedWebinarId)?.title || ''}
-          webinarDesc={webinars.find(w => w.id === selectedWebinarId)?.desc || ''}
-          webinarDate={webinars.find(w => w.id === selectedWebinarId)?.time || 'Amanhã, às 19:30'}
-          // `startsAt` é o horário em ISO, do qual a contagem regressiva
-          // deriva. Os webinares semeados não têm — e sem ele a página
-          // mostra o horário anunciado em vez de inventar uma contagem.
-          startsAt={webinars.find(w => w.id === selectedWebinarId)?.startsAt}
-          isLive={false}
-          thumbnailUrl={activeBackground}
-          onBackToDashboard={() => setCurrentView('dashboard')}
-          streamColor={streamColor}
-          comments={comments}
-          onAddComment={(text, author) => {
-            const now = new Date();
-            const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            const newComment: Comment = {
-              id: `pub-comm-${Date.now()}`,
-              authorName: author,
-              authorAvatar: '',
-              text,
-              platform: 'youtube',
-              timestamp
-            };
-            setComments(prev => [...prev, newComment]);
-          }}
-        />
       ) : currentView === 'billing' ? (
         <PlanoPagina user={user} />
       ) : currentView === 'profile' ? (
@@ -592,8 +545,6 @@ export default function App() {
           carregado={isFirestoreSettingsLoaded}
           onAgendar={() => setIsCreateWebinarOpen(true)}
           onEntrar={entrarNoEstudio}
-          onPaginaPublica={abrirPaginaPublica}
-          onCriarCapa={abrirEditorDeCapa}
           onExcluir={(webinar) => handleDeleteWebinar(webinar.id)}
         />
       ) : currentView === 'settings' ? (
@@ -608,47 +559,11 @@ export default function App() {
           canais={destinations}
           onEntrarNoEstudio={entrarNoEstudio}
           onAgendar={() => setIsCreateWebinarOpen(true)}
-          onPaginaPublica={abrirPaginaPublica}
-          onCriarCapa={abrirEditorDeCapa}
           onConectarCanal={conectarCanal}
           onEditarCanal={editarCanal}
           onVerCanais={() => setCurrentView('channels')}
           onVerWebinars={() => setCurrentView('webinars')}
         />
-      )}
-
-      {/* O editor de capa dos webinars fica na raiz, por cima de qualquer tela */}
-      {/* Dashboard Capas Creator Modal */}
-      {isDashboardEditorOpen && (
-        <Modal isOpen onClose={() => setIsDashboardEditorOpen(false)} bare ariaLabel="Editor do painel">
-          <div className="bg-[var(--surface)] border border-[var(--line)] w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line)] bg-[var(--bg)]">
-              <div className="text-left">
-                <h3 className="text-sm font-bold text-[var(--ink-hi)] flex items-center gap-2">
-                  <Palette size={16} className="text-blue-500 animate-pulse" /> Gerador de Capas & Miniaturas (Thumbnail Editor)
-                </h3>
-                <p className="text-xs text-[var(--ink-lo)]">Desenhe e baixe capas em alta definição para as suas redes sociais e transmissões</p>
-              </div>
-              <button aria-label="Fechar gerador de capas" 
-                onClick={() => setIsDashboardEditorOpen(false)}
-                className="text-[var(--ink-lo)] hover:text-[var(--ink-hi)] p-2 rounded-lg hover:bg-white/5 transition-all cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Body with loaded ThumbnailEditor */}
-            <div className="p-6 max-h-[80vh] overflow-y-auto">
-              <ThumbnailEditor 
-                initialTitle={dashboardEditorTitle} 
-                onSave={(dataUrl) => {
-                  console.log("Miniatura do dashboard gerada!");
-                }}
-              />
-            </div>
-          </div>
-        </Modal>
       )}
 
       {/* Rodapé da casca. Era em inglês ("All Rights Reserved... Developed and

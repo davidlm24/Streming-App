@@ -17,6 +17,7 @@ related_targets: ["src/App.tsx","src/lib/horario.ts"]
 - Sai o campo Tipo: tudo vira webinar. O vídeo pré-gravado sai até existir (o upload era simulado e prometia transcoding que não existe); webinar e live não mudavam nada no app.
 - Canais: as plataformas nomeadas do modal de canais, com as conectadas marcadas. A planejada e não conectada aparece no Painel como "não conectado".
 - Data e hora de verdade (`startsAt`). "Hoje"/"Amanhã" é derivado na tela, nunca gravado.
+- Sai o campo Descrição (2026-09-30), com a página pública, que era a única tela que o mostrava (Regra do Dado com Uso). Volta com o link público.
 
 **Momento memorável:** o formulário já abre com as plataformas dos canais ligados marcadas — começa dizendo para onde a live vai hoje.
 

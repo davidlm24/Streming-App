@@ -9,19 +9,17 @@ interface WebinarsPaginaProps {
   carregado: boolean;
   onAgendar: () => void;
   onEntrar: (webinar: WebinarResumo) => void;
-  onPaginaPublica: (webinar: WebinarResumo) => void;
-  onCriarCapa: (webinar: WebinarResumo) => void;
   onExcluir: (webinar: WebinarResumo) => void;
 }
 
 /** Todos os webinars. No painel ficavam espremidos, com um "Ver todos" que não levava a lugar nenhum. */
-export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onPaginaPublica, onCriarCapa, onExcluir }: WebinarsPaginaProps) {
+export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onExcluir }: WebinarsPaginaProps) {
   const confirmar = useConfirm();
 
   const excluirComConfirmacao = async (webinar: WebinarResumo) => {
     const ok = await confirmar({
       title: `Excluir "${webinar.title}"?`,
-      description: 'A página de inscrição deixa de existir e quem se inscreveu não verá mais o webinar.',
+      description: 'O webinar sai da lista, com o horário e os canais planejados.',
       confirmLabel: 'Excluir webinar',
       destructive: true,
     });
@@ -32,7 +30,7 @@ export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onPag
     <Pagina>
       <CabecalhoDePagina
         titulo="Webinars"
-        descricao="Cada webinar tem a própria página de inscrição para divulgar."
+        descricao="Cada webinar guarda o horário, os canais e o roteiro de uma live."
         acao={
           <Button onClick={onAgendar} icon={<Plus size={16} aria-hidden="true" />}>
             Agendar webinar
@@ -49,7 +47,7 @@ export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onPag
         </div>
       ) : webinars.length === 0 ? (
         <p className="mt-12 max-w-prose border-t border-[var(--line)] pt-6 text-sm text-[var(--ink-lo)]">
-          Nenhum webinar agendado. Agende um para ter a página de inscrição e começar a divulgar.
+          Nenhum webinar agendado. Agende um para guardar o horário, os canais e o roteiro da próxima live.
         </p>
       ) : (
         <ul className="mt-12 divide-y divide-[var(--line)] border-y border-[var(--line)]">
@@ -58,8 +56,6 @@ export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onPag
               key={w.id}
               webinar={w}
               onEntrar={onEntrar}
-              onPaginaPublica={onPaginaPublica}
-              onCriarCapa={onCriarCapa}
               onExcluir={excluirComConfirmacao}
             />
           ))}

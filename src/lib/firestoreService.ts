@@ -41,7 +41,8 @@ export interface UserProfile {
 export interface WebinarData {
   id: string;
   title: string;
-  desc: string;
+  /** Só em webinars antigos: a Descrição saiu do formulário com a página pública. */
+  desc?: string;
   time: string;
   channels: string[];
   type: 'live' | 'webinar' | 'pre-recorded';

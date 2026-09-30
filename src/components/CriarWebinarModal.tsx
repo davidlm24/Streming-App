@@ -14,10 +14,9 @@ import { PlataformaIcone } from './ui/PlataformaIcone';
 export interface NovoWebinar {
   id: string;
   title: string;
-  desc: string;
-  /** O horário por extenso, para quem lê só o texto (página pública, estúdio). */
+  /** O horário por extenso, para quem lê só o texto. */
   time: string;
-  /** O horário em ISO 8601: dele vêm a ordem da lista, "Hoje/Amanhã" e a contagem regressiva. */
+  /** O horário em ISO 8601: dele vêm a ordem da lista e "Hoje/Amanhã". */
   startsAt: string;
   /** Nomes das plataformas ("YouTube"); `plataformaPeloNome` volta deles à plataforma. */
   channels: string[];
@@ -74,12 +73,14 @@ function estadoDaPlataforma(canais: Destination[], plataforma: Plataforma): stri
  * O título é neutro ("Novo webinar"); o verbo mora no botão. O rascunho fica
  * enquanto o app estiver aberto — fechar sem querer ou uma falha ao gravar não
  * perdem o que foi digitado — e some só depois de o banco confirmar.
+ *
+ * A Descrição saiu na fase 3, com a página pública, que era a única tela que
+ * a mostrava ao público (Regra do Dado com Uso). Volta com o link público.
  */
 export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }: CriarWebinarModalProps) {
   const [titulo, setTitulo] = useState('');
   const [data, setData] = useState('');
   const [hora, setHora] = useState('');
-  const [descricao, setDescricao] = useState('');
   const [plataformas, setPlataformas] = useState<Plataforma[]>([]);
   const [erros, setErros] = useState<Erros>({});
   const [falha, setFalha] = useState<FalhaAoSalvar | null>(null);
@@ -130,7 +131,7 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
     setFalha(null);
 
     const novos: Erros = {};
-    if (!titulo.trim()) novos.titulo = 'Falta o título. É o nome que aparece na lista e na página de inscrição.';
+    if (!titulo.trim()) novos.titulo = 'Falta o título. É o nome que aparece na lista e no estúdio.';
     if (!data) novos.data = 'Falta a data.';
     if (!hora) novos.hora = 'Falta a hora.';
     const inicio = data && hora ? new Date(`${data}T${hora}`) : null;
@@ -150,7 +151,6 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
       await onAgendar({
         id: idDoRascunho.current,
         title: titulo.trim(),
-        desc: descricao.trim(),
         time: horarioPorExtenso(inicio!),
         startsAt: inicio!.toISOString(),
         channels: PLATAFORMAS_NOMEADAS.filter((p) => plataformas.includes(p)).map(nomeDaPlataforma),
@@ -160,7 +160,6 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
       setTitulo('');
       setData('');
       setHora('');
-      setDescricao('');
       setErros({});
       tocouNosCanais.current = false;
       idDoRascunho.current = null;
@@ -272,24 +271,6 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
             />
             {erros.hora && <ErroDeCampo id="webinar-hora-erro">{erros.hora}</ErroDeCampo>}
           </div>
-        </div>
-
-        <div>
-          <label htmlFor="webinar-descricao" className="block text-sm font-medium text-[var(--ink-hi)]">
-            Descrição
-          </label>
-          <textarea
-            id="webinar-descricao"
-            rows={3}
-            maxLength={1000}
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
-            aria-describedby="webinar-descricao-dica"
-            className={`${CAMPO} resize-none py-2.5`}
-          />
-          <p id="webinar-descricao-dica" className="mt-2 text-pretty text-xs text-[var(--ink-lo)]">
-            Opcional. Aparece na página de inscrição.
-          </p>
         </div>
 
         <fieldset aria-describedby="webinar-canais-dica">

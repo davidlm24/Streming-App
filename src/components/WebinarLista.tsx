@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { ExternalLink, Palette, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Menu, type ItemDeMenu } from './ui/Menu';
 import { rotuloDoHorario } from '../lib/horario';
@@ -7,7 +7,6 @@ import { rotuloDoHorario } from '../lib/horario';
 export interface WebinarResumo {
   id: string;
   title: string;
-  desc: string;
   time: string;
   channels: string[];
   type: string;
@@ -49,27 +48,23 @@ export function Horario({ texto }: { texto: string }) {
 interface WebinarLinhaProps {
   webinar: WebinarResumo;
   onEntrar: (webinar: WebinarResumo) => void;
-  onPaginaPublica: (webinar: WebinarResumo) => void;
-  onCriarCapa: (webinar: WebinarResumo) => void;
   onExcluir?: (webinar: WebinarResumo) => void;
 }
 
-export function acoesDoWebinar(
-  webinar: WebinarResumo,
-  { onPaginaPublica, onCriarCapa, onExcluir }: Pick<WebinarLinhaProps, 'onPaginaPublica' | 'onCriarCapa' | 'onExcluir'>,
-): ItemDeMenu[] {
-  const acoes: ItemDeMenu[] = [
-    { rotulo: 'Página de inscrição', icone: <ExternalLink size={14} />, onSelect: () => onPaginaPublica(webinar) },
-    { rotulo: 'Criar capa', icone: <Palette size={14} />, onSelect: () => onCriarCapa(webinar) },
-  ];
-  if (onExcluir) {
-    acoes.push({ rotulo: 'Excluir webinar', icone: <Trash2 size={14} />, perigo: true, onSelect: () => onExcluir(webinar) });
-  }
-  return acoes;
+/**
+ * O que mais se faz com um webinar, no "⋯". Sem nada para fazer, não há
+ * menu. "Página de inscrição" e "Criar capa" saíram na fase 3: a página só
+ * abria para o próprio anfitrião, e a capa não aparecia em lugar nenhum.
+ */
+export function acoesDoWebinar(webinar: WebinarResumo, { onExcluir }: Pick<WebinarLinhaProps, 'onExcluir'>): ItemDeMenu[] {
+  return onExcluir
+    ? [{ rotulo: 'Excluir webinar', icone: <Trash2 size={14} />, perigo: true, onSelect: () => onExcluir(webinar) }]
+    : [];
 }
 
 /** Uma linha de webinar: uma ação visível (entrar), o resto no menu. */
-export function WebinarLinha({ webinar, onEntrar, onPaginaPublica, onCriarCapa, onExcluir }: WebinarLinhaProps) {
+export function WebinarLinha({ webinar, onEntrar, onExcluir }: WebinarLinhaProps) {
+  const acoes = acoesDoWebinar(webinar, { onExcluir });
   return (
     <li className="flex items-center gap-4 py-4">
       <div className="min-w-0 flex-1">
@@ -84,7 +79,7 @@ export function WebinarLinha({ webinar, onEntrar, onPaginaPublica, onCriarCapa, 
         <Button variant="ghost" size="sm" onClick={() => onEntrar(webinar)}>
           Entrar
         </Button>
-        <Menu rotulo={`Ações de ${webinar.title}`} itens={acoesDoWebinar(webinar, { onPaginaPublica, onCriarCapa, onExcluir })} />
+        {acoes.length > 0 && <Menu rotulo={`Ações de ${webinar.title}`} itens={acoes} />}
       </div>
     </li>
   );
