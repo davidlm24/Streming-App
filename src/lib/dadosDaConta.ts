@@ -4,6 +4,7 @@
 // As telas usam as mesmas funções de antes, quando os dados ficavam no Firestore.
 import type { User } from '@supabase/supabase-js';
 import { apiFetch } from './apiFetch';
+import { apagarTodasAsCopias, pararDeCopiar } from './midiaDoNavegador';
 import { getSupabaseBrowserClient } from './supabase';
 import type { Banner, Destination, TickerItem } from '../types.ts';
 
@@ -67,7 +68,7 @@ function erroDeRede(erro: unknown): boolean {
 }
 
 /** O motivo de uma falha do Supabase, na língua da tela. */
-function falhaDoSupabase(erro: unknown): FalhaAoSalvar {
+export function falhaDoSupabase(erro: unknown): FalhaAoSalvar {
   if (erroDeRede(erro)) return 'sem-conexao';
   // O token venceu ou foi recusado: a API responde com esses códigos
   const codigo = (erro as { code?: string } | null)?.code;
@@ -107,17 +108,26 @@ let contaTrocada = false;
 const ESPERA_DA_CONFIRMACAO_MS = 10_000;
 
 /**
- * Grava e só resolve depois de o banco confirmar (Regra do Salvo de Verdade).
- * O Supabase só responde depois de gravar; a espera cobre a resposta que não
- * chega. Falha com o motivo, para a tela dizer a saída.
+ * A conta desta aba, para gravar. Falha com 'sem-login' sem sessão ou depois de
+ * a conta sair ou dar lugar a outra, e com 'sem-conexao' fora do ar.
  */
-async function gravarComConfirmacao(gravar: (uid: string) => Promise<void>): Promise<void> {
+export async function contaParaGravar(): Promise<string> {
   // Logo depois de recarregar, a sessão ainda está sendo lida, e o app já
   // mostra o usuário: sem esperar, uma sessão válida seria dada como expirada.
   await esperarSessao();
   const uid = usuarioDaSessao?.id;
   if (!uid || contaTrocada || (contaDaAba && uid !== contaDaAba)) throw new ErroAoSalvar('sem-login');
   if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new ErroAoSalvar('sem-conexao');
+  return uid;
+}
+
+/**
+ * Grava e só resolve depois de o banco confirmar (Regra do Salvo de Verdade).
+ * O Supabase só responde depois de gravar; a espera cobre a resposta que não
+ * chega. Falha com o motivo, para a tela dizer a saída.
+ */
+export async function gravarComConfirmacao(gravar: (uid: string) => Promise<void>): Promise<void> {
+  const uid = await contaParaGravar();
 
   let espera: ReturnType<typeof setTimeout> | undefined;
   const semConfirmacao = new Promise<never>((_, rejeitar) => {
@@ -136,11 +146,13 @@ async function gravarComConfirmacao(gravar: (uid: string) => Promise<void>): Pro
 
 // ── Cópias neste navegador ──────────────────────────────────────────────────
 // A última versão que o banco confirmou, para as listas abrirem antes de a
-// conta responder. Saem quando a pessoa sai da conta e quando a sessão acaba,
-// para não ficarem para o próximo num computador compartilhado.
+// conta responder, e as cópias da mídia do estúdio (midiaDoNavegador). Saem
+// quando a pessoa sai da conta e quando a sessão acaba, para não ficarem para
+// o próximo num computador compartilhado.
 const COPIAS_DA_CONTA = ['pwstream_user', 'pwstream_transmission_settings_', 'pwstream_destinations_', 'pwstream_webinars_', 'pwstream_banners_', 'pwstream_tickers_'];
 
-function apagarCopiasDaConta() {
+/** Resolve quando o navegador apagou as cópias, ou quando desistiu de esperar por ele. */
+function apagarCopiasDaConta(): Promise<void> {
   try {
     Object.keys(localStorage)
       .filter((chave) => COPIAS_DA_CONTA.some((prefixo) => chave.startsWith(prefixo)))
@@ -148,6 +160,7 @@ function apagarCopiasDaConta() {
   } catch {
     // Sem armazenamento, não há o que apagar
   }
+  return apagarTodasAsCopias();
 }
 
 function guardarNoAparelho(chave: string, valor: unknown) {
@@ -301,7 +314,9 @@ export async function sairDaConta(): Promise<void> {
       // Sem armazenamento, não há sessão guardada
     }
   }
-  apagarCopiasDaConta();
+  // O app recarrega em seguida: as cópias da mídia saem antes
+  pararDeCopiar();
+  await apagarCopiasDaConta();
 }
 
 /**
@@ -319,13 +334,14 @@ export function subscribeAuth(onUser: (user: UserProfile | null) => void, onCont
     const conta = sessao?.user.id ?? null;
     if (contaTrocada || (contaDaAba && conta !== contaDaAba)) {
       contaTrocada = true;
-      apagarCopiasDaConta();
+      pararDeCopiar();
+      void apagarCopiasDaConta();
       onContaTrocou();
       return;
     }
     contaDaAba = conta;
     if (!sessao) {
-      apagarCopiasDaConta();
+      void apagarCopiasDaConta();
       onUser(null);
       return;
     }

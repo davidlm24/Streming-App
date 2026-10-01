@@ -43,7 +43,10 @@ O produto dá certo quando o operador passa a live inteira sem precisar sair del
 - **Planos e preços:** a fonte única é `src/lib/plans.ts`. Teste grátis de 30 dias; Standard R$ 49,90, Professional R$ 99,90 e Business R$ 199,90 por mês.
 - **Pagamento:** ainda não há cobrança nem checkout. O site público e o app mostram os planos e dizem que a assinatura abre em breve. O webhook do Stripe está no servidor, mas sem checkout nada o aciona.
 - **Chat das plataformas:** ainda não chega ao estúdio, porque não há ingestão real de comentários. O chat mostra só o que é enviado do estúdio.
-- **Mídia do estúdio:** logos, fundos, sobreposições e clipes ficam no navegador (IndexedDB), separados por conta, e não aparecem em outro aparelho. Não há armazenamento na nuvem: o Storage do Firebase deste projeto não existe, e a nuvem vem com o Storage do Supabase, na migração.
+- **Mídia do estúdio:** logos, fundos, sobreposições e clipes ficam na conta (Supabase Storage) e aparecem em qualquer aparelho.
+  - Cada conta guarda até 200 MB e 300 arquivos, com até 50 MB por arquivo (o limite do plano grátis), em PNG, JPEG, WebP, MP4 ou WebM. Um logo em SVG vira PNG antes de ir para a conta.
+  - As imagens baixam ao abrir o estúdio; um clipe, quando vai para o preview.
+  - Cada navegador guarda uma cópia do que baixou, para o estúdio abrir sem baixar de novo, e a cópia sai quando a pessoa sai da conta.
 - **Terminologia:** "PwStreamer" é o produto; "PW Stream Online" é a razão social, usada no copyright e em textos legais. As grafias são diferentes de propósito.
 
 ## Brand Commitments

@@ -13,6 +13,11 @@ function browserConfig() {
   return { url, publishableKey };
 }
 
+/** O endereço do projeto e a chave publicável, para o que o cliente não faz (o envio de mídia com progresso). */
+export function getSupabaseBrowserConfig() {
+  return browserConfig();
+}
+
 export function isSupabaseBrowserConfigured(): boolean {
   return Boolean(
     import.meta.env.VITE_SUPABASE_URL?.trim()

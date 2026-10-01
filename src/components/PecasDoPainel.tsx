@@ -4,6 +4,7 @@ import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { ErroDeCampo } from './ui/ErroDeCampo';
 import type { CantoDoPalco } from '../types';
 import { CANTOS } from '../lib/graficos';
+import { fraseDaLeitura, fraseDoUso, useMidiaDoEstudio, type ChegadaDaMidia, type TipoDeMidia } from '../context/MidiaDoEstudio';
 
 /**
  * As peças dos painéis do estúdio. Os painéis são uma coluna de ~260px ao
@@ -232,40 +233,54 @@ export function SeletorDeCanto({
   );
 }
 
+/** Os arquivos de uma seção que não abriram, contados. */
+function fraseDasFalhas(tipo: TipoDeMidia, quantos: number): string {
+  if (tipo === 'clipe') return quantos === 1 ? 'Um clipe não abriu nesta tela.' : `${quantos} clipes não abriram nesta tela.`;
+  return quantos === 1 ? 'Uma imagem não abriu nesta tela.' : `${quantos} imagens não abriram nesta tela.`;
+}
+
 /**
- * Onde a mídia enviada fica, numa linha, no fim da seção: neste navegador, só
- * para a conta (midiaDoNavegador). Quando o navegador não deixa abrir a
- * biblioteca, a falha com a nova tentativa. Antes cada arquivo dizia se o envio
- * para a nuvem tinha terminado; ele nunca terminava, porque a nuvem não existia.
+ * Onde a mídia fica, numa linha, no fim da seção: na conta, com quanto ela já
+ * guarda do limite. Quando a lista não abre, a falha com a nova tentativa; e
+ * quando um arquivo da seção não chega a esta aba, a falha dela, perto do
+ * quadro que não abriu. Antes a mídia ficava só no navegador, e a nota dizia
+ * isso.
  */
 export function NotaDaMidia({
-  leitura,
-  onLerDeNovo,
+  tipo,
   anunciaFalha = true,
 }: {
-  leitura: 'lendo' | 'pronta' | 'indisponivel';
-  onLerDeNovo: () => void;
-  /** Num painel com várias seções de mídia, só a primeira diz a falha: o alerta não se repete. */
+  tipo: TipoDeMidia;
+  /** A lista que não abriu é uma falha só: num painel com várias seções de mídia, só a primeira a diz. */
   anunciaFalha?: boolean;
 }) {
-  if (leitura === 'indisponivel') {
-    return anunciaFalha ? <FalhaNoPainel frase="O navegador não deixou abrir a sua mídia." onTentarDeNovo={onLerDeNovo} /> : null;
+  const midia = useMidiaDoEstudio();
+  if (midia.leitura === 'indisponivel') {
+    return anunciaFalha ? <FalhaNoPainel frase={fraseDaLeitura(midia.motivoDaLeitura)} onTentarDeNovo={midia.tentarDeNovo} /> : null;
   }
-  return <p className="text-xs text-[var(--ink-lo)]">Fica neste navegador, só para a sua conta.</p>;
+  const falhas = midia.itens[tipo].filter((item) => item.chegada === 'falhou').length;
+  if (falhas > 0) return <FalhaNoPainel frase={fraseDasFalhas(tipo, falhas)} onTentarDeNovo={midia.tentarDeNovo} />;
+  return (
+    <p className="text-xs tabular-nums text-[var(--ink-lo)]">
+      {midia.leitura === 'pronta' ? `Fica na sua conta: ${fraseDoUso(midia.uso)}.` : 'Fica na sua conta.'}
+    </p>
+  );
 }
 
 /** "Adicionar" um arquivo: o único lugar do painel com borda tracejada. */
 export function EnviarArquivo({
   rotulo,
   aceita,
-  enviando,
+  progresso,
   onArquivo,
 }: {
   rotulo: string;
   aceita: string;
-  enviando: boolean;
+  /** O envio em andamento, de 0 a 100; undefined sem envio. */
+  progresso: number | undefined;
   onArquivo: (arquivo: File) => void;
 }) {
+  const enviando = progresso !== undefined;
   return (
     <label
       className={`envio flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--line-ctl)] px-3 text-sm text-[var(--ink)] transition-colors duration-150 ${
@@ -273,7 +288,7 @@ export function EnviarArquivo({
       }`}
     >
       <Plus size={16} aria-hidden="true" />
-      {enviando ? 'Enviando…' : rotulo}
+      {enviando ? <span className="tabular-nums">Enviando… {progresso}%</span> : rotulo}
       <input
         type="file"
         accept={aceita}
@@ -292,16 +307,22 @@ export function EnviarArquivo({
 export interface ItemDaBiblioteca {
   id: string;
   nome: string;
-  url: string;
+  /** null até o arquivo chegar a esta aba. */
+  url: string | null;
+  chegada: ChegadaDaMidia;
+  /** De 0 a 100 enquanto baixa. */
+  progresso: number | null;
 }
 
 /**
  * A biblioteca de imagens de um gráfico (logo, fundo, sobreposição): a
  * escolhida vai ao preview, e "Nenhum" tira. Embaixo, uma linha para a
  * imagem do preview e outra para a do programa, quando é outra, cada uma com
- * onde está e o que se faz com ela. Antes cada imagem tinha a lixeira
- * escondida num `div` dentro do botão, que só aparecia com o mouse e apagava
- * sem perguntar.
+ * onde está e o que se faz com ela. As imagens que ainda não abriram nesta
+ * aba ficam numa lista logo abaixo, fora do grupo (só se escolhe o que já
+ * chegou), dizendo como vêm; a que não abriu tem "Excluir". Antes cada imagem
+ * tinha a lixeira escondida num `div` dentro do botão, que só aparecia com o
+ * mouse e apagava sem perguntar.
  */
 export function GradeDeImagens({
   rotulo,
@@ -322,7 +343,9 @@ export function GradeDeImagens({
   onSelecionar: (url: string) => void;
   onExcluir: (item: ItemDaBiblioteca) => void;
 }) {
-  const opcoes = [{ id: '', nome: textoDoNenhum, url: '' }, ...itens];
+  const prontas = itens.flatMap((item) => (item.url ? [{ ...item, url: item.url }] : []));
+  const chegando = itens.filter((item) => !item.url);
+  const opcoes = [{ id: '', nome: textoDoNenhum, url: '' }, ...prontas];
   const setas = useSetasDoGrupo(
     opcoes.length,
     opcoes.findIndex((o) => o.url === selecionada),
@@ -362,6 +385,37 @@ export function GradeDeImagens({
           </button>
         ))}
       </div>
+      {chegando.length > 0 && (
+        <ul aria-label="Imagens que ainda não abriram nesta tela" className="mt-2 grid grid-cols-3 gap-2">
+          {chegando.map((item) => (
+            <li
+              key={item.id}
+              title={item.nome}
+              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-[var(--line-ctl)] bg-[var(--well)] p-1.5 text-center text-xs text-[var(--ink-lo)]"
+            >
+              <span className="sr-only">{item.nome}:</span>
+              {item.chegada === 'falhou' ? (
+                <>
+                  <CircleAlert size={16} aria-hidden="true" className="text-[var(--ink-hi)]" />
+                  Não abriu
+                  <AcaoDeTexto tamanho="xs" onClick={() => onExcluir(item)}>
+                    Excluir
+                  </AcaoDeTexto>
+                </>
+              ) : item.chegada === 'baixando' ? (
+                <>
+                  Baixando…
+                  {item.progresso !== null && <span className="tabular-nums">{item.progresso}%</span>}
+                </>
+              ) : item.chegada === 'na-fila' ? (
+                'Na fila'
+              ) : (
+                <span className="sr-only">abrindo</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
       {linhas.map(({ url, item }) => {
         return (
           <div key={url} className="mt-2 flex items-start justify-between gap-3">
