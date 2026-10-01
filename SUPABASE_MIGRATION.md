@@ -9,6 +9,12 @@
 - **The full control-plane schema** (`20260924121120_streaming_control_plane.sql`), plus what the app uses today and that schema lacked (`20260930150000_acrescimos_do_app.sql`): teleprompter scripts, separate banner and ticker lists in `studio_settings`, and the profile photo and name from Google.
 - **The RTMP key regeneration route is removed** (stage 2). It had no screen and no ingest behind it, and it wrote to the Firestore `rtmpKeys` and `auditLogs` collections. The `rtmp_keys` tables stay in the schema for when ingest arrives.
 - **Stages 2 and 3 ship together, at the cutover.** After stage 2 the server accepts only Supabase sessions while the client still signs in with Firebase, so the stage 2 pull request stays a draft until stage 3 is ready.
+- **The studio media lives in the account** (stage 4).
+  - Each account keeps up to 200 MB and 300 files in the `media-assets` bucket, with 50 MB per file (the free plan's cap).
+  - Only the formats the studio sends go in: PNG, JPEG, WebP, MP4 and WebM. A logo chosen as SVG is converted to PNG in the browser, because an SVG can carry script.
+  - Images download when the studio opens; a clip downloads only when it goes to the preview. The browser copy is erased at sign-out, and downloading every clip at every sign-in would spend the free plan's traffic (5 GB a month for the whole project).
+  - The media that lived only in the browser (IndexedDB) belonged to Firebase accounts, so it is discarded like the Firebase data.
+  - Stage 4 also ships at the cutover, because it needs the Supabase sign-in of stage 3.
 
 The runtime is Node 22 or newer. Current Supabase JavaScript libraries no longer support Node 20.
 
@@ -20,7 +26,7 @@ Use a staged cutover, one pull request per stage. Do not point the production cl
 2. **Server:** validate Supabase access tokens in `src/middleware/auth.ts`; read profiles created by the auth trigger; keep `user_roles` in step with `SUPER_ADMIN_EMAILS`; move the trial check and the Stripe webhook writes to Postgres.
 3. **Client:** Supabase Auth with the Google redirect flow, and Supabase-backed versions of the `firestoreService` functions (profile, webinars, studio settings, banners, tickers, scripts, and the admin client list), keeping the React interfaces.
 4. **Media:** the studio library moves from the browser (IndexedDB) to the `media-assets` bucket. The free plan's 50 MB per-file cap limits video clips.
-5. **Cutover:** create the project in the new account, link it and push the migrations with the CLI (the owner signs in to the CLI), configure the Google provider and redirect URLs, set the environment variables locally and on Vercel, then remove the Firebase packages, configuration, rules, and tests.
+5. **Cutover:** create the project in the new account, link it and push the migrations with the CLI (the owner signs in to the CLI), configure the Google provider and redirect URLs, set the environment variables locally and on Vercel, then remove the Firebase packages, configuration, rules, and tests. The old client also left two IndexedDB databases in people's browsers, `firebaseLocalStorageDb` (with the old Firebase session) and `firebase-heartbeat-database`; the app should delete them once.
 
 ## Target services
 
@@ -68,7 +74,8 @@ Every `public` table must have RLS enabled. Policies use the authenticated user'
 - Public webinar details are exposed through a minimal `security_invoker` view or a purpose-built public API, not by granting broad access to private webinar rows.
 - Super-admin authorization comes from a server-maintained role table or `app_metadata`; it never comes from `user_metadata`. JWT role changes require a token refresh.
 - `app_private` is not exposed through the Data API. Stripe events, audit logs, API secrets, and decrypted RTMP credentials remain server-only.
-- The `media-assets` Storage policies require the first object-path segment to equal `auth.uid()`. Upsert operations need select, insert, and update policies.
+- The `media-assets` Storage policies require the first object-path segment to equal `auth.uid()`. The upload policy accepts only the standard upload (`storage.operation()`): no signed upload URL, copy, TUS or S3. There is no update policy: a file is never overwritten, because each upload gets a new path.
+- The account limits (200 MB, 300 files) live in a trigger on `storage.objects`, not in the policy (`20260930180000_midia.sql`). The Storage checks policies on a test row before it receives the file, then writes the real row as a super user, which no policy sees. The trigger runs on both rows and on every upload path, and a per-folder lock makes an account's writes pass one at a time, so parallel uploads cannot go past the limit together. A write into another account's folder skips the trigger (the policy refuses it right after), so a refusal never reveals another account's usage and cannot hold its lock; the Storage's final write has no user, so the limits apply to it. The hosted project must allow a trigger on `storage.objects` (`db push` fails otherwise); the local stack does.
 - **Every table needs explicit grants.** In this Supabase version, tables created in `public` grant no read or write to the API roles by default, including `service_role`, which bypasses RLS but still needs table privileges. The app role (`authenticated`) gets what the RLS policies allow; the server (`service_role`) gets only what it uses (`20260930160000_servidor.sql`): read, insert, and update on `profiles` and `user_roles`. New functions in `public` are not executable by the API roles either; server-only functions revoke and grant explicitly.
 
 ## Application changes
@@ -84,7 +91,7 @@ Every `public` table must have RLS enabled. Policies use the authenticated user'
    ```
 
 3. Replace `src/lib/firestoreService.ts` with a Supabase-backed module retaining its exported domain functions where possible. This keeps the React components stable during the migration.
-4. Replace Firebase calls in `src/lib/storageService.ts` with the Storage client and metadata writes to `media_assets`.
+4. Move the studio media library (browser-only IndexedDB since the per-account library) to the Storage client, with metadata rows in `media_assets`.
 5. Replace `onSnapshot` listeners with scoped Supabase Realtime subscriptions or explicit refetches where realtime is not useful.
 6. Replace Firebase email/password, Google sign-in, logout, and auth-state code with Supabase Auth methods.
 7. Replace `authenticatedFetch` so it sends the Supabase access token as `Authorization: Bearer <token>`.
@@ -101,6 +108,26 @@ Done in stage 3:
 - `firebase`, `firebase-applet-config.json`, and the Firebase client code are removed: the client bundle drops from 1,115 kB to 671 kB (302 kB to 193 kB gzipped).
 - `npm run db:contas` creates local test accounts for the development sign-in.
 - Security review fixes: the browser client uses the PKCE flow (`flowType: 'pkce'`), so a link carrying another account's tokens in its fragment no longer signs anyone in; signing out removes the stored session even when the library gives up (expired token and a failed refresh); a Realtime row without the column (large unchanged values are left out) no longer discards the first read, which could have made the autosave write an empty channel list; a script save answers only for the edit it sent, and closing the studio saves the last edit; a failed webinar deletion puts the row back and says why.
+
+Done in stage 4:
+
+- `src/lib/midiaDaConta.ts` keeps the studio media in the account. The file goes to `media-assets/{uid}/{id}.{extension}`, and the row to `media_assets`, with the type in `metadata.tipo`, the file name and the size.
+  - An item appears only after the upload and the row are both confirmed. If the row fails, the file is removed again.
+  - Deleting removes the file, then the row, and the item leaves the list only after both.
+  - Uploads go through `XMLHttpRequest` and downloads through `fetch`, both for the progress. Each gives up after 30 seconds without progress.
+- The bucket (`20260930180000_midia.sql`):
+  - accepts 50 MB per file, and only PNG, JPEG, WebP, MP4 and WebM;
+  - accepts only the standard upload, and never overwrites a file;
+  - keeps each account within 200 MB and 300 files, through the trigger above. The trigger counts the size the upload declares (`contentLength`) on the test row and the real size on the final row, so the limit is exact. The Storage answers "database error, code: MD001" (space) or MD002 (files), and the app shows each one.
+- A row in `media_assets` belongs only to its owner (the admin no longer reads or changes other accounts' rows), cannot be changed, and must describe a file that is already in the owner's folder with the same size and format. Its path is exactly `{owner}/{id}.{extension}`, its metadata is small, and an account keeps up to 300 rows.
+- `src/lib/midiaDoNavegador.ts` is now a cache in each browser (IndexedDB `pwstreamer-midia` version 2, keyed by the storage path), so the studio opens without downloading again.
+  - The cache is emptied on sign-out and whenever the app opens without a session. After sign-out, nothing else is copied until the page reloads.
+  - Copies of files that left the account, or that belong to another account, are dropped when the list is read.
+  - Version 2 deletes the media of version 1, which lived only in the browser.
+- Downloads: the copies in the browser open first, all at once; what has no copy comes from the account one at a time, the images when the studio opens and a clip when it goes to the preview. A file that does not come is shown as "não abriu", with a retry and "Excluir"; nothing is deleted because of a failed download, since a 404 can come from a path, a bucket or a policy rather than the file.
+- Housekeeping when the studio opens removes files without a row (an upload that could not undo itself), only when there is no doubt: the tab's own account, every row read (the exact count must match, since the API caps rows silently), only names the studio gives, and only files older than a day.
+- The studio shows the account's usage ("Fica na sua conta: 12 MB de 200 MB."), the upload progress, files still arriving, and files that did not arrive, with a retry.
+- `npm run db:test`: 25 new tests (`supabase/tests/midia_test.sql`).
 
 ### Express server
 
@@ -174,7 +201,7 @@ Then verify:
 - users cannot change their own plan, role, trial, or Stripe entitlement fields;
 - the admin account can perform its intended server-authorized operations;
 - Stripe Checkout, signed webhooks, duplicate event delivery, billing portal, and cancellation remain correct;
-- Storage upload, download, replacement, and delete work for the owner and fail for another user;
+- Storage upload, download, and delete work for the owner and fail for another user; overwriting a file and uploading past the account's 200 MB are refused;
 - realtime subscription filters never deliver another user's data;
 - source and target counts reconcile after the final delta import;
 - no Firebase secret, service account, or package remains in the deployed client bundle.

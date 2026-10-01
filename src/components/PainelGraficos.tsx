@@ -2,6 +2,7 @@ import { useState, type Dispatch, type FormEvent, type ReactNode, type SetStateA
 import { PenLine, Plus } from 'lucide-react';
 import type { Banner, CantoDoPalco, StudioSceneState, TickerItem } from '../types';
 import { fraseDaFalhaDoEnvio, useMidiaDoEstudio, type TipoDeImagem } from '../context/MidiaDoEstudio';
+import { FORMATOS } from '../lib/midiaDaConta';
 import { CORES_DOS_GRAFICOS, formatarTempo, relogioParado, restanteDoRelogio, type RelogioDoCronometro } from '../lib/graficos';
 import { FRASE_DA_FALHA_DA_LISTA, type ListaDaConta } from '../lib/useListaDaConta';
 import {
@@ -201,27 +202,27 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
       <ErroDeCampo id={`erro-do-envio-${tipo}`}>{fraseDaFalhaDoEnvio(tipo, midia.falhaDoEnvio.motivo)}</ErroDeCampo>
     ) : null;
   // O envio de uma imagem, no fim da seção: o botão, a falha e onde o arquivo fica
-  const envioDeImagem = (tipo: TipoDeImagem, rotulo: string, aceita: string) => (
+  const envioDeImagem = (tipo: TipoDeImagem, rotulo: string) => (
     <>
       <EnviarArquivo
         rotulo={rotulo}
-        aceita={aceita}
-        enviando={midia.enviando.includes(tipo)}
+        aceita={FORMATOS[tipo].join(',')}
+        progresso={midia.enviando[tipo]}
         onArquivo={(arquivo) => void midia.enviar(tipo, arquivo)}
       />
       {erroDoEnvio(tipo)}
-      {/* A falha de abrir a biblioteca aparece uma vez, no logo, a primeira seção de mídia */}
-      <NotaDaMidia leitura={midia.leitura} onLerDeNovo={midia.lerDeNovo} anunciaFalha={tipo === 'logo'} />
+      {/* A lista que não abriu aparece uma vez, no logo, a primeira seção de mídia */}
+      <NotaDaMidia tipo={tipo} anunciaFalha={tipo === 'logo'} />
     </>
   );
 
-  const excluirComConfirmacao = async (titulo: string, rotulo: string, excluir: () => void) => {
-    const ok = await confirmar({
-      title: titulo,
-      description: 'Sai da lista do estúdio. Se estiver no programa, continua lá até o próximo corte.',
-      confirmLabel: rotulo,
-      destructive: true,
-    });
+  const excluirComConfirmacao = async (
+    titulo: string,
+    rotulo: string,
+    excluir: () => void,
+    descricao = 'Sai da lista do estúdio. Se estiver no programa, continua lá até o próximo corte.',
+  ) => {
+    const ok = await confirmar({ title: titulo, description: descricao, confirmLabel: rotulo, destructive: true });
     if (ok) excluir();
   };
 
@@ -230,7 +231,12 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
 
   // Excluir a imagem escolhida também a tira do preview (a biblioteca desfaz a escolha)
   const excluirImagem = (item: ItemDaBiblioteca, rotulo: string) =>
-    excluirComConfirmacao(`Excluir ${item.nome}?`, rotulo, () => void midia.excluir(item.id));
+    excluirComConfirmacao(
+      `Excluir ${item.nome}?`,
+      rotulo,
+      () => void midia.excluir(item.id),
+      'O arquivo sai da sua conta, em todos os aparelhos. Se estiver no programa, continua lá até o próximo corte.',
+    );
 
   const restante = restanteDoRelogio(relogio);
   const andando = relogio.fimEm !== null;
@@ -440,7 +446,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
             />
           </>
         )}
-        {envioDeImagem('logo', 'Enviar logo', 'image/png,image/jpeg,image/webp,image/svg+xml')}
+        {envioDeImagem('logo', 'Enviar logo')}
       </SecaoDoPainel>
 
       {/* ── Cronômetro ── */}
@@ -559,7 +565,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
           onSelecionar={(url) => midia.escolher('fundo', url)}
           onExcluir={(item) => excluirImagem(item, 'Excluir o fundo')}
         />
-        {envioDeImagem('fundo', 'Enviar fundo', 'image/png,image/jpeg,image/webp')}
+        {envioDeImagem('fundo', 'Enviar fundo')}
       </SecaoDoPainel>
 
       {/* ── Sobreposição ── */}
@@ -576,7 +582,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
           onSelecionar={(url) => midia.escolher('sobreposicao', url)}
           onExcluir={(item) => excluirImagem(item, 'Excluir a sobreposição')}
         />
-        {envioDeImagem('sobreposicao', 'Enviar sobreposição', 'image/png,image/webp')}
+        {envioDeImagem('sobreposicao', 'Enviar sobreposição')}
       </SecaoDoPainel>
     </div>
   );
