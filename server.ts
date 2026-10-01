@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import { getSupabaseAdminClient, isSupabaseServerConfigured } from "./src/lib/supabase-admin.ts";
 import { AuthRequest, configuredSuperAdmins, isSuperAdmin, requireAuth } from "./src/middleware/auth.ts";
 import { resolvePublicAddress } from "./src/server/safe-http.ts";
+import { ORIGENS_DO_SUPABASE_EM_PRODUCAO, origensDoSupabase, politicaDeSeguranca } from "./src/server/csp.ts";
 
 dotenv.config();
 
@@ -872,7 +873,24 @@ Retorne estritamente um JSON estruturado com:
   // acima, fica.
 
   if (serveFrontend) {
-    if (process.env.NODE_ENV !== "production") {
+    const desenvolvimento = process.env.NODE_ENV !== "production";
+
+    // Na Vercel quem serve o frontend é a CDN, e o cabeçalho vem do
+    // `vercel.json`; aqui é o `npm run dev` e o `npm start` do servidor
+    // próprio. As origens do Supabase saem da variável que o navegador usa,
+    // para o endereço do stack local valer em desenvolvimento.
+    const politica = politicaDeSeguranca({
+      origensDeDados: process.env.VITE_SUPABASE_URL
+        ? origensDoSupabase(process.env.VITE_SUPABASE_URL)
+        : ORIGENS_DO_SUPABASE_EM_PRODUCAO,
+      desenvolvimento,
+    });
+    app.use((_req, res, next) => {
+      res.setHeader('Content-Security-Policy', politica);
+      next();
+    });
+
+    if (desenvolvimento) {
       const vite = await createViteServer({
         server: { middlewareMode: true },
         appType: "spa",
