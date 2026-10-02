@@ -40,8 +40,13 @@ export interface WebinarData {
 
 // ── Falhas ──────────────────────────────────────────────────────────────────
 
-/** Por que uma gravação não foi confirmada. A tela diz cada caso com a sua saída. */
-export type FalhaAoSalvar = 'sem-login' | 'sem-conexao' | 'sem-confirmacao' | 'recusado';
+/**
+ * Por que uma gravação não foi confirmada. A tela diz cada caso com a sua saída.
+ * 'limite-da-conta' é um teto de quantidade (webinars, roteiros) e 'grande-demais'
+ * um de tamanho (uma lista ou uma coluna passou do que o banco aceita): a saída
+ * de um é apagar o que não usa, a do outro é escrever menos.
+ */
+export type FalhaAoSalvar = 'sem-login' | 'sem-conexao' | 'sem-confirmacao' | 'limite-da-conta' | 'grande-demais' | 'recusado';
 
 export class ErroAoSalvar extends Error {
   readonly motivo: FalhaAoSalvar;
@@ -73,6 +78,14 @@ export function falhaDoSupabase(erro: unknown): FalhaAoSalvar {
   // O token venceu ou foi recusado: a API responde com esses códigos
   const codigo = (erro as { code?: string } | null)?.code;
   if (codigo === 'PGRST301' || codigo === 'PGRST303') return 'sem-login';
+  // Os tetos da conta (migração 20261001120000): WB001 os webinars, SN001 as
+  // capturas, AU001 a audiência e TP001 o texto dos roteiros. O código chega
+  // inteiro em `code`, e não só dentro da mensagem.
+  if (codigo === 'WB001' || codigo === 'SN001' || codigo === 'AU001' || codigo === 'TP001') return 'limite-da-conta';
+  // 23514 é um `check` do banco recusando o valor. Os que a tela alcança são os
+  // de tamanho (listas, canais, roteiro), e os campos soltos já têm maxLength:
+  // o que passa até aqui é grande demais.
+  if (codigo === '23514') return 'grande-demais';
   return 'recusado';
 }
 

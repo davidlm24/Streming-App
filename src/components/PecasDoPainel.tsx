@@ -79,16 +79,23 @@ export function EstadoNoPalco({ noPrograma, noPreview, extra }: { noPrograma: bo
 /**
  * A linha de falha ao salvar de um painel, como a do sistema: o alerta de
  * 16px e a frase em `text-sm` `--ink-hi`, terminada por "Tentar de novo".
+ * Sem `onTentarDeNovo` a frase fica sem o botão: quando a única saída é mudar
+ * o conteúdo (um texto grande demais), tentar de novo só falharia outra vez.
  */
-export function FalhaNoPainel({ frase, onTentarDeNovo }: { frase: string; onTentarDeNovo: () => void }) {
+export function FalhaNoPainel({ frase, onTentarDeNovo }: { frase: string; onTentarDeNovo?: () => void }) {
   return (
     <p role="alert" className="flex items-start gap-2 text-pretty text-sm text-[var(--ink-hi)]">
       <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
       <span>
-        {frase}{' '}
-        <AcaoDeTexto sublinhada onClick={onTentarDeNovo}>
-          Tentar de novo
-        </AcaoDeTexto>
+        {frase}
+        {onTentarDeNovo && (
+          <>
+            {' '}
+            <AcaoDeTexto sublinhada onClick={onTentarDeNovo}>
+              Tentar de novo
+            </AcaoDeTexto>
+          </>
+        )}
       </span>
     </p>
   );
