@@ -47,6 +47,7 @@ O produto dá certo quando o operador passa a live inteira sem precisar sair del
   - Cada conta guarda até 200 MB e 300 arquivos, com até 50 MB por arquivo (o limite do plano grátis), em PNG, JPEG, WebP, MP4 ou WebM. Um logo em SVG vira PNG antes de ir para a conta.
   - As imagens baixam ao abrir o estúdio; um clipe, quando vai para o preview.
   - Cada navegador guarda uma cópia do que baixou, para o estúdio abrir sem baixar de novo, e a cópia sai quando a pessoa sai da conta.
+- **Limites da conta no banco:** o plano grátis do Supabase dá 500 MB de banco para o projeto inteiro, não por conta, então o que cada conta grava tem teto: até 50 banners e 50 tickers, 32 canais guardados, 500 webinars, 500 capturas, 1000 pessoas na audiência e 2 MB de roteiro do teleprompter. Os tetos valem no banco, em cada gravação, e não só na tela. Hoje estão muito acima do uso, mas a tela ainda não os mostra: quem bate num deles vê só "não foi possível salvar".
 - **Terminologia:** "PwStreamer" é o produto; "PW Stream Online" é a razão social, usada no copyright e em textos legais. As grafias são diferentes de propósito.
 
 ## Brand Commitments
