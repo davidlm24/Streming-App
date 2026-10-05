@@ -1,9 +1,10 @@
-import { useState, type Dispatch, type FormEvent, type ReactNode, type SetStateAction } from 'react';
+import { useId, useState, type Dispatch, type FormEvent, type ReactNode, type SetStateAction } from 'react';
 import { PenLine, Plus } from 'lucide-react';
 import type { Banner, CantoDoPalco, StudioSceneState, TickerItem } from '../types';
 import { fraseDaFalhaDoEnvio, useMidiaDoEstudio, type TipoDeImagem } from '../context/MidiaDoEstudio';
 import { FORMATOS } from '../lib/midiaDaConta';
 import { CORES_DOS_GRAFICOS, formatarTempo, relogioParado, restanteDoRelogio, type RelogioDoCronometro } from '../lib/graficos';
+import { LIMITE_DE_BANNERS, LIMITE_DE_TICKERS } from '../lib/limitesDaConta';
 import { FRASE_DA_FALHA_DA_LISTA, type ListaDaConta } from '../lib/useListaDaConta';
 import {
   CampoDoPainel,
@@ -52,17 +53,46 @@ interface PainelGraficosProps {
 
 // ── Peças da lista ─────────────────────────────────────────────────────────
 
-/** "Novo …": o único controle tracejado do painel, porque adiciona. */
-function BotaoDeAdicionar({ children, onClick }: { children: ReactNode; onClick: () => void }) {
+/**
+ * "Novo …": o único controle tracejado do painel, porque adiciona. Diz quantos
+ * a conta já tem e para no limite. O banco recusa o item de número 51 com um
+ * erro de tamanho, e a tela não deve deixar a pessoa montar o item para só
+ * então saber (o painel antigo mostrava um "/50" que nada aplicava).
+ * `coisa` é o plural, na frase: "banners", "tickers".
+ */
+function BotaoDeAdicionar({
+  children,
+  onClick,
+  usados,
+  limite,
+  coisa,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  usados: number;
+  limite: number;
+  coisa: string;
+}) {
+  const idDoAviso = useId();
+  const cheio = usados >= limite;
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--line-ctl)] px-3 text-sm text-[var(--ink)] transition-colors duration-150 hover:bg-[var(--panel)] hover:text-[var(--ink-hi)] cursor-pointer"
-    >
-      <Plus size={16} aria-hidden="true" />
-      {children}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={cheio}
+        aria-describedby={idDoAviso}
+        className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--line-ctl)] px-3 text-sm text-[var(--ink)] transition-colors duration-150 hover:bg-[var(--panel)] hover:text-[var(--ink-hi)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-transparent disabled:hover:text-[var(--ink)]"
+      >
+        <Plus size={16} aria-hidden="true" />
+        {children}
+      </button>
+      <p id={idDoAviso} className="text-xs tabular-nums text-[var(--ink-lo)]">
+        {cheio
+          ? `A sua conta guarda até ${limite} ${coisa}, e já tem ${usados}. Exclua um que não usa para criar outro.`
+          : `${usados} de ${limite} ${coisa}.`}
+      </p>
+    </>
   );
 }
 
@@ -305,7 +335,9 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
             onCancelar={() => setEditandoBanner(null)}
           />
         ) : (
-          <BotaoDeAdicionar onClick={() => setEditandoBanner('novo')}>Novo banner</BotaoDeAdicionar>
+          <BotaoDeAdicionar onClick={() => setEditandoBanner('novo')} usados={banners.itens.length} limite={LIMITE_DE_BANNERS} coisa="banners">
+            Novo banner
+          </BotaoDeAdicionar>
         )}
         <EscolhaDoPainel rotulo="Posição">
           <Segmentado
@@ -377,7 +409,9 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
             onCancelar={() => setEditandoTicker(null)}
           />
         ) : (
-          <BotaoDeAdicionar onClick={() => setEditandoTicker('novo')}>Novo ticker</BotaoDeAdicionar>
+          <BotaoDeAdicionar onClick={() => setEditandoTicker('novo')} usados={tickers.itens.length} limite={LIMITE_DE_TICKERS} coisa="tickers">
+            Novo ticker
+          </BotaoDeAdicionar>
         )}
         <EscolhaDoPainel rotulo="Velocidade">
           <Segmentado
