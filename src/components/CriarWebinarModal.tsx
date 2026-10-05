@@ -179,6 +179,8 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
     <Modal
       isOpen={isOpen}
       onClose={onClose}
+      // Enquanto grava, o diálogo não fecha: a falha aparece com o rascunho à vista
+      ocupado={salvando}
       title="Novo webinar"
       size="md"
       footer={

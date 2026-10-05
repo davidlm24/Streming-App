@@ -11,18 +11,28 @@ export interface SwitchProps {
   /** Nome acessível — diga o que o interruptor liga ("Transmitir para YouTube"). */
   rotulo: string;
   disabled?: boolean;
+  /**
+   * Gravando a mudança: o interruptor fica onde está até o banco confirmar.
+   * Anuncia `aria-busy`, fica a 45 % e ignora o clique. É `aria-disabled`, e
+   * não `disabled`, para não tirar o foco de quem usa o teclado.
+   */
+  ocupado?: boolean;
 }
 
-export function Switch({ checked, onChange, rotulo, disabled = false }: SwitchProps) {
+export function Switch({ checked, onChange, rotulo, disabled = false, ocupado = false }: SwitchProps) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
       aria-label={rotulo}
+      aria-busy={ocupado || undefined}
+      aria-disabled={ocupado || undefined}
       disabled={disabled}
-      onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border transition-colors duration-150 ease-out cursor-pointer disabled:cursor-not-allowed disabled:opacity-45 ${
+      onClick={() => {
+        if (!ocupado) onChange(!checked);
+      }}
+      className={`relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border transition-colors duration-150 ease-out cursor-pointer disabled:cursor-not-allowed disabled:opacity-45 aria-busy:cursor-progress aria-busy:opacity-45 ${
         checked
           ? 'bg-[var(--ink-hi)] border-[var(--ink-hi)]'
           : 'bg-[var(--panel)] border-[var(--line-ctl)]'

@@ -1,9 +1,9 @@
 import { AcaoDeTexto } from './components/ui/AcaoDeTexto';
 import { apiFetch } from './lib/apiFetch';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AppHeader, type VisaoDoApp } from './components/AppHeader';
 import { Dashboard } from './components/Dashboard';
-import { CanaisPagina } from './components/CanaisPagina';
+import { CanaisPagina, type MudancaNoCanal, type SituacaoDoCanal } from './components/CanaisPagina';
 import { WebinarsPagina } from './components/WebinarsPagina';
 import { CriarWebinarModal } from './components/CriarWebinarModal';
 import { rotuloDoHorario } from './lib/horario';
@@ -36,7 +36,6 @@ import {
   salvarCanais,
   type FalhaAoSalvar,
 } from './lib/dadosDaConta';
-import { FRASE_DA_FALHA_DA_LISTA } from './lib/useListaDaConta';
 
 /** O que a tela diz quando um webinar não saiu do banco, com a saída. */
 const FRASE_DA_EXCLUSAO: Record<FalhaAoSalvar, string> = {
@@ -47,6 +46,9 @@ const FRASE_DA_EXCLUSAO: Record<FalhaAoSalvar, string> = {
   'grande-demais': 'O banco recusou a exclusão. Tente de novo.',
   recusado: 'O banco recusou a exclusão. Tente de novo.',
 };
+
+/** Na vez de ligar, o plano já não comporta mais um canal ligado: o canal fica como estava. */
+class AlemDoLimite extends Error {}
 
 export default function App() {
   // User state
@@ -352,56 +354,90 @@ export default function App() {
   const canaisProntos = configuracoesDoBanco;
   const avisarCanaisCarregando = () =>
     toast.info('Seus canais ainda estão carregando', 'Espere um instante e tente de novo. Se não carregar, confira sua conexão.');
-  // Cada mudança nos canais vai ao banco; a falha diz o motivo e a saída
-  const salvarCanaisDaConta = (canais: Destination[]) => {
-    void salvarCanais(canais).catch((erro) =>
-      toast.error(
-        'Os canais não foram salvos',
-        FRASE_DA_FALHA_DA_LISTA[erro instanceof ErroAoSalvar ? erro.motivo : 'recusado'],
-      ),
-    );
+
+  // Os canais que o banco confirmou por último, e a fila das mudanças. Cada
+  // mudança grava a lista inteira e parte da lista que a anterior deixou, na
+  // sua vez: duas gravações ao mesmo tempo, cada uma com a sua lista, apagariam
+  // uma a outra. A tela só muda depois da confirmação (Regra do Salvo de
+  // Verdade); antes mudava na hora, e a falha chegava depois, num aviso.
+  const canaisDaConta = useRef<Destination[]>(INITIAL_DESTINATIONS);
+  const filaDosCanais = useRef<Promise<unknown>>(Promise.resolve());
+  /** Resolve depois de o banco confirmar. Falha com `ErroAoSalvar`, ou com o que `mudar` lançar. */
+  const mudarCanais = (mudar: (canais: Destination[]) => Destination[]): Promise<void> => {
+    const vez = filaDosCanais.current.then(async () => {
+      const novos = mudar(canaisDaConta.current);
+      await salvarCanais(novos);
+      canaisDaConta.current = novos;
+      setDestinations(novos);
+    });
+    filaDosCanais.current = vez.catch(() => undefined);
+    return vez;
   };
 
-  const handleToggleDestination = (id: string) => {
+  // Ligar, desligar e remover, na página Canais, esperam o banco como o modal:
+  // a linha diz "Salvando…" ou "Removendo…" e só muda depois da confirmação.
+  // Na falha nada muda, e a linha diz o motivo e a saída. A situação mora aqui,
+  // e não na página, para a falha continuar à vista depois de ir a outra tela.
+  const [situacaoDosCanais, setSituacaoDosCanais] = useState<Record<string, SituacaoDoCanal>>({});
+  const mudarNoCanal = async (canal: Destination, mudanca: MudancaNoCanal, mudar: (canais: Destination[]) => Destination[]) => {
+    // Só a mudança mais recente do canal fala na linha: uma resposta atrasada não a desfaz
+    const minha: SituacaoDoCanal = { tipo: 'salvando', mudanca };
+    const terminar = (falha?: SituacaoDoCanal) =>
+      setSituacaoDosCanais((atual) => {
+        if (atual[canal.id] !== minha) return atual;
+        const { [canal.id]: _terminada, ...resto } = atual;
+        return falha ? { ...resto, [canal.id]: falha } : resto;
+      });
+    setSituacaoDosCanais((atual) => ({ ...atual, [canal.id]: minha }));
+    try {
+      await mudarCanais(mudar);
+      terminar();
+    } catch (erro) {
+      if (erro instanceof AlemDoLimite) {
+        terminar();
+        avisarLimiteDeCanais(canal.name);
+        return;
+      }
+      terminar({ tipo: 'falhou', mudanca, motivo: erro instanceof ErroAoSalvar ? erro.motivo : 'recusado' });
+    }
+  };
+
+  const handleToggleDestination = (id: string, ligar: boolean) => {
     if (!canaisProntos) {
       avisarCanaisCarregando();
       return;
     }
     const canal = destinations.find(d => d.id === id);
-    if (canal && !canal.selected && !cabeLigado(destinations, id, limiteDeLigados)) {
+    if (!canal) return;
+    if (ligar && !cabeLigado(destinations, id, limiteDeLigados)) {
       avisarLimiteDeCanais(canal.name);
       return;
     }
-    setDestinations(prev => {
-      const updated = prev.map(dest => dest.id === id ? { ...dest, selected: !dest.selected } : dest);
-      if (user?.uid) salvarCanaisDaConta(updated);
-      return updated;
+    void mudarNoCanal(canal, ligar ? 'ligar' : 'desligar', (canais) => {
+      // Na vez desta mudança, outra da fila pode ter ligado um canal antes
+      if (ligar && !cabeLigado(canais, id, limiteDeLigados)) throw new AlemDoLimite();
+      return canais.map(d => d.id === id ? { ...d, selected: ligar } : d);
     });
   };
 
-  // Add or Update Destination (from AddChannelsModal). Devolve se salvou: sem
-  // os canais carregados, o modal fica aberto com o que foi digitado.
-  const handleAddOrUpdateDestination = (newDest: Destination): boolean => {
+  // Conectar ou editar (modal de canais). Resolve só depois de o banco
+  // confirmar, e só então o canal muda na tela; a falha rejeita com
+  // `ErroAoSalvar`, e o modal fica aberto com o que foi digitado. Sem os canais
+  // carregados, não grava e devolve false.
+  const handleAddOrUpdateDestination = async (newDest: Destination): Promise<boolean> => {
     if (!canaisProntos) {
       avisarCanaisCarregando();
       return false;
     }
-    setDestinations(prev => {
-      // Pelo id, só. Casar também pela plataforma sobrescrevia o primeiro canal
-      // dela — com dois servidores RTMP, editar o segundo apagava o primeiro.
-      const existingIdx = prev.findIndex(d => d.id === newDest.id);
-      let updated: Destination[];
-      if (existingIdx >= 0) {
-        updated = [...prev];
-        // Quem decide ligar é o modal: editar não liga um canal desligado, e
-        // um canal novo além do limite do plano entra desligado.
-        updated[existingIdx] = { ...updated[existingIdx], ...newDest };
-      } else {
-        updated = [newDest, ...prev];
-      }
-      if (user?.uid) salvarCanaisDaConta(updated);
-      return updated;
-    });
+    // Pelo id, só. Casar também pela plataforma sobrescrevia o primeiro canal
+    // dela — com dois servidores RTMP, editar o segundo apagava o primeiro.
+    // Quem decide ligar é o modal: editar não liga um canal desligado, e um
+    // canal novo além do limite do plano entra desligado.
+    await mudarCanais((canais) =>
+      canais.some(d => d.id === newDest.id)
+        ? canais.map(d => d.id === newDest.id ? { ...d, ...newDest } : d)
+        : [newDest, ...canais],
+    );
     return true;
   };
 
@@ -411,11 +447,17 @@ export default function App() {
       avisarCanaisCarregando();
       return;
     }
-    setDestinations(prev => {
-      const updated = prev.filter(dest => dest.id !== id);
-      if (user?.uid) salvarCanaisDaConta(updated);
-      return updated;
-    });
+    const canal = destinations.find(d => d.id === id);
+    if (!canal) return;
+    void mudarNoCanal(canal, 'remover', (canais) => canais.filter(d => d.id !== id));
+  };
+
+  // "Tentar de novo" na linha da falha: a mesma mudança, sem perguntar de novo
+  const tentarDeNovoNoCanal = (id: string) => {
+    const situacao = situacaoDosCanais[id];
+    if (situacao?.tipo !== 'falhou') return;
+    if (situacao.mudanca === 'remover') handleRemoveDestination(id);
+    else handleToggleDestination(id, situacao.mudanca === 'ligar');
   };
 
   // Ações das telas da casca (painel, canais, webinars)
@@ -454,7 +496,11 @@ export default function App() {
     const unsubSettings = subscribeTransmissionSettings(
       user.uid,
       (settings) => {
-        if (settings.destinations) setDestinations(prev => JSON.stringify(prev) === JSON.stringify(settings.destinations) ? prev : settings.destinations);
+        if (settings.destinations) {
+          // O que a conta tem agora: a próxima mudança nos canais parte daqui
+          canaisDaConta.current = settings.destinations;
+          setDestinations(prev => JSON.stringify(prev) === JSON.stringify(settings.destinations) ? prev : settings.destinations);
+        }
         if (settings.streamColor) setStreamColor(settings.streamColor);
       },
       () => setConfiguracoesDoBanco(true),
@@ -467,22 +513,23 @@ export default function App() {
     };
   }, [user?.uid]);
 
-  // Salva os canais e a cor dos gráficos pouco depois de mudarem, e só depois de
-  // o banco responder: antes disso a memória tem a lista vazia do começo, e
-  // gravá-la por cima apagava os canais da conta quando o banco demorava mais
-  // que o salvamento. Saíram daqui o servidor e a chave de exemplo (gravados em
-  // toda conta), o formato e a qualidade de uma gravação que não existe, as
+  // Salva a cor dos gráficos pouco depois de mudar, e só depois de o banco
+  // responder às configurações. Os canais saíram daqui: cada mudança neles
+  // grava na hora e espera a confirmação (mudarCanais), e este salvamento, sem
+  // esperar e calado na falha, gravava a lista de novo por trás, até por cima da
+  // mudança de outra aba. Saíram antes o servidor e a chave de exemplo (gravados
+  // em toda conta), o formato e a qualidade de uma gravação que não existe, as
   // animações antigas do logo e do banner e o estilo de texto, que o palco não
   // lia.
   useEffect(() => {
     if (!user?.uid || !configuracoesDoBanco) return;
     const timeout = setTimeout(() => {
-      void salvarTransmissao({ destinations, streamColor }).catch((erro) =>
-        console.warn('Configurações de transmissão não salvas:', erro),
+      void salvarTransmissao({ streamColor }).catch((erro) =>
+        console.warn('Cor dos gráficos não salva:', erro),
       );
     }, 1500);
     return () => clearTimeout(timeout);
-  }, [user?.uid, destinations, streamColor, configuracoesDoBanco]);
+  }, [user?.uid, streamColor, configuracoesDoBanco]);
 
   // Post chat comments manually
   const handlePostComment = (text: string) => {
@@ -556,10 +603,13 @@ export default function App() {
       ) : currentView === 'channels' ? (
         <CanaisPagina
           canais={destinations}
+          situacaoDosCanais={situacaoDosCanais}
           onConectarCanal={conectarCanal}
           onEditarCanal={editarCanal}
           onAlternarCanal={handleToggleDestination}
           onRemoverCanal={handleRemoveDestination}
+          onTentarDeNovo={tentarDeNovoNoCanal}
+          onSair={handleLogout}
           limiteDeLigados={limiteDeLigados}
         />
       ) : currentView === 'webinars' ? (
@@ -639,6 +689,7 @@ export default function App() {
         canalInicialId={canalDoModalDeCanais}
         destinations={destinations}
         onAddOrUpdateDestination={handleAddOrUpdateDestination}
+        onSair={handleLogout}
         currentPlan={user?.plan || 'Free Trial'}
         onOpenUpgrade={() => {
           setIsAddChannelsModalOpen(false);
