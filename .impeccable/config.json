@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "src/components/PwStreamLogo.tsx"
+        ],
+        "createdAt": "2026-09-07T08:55:15.195Z",
+        "reason": "Logotipo da marca: o gradiente e a identidade, nao decoracao de heading. Unico lugar do app com texto em gradiente."
+      }
+    ]
+  }
+}

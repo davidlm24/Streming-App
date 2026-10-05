@@ -1,0 +1,52 @@
+name: Design system
+
+# Impede que a camada de tokens volte a apodrecer.
+#
+# A direção JÁ TINHA a regra escrita ("nenhum estado por cor sozinha") e mesmo
+# assim despachou uma violação, com um comentário explicando a violação. Uma
+# frase no guia de estilo não segura nada; um passo de CI que calcula os
+# números e reprova o build, segura.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  design-system:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Tipos primeiro: é o mais barato e o que falha mais cedo.
+      - name: Tipos
+        run: npm run lint
+
+      # Hexadecimal cru só dentro dos blocos de token; nada de !important.
+      - name: CSS
+        run: npm run lint:css
+
+      # Todo par texto/superfície, nos três escopos, contra WCAG AA.
+      # Reprova o build — não é aviso.
+      - name: Portão de contraste
+        run: npm run lint:contrast
+
+      # Catraca: a dívida pode cair, nunca subir sem alguém decidir.
+      - name: Débito de design
+        run: npm run lint:debt
+
+      # Botão só-ícone sem nome acessível reprova o build (AST, não regex).
+      - name: Botões só-ícone
+        run: npm run lint:icons
+
+      # Campo sem nome, <label> vazio, htmlFor para id inexistente,
+      # e-mail/senha sem autoComplete.
+      - name: Rótulos de formulário
+        run: npm run lint:labels

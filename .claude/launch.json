@@ -1,0 +1,25 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "streming-worktree-ui-ux",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set \"PORT=3211\" && npm run dev"
+      ],
+      "port": 3211,
+      "autoPort": false
+    },
+    {
+      "name": "streming-worktree-prod",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "-e",
+        "process.env.NODE_ENV=\"production\";process.env.PORT=\"3212\";require(\"./dist/server.cjs\")"
+      ],
+      "port": 3212,
+      "autoPort": false
+    }
+  ]
+}

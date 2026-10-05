@@ -6,6 +6,7 @@ import {
 import { Participant } from '../types';
 import { ImagePlaceholder } from './ImagePlaceholder';
 import { AudioVUMeter } from './AudioVUMeter';
+import { copyText } from './ui/clipboard';
 
 export interface Scene {
   id: string;
@@ -62,7 +63,7 @@ export function ScenesPanel({
   });
 
   const handleCopyInvite = () => {
-    navigator.clipboard.writeText("https://stream.pwstreamer.com/guest-studio?id=5427");
+    copyText("https://stream.pwstreamer.com/guest-studio?id=5427");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -95,7 +96,7 @@ export function ScenesPanel({
     switch (layout) {
       case '1-cam':
         return (
-          <div className="w-full h-full bg-slate-900 rounded p-1 flex items-center justify-center">
+          <div className="w-full h-full bg-[var(--surface)] rounded p-1 flex items-center justify-center">
             <div className="w-4/5 h-4/5 bg-blue-500/30 border border-blue-400/50 rounded flex items-center justify-center">
               <span className="text-[7px] font-bold text-blue-300">CAM</span>
             </div>
@@ -103,7 +104,7 @@ export function ScenesPanel({
         );
       case 'dual':
         return (
-          <div className="w-full h-full bg-slate-900 rounded p-1 grid grid-cols-2 gap-1">
+          <div className="w-full h-full bg-[var(--surface)] rounded p-1 grid grid-cols-2 gap-1">
             <div className="bg-blue-500/30 border border-blue-400/50 rounded flex items-center justify-center">
               <span className="text-[6px] font-bold text-blue-300">CAM 1</span>
             </div>
@@ -115,19 +116,19 @@ export function ScenesPanel({
       case 'presentation':
       case 'screen-share':
         return (
-          <div className="w-full h-full bg-slate-900 rounded p-1 flex gap-1">
-            <div className="flex-1 bg-[#4683E0]/30 border border-blue-400/50 rounded flex items-center justify-center">
+          <div className="w-full h-full bg-[var(--surface)] rounded p-1 flex gap-1">
+            <div className="flex-1 bg-[var(--color-brand-deep)]/30 border border-blue-400/50 rounded flex items-center justify-center">
               <span className="text-[6px] font-bold text-blue-300">TELA</span>
             </div>
-            <div className="w-1/3 bg-slate-800 border border-slate-700 rounded flex items-center justify-center">
-              <span className="text-[6px] font-bold text-gray-400">CAM</span>
+            <div className="w-1/3 bg-[var(--panel)] border border-[var(--line-ctl)] rounded flex items-center justify-center">
+              <span className="text-[6px] font-bold text-[var(--ink-lo)]">CAM</span>
             </div>
           </div>
         );
       case 'grid':
       case 'gallery':
         return (
-          <div className="w-full h-full bg-slate-900 rounded p-1 grid grid-cols-2 grid-rows-2 gap-0.5">
+          <div className="w-full h-full bg-[var(--surface)] rounded p-1 grid grid-cols-2 grid-rows-2 gap-0.5">
             <div className="bg-blue-500/20 border border-blue-400/30 rounded"></div>
             <div className="bg-purple-500/20 border border-purple-400/30 rounded"></div>
             <div className="bg-emerald-500/20 border border-emerald-400/30 rounded"></div>
@@ -136,28 +137,28 @@ export function ScenesPanel({
         );
       default:
         return (
-          <div className="w-full h-full bg-slate-900 rounded p-1 flex items-center justify-center">
-            <span className="text-[7px] text-gray-400">{layout}</span>
+          <div className="w-full h-full bg-[var(--surface)] rounded p-1 flex items-center justify-center">
+            <span className="text-[7px] text-[var(--ink-lo)]">{layout}</span>
           </div>
         );
     }
   };
 
   return (
-    <div className="w-full bg-[#16191E] border-r border-slate-800 flex flex-col h-full select-none" id="scenes-sidebar">
+    <div className="w-full bg-[var(--surface)] border-r border-[var(--line)] flex flex-col h-full select-none" id="scenes-sidebar">
       {/* Header */}
-      <div className="p-3.5 border-b border-slate-800 bg-[#0F1115] shrink-0 flex items-center justify-between">
+      <div className="p-3.5 border-b border-[var(--line)] bg-[var(--bg)] shrink-0 flex items-center justify-between">
         <div>
-          <h3 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
+          <h3 className="text-xs font-black uppercase tracking-wider text-[var(--ink-hi)] flex items-center gap-2">
             <Users size={14} className="text-blue-400" />
             <span>Integrantes do Estúdio</span>
           </h3>
-          <p className="text-[10px] text-gray-500 mt-0.5">Gerencie participantes e fontes de áudio/vídeo</p>
+          <p className="text-[10px] text-[var(--ink-dim)] mt-0.5">Gerencie participantes e fontes de áudio/vídeo</p>
         </div>
         {onToggleImmersiveMode && (
           <button
             onClick={onToggleImmersiveMode}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 hover:text-white text-slate-400 transition-all border border-slate-700/50 cursor-pointer flex items-center justify-center shrink-0"
+            className="p-1.5 rounded-lg bg-[var(--panel)] hover:bg-[var(--raise)] hover:text-[var(--ink-hi)] text-[var(--ink-lo)] transition-all border border-[var(--line-ctl)]/50 cursor-pointer flex items-center justify-center shrink-0"
             title="Recuar Painel Lateral"
           >
             <Minimize2 size={13} />
@@ -168,24 +169,24 @@ export function ScenesPanel({
       {/* Content Viewport */}
       <div className="flex-1 overflow-y-auto p-3.5 space-y-4 custom-scrollbar">
         {/* SECTION 1: Invite Guest */}
-        <div className="bg-[#0F1115] border border-slate-800/80 p-3.5 rounded-xl space-y-2.5 shadow-inner">
+        <div className="bg-[var(--bg)] border border-[var(--line)]/80 p-3.5 rounded-xl space-y-2.5 shadow-inner">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0">
               <Users size={13} />
             </div>
             <div>
-              <h4 className="text-[10px] font-black uppercase tracking-wider text-white">Convidar para o Estúdio</h4>
-              <p className="text-[8px] text-gray-400">Palestrantes externos ao vivo</p>
+              <h4 className="text-[10px] font-black uppercase tracking-wider text-[var(--ink-hi)]">Convidar para o Estúdio</h4>
+              <p className="text-[8px] text-[var(--ink-lo)]">Palestrantes externos ao vivo</p>
             </div>
           </div>
 
-          <p className="text-[9px] text-[#a59ebf] leading-relaxed">
+          <p className="text-[9px] text-[var(--ink-lo)] leading-relaxed">
             Link para convidados entrarem no estúdio diretamente pelo navegador:
           </p>
 
           <div className="flex gap-1.5 items-stretch">
-            <div className="flex-1 bg-[#16191E] border border-slate-800/80 rounded-lg px-2 flex items-center overflow-hidden min-w-0">
-              <span className="text-[8.5px] font-mono text-gray-400 truncate select-all">
+            <div className="flex-1 bg-[var(--surface)] border border-[var(--line)]/80 rounded-lg px-2 flex items-center overflow-hidden min-w-0">
+              <span className="text-[8.5px] font-mono text-[var(--ink-lo)] truncate select-all">
                 https://stream.pwstreamer.com/guest-studio?id=5427
               </span>
             </div>
@@ -207,8 +208,8 @@ export function ScenesPanel({
         {/* SECTION 2: Participant List */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between px-1">
-            <span className="text-[10px] font-black tracking-wider text-gray-500 uppercase">Integrantes ({participants.length})</span>
-            <span className="text-[8px] font-mono text-gray-400 bg-slate-800/50 px-1.5 py-0.5 rounded">Fontes</span>
+            <span className="text-[10px] font-black tracking-wider text-[var(--ink-dim)] uppercase">Integrantes ({participants.length})</span>
+            <span className="text-[8px] font-mono text-[var(--ink-lo)] bg-[var(--panel)]/50 px-1.5 py-0.5 rounded">Fontes</span>
           </div>
 
           <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2">
@@ -219,8 +220,8 @@ export function ScenesPanel({
                 onClick={() => onToggleParticipantActive && onToggleParticipantActive(p.id)}
                 className={`w-full text-left rounded-xl p-2.5 border transition-all relative flex flex-col gap-2 cursor-pointer ${
                   p.isActive 
-                    ? 'bg-blue-500/10 border-blue-500 ring-1 ring-blue-500/30 text-white' 
-                    : 'bg-[#0F1115]/40 border-slate-800 text-gray-400 hover:border-slate-700 hover:bg-slate-800/20'
+                    ? 'bg-blue-500/10 border-blue-500 ring-1 ring-blue-500/30 text-[var(--ink-hi)]' 
+                    : 'bg-[var(--bg)]/40 border-[var(--line)] text-[var(--ink-lo)] hover:border-[var(--line-ctl)] hover:bg-[var(--panel)]/20'
                 }`}
               >
                 <div className="w-full flex items-center justify-between gap-2">
@@ -234,7 +235,7 @@ export function ScenesPanel({
                       <img 
                         src={p.avatarUrl} 
                         alt={p.name} 
-                        className="w-7 h-7 rounded-full object-cover border border-slate-800 shrink-0"
+                        className="w-7 h-7 rounded-full object-cover border border-[var(--line)] shrink-0"
                         referrerPolicy="no-referrer"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none';
@@ -247,8 +248,8 @@ export function ScenesPanel({
                     </>
                     )}
                     <div className="overflow-hidden">
-                      <p className={`text-xs font-bold truncate ${p.isActive ? 'text-white' : 'text-gray-300'}`}>{p.name}</p>
-                      <p className="text-[8px] text-gray-500 mt-0.5">
+                      <p className={`text-xs font-bold truncate ${p.isActive ? 'text-[var(--ink-hi)]' : 'text-[var(--ink)]'}`}>{p.name}{p.isLocal && ' (Você)'}</p>
+                      <p className="text-[8px] text-[var(--ink-dim)] mt-0.5">
                         {p.isLocal ? 'Apresentador Principal' : p.isScreenShare ? 'Apresentação / Tela' : 'Convidado Externo'}
                       </p>
                     </div>
@@ -261,7 +262,7 @@ export function ScenesPanel({
                         No Palco
                       </span>
                     ) : (
-                      <span className="text-[8px] font-black uppercase text-gray-400 hover:text-white border border-slate-700 bg-[#0F1115] px-1.5 py-0.5 rounded">
+                      <span className="text-[8px] font-black uppercase text-[var(--ink-lo)] hover:text-[var(--ink-hi)] border border-[var(--line-ctl)] bg-[var(--bg)] px-1.5 py-0.5 rounded">
                         + Add
                       </span>
                     )}
@@ -270,8 +271,8 @@ export function ScenesPanel({
 
                 {/* Sound indicator / Mic level VU Meter */}
                 {!p.isScreenShare && (
-                  <div className="w-full pt-1 border-t border-slate-800/40" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex items-center justify-between text-[8px] text-gray-500 mb-0.5">
+                  <div className="w-full pt-1 border-t border-[var(--line)]/40" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-between text-[8px] text-[var(--ink-dim)] mb-0.5">
                       <span>Sinal de Voz:</span>
                       <span>{p.id === 'p-local' && isMuted ? 'Mutado' : 'Conectado'}</span>
                     </div>

@@ -148,3 +148,52 @@ export interface QrCodeConfig {
   x?: number;
   y?: number;
 }
+
+/**
+ * Abas do painel lateral do estúdio.
+ *
+ * Existe como união e não como `string` porque o app entrava no estúdio com
+ * `useState<string>('first')` — um id que NENHUM painel tratava, então a
+ * primeira visita abria numa barra lateral vazia. Sendo `string`, o
+ * TypeScript não tinha como perceber. Agora um id inválido é erro de
+ * compilação.
+ *
+ * Os ordinais ('seven', 'third') são herança do código atual; renomeá-los é
+ * uma migração à parte, com os mesmos riscos de qualquer renomeação ampla.
+ */
+export type StudioTab =
+  | 'seven'      // Chat — primeira aba do trilho, e o padrão
+  | 'widgets'
+  | 'schedule'
+  | 'design'
+  | 'theme'
+  | 'third'      // Prompter
+  | 'video'
+  | 'audience'
+  | 'settings'
+  | 'apps';
+
+/**
+ * Transições de cena.
+ *
+ * Existiam QUATRO grafias desta união em cinco arquivos: o hook tinha só as
+ * seis cortinas, o App tinha nove (sem 'smooth-wipe'), a LeftSidebar tinha
+ * só as quatro básicas e o StudioPreview tinha as dez. Os erros de tipo
+ * eram exatamente as costuras entre elas.
+ *
+ * São dois conceitos, e por isso dois nomes:
+ *  - WipeTransitionType: efeitos de cortina, desenhados por sobreposição.
+ *  - SceneTransitionType: tudo que o usuário pode escolher na interface.
+ */
+export type WipeTransitionType =
+  | 'dip-to-color' | 'slide-wipe' | 'smooth-wipe'
+  | 'shutter-wipe' | 'radial-wipe' | 'flash';
+
+export type BasicTransitionType = 'cut' | 'fade' | 'slide' | 'zoom';
+
+export type SceneTransitionType = BasicTransitionType | WipeTransitionType;
+
+/** Estreita uma escolha da interface para o subconjunto que o hook aceita. */
+export const isWipeTransition = (t: SceneTransitionType): t is WipeTransitionType =>
+  t === 'dip-to-color' || t === 'slide-wipe' || t === 'smooth-wipe' ||
+  t === 'shutter-wipe' || t === 'radial-wipe' || t === 'flash';

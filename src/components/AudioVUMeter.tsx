@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface AudioVUMeterProps {
   stream?: MediaStream | null;
@@ -7,12 +7,37 @@ interface AudioVUMeterProps {
   simulationType?: 'speech' | 'ambient' | 'silent' | 'music';
 }
 
+const SEGMENTS = 15;
+
 export function AudioVUMeter({ stream, isMuted = false, isActive = true, simulationType = 'speech' }: AudioVUMeterProps) {
-  const [level, setLevel] = useState(0);
+  // O medidor tem 15 estados visuais. Antes, `level` era estado do React e
+  // recebia setLevel a CADA quadro de rAF — ~60 re-renderizações por segundo
+  // de 15 nós, durante toda a transmissão. E o suavizador é exponencial:
+  // aproxima-se do alvo sem nunca alcançá-lo, então continuava renderizando
+  // no silêncio também.
+  // Agora o nível vive num ref e só o SEGMENTO vira estado, de modo que o
+  // React só trabalha quando o desenho realmente muda — e nada no silêncio.
+  const [segments, setSegments] = useState(0);
+  const levelRef = useRef(0);
+  const segRef = useRef(0);
+
+  const pushRef = useRef((_target: number, _smoothing: number) => {});
+  pushRef.current = (target: number, smoothing: number) => {
+    const next = levelRef.current * smoothing + target * (1 - smoothing);
+    // Trava em zero: sem isto a cauda exponencial nunca assenta.
+    levelRef.current = next < 0.5 ? 0 : next;
+    const seg = Math.round((levelRef.current / 100) * SEGMENTS);
+    if (seg !== segRef.current) {
+      segRef.current = seg;
+      setSegments(seg);
+    }
+  };
 
   useEffect(() => {
     if (isMuted || !isActive) {
-      setLevel(0);
+      levelRef.current = 0;
+      segRef.current = 0;
+      setSegments(0);
       return;
     }
 
@@ -44,7 +69,7 @@ export function AudioVUMeter({ stream, isMuted = false, isActive = true, simulat
           // Normalize 0-255 to percentage 0-100
           const targetLevel = (maxVal / 255) * 100;
           // Apply standard smoothing
-          setLevel(prev => prev * 0.4 + targetLevel * 0.6);
+          pushRef.current(targetLevel, 0.4);
           animationFrameId = requestAnimationFrame(draw);
         };
         draw();
@@ -67,12 +92,12 @@ export function AudioVUMeter({ stream, isMuted = false, isActive = true, simulat
     intervalId = setInterval(() => {
       phraseTime += 100;
       if (simulationType === 'silent') {
-        setLevel(0);
+        pushRef.current(0, 0);
         return;
       }
 
       if (simulationType === 'ambient') {
-        setLevel(Math.random() * 4 + 1);
+        pushRef.current(Math.random() * 4 + 1, 0.3);
         return;
       }
 
@@ -92,7 +117,7 @@ export function AudioVUMeter({ stream, isMuted = false, isActive = true, simulat
       }
 
       // Smooth level changes
-      setLevel(prev => prev * 0.3 + target * 0.7);
+      pushRef.current(target, 0.3);
     }, 100);
 
     return () => {
@@ -100,13 +125,14 @@ export function AudioVUMeter({ stream, isMuted = false, isActive = true, simulat
     };
   }, [stream, isMuted, isActive, simulationType]);
 
-  // Draw 15 LED segments
-  const segmentsCount = 15;
-  const activeSegments = Math.round((level / 100) * segmentsCount);
+  // Os 15 segmentos vêm direto do estado quantizado — nada é recalculado
+  // a partir de um nível contínuo no corpo da renderização.
+  const segmentsCount = SEGMENTS;
+  const activeSegments = segments;
 
   return (
     <div className="w-full" id="vu-meter-bars">
-      <div className="flex items-center gap-[2px] h-2 bg-[#090b0e] border border-slate-950 p-[1px] rounded-md overflow-hidden w-full">
+      <div className="flex items-center gap-[2px] h-2 bg-[var(--well)] border border-[var(--line)] p-[1px] rounded-md overflow-hidden w-full">
         {Array.from({ length: segmentsCount }).map((_, idx) => {
           const isLit = idx < activeSegments;
           // Segment colors: green for idx < 10, yellow for 10-12, red for >= 13
@@ -124,7 +150,7 @@ export function AudioVUMeter({ stream, isMuted = false, isActive = true, simulat
           return (
             <div 
               key={idx}
-              className={`flex-1 h-full rounded-[1px] transition-all duration-75 ${
+              className={`flex-1 h-full rounded-[1px] transition-colors duration-75 ${
                 isLit ? litBg : unlitBg
               }`}
             />

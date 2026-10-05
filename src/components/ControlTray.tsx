@@ -5,6 +5,7 @@ import {
   Sparkles, AlertCircle, Camera, HelpCircle, CheckCircle2, Tv, Layout, Wifi, WifiOff, Lock
 } from 'lucide-react';
 import { AudioVUMeter } from './AudioVUMeter';
+import { useToast } from './ui/Toast';
 
 interface ControlTrayProps {
   isMuted: boolean;
@@ -43,6 +44,7 @@ export function ControlTray({
   onToggleRecording: externalOnToggleRecording,
   recordingTime: externalRecordingTime
 }: ControlTrayProps) {
+  const toast = useToast();
   // Dropdown states
   const [isMicDropdownOpen, setIsMicDropdownOpen] = useState(false);
   const [isCamDropdownOpen, setIsCamDropdownOpen] = useState(false);
@@ -215,7 +217,7 @@ export function ControlTray({
   const requestBrowserAccess = async () => {
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("Acesso a dispositivos de mídia não suportado neste navegador.");
+        toast.success("Acesso a dispositivos de mídia não suportado neste navegador.");
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
@@ -226,7 +228,7 @@ export function ControlTray({
       await loadDevices();
     } catch (err) {
       console.warn("User denied permission or failed to acquire device list:", err);
-      alert("Para listar seus dispositivos reais, por favor autorize o acesso à câmera e microfone no seu navegador.");
+      toast.error("Para listar seus dispositivos reais, por favor autorize o acesso à câmera e microfone no seu navegador.");
     }
   };
 
@@ -264,12 +266,12 @@ export function ControlTray({
   }, []);
 
   return (
-    <div className="bg-[#13151b] sm:bg-[#16191E] border border-slate-800/90 rounded-xl sm:rounded-2xl px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 flex items-center justify-between gap-1 sm:gap-2 md:gap-3 select-none relative shadow-xl">
+    <div className="bg-[var(--bg)] sm:bg-[var(--surface)] border border-[var(--line)]/90 rounded-xl sm:rounded-2xl px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 flex items-center justify-between gap-1 sm:gap-2 md:gap-3 select-none relative shadow-xl">
       
       {/* 1. Left side: Studio Status Indicator (Hidden on small mobile screens) */}
       <div className="hidden sm:flex items-center gap-1.5 md:gap-2 shrink-0">
-        <span className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full animate-pulse ${isLive ? 'bg-red-500' : 'bg-[#4683E0]'}`}></span>
-        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider text-slate-400">
+        <span className={`w-2 h-2 md:w-2.5 md:h-2.5 rounded-full animate-pulse ${isLive ? 'bg-red-500' : 'bg-[var(--color-brand-deep)]'}`}></span>
+        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider text-[var(--ink-lo)]">
           {isLive ? 'LIVE' : 'PRONTO'}
         </span>
       </div>
@@ -279,8 +281,8 @@ export function ControlTray({
         
         {/* 1. STOP VIDEO BUTTON GROUP (Camera) */}
         <div className="relative shrink-0" ref={camDropdownRef}>
-          <div className={`flex items-center rounded-full p-0.5 bg-[#0B0D11] border ${
-            isCamStopped ? 'border-red-500/70 bg-red-500/10' : 'border-slate-800 hover:border-slate-700'
+          <div className={`flex items-center rounded-full p-0.5 bg-[var(--well)] border ${
+            isCamStopped ? 'border-red-500/70 bg-red-500/10' : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
           } transition-all`}>
             {/* Main Toggle Button */}
             <button
@@ -288,7 +290,7 @@ export function ControlTray({
               className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                 isCamStopped 
                   ? 'bg-red-600 text-white shadow-md' 
-                  : 'text-gray-300 hover:text-white'
+                  : 'text-[var(--ink)] hover:text-[var(--ink-hi)]'
               }`}
               title={isCamStopped ? "Ativar Câmera" : "Desativar Câmera"}
             >
@@ -298,7 +300,7 @@ export function ControlTray({
             {/* Chevron Dropdown trigger */}
             <button
               onClick={() => setIsCamDropdownOpen(!isCamDropdownOpen)}
-              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-gray-500 hover:text-white transition-all border-l border-slate-800/80 pr-0.5 cursor-pointer"
+              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-[var(--ink-dim)] hover:text-[var(--ink-hi)] transition-all border-l border-[var(--line)]/80 pr-0.5 cursor-pointer"
               title="Escolher Câmera"
             >
               <ChevronUp size={9} className={`transition-transform duration-200 ${isCamDropdownOpen ? 'rotate-180' : ''}`} />
@@ -307,13 +309,13 @@ export function ControlTray({
 
           {/* Cam Dropdown list floating above */}
           {isCamDropdownOpen && (
-            <div className="absolute bottom-12 sm:bottom-14 left-0 z-50 w-72 sm:w-80 bg-[#1E222B] border border-slate-700/80 rounded-xl shadow-2xl p-2 text-left mb-1">
-              <div className="flex items-center justify-between px-2 py-1 border-b border-slate-800/80 mb-1">
-                <span className="text-[10px] uppercase font-bold text-gray-400">Câmera</span>
+            <div className="absolute bottom-12 sm:bottom-14 left-0 z-50 w-72 sm:w-80 bg-[var(--panel)] border border-[var(--line-ctl)]/80 rounded-xl shadow-2xl p-2 text-left mb-1">
+              <div className="flex items-center justify-between px-2 py-1 border-b border-[var(--line)]/80 mb-1">
+                <span className="text-[10px] uppercase font-bold text-[var(--ink-lo)]">Câmera</span>
                 {!permissionsGranted && (
                   <button 
                     onClick={requestBrowserAccess}
-                    className="text-[9px] text-[#4683E0] hover:text-blue-400 font-extrabold flex items-center gap-0.5"
+                    className="text-[9px] text-[var(--color-brand)] hover:text-blue-400 font-extrabold flex items-center gap-0.5"
                   >
                     ⚡ Ativar Dispositivos Reais
                   </button>
@@ -335,7 +337,7 @@ export function ControlTray({
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors ${
                         isSelected 
                           ? 'bg-blue-500 text-white font-bold' 
-                          : 'text-gray-300 hover:bg-slate-800'
+                          : 'text-[var(--ink)] hover:bg-[var(--panel)]'
                       }`}
                     >
                       <span className="truncate pr-2 flex items-center gap-1.5">
@@ -343,7 +345,7 @@ export function ControlTray({
                         {source.isReal ? (
                           <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/20 shrink-0">Real</span>
                         ) : (
-                          <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-slate-800 text-gray-500 border border-slate-700/40 shrink-0">Simulado</span>
+                          <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-[var(--panel)] text-[var(--ink-dim)] border border-[var(--line-ctl)]/40 shrink-0">Simulado</span>
                         )}
                       </span>
                       {isSelected && <Check size={12} className="shrink-0" />}
@@ -357,10 +359,10 @@ export function ControlTray({
 
         {/* 2. CENTRALIZED MUTE BUTTON GROUP */}
         <div className="relative shrink-0" ref={micDropdownRef}>
-          <div className={`flex items-center rounded-full p-0.5 bg-[#0B0D11] border ${
+          <div className={`flex items-center rounded-full p-0.5 bg-[var(--well)] border ${
             isMuted 
               ? 'border-red-500/70 bg-red-500/10' 
-              : 'border-slate-800 hover:border-slate-700'
+              : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
           } transition-all`}>
             {/* Main Toggle Button */}
             <button
@@ -368,7 +370,7 @@ export function ControlTray({
               className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                 isMuted 
                   ? 'bg-red-600 text-white hover:bg-red-500 shadow-md' 
-                  : 'bg-blue-500/10 text-white hover:bg-blue-500/20'
+                  : 'bg-blue-500/10 text-[var(--ink-hi)] hover:bg-blue-500/20'
               }`}
               title={isMuted ? "Ativar Microfone" : "Mutar Microfone"}
             >
@@ -378,7 +380,7 @@ export function ControlTray({
             {/* Chevron Dropdown trigger */}
             <button
               onClick={() => setIsMicDropdownOpen(!isMicDropdownOpen)}
-              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-gray-500 hover:text-white transition-all border-l border-slate-800/80 pr-0.5 cursor-pointer"
+              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-[var(--ink-dim)] hover:text-[var(--ink-hi)] transition-all border-l border-[var(--line)]/80 pr-0.5 cursor-pointer"
               title="Escolher Microfone"
             >
               <ChevronUp size={9} className={`transition-transform duration-200 ${isMicDropdownOpen ? 'rotate-180' : ''}`} />
@@ -387,13 +389,13 @@ export function ControlTray({
 
           {/* Mic Dropdown list floating above */}
           {isMicDropdownOpen && (
-            <div className="absolute bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-50 w-72 sm:w-80 bg-[#1E222B] border border-slate-700/80 rounded-xl shadow-2xl p-2 text-left mb-1">
-              <div className="flex items-center justify-between px-2 py-1 border-b border-slate-800/80 mb-1">
-                <span className="text-[10px] uppercase font-bold text-gray-400">Microfone</span>
+            <div className="absolute bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-50 w-72 sm:w-80 bg-[var(--panel)] border border-[var(--line-ctl)]/80 rounded-xl shadow-2xl p-2 text-left mb-1">
+              <div className="flex items-center justify-between px-2 py-1 border-b border-[var(--line)]/80 mb-1">
+                <span className="text-[10px] uppercase font-bold text-[var(--ink-lo)]">Microfone</span>
                 {!permissionsGranted && (
                   <button 
                     onClick={requestBrowserAccess}
-                    className="text-[9px] text-[#4683E0] hover:text-blue-400 font-extrabold flex items-center gap-0.5"
+                    className="text-[9px] text-[var(--color-brand)] hover:text-blue-400 font-extrabold flex items-center gap-0.5"
                   >
                     ⚡ Ativar Dispositivos Reais
                   </button>
@@ -401,9 +403,9 @@ export function ControlTray({
               </div>
 
               {/* VU Meter */}
-              <div className="p-2 bg-[#0F1115] border border-slate-800 rounded-lg mb-2 mx-1 select-none">
+              <div className="p-2 bg-[var(--bg)] border border-[var(--line)] rounded-lg mb-2 mx-1 select-none">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[8px] font-black tracking-wider text-[#a59ebf] flex items-center gap-1.5">
+                  <span className="text-[8px] font-black tracking-wider text-[var(--ink-lo)] flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                     VU METER
                   </span>
@@ -430,7 +432,7 @@ export function ControlTray({
                       className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors ${
                         isSelected 
                           ? 'bg-blue-500 text-white font-bold' 
-                          : 'text-gray-300 hover:bg-slate-800'
+                          : 'text-[var(--ink)] hover:bg-[var(--panel)]'
                       }`}
                     >
                       <span className="truncate pr-2 flex items-center gap-1.5">
@@ -438,7 +440,7 @@ export function ControlTray({
                         {source.isReal ? (
                           <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/20 shrink-0">Real</span>
                         ) : (
-                          <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-slate-800 text-gray-500 border border-slate-700/40 shrink-0">Simulado</span>
+                          <span className="text-[7px] font-black uppercase px-1 py-0.5 rounded bg-[var(--panel)] text-[var(--ink-dim)] border border-[var(--line-ctl)]/40 shrink-0">Simulado</span>
                         )}
                       </span>
                       {isSelected && <Check size={12} className="shrink-0" />}
@@ -452,28 +454,28 @@ export function ControlTray({
 
         {/* 3. CENTRALIZED SHARE BUTTON GROUP */}
         <div className="relative shrink-0" ref={shareMenuRef}>
-          <div className={`flex items-center rounded-full p-0.5 bg-[#0B0D11] border ${
+          <div className={`flex items-center rounded-full p-0.5 bg-[var(--well)] border ${
             isScreenSharing 
               ? 'border-blue-500 bg-blue-500/10' 
-              : 'border-slate-800 hover:border-slate-700'
+              : 'border-[var(--line)] hover:border-[var(--line-ctl)]'
           } transition-all`}>
             {/* Main Toggle Button */}
             <button
               onClick={() => onToggleScreenShare()}
               className={`w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                 isScreenSharing 
-                  ? 'bg-[#4683E0] text-white shadow-md' 
-                  : 'bg-blue-500/10 text-white hover:bg-blue-500/20'
+                  ? 'bg-[var(--color-brand-deep)] text-white shadow-md' 
+                  : 'bg-blue-500/10 text-[var(--ink-hi)] hover:bg-blue-500/20'
               }`}
               title={isScreenSharing ? "Parar Compartilhamento" : "Escolher o que compartilhar"}
             >
-              <Monitor size={14} className={isScreenSharing ? 'text-white sm:w-4 sm:h-4' : 'text-blue-400 sm:w-4 sm:h-4'} />
+              <Monitor size={14} className={isScreenSharing ? 'text-[var(--ink-hi)] sm:w-4 sm:h-4' : 'text-blue-400 sm:w-4 sm:h-4'} />
             </button>
 
             {/* Chevron trigger */}
             <button
               onClick={() => setIsShareMenuOpen(!isShareMenuOpen)}
-              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-gray-500 hover:text-white transition-all border-l border-slate-800/80 pr-0.5 cursor-pointer"
+              className="w-3.5 h-7.5 sm:w-4 sm:h-8.5 md:w-4 md:h-9 rounded-r-full flex items-center justify-center text-[var(--ink-dim)] hover:text-[var(--ink-hi)] transition-all border-l border-[var(--line)]/80 pr-0.5 cursor-pointer"
               title="Opções extras"
             >
               <ChevronUp size={9} className={`transition-transform duration-200 ${isShareMenuOpen ? 'rotate-180' : ''}`} />
@@ -482,7 +484,7 @@ export function ControlTray({
 
           {/* Custom Share Menu Dropdown */}
           {isShareMenuOpen && (
-            <div className="absolute bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-50 w-64 sm:w-72 bg-[#1E222B] border border-slate-700/80 rounded-xl shadow-2xl p-1.5 text-left mb-1">
+            <div className="absolute bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-50 w-64 sm:w-72 bg-[var(--panel)] border border-[var(--line-ctl)]/80 rounded-xl shadow-2xl p-1.5 text-left mb-1">
               
               {/* Screen option */}
               <button
@@ -490,7 +492,7 @@ export function ControlTray({
                   onToggleScreenShare('screen');
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg text-left text-xs font-semibold text-white transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--ink-hi)] transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-2.5">
                   <Monitor size={15} className="text-blue-400" />
@@ -505,7 +507,7 @@ export function ControlTray({
                   onToggleScreenShare('pdf');
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg text-left text-xs font-semibold text-gray-200 hover:text-white transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--ink-hi)] hover:text-[var(--ink-hi)] transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-2.5">
                   <Tv size={15} className="text-indigo-400" />
@@ -521,7 +523,7 @@ export function ControlTray({
                   onToggleScreenShare('video');
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg text-left text-xs font-semibold text-gray-200 hover:text-white transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--ink-hi)] hover:text-[var(--ink-hi)] transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-2.5">
                   <Film size={15} className="text-emerald-400" />
@@ -536,7 +538,7 @@ export function ControlTray({
                   window.dispatchEvent(new CustomEvent('switch-studio-subtab', { detail: { tab: 'audios' } }));
                   setIsShareMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-2.5 p-2 hover:bg-slate-800 rounded-lg text-left text-xs font-semibold text-gray-300 hover:text-white transition-colors border-t border-slate-800 mt-1 pt-2 cursor-pointer"
+                className="w-full flex items-center gap-2.5 p-2 hover:bg-[var(--panel)] rounded-lg text-left text-xs font-semibold text-[var(--ink)] hover:text-[var(--ink-hi)] transition-colors border-t border-[var(--line)] mt-1 pt-2 cursor-pointer"
               >
                 <Volume2 size={15} className="text-pink-400" />
                 <span>Background Audio</span>
@@ -550,15 +552,15 @@ export function ControlTray({
         <div className="relative shrink-0">
           <button
             onClick={onInviteOpen}
-            className="w-8.5 h-8.5 sm:w-9 sm:h-9 md:w-9.5 md:h-9.5 rounded-full bg-[#0B0D11] hover:bg-[#1C2028] border border-slate-800 text-gray-300 hover:text-white flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-md"
+            className="w-8.5 h-8.5 sm:w-9 sm:h-9 md:w-9.5 md:h-9.5 rounded-full bg-[var(--well)] hover:bg-[var(--surface)] border border-[var(--line)] text-[var(--ink)] hover:text-[var(--ink-hi)] flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-md"
             title="Convidar Participante para o Estúdio"
           >
-            <UserPlus size={14} className="sm:w-4 sm:h-4 text-gray-300" />
+            <UserPlus size={14} className="sm:w-4 sm:h-4 text-[var(--ink)]" />
           </button>
         </div>
 
         {/* 5. RECORD BUTTON */}
-        <div className={`relative flex items-center gap-1.5 bg-[#0B0D11] border rounded-full px-2 sm:px-3 py-0.5 sm:py-1 shadow-md h-8.5 sm:h-9 shrink-0 ${isTrialExpired ? 'border-amber-500/30' : 'border-slate-800'}`}>
+        <div className={`relative flex items-center gap-1.5 bg-[var(--well)] border rounded-full px-2 sm:px-3 py-0.5 sm:py-1 shadow-md h-8.5 sm:h-9 shrink-0 ${isTrialExpired ? 'border-amber-500/30' : 'border-[var(--line)]'}`}>
           <button
             onClick={handleToggleRecording}
             className={`w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-full border flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
@@ -566,7 +568,7 @@ export function ControlTray({
                 ? 'bg-red-600 border-red-500 text-white animate-pulse' 
                 : isTrialExpired
                   ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
-                  : 'bg-transparent border-slate-800 text-gray-400 hover:text-white hover:border-slate-700'
+                  : 'bg-transparent border-[var(--line)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:border-[var(--line-ctl)]'
             }`}
             title={isRecording ? "Parar Gravação Local" : isTrialExpired ? "Gravação restrita - Assine um plano para gravar transmissões" : "Iniciar Gravação Local"}
           >
@@ -574,22 +576,40 @@ export function ControlTray({
               <Lock size={11} className="text-amber-400" />
             ) : (
               <div className="relative flex items-center justify-center">
-                <Disc size={13} className={isRecording ? 'animate-spin text-white' : ''} />
+                <Disc size={13} className={isRecording ? 'animate-spin text-[var(--ink-hi)]' : ''} />
                 <span className={`absolute w-1 h-1 rounded-full ${isRecording ? 'bg-white' : 'bg-red-500'}`}></span>
               </div>
             )}
           </button>
-          <span className={`text-[9px] sm:text-[10px] font-mono font-bold tracking-wider ${isRecording ? 'text-red-500 font-extrabold' : isTrialExpired ? 'text-amber-400 font-semibold' : 'text-gray-400'}`}>
+          <span className={`text-[9px] sm:text-[10px] font-mono font-bold tracking-wider ${isRecording ? 'text-red-500 font-extrabold' : isTrialExpired ? 'text-amber-400 font-semibold' : 'text-[var(--ink-lo)]'}`}>
             {isRecording ? formatRecordingTime(recordingTime) : isTrialExpired ? 'REC 🔒' : 'RECORD'}
           </span>
         </div>
 
       </div>
 
-      {/* 3. Right side: Stream Quality indicator */}
-      <div className="shrink-0 text-right hidden md:block space-y-0.5">
-        <span className="text-[10px] text-gray-500 font-mono tracking-widest uppercase block">HD 1080P • 60 FPS</span>
-        <span className="text-[9px] text-green-400 font-bold bg-green-500/10 px-2 py-0.5 rounded uppercase tracking-wider block">AUTO-PIPELINE SECURE</span>
+      {/* 3. Right side: saída + indicador de qualidade */}
+      <div className="shrink-0 flex items-center gap-2 md:gap-3">
+        {/* A SAÍDA. `onExit` era declarado, recebido e nunca renderizado — e a
+            navegação do cabeçalho é `hidden lg:flex`, a saída dele é
+            `hidden xl:flex` e o menu sanduíche é `md:hidden`. Entre 768 e
+            1279 px o operador não tinha nenhuma forma de sair do estúdio a
+            não ser recarregar, o que derrubava a transmissão em silêncio.
+            Por isso este botão não tem breakpoint: aparece em toda largura. */}
+        <button
+          type="button"
+          onClick={onExit}
+          title="Sair do estúdio"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-[var(--line-ctl)] text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--raise)] active:scale-95 transition-colors cursor-pointer touch-target-btn"
+        >
+          <LogOut size={13} />
+          <span className="hidden sm:inline text-xs font-bold uppercase tracking-wider">Sair</span>
+        </button>
+
+        <div className="text-right hidden md:block space-y-0.5">
+          <span className="text-[10px] text-[var(--ink-dim)] font-mono tracking-widest uppercase block">HD 1080P • 60 FPS</span>
+          <span className="text-[9px] text-green-400 font-bold bg-green-500/10 px-2 py-0.5 rounded uppercase tracking-wider block">AUTO-PIPELINE SECURE</span>
+        </div>
       </div>
 
     </div>
