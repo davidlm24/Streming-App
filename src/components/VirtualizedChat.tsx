@@ -52,6 +52,10 @@ export function VirtualizedChat({
   authorName,
 }: VirtualizedChatProps) {
   const confirmar = useConfirm();
+  // "Ações do chat" some quando "Limpar o chat" esvazia a lista: a confirmação
+  // tira a própria ação de onde está o foco, que cairia no <body>. A busca é o
+  // botão estável do cabeçalho, que não some com as ações.
+  const refBuscar = useRef<HTMLButtonElement>(null);
   const [typedComment, setTypedComment] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -221,6 +225,18 @@ export function VirtualizedChat({
     setIsSearchOpen(false);
   };
 
+  // O valor anterior de verdade, não uma flag de "já montou": o StrictMode
+  // roda este efeito duas vezes ao montar, e uma flag não sobrevive a isso
+  // (a segunda chamada já a vê marcada, com a lista ainda vazia, e rouba o
+  // foco de um chat que nunca teve mensagem nenhuma).
+  const acoesAntes = useRef(acoes.length);
+  useEffect(() => {
+    if (acoesAntes.current > 0 && acoes.length === 0 && document.activeElement === document.body) {
+      refBuscar.current?.focus();
+    }
+    acoesAntes.current = acoes.length;
+  }, [acoes.length]);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-center gap-2 border-b border-[var(--line)] py-1 pl-4 pr-1">
@@ -230,6 +246,7 @@ export function VirtualizedChat({
         </span>
         <div className="ml-auto flex items-center">
           <BotaoDeIcone
+            ref={refBuscar}
             rotulo={isSearchOpen ? 'Fechar a busca' : 'Buscar no chat'}
             aria-expanded={isSearchOpen}
             onClick={() => (isSearchOpen ? fecharBusca() : setIsSearchOpen(true))}
