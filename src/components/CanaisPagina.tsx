@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { CircleAlert, Pencil, Plus, Trash2 } from 'lucide-react';
 import type { Destination } from '../types';
 import { estadoDoCanal, nomeDaPlataforma, pendenciaDoCanal } from '../lib/canais';
@@ -5,7 +6,7 @@ import type { FalhaAoSalvar } from '../lib/dadosDaConta';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { useConfirm } from './ui/ConfirmDialog';
-import { Menu } from './ui/Menu';
+import { Menu, useFocoNaLista } from './ui/Menu';
 import { CabecalhoDePagina, Pagina } from './ui/Pagina';
 import { PlataformaIcone } from './ui/PlataformaIcone';
 import { Switch } from './ui/Switch';
@@ -74,6 +75,20 @@ export function CanaisPagina({
   limiteDeLigados,
 }: CanaisPaginaProps) {
   const confirmar = useConfirm();
+  // O canal removido sai da lista só depois da confirmação do banco, com o
+  // foco ainda no "⋯" dele: o foco vai ao "⋯" do vizinho, ou ao título
+  const foco = useFocoNaLista();
+  // "Tentar de novo" é um AcaoDeTexto na linha de falha, que some assim que a
+  // mudança volta a gravar: sem isto o foco cairia no <body> junto com ela.
+  // Vai ao interruptor (ligar/desligar, que fica na tela) ou ao "⋯" (remover,
+  // onde useFocoNaLista pega o relevo se a remoção for confirmada).
+  const linhasRef = useRef(new Map<string, HTMLLIElement | null>());
+  const tentarDeNovoComFoco = (id: string, mudanca: MudancaNoCanal) => {
+    const linha = linhasRef.current.get(id);
+    const seletor = mudanca === 'remover' ? '[aria-haspopup="menu"]' : '[role="switch"]';
+    linha?.querySelector<HTMLElement>(seletor)?.focus();
+    onTentarDeNovo(id);
+  };
   const ligados = canais.filter((c) => c.selected).length;
   // O limite dito antes de alguém esbarrar nele. Acima dele (plano que mudou,
   // dado antigo), diz quantos desligar — nada é desligado sem a pessoa.
@@ -95,6 +110,7 @@ export function CanaisPagina({
   return (
     <Pagina>
       <CabecalhoDePagina
+        refDoTitulo={foco.titulo}
         titulo="Canais"
         descricao={`Os canais ligados recebem a transmissão quando você entra no ar. ${sobreOLimite}`}
         acao={
@@ -111,7 +127,7 @@ export function CanaisPagina({
           </p>
         </div>
       ) : (
-        <ul className="mt-12 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+        <ul {...foco.lista} className="mt-12 divide-y divide-[var(--line)] border-y border-[var(--line)]">
           {canais.map((canal) => {
             const estado = estadoDoCanal(canal);
             const pendencia = pendenciaDoCanal(canal);
@@ -126,7 +142,7 @@ export function CanaisPagina({
                 ? situacao
                 : null;
             return (
-              <li key={canal.id} className="py-4">
+              <li key={canal.id} ref={(el) => { linhasRef.current.set(canal.id, el); }} className="py-4">
                 <div className="flex items-center gap-4">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[var(--line)] text-[var(--ink)]">
                     <PlataformaIcone plataforma={canal.platform} size={18} />
@@ -177,7 +193,7 @@ export function CanaisPagina({
                           Entrar de novo
                         </AcaoDeTexto>
                       ) : (
-                        <AcaoDeTexto sublinhada onClick={() => onTentarDeNovo(canal.id)}>
+                        <AcaoDeTexto sublinhada onClick={() => tentarDeNovoComFoco(canal.id, falha.mudanca)}>
                           Tentar de novo
                         </AcaoDeTexto>
                       )}
