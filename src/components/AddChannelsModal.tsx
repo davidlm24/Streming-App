@@ -3,7 +3,12 @@ import { Check, ChevronLeft, ChevronRight, CircleAlert, ExternalLink, Info, Lock
 import type { Destination } from '../types';
 import { cabeLigado, nomeDaPlataforma, pendenciaCurta } from '../lib/canais';
 import { ErroAoSalvar, type FalhaAoSalvar } from '../lib/dadosDaConta';
-import { LIMITE_DA_CHAVE_DO_CANAL, LIMITE_DO_NOME_DO_CANAL, LIMITE_DO_SERVIDOR_DO_CANAL } from '../lib/limitesDaConta';
+import {
+  LIMITE_DA_CHAVE_DO_CANAL,
+  LIMITE_DE_CANAIS_GUARDADOS,
+  LIMITE_DO_NOME_DO_CANAL,
+  LIMITE_DO_SERVIDOR_DO_CANAL,
+} from '../lib/limitesDaConta';
 import { PLANS, getPlan, type PlanId } from '../lib/plans';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
@@ -128,12 +133,16 @@ const O_QUE_DIZER: Record<'novo' | 'existente', Record<FalhaAoSalvar, string>> =
     'sem-login': 'Sua sessão expirou, então o canal não foi conectado.',
     'sem-conexao': 'Sem conexão com a sua conta agora, então o canal não foi conectado. Tente de novo mais tarde.',
     'sem-confirmacao': 'Não deu para confirmar que o canal foi conectado. Confira a conexão e tente de novo.',
+    'limite-da-conta': `A sua conta já guarda ${LIMITE_DE_CANAIS_GUARDADOS} canais, o limite. Remova um que não usa e conecte de novo.`,
+    'grande-demais': 'O nome, o endereço do servidor ou a chave passam do tamanho que cabe, então o canal não foi conectado.',
     recusado: 'Não foi possível conectar o canal. Tente de novo.',
   },
   existente: {
     'sem-login': 'Sua sessão expirou, então as alterações não foram salvas.',
     'sem-conexao': 'Sem conexão com a sua conta agora, então as alterações não foram salvas. Tente de novo mais tarde.',
     'sem-confirmacao': 'Não deu para confirmar que as alterações foram salvas. Confira a conexão e tente de novo.',
+    'limite-da-conta': `A sua conta já guarda ${LIMITE_DE_CANAIS_GUARDADOS} canais, o limite, então as alterações não foram salvas.`,
+    'grande-demais': 'O nome, o endereço do servidor ou a chave passam do tamanho que cabe, então as alterações não foram salvas.',
     recusado: 'Não foi possível salvar as alterações. Tente de novo.',
   },
 };

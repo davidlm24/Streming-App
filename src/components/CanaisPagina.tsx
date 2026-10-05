@@ -27,6 +27,9 @@ function fraseDaFalha(nome: string, mudanca: MudancaNoCanal, motivo: FalhaAoSalv
     'sem-login': `Sua sessão expirou, então ${nome} não foi ${feito}.`,
     'sem-conexao': `Sem conexão com a sua conta agora, então ${nome} não foi ${feito}.`,
     'sem-confirmacao': `Não deu para confirmar se ${nome} foi ${feito}. Confira a conexão.`,
+    // A lista inteira é gravada de uma vez, então ela é que pode bater nos limites
+    'limite-da-conta': `A sua conta chegou a um limite, então ${nome} não foi ${feito}.`,
+    'grande-demais': `A lista de canais passou do tamanho que cabe, então ${nome} não foi ${feito}.`,
     recusado: `O banco recusou a mudança, então ${nome} não foi ${feito}.`,
   };
   return frases[motivo];
