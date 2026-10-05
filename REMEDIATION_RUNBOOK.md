@@ -2,6 +2,8 @@
 
 This runbook covers the work that remains after commit `5275e47` (`fix: remediate security audit findings`). Run the stages in order. Key rotation is urgent; the other stages should first be completed against test-mode or staging services, then promoted to production.
 
+> **The Firebase stages no longer apply.** The app moved to Supabase (see `SUPABASE_MIGRATION.md`), and the Firestore rules, indexes and configuration this runbook deploys were removed with the cutover. What the database and storage enforce now lives in `supabase/migrations`, tested by `npm run db:test`. **Key rotation still stands**, including the Cloudflare Stream token that is in the git history.
+
 ## Current baseline
 
 - Repository: `C:\Dev\Streming-App`
