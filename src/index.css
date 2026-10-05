@@ -212,6 +212,10 @@
   --ink:     var(--color-n-89);
   --ink-hi:  var(--color-n-96);
 
+  /* Guias sobre a imagem (terços e área segura). Brancas em mistura por
+     diferença: aparecem sobre imagem clara ou escura, sem cor própria. */
+  --guia:    rgb(255 255 255 / 0.6);
+
   /* O console é escuro SEMPRE, inclusive dentro do tema claro. Então os tons
      300/400 voltam aos valores originais aqui — escurecê-los sobre grafite
      seria o erro inverso do que a regra do tema claro corrige. */
@@ -331,6 +335,12 @@ select {
 input::placeholder,
 textarea::placeholder { color: var(--ink-dim); }
 select option { background-color: var(--surface); color: var(--ink-hi); }
+/* Campo inválido: a borda sobe para a tinta alta, junto do ícone e da frase
+   abaixo do campo. Vermelho não — o carmim é do ar. Fica aqui, e não num
+   utilitário, porque a regra acima é sem camada e venceria qualquer um. */
+input[aria-invalid="true"],
+textarea[aria-invalid="true"],
+select[aria-invalid="true"] { border-color: var(--ink-hi); }
 
 /* foco visível — a auditoria encontrou 137 `focus:outline-none` e ZERO
    substituições `focus-visible:`. Isto devolve o foco de teclado ao app
@@ -543,6 +553,121 @@ html { scrollbar-gutter: stable; }
 }
 .animate-confirm-in { animation: confirm-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
+/* Fusão do monitor de programa: o programa que sai fica por cima do que
+   entra e some. A duração vem de DURACAO_DA_FUSAO (TrilhoDeCenas). Com
+   movimento reduzido, a regra abaixo faz a fusão virar corte. */
+@keyframes fusao-sai { from { opacity: 1; } to { opacity: 0; } }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GRÁFICOS DO PALCO
+   O que vai ao ar por cima da imagem: logo, banner, ticker, QR code,
+   cronômetro e comentário fixado. Tudo é medido em fração do palco (cqw e
+   cqh, com o palco como contêiner), para ocupar a mesma parte da imagem no
+   preview e no programa, que têm tamanhos diferentes. Antes eram px e rem:
+   o mesmo banner cobria uma parte do programa e outra do preview.
+   As cores daqui são da live, não do console: o fundo quase preto e o
+   branco são os da imagem, e a cor dos gráficos vem de quem opera.
+   A área segura é a das guias: 7% em cima e embaixo, 6% dos lados.
+   ══════════════════════════════════════════════════════════════════════════ */
+.palco {
+  container: palco / size;
+  --g-fundo: rgb(11 13 16 / 0.92);
+  --g-texto: rgb(255 255 255);
+  --g-texto-2: rgb(255 255 255 / 0.78);
+  --g-margem-x: 6cqw;
+  --g-margem-y: 7cqh;
+  --g-ticker: 0cqh;
+}
+.palco--com-ticker { --g-ticker: 6.5cqh; }
+
+/* Os gráficos entram com o corte: secos no Corte, dissolvendo com o programa inteiro na Fusão */
+.grafico { position: absolute; z-index: 20; pointer-events: none; }
+
+/* Os cantos, para o logo e o QR code: dentro da área segura e acima do ticker */
+.grafico--cima-esquerda { top: var(--g-margem-y); left: var(--g-margem-x); }
+.grafico--cima-direita { top: var(--g-margem-y); right: var(--g-margem-x); }
+.grafico--baixo-esquerda { bottom: calc(var(--g-margem-y) + var(--g-ticker)); left: var(--g-margem-x); }
+.grafico--baixo-direita { bottom: calc(var(--g-margem-y) + var(--g-ticker)); right: var(--g-margem-x); }
+
+.grafico-logo { display: block; height: auto; max-height: 22cqh; object-fit: contain; }
+
+/* A pilha da esquerda: banner e comentário fixado, um sobre o outro, sem se cobrir */
+.grafico-pilha {
+  position: absolute; z-index: 20; left: var(--g-margem-x); max-width: 64cqw;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1.4cqh;
+  pointer-events: none;
+}
+.grafico-pilha--embaixo { bottom: calc(var(--g-margem-y) + var(--g-ticker)); flex-direction: column-reverse; }
+.grafico-pilha--em-cima { top: var(--g-margem-y); }
+
+.grafico-banner { display: flex; flex-direction: column; align-items: flex-start; }
+.grafico-banner__titulo {
+  background: var(--g-fundo); color: var(--g-texto);
+  font-size: 2.5cqw; font-weight: 600; line-height: 1.2; padding: 0.9cqw 1.6cqw;
+}
+.grafico-banner__subtitulo { font-size: 1.5cqw; font-weight: 500; line-height: 1.25; padding: 0.55cqw 1.6cqw; }
+
+.grafico-comentario { background: var(--g-fundo); color: var(--g-texto); padding: 1cqw 1.4cqw; max-width: 44cqw; }
+.grafico-comentario__autor { font-size: 1.3cqw; font-weight: 600; color: var(--g-texto-2); }
+.grafico-comentario__texto { font-size: 1.7cqw; line-height: 1.3; margin-top: 0.3cqw; }
+
+/* O ticker: a faixa inteira no pé da imagem, com o selo na cor dos gráficos */
+.grafico-ticker {
+  position: absolute; z-index: 21; inset-inline: 0; bottom: 0; height: 6.5cqh;
+  display: flex; align-items: stretch; background: var(--g-fundo); pointer-events: none;
+}
+.grafico-ticker__selo { display: flex; align-items: center; padding: 0 1.4cqw; font-size: 1.6cqw; font-weight: 600; white-space: nowrap; }
+.grafico-ticker__trilho { position: relative; flex: 1; overflow: hidden; display: flex; align-items: center; }
+.grafico-ticker__texto {
+  position: absolute; left: 0; white-space: nowrap; color: var(--g-texto);
+  font-size: 1.9cqw; font-weight: 500;
+  animation: grafico-ticker-esquerda var(--duracao, 20s) linear infinite;
+}
+.grafico-ticker__texto--direita { animation-name: grafico-ticker-direita; }
+
+@keyframes grafico-ticker-esquerda { from { transform: translateX(100cqw); } to { transform: translateX(-100%); } }
+
+@keyframes grafico-ticker-direita { from { transform: translateX(-100%); } to { transform: translateX(100cqw); } }
+
+/* O QR code: um cartão branco, que é o que o celular lê melhor */
+.grafico-qr {
+  background: rgb(255 255 255); color: rgb(11 13 16); padding: 0.9cqw;
+  display: flex; flex-direction: column; align-items: center; gap: 0.6cqw; max-width: 36cqw;
+}
+.grafico-qr__codigo { display: block; height: auto; }
+.grafico-qr__titulo { font-size: 1.3cqw; font-weight: 600; line-height: 1.2; text-align: center; }
+.grafico-qr__preco {
+  font-size: 1.5cqw; font-weight: 600; padding: 0.25cqw 0.8cqw;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12); font-variant-numeric: tabular-nums;
+}
+
+/* O cronômetro: no meio da imagem */
+.grafico-cronometro {
+  top: 50%; left: 50%; transform: translate(-50%, -50%); min-width: 26cqw; text-align: center;
+  background: var(--g-fundo); color: var(--g-texto); padding: 2cqw 3.2cqw;
+}
+.grafico-cronometro__titulo { font-size: 1.7cqw; font-weight: 500; color: var(--g-texto-2); }
+.grafico-cronometro__tempo { font-size: 6.4cqw; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.grafico-cronometro__barra { height: 0.6cqh; margin-top: 1.2cqh; background: rgb(255 255 255 / 0.16); }
+.grafico-cronometro__resto { height: 100%; }
+
+/* O controle deslizante dos painéis: trilho de 4px na linha de controle e
+   polegar de 16px em tinta alta, num alvo de 24px. O anel de foco é o global.
+   Antes cada deslizante tinha o seu `accent-blue-500`. */
+.deslizante { appearance: none; height: 1.5rem; background: transparent; cursor: pointer; }
+.deslizante::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: var(--line-ctl); }
+.deslizante::-moz-range-track { height: 4px; border-radius: 2px; background: var(--line-ctl); }
+.deslizante::-webkit-slider-thumb {
+  appearance: none; width: 16px; height: 16px; margin-top: -6px;
+  border: 0; border-radius: 50%; background: var(--ink-hi);
+}
+.deslizante::-moz-range-thumb { width: 16px; height: 16px; border: 0; border-radius: 50%; background: var(--ink-hi); }
+.deslizante:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Enviar arquivo: o input fica escondido dentro do rótulo, e o foco de
+   teclado aparece no rótulo, com o anel global. */
+.envio:has(input:focus-visible) { outline: 2px solid var(--color-brand-lift); outline-offset: 2px; }
+
 /* ══════════════════════════════════════════════════════════════════════════
    MOVIMENTO REDUZIDO — a auditoria encontrou 127 animações infinitas e
    ZERO provisões de `prefers-reduced-motion`. O estúdio sozinho roda 24
@@ -559,6 +684,9 @@ html { scrollbar-gutter: stable; }
   .animate-ticker,
   .animate-ticker-left,
   .animate-ticker-right { animation: none !important; }
+  /* O ticker parado, lido da esquerda, em vez de fora do quadro. A regra de
+     cima só encurta a duração; sem nome, a animação não roda. */
+  .grafico-ticker__texto { animation-name: none; position: static; padding-left: 1.4cqw; }
 }
 /* stylelint-enable declaration-no-important */
 

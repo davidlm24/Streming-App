@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 
 /**
  * Esqueleto das páginas da casca (Painel, Canais, Webinars, Configurações):
@@ -13,12 +13,28 @@ export function Pagina({ children }: { children: ReactNode }) {
   );
 }
 
-/** Título da página, uma linha de contexto e, à direita, a ação da página. */
-export function CabecalhoDePagina({ titulo, descricao, acao }: { titulo: string; descricao?: string; acao?: ReactNode }) {
+/**
+ * Título da página, uma linha de contexto e, à direita, a ação da página.
+ * `refDoTitulo` torna o título focável pelo código (`useFocoNaLista` o usa
+ * quando a lista fica vazia).
+ */
+export function CabecalhoDePagina({
+  titulo,
+  descricao,
+  acao,
+  refDoTitulo,
+}: {
+  titulo: string;
+  descricao?: string;
+  acao?: ReactNode;
+  refDoTitulo?: Ref<HTMLHeadingElement>;
+}) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--ink-hi)]">{titulo}</h1>
+        <h1 ref={refDoTitulo} tabIndex={refDoTitulo ? -1 : undefined} className="text-3xl font-semibold tracking-tight text-[var(--ink-hi)]">
+          {titulo}
+        </h1>
         {descricao && <p className="mt-2 max-w-prose text-sm text-[var(--ink-lo)]">{descricao}</p>}
       </div>
       {acao && <div className="shrink-0">{acao}</div>}
@@ -26,11 +42,41 @@ export function CabecalhoDePagina({ titulo, descricao, acao }: { titulo: string;
   );
 }
 
-/** Seção de página: título pequeno, separada por uma linha — nunca por cartão. */
-export function SecaoDePagina({ id, titulo, children }: { id: string; titulo: string; children: ReactNode }) {
+/**
+ * Seção de página: título pequeno, separada por uma linha — nunca por cartão.
+ * `acao` fica à direita do título (ex.: Mensal/Anual na lista de planos).
+ * `contagem` vai ao lado do título, em `text-sm` `--ink-lo` ("12
+ * cadastrados"), como a contagem dos canais no Painel.
+ */
+export function SecaoDePagina({
+  id,
+  titulo,
+  contagem,
+  acao,
+  children,
+}: {
+  id: string;
+  titulo: string;
+  contagem?: ReactNode;
+  acao?: ReactNode;
+  children: ReactNode;
+}) {
+  const cabecalho = (
+    <h2 id={id} className="text-base font-semibold text-[var(--ink-hi)]">
+      {titulo}
+      {contagem && <span className="ml-2 text-sm font-normal text-[var(--ink-lo)]">{contagem}</span>}
+    </h2>
+  );
   return (
     <section aria-labelledby={id} className="mt-12 border-t border-[var(--line)] pt-6">
-      <h2 id={id} className="text-base font-semibold text-[var(--ink-hi)]">{titulo}</h2>
+      {acao ? (
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+          {cabecalho}
+          {acao}
+        </div>
+      ) : (
+        cabecalho
+      )}
       {children}
     </section>
   );

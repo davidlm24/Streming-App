@@ -2,12 +2,12 @@ import { useEffect, useRef } from 'react';
 import { ArrowRight, Check, CircleAlert, Plus } from 'lucide-react';
 import type { Destination } from '../types';
 import { estadoDoCanal, nomeDaPlataforma, pendenciaCurta, plataformaPeloNome } from '../lib/canais';
+import { rotuloDoHorario } from '../lib/horario';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { Chip } from './ui/Chip';
-import { Menu } from './ui/Menu';
 import { PlataformaIcone } from './ui/PlataformaIcone';
-import { Horario, WebinarLinha, acoesDoWebinar, ordenarPorHorario, type WebinarResumo } from './WebinarLista';
+import { Horario, WebinarLinha, ordenarPorHorario, type WebinarResumo } from './WebinarLista';
 
 interface DashboardProps {
   webinars: WebinarResumo[];
@@ -16,10 +16,10 @@ interface DashboardProps {
   canais: Destination[];
   onEntrarNoEstudio: (webinar?: WebinarResumo) => void;
   onAgendar: () => void;
-  onPaginaPublica: (webinar: WebinarResumo) => void;
-  onCriarCapa: (webinar: WebinarResumo) => void;
   /** Sem argumento, conecta um canal novo; com a plataforma, abre direto nela. */
   onConectarCanal: (plataforma?: string) => void;
+  /** Abre o modal neste canal, para consertar o que falta. */
+  onEditarCanal: (id: string) => void;
   onVerCanais: () => void;
   onVerWebinars: () => void;
 }
@@ -29,8 +29,9 @@ interface DashboardProps {
  *
  * Era um mural: quatro cartões de indicador (três deles vazios), a lista de
  * webinars com três botões coloridos por linha, um cartão de configurações e
- * o painel inteiro de qualidade de vídeo. Qualidade, integrações e tema
- * foram para Configurações; os indicadores voltam quando houver telemetria.
+ * o painel inteiro de qualidade de vídeo. Integrações e tema foram para
+ * Configurações; a qualidade de vídeo saiu de vez (não chegava à live) e volta
+ * quando a transmissão existir; os indicadores, quando houver telemetria.
  */
 export function Dashboard({
   webinars,
@@ -38,9 +39,8 @@ export function Dashboard({
   canais,
   onEntrarNoEstudio,
   onAgendar,
-  onPaginaPublica,
-  onCriarCapa,
   onConectarCanal,
+  onEditarCanal,
   onVerCanais,
   onVerWebinars,
 }: DashboardProps) {
@@ -63,16 +63,11 @@ export function Dashboard({
             </div>
           ) : proxima ? (
             <>
-              <div className="flex items-start justify-between gap-4">
-                <h2 id="painel-proxima" className="text-3xl font-semibold tracking-tight text-balance text-[var(--ink-hi)]">
-                  {proxima.title}
-                </h2>
-                <div className="mt-1 shrink-0">
-                  <Menu rotulo={`Ações de ${proxima.title}`} itens={acoesDoWebinar(proxima, { onPaginaPublica, onCriarCapa })} />
-                </div>
-              </div>
+              <h2 id="painel-proxima" className="text-3xl font-semibold tracking-tight text-balance text-[var(--ink-hi)]">
+                {proxima.title}
+              </h2>
               <p className="mt-3 text-sm text-[var(--ink-lo)]">
-                <Horario texto={proxima.time} />
+                <Horario texto={rotuloDoHorario(proxima)} />
                 {proxima.type === 'pre-recorded' && <> · vídeo gravado</>}
               </p>
             </>
@@ -82,9 +77,8 @@ export function Dashboard({
                 Nenhuma live agendada
               </h2>
               <p className="mt-3 max-w-prose text-sm text-[var(--ink-lo)]">
-                Entre no estúdio para transmitir agora, ou{' '}
-                <AcaoDeTexto sublinhada onClick={onAgendar}>agende o próximo webinar</AcaoDeTexto>{' '}
-                para ter a página de inscrição.
+                Entre no estúdio para preparar a live agora, ou{' '}
+                <AcaoDeTexto sublinhada onClick={onAgendar}>agende o próximo webinar</AcaoDeTexto>.
               </p>
             </>
           )}
@@ -102,6 +96,7 @@ export function Dashboard({
           canais={canais}
           planejadas={proxima?.channels ?? []}
           onConectarCanal={onConectarCanal}
+          onEditarCanal={onEditarCanal}
           onVerCanais={onVerCanais}
         />
 
@@ -127,8 +122,6 @@ export function Dashboard({
                     key={w.id}
                     webinar={w}
                     onEntrar={onEntrarNoEstudio}
-                    onPaginaPublica={onPaginaPublica}
-                    onCriarCapa={onCriarCapa}
                   />
                 ))}
               </ul>
@@ -155,11 +148,13 @@ function LinhaDeCanais({
   canais,
   planejadas,
   onConectarCanal,
+  onEditarCanal,
   onVerCanais,
 }: {
   canais: Destination[];
   planejadas: string[];
   onConectarCanal: (plataforma?: string) => void;
+  onEditarCanal: (id: string) => void;
   onVerCanais: () => void;
 }) {
   const ligados = canais.filter((c) => c.selected);
@@ -228,7 +223,7 @@ function LinhaDeCanais({
                 className={novos.has(canal.id) ? 'motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-left-2 motion-safe:duration-300' : undefined}
               >
                 <Chip
-                  onClick={pendencia ? () => onConectarCanal(canal.platform) : onVerCanais}
+                  onClick={pendencia ? () => onEditarCanal(canal.id) : onVerCanais}
                   rotulo={`${canal.name}: ${pendencia ?? 'pronto'}`}
                   icone={<PlataformaIcone plataforma={canal.platform} />}
                   estado={<EstadoDoChip pendencia={pendencia} />}

@@ -5,13 +5,19 @@ interface PwStreamLogoProps {
   showText?: boolean;
   iconSize?: number;
   textSize?: 'sm' | 'md' | 'lg' | 'xl';
+  /**
+   * Na tinta do contexto, sem gradiente, sem brilho e sem o círculo que pisca:
+   * para o console do estúdio, onde a única cor é a do ar.
+   */
+  monocromatico?: boolean;
 }
 
 export function PwStreamLogo({ 
   className = '', 
   showText = true, 
   iconSize = 32, 
-  textSize = 'md' 
+  textSize = 'md',
+  monocromatico = false,
 }: PwStreamLogoProps) {
   const textSizes = {
     sm: 'text-base',
@@ -19,6 +25,20 @@ export function PwStreamLogo({
     lg: 'text-2xl',
     xl: 'text-3xl'
   };
+
+  if (monocromatico) {
+    return (
+      <div className={`flex items-center gap-2.5 select-none text-[var(--ink-hi)] ${className}`}>
+        <svg width={iconSize} height={iconSize} viewBox="0 0 100 100" fill="none" aria-hidden="true" className="shrink-0">
+          <path d="M50 5 L88 27 L88 73 L50 95 L12 73 L12 27 Z" stroke="currentColor" strokeWidth="5" strokeLinejoin="round" />
+          <path d="M28 50 C28 35, 35 28, 50 28" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.55" />
+          <path d="M72 50 C72 65, 65 72, 50 72" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.55" />
+          <path d="M44 38 L62 50 L44 62 Z" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        </svg>
+        {showText && <span className={`${textSizes[textSize]} font-black leading-none tracking-tight`}>PwStreamer</span>}
+      </div>
+    );
+  }
 
   return (
     <div className={`flex items-center gap-2.5 select-none ${className}`} id="pw-stream-logo">

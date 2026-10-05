@@ -1,0 +1,58 @@
+name: Banco e servidor do Supabase
+
+# O esquema e a RLS são a barreira entre o banco e a internet: a chave
+# publicável vai no bundle, e qualquer pessoa fala com a API direto. Cada
+# mudança no banco ou no servidor recria o banco do zero, com todas as
+# migrações em ordem, e roda os testes de supabase/tests (o que o app usa tem
+# de passar, o dado de outra conta tem de ser negado) e os do servidor, contra
+# o mesmo banco.
+
+on:
+  push:
+    paths:
+      - 'supabase/**'
+      - 'server.ts'
+      - 'src/middleware/**'
+      - 'src/lib/supabase-admin.ts'
+      - 'tests/servidor/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/supabase.yml'
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - 'server.ts'
+      - 'src/middleware/**'
+      - 'src/lib/supabase-admin.ts'
+      - 'tests/servidor/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/supabase.yml'
+  workflow_dispatch:
+
+jobs:
+  banco-e-servidor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Sem o painel, as análises e as funções de borda: as migrações e os
+      # testes precisam do banco, da autenticação e do armazenamento
+      - name: Supabase local, com as migrações
+        run: npm run db:start
+
+      - name: Testes do banco (RLS)
+        run: npm run db:test
+
+      - name: Funções do banco
+        run: npx supabase db lint --schema public,app_private --fail-on error
+
+      - name: Testes do servidor
+        run: npm run test:servidor

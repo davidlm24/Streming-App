@@ -29,6 +29,20 @@ export interface Plan {
   description: string;
   features: string[];
   popular: boolean;
+  /**
+   * Canais ligados ao mesmo tempo. O modal de canais tinha a própria tabela
+   * (Standard com 2, "Business ilimitado") contradizendo a vitrine (3 e 8).
+   * A frase em `features` descreve; este número decide.
+   */
+  destinosSimultaneos: number;
+  /** Servidor RTMP próprio como destino ("Destinos RTMP personalizados"). */
+  rtmpProprio: boolean;
+  /** Pessoas na tela ao mesmo tempo. Como os outros números: `features` descreve, este decide. */
+  participantes: number;
+  /** Horas de transmissão ao vivo que o plano anuncia ("3 horas da transmissão ao vivo"). */
+  horasDeTransmissao?: number;
+  /** Duração do teste, no plano que é teste. */
+  diasDeTeste?: number;
 }
 
 export const CURRENCY = 'BRL' as const;
@@ -59,12 +73,13 @@ export const PLANS: Plan[] = [
       'Acesso completo ao estúdio de transmissão',
       '30 dias de teste gratuito',
       'Até 3 participantes simultâneos',
-      'Conecte o OBS, vMix, etc.',
-      'Gravação de até 15 minutos por live',
-      'Transmissão para até 2 destinos',
-      'Aviso de renovação opcional'
+      'Transmissão para até 2 destinos'
     ],
-    popular: false
+    popular: false,
+    destinosSimultaneos: 2,
+    rtmpProprio: false,
+    participantes: 3,
+    diasDeTeste: 30
   },
   {
     id: 'Standard',
@@ -78,17 +93,19 @@ export const PLANS: Plan[] = [
       'Transmissão simultânea para 3 canais',
       'Destinos RTMP personalizados',
       'Compartilhamento de tela',
-      'Conecte o OBS, vMix, etc.',
-      'Gravações na nuvem',
       'Sem marca d\'água da plataforma',
       'Logos, fontes e gráficos personalizados',
       '3 horas da transmissão ao vivo',
       'Até 6 participantes na tela ao vivo',
-      'Qualidade máxima 780p',
+      'Qualidade máxima 720p',
       'Transmissão em formato Paisagem + Retrato',
       'Teleprompter'
     ],
-    popular: false
+    popular: false,
+    destinosSimultaneos: 3,
+    rtmpProprio: true,
+    participantes: 6,
+    horasDeTransmissao: 3
   },
   {
     id: 'Professional',
@@ -102,8 +119,6 @@ export const PLANS: Plan[] = [
       'Transmissão simultânea para 5 canais',
       'Destinos RTMP personalizados',
       'Compartilhamento de tela',
-      'Conecte o OBS, vMix, etc.',
-      'Gravações na nuvem',
       'Sem marca d\'água da plataforma',
       'Logos, fontes e gráficos personalizados',
       '6 horas da transmissão ao vivo',
@@ -113,7 +128,11 @@ export const PLANS: Plan[] = [
       'Teleprompter',
       'Fluxo incorporado'
     ],
-    popular: true
+    popular: true,
+    destinosSimultaneos: 5,
+    rtmpProprio: true,
+    participantes: 8,
+    horasDeTransmissao: 6
   },
   {
     id: 'Business',
@@ -127,8 +146,6 @@ export const PLANS: Plan[] = [
       'Transmissão simultânea para 8 canais',
       'Destinos RTMP personalizados',
       'Compartilhamento de tela',
-      'Conecte o OBS, vMix, etc.',
-      'Gravações na nuvem',
       'Sem marca d\'água da plataforma',
       'Logos, fontes e gráficos personalizados',
       '10 horas da transmissão ao vivo',
@@ -140,8 +157,22 @@ export const PLANS: Plan[] = [
       'Fluxo incorporado',
       'Múltiplas câmeras'
     ],
-    popular: false
+    popular: false,
+    destinosSimultaneos: 8,
+    rtmpProprio: true,
+    participantes: 12,
+    horasDeTransmissao: 10
   }
 ];
 
 export const getPlan = (id: PlanId) => PLANS.find(p => p.id === id);
+
+/**
+ * Quanto o anual economiza por mês, em %, arredondado — o menor entre os
+ * planos pagos, para o rótulo nunca prometer mais do que algum plano dá.
+ */
+export const descontoAnual = () =>
+  Math.round(Math.min(...PLANS.filter(p => p.priceMonthly > 0).map(p => 1 - p.priceAnnual / p.priceMonthly)) * 100);
+
+/** Quantos canais o plano deixa ligados ao mesmo tempo. Sem plano, o do teste. */
+export const limiteDeCanaisLigados = (id?: PlanId) => (getPlan(id ?? 'Free Trial') ?? PLANS[0]).destinosSimultaneos;

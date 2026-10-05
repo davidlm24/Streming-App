@@ -1,17 +1,11 @@
-import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { LinhaDeAcao } from './ui/LinhaDeAcao';
 import { CabecalhoDePagina, Pagina, SecaoDePagina } from './ui/Pagina';
 import { Segmentado } from './ui/Segmentado';
-import { VideoQualityPanel } from './VideoQualityPanel';
-
-type AbaDeIntegracao = 'rtmp' | 'social' | 'webhooks';
 
 interface ConfiguracoesPaginaProps {
-  plano: 'Standard' | 'Professional' | 'Business' | 'Free Trial';
   ehSuperAdmin: boolean;
-  onAbrirIntegracao: (aba: AbaDeIntegracao) => void;
-  onIrPara: (visao: 'billing' | 'profile' | 'admin' | 'super-admin') => void;
+  onIrPara: (visao: 'billing' | 'profile' | 'super-admin') => void;
 }
 
 const TEMAS = [
@@ -20,61 +14,41 @@ const TEMAS = [
 ] as const satisfies readonly { valor: 'dark' | 'light'; rotulo: string }[];
 
 /**
- * Tudo o que não é tarefa de todo dia. Saiu do painel (qualidade de vídeo,
- * "Configurações & Chaves") e do cabeçalho (tema, painel técnico).
+ * Tudo o que não é tarefa de todo dia. Saiu do painel ("Configurações &
+ * Chaves") e do cabeçalho (tema, painel técnico).
+ *
+ * A seção "Transmissão" saiu com o painel de qualidade de vídeo: resolução,
+ * bitrate, encoder, áudio e keyframe não chegavam a lugar nenhum (o navegador
+ * ainda não codifica vídeo), e "Salvar e Aplicar no Estúdio" dizia
+ * "Configurações Aplicadas!" sem aplicar nada. Os limites por plano dele
+ * também contradiziam plans.ts. Volta quando a live existir, com os limites de
+ * plans.ts.
+ *
+ * O "Painel técnico" também saiu. A chave de ingestão apontava para um
+ * servidor que não existe (stream.pwstreamer.com não resolve), os destinos
+ * repetiam a página Canais sem salvar nada, as estatísticas eram vazias ou
+ * inventadas, e os webhooks estavam também no modal de Integrações.
+ *
+ * E o modal de Integrações, que as três linhas daqui abriam, saiu também:
+ * "Redes sociais" prometia conectar contas pelo login e mostrava documentação
+ * de API para desenvolvedor; "Webhooks" era um testador manual com histórico
+ * inventado, selo "Dispatcher v2.0 Ativo" e um receptor que simulava sucesso
+ * — nenhum aviso sai de fato quando a live começa ou termina. Fica só a linha
+ * do OBS, dizendo que ainda não está no ar.
  */
-export function ConfiguracoesPagina({ plano, ehSuperAdmin, onAbrirIntegracao, onIrPara }: ConfiguracoesPaginaProps) {
+export function ConfiguracoesPagina({ ehSuperAdmin, onIrPara }: ConfiguracoesPaginaProps) {
   const { theme, setTheme } = useTheme();
-  const [qualidadeAberta, setQualidadeAberta] = useState(false);
 
   return (
     <Pagina>
       <CabecalhoDePagina titulo="Configurações" />
 
-      <SecaoDePagina id="config-transmissao" titulo="Transmissão">
-        <ul className="mt-2 divide-y divide-[var(--line)]">
-          <li>
-            <LinhaDeAcao
-              tipo="expandir"
-              expandido={qualidadeAberta}
-              controla="config-qualidade"
-              titulo="Qualidade de vídeo"
-              descricao="Resolução, bitrate, quadros por segundo e encoder da transmissão."
-              onClick={() => setQualidadeAberta((a) => !a)}
-            />
-            {qualidadeAberta && (
-              <div id="config-qualidade" className="pb-6">
-                <VideoQualityPanel userPlan={plano} onNavigateToBilling={() => onIrPara('billing')} />
-              </div>
-            )}
-          </li>
-        </ul>
-      </SecaoDePagina>
-
       <SecaoDePagina id="config-integracoes" titulo="Integrações">
-        <ul className="mt-2 divide-y divide-[var(--line)]">
-          <li>
-            <LinhaDeAcao
-              titulo="OBS, vMix e RTMP externo"
-              descricao="Servidor e chave para transmitir de um programa no seu computador."
-              onClick={() => onAbrirIntegracao('rtmp')}
-            />
-          </li>
-          <li>
-            <LinhaDeAcao
-              titulo="Redes sociais"
-              descricao="Conectar contas do YouTube, do Facebook e da Twitch pelo login de cada uma."
-              onClick={() => onAbrirIntegracao('social')}
-            />
-          </li>
-          <li>
-            <LinhaDeAcao
-              titulo="Webhooks"
-              descricao="Avisos para outros sistemas quando a live começa, termina ou recebe um evento."
-              onClick={() => onAbrirIntegracao('webhooks')}
-            />
-          </li>
-        </ul>
+        {/* Sem ação: não há o que abrir enquanto o servidor de ingestão não existe */}
+        <div className="mt-4">
+          <p className="text-sm font-medium text-[var(--ink-hi)]">OBS, vMix e RTMP externo</p>
+          <p className="mt-1 text-xs text-[var(--ink-lo)]">Transmitir de um programa no seu computador ainda não está no ar.</p>
+        </div>
       </SecaoDePagina>
 
       <SecaoDePagina id="config-aparencia" titulo="Aparência">
@@ -92,34 +66,28 @@ export function ConfiguracoesPagina({ plano, ehSuperAdmin, onAbrirIntegracao, on
       <SecaoDePagina id="config-conta" titulo="Conta">
         <ul className="mt-2 divide-y divide-[var(--line)]">
           <li>
-            <LinhaDeAcao titulo="Plano e cobrança" descricao="Seu plano, faturas e forma de pagamento." onClick={() => onIrPara('billing')} />
+            <LinhaDeAcao titulo="Plano e cobrança" descricao="Seu plano e o que cada plano inclui." onClick={() => onIrPara('billing')} />
           </li>
           <li>
-            <LinhaDeAcao titulo="Dados de cadastro" descricao="Nome, e-mail e dados de faturamento." onClick={() => onIrPara('profile')} />
+            <LinhaDeAcao titulo="Dados de cadastro" descricao="Seu nome e o e-mail da conta." onClick={() => onIrPara('profile')} />
           </li>
         </ul>
       </SecaoDePagina>
 
-      <SecaoDePagina id="config-avancado" titulo="Avançado">
-        <ul className="mt-2 divide-y divide-[var(--line)]">
-          <li>
-            <LinhaDeAcao
-              titulo="Painel técnico"
-              descricao="Chave de ingestão, estatísticas e validador de webhooks."
-              onClick={() => onIrPara('admin')}
-            />
-          </li>
-          {ehSuperAdmin && (
+      {/* Sem o painel técnico, Avançado só tem a administração: só aparece para quem é admin */}
+      {ehSuperAdmin && (
+        <SecaoDePagina id="config-avancado" titulo="Avançado">
+          <ul className="mt-2 divide-y divide-[var(--line)]">
             <li>
               <LinhaDeAcao
                 titulo="Administração da plataforma"
-                descricao="Clientes, chaves de transmissão e registro de auditoria."
+                descricao="Os clientes cadastrados, só para leitura."
                 onClick={() => onIrPara('super-admin')}
               />
             </li>
-          )}
-        </ul>
-      </SecaoDePagina>
+          </ul>
+        </SecaoDePagina>
+      )}
     </Pagina>
   );
 }

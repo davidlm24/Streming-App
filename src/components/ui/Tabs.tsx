@@ -29,16 +29,19 @@ export function useTabs<T extends string>(
   // T vem so do estado ativo: inferir tambem do setter alarga para string
   ativa: T,
   selecionar: (id: NoInfer<T>) => void,
+  /** `vertical` para a lista ao lado do painel (mestre-detalhe): setas ↑ ↓. */
+  orientacao: 'horizontal' | 'vertical' = 'horizontal',
 ) {
   const refs = useRef(new Map<T, HTMLButtonElement | null>());
   const tabId = (id: T) => `${prefixo}-aba-${id}`;
   const panelId = (id: T) => `${prefixo}-painel-${id}`;
+  const [proxima, anterior] = orientacao === 'vertical' ? ['ArrowDown', 'ArrowUp'] : ['ArrowRight', 'ArrowLeft'];
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     const i = ids.indexOf(ativa);
     const alvo =
-      e.key === 'ArrowRight' ? (i + 1) % ids.length :
-      e.key === 'ArrowLeft' ? (i - 1 + ids.length) % ids.length :
+      e.key === proxima ? (i + 1) % ids.length :
+      e.key === anterior ? (i - 1 + ids.length) % ids.length :
       e.key === 'Home' ? 0 :
       e.key === 'End' ? ids.length - 1 : -1;
     if (alvo < 0) return;
@@ -48,7 +51,7 @@ export function useTabs<T extends string>(
   };
 
   return {
-    tablist: { role: 'tablist' as const },
+    tablist: { role: 'tablist' as const, 'aria-orientation': orientacao },
     tab: (id: T) => ({
       id: tabId(id),
       role: 'tab' as const,

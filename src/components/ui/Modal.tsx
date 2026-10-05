@@ -25,6 +25,12 @@ export interface ModalProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   /** Fluxos destrutivos podem exigir escolha explícita. */
   dismissible?: boolean;
+  /**
+   * Gravando: o diálogo espera a confirmação. O X desabilita, como o Cancelar,
+   * e Esc e o clique no fundo não fecham. Fechar no meio levaria junto a falha
+   * e, num diálogo que começa do zero a cada abertura, o que foi digitado.
+   */
+  ocupado?: boolean;
   /** Rótulo acessível quando não há `title` visível. */
   ariaLabel?: string;
   /** Ícone à esquerda do título. Vários diálogos do produto usam um. */
@@ -57,6 +63,7 @@ export function Modal({
   footer,
   size = 'md',
   dismissible = true,
+  ocupado = false,
   ariaLabel,
   icon,
   bare = false,
@@ -67,8 +74,8 @@ export function Modal({
   const descId = `${titleId}-desc`;
 
   const handleClose = useCallback(() => {
-    if (dismissible) onClose();
-  }, [dismissible, onClose]);
+    if (dismissible && !ocupado) onClose();
+  }, [dismissible, ocupado, onClose]);
 
   // O efeito de foco abaixo precisa do `handleClose` ATUAL sem depender dele.
   // Este ref é a diferença entre um diálogo que funciona e um que descarta o
@@ -196,8 +203,9 @@ export function Modal({
               <button
                 type="button"
                 onClick={onClose}
+                disabled={ocupado}
                 aria-label="Fechar"
-                className="shrink-0 -mt-1 -mr-1 p-2 rounded-xl text-[var(--ink-lo)] hover:text-[var(--ink-hi)] hover:bg-[var(--raise)] active:scale-95 transition-colors cursor-pointer"
+                className="shrink-0 -mt-1 -mr-1 p-2 rounded-xl text-[var(--ink-lo)] enabled:hover:text-[var(--ink-hi)] enabled:hover:bg-[var(--raise)] enabled:active:scale-95 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-45"
               >
                 <X size={18} />
               </button>

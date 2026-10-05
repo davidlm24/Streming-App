@@ -1,78 +1,668 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-25T12:00:00Z",
+  "generatedAt": "2026-10-05T17:12:16.273Z",
   "title": "Design System: PwStreamer",
   "extensions": {
     "colorMeta": {
-      "brand-deep": { "role": "primary", "displayName": "Azul da Marca Profundo", "canonical": "#2C5FB0", "tonalRamp": ["#0E1F3B", "#16305B", "#1F437F", "#2C5FB0", "#4683E0", "#7FAAEC", "#B3CCF4", "#E1EBFB"] },
-      "brand": { "role": "primary", "displayName": "Azul da Marca", "canonical": "#4683E0", "tonalRamp": ["#0E1F3B", "#16305B", "#1F437F", "#2C5FB0", "#4683E0", "#7FAAEC", "#B3CCF4", "#E1EBFB"] },
-      "brand-lift": { "role": "primary", "displayName": "Azul do Foco", "canonical": "#7FAAEC", "tonalRamp": ["#0E1F3B", "#16305B", "#1F437F", "#2C5FB0", "#4683E0", "#7FAAEC", "#B3CCF4", "#E1EBFB"] },
-      "tally": { "role": "secondary", "displayName": "Carmim do Tally", "canonical": "#D91F2D", "tonalRamp": ["#3A080C", "#6B0F16", "#A81622", "#D91F2D", "#E8434E", "#F4666A", "#F9A5A7", "#FDE2E3"] },
-      "tally-deep": { "role": "secondary", "displayName": "Carmim como texto no claro", "canonical": "#A81622" },
-      "tally-lift": { "role": "secondary", "displayName": "Carmim como texto no escuro", "canonical": "#F4666A" },
-      "brand-grad-from": { "role": "tertiary", "displayName": "Gradiente da Marca: azul", "canonical": "#4683E0" },
-      "brand-grad-mid": { "role": "tertiary", "displayName": "Gradiente da Marca: violeta isoluminante", "canonical": "#9669F2" },
-      "brand-grad-to": { "role": "tertiary", "displayName": "Gradiente da Marca: rosa", "canonical": "#EC407A" },
-      "navy-6": { "role": "neutral", "displayName": "Marinho Noite (fundo, escuro)", "canonical": "#111315", "tonalRamp": ["#000000", "#0A0B0C", "#111315", "#181B1F", "#202429", "#282D31", "#30363B", "#3C4349", "#4E565E", "#656E77", "#838C96", "#A2ACB7", "#BEC7D1", "#D9E1EA", "#E3E9F0", "#F0F5F9", "#FAFCFF", "#FFFFFF"] },
-      "navy-22": { "role": "neutral", "displayName": "Linha (escuro)", "canonical": "#30363B" },
-      "navy-96": { "role": "neutral", "displayName": "Tinta Alta (escuro)", "canonical": "#F0F5F9" },
-      "navy-80": { "role": "neutral", "displayName": "Tinta Baixa (escuro)", "canonical": "#BEC7D1" }
+      "brand-deep": {
+        "role": "primary",
+        "displayName": "Azul da Marca Profundo",
+        "canonical": "#2C5FB0",
+        "tonalRamp": [
+          "#0E1F3B",
+          "#16305B",
+          "#1F437F",
+          "#2C5FB0",
+          "#4683E0",
+          "#7FAAEC",
+          "#B3CCF4",
+          "#E1EBFB"
+        ]
+      },
+      "brand": {
+        "role": "primary",
+        "displayName": "Azul da Marca",
+        "canonical": "#4683E0",
+        "tonalRamp": [
+          "#0E1F3B",
+          "#16305B",
+          "#1F437F",
+          "#2C5FB0",
+          "#4683E0",
+          "#7FAAEC",
+          "#B3CCF4",
+          "#E1EBFB"
+        ]
+      },
+      "brand-lift": {
+        "role": "primary",
+        "displayName": "Azul do Foco",
+        "canonical": "#7FAAEC",
+        "tonalRamp": [
+          "#0E1F3B",
+          "#16305B",
+          "#1F437F",
+          "#2C5FB0",
+          "#4683E0",
+          "#7FAAEC",
+          "#B3CCF4",
+          "#E1EBFB"
+        ]
+      },
+      "tally": {
+        "role": "secondary",
+        "displayName": "Carmim do Tally",
+        "canonical": "#D91F2D",
+        "tonalRamp": [
+          "#3A080C",
+          "#6B0F16",
+          "#A81622",
+          "#D91F2D",
+          "#E8434E",
+          "#F4666A",
+          "#F9A5A7",
+          "#FDE2E3"
+        ]
+      },
+      "tally-deep": {
+        "role": "secondary",
+        "displayName": "Carmim como texto no claro",
+        "canonical": "#A81622"
+      },
+      "tally-lift": {
+        "role": "secondary",
+        "displayName": "Carmim como texto no escuro",
+        "canonical": "#F4666A"
+      },
+      "brand-grad-from": {
+        "role": "tertiary",
+        "displayName": "Gradiente da Marca: azul",
+        "canonical": "#4683E0"
+      },
+      "brand-grad-mid": {
+        "role": "tertiary",
+        "displayName": "Gradiente da Marca: violeta isoluminante",
+        "canonical": "#9669F2"
+      },
+      "brand-grad-to": {
+        "role": "tertiary",
+        "displayName": "Gradiente da Marca: rosa",
+        "canonical": "#EC407A"
+      },
+      "navy-6": {
+        "role": "neutral",
+        "displayName": "Marinho Noite (fundo, escuro)",
+        "canonical": "#111315",
+        "tonalRamp": [
+          "#000000",
+          "#0A0B0C",
+          "#111315",
+          "#181B1F",
+          "#202429",
+          "#282D31",
+          "#30363B",
+          "#3C4349",
+          "#4E565E",
+          "#656E77",
+          "#838C96",
+          "#A2ACB7",
+          "#BEC7D1",
+          "#D9E1EA",
+          "#E3E9F0",
+          "#F0F5F9",
+          "#FAFCFF",
+          "#FFFFFF"
+        ]
+      },
+      "navy-22": {
+        "role": "neutral",
+        "displayName": "Linha (escuro)",
+        "canonical": "#30363B"
+      },
+      "navy-96": {
+        "role": "neutral",
+        "displayName": "Tinta Alta (escuro)",
+        "canonical": "#F0F5F9"
+      },
+      "navy-80": {
+        "role": "neutral",
+        "displayName": "Tinta Baixa (escuro)",
+        "canonical": "#BEC7D1"
+      }
     },
     "semanticRoles": {
       "note": "Papéis que trocam por escopo; valores são primitivas navy-*.",
-      "dark": { "well": "navy-3", "bg": "navy-6", "surface": "navy-10", "panel": "navy-14", "raise": "navy-18", "line": "navy-22", "line-ctl": "navy-28", "ink-dim": "navy-70", "ink-lo": "navy-80", "ink": "navy-89", "ink-hi": "navy-96", "sig-texto": "tally-lift", "stage": "navy-0" },
-      "light": { "well": "navy-89", "bg": "navy-96", "surface": "navy-99", "panel": "navy-92", "raise": "navy-100", "line": "navy-80", "line-ctl": "navy-70", "ink-dim": "navy-36", "ink-lo": "navy-28", "ink": "navy-18", "ink-hi": "navy-6", "sig-texto": "tally-deep", "stage": "navy-0" },
-      "console": { "well": "navy-0", "bg": "navy-3", "surface": "navy-6", "panel": "navy-10", "raise": "navy-14", "line": "navy-18", "line-ctl": "navy-28", "ink-dim": "navy-58", "ink-lo": "navy-70", "ink": "navy-89", "ink-hi": "navy-96", "sig-texto": "tally-lift", "stage": "navy-0" }
+      "dark": {
+        "well": "navy-3",
+        "bg": "navy-6",
+        "surface": "navy-10",
+        "panel": "navy-14",
+        "raise": "navy-18",
+        "line": "navy-22",
+        "line-ctl": "navy-28",
+        "ink-dim": "navy-70",
+        "ink-lo": "navy-80",
+        "ink": "navy-89",
+        "ink-hi": "navy-96",
+        "sig-texto": "tally-lift",
+        "stage": "navy-0"
+      },
+      "light": {
+        "well": "navy-89",
+        "bg": "navy-96",
+        "surface": "navy-99",
+        "panel": "navy-92",
+        "raise": "navy-100",
+        "line": "navy-80",
+        "line-ctl": "navy-70",
+        "ink-dim": "navy-36",
+        "ink-lo": "navy-28",
+        "ink": "navy-18",
+        "ink-hi": "navy-6",
+        "sig-texto": "tally-deep",
+        "stage": "navy-0"
+      },
+      "console": {
+        "well": "navy-0",
+        "bg": "navy-3",
+        "surface": "navy-6",
+        "panel": "navy-10",
+        "raise": "navy-14",
+        "line": "navy-18",
+        "line-ctl": "navy-28",
+        "ink-dim": "navy-58",
+        "ink-lo": "navy-70",
+        "ink": "navy-89",
+        "ink-hi": "navy-96",
+        "sig-texto": "tally-lift",
+        "stage": "navy-0"
+      }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display (text-3xl)", "purpose": "Uma por tela: h1 da página ou título da próxima live no Painel." },
-      "title": { "displayName": "Título de seção (text-base)", "purpose": "h2 das seções abertas por linha." },
-      "body": { "displayName": "Corpo (text-sm)", "purpose": "Descrições, rótulos de chip, ações de texto." },
-      "body-strong": { "displayName": "Nome (text-sm 500)", "purpose": "Nome de item em linha de lista." },
-      "label": { "displayName": "Metadado (text-xs)", "purpose": "Linha abaixo do nome, rodapé, aviso de teste." },
-      "button": { "displayName": "Rótulo de botão", "purpose": "14px/600 em .btn; 16px no lg, 12px no sm." },
-      "measure": { "displayName": "Medida (mono tabular)", "purpose": "Só a hora e outras medidas; nunca rótulo." }
+      "display": {
+        "displayName": "Display (text-3xl)",
+        "purpose": "Uma por tela: h1 da página, título da próxima live no Painel, h1 do início, de Entrar e de Criar conta."
+      },
+      "title": {
+        "displayName": "Título de seção (text-base)",
+        "purpose": "h2 das seções abertas por linha, também no início do site."
+      },
+      "body": {
+        "displayName": "Corpo (text-sm)",
+        "purpose": "Descrições, rótulos de chip, ações de texto."
+      },
+      "body-strong": {
+        "displayName": "Nome (text-sm 500)",
+        "purpose": "Nome de item em linha de lista."
+      },
+      "label": {
+        "displayName": "Metadado (text-xs)",
+        "purpose": "Linha abaixo do nome, rodapé, aviso de teste."
+      },
+      "button": {
+        "displayName": "Rótulo de botão",
+        "purpose": "14px/600 em .btn; 16px no lg, 12px no sm."
+      },
+      "measure": {
+        "displayName": "Medida (mono tabular)",
+        "purpose": "Só a hora e outras medidas; nunca rótulo."
+      }
     },
     "shadows": [
-      { "name": "menu", "value": "0 8px 24px -8px rgb(0 0 0 / 0.45)", "purpose": "Popover do Menu (⋯ e conta)." },
-      { "name": "overlay", "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)", "purpose": "Modal, ConfirmDialog e Toast (shadow-2xl)." }
+      {
+        "name": "menu",
+        "value": "0 8px 24px -8px rgb(0 0 0 / 0.45)",
+        "purpose": "Popover do Menu (⋯ e conta)."
+      },
+      {
+        "name": "overlay",
+        "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+        "purpose": "Modal, ConfirmDialog e Toast (shadow-2xl)."
+      },
+      {
+        "name": "veu-do-contorno",
+        "value": "0 0 0 100vmax rgb(0 0 0 / 0.55)",
+        "purpose": "Não é profundidade: escurece a captura do Painel em volta do contorno, só enquanto o mouse aponta um item de \"Já funciona\"; em repouso, opacidade 0."
+      }
     ],
     "motion": [
-      { "name": "btn-feedback", "value": "filter 110ms linear, background-color 110ms linear", "purpose": "Hover brightness(1.1) e active brightness(0.93) do .btn." },
-      { "name": "state-color", "value": "150ms", "purpose": "Troca de cor/fundo em hover de ações, chips, navegação, switch." },
-      { "name": "chevron", "value": "200ms ease-out", "purpose": "Chevron da LinhaDeAcao: desloca 2px (avancar) ou gira 180° (expandir)." },
-      { "name": "chip-enter", "value": "300ms cubic-bezier(0.16, 1, 0.3, 1); fade + translateX(-0.5rem)", "purpose": "O único movimento de entrada da casca: chip de canal recém-conectado, uma vez, motion-safe." },
-      { "name": "ease-enter", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Entradas (.animate-in, 200ms padrão)." },
-      { "name": "ease-exit", "value": "cubic-bezier(0.4, 0, 1, 1)", "purpose": "Saídas (.animate-out, 150ms padrão)." }
+      {
+        "name": "btn-feedback",
+        "value": "filter 110ms linear, background-color 110ms linear",
+        "purpose": "Hover brightness(1.1) e active brightness(0.93) do .btn."
+      },
+      {
+        "name": "state-color",
+        "value": "150ms",
+        "purpose": "Troca de cor/fundo em hover de ações, chips, navegação, switch."
+      },
+      {
+        "name": "chevron",
+        "value": "200ms ease-out",
+        "purpose": "Chevron da LinhaDeAcao: desloca 2px (avancar) ou gira 180° (expandir)."
+      },
+      {
+        "name": "chip-enter",
+        "value": "300ms cubic-bezier(0.16, 1, 0.3, 1); fade + translateX(-0.5rem)",
+        "purpose": "O único movimento de entrada no conteúdo da casca: chip de canal recém-conectado, uma vez, motion-safe."
+      },
+      {
+        "name": "contorno-da-captura",
+        "value": "left, top, width, height, opacity 300ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "O único movimento do site público: o contorno desliza entre as regiões da captura do Painel e some no lugar. Só com pointerType mouse; a pista na legenda só com pointer-fine; prefers-reduced-motion zera pela regra global."
+      },
+      {
+        "name": "modal-enter",
+        "value": "scrim: fade 150ms; painel: fade + zoom-in-95 200ms",
+        "purpose": "Entrada da primitiva Modal. Nenhum diálogo acrescenta entrada própria; o modal de canais não acrescenta."
+      },
+      {
+        "name": "ease-enter",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Entradas (.animate-in, 200ms padrão)."
+      },
+      {
+        "name": "ease-exit",
+        "value": "cubic-bezier(0.4, 0, 1, 1)",
+        "purpose": "Saídas (.animate-out, 150ms padrão)."
+      },
+      {
+        "name": "fusao",
+        "value": "@keyframes fusao-sai (opacity 1 → 0) 400ms ease-out forwards; DURACAO_DA_FUSAO",
+        "purpose": "O único movimento do console: na Fusão, o programa que sai fica por cima do que entra e some. Inerte e aria-hidden. Com prefers-reduced-motion, a regra global a faz virar corte."
+      }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" }
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
     ],
     "zIndex": [
-      { "name": "sticky", "value": "20" },
-      { "name": "dropdown", "value": "40" },
-      { "name": "scrim", "value": "60" },
-      { "name": "modal", "value": "70" },
-      { "name": "toast", "value": "80" }
+      {
+        "name": "sticky",
+        "value": "20"
+      },
+      {
+        "name": "dropdown",
+        "value": "40"
+      },
+      {
+        "name": "scrim",
+        "value": "60"
+      },
+      {
+        "name": "modal",
+        "value": "70"
+      },
+      {
+        "name": "toast",
+        "value": "80"
+      }
     ],
-    "focus": { "value": "outline: 2px solid var(--color-brand-lift); outline-offset: 2px; border-radius: 4px", "purpose": "Anel global de :focus-visible." },
+    "focus": {
+      "value": "outline: 2px solid var(--color-brand-lift); outline-offset: 2px; border-radius: 4px",
+      "purpose": "Anel global de :focus-visible.",
+      "menu": "Escolher um item do Menu devolve o foco ao gatilho antes da ação, como o Esc: o diálogo que ela abre (a confirmação, o modal de canais) guarda o gatilho e o devolve ali ao fechar, e um item que troca de tela deixa o foco no gatilho (o avatar da conta continua no cabeçalho). Antes o foco ficava no item, que some com o menu, e caía no <body>. Quando a ação tira a linha da lista (o canal removido, depois da confirmação do banco; o webinar excluído), o foco vai ao \"⋯\" da linha que ficou no lugar dela, ou ao da anterior se ela era a última; com a lista vazia, ao h1 da página (focável por refDoTitulo), de onde o Tab segue para a ação da página. Só quando o foco saiu junto com a linha: se a pessoa já foi a outro lugar, ele fica lá.",
+      "source": "src/index.css (:focus-visible), src/components/ui/Menu.tsx (Menu, useFocoNaLista), src/components/ui/Pagina.tsx (CabecalhoDePagina refDoTitulo), src/components/CanaisPagina.tsx, src/components/WebinarsPagina.tsx"
+    },
     "enforcement": [
       "npm run verify",
-      "scripts/contrast-gate.mjs (WCAG AA, escuro/claro/console)",
+      "scripts/contrast-gate.mjs (texto WCAG AA 4.5:1 e bordas de estado 3:1, WCAG 1.4.11: --ink-dim contra as cinco superfícies; escuro/claro/console)",
       "scripts/design-debt.mjs + scripts/design-debt-baseline.json (catraca: só desce)",
       "scripts/icon-buttons.cjs",
       "scripts/form-labels.cjs",
       ".github/workflows/design-system.yml"
-    ]
+    ],
+    "fieldError": {
+      "primitive": "ErroDeCampo (src/components/ui/ErroDeCampo.tsx); única, usada no modal de canais, em Dados de cadastro e no \"Novo webinar\"",
+      "border": "input/textarea/select[aria-invalid=\"true\"] { border-color: var(--ink-hi) } (index.css, global)",
+      "message": "CircleAlert 14px + frase text-xs em --ink-hi com text-pretty, 8px abaixo do campo, no lugar da dica, ligada por aria-describedby",
+      "saveFailure": "Linha role=\"alert\" acima das ações: CircleAlert 16px + frase text-sm em --ink-hi com text-pretty; pode terminar com uma AcaoDeTexto sublinhada que executa a saída que nomeia; um novo envio a apaga; num diálogo, no rodapé, acima das ações (no modal de canais, acima das ações do detalhe); numa lista (Canais), sob o item",
+      "purpose": "Erro de campo e falha ao salvar sem carmim.",
+      "loginFailure": "A falha ao entrar (Entrar e Criar conta) usa a mesma linha da falha ao salvar: role=\"alert\", CircleAlert 16 + text-sm --ink-hi, acima do botão do Google, com a frase de FRASE_DA_FALHA_AO_ENTRAR pelo motivo (FalhaAoEntrar): \"O login com Google ainda não está ligado neste ambiente.\", \"Sem conexão agora. Confira a internet e tente de novo.\" ou \"Não deu para entrar. Tente de novo.\" (o formulário de e-mail e senha, só em desenvolvimento, usa o mesmo mapa). O botão leva a página ao Google (signInWithOAuth, redirecionamento, sem janela) e fica em loading até a página sair; antes, confere se o provedor Google está ligado. A volta com ?error= ou #error= abre Entrar com \"Não deu para entrar com o Google. Tente de novo.\" e limpa o endereço."
+    },
+    "planLimits": {
+      "source": "src/lib/plans.ts",
+      "destinosSimultaneos": {
+        "Free Trial": 2,
+        "Standard": 3,
+        "Professional": 5,
+        "Business": 8
+      },
+      "participantes": {
+        "Free Trial": 3,
+        "Standard": 6,
+        "Professional": 8,
+        "Business": 12
+      },
+      "horasDeTransmissao": {
+        "Standard": 3,
+        "Professional": 6,
+        "Business": 10
+      },
+      "rtmpProprio": "Standard e acima",
+      "precos": "priceMonthly e priceAnnual (por mês, anual 20% menor), sempre por formatPrice (BRL, pt-BR); tabular-nums em lista.",
+      "linhas": "Por limitesDoPlano: canais e pessoas em todos os planos, horas de transmissão só nos pagos (o gratuito não tem limite de tempo); espaço inseparável entre número e unidade.",
+      "rule": "Canal novo além do limite é salvo desligado e a tela diz por quê.",
+      "features": "Só o que o produto faz ou fará com o plano: saíram \"Conecte o OBS, vMix, etc.\" e as linhas de gravação."
+    },
+    "pendencyVocabulary": {
+      "source": "src/lib/canais.ts",
+      "curta": [
+        "sem servidor nem chave",
+        "sem servidor",
+        "sem chave"
+      ],
+      "longa": [
+        "Falta o servidor e a chave",
+        "Falta o servidor",
+        "Falta a chave"
+      ],
+      "custom": "Servidor RTMP próprio"
+    },
+    "platformIcons": {
+      "youtube": "Lucide Youtube",
+      "facebook": "Lucide Facebook",
+      "instagram": "Lucide Instagram",
+      "linkedin": "Lucide Linkedin",
+      "twitch": "Lucide Twitch",
+      "tiktok": "Lucide Music2",
+      "rumble": "Lucide CirclePlay",
+      "kick": "K desenhado: M7 4v16 + M17 4 9.5 12l7.5 8, traço 1,75, currentColor",
+      "rtmp": "Lucide Server",
+      "stroke": 1.75
+    },
+    "navigation": {
+      "verPlanos": "abrirPlanos: fora do estúdio navega para Plano e cobrança (billing); no estúdio abre o PlansModal por cima do palco.",
+      "entradas": "Menu da conta (\"Plano e cobrança\") e o aviso de teste no cabeçalho.",
+      "cabecalhoPublico": "PublicHeader: 56px em --bg, linha embaixo, sticky em --z-sticky, coluna max-w-6xl. Logo leva ao início; \"Planos\" e \"Entrar\" como ações de texto (text-sm, 44px), \"Criar conta\" fantasma, a 20px. Sem menu de celular; \"Planos\" some abaixo de sm. A ação da tela aberta sai do cabeçalho. Trocar de tela leva ao topo e foca o h1."
+    },
+    "truthfulSave": {
+      "confirmTimeoutMs": 10000,
+      "implementation": "gravarComConfirmacao (src/lib/dadosDaConta.ts): a única implementação da regra. O Supabase só responde depois de gravar, e a resposta é a confirmação; a espera de 10 s cobre a resposta que não chega. salvarNomeDoPerfil, agendarWebinar, excluirWebinar, salvarRoteiro, gravarLista e salvarTransmissao/salvarCanais passam por ela. Falha com ErroAoSalvar(motivo: FalhaAoSalvar). Os canais também esperam, uma mudança de cada vez (ver canais); antes de o banco responder às configurações, mudar canais é bloqueado com \"Seus canais ainda estão carregando\".",
+      "failures": {
+        "sem-conexao": "aparelho offline ou falha de rede: \"Sem conexão com a sua conta agora. Tente de novo mais tarde.\"",
+        "sem-confirmacao": "sem confirmação em 10 s: \"Não deu para confirmar que o nome foi salvo / o webinar foi agendado. Confira a conexão e tente de novo.\"",
+        "sem-login": "sem sessão (depois de esperarSessao), a conta desta aba trocada por outra, ou o token recusado pela API (PGRST301/PGRST303): \"Sua sessão expirou, então o nome não foi salvo / o webinar não foi agendado.\" + \"Entrar de novo\" sublinhado",
+        "recusado": "o resto, inclusive a troca de nome em que a RLS não atualizou linha nenhuma: \"Não foi possível salvar o nome / agendar o webinar. Tente de novo.\""
+      },
+      "whileSaving": "primário em loading (aria-busy), Cancelar desabilitado e o diálogo não fecha (Modal ocupado: o X desabilita, Esc e o clique no fundo esperam), no \"Novo webinar\" e no modal de canais; o rascunho só se apaga depois da confirmação; no modal de canais, que começa do zero a cada abertura, também as linhas da lista desabilitam, os campos ficam só leitura e \"‹ Plataformas\" e \"Ver planos\" esperam; na página Canais, a linha diz \"Salvando…\" ou \"Removendo…\" e o Switch fica ocupado (aria-busy e aria-disabled, 45 %, sem perder o foco)",
+      "retry": "uma nova tentativa reusa o id do rascunho: escrita atrasada é repetida, nunca duplicada",
+      "failureLine": "role=\"alert\", CircleAlert 16 + text-sm --ink-hi, text-pretty; num diálogo, no rodapé do Modal 12px acima das ações, fora do corpo que rola; o foco vai a \"Entrar de novo\" (sem-login) ou volta ao primário; no modal de canais (mestre-detalhe), as ações moram no detalhe, e a linha fica 12px acima delas; numa lista (Canais), sob o item, 12px abaixo e recuada até a coluna do nome (56px), terminada por \"Tentar de novo\" ou \"Entrar de novo\", e o foco fica onde está",
+      "success": "aviso (\"Nome salvo\", \"Webinar agendado\" + rótulo do horário) só depois de o banco confirmar",
+      "source": "src/lib/dadosDaConta.ts (gravarComConfirmacao, salvarNomeDoPerfil, agendarWebinar, excluirWebinar, salvarRoteiro, gravarLista, salvarTransmissao, salvarCanais, ErroAoSalvar, FalhaAoSalvar), src/lib/useListaDaConta.ts, src/lib/useRoteiro.ts, src/App.tsx (mudarCanais, mudarNoCanal, handleAddOrUpdateDestination, handleToggleDestination, handleRemoveDestination), src/components/AddChannelsModal.tsx, src/components/CanaisPagina.tsx, src/components/ui/Modal.tsx (ocupado), src/components/ui/Switch.tsx (ocupado)",
+      "listas": {
+        "source": "src/lib/useListaDaConta.ts, src/lib/useRoteiro.ts, src/lib/dadosDaConta.ts (assinarLista, gravarLista, salvarRoteiro, lerRoteiro)",
+        "listaDaConta": "useListaDaConta (banners e tickers, cada um numa coluna de studio_settings): grava a lista inteira por gravarLista; o item novo ou editado já vai ao preview, mas só conta como salvo com a confirmação. A última gravação decide (uma resposta atrasada não desfaz a situação). O que vem da conta não apaga uma mudança que a tela ainda não salvou.",
+        "assinatura": "assinarLista lê a coluna e ouve o que outras abas e aparelhos gravam (Supabase Realtime, INSERT e UPDATE); uma mudança que chega antes da leitura vale mais que ela. Exclusões não chegam: quem exclui é a própria aba. Webinars (subscribeWebinars) e canais (subscribeTransmissionSettings) chegam do mesmo jeito.",
+        "copiaDoAparelho": "O localStorage guarda só a lista que o banco confirmou, para abrir antes da conta responder; o não salvo some ao recarregar.",
+        "item": "\"não salvo\" com PenLine 12px em --ink-hi, ou \"salvando…\" em --ink-lo, depois de um ponto no EstadoNoPalco.",
+        "falha": "FalhaNoPainel embaixo da lista, com FRASE_DA_FALHA_DA_LISTA e \"Tentar de novo\".",
+        "roteiro": "public.teleprompter_scripts (um por webinar, e o geral sem webinar); salvarRoteiro 1,2 s depois da última tecla. Linha sob o título: \"Abrindo o roteiro salvo…\", \"Alterado\", \"Salvando…\", \"Salvo na sua conta às HH:MM\" (só depois da confirmação) ou \"Ainda não há roteiro salvo.\". Falhas: FRASE_DA_FALHA (ao salvar) e FRASE_DA_FALHA_AO_LER (o salvo não abriu; nada é salvo, para não sobrescrever a conta)."
+      },
+      "canais": {
+        "fila": "mudarCanais (App.tsx): uma mudança de cada vez, cada uma a partir da lista que a conta tem (a última confirmada, ou a que chegou pelo tempo real), gravando a lista inteira por salvarCanais; duas gravações ao mesmo tempo, cada uma com a sua lista, apagariam uma a outra. O canal só muda na tela depois da confirmação. Ligar confere o limite do plano no clique e de novo na vez da mudança (\"{nome} continua desligado\").",
+        "escritorUnico": "O salvamento automático do App grava só a cor dos gráficos (salvarTransmissao({ streamColor })). Gravava também a lista dos canais, sem esperar e calado na falha, e desfazia por trás a mudança já confirmada por outra aba.",
+        "modal": "onAddOrUpdateDestination devolve Promise<boolean>: resolve true depois da confirmação, false sem os canais da conta carregados (nada é gravado, e o aviso vem do app), e rejeita com ErroAoSalvar. O aviso (\"YouTube conectado\", \"YouTube salvo\", \"Kick conectado, mas desligado\") só sai depois da confirmação. Na falha, o diálogo fica aberto na mesma plataforma, com o rascunho (\"Não salvo\" na lista), e a linha de falha acima das ações do detalhe, com a frase de O_QUE_DIZER para um canal novo (\"Sem conexão com a sua conta agora, então o canal não foi conectado. Tente de novo mais tarde.\") ou existente (\"Não deu para confirmar que as alterações foram salvas. Confira a conexão e tente de novo.\"); em sem-login termina com \"Entrar de novo\", que recebe o foco, e senão o foco volta ao primário. Uma nova tentativa de um canal novo reusa o id da primeira.",
+        "pagina": "Enquanto grava, a linha diz \"Salvando…\" (ligar ou desligar) ou \"Removendo…\" no lugar do estado, em --ink-lo, e o Switch fica ocupado; a linha removida só sai depois da confirmação. Até lá o foco fica no \"⋯\" dela, e depois vai ao da vizinha (focus.menu). Outro canal pode mudar ao mesmo tempo: entra na fila e diz \"Salvando…\" também.",
+        "falhaNaPagina": "Nada muda, e uma linha role=\"alert\" sob o canal diz o que não mudou, por quê e a saída: \"Sem conexão com a sua conta agora, então YouTube não foi ligado.\" (desligado, removido), \"Não deu para confirmar se YouTube foi desligado. Confira a conexão.\", \"O banco recusou a mudança, então YouTube não foi removido.\" e \"Sua sessão expirou, então YouTube não foi ligado.\"; termina com \"Tentar de novo\" (a mesma mudança, sem perguntar de novo) ou \"Entrar de novo\". O foco fica onde está: no Switch, que não o perde, ou no \"⋯\", aonde a confirmação de \"Remover canal\" o devolveu. \"Tentar de novo\" é a própria ação de texto que some quando a linha volta a gravar; antes de refazer a mudança, o foco vai ao interruptor (ligar/desligar) ou ao \"⋯\" (remover), para não cair no <body> junto com ela. Sai com uma nova tentativa ou quando o canal chega ao que se pediu, e fica à vista ao ir a outra tela e voltar (a situação de cada canal mora no App).",
+        "source": "src/App.tsx (mudarCanais, mudarNoCanal, situacaoDosCanais, tentarDeNovoNoCanal), src/components/AddChannelsModal.tsx (O_QUE_DIZER), src/components/CanaisPagina.tsx (SituacaoDoCanal, fraseDaFalha), src/components/ui/Modal.tsx e src/components/ui/Switch.tsx (ocupado), src/components/ui/Menu.tsx (useFocoNaLista)"
+      }
+    },
+    "checkbox": {
+      "primitive": "CaixaDeSelecao (src/components/ui/CaixaDeSelecao.tsx)",
+      "box": "20px, raio 5px (abaixo da escala nomeada, que começa em 8px e a faria ler como rádio)",
+      "unchecked": "borda --ink-dim sobre --well",
+      "checked": "preenchimento e borda --ink-hi, Check 14px traço 3 em --bg",
+      "target": "o <label> inteiro, min-h-11 (44px), caixa a 12px do texto; é o nome acessível",
+      "focus": "anel global :focus-visible",
+      "transition": "cor em 150ms",
+      "never": "azul da marca: marcar é estado"
+    },
+    "time": {
+      "rule": "Regra do Horário Derivado",
+      "stored": {
+        "startsAt": "ISO 8601",
+        "time": "frase absoluta por horarioPorExtenso (\"Domingo, 27 de setembro, às 20:00\")"
+      },
+      "rendered": "rotuloDoHorario: \"Hoje, às 20:00\" / \"Amanhã, às 20:00\" / a frase absoluta; sem startsAt, o texto livre de time",
+      "measure": "Horario isola hh:mm em font-mono tabular-nums --ink",
+      "source": "src/lib/horario.ts",
+      "readBy": "rotuloDoHorario, quando o webinar é antigo e não tem startsAt (o texto livre) ou quando startsAt não é uma data; nenhuma outra tela lê time."
+    },
+    "webinars": {
+      "source": "src/components/WebinarLista.tsx, WebinarsPagina.tsx, Dashboard.tsx, CriarWebinarModal.tsx",
+      "linha": "WebinarLinha: título text-sm 500 --ink-hi; embaixo, text-xs --ink-lo, Horario e canais; à direita uma ação visível, \"Entrar\" (ghost sm).",
+      "menu": "acoesDoWebinar só tem \"Excluir webinar\" (perigo, com useConfirm), e só na página Webinars. Sem ação, a linha não tem \"⋯\". No Painel, nem a próxima live nem as próximas têm \"⋯\". Confirmada a exclusão, a linha sai na hora e o foco vai ao \"⋯\" da vizinha (focus.menu); se o banco não confirmar, ela volta à lista e o foco fica onde está.",
+      "confirmarExclusao": "Título \"Excluir \\\"{título}\\\"?\"; frase \"O webinar sai da lista, com o horário e os canais planejados.\"; confirmação \"Excluir webinar\", destrutiva.",
+      "frases": {
+        "cabecalho": "Cada webinar guarda o horário, os canais e o roteiro de uma live.",
+        "vazio": "Nenhum webinar agendado. Agende um para guardar o horário, os canais e o roteiro da próxima live.",
+        "painelVazio": "\"Nenhuma live agendada\" + \"Entre no estúdio para preparar a live agora, ou agende o próximo webinar.\" (\"agende o próximo webinar\" é a ação de texto sublinhada)."
+      },
+      "novoWebinar": {
+        "campos": "Título (44px); Data e Hora lado a lado (date e time nativos, 44px, data com mínimo em hoje); o fieldset Canais.",
+        "erroDoTitulo": "Falta o título. É o nome que aparece na lista e no estúdio.",
+        "semDescricao": "A Descrição saiu com a página pública, a única tela que a mostrava (Regra do Dado com Uso); desc fica opcional só para webinars antigos."
+      },
+      "foraAteExistir": "\"Página de inscrição\" (WebinarPublicPage, a visão public-webinar, cloudflareStreamConfig) até existir o link público; \"Criar capa\" (ThumbnailEditor) até a capa ter onde aparecer."
+    },
+    "administracao": {
+      "source": "src/components/SuperAdminPanel.tsx; subscribeUserProfiles e PerfilDeCliente em src/lib/dadosDaConta.ts (lê public.profiles)",
+      "forma": "Lista de leitura na casca: Pagina, CabecalhoDePagina, uma seção aberta por linha, lista divide-y. Sem indicador, cartão, cor nem ação sobre o cliente.",
+      "cabecalho": "\"Administração\" + \"Os clientes cadastrados na plataforma, só para leitura. A mudança de plano, as chaves de transmissão e o registro de auditoria voltam quando houver ingestão, feitos pelo servidor.\"",
+      "secao": "SecaoDePagina: border-t --line, mt 48px, pt 24px; h2 \"Clientes\" text-base 600 --ink-hi; contagem (ml 8px) \"N cadastrados\" / \"1 cadastrado\" em text-sm 400 --ink-lo, só com a lista aberta e não vazia.",
+      "busca": "type=search, h-11 (44px), --well, borda --line-ctl, raio 16px, text-sm, pl 36px; Search 16px --ink-lo à esquerda, aria-hidden; placeholder \"Nome ou e-mail\" (--ink-dim); aria-label \"Buscar cliente por nome ou e-mail\". É a acao da SecaoDePagina: sm:w-72 à direita do título, centrada na linha dele (gap-x 16px); largura toda e abaixo do título no celular (gap-y 12px). Compara nome e e-mail sem acento e sem caixa. Só com a lista aberta (estado ok) e com clientes.",
+      "lista": "ul divide-y --line com border-y, 16px abaixo do título; ordem alfabética por nome (ou e-mail), localeCompare pt-BR.",
+      "linha": "py 16px, gap 16px. Esquerda: nome text-sm 500 --ink-hi; e-mail text-xs --ink-lo 4px abaixo; ambos truncados; sem nome, o e-mail no lugar do nome. Direita (text-right, shrink-0): plano (getPlan) text-sm --ink; só no Free Trial, \"teste até {dia}\" / \"teste encerrado em {dia}\" em text-xs --ink-lo, derivado de trialEndsAt na hora de mostrar, ano só se não for o corrente. Sem clique, sem \"⋯\", sem ação.",
+      "estados": {
+        "carregando": "Carregando os clientes…",
+        "sem-login": "\"Sua sessão expirou, então a lista de clientes não abriu.\" + AcaoDeTexto sublinhada \"Entrar de novo\", que sai da conta",
+        "recusado": "O banco recusou a lista de clientes. Confira se este e-mail está na lista de administradores do servidor.",
+        "sem-conexao": "Sem conexão com o banco agora. A lista aparece quando ele voltar.",
+        "vazio": "Nenhum cliente cadastrado ainda.",
+        "buscaVazia": "Nenhum cliente com esse nome ou e-mail.",
+        "forma": "uma frase no lugar da lista, text-sm --ink-lo, max-w-prose; role=status no carregamento e nas falhas. A RLS só entrega os perfis de todos a um admin (app_private.is_super_admin(), pelo papel que o servidor mantém igual a SUPER_ADMIN_EMAILS); a outra conta, só o próprio. subscribeUserProfiles classifica: sem sessão (depois de esperarSessao) ou token recusado (PGRST301/PGRST303) → sem-login; falha de rede → sem-conexao; o resto → recusado. A busca é anunciada numa região sr-only aria-live sempre montada (\"N encontrados\" / \"Nenhum cliente com esse nome ou e-mail.\")."
+      },
+      "semPapel": "\"Acesso restrito\" + \"Esta área é só para a administração da plataforma.\" + ação de texto \"Voltar ao painel\". Sem formulário e sem senha.",
+      "entradas": "Item \"Administração\" (Shield 14px) no menu da conta, antes de \"Sair\"; Configurações › Avançado, \"Administração da plataforma\" com \"Os clientes cadastrados, só para leitura.\" (a seção só existe para o admin); a rota /admin (e #admin, ?mode=admin), que leva quem não tem o papel ao Painel, sem aviso. Todas dependem de role === 'super-admin' na sessão; quem decide o que se lê é a RLS do banco.",
+      "perfil": "PerfilDeCliente: uid, name, email, plan, trialEndsAt?. O plano vem do enum do banco (free_trial, standard, professional, business) com o nome do app (Free Trial, Standard, Professional, Business).",
+      "naoLido": "O papel e a situação não são lidos: o papel mora em public.user_roles, mantido pelo servidor, e public.profiles não tem coluna de papel; nada atualiza subscription_status quando o teste vence. O teste sai de trialEndsAt (Regra do Horário Derivado).",
+      "foraAteOIngest": "Mudar planos, as chaves de transmissão e o registro de auditoria: o navegador os gravava direto no banco. Voltam com o ingest, feitos pelo servidor."
+    },
+    "lineCtlDebt": {
+      "note": "Dívida conhecida: --line-ctl fica abaixo de 3:1 (WCAG 1.4.11). O campo se lê pelo preenchimento --well e pelo rótulo; a caixa de seleção não usa essa borda.",
+      "measured": {
+        "dark": {
+          "well": 1.96,
+          "bg": 1.85,
+          "surface": 1.72,
+          "panel": 1.55,
+          "raise": 1.38
+        },
+        "light": {
+          "well": 1.74,
+          "bg": 2.1,
+          "surface": 2.24,
+          "panel": 1.88,
+          "raise": 2.3
+        },
+        "console": {
+          "well": 2.09,
+          "bg": 1.96,
+          "surface": 1.85,
+          "panel": 1.72,
+          "raise": 1.55
+        }
+      }
+    },
+    "debtBaseline": {
+      "hex-arbitrario-em-classe": 0,
+      "hex-em-atributo-jsx": 9,
+      "botao-cru-fora-da-primitiva": 13,
+      "paleta-slate-gray-estrutural": 0,
+      "tamanho-de-fonte-avulso": 1,
+      "dialogo-nativo-bloqueante": 0,
+      "outline-none": 0,
+      "important-no-css": 6,
+      "z-index-avulso": 0
+    },
+    "publicSite": {
+      "source": "src/components/InicioPublico.tsx, src/components/AuthAndPricing.tsx, src/components/PublicHeader.tsx",
+      "column": "max-w-6xl, px 16px (24px a partir de sm), base 96px; a mesma do cabeçalho e do rodapé",
+      "hero": "grade de 12 colunas a partir de lg: 5 de texto, 7 da captura, centradas, gap 48px (40px empilhadas); topo 48px (64px a partir de sm)",
+      "sectionGap": "64px entre seções, cada uma aberta por linha de 1px e 24px até o título",
+      "jaFuncionaEmBreve": "duas colunas a partir de md, gap 48px, cada uma com lista divide-y; empilhada, a segunda abre com a própria linha 40px abaixo",
+      "planos": "4 + 8 colunas a partir de lg; ListaDePlanos com semLinhaInicial e -mt-4 (subida 16px) em lg; abaixo de lg a lista ganha a linha de cima de volta",
+      "fecho": "em linha a partir de sm: título e frase à esquerda, primário lg à direita",
+      "contas": "Entrar e Criar conta numa coluna max-w-sm (384px), topo 48px (64px a partir de sm)",
+      "primario": "\"Criar conta\" lg no herói e no fecho: a mesma ação, nunca no mesmo viewport. No cabeçalho, fantasma; \"Entrar\" é ação de texto.",
+      "captura": {
+        "file": "src/assets/site/painel-exemplo.png (1280 × 912), proveniência embutida no PNG",
+        "scope": "data-surface=\"console\": moldura e contorno escuros também no tema claro",
+        "frame": "raio 16px, borda --line; contorno raio 12px, outline 2px --ink-hi",
+        "regioes": "REGIOES em % da imagem; medir de novo sempre que a captura for refeita",
+        "datas": "absolutas; nada de \"Hoje\" ou \"Amanhã\" num raster (Regra do Horário Derivado)",
+        "legenda": "text-xs --ink-lo: \"O Painel de verdade, com dados de exemplo.\"; a pista do mouse só com pointer-fine",
+        "focus": "os itens de \"Já funciona\" não são paradas de foco: não são controles"
+      }
+    },
+    "foraDoSistema": {
+      "telas": "Não sobra tela fora do sistema. A última com o visual herdado do Google AI Studio, o super-admin, virou a Administração, e com ele saíram as análises, o monitor de desempenho e os webhooks. Os modais do estúdio saíram na fase 2; a fase 3 fechou o estúdio e levou a página pública do webinar e o editor de capas. Tamanho em px avulso, slate/gray/blue-500 cru, rótulo em caixa alta ou sombra de brilho numa tela é dívida nova.",
+      "desvios": "Gatilho \"⋯\" do Menu (32px), avatar (32px), fechar do Modal (~34px), chip (36px), z-30 no cabeçalho do app, --line-ctl abaixo de 3:1, polegar da rolagem azul no hover. No console: o botão de fixar do chat (36px) e o gatilho de chevron dos aparelhos (36px de largura) abaixo de 44px; a borda do card da câmera na cor dos gráficos, escolhida em Gráficos. Nos painéis: as cores dos gráficos em grid-cols-6 com ~41px no desktop (coluna de 264px; ~44px no celular).",
+      "googleG": "As quatro cores do G do Google contam nos 9 de hex-em-atributo-jsx e ficam: são a marca do Google no botão de login.",
+      "formularioDeDesenvolvimento": "O formulário de e-mail e senha de Entrar e Criar conta existe só em desenvolvimento, não autentica e não é modelo; o primário azul dele não é a ação da tela.",
+      "tamanhoAvulso": "O único que resta é o \"ONLINE STUDIO\" do logo (9px, mono, caixa alta): parte da marca, não modelo de rótulo."
+    },
+    "console": {
+      "tokens": {
+        "guia": "rgb(255 255 255 / 0.6): só no escopo console, as guias sobre a imagem do monitor, em mix-blend-difference"
+      },
+      "source": "src/components/Estudio.tsx (dono do estado do estúdio; o App só o renderiza), BarraDoEstudio.tsx, TrilhoDeCenas.tsx, MonitoresDoEstudio.tsx, PainelDoEstudio.tsx, BandejaDoEstudio.tsx, MedidorDeAudio.tsx, VirtualizedChat.tsx, StudioPreview.tsx (o palco), GraficosDoPalco.tsx, src/lib/cenas.ts, src/lib/graficos.ts, src/lib/camera.ts, src/lib/playerDoClipe.ts",
+      "scope": "data-surface=\"console\" na tela inteira do estúdio; escuro sempre, também no tema claro. Zero cor: sem ação colorida e sem vermelho enquanto o ar não existe; data-air=\"on\" nunca é posto.",
+      "semAr": "Ir ao ar, relógio de ar, gravação e relatório saíram até a transmissão existir. A bandeja diz \"Transmitir para os canais ainda não está no ar.\" (a partir de lg).",
+      "grade": "h-[100dvh]; barra 48px em cima e bandeja embaixo, fora da rolagem; lg:grid-cols-[14rem_minmax(0,1fr)_23rem] (trilho de cenas, mesa de monitores, coluna da direita), cada coluna rola sozinha. Abaixo de lg, uma coluna que rola: monitores, cenas, coluna da direita (o painel cresce com a página; o chat em h-[36rem]).",
+      "barra": "h-12 em --surface, linha embaixo: logo monocromático (leva ao Painel), h1 \"Estúdio · {sessão}\", ação de texto xs dos canais (\"Nenhum canal ligado\" / \"Canais: N de M prontos\", só a partir de md), \"Sair do estúdio\" ghost sm.",
+      "cenas": {
+        "fonte": "CENAS em src/lib/cenas.ts: Câmera, Tela com câmera, Câmera e tela lado a lado, Tela",
+        "linha": "min-h-14, raio 16px: nome text-sm --ink-hi em cima; estado text-xs embaixo, em palavras (\"programa\", \"preview\", \"programa e preview\", \"· sem tela\", \"sem tela compartilhada\"). Estado do programa 500 --ink-hi; linha do preview em --raise com aria-current; hover --panel.",
+        "porque": "Altura fixa para o corte não mexer a lista embaixo do ponteiro."
+      },
+      "transicao": {
+        "tecla": "TECLA: Button ghost min-h-14, bg --raise, borda --line-ctl; hover borda --ink-lo; :active borda --ink-hi e bg --panel. Duração dentro, mono xs --ink-lo (\"0 ms\", \"400 ms\").",
+        "parada": "Desativadas sem mudança e durante a fusão; sem mudança, \"O preview está igual ao programa.\" embaixo.",
+        "celular": "Logo abaixo do preview."
+      },
+      "mesa": {
+        "programa": "Centralizado; 60 % da altura das imagens; largura = altura × 16/9, limitada pela coluna.",
+        "linhaDeBaixo": "Largura do programa: preview medido pela imagem + \"No próximo corte\" ao lado, a 16px, com no mínimo 224px.",
+        "moldura": "O lugar de cada monitor é o palco em 16:9 mais o anel de 2px (alturaDaMoldura em MonitoresDoEstudio, ANEL_DA_MOLDURA em useAspectRatio), no desktop e no celular.",
+        "rotulo": "Fora da imagem, 8px acima: papel text-xs 500 --ink-hi, cena text-xs --ink-lo.",
+        "anel": ".pw-frame com --pw-frame-radius 0px (canto reto): programa n-14 em repouso, preview n-89. O programa é inert."
+      },
+      "proximoCorte": {
+        "caixa": "Rótulo fora; caixa de canto reto em --panel, borda e divide-y 1px --line, altura do conteúdo, rola só acima da altura do preview. Linhas text-sm --ink com ArrowRight 14px --ink-lo. Ocupa o lugar da telemetria do console aprovado.",
+        "fonte": "mudancasNoCorte (src/lib/graficos.ts); é por ela que Corte e Fusão se acendem. Cada gráfico diz uma coisa só: entra, sai, troca ou muda.",
+        "ordem": "Cena (\"Cena: Tela com câmera\") ou \"Fontes em cena\"; card; clipe; fundo; sobreposição; logo; banner; ticker; QR code; cronômetro; comentário fixado; cor dos gráficos.",
+        "entra": "Com nome: \"Entra o banner: {título}\", \"Entra o ticker: {começo do texto}\", \"Entra o clipe: {nome}\". Sem nome: logo, fundo, sobreposição, QR code, cronômetro e comentário fixado (\"Entra o QR code\").",
+        "troca": "Outro item no lugar do que está no programa. Com nome: \"Troca o banner: {título}\", \"Troca o ticker: {começo do texto}\", \"Troca o clipe: {nome}\". Sem nome: \"Troca o logo\", \"Troca o fundo\", \"Troca a sobreposição\", \"Troca o comentário fixado\".",
+        "muda": "\"{Item}: partes\", juntadas por juntar: \"Card da câmera: posição, tamanho e formato\" (só com card nos dois), \"Logo: canto, tamanho e opacidade\", \"Banner: texto e posição\", \"Ticker: texto, velocidade e direção\", \"QR code: link, título, preço, canto e tamanho\", \"Cronômetro: título\".",
+        "sai": "\"Sai o …\" / \"Sai a …\".",
+        "cor": "\"Cor dos gráficos\" só quando há no preview algo desenhado com ela (banner, ticker, QR code, cronômetro ou o card).",
+        "resumo": "O texto do ticker resumido em 40 caracteres, cortado entre palavras, com \"…\".",
+        "vazia": "\"Nada muda: o preview está igual ao programa.\" em text-xs --ink-lo."
+      },
+      "modelo": {
+        "resumo": "Preview = estado em edição. Programa = StudioSceneState do último corte, desenhado pelo mesmo StudioPreview com papel=\"programa\". O corte copia estadoDoPreview. O programa abre na cena inicial sem gráficos (graficosVazios).",
+        "studioSceneState": "sceneId, layout, activeParticipantIds, cardDaCamera, activeBackground, activeOverlay, pinnedComment, graficos, clipe (ClipeNoPalco: id, nome, url | null).",
+        "graficos": "GraficosDoPalco: cor, logo (url, canto, tamanho, opacidade), banner (id?, titulo, subtitulo, posicao), ticker (id?, texto, selo, velocidade, direcao), qr (url, titulo, preco, canto, tamanho), cronometro (titulo); null quando fora.",
+        "conteudoNaoIds": "O programa guarda conteúdo, não ids: editar ou apagar um item da lista não muda o programa até o próximo corte. banner e ticker levam id opcional só para os painéis dizerem onde cada item está."
+      },
+      "card": {
+        "geometria": "GeometriaDoCard: x, y em % do palco; escala 0,6–1,8; formato. Largura em % da largura do palco: rounded 26, compact 21,6, circle 19,4, cada um com a sua proporção. Padrão x 71, y 64.",
+        "limite": "dentroDoPalco mantém o card inteiro no palco.",
+        "edicao": "Só a mão no palco: arrastar move; alça neutra de 20px (borda --ink-hi sobre --surface; sem alça no círculo) muda o tamanho; leitura mono xs --ink sobre --surface (\"X 71% · Y 64%\" ou \"120%\") só durante o ajuste. Cantos, formato e tamanho exato no painel Câmera. A borda do card vai na cor dos gráficos."
+      },
+      "espelho": "Propriedade da câmera, como o zoom e o enquadramento: vale nos dois monitores na hora, sem corte. Liga no painel Câmera; começa desligado.",
+      "guias": "Ligadas pela bandeja. Terços, área segura inset 7% 6%, cruz central de 18px; linhas de 1px em --guia com mix-blend-difference; aria-hidden, sem clique.",
+      "bandeja": {
+        "controle": "CONTROLE: Button ghost min-h-11, aria-pressed. Ligado: --raise + --ink-hi. Desligado: --well + --ink-lo. Ícone e palavra; abaixo de sm, quadrado de 44px só com ícone e a palavra em sr-only.",
+        "aparelhos": "Menu lado=\"cima\" alinhar=\"esquerda\" com enumerateDevices, gatilho de chevron colado, só com mais de um aparelho; o atual com ✓.",
+        "tela": "O botão some sem getDisplayMedia.",
+        "ordem": "Microfone + medidor, Câmera, Compartilhar tela, separador 1px --line (a partir de sm), Guias; a frase do ar à direita a partir de lg."
+      },
+      "medidor": "RMS pelo Web Audio (piso −60 dB). Trilho reto h-2 em --well, 96px (64px abaixo de sm), segmentos de 5px com vão de 1px. Barra --ink-lo, --ink-hi acima de −12 dB; sem vermelho. Pico retido 1s, marcador de 2px --ink-hi. Leitura \"−xx dB\" mono xs --ink-lo a cada 120ms, oculta abaixo de sm. aria-hidden.",
+      "colunaDaDireita": {
+        "largura": "23rem",
+        "ferramentas": "tablist vertical w-[4.5rem] com seis abas: Chat, Gráficos, Roteiro, QR code, Mídia, Câmera (Câmera substituiu Estilo; Extras saiu). Aba min-h-14, ícone 18px sobre a palavra text-xs, raio 16px; aberta em --raise --ink-hi; title com o que há nela. A linha entre painel e trilho é do painel (border-r --line).",
+        "chat": "Cabeçalho \"Chat\" + contagem text-xs --ink-lo, busca, \"⋯\" com Exportar o chat (.json) e Limpar o chat (--sig-texto, useConfirm); vazio honesto; linhas com divisória --line, nome xs 500 --ink-hi, hora mono --ink-lo, fixar com aria-pressed (fixada em --raise, \"fixado\"); campo \"Mensagem\" 44px e envio por ícone; nota \"Você escreve como {nome}. As mensagens ficam só neste estúdio.\" Confirmar \"Limpar o chat\" esvazia a lista, e o \"⋯\" some junto (sem mensagem, não há o que exportar ou limpar); se o foco estava nele, vai à busca, que continua sempre no cabeçalho.",
+        "rolagem": "Desktop: a coluna tem a altura do console; painel e trilho rolam por dentro. Abaixo de lg: o painel cresce com a página, o trilho fica sticky top-0, e o chat tem h-[36rem] (lg:h-full)."
+      },
+      "excecoesDoCorte": "Valem nos dois monitores na hora, sem corte, por serem propriedades da fonte ao vivo: enquadramento (zoom, x, y), espelho, croma e o relógio do cronômetro (RelogioDoCronometro; o corte leva o cronômetro e o título). Todo o resto passa pelo corte, e as dicas dos painéis dizem isso.",
+      "paineis": {
+        "source": "src/components/PecasDoPainel.tsx, PainelGraficos.tsx, PainelRoteiro.tsx, PainelQrCode.tsx, PainelMidia.tsx, PainelCamera.tsx, Teleprompter.tsx, CodigoQr.tsx, ui/Segmentado.tsx",
+        "principio": "Coluna de ~260px ao lado do trilho. O painel é o único editor e o palco o único desenho: nada de alça, botão ou barra sobre a imagem. O que o painel liga vai ao preview; o corte leva ao programa (fora as exceções do corte). Movimento: só cor em 150ms.",
+        "pecas": {
+          "SecaoDoPainel": "section aberta por linha 1px --line (a primeira sem), sem cartão, px/py 16px; título text-sm 500 --ink-hi em linha min-h-8 com a acao à direita; estado logo sob o título; dica text-xs --ink-lo text-pretty; conteúdo 12px abaixo, 12px entre peças.",
+          "EscolhaDoPainel": "Nome em cima (text-xs --ink, aria-hidden), controle embaixo.",
+          "Deslizante": "Campo dentro do label; nome text-xs --ink à esquerda, medida mono xs tabular-nums --ink-lo à direita (também aria-valuetext). .deslizante: trilho 4px --line-ctl, polegar 16px --ink-hi, alvo 24px; desativado a 45 %.",
+          "SeletorDeCanto": "radiogroup 2×2 na posição dos cantos na imagem; opções size-11 (44px), raio 10px, seta 16px; borda --line-ctl raio 16px; marcada --raise --ink-hi, outras --ink-lo; sem valor, nenhuma marcada.",
+          "EnviarArquivo": "label min-h-11 com borda tracejada --line-ctl (porque adiciona), + 16px; \"Enviando… N%\" (tabular-nums) a 60 % enquanto o arquivo sobe para a conta, com o campo desativado; foco no rótulo por .envio; falha em ErroDeCampo logo embaixo (fraseDaFalhaDoEnvio), e o botão é a nova tentativa. Rótulos: \"Enviar logo\", \"Enviar fundo\", \"Enviar sobreposição\", \"Enviar vídeo (MP4 ou WebM, até 50 MB)\".",
+          "GradeDeImagens": "radiogroup de 3 colunas quadradas em --well, \"Nenhum\" primeiro; marcada com borda e anel 1px --ink-hi. No grupo só a imagem que já chegou a esta aba; as outras numa lista à parte logo abaixo (\"Imagens que ainda não abriram nesta tela\"), quadrados --well com borda --line-ctl, text-xs --ink-lo: \"Na fila\", \"Baixando…\" com o N% tabular-nums embaixo, ou CircleAlert 16px --ink-hi + \"Não abriu\" + \"Excluir\"; procurando a cópia, vazio (sr-only \"abrindo\"). Embaixo, uma linha para a imagem do preview e outra para a do programa quando é outra: nome, EstadoNoPalco e \"Excluir\" (com confirmação). Onde o arquivo fica não vai por item: diz a NotaDaMidia.",
+          "CampoDoPainel": "Campo h-11 em --well dentro do label, rótulo text-xs --ink em cima; dica ou ErroDeCampo embaixo por aria-describedby.",
+          "EstadoNoPalco": "ondeEsta: \"no programa\", \"no preview\", \"no programa e no preview\"; no programa em 500 --ink-hi, só no preview em --ink-lo; extra depois de \"·\".",
+          "NotaDaMidia": "Uma linha text-xs tabular-nums --ink-lo no fim de cada seção de mídia, depois do envio e do erro: \"Fica na sua conta: X MB de 200 MB.\" (fraseDoUso), ou \"Fica na sua conta.\" enquanto a lista não abriu. Lista que não abre: FalhaNoPainel com fraseDaLeitura (\"Sua sessão expirou, então a sua mídia não abriu.\", \"Sem conexão com a sua conta agora, então a sua mídia não abriu.\", \"A sua mídia não abriu.\"), uma vez por painel (anunciaFalha: em Gráficos só no Logo; Fundo e Sobreposição não mostram nada). Arquivo que não chega: cada seção diz os seus (prop tipo), perto do quadrado que falhou: \"Uma imagem não abriu nesta tela.\" / \"N imagens não abriram nesta tela.\" (clipe: \"Um clipe…\" / \"N clipes…\"). \"Tentar de novo\" lê a lista e baixa de novo todo arquivo que não veio.",
+          "FalhaNoPainel": "role=\"alert\": CircleAlert 16px + frase text-sm --ink-hi, terminada por \"Tentar de novo\" sublinhado. Serve à falha ao salvar, ao abrir a mídia ou um arquivo dela e ao tocar o clipe.",
+          "useSetasDoGrupo": "Só a marcada no Tab; setas marcam a vizinha; Home/End; numa grade, ↑/↓ pulam uma linha.",
+          "Segmentado": "largura=\"cheia\" (flex-1, divide a coluna por igual; todo segmentado de painel) e desativado (todas as opções a 45 %)."
+        },
+        "graficos": "Banner, Ticker (listas da conta com divide-y: texto, detalhe, EstadoNoPalco, \"Pôr/Tirar do preview\" ghost sm, \"Editar\" e \"Excluir\" xs; editar e \"Novo …\" abrem um formulário de dois campos no lugar), Logo (GradeDeImagens; com um logo escolhido, canto, 4–30 % da largura e opacidade 20–100 %; depois EnviarArquivo, o erro e a NotaDaMidia; PNG, JPEG, WebP ou SVG, que vai como PNG), Cronômetro (Switch, título, duração 5/10/15/30 min só com o relógio zerado, tempo mono text-base, Iniciar/Pausar/Continuar e Zerar), Cor dos gráficos, Fundo (PNG, JPEG ou WebP) e Sobreposição (PNG ou WebP) com GradeDeImagens, EnviarArquivo, o erro e a NotaDaMidia. A imagem enviada já fica escolhida. Excluir uma imagem pergunta: \"O arquivo sai da sua conta, em todos os aparelhos. Se estiver no programa, continua lá até o próximo corte.\"",
+        "corDosGraficos": "Mora em Gráficos. CORES_DOS_GRAFICOS (Grafite = COR_PADRAO, Branco, Azul, Verde, Amarelo, Roxo) num radiogroup grid-cols-6, marcada com borda --ink-hi, e \"Outra cor\" (seletor nativo, 44px). Pinta a borda do card, o subtítulo do banner, o selo do ticker, o preço do QR e a barra do cronômetro; texto preto ou branco por corDoTextoSobre. É cor da live, não do console.",
+        "roteiro": "Teleprompter, \"Roteiro do webinar …\" (ou geral) e Notas (o teleprompter não lê). Um roteiro por webinar, salvo na conta.",
+        "qr": "Link (normalizarLink; sem esquema ganha https://), título e preço opcionais, canto e tamanho (8–24 % da largura). O Switch só liga com link válido. Canto padrão em cima à esquerda (QR_PADRAO).",
+        "midia": "Clipes MP4 ou WebM em lista divide-y: Film 16px, nome, EstadoNoPalco, \"Pôr/Tirar do preview\" e \"Excluir\", que quebram de linha juntos sem partir o texto. O clipe do programa diz depois do ponto \"pausado\", \"no fim\" (com \"Tocar de novo\", que vale na hora; numa cena sem tela, \"Voltar ao começo\", que só volta) ou \"parado\" (FalhaNoPainel \"O navegador não deixou o clipe tocar no programa.\" com \"Tentar de novo\"). Um clipe que não está nesta aba diz como vem (text-xs tabular-nums --ink-lo): \"Baixa da sua conta ao ir para o preview.\", \"Na fila para baixar da sua conta.\", \"Baixando da sua conta… N%\", \"Não abriu nesta tela.\"; \"Pôr no preview\" o baixa e o põe no preview ao chegar, desativado enquanto procura a cópia, espera ou baixa. Vazio: \"Nenhum clipe ainda.\"; enquanto a lista da conta não abre, nada (não diz \"nenhum\" antes de saber). Embaixo, EnviarArquivo \"Enviar vídeo (MP4 ou WebM, até 50 MB)\", o erro e a NotaDaMidia. Excluir pergunta, com a frase das imagens (\"O arquivo sai da sua conta, em todos os aparelhos. Se estiver no programa, continua lá até o próximo corte.\", \"Excluir o clipe\"); o do preview sai do preview, o do programa segue até o próximo corte. A dica: o clipe toca no programa a partir do corte, com o som; trocar de cena não o recomeça, e numa cena sem tela ele pausa e continua quando a tela volta.",
+        "camera": "Card da câmera (canto, formato Retângulo/Compacto/Círculo, tamanho 60–180 %, \"Voltar ao padrão\"; só na cena com card; vai pelo corte), Enquadramento (zoom 1–2,5×, horizontal/vertical até deslocamentoMaximo; desativados com zoom 1), Espelhar a câmera e Croma (verde/azul, tolerância, suavização, reflexo). Enquadramento, espelho e croma valem na hora.",
+        "preferencias": "Ajustes da câmera e escolhas dos painéis em localStorage (usePreferencia). Por conta: o QR code (link, título, preço, canto, tamanho) em pw_qr_do_estudio_{uid} e a imagem escolhida de logo, fundo e sobreposição, pelo id, em pw_midia_ativa_{uid} (o endereço do arquivo nesta aba muda a cada visita; a escolha fica no navegador, a imagem na conta). O que estava no preview não volta: cada visita começa sem gráficos. O app apaga ao abrir as chaves antigas sem dono (pwstreamer_* da mídia, pw_hidden_templates, pw_qr_do_estudio)."
+      },
+      "graficosDoPalco": {
+        "source": "src/components/GraficosDoPalco.tsx, src/index.css (GRÁFICOS DO PALCO)",
+        "palco": ".palco é container palco / size; tudo em cqw/cqh. Área segura: --g-margem-x 6cqw, --g-margem-y 7cqh. .palco--com-ticker: --g-ticker 6.5cqh, e o que fica embaixo sobe acima dele.",
+        "cores": "Da imagem, não do console: --g-fundo rgb(11 13 16 / 0.92), --g-texto branco, --g-texto-2 branco a 78 %, e a cor dos gráficos.",
+        "mouse": "pointer-events: none em tudo.",
+        "cantos": ".grafico--{canto} para logo e QR, dentro da área segura; logo com largura em cqw, no máximo 22cqh.",
+        "pilha": "Banner e comentário fixado à esquerda, gap 1.4cqh, max 64cqw. Banner embaixo: colado à área segura, o comentário sobe (column-reverse); em cima: cada um no seu lugar. Título 2.5cqw 600 sobre --g-fundo; subtítulo 1.5cqw 500 na cor.",
+        "ticker": "Faixa inteira no pé, 6.5cqh; selo 1.6cqw 600 na cor; texto 1.9cqw 500; duração por duracaoDoTicker (cresce com o texto, não com o monitor). Com movimento reduzido, parado, lido da esquerda.",
+        "qr": "Cartão branco; código em SVG; título 1.3cqw 600; preço 1.5cqw 600 tabular-nums na cor.",
+        "cronometro": "No meio; só título (1.7cqw) e tempo (6.4cqw 600 tabular-nums); barra 0.6cqh na cor que encolhe com o resto."
+      },
+      "teleprompter": {
+        "source": "src/components/Teleprompter.tsx",
+        "leitor": "LeitorDoRoteiro no painel Roteiro (h-48, --bg, borda --line, raio 16px) ou numa janela; nunca sobre o preview. Linha dos olhos 1px --line-ctl a 40 %. Texto --ink-hi 500, entrelinha 1.4.",
+        "tamanhos": "P/M/G/GG: 16/20/24/28px no painel, 28/40/56/72px na janela.",
+        "janela": "Aberta no próprio clique: Picture-in-Picture de documento, ou popup 960 × 360; escopo console; controles em cima (Tocar/Pausar, − e + da velocidade, \"velocidade N\" em mono, \"Fechar a janela\"). Um estado só: trocar de lugar continua de onde parou.",
+        "velocidade": "1 a 10, proporcional ao tamanho do texto; conta o tempo entre quadros; para no fim do texto.",
+        "espelho": "Só na janela (\"Espelhar na janela\").",
+        "teclado": "Espaço toca e pausa; ↑/↓ mudam a velocidade."
+      },
+      "clipe": "Fonte de cena, no lugar da tela. No programa toca com som a partir do corte, sem controles do navegador, num player só (src/lib/playerDoClipe.ts): criarPlayer no corte que o põe no programa (outro clipe começa do zero; o mesmo segue de onde está), soltarPlayer no corte que o tira ou ao sair do estúdio. O palco do programa encaixa o <video> na caixa da tela; trocar de cena não o recomeça. Numa cena sem tela (Câmera; desenhaATela), ajustarPlayer pausa e ele continua quando a tela volta; no fim, fica no último quadro: o evento ended zera o tocando, para uma caixa remontada (desktop↔celular) não recomeçar o clipe, e só \"Tocar de novo\" o recomeça. A situação (situacaoDoClipe: tocando, pausado, no fim, bloqueado) vem dos eventos do próprio vídeo; numa cena sem tela é \"pausado\", e nada toca o clipe ali (nunca som sem imagem). O preview com o mesmo clipe e a camada que sai na Fusão desenham o quadro desse player num canvas (EspelhoDoClipe, StudioPreview.tsx), sem som. Um clipe que ainda não está no programa fica parado e mudo no primeiro quadro.",
+      "qrCode": "CodigoQr: gerado no navegador com uqr (ecc M, borda de 2 módulos), SVG em currentColor; sem serviço de terceiros."
+    }
   },
   "components": [
     {
       "name": "Botão primário (ação da tela)",
       "kind": "button",
       "refersTo": "button-primary-lg",
-      "description": "Um por tela. No Painel, 'Entrar no estúdio' em tamanho lg.",
+      "description": "Uma ação primária por tela, nunca dois no mesmo viewport. lg: \"Entrar no estúdio\" no Painel e \"Criar conta\" no herói e no fecho do início do site (a mesma ação, nunca no mesmo viewport).",
       "html": "<button class=\"ds-btn ds-btn-lg\">Entrar no estúdio <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></button>",
       "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 18px; border-radius: 16px; font-family: Poppins, system-ui, sans-serif; font-size: 14px; font-weight: 600; line-height: 1.2; background: var(--color-brand-deep, #2C5FB0); color: #FFFFFF; border: 1px solid transparent; cursor: pointer; transition: filter 110ms linear, background-color 110ms linear; } .ds-btn-lg { padding: 13px 24px; font-size: 16px; gap: 10px; min-width: 256px; } .ds-btn:hover { filter: brightness(1.1); } .ds-btn:active { filter: brightness(0.93); } .ds-btn:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     },
@@ -80,7 +670,7 @@
       "name": "Botão fantasma",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Secundário: 'Entrar' nas linhas de webinar (sm), atalho 'Estúdio', 'Cancelar'.",
+      "description": "Secundário: \"Entrar\" nas linhas de webinar (sm), atalho \"Estúdio\", \"Cancelar\" e \"Criar conta\" no cabeçalho público.",
       "html": "<button class=\"ds-btn-ghost ds-btn-sm\">Entrar</button>",
       "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 18px; border-radius: 16px; font-family: Poppins, system-ui, sans-serif; font-size: 14px; font-weight: 600; line-height: 1.2; background: transparent; color: var(--ink, #D9E1EA); border: 1px solid var(--line-ctl, #3C4349); cursor: pointer; transition: background-color 110ms linear; } .ds-btn-sm { padding: 5px 11px; font-size: 12px; border-radius: 10px; gap: 6px; } .ds-btn-ghost:hover { background: var(--raise, #282D31); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     },
@@ -101,12 +691,36 @@
       "css": ".ds-chip { display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 10px; border-radius: 9999px; border: 1px solid var(--line-ctl, #3C4349); background: transparent; color: var(--ink-hi, #F0F5F9); font-family: Poppins, system-ui, sans-serif; font-size: 14px; cursor: pointer; transition: background-color 150ms; } .ds-chip-ico { color: var(--ink-lo, #BEC7D1); } .ds-chip-state { display: inline-flex; align-items: center; gap: 4px; margin-left: 2px; } .ds-chip:hover { background: var(--raise, #282D31); } .ds-chip:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     },
     {
+      "name": "Campo com erro",
+      "kind": "input",
+      "refersTo": "input-invalid",
+      "description": "Campo de 44px; erro por ErroDeCampo: ícone + frase em tinta alta (text-pretty) e borda em --ink-hi. Nunca carmim.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field-l\" for=\"ds-chave\">Chave de transmissão</label><input id=\"ds-chave\" class=\"ds-input\" type=\"password\" placeholder=\"Cole aqui a chave de transmissão\" aria-invalid=\"true\" aria-describedby=\"ds-chave-erro\"><p id=\"ds-chave-erro\" class=\"ds-field-err\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>Falta a chave. Sem ela o canal não recebe a live.</span></p></div>",
+      "css": ".ds-field { font-family: Poppins, system-ui, sans-serif; max-width: 420px; } .ds-field-l { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-input { display: block; width: 100%; height: 44px; margin-top: 8px; padding: 0 12px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--well, #0A0B0C); color: var(--ink-hi, #F0F5F9); font: inherit; font-size: 14px; } .ds-input::placeholder { color: var(--ink-dim, #A2ACB7); } .ds-input:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-input[aria-invalid=\"true\"] { border-color: var(--ink-hi, #F0F5F9); } .ds-field-err { display: flex; align-items: flex-start; gap: 6px; margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-field-err svg { flex-shrink: 0; margin-top: 1px; }"
+    },
+    {
+      "name": "Lista mestre (modal de canais)",
+      "kind": "custom",
+      "refersTo": "master-row",
+      "description": "Tablist vertical de 15rem: uma linha de 56px por plataforma com ícone, nome e palavra de estado; escolhida em --raise.",
+      "html": "<div class=\"ds-master\" role=\"tablist\" aria-orientation=\"vertical\" aria-label=\"Plataformas\"><button class=\"ds-mrow\" role=\"tab\" aria-selected=\"false\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17\"/><path d=\"m10 15 5-3-5-3z\"/></svg><span class=\"ds-mrow-t\"><span class=\"ds-mrow-n\">YouTube</span><span class=\"ds-mrow-s\">Pronto</span></span></button><button class=\"ds-mrow\" role=\"tab\" aria-selected=\"true\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 4v16\"/><path d=\"M17 4 9.5 12l7.5 8\"/></svg><span class=\"ds-mrow-t\"><span class=\"ds-mrow-n\">Kick</span><span class=\"ds-mrow-s ds-hi\">Sem servidor nem chave</span></span></button><button class=\"ds-mrow\" role=\"tab\" aria-selected=\"false\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m10 8 6 4-6 4z\"/></svg><span class=\"ds-mrow-t\"><span class=\"ds-mrow-n\">Rumble</span><span class=\"ds-mrow-s\">Não conectado</span></span></button></div>",
+      "css": ".ds-master { display: flex; flex-direction: column; gap: 2px; width: 240px; padding-right: 16px; border-right: 1px solid var(--line, #30363B); font-family: Poppins, system-ui, sans-serif; } .ds-mrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 12px; border: 0; border-radius: 16px; background: transparent; text-align: left; cursor: pointer; color: var(--ink-lo, #BEC7D1); transition: background-color 150ms; } .ds-mrow:hover { background: var(--panel, #202429); } .ds-mrow[aria-selected=\"true\"] { background: var(--raise, #282D31); } .ds-mrow:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-mrow svg { flex-shrink: 0; } .ds-mrow-t { min-width: 0; flex: 1; } .ds-mrow-n { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-mrow-s { display: block; margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); } .ds-mrow-s.ds-hi { color: var(--ink-hi, #F0F5F9); }"
+    },
+    {
       "name": "Switch",
       "kind": "input",
       "refersTo": "switch-on",
-      "description": "Ligado é tinta cheia, não a marca.",
+      "description": "Ligado é tinta cheia, não a marca. Ocupado (gravando a mudança): fica onde estava até a confirmação, a 45 %, com aria-busy e aria-disabled, sem perder o foco, e ignora o clique.",
       "html": "<button class=\"ds-switch\" role=\"switch\" aria-checked=\"true\" aria-label=\"Transmitir para YouTube Principal\"><span class=\"ds-switch-knob\"></span></button>",
-      "css": ".ds-switch { position: relative; display: inline-flex; align-items: center; width: 40px; height: 24px; border-radius: 9999px; border: 1px solid var(--line-ctl, #3C4349); background: var(--panel, #202429); cursor: pointer; transition: background-color 150ms ease-out; } .ds-switch-knob { position: absolute; width: 16px; height: 16px; border-radius: 9999px; background: var(--ink-lo, #BEC7D1); transform: translateX(3px); transition: transform 150ms ease-out; } .ds-switch[aria-checked=\"true\"] { background: var(--ink-hi, #F0F5F9); border-color: var(--ink-hi, #F0F5F9); } .ds-switch[aria-checked=\"true\"] .ds-switch-knob { background: var(--bg, #111315); transform: translateX(18px); } .ds-switch:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+      "css": ".ds-switch { position: relative; display: inline-flex; align-items: center; width: 40px; height: 24px; border-radius: 9999px; border: 1px solid var(--line-ctl, #3C4349); background: var(--panel, #202429); cursor: pointer; transition: background-color 150ms ease-out; } .ds-switch-knob { position: absolute; width: 16px; height: 16px; border-radius: 9999px; background: var(--ink-lo, #BEC7D1); transform: translateX(3px); transition: transform 150ms ease-out; } .ds-switch[aria-checked=\"true\"] { background: var(--ink-hi, #F0F5F9); border-color: var(--ink-hi, #F0F5F9); } .ds-switch[aria-checked=\"true\"] .ds-switch-knob { background: var(--bg, #111315); transform: translateX(18px); } .ds-switch:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-switch[aria-busy=\"true\"] { opacity: 0.45; cursor: progress; }"
+    },
+    {
+      "name": "Caixa de seleção",
+      "kind": "input",
+      "refersTo": "checkbox",
+      "description": "CaixaDeSelecao: a linha rotulada inteira (44px) é o alvo; caixa de 20px/5px, desmarcada em borda --ink-dim sobre --well, marcada em tinta cheia --ink-hi com ✓ em --bg. Nunca azul.",
+      "html": "<div class=\"ds-cx-grid\"><label class=\"ds-cx\"><span class=\"ds-cx-box\"><input type=\"checkbox\" checked><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></span><span><span class=\"ds-cx-nome\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" class=\"ds-cx-ic\"><path d=\"M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17\"/><path d=\"m10 15 5-3-5-3z\"/></svg>YouTube</span><span class=\"ds-cx-estado\">pronto</span></span></label><label class=\"ds-cx\"><span class=\"ds-cx-box\"><input type=\"checkbox\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></span><span><span class=\"ds-cx-nome\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" class=\"ds-cx-ic\"><path d=\"M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7\"/></svg>Twitch</span><span class=\"ds-cx-estado\">não conectado</span></span></label></div>",
+      "css": ".ds-cx-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; max-width: 400px; font-family: Poppins, system-ui, sans-serif; } .ds-cx { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 0; cursor: pointer; } .ds-cx-box { position: relative; display: inline-flex; width: 20px; height: 20px; flex-shrink: 0; } .ds-cx-box input { appearance: none; margin: 0; width: 20px; height: 20px; border-radius: 5px; border: 1px solid var(--ink-dim, #A2ACB7); background: var(--well, #0A0B0C); cursor: pointer; transition: background-color 150ms, border-color 150ms; } .ds-cx-box input:checked { background: var(--ink-hi, #F0F5F9); border-color: var(--ink-hi, #F0F5F9); } .ds-cx-box input:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-cx-box svg { position: absolute; inset: 0; margin: auto; color: var(--bg, #111315); opacity: 0; pointer-events: none; } .ds-cx-box input:checked + svg { opacity: 1; } .ds-cx-nome { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-hi, #F0F5F9); } .ds-cx-ic { color: var(--ink-lo, #BEC7D1); flex-shrink: 0; } .ds-cx-estado { display: block; font-size: 12px; line-height: 1.33; color: var(--ink-lo, #BEC7D1); }"
     },
     {
       "name": "Segmentado",
@@ -128,8 +742,8 @@
       "name": "Linha de ação",
       "kind": "custom",
       "refersTo": "row-action",
-      "description": "Unidade de Configurações: título, frase, chevron; separada por linha de 1px.",
-      "html": "<ul class=\"ds-rows\"><li><button class=\"ds-row\"><span><span class=\"ds-row-t\">Webhooks</span><span class=\"ds-row-d\">Avisos para outros sistemas quando a live começa, termina ou recebe um evento.</span></span><svg class=\"ds-row-i\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></button></li></ul>",
+      "description": "Unidade de Configurações: título, frase, chevron; separada por linha de 1px. Aceita um valor à direita (lateral), como o preço na lista de planos.",
+      "html": "<ul class=\"ds-rows\"><li><button class=\"ds-row\"><span><span class=\"ds-row-t\">Plano e cobrança</span><span class=\"ds-row-d\">Seu plano e o que cada plano inclui.</span></span><svg class=\"ds-row-i\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></button></li></ul>",
       "css": ".ds-rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line, #30363B); border-bottom: 1px solid var(--line, #30363B); } .ds-row { display: flex; width: 100%; align-items: center; gap: 16px; padding: 16px 0; text-align: left; background: none; border: 0; cursor: pointer; font-family: Poppins, system-ui, sans-serif; } .ds-row > span { flex: 1; min-width: 0; } .ds-row-t { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-row-d { display: block; margin-top: 4px; font-size: 12px; color: var(--ink-lo, #BEC7D1); } .ds-row-i { flex-shrink: 0; color: var(--ink-lo, #BEC7D1); transition: transform 200ms ease-out, color 150ms; } .ds-row:hover .ds-row-i { color: var(--ink-hi, #F0F5F9); transform: translateX(2px); } .ds-row:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; border-radius: 4px; }"
     },
     {
@@ -139,29 +753,258 @@
       "description": "Só a hora em mono tabular; as palavras na fonte do texto.",
       "html": "<p class=\"ds-meta\">Hoje, às <span class=\"ds-mono\">20:00</span> · YouTube</p>",
       "css": ".ds-meta { font-family: Poppins, system-ui, sans-serif; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); } .ds-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; color: var(--ink, #D9E1EA); }"
+    },
+    {
+      "name": "Registro (dados da conta)",
+      "kind": "custom",
+      "refersTo": "record-row",
+      "description": "dl de página inteira fechado por linhas: rótulo sobre valor, linha de origem opcional e no máximo uma ação de texto à direita (alvo de 44px). Sem cor em repouso.",
+      "html": "<dl class=\"ds-rec\"><div class=\"ds-rec-row\"><dt class=\"ds-rec-k\">Nome</dt><dd class=\"ds-rec-v\">Davi Gonçalves</dd><dd class=\"ds-rec-a\"><button type=\"button\" class=\"ds-rec-edit\">Editar<span class=\"ds-sr\"> nome</span></button></dd></div><div class=\"ds-rec-row\"><dt class=\"ds-rec-k\">E-mail</dt><dd class=\"ds-rec-v\">voce@exemplo.com</dd><dd class=\"ds-rec-src\">Vem da conta Google com que você entra.</dd></div></dl>",
+      "css": ".ds-rec { font-family: Poppins, system-ui, sans-serif; margin: 0; max-width: 768px; border-top: 1px solid var(--line, #30363B); border-bottom: 1px solid var(--line, #30363B); } .ds-rec > div + div { border-top: 1px solid var(--line, #30363B); } .ds-rec-row { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 16px; padding: 16px 0; } .ds-rec-row dd { margin: 0; } .ds-rec-row .ds-rec-a { grid-column: 2; grid-row: 1 / span 2; } .ds-rec-k { font-size: 14px; font-weight: 500; line-height: 20px; color: var(--ink-hi, #F0F5F9); } .ds-rec-v { grid-column: 1; margin-top: 4px !important; font-size: 14px; line-height: 20px; color: var(--ink, #D9E1EA); overflow-wrap: anywhere; } .ds-rec-src { grid-column: 1; margin-top: 8px !important; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); text-wrap: pretty; } .ds-rec-edit { display: inline-flex; align-items: center; min-height: 44px; margin: -12px 0; background: none; border: 0; padding: 0; font: inherit; font-size: 14px; color: var(--ink-lo, #BEC7D1); cursor: pointer; text-underline-offset: 4px; transition: color 150ms; } .ds-rec-edit:hover { color: var(--ink-hi, #F0F5F9); text-decoration: underline; } .ds-rec-edit:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; border-radius: 4px; } .ds-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }"
+    },
+    {
+      "name": "Registro editando (falha ao salvar)",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A linha do nome virou o campo no lugar: rótulo, campo de 44px, dica, a linha role=\"alert\" de falha ao salvar (tinta alta, nunca carmim) e as ações Cancelar + Salvar nome.",
+      "html": "<form class=\"ds-ed\" onsubmit=\"return false\"><label class=\"ds-ed-l\" for=\"ds-nome\">Nome</label><input id=\"ds-nome\" class=\"ds-ed-in\" type=\"text\" value=\"Davi Gonçalves\" aria-describedby=\"ds-nome-dica\"><p id=\"ds-nome-dica\" class=\"ds-ed-hint\">O primeiro nome aparece no palco do estúdio.</p><p role=\"alert\" class=\"ds-ed-fail\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>Sua sessão expirou, então o nome não foi salvo. <button type=\"button\" class=\"ds-ed-link\">Entrar de novo</button></span></p><div class=\"ds-ed-act\"><button type=\"button\" class=\"ds-ed-ghost\">Cancelar</button><button type=\"submit\" class=\"ds-ed-pri\">Salvar nome</button></div></form>",
+      "css": ".ds-ed { font-family: Poppins, system-ui, sans-serif; max-width: 768px; padding: 16px 0; border-top: 1px solid var(--line, #30363B); border-bottom: 1px solid var(--line, #30363B); } .ds-ed-l { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-ed-in { display: block; width: 100%; height: 44px; margin-top: 8px; padding: 0 12px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--well, #0A0B0C); color: var(--ink-hi, #F0F5F9); font: inherit; font-size: 14px; } .ds-ed-in:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-ed-hint { margin: 8px 0 0; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); text-wrap: pretty; } .ds-ed-fail { display: flex; align-items: flex-start; gap: 8px; margin: 16px 0 0; font-size: 14px; line-height: 20px; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-ed-fail svg { flex-shrink: 0; margin-top: 2px; } .ds-ed-link { background: none; border: 0; padding: 0; font: inherit; color: var(--ink-hi, #F0F5F9); text-decoration: underline; text-decoration-color: var(--line-ctl, #3C4349); text-underline-offset: 4px; cursor: pointer; } .ds-ed-link:hover { text-decoration-color: var(--ink-hi, #F0F5F9); } .ds-ed-act { display: flex; flex-direction: column-reverse; gap: 12px; margin-top: 20px; } @media (min-width: 640px) { .ds-ed-act { flex-direction: row; justify-content: flex-end; } } .ds-ed-ghost, .ds-ed-pri { font: inherit; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 16px; cursor: pointer; transition: filter 110ms linear, background-color 110ms linear; } .ds-ed-ghost { background: transparent; color: var(--ink, #D9E1EA); border: 1px solid var(--line-ctl, #3C4349); } .ds-ed-ghost:hover { background: var(--raise, #282D31); } .ds-ed-pri { background: var(--color-brand-deep, #2C5FB0); color: #fff; border: 0; } .ds-ed-pri:hover { filter: brightness(1.1); } .ds-ed-pri:active { filter: brightness(0.93); } .ds-ed-ghost:focus-visible, .ds-ed-pri:focus-visible, .ds-ed-link:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Rodapé de diálogo com falha ao salvar",
+      "kind": "custom",
+      "refersTo": "modal-md",
+      "description": "Rodapé do Modal md (\"Novo webinar\"): a linha de falha role=\"alert\" fica 12px acima das ações, fora do corpo que rola; Cancelar fantasma e o primário com o verbo. Enquanto grava, o primário fica em loading, Cancelar e o X desabilitam, e Esc e o clique no fundo não fecham (ocupado). No modal de canais (mestre-detalhe), a mesma linha fica 12px acima das ações do detalhe, que moram no formulário da plataforma.",
+      "html": "<div class=\"ds-rod\"><p role=\"alert\" class=\"ds-rod-falha\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>Sua sessão expirou, então o webinar não foi agendado. <button type=\"button\" class=\"ds-rod-link\">Entrar de novo</button></span></p><div class=\"ds-rod-acoes\"><button type=\"button\" class=\"ds-rod-ghost\">Cancelar</button><button type=\"button\" class=\"ds-rod-prim\">Agendar webinar</button></div></div>",
+      "css": ".ds-rod { font-family: Poppins, system-ui, sans-serif; max-width: 448px; padding: 12px 20px 20px; border-top: 1px solid var(--line, #30363B); background: var(--surface, #181B1F); } .ds-rod-falha { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 12px; font-size: 14px; line-height: 1.43; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-rod-falha svg { flex-shrink: 0; margin-top: 2px; } .ds-rod-link { background: none; border: 0; padding: 0; font: inherit; color: var(--ink-hi, #F0F5F9); text-decoration: underline; text-decoration-color: var(--line-ctl, #3C4349); text-underline-offset: 4px; cursor: pointer; } .ds-rod-link:focus-visible, .ds-rod-ghost:focus-visible, .ds-rod-prim:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-rod-acoes { display: flex; justify-content: flex-end; gap: 12px; } .ds-rod-ghost, .ds-rod-prim { font: inherit; font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 16px; cursor: pointer; transition: filter 110ms linear; } .ds-rod-ghost { background: transparent; color: var(--ink, #D9E1EA); border: 1px solid var(--line-ctl, #3C4349); } .ds-rod-ghost:hover { background: var(--raise, #282D31); } .ds-rod-prim { background: #2C5FB0; color: #fff; border: 0; } .ds-rod-prim:hover { filter: brightness(1.1); } .ds-rod-prim:active { filter: brightness(0.93); }"
+    },
+    {
+      "name": "Linha de canal gravando e com falha (Canais)",
+      "kind": "custom",
+      "refersTo": "record-row",
+      "description": "A página Canais pela Regra do Salvo de Verdade: enquanto grava, \"Salvando…\" (ou \"Removendo…\") no lugar do estado e o interruptor ocupado, onde estava; na falha, nada muda, e a linha role=\"alert\" fica sob o canal, 12px abaixo e recuada até a coluna do nome, com \"Tentar de novo\".",
+      "html": "<ul class=\"ds-cn\"><li class=\"ds-cn-li\"><div class=\"ds-cn-row\"><span class=\"ds-cn-ic\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17\"/><path d=\"m10 15 5-3-5-3z\"/></svg></span><div class=\"ds-cn-t\"><p class=\"ds-cn-n\">YouTube Principal</p><p class=\"ds-cn-s\">YouTube · Salvando…</p></div><button type=\"button\" class=\"ds-cn-sw\" role=\"switch\" aria-checked=\"true\" aria-busy=\"true\" aria-disabled=\"true\" aria-label=\"Transmitir para YouTube Principal\"><span class=\"ds-cn-knob\"></span></button></div></li><li class=\"ds-cn-li\"><div class=\"ds-cn-row\"><span class=\"ds-cn-ic\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7\"/></svg></span><div class=\"ds-cn-t\"><p class=\"ds-cn-n\">Twitch</p><p class=\"ds-cn-s\">Twitch · Desligado</p></div><button type=\"button\" class=\"ds-cn-sw\" role=\"switch\" aria-checked=\"false\" aria-label=\"Transmitir para Twitch\"><span class=\"ds-cn-knob\"></span></button></div><p role=\"alert\" class=\"ds-cn-fail\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>Sem conexão com a sua conta agora, então Twitch não foi ligado. <button type=\"button\" class=\"ds-cn-link\">Tentar de novo</button></span></p></li></ul>",
+      "css": ".ds-cn { font-family: Poppins, system-ui, sans-serif; max-width: 768px; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line, #30363B); border-bottom: 1px solid var(--line, #30363B); } .ds-cn-li { padding: 16px 0; } .ds-cn-li + .ds-cn-li { border-top: 1px solid var(--line, #30363B); } .ds-cn-row { display: flex; align-items: center; gap: 16px; } .ds-cn-ic { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 16px; border: 1px solid var(--line, #30363B); color: var(--ink, #D9E1EA); } .ds-cn-t { min-width: 0; flex: 1; } .ds-cn-n { margin: 0; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-cn-s { margin: 4px 0 0; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); } .ds-cn-sw { position: relative; display: inline-flex; flex-shrink: 0; align-items: center; width: 40px; height: 24px; border-radius: 9999px; border: 1px solid var(--line-ctl, #3C4349); background: var(--panel, #202429); cursor: pointer; transition: background-color 150ms ease-out; } .ds-cn-sw[aria-checked=\"true\"] { background: var(--ink-hi, #F0F5F9); border-color: var(--ink-hi, #F0F5F9); } .ds-cn-sw[aria-busy=\"true\"] { opacity: 0.45; cursor: progress; } .ds-cn-sw:focus-visible, .ds-cn-link:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; } .ds-cn-knob { position: absolute; width: 16px; height: 16px; border-radius: 9999px; background: var(--ink-lo, #BEC7D1); transform: translateX(3px); transition: transform 150ms ease-out; } .ds-cn-sw[aria-checked=\"true\"] .ds-cn-knob { background: var(--bg, #111315); transform: translateX(18px); } .ds-cn-fail { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0; padding-left: 56px; font-size: 14px; line-height: 20px; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-cn-fail svg { flex-shrink: 0; margin-top: 2px; } .ds-cn-link { background: none; border: 0; padding: 0; font: inherit; color: var(--ink-hi, #F0F5F9); text-decoration: underline; text-decoration-color: var(--line-ctl, #3C4349); text-underline-offset: 4px; cursor: pointer; } .ds-cn-link:hover { text-decoration-color: var(--ink-hi, #F0F5F9); }"
+    },
+    {
+      "name": "Lista de planos",
+      "kind": "custom",
+      "refersTo": "plan-row",
+      "description": "Linhas de ação expansíveis por plano: nome (e \"· seu plano\"), canais e pessoas em todos e horas de transmissão só nos pagos, e o preço na coluna lateral; abre a lista completa com ✓. Sem cor e sem botão de compra. semLinhaFinal num diálogo; semLinhaInicial quando a linha de cima já existe fora da lista.",
+      "html": "<ul class=\"ds-pls\"><li><button class=\"ds-pl\" aria-expanded=\"false\"><span class=\"ds-pl-m\"><span class=\"ds-pl-t\">Plano Gratuito · seu plano</span><span class=\"ds-pl-d\">2&nbsp;canais ao mesmo tempo · 3&nbsp;pessoas na tela</span></span><span class=\"ds-pl-p\"><span class=\"ds-pl-p1\">Grátis</span><span class=\"ds-pl-p2\">por 30 dias</span></span><svg class=\"ds-pl-i\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button></li><li><button class=\"ds-pl\" aria-expanded=\"true\"><span class=\"ds-pl-m\"><span class=\"ds-pl-t\">Standard</span><span class=\"ds-pl-d\">3&nbsp;canais ao mesmo tempo · 6&nbsp;pessoas na tela · 3&nbsp;horas de transmissão ao&nbsp;vivo</span></span><span class=\"ds-pl-p\"><span class=\"ds-pl-p1\">R$&nbsp;39,90/mês</span><span class=\"ds-pl-p2\">R$&nbsp;478,80 por ano</span></span><svg class=\"ds-pl-i\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button><ul class=\"ds-pl-f\"><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Transmissão simultânea para 3 canais</span></li><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Destinos RTMP personalizados</span></li><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Compartilhamento de tela</span></li></ul></li></ul>",
+      "css": ".ds-pls { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line, #30363B); border-bottom: 1px solid var(--line, #30363B); } .ds-pls > li + li { border-top: 1px solid var(--line, #30363B); } .ds-pl { display: flex; width: 100%; align-items: center; gap: 16px; padding: 16px 0; text-align: left; background: none; border: 0; cursor: pointer; font-family: Poppins, system-ui, sans-serif; } .ds-pl-m { flex: 1; min-width: 0; } .ds-pl-t { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-pl-d { display: block; margin-top: 4px; font-size: 12px; color: var(--ink-lo, #BEC7D1); } .ds-pl-p { flex-shrink: 0; text-align: right; font-variant-numeric: tabular-nums; } .ds-pl-p1 { display: block; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-pl-p2 { display: block; font-size: 12px; color: var(--ink-lo, #BEC7D1); } .ds-pl-i { flex-shrink: 0; color: var(--ink-lo, #BEC7D1); transition: transform 200ms ease-out, color 150ms; } .ds-pl:hover .ds-pl-i { color: var(--ink-hi, #F0F5F9); } .ds-pl[aria-expanded=\"true\"] .ds-pl-i { transform: rotate(180deg); } .ds-pl:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; border-radius: 4px; } .ds-pl-f { list-style: none; margin: 0; padding: 0 0 20px; display: grid; gap: 8px; } .ds-pl-f li { display: flex; align-items: flex-start; gap: 8px; font-family: Poppins, system-ui, sans-serif; font-size: 14px; color: var(--ink, #D9E1EA); } .ds-pl-f svg { margin-top: 4px; flex-shrink: 0; color: var(--ink-lo, #BEC7D1); }"
+    },
+    {
+      "name": "Seletor de período",
+      "kind": "input",
+      "refersTo": "segmented-active",
+      "description": "Segmentado Mensal / \"Anual, 20% menos\" na ação da seção Planos; reescreve os preços de todas as linhas.",
+      "html": "<div class=\"ds-seg\" role=\"group\" aria-label=\"Período de cobrança\"><button type=\"button\" aria-pressed=\"false\">Mensal</button><button type=\"button\" aria-pressed=\"true\">Anual, 20% menos</button></div>",
+      "css": ".ds-seg { display: inline-flex; padding: 2px; border: 1px solid var(--line-ctl, #3C4349); border-radius: 16px; } .ds-seg button { padding: 6px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink-lo, #BEC7D1); font-family: Poppins, system-ui, sans-serif; font-size: 14px; cursor: pointer; transition: color 150ms, background-color 150ms; } .ds-seg button:hover { color: var(--ink-hi, #F0F5F9); } .ds-seg button[aria-pressed=\"true\"] { background: var(--raise, #282D31); color: var(--ink-hi, #F0F5F9); } .ds-seg button:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Botão do Google (Entrar e Criar conta)",
+      "kind": "button",
+      "refersTo": "button-google",
+      "description": "Fantasma na largura toda, 44px, com o G nas cores do Google (exceção à Regra da Marca Monocromática). É a ação da tela e não tem cor. A falha vem acima, na linha role=\"alert\" da falha ao salvar.",
+      "html": "<div class=\"ds-g\"><p role=\"alert\" class=\"ds-g-falha\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v4\"/><path d=\"M12 16h.01\"/></svg><span>O login com Google ainda não está ligado neste ambiente.</span></p><button type=\"button\" class=\"ds-g-btn\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"#EA4335\" d=\"M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z\"/><path fill=\"#4285F4\" d=\"M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z\"/><path fill=\"#FBBC05\" d=\"M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12s.7 2.3 1.9 4.7l3.7-2.9z\"/><path fill=\"#34A853\" d=\"M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z\"/></svg>Entrar com Google</button></div>",
+      "css": ".ds-g { font-family: Poppins, system-ui, sans-serif; max-width: 384px; } .ds-g-falha { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 32px; font-size: 14px; line-height: 1.43; color: var(--ink-hi, #F0F5F9); text-wrap: pretty; } .ds-g-falha svg { flex-shrink: 0; margin-top: 2px; } .ds-g-btn { display: flex; width: 100%; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 9px 18px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: transparent; color: var(--ink, #D9E1EA); font: inherit; font-size: 14px; font-weight: 600; line-height: 1.2; cursor: pointer; transition: background-color 110ms linear; } .ds-g-btn:hover { background: var(--raise, #282D31); } .ds-g-btn:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Cabeçalho público",
+      "kind": "nav",
+      "refersTo": "public-header",
+      "description": "Barra de 56px em --bg, linha embaixo, sticky: logo, \"Planos\" e \"Entrar\" como ações de texto e \"Criar conta\" fantasma. Sem menu de celular; a ação da tela aberta sai da barra.",
+      "html": "<header class=\"ds-ph\"><span class=\"ds-ph-logo\">PwStreamer</span><nav class=\"ds-ph-nav\" aria-label=\"Principal\"><button type=\"button\" class=\"ds-ph-t\">Planos</button><button type=\"button\" class=\"ds-ph-t\">Entrar</button><button type=\"button\" class=\"ds-ph-g\">Criar conta</button></nav></header>",
+      "css": ".ds-ph { position: sticky; top: 0; display: flex; align-items: center; gap: 16px; height: 56px; padding: 0 24px; background: var(--bg, #111315); border-bottom: 1px solid var(--line, #30363B); font-family: Poppins, system-ui, sans-serif; } .ds-ph-logo { font-size: 14px; font-weight: 600; color: var(--ink-hi, #F0F5F9); } .ds-ph-nav { margin-left: auto; display: flex; align-items: center; gap: 20px; } .ds-ph-t { min-height: 44px; background: none; border: 0; padding: 0; font: inherit; font-size: 14px; color: var(--ink-lo, #BEC7D1); text-underline-offset: 4px; cursor: pointer; transition: color 150ms; } .ds-ph-t:hover { color: var(--ink-hi, #F0F5F9); text-decoration: underline; } .ds-ph-g { min-height: 44px; padding: 9px 18px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: transparent; color: var(--ink, #D9E1EA); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 110ms linear; } .ds-ph-g:hover { background: var(--raise, #282D31); } .ds-ph-t:focus-visible, .ds-ph-g:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; border-radius: 4px; } @media (max-width: 639px) { .ds-ph-t:first-child { display: none; } }"
+    },
+    {
+      "name": "Captura do Painel com contorno",
+      "kind": "custom",
+      "refersTo": "capture-frame",
+      "description": "A única imagem do site: captura real do Painel no escopo console, com legenda que diz \"dados de exemplo\". O contorno de 2px em --ink-hi desliza entre regiões (300ms, cubic-bezier(0.16,1,0.3,1)) e escurece o resto, só com mouse.",
+      "html": "<figure class=\"ds-cap\"><div class=\"ds-cap-f\" data-surface=\"console\"><div class=\"ds-cap-img\" role=\"img\" aria-label=\"Captura do Painel com dados de exemplo\"></div><div class=\"ds-cap-c\" aria-hidden=\"true\"></div></div><figcaption class=\"ds-cap-l\">O Painel de verdade, com dados de exemplo.<span class=\"ds-cap-pista\"> Passe o mouse em “Já funciona”, abaixo, para ver cada parte nele.</span></figcaption></figure>",
+      "css": ".ds-cap { margin: 0; max-width: 560px; font-family: Poppins, system-ui, sans-serif; } .ds-cap-f { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--line, #30363B); } .ds-cap-img { aspect-ratio: 1280 / 912; background: #0A0B0C; } .ds-cap-c { position: absolute; left: 11.2%; top: 48.8%; width: 77.6%; height: 14.1%; border-radius: 12px; outline: 2px solid var(--ink-hi, #F0F5F9); box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.55); opacity: 0; pointer-events: none; transition: left 300ms cubic-bezier(0.16, 1, 0.3, 1), top 300ms cubic-bezier(0.16, 1, 0.3, 1), width 300ms cubic-bezier(0.16, 1, 0.3, 1), height 300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-cap:hover .ds-cap-c { opacity: 1; } .ds-cap-l { margin-top: 12px; font-size: 12px; line-height: 16px; color: var(--ink-lo, #BEC7D1); text-wrap: pretty; } .ds-cap-pista { display: none; } @media (pointer: fine) { .ds-cap-pista { display: inline; } } @media (prefers-reduced-motion: reduce) { .ds-cap-c { transition: none; } }"
+    },
+    {
+      "name": "Barra do estúdio",
+      "kind": "nav",
+      "refersTo": "studio-bar",
+      "description": "48px em --surface, linha embaixo: logo monocromático (leva ao Painel), \"Estúdio · {sessão}\", a ação de texto dos canais (a partir de md) e \"Sair do estúdio\" fantasma sm. Sem ar, sem cor.",
+      "html": "<header class=\"ds-sb\" data-surface=\"console\"><span class=\"ds-sb-logo\">PwStreamer</span><h1 class=\"ds-sb-t\">Estúdio<span class=\"ds-sb-s\"> · Aula de iluminação</span></h1><div class=\"ds-sb-r\"><button type=\"button\" class=\"ds-sb-c\">Canais: 2 de 3 prontos</button><button type=\"button\" class=\"ds-sb-g\">Sair do estúdio</button></div></header>",
+      "css": ".ds-sb { display: flex; align-items: center; gap: 16px; height: 48px; padding: 0 16px; background: var(--surface, #111315); border-bottom: 1px solid var(--line, #282D31); font-family: Poppins, system-ui, sans-serif; } .ds-sb-logo { font-size: 16px; font-weight: 900; color: var(--ink-hi, #F0F5F9); } .ds-sb-t { margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-sb-s { font-weight: 400; color: var(--ink-lo, #A2ACB7); } .ds-sb-r { margin-left: auto; display: flex; align-items: center; gap: 16px; } .ds-sb-c { min-height: 44px; background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--ink-lo, #A2ACB7); cursor: pointer; } .ds-sb-c:hover { color: var(--ink-hi, #F0F5F9); text-decoration: underline; } .ds-sb-g { padding: 5px 11px; border-radius: 10px; border: 1px solid var(--line-ctl, #3C4349); background: transparent; color: var(--ink, #D9E1EA); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; } .ds-sb-g:hover { background: var(--raise, #202429); } @media (max-width: 767px) { .ds-sb-c { display: none; } }"
+    },
+    {
+      "name": "Trilho de cenas",
+      "kind": "custom",
+      "refersTo": "scene-row",
+      "description": "As quatro cenas em linhas de altura fixa: nome em cima, estado em palavras embaixo. A linha do preview em --raise com aria-current; o estado do programa em 500 --ink-hi. Altura fixa para o corte não mexer a lista.",
+      "html": "<section class=\"ds-sc\" data-surface=\"console\" aria-labelledby=\"ds-sc-t\"><h2 id=\"ds-sc-t\" class=\"ds-sc-t\">Cenas</h2><ul class=\"ds-sc-l\"><li><button type=\"button\" class=\"ds-sc-r\"><span class=\"ds-sc-n\">Câmera</span><span class=\"ds-sc-e ds-sc-pgm\">programa</span></button></li><li><button type=\"button\" class=\"ds-sc-r\" aria-current=\"true\"><span class=\"ds-sc-n\">Tela com câmera</span><span class=\"ds-sc-e\">preview</span></button></li><li><button type=\"button\" class=\"ds-sc-r\"><span class=\"ds-sc-n\">Câmera e tela lado a lado</span></button></li><li><button type=\"button\" class=\"ds-sc-r\"><span class=\"ds-sc-n\">Tela</span><span class=\"ds-sc-e\">sem tela compartilhada</span></button></li></ul></section>",
+      "css": ".ds-sc { width: 224px; padding: 16px 8px; background: var(--surface, #111315); font-family: Poppins, system-ui, sans-serif; } .ds-sc-t { margin: 0; padding: 0 8px 8px; font-size: 12px; font-weight: 400; color: var(--ink-lo, #A2ACB7); } .ds-sc-l { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; } .ds-sc-r { display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: 56px; padding: 8px; border: 0; border-radius: 16px; background: transparent; text-align: left; font: inherit; cursor: pointer; transition: background-color 150ms; } .ds-sc-r:hover { background: var(--panel, #181B1F); } .ds-sc-r[aria-current=\"true\"] { background: var(--raise, #202429); } .ds-sc-n { font-size: 14px; color: var(--ink-hi, #F0F5F9); } .ds-sc-e { font-size: 12px; color: var(--ink-lo, #A2ACB7); } .ds-sc-pgm { font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-sc-r:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Teclas de transição (Corte e Fusão)",
+      "kind": "button",
+      "refersTo": "transition-key",
+      "description": "A tecla elevada: --raise com borda --line-ctl, borda --ink-hi e fundo --panel no aperto, duração em mono dentro. Desativadas quando nada muda, com a frase embaixo.",
+      "html": "<div class=\"ds-tk\" data-surface=\"console\"><div class=\"ds-tk-g\"><button type=\"button\" class=\"ds-tk-b\"><span>Corte</span><span class=\"ds-tk-d\">0&nbsp;ms</span></button><button type=\"button\" class=\"ds-tk-b\"><span>Fusão</span><span class=\"ds-tk-d\">400&nbsp;ms</span></button></div></div>",
+      "css": ".ds-tk { width: 192px; font-family: Poppins, system-ui, sans-serif; } .ds-tk-g { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .ds-tk-b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: filter 110ms linear; } .ds-tk-b:hover { border-color: var(--ink-lo, #A2ACB7); } .ds-tk-b:active { border-color: var(--ink-hi, #F0F5F9); background: var(--panel, #181B1F); } .ds-tk-b:disabled { opacity: 0.45; cursor: default; } .ds-tk-d { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; font-size: 12px; font-weight: 400; color: var(--ink-lo, #A2ACB7); } .ds-tk-b:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Monitor do console (programa e preview)",
+      "kind": "custom",
+      "refersTo": "monitor-preview",
+      "description": "Rótulo fora da imagem (papel xs 500 --ink-hi, cena xs --ink-lo); moldura reta com anel de 2px, n-14 no programa e n-89 no preview. Nada sobre a imagem que não iria ao ar (Regra do Preview Fiel).",
+      "html": "<div class=\"ds-mon\" data-surface=\"console\"><section class=\"ds-mon-m\" aria-label=\"Programa: Câmera\"><div class=\"ds-mon-r\"><h2 class=\"ds-mon-p\">Programa</h2><span class=\"ds-mon-c\">Câmera</span></div><div class=\"ds-mon-f ds-mon-pgm\"><div class=\"ds-mon-i\"></div></div></section><section class=\"ds-mon-m\" aria-label=\"Preview: Tela com câmera\"><div class=\"ds-mon-r\"><h2 class=\"ds-mon-p\">Preview</h2><span class=\"ds-mon-c\">Tela com câmera</span></div><div class=\"ds-mon-f ds-mon-pvw\"><div class=\"ds-mon-i\"></div></div></section></div>",
+      "css": ".ds-mon { display: flex; flex-direction: column; gap: 16px; width: 360px; font-family: Poppins, system-ui, sans-serif; } .ds-mon-r { display: flex; align-items: baseline; gap: 8px; height: 16px; margin-bottom: 8px; } .ds-mon-p { margin: 0; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-mon-c { font-size: 12px; line-height: 16px; color: var(--ink-lo, #A2ACB7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-mon-f { padding: 2px; border-radius: 0; } .ds-mon-pgm { background: #202429; } .ds-mon-pvw { background: #D9E1EA; } .ds-mon-i { aspect-ratio: 16 / 9; background: var(--stage, #000000); }"
+    },
+    {
+      "name": "No próximo corte",
+      "kind": "custom",
+      "refersTo": "next-cut",
+      "description": "O que o corte leva, em palavras: caixa reta em --panel com borda e divisões de 1px --line, altura do conteúdo, rótulo fora. Vazia: \"Nada muda: o preview está igual ao programa.\".",
+      "html": "<section class=\"ds-nc\" data-surface=\"console\" aria-labelledby=\"ds-nc-t\"><h2 id=\"ds-nc-t\" class=\"ds-nc-t\">No próximo corte</h2><ul class=\"ds-nc-l\"><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg><span>Cena: Tela com câmera</span></li><li><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg><span>Card da câmera: posição e formato</span></li></ul></section>",
+      "css": ".ds-nc { width: 240px; font-family: Poppins, system-ui, sans-serif; } .ds-nc-t { margin: 0 0 8px; height: 16px; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-nc-l { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line, #282D31); background: var(--panel, #181B1F); } .ds-nc-l li { display: flex; align-items: flex-start; gap: 8px; padding: 10px 16px; font-size: 14px; color: var(--ink, #D9E1EA); } .ds-nc-l li + li { border-top: 1px solid var(--line, #282D31); } .ds-nc-l svg { flex-shrink: 0; margin-top: 4px; color: var(--ink-lo, #A2ACB7); }"
+    },
+    {
+      "name": "Controle da bandeja com medidor",
+      "kind": "button",
+      "refersTo": "tray-control-on",
+      "description": "Controle de 44px com ícone e palavra e aria-pressed: ligado em --raise --ink-hi, desligado no --well --ink-lo. Medidor ao lado: trilho reto de 8px segmentado, --ink-lo, --ink-hi acima de −12 dB, pico de 2px, leitura em mono. Sem cor.",
+      "html": "<footer class=\"ds-tr\" data-surface=\"console\"><button type=\"button\" class=\"ds-tr-b\" aria-pressed=\"true\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"/><line x1=\"12\" x2=\"12\" y1=\"19\" y2=\"22\"/></svg><span>Microfone</span></button><span class=\"ds-tr-m\" aria-hidden=\"true\"><span class=\"ds-tr-t\"><span class=\"ds-tr-n\"></span><span class=\"ds-tr-p\"></span><span class=\"ds-tr-s\"></span></span><span class=\"ds-tr-l\">−25 dB</span></span><button type=\"button\" class=\"ds-tr-b\" aria-pressed=\"false\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 3h18v18H3z\"/><path d=\"M3 9h18\"/><path d=\"M3 15h18\"/><path d=\"M9 3v18\"/><path d=\"M15 3v18\"/></svg><span>Guias</span></button><p class=\"ds-tr-f\">Transmitir para os canais ainda não está no&nbsp;ar.</p></footer>",
+      "css": ".ds-tr { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--surface, #111315); border-top: 1px solid var(--line, #282D31); font-family: Poppins, system-ui, sans-serif; } .ds-tr-b { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 9px 18px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--well, #000000); color: var(--ink-lo, #A2ACB7); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; } .ds-tr-b[aria-pressed=\"true\"] { background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); } .ds-tr-m { display: flex; align-items: center; gap: 8px; } .ds-tr-t { position: relative; display: block; width: 96px; height: 8px; overflow: hidden; background: var(--well, #000000); } .ds-tr-n { position: absolute; inset: 0 40% 0 0; background: var(--ink-lo, #A2ACB7); } .ds-tr-p { position: absolute; top: 0; bottom: 0; left: 70%; width: 2px; background: var(--ink-hi, #F0F5F9); } .ds-tr-s { position: absolute; inset: 0; background-image: repeating-linear-gradient(90deg, transparent 0 5px, var(--surface, #111315) 5px 6px); } .ds-tr-l { width: 48px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: var(--ink-lo, #A2ACB7); } .ds-tr-f { margin: 0 0 0 auto; font-size: 12px; color: var(--ink-lo, #A2ACB7); text-wrap: pretty; } @media (max-width: 639px) { .ds-tr-b { width: 44px; padding: 0; justify-content: center; } .ds-tr-b span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .ds-tr-t { width: 64px; } .ds-tr-l { display: none; } } @media (max-width: 1023px) { .ds-tr-f { display: none; } }"
+    },
+    {
+      "name": "Trilho de ferramentas do estúdio",
+      "kind": "nav",
+      "refersTo": "tool-tab-active",
+      "description": "Tablist vertical de 72px na borda da coluna da direita, com seis abas (Chat, Gráficos, Roteiro, QR code, Mídia, Câmera): 56px, ícone de 18px sobre a palavra em text-xs; a aberta em --raise --ink-hi. A linha entre painel e trilho é do painel.",
+      "html": "<div class=\"ds-tt\" data-surface=\"console\" role=\"tablist\" aria-orientation=\"vertical\" aria-label=\"Ferramentas\"><button type=\"button\" role=\"tab\" class=\"ds-tt-b\" aria-selected=\"true\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z\"/><circle cx=\"12\" cy=\"13\" r=\"3\"/></svg><span>Câmera</span></button></div>",
+      "css": ".ds-tt { display: flex; flex-direction: column; gap: 4px; width: 72px; padding: 6px; background: var(--surface, #111315); font-family: Poppins, system-ui, sans-serif; } .ds-tt-b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 56px; padding: 0 4px; border: 0; border-radius: 16px; background: transparent; color: var(--ink-lo, #A2ACB7); font: inherit; font-size: 12px; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-tt-b:hover { background: var(--panel, #181B1F); color: var(--ink-hi, #F0F5F9); } .ds-tt-b[aria-selected=\"true\"] { background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); } .ds-tt-b:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
+    },
+    {
+      "name": "Seção do painel (estúdio)",
+      "kind": "custom",
+      "refersTo": "corner-picker-selected",
+      "description": "SecaoDoPainel com um item de lista e o SeletorDeCanto: seção aberta por linha, sem cartão; título text-sm 500 --ink-hi; estado sob o nome no peso das cenas; cantos 2×2 de 44px com o marcado em --raise.",
+      "html": "<section class=\"ds-sp\" data-surface=\"console\" aria-labelledby=\"ds-sp-t\"><h3 id=\"ds-sp-t\" class=\"ds-sp-t\">Banner</h3><p class=\"ds-sp-d\">Título e subtítulo, embaixo ou em cima da imagem.</p><ul class=\"ds-sp-l\"><li><p class=\"ds-sp-n\">Ana Souza</p><p class=\"ds-sp-e\"><span class=\"ds-sp-pg\">no programa</span> · <span class=\"ds-sp-ns\">não salvo</span></p></li></ul><div class=\"ds-sp-c\" role=\"radiogroup\" aria-label=\"Canto do logo\"><button type=\"button\" role=\"radio\" aria-checked=\"false\" aria-label=\"Em cima, à esquerda\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 17V7h10\"/><path d=\"M17 17 7 7\"/></svg></button><button type=\"button\" role=\"radio\" aria-checked=\"true\" aria-label=\"Em cima, à direita\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 7h10v10\"/><path d=\"M7 17 17 7\"/></svg></button><button type=\"button\" role=\"radio\" aria-checked=\"false\" aria-label=\"Embaixo, à esquerda\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M17 7 7 17\"/><path d=\"M17 17H7V7\"/></svg></button><button type=\"button\" role=\"radio\" aria-checked=\"false\" aria-label=\"Embaixo, à direita\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m7 7 10 10\"/><path d=\"M17 7v10H7\"/></svg></button></div></section>",
+      "css": ".ds-sp { width: 260px; padding: 16px; border-top: 1px solid var(--line, #282D31); background: var(--surface, #111315); font-family: Poppins, system-ui, sans-serif; } .ds-sp-t { margin: 0; min-height: 32px; display: flex; align-items: center; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-sp-d { margin: 4px 0 0; font-size: 12px; color: var(--ink-lo, #A2ACB7); } .ds-sp-l { list-style: none; margin: 12px 0; padding: 12px 0; border-block: 1px solid var(--line, #282D31); } .ds-sp-n { margin: 0; font-size: 14px; color: var(--ink-hi, #F0F5F9); } .ds-sp-e { margin: 2px 0 0; font-size: 12px; color: var(--ink-lo, #A2ACB7); } .ds-sp-pg { font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-sp-ns { color: var(--ink-hi, #F0F5F9); } .ds-sp-c { display: grid; grid-template-columns: repeat(2, 44px); gap: 4px; width: fit-content; padding: 2px; border: 1px solid var(--line-ctl, #3C4349); border-radius: 16px; } .ds-sp-c button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--ink-lo, #A2ACB7); font: inherit; cursor: pointer; transition: color 150ms; } .ds-sp-c button:hover { color: var(--ink-hi, #F0F5F9); } .ds-sp-c button[aria-checked=\"true\"] { background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); } .ds-sp-c button:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     }
   ],
   "narrative": {
     "northStar": "O Lançador",
-    "overview": "A casca do PwStreamer (tudo fora do estúdio) existe para levar o anfitrião ao ar. Cada tela tem uma ação, e o resto é estado. No Painel, essa ação é \"Entrar no estúdio\". A tela diz o que vem a seguir, para onde a live vai e o que falta consertar. Não mostra indicadores, cartões nem nada do que o produto sabe fazer sem que a tarefa do momento peça. É uma coluna estreita sobre uma rampa azul-marinho de 18 degraus, em Poppins e em quatro tamanhos. A estrutura é feita de linhas de 1px.\n\nA cor é escassa de propósito. O azul da marca preenche só o botão da ação da tela, e o vermelho do tally pertence ao ar (e, como texto, às ações que apagam algo). Todo o resto, inclusive os estados \"ligado\", \"selecionado\" e \"atual\", sobe ou desce na rampa neutra. O estado é dito por ícone e palavra, e não por matiz. A rampa foi gerada com luminância casada contra o cinza neutro, e por isso o marinho não custa contraste.\n\nA densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo ([data-surface=\"console\"]), escuro sempre, mesmo no tema claro, porque o operador se adapta à luminância do entorno do vídeo e ela não pode mudar no meio de uma live.",
+    "overview": "A casca do PwStreamer (tudo fora do estúdio) existe para levar o anfitrião ao ar. Cada tela tem uma ação, e o resto é estado. No Painel, essa ação é \"Entrar no estúdio\". A tela diz o que vem a seguir, para onde a live vai e o que falta consertar. Não mostra indicadores, cartões nem nada do que o produto sabe fazer sem que a tarefa do momento peça. É uma coluna estreita sobre uma rampa azul-marinho de 18 degraus, em Poppins e em quatro tamanhos. A estrutura é feita de linhas de 1px.\n\nA cor é escassa de propósito. O azul da marca preenche só o botão da ação da tela, e o vermelho do tally pertence ao ar (e, como texto, às ações que apagam algo). Todo o resto, inclusive os estados \"ligado\", \"selecionado\" e \"atual\", sobe ou desce na rampa neutra. O estado é dito por ícone e palavra, e não por matiz. A rampa foi gerada com luminância casada contra o cinza neutro, e por isso o marinho não custa contraste.\n\nO site público (início, Entrar e Criar conta) fala com a mesma voz. A ação da tela é \"Criar conta\", a única imagem é uma captura real do Painel, e o que ainda não está no ar é dito em \"Em breve\", em palavras, sem promessa.\n\nA densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo ([data-surface=\"console\"]), escuro sempre, mesmo no tema claro, porque o operador se adapta à luminância do entorno do vídeo e ela não pode mudar no meio de uma live.\n\nO estúdio é uma mesa de corte para montar e ensaiar o programa: as cenas à esquerda, o programa e o preview no centro, o chat e as ferramentas à direita e a bandeja embaixo. Escolher uma cena a leva ao preview; \"Corte\" ou \"Fusão\" leva o preview ao programa. O ar ainda não existe, e por isso o estúdio não tem cor nenhuma: nem ação colorida, nem vermelho. O botão de ir ao ar, o relógio, a gravação e o relatório saíram até a transmissão existir, e a bandeja diz isso em palavras.",
     "keyCharacteristics": [
       "Uma ação colorida por tela; o resto em tinta neutra.",
-      "Vermelho = ar. Não entra em gráfico, em alerta nem em decoração.",
+      "Vermelho = ar. Não entra em gráfico, em alerta, em erro de campo nem em decoração.",
       "Linhas de 1px (--line) separam seções e linhas de lista; sem cartões na casca.",
       "Poppins em text-xs, text-sm, text-base e text-3xl; mono tabular só para medidas.",
       "Estado por ícone + texto, sempre com o nome acessível completo.",
       "Três escopos de tema sobre as mesmas primitivas: escuro (padrão), claro e console.",
-      "Um único momento de movimento: o chip de um canal recém-conectado entra deslizando uma vez."
+      "Um único momento de movimento por página. Na casca, o chip de um canal recém-conectado entra deslizando uma vez; no site público, o contorno desliza sobre a captura do Painel; no estúdio, o programa que sai some na fusão. Diálogos entram só pela primitiva Modal.",
+      "No estúdio, o preview mostra exatamente o que o corte leva, e nada que não iria ao ar fica sobre a imagem."
     ],
     "rules": [
-      { "name": "Regra da Voz Única", "body": "Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (--ink-hi, --raise), nunca pelo azul. Switch ligado é tinta cheia; segmento ativo sobe um degrau; destino atual ganha um traço de 2px em --ink-hi.", "section": "colors" },
-      { "name": "Regra do Ar", "body": "O carmim é o sinal de \"no ar\". Fora do ar, aparece só onde algo é apagado ou encerrado. Não entra em pendência, em aviso, em gráfico nem em ícone de marca. Uma pendência de canal (\"sem chave\") fica na tinta do nome, com ícone de alerta.", "section": "colors" },
-      { "name": "Regra da Marca Monocromática", "body": "Ícones de plataforma (YouTube, Twitch…) são Lucide em currentColor, traço 1,75, nunca nas cores do dono da marca.", "section": "colors" },
-      { "name": "Regra dos Quatro Tamanhos", "body": "A casca usa text-xs, text-sm, text-base e text-3xl, e nada mais. Tamanho em px avulso (text-[13px]) é dívida contada pela catraca (tamanho-de-fonte-avulso).", "section": "typography" },
-      { "name": "Regra do Mono como Medida", "body": "Mono aparece só em medidas (hora, e no estúdio bitrate e contadores), sempre com tabular-nums. Nunca como rótulo, sobretítulo ou enfeite.", "section": "typography" },
-      { "name": "Regra da Caixa Normal", "body": "Rótulos, links e ações ficam em caixa normal de frase. Caixa alta com espaçamento largo não é voz do sistema.", "section": "typography" },
-      { "name": "Regra da Linha, Não do Cartão", "body": "Estrutura é uma linha de 1px em --line. Seção, lista e rodapé são separados por borda; nenhum bloco da casca tem fundo próprio para se destacar. Se parece precisar de um cartão, precisa de uma seção.", "section": "elevation" },
-      { "name": "Regra do Chão Plano", "body": "Nada em repouso na página tem sombra. Sombra só em camada que flutua (menu, diálogo, aviso).", "section": "elevation" }
+      {
+        "name": "Regra da Voz Única",
+        "body": "Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (--ink-hi, --raise), nunca pelo azul. Switch ligado e caixa marcada são tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em --ink-hi. No console, a Voz Única dá zero cor: não há ação da tela enquanto o ar não existe. A cena no preview, a tecla apertada, o controle ligado e a ferramenta aberta sobem na rampa.",
+        "section": "colors"
+      },
+      {
+        "name": "Regra do Ar",
+        "body": "O carmim é o sinal de \"no ar\". Fora do ar, aparece só onde algo é apagado ou encerrado. Não entra em pendência, em aviso, em erro de campo, em gráfico nem em ícone de marca. Uma pendência de canal (\"sem chave\") fica na tinta do nome, com ícone de alerta. No estúdio, o vermelho é só da moldura do programa no ar, que hoje nunca acende; o medidor de áudio perto do limite sobe para --ink-hi, não fica vermelho.",
+        "section": "colors"
+      },
+      {
+        "name": "Regra da Vitrine sem Balcão",
+        "body": "Uma tela que mostra algo que ainda não se pode fazer (hoje: assinar um plano) não tem ação primária e, portanto, não tem cor. Nada de botão desabilitado, selo \"em breve\" ou checkout de mentira: o \"em breve\" é uma frase em palavras simples, em text-sm --ink-lo, junto do que ainda não abre (\"A assinatura abre em breve, por aqui mesmo. Hoje nenhuma cobrança é feita.\"). O plano atual é dito em palavra (\"· seu plano\"), não por destaque, e um diálogo assim fecha com \"Fechar\" fantasma.",
+        "section": "colors"
+      },
+      {
+        "name": "Regra do Erro em Tinta Alta",
+        "body": "O que precisa de atenção (pendência, erro de campo, texto não salvo, falha ao salvar) sobe para --ink-hi e ganha um ícone; o que está em ordem fica em --ink-lo. A diferença é de degrau na rampa, nunca de matiz.",
+        "section": "colors"
+      },
+      {
+        "name": "Regra da Marca Monocromática",
+        "body": "Ícones de plataforma (YouTube, Twitch…) ficam em currentColor, traço 1,75, nunca nas cores do dono da marca. Vêm do Lucide; onde o Lucide não tem a marca, o ícone é desenhado no mesmo traço (o K do Kick). A exceção é o G do botão de entrar com Google, nas quatro cores do Google: ali ele não é ícone de plataforma, é a marca de um login de terceiros, e as regras de marca do Google pedem o G colorido.",
+        "section": "colors"
+      },
+      {
+        "name": "Regra dos Quatro Tamanhos",
+        "body": "A casca usa text-xs, text-sm, text-base e text-3xl, e nada mais. Tamanho em px avulso (text-[13px]) é dívida contada pela catraca (tamanho-de-fonte-avulso).",
+        "section": "typography"
+      },
+      {
+        "name": "Regra do Mono como Medida",
+        "body": "Mono aparece só em medidas (a hora; no estúdio, a leitura em dB do medidor, a duração das transições, a hora do chat e a leitura de posição e tamanho do card da câmera), sempre com tabular-nums. Não há bitrate nem contador de rede: sem transmissão, esses números não existem. Nunca como rótulo, sobretítulo ou enfeite. Dinheiro não é medida: preço fica em Poppins com tabular-nums.",
+        "section": "typography"
+      },
+      {
+        "name": "Regra do Número Colado",
+        "body": "Entre um número e sua unidade vai um espaço inseparável (U+00A0: \"3 horas\", \"30 dias\"), e o último par de palavras de um limite ou de uma frase também (\"ao vivo\", \"no ar\"), para que nenhuma linha estreita quebre em \"30 | dias\" nem deixe uma palavra sozinha. As frases de várias linhas em text-xs e text-sm que vão a colunas estreitas (erro e dica de campo, linha de origem, linha de falha ao salvar) levam text-pretty, que faz o mesmo pela última linha do parágrafo; os dois se somam, um não substitui o outro.",
+        "section": "typography"
+      },
+      {
+        "name": "Regra da Caixa Normal",
+        "body": "Rótulos, links e ações ficam em caixa normal de frase. Caixa alta com espaçamento largo não é voz do sistema.",
+        "section": "typography"
+      },
+      {
+        "name": "Regra da Linha, Não do Cartão",
+        "body": "Estrutura é uma linha de 1px em --line. Seção, lista e rodapé são separados por borda; nenhum bloco da casca tem fundo próprio para se destacar. Se parece precisar de um cartão, precisa de uma seção.",
+        "section": "elevation"
+      },
+      {
+        "name": "Regra do Chão Plano",
+        "body": "Nada em repouso na página tem sombra. Sombra só em camada que flutua (menu, diálogo, aviso). O console segue a mesma regra: a barra, as colunas, a mesa e a bandeja se separam por linhas de 1px, e o único flutuante é o menu dos aparelhos.",
+        "section": "elevation"
+      },
+      {
+        "name": "Regra do Salvo de Verdade",
+        "body": "Uma tela só diz \"salvo\" (o aviso \"Nome salvo\") depois de o banco confirmar a escrita. Cada falha tem a sua frase com a saída: sem conexão, \"tente de novo mais tarde\"; sem confirmação em 10 s, \"não deu para confirmar\"; sessão expirada, \"Entrar de novo\"; recusa, \"tente de novo\". A restauração da sessão é esperada (esperarSessao) antes de se declarar uma sessão expirada. Nada de espera de enfeite nem de \"salvo\" local que o banco não viu. A regra tem uma implementação só, gravarComConfirmacao em src/lib/dadosDaConta.ts: o Supabase só responde depois de gravar, e a resposta é a confirmação; a espera de 10 s cobre a resposta que não chega. Falha com ErroAoSalvar (motivo FalhaAoSalvar): sem-login (sem sessão, a conta desta aba trocada por outra, ou o token recusado pela API, PGRST301/PGRST303), sem-conexao (aparelho offline ou falha de rede), sem-confirmacao (a espera acabou) e recusado (o resto, inclusive a troca de nome em que a RLS não atualizou linha nenhuma). salvarNomeDoPerfil, agendarWebinar, excluirWebinar, salvarRoteiro, gravarLista (banners e tickers do estúdio) e salvarTransmissao (com salvarCanais) passam por ela, e toda gravação nova também passa. Os canais também esperam, uma mudança de cada vez (ver O Salvo de Verdade nos canais). Enquanto o banco não respondeu às configurações da conta, mudar os canais é bloqueado com o aviso \"Seus canais ainda estão carregando\". Enquanto grava, o primário fica em loading, Cancelar desabilita e o diálogo não fecha (ocupado do Modal: o X desabilita, e Esc e o clique no fundo esperam); o rascunho só se apaga depois da confirmação. Uma nova tentativa de criar algo reusa o id do rascunho, e uma escrita atrasada é repetida, nunca duplicada.",
+        "section": "components"
+      },
+      {
+        "name": "O Salvo de Verdade nos canais",
+        "body": "Conectar, editar, ligar, desligar e remover um canal esperam o banco, como o \"Novo webinar\". Antes o canal mudava na hora, o modal dizia \"… conectado\" e fechava, e a falha chegava depois, num aviso \"Os canais não foram salvos\". Uma mudança de cada vez: mudarCanais (App.tsx) põe as mudanças numa fila, e cada uma parte da lista que a conta tem e grava a lista inteira por salvarCanais, porque duas gravações ao mesmo tempo apagariam uma a outra. O canal só muda na tela depois da confirmação, e ligar confere o limite do plano de novo na vez da mudança. O salvamento automático do App grava só a cor dos gráficos. No modal de canais, o diálogo espera a gravação parado na plataforma que está gravando e, na falha, fica aberto com o rascunho e a linha de falha acima das ações do detalhe. Na página Canais, a linha diz \"Salvando…\" ou \"Removendo…\", o interruptor fica ocupado e, na falha, nada muda: uma linha role=\"alert\" sob o canal diz o que não mudou, por quê e a saída (\"Tentar de novo\" ou \"Entrar de novo\").",
+        "section": "components"
+      },
+      {
+        "name": "Regra do Dado com Uso",
+        "body": "Um registro só pede o que algo no app já usa. Campo guardado \"para depois\" não entra; volta junto com o que o usa.",
+        "section": "components"
+      },
+      {
+        "name": "Regra do Horário Derivado",
+        "body": "\"Hoje, às…\" e \"Amanhã, às…\" são derivados na hora de mostrar, a partir de startsAt (ISO 8601), por rotuloDoHorario em src/lib/horario.ts, e nunca gravados: um \"Amanhã\" gravado vira mentira no dia seguinte. O campo time guarda a frase absoluta (\"Domingo, 27 de setembro, às 20:00\", por horarioPorExtenso) para quem só tem o texto: rotuloDoHorario cai nele quando o webinar é antigo, sem startsAt (e mostra o seu texto livre), ou quando startsAt não é uma data; nenhuma outra tela lê time. Lista de webinars, Painel e aviso usam o mesmo rótulo, e a hora vai em mono pelo Horario.",
+        "section": "components"
+      },
+      {
+        "name": "Regra da Captura de Verdade",
+        "body": "O site mostra o produto só por captura real do app, nunca por ilustração, espaço reservado ou tela montada. Os dados de exemplo são ditos na legenda. As datas na captura são absolutas (\"sábado, 14 de novembro\"), nunca \"Hoje\" ou \"Amanhã\", que num raster viram mentira no dia seguinte (Regra do Horário Derivado). A proveniência vai embutida no PNG (commit, janela, escala, tema e dados). Ao refazer a captura, as REGIOES do contorno são medidas de novo.",
+        "section": "components"
+      },
+      {
+        "name": "Regra do Preview Fiel",
+        "body": "O preview mostra exatamente o que o corte leva: a mesma composição, a mesma proporção e o mesmo espelho do programa, desenhados pelo mesmo compositor. Nada vai sobre a imagem que não iria ao ar: o papel, a cena e o estado ficam no rótulo, fora dela. Sobre a imagem só entram, sob a mão, a alça e a leitura do card enquanto ele é ajustado, e as guias, que o operador liga e que valem nos dois monitores. Os gráficos do palco são medidos em fração do palco (cqw, cqh ou %), nunca em px, para ocuparem a mesma parte da imagem num monitor pequeno e num grande. Tudo passa pelo corte, com quatro exceções, que valem nos dois monitores na hora, por serem propriedades da fonte ao vivo, como a própria câmera e a tela: o enquadramento (zoom, x, y), o espelho, o croma e o relógio do cronômetro. Os painéis dizem isso nas dicas.",
+        "section": "components"
+      },
+      {
+        "name": "Regra do Onde Está",
+        "body": "Todo item que um painel põe no palco diz onde está, com as palavras das cenas: \"no programa\", \"no preview\" ou \"no programa e no preview\" (ondeEsta), logo sob o nome dele (EstadoNoPalco). No programa, em 500 --ink-hi; só no preview, em --ink-lo; fora dos dois, nada. O que o item precisa vem depois de um ponto (\"no preview · não salvo\").",
+        "section": "components"
+      },
+      {
+        "name": "O Salvo de Verdade nas listas",
+        "body": "Banners e tickers (useListaDaConta) só contam como salvos com a confirmação do banco; a última gravação decide; a assinatura ignora escritas pendentes; a cópia do aparelho só guarda o que o banco confirmou. O item diz \"não salvo\" (PenLine 12px, --ink-hi) ou \"salvando…\" (--ink-lo); a falha é FalhaNoPainel. O roteiro é salvo por salvarRoteiro, com FRASE_DA_FALHA e FRASE_DA_FALHA_AO_LER, e \"Salvo na sua conta às HH:MM\" só depois da confirmação.",
+        "section": "components"
+      },
+      {
+        "name": "Regra da Mídia na Conta",
+        "body": "A mídia do estúdio (logos, fundos, sobreposições e clipes) fica na conta, por src/lib/midiaDaConta.ts: o arquivo no bucket media-assets do Supabase ({uid}/{id}.{extensão}, nunca substituído) e uma ficha em media_assets; cada conta lê, envia e apaga só o que é dela, em qualquer aparelho. MidiaDoEstudioProvider envolve só o Estudio, com key no uid. Cada navegador guarda uma cópia do que baixou ou enviou no IndexedDB (pwstreamer-midia v2, loja copias, chave no caminho; src/lib/midiaDoNavegador.ts); saem as que não estão na lista, e todas saem quando a conta sai, a sessão acaba ou outra conta entra; uma cópia que falha ou demora 3 s não trava nada. ChegadaDaMidia: abrindo, na-conta, na-fila, baixando (0–100), pronta, falhou. Imagens baixam ao abrir, uma de cada vez; um clipe só quando vai ao preview (o tráfego do plano). Um arquivo que não veio nunca é apagado por isso. Um envio só conta quando o Storage e o banco confirmam (Regra do Salvo de Verdade); sem a ficha, o arquivo sai do bucket. Excluir espera os dois; na recusa, \"Não foi possível excluir {nome}\" com a frase do motivo, e o item fica. Limites: 50 MB por arquivo, 200 MB e 300 arquivos por conta (recusados antes de subir; MD001/MD002 no banco). Formatos: logo PNG/JPEG/WebP/SVG, fundo PNG/JPEG/WebP, sobreposição PNG/WebP, clipe MP4/WebM; o SVG vira PNG (maior lado 2048px) antes de sair do navegador. Falhas por fraseDaFalhaDoEnvio em ErroDeCampo sob o envio: formato, grande-demais, sem-espaco, muitos-arquivos, svg-invalido, sem-login, sem-conexao, sem-confirmacao, recusado. A imagem enviada fica escolhida; excluir a escolhida desfaz a escolha. Arquivos sem ficha, com mais de um dia, saem da pasta ao abrir. A NotaDaMidia diz \"Fica na sua conta: X MB de 200 MB.\".",
+        "section": "components"
+      }
     ],
     "dos": [
       "Do usar os papéis semânticos (var(--bg), var(--ink-lo), var(--line)) e nunca as primitivas navy-* nem hexadecimais em componentes. Hex cru só nos blocos de token do index.css (o stylelint cobra).",
@@ -171,17 +1014,56 @@
       "Do pôr horas e outras medidas em font-mono tabular-nums, e só a medida, não a frase.",
       "Do usar <BotaoDeIcone rotulo=\"…\"> (44px) para qualquer botão só-ícone.",
       "Do dizer \"nenhum…\" em texto quando não há dado, sem número inventado, e mostrar esqueleto aria-busy enquanto nada chegou.",
+      "Do marcar erro de campo com aria-invalid + aria-describedby e a frase por <ErroDeCampo>; a borda sobe sozinha pela regra global.",
+      "Do dizer \"salvo\" só depois de o banco confirmar, e dar a cada falha a sua frase com a saída, numa linha role=\"alert\" em --ink-hi acima das ações.",
+      "Do editar um registro no lugar: o rótulo fica, o valor vira o campo, o foco vai ao campo e volta a \"Editar\" ao fechar, e Esc cancela.",
+      "Do pôr text-pretty nas frases de várias linhas em text-xs/text-sm que vão a colunas estreitas.",
+      "Do ler limites e disponibilidade por plano de src/lib/plans.ts, e pendências e nomes de plataforma de src/lib/canais.ts.",
+      "Do formatar todo preço com formatPrice (BRL) e, em lista, com tabular-nums; nunca $, toFixed nem cifra escrita à mão.",
+      "Do mostrar planos só por <ListaDePlanos> (também no site) e abrir planos só por abrirPlanos (página fora do estúdio, modal dentro dele).",
+      "Do mostrar o produto no site só por captura real do app, com os dados de exemplo ditos na legenda, as datas absolutas e a proveniência no PNG; ao refazer a captura, medir as REGIOES de novo.",
+      "Do dizer no site, em \"Em breve\", o que ainda não está no ar, e deixar em \"Já funciona\" só o que funciona.",
+      "Do dizer em palavras o que ainda não abre (\"A assinatura abre em breve…\") e deixar a tela sem ação primária até abrir.",
+      "Do colar número e unidade com espaço inseparável em textos que vão a linhas estreitas.",
+      "Do marcar opções com <CaixaDeSelecao> (a linha inteira é o alvo e o nome), e nunca com um <input type=\"checkbox\"> solto.",
+      "Do gravar horário como startsAt e derivar \"Hoje/Amanhã\" na tela com rotuloDoHorario.",
+      "Do gravar só por gravarComConfirmacao, com a falha acima das ações (no rodapé do diálogo; no modal de canais, no detalhe) ou sob o item de uma lista, e mudar os canais só por mudarCanais, uma mudança de cada vez.",
+      "Do abrir o modal de canais por id (editarCanal(id)) quando a origem é um canal, e nunca pela plataforma.",
+      "Do levar links para fora do app por <AcaoDeTexto href>, que abre em outra aba e avisa o leitor de tela.",
+      "Do desenhar o programa com o mesmo StudioPreview do preview (papel=\"programa\"), alimentado pelo estado do último corte, e dizer em palavras, no próximo corte, o que o corte leva.",
+      "Do pôr o papel e a cena de cada monitor no rótulo, fora da imagem, e dar a cada monitor o lugar da moldura inteira (palco em 16:9 mais o anel).",
+      "Do medir a posição e o tamanho de todo gráfico do palco em fração do palco (cqw, cqh ou %), dentro da área segura, e manter o card da câmera dentro dele por dentroDoPalco.",
+      "Do fazer todo gráfico passar pelo corte; só o enquadramento, o espelho, o croma e o relógio do cronômetro valem na hora, e a dica do painel diz qual é qual.",
+      "Do montar painel de coluna estreita com as peças de PecasDoPainel, com todo segmentado em largura=\"cheia\", e dizer sob cada item onde ele está (EstadoNoPalco).",
+      "Do dar a todo radiogroup de painel o teclado de useSetasDoGrupo: uma parada no Tab, setas entre as opções.",
+      "Do dizer o estado de uma cena e de um controle da bandeja em palavra, com aria-current ou aria-pressed, e a subida na rampa.",
       "Do checar todo par novo de texto/superfície nos três escopos: npm run verify roda tipos, stylelint, o portão de contraste (WCAG AA em escuro, claro e console), a catraca de dívida, os botões só-ícone e os rótulos de formulário. O mesmo roda no CI (.github/workflows/design-system.yml)."
     ],
     "donts": [
       "Don't usar o azul da marca em estado, seleção, link, ícone ou destaque; ele é do botão da ação da tela.",
-      "Don't usar o carmim fora do ar e das ações que apagam ou encerram: nada de vermelho em pendência, aviso, gráfico ou decoração.",
+      "Don't usar o carmim fora do ar e das ações que apagam ou encerram: nada de vermelho em pendência, aviso, erro de campo, gráfico ou decoração.",
       "Don't montar a casca com cartões de indicador, fundos de bloco ou sombras em repouso.",
       "Don't usar tamanho de fonte em px avulso nem um quinto tamanho na casca; a catraca tamanho-de-fonte-avulso só pode descer.",
       "Don't pôr mais de uma ação visível por linha de lista; o resto vai para o \"⋯\".",
-      "Don't colorir ícones de plataforma com as cores das marcas.",
+      "Don't colorir ícones de plataforma com as cores das marcas, nem dar o mesmo ícone a duas plataformas. O G do botão do Google é a única marca colorida.",
+      "Don't pôr dois primários no mesmo viewport, nem dar cor a \"Criar conta\" no cabeçalho público.",
       "Don't usar borda tracejada para nada além de \"adicionar\".",
       "Don't fazer o tema claro alcançar o estúdio: o escopo console é invariante.",
+      "Don't fazer o título de um diálogo seguir a seleção interna; o verbo vai no botão.",
+      "Don't simular cobrança: sem checkout, \"pagamento processado\", fatura ou consumo que não existam de verdade.",
+      "Don't marcar o plano atual ou um plano \"popular\" com cor, borda ou selo; o atual é dito em palavra.",
+      "Don't descartar texto digitado ao trocar de plataforma ou ao salvar outra.",
+      "Don't pedir nem guardar dado que nada no app usa ainda, nem tornar editável um valor que vem de outro sistema (o e-mail do login).",
+      "Don't gravar \"Hoje\" ou \"Amanhã\" em dado nenhum; só a frase absoluta.",
+      "Don't pintar a caixa marcada de azul da marca; marcada é tinta cheia.",
+      "Don't simular um salvamento: sem espera de enfeite, sem \"atualizado com sucesso\" antes da confirmação do banco.",
+      "Don't espelhar só um monitor: o espelho é da câmera e vale no preview e no programa.",
+      "Don't desenhar selo, etiqueta ou botão sobre a imagem de um monitor (\"PRÉVIA\", \"AO VIVO\", \"PUSH TO LIVE\"); o rótulo fica fora.",
+      "Don't dimensionar gráfico do palco em px.",
+      "Don't editar gráfico sobre a imagem, nem pôr o teleprompter sobre o preview: o painel edita, e o teleprompter lê no painel ou na janela.",
+      "Don't guardar no aparelho, como salva, uma lista que o banco não confirmou, nem deixar mídia, a cópia dela ou QR code do estúdio sem dono, visível para quem entrar depois no mesmo navegador, nem apagar da conta um arquivo porque ele não baixou, nem mandar o link de um QR code a serviço de terceiros.",
+      "Don't mostrar no estúdio o que ainda não existe: nada de ir ao ar, relógio de ar, gravação, telemetria nem aparelho \"Simulado\". O que falta vira frase.",
+      "Don't pôr cor no console: nem no controle ligado, nem na tecla de transição, nem no medidor perto do limite.",
       "Don't subir número nenhum de scripts/design-debt-baseline.json. A catraca deixa a dívida cair e nunca crescer sem um --update visível na revisão."
     ]
   }
