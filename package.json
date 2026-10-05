@@ -17,7 +17,7 @@
     "lint:contrast": "node scripts/contrast-gate.mjs",
     "lint:debt": "node scripts/design-debt.mjs",
     "debt:update": "node scripts/design-debt.mjs --update",
-    "verify": "npm run lint && npm run lint:css && npm run lint:contrast && npm run lint:debt && npm run lint:icons && npm run lint:labels && npm run lint:csp",
+    "verify": "npm run lint && npm run test:cliente && npm run lint:css && npm run lint:contrast && npm run lint:debt && npm run lint:icons && npm run lint:labels && npm run lint:csp",
     "lint:icons": "node scripts/icon-buttons.cjs",
     "lint:labels": "node scripts/form-labels.cjs",
     "lint:csp": "tsx scripts/csp-vercel.ts",
@@ -26,6 +26,7 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "db:contas": "node scripts/contas-de-teste.mjs",
+    "test:cliente": "tsx --test tests/cliente/falhaDoSupabase.test.ts",
     "test:servidor": "tsx --test tests/servidor/servidor.test.ts"
   },
   "dependencies": {

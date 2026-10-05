@@ -1,16 +1,27 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { ExternalLink, Pause, Play, RotateCcw } from 'lucide-react';
+import { LIMITE_DAS_NOTAS_DO_ROTEIRO, LIMITE_DO_TEXTO_DO_ROTEIRO, pontosDeCodigo } from '../lib/limitesDaConta';
 import { FRASE_DA_FALHA, FRASE_DA_FALHA_AO_LER, type Roteiro } from '../lib/useRoteiro';
 import { Deslizante, EscolhaDoPainel, FalhaNoPainel, SecaoDoPainel } from './PecasDoPainel';
 import { LeitorDoRoteiro, TAMANHO_NO_PAINEL, type EstadoDoTeleprompter, type TamanhoDoTexto } from './Teleprompter';
 import { BotaoDeIcone } from './ui/BotaoDeIcone';
 import { Button } from './ui/Button';
+import { ErroDeCampo } from './ui/ErroDeCampo';
 import { Segmentado } from './ui/Segmentado';
 import { Switch } from './ui/Switch';
 
 const horaDe = (iso: string) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-/** O campo de várias linhas do sistema. */
+/** A partir de quanto do limite o contador aparece: antes disso seria só ruído. */
+const FRACAO_QUE_MOSTRA_O_CONTADOR = 0.8;
+
+/**
+ * O campo de várias linhas do sistema. Com `limite`, mostra o contador perto do
+ * teto e a saída quando passa. Não usa `maxLength`: o navegador cortaria em
+ * silêncio um texto colado grande demais, e a pessoa perderia o fim do roteiro
+ * sem saber. Passar do limite deixa o texto inteiro na tela, e é o salvamento
+ * que espera (ver useRoteiro).
+ */
 function AreaDeTexto({
   rotulo,
   valor,
@@ -18,6 +29,7 @@ function AreaDeTexto({
   linhas,
   desativada,
   placeholder,
+  limite,
 }: {
   rotulo: string;
   valor: string;
@@ -25,19 +37,39 @@ function AreaDeTexto({
   linhas: number;
   desativada?: boolean;
   placeholder?: string;
+  limite?: number;
 }) {
+  const usados = limite ? pontosDeCodigo(valor) : 0;
+  const passou = limite !== undefined && usados > limite;
+  const mostraContador = limite !== undefined && usados >= limite * FRACAO_QUE_MOSTRA_O_CONTADOR;
+  const idDoAviso = `aviso-de-${rotulo.toLowerCase()}`;
   return (
-    <label className="block">
-      <span className="sr-only">{rotulo}</span>
-      <textarea
-        rows={linhas}
-        value={valor}
-        disabled={desativada}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full resize-y rounded-xl border border-[var(--line-ctl)] bg-[var(--well)] px-3 py-2 text-sm leading-relaxed text-[var(--ink-hi)] placeholder:text-[var(--ink-dim)] disabled:opacity-60"
-      />
-    </label>
+    <div>
+      <label className="block">
+        <span className="sr-only">{rotulo}</span>
+        <textarea
+          rows={linhas}
+          value={valor}
+          disabled={desativada}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          aria-invalid={passou ? true : undefined}
+          aria-describedby={mostraContador ? idDoAviso : undefined}
+          className="w-full resize-y rounded-xl border border-[var(--line-ctl)] bg-[var(--well)] px-3 py-2 text-sm leading-relaxed text-[var(--ink-hi)] placeholder:text-[var(--ink-dim)] disabled:opacity-60"
+        />
+      </label>
+      {passou ? (
+        <ErroDeCampo id={idDoAviso}>
+          {`O ${rotulo.toLowerCase()} passa ${(usados - limite).toLocaleString('pt-BR')} caracteres do limite de ${limite.toLocaleString('pt-BR')}. Corte um trecho para ele voltar a ser salvo.`}
+        </ErroDeCampo>
+      ) : (
+        mostraContador && (
+          <p id={idDoAviso} className="mt-2 text-xs tabular-nums text-[var(--ink-lo)]">
+            {usados.toLocaleString('pt-BR')} de {limite!.toLocaleString('pt-BR')} caracteres.
+          </p>
+        )
+      )}
+    </div>
   );
 }
 
@@ -88,7 +120,8 @@ export function PainelRoteiro({
         return (
           <FalhaNoPainel
             frase={(situacao.aoLer ? FRASE_DA_FALHA_AO_LER : FRASE_DA_FALHA)[situacao.motivo]}
-            onTentarDeNovo={roteiro.tentarDeNovo}
+            // Texto grande demais só se resolve cortando: o salvamento volta sozinho na próxima tecla
+            onTentarDeNovo={!situacao.aoLer && situacao.motivo === 'grande-demais' ? undefined : roteiro.tentarDeNovo}
           />
         );
     }
@@ -181,11 +214,19 @@ export function PainelRoteiro({
           onChange={roteiro.setTexto}
           desativada={carregando}
           placeholder="O que o teleprompter vai mostrar."
+          limite={LIMITE_DO_TEXTO_DO_ROTEIRO}
         />
       </SecaoDoPainel>
 
       <SecaoDoPainel titulo="Notas" dica="Só para você. O teleprompter não lê; ficam salvas junto do roteiro.">
-        <AreaDeTexto rotulo="Notas" linhas={5} valor={roteiro.notas} onChange={roteiro.setNotas} desativada={carregando} />
+        <AreaDeTexto
+          rotulo="Notas"
+          linhas={5}
+          valor={roteiro.notas}
+          onChange={roteiro.setNotas}
+          desativada={carregando}
+          limite={LIMITE_DAS_NOTAS_DO_ROTEIRO}
+        />
       </SecaoDoPainel>
     </div>
   );
