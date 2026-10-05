@@ -21,33 +21,23 @@ export interface Destination {
   updatedAt?: string;
 }
 
-export interface AudioTrack {
-  id: string;
-  name: string;
-  url?: string;
-  duration?: string;
-}
-
+/** Um ticker da lista do estúdio. A velocidade e o sentido são do estúdio e vão ao programa no corte. */
 export interface TickerItem {
   id: string;
   text: string;
   badgeText?: string;
-  speed?: 'slow' | 'normal' | 'fast';
-  direction?: 'left' | 'right';
 }
 
+/**
+ * Um banner da lista do estúdio: título e subtítulo. O desenho é um só, com a
+ * cor dos gráficos; saíram as cores próprias de cada banner (o tema "OneStream
+ * Green" era o padrão) e a posição e a escala que cada monitor guardava.
+ */
 export interface Banner {
   id: string;
   text: string;
   subtitle?: string;
-  themeColor?: string;
-  accentColor?: string;
-  x?: number;
-  y?: number;
-  scale?: number;
 }
-
-export type BannerPosition = 'bottom' | 'top' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'lateral';
 
 export interface Comment {
   id: string;
@@ -75,76 +65,94 @@ export interface Participant {
   stream?: MediaStream | null;
 }
 
-export type WebhookPlatform = 'twitch' | 'facebook' | 'youtube' | 'cloudflare' | 'stripe' | 'discord' | 'custom';
+/**
+ * Onde e como o card da câmera fica sobre a tela, nas cenas com card: o canto
+ * de cima à esquerda em % do palco, a escala e o formato. Vai ao programa no
+ * corte, como o resto da cena.
+ */
+export interface GeometriaDoCard {
+  x: number;
+  y: number;
+  escala: number;
+  formato: 'rounded' | 'circle' | 'compact';
+}
 
-export interface WebhookEventLog {
+/** Um canto do palco, para os gráficos que moram num canto: o logo e o QR code. */
+export type CantoDoPalco = 'cima-esquerda' | 'cima-direita' | 'baixo-esquerda' | 'baixo-direita';
+
+/** O logo no palco. O tamanho é a largura em % do palco; a opacidade vai de 0,2 a 1. */
+export interface LogoNoPalco {
+  url: string;
+  canto: CantoDoPalco;
+  tamanho: number;
+  opacidade: number;
+}
+
+/** O banner no palco: o texto dele, e não o id, para editar a lista não mudar o programa. */
+export interface BannerNoPalco {
+  /** De que banner da lista veio: só para os painéis dizerem onde ele está. O desenho usa o texto. */
+  id?: string;
+  titulo: string;
+  subtitulo: string;
+  posicao: 'embaixo' | 'em-cima';
+}
+
+export interface TickerNoPalco {
+  /** De que ticker da lista veio: só para os painéis dizerem onde ele está. */
+  id?: string;
+  texto: string;
+  selo: string;
+  velocidade: 'lenta' | 'normal' | 'rapida';
+  direcao: 'esquerda' | 'direita';
+}
+
+/** O QR code no palco, com título e preço opcionais. O tamanho é a largura do QR em % do palco. */
+export interface QrNoPalco {
+  url: string;
+  titulo: string;
+  preco: string;
+  canto: CantoDoPalco;
+  tamanho: number;
+}
+
+/** O cronômetro no palco. O relógio é um só e anda nos dois monitores; o corte leva o cronômetro e o título. */
+export interface CronometroNoPalco {
+  titulo: string;
+}
+
+/** Um clipe de vídeo no lugar da tela: parado no preview, tocando no programa a partir do corte. */
+export interface ClipeNoPalco {
   id: string;
-  timestamp: string;
-  platform: WebhookPlatform;
-  eventType: string;
-  method: 'POST' | 'GET' | 'PUT';
-  endpointUrl: string;
-  status: number;
-  statusText: string;
-  latencyMs: number;
-  requestHeaders: Record<string, string>;
-  requestPayload: any;
-  responseHeaders?: Record<string, string>;
-  responseBody?: any;
-  mode: 'manual_test' | 'incoming' | 'automated';
-  isSuccess: boolean;
-  error?: string;
+  nome: string;
+  url: string;
 }
 
-export interface WebhookTriggerConfig {
-  platform: WebhookPlatform;
-  eventType: string;
-  endpointUrl: string;
-  payload: string;
-  secretKey?: string;
-  headers?: Record<string, string>;
+/** Os gráficos de um monitor. Tudo aqui vai ao programa no corte, e só no corte. */
+export interface GraficosDoPalco {
+  /** A cor dos gráficos: a borda do card da câmera, o subtítulo do banner, o selo do ticker e o cronômetro. */
+  cor: string;
+  logo: LogoNoPalco | null;
+  banner: BannerNoPalco | null;
+  ticker: TickerNoPalco | null;
+  qr: QrNoPalco | null;
+  cronometro: CronometroNoPalco | null;
 }
 
+/**
+ * O que um monitor mostra. O preview mostra o estado em edição e o programa,
+ * o do último corte: os dois são desenhados pelo mesmo compositor a partir
+ * deste estado. Antes o corte levava ids (do banner, do ticker) e o programa
+ * buscava o conteúdo atual por eles, então editar a lista mudava o programa
+ * sem corte.
+ */
 export interface StudioSceneState {
   sceneId?: string;
   layout: '1-cam' | 'dual' | 'screen-share' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery';
   activeParticipantIds: string[];
-  activeBannerId: string | null;
-  activeTickerId: string | null;
-  pinnedComment: Comment | null;
-  bannerPosition: BannerPosition;
-  activeOverlay?: string;
+  cardDaCamera?: GeometriaDoCard;
   activeBackground?: string;
-  activeLogo?: string;
-  activeSlide?: { name: string; currentPage: number; totalPages: number } | null;
-  selectedSharedSourceName?: string | null;
-  showQrCode?: boolean;
-  qrCodeText?: string;
-  qrCodeConfig?: QrCodeConfig;
-  timestamp?: number;
-}
-
-export interface QrCodeConfig {
-  id?: string;
-  title: string;
-  subtitle?: string;
-  price?: string;
-  originalPrice?: string;
-  discountBadge?: string;
-  storeUrl: string;
-  storeName?: string;
-  ctaLabel?: string;
-  imageUrl?: string;
-  orientation: 'horizontal' | 'vertical';
-  cardTheme: 'dark' | 'light' | 'brand' | 'glass' | 'neon' | 'gold';
-  qrColor?: string;
-  qrBgColor?: string;
-  showProductImage: boolean;
-  showPrice: boolean;
-  showDiscountBadge: boolean;
-  showStoreName: boolean;
-  showScanPrompt: boolean;
-  scale?: number;
-  x?: number;
-  y?: number;
+  activeOverlay?: string;
+  pinnedComment: Comment | null;
+  graficos: GraficosDoPalco;
+  clipe: ClipeNoPalco | null;
 }
