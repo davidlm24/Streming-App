@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 
 export interface ItemDeMenu {
@@ -32,6 +32,11 @@ interface MenuProps {
  * Estúdio), cada um de uma cor. Padrão WAI-ARIA Menu Button: setas movem,
  * Home/End vão às pontas, Esc fecha e devolve o foco ao gatilho, clicar fora
  * fecha.
+ *
+ * Escolher um item também devolve o foco ao gatilho, antes da ação. O diálogo
+ * que ela abre (a confirmação de "Remover canal", o modal de canais) guarda
+ * quem tem o foco ao abrir e o devolve ali ao fechar. Com o foco no item, que
+ * some junto com o menu, ele caía no <body> e o teclado perdia o lugar na lista.
  */
 export function Menu({ rotulo, itens, gatilho, classeDoGatilho, cabecalho, lado = 'baixo', alinhar = 'direita' }: MenuProps) {
   const [aberto, setAberto] = useState(false);
@@ -98,7 +103,7 @@ export function Menu({ rotulo, itens, gatilho, classeDoGatilho, cabecalho, lado 
               type="button"
               role="menuitem"
               tabIndex={-1}
-              onClick={() => { fechar(false); item.onSelect(); }}
+              onClick={() => { fechar(); item.onSelect(); }}
               className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors duration-150 cursor-pointer hover:bg-[var(--panel)] focus-visible:bg-[var(--panel)] ${
                 item.perigo ? 'text-[var(--sig-texto)]' : 'text-[var(--ink)] hover:text-[var(--ink-hi)]'
               }`}
@@ -111,4 +116,53 @@ export function Menu({ rotulo, itens, gatilho, classeDoGatilho, cabecalho, lado 
       )}
     </div>
   );
+}
+
+/**
+ * O foco de uma lista com "⋯" quando a linha que o tem sai dela: o canal
+ * removido depois da confirmação do banco, o webinar excluído. Sem isto o foco
+ * cai no <body> junto com a linha, e quem usa teclado perde o lugar na lista.
+ *
+ * Vai ao "⋯" da linha que ficou no lugar dela, ou ao da anterior se ela era a
+ * última; com a lista vazia, ao título da página. Só quando o foco saiu junto
+ * com a linha: se a pessoa já foi a outro lugar, ele fica lá.
+ *
+ *   const foco = useFocoNaLista();
+ *   <CabecalhoDePagina refDoTitulo={foco.titulo} … />
+ *   <ul {...foco.lista}>{cada linha, um <li> com o seu <Menu>}</ul>
+ */
+export function useFocoNaLista() {
+  const lista = useRef<HTMLUListElement>(null);
+  const titulo = useRef<HTMLHeadingElement>(null);
+  // A última linha que teve o foco, e a posição dela. O diálogo aberto dali
+  // (a confirmação) fica fora da lista e não a troca: é a ela que o foco volta.
+  const ultima = useRef<{ linha: Element; posicao: number } | null>(null);
+
+  const linhas = () => Array.from(lista.current?.children ?? []);
+
+  const onFocus = (e: React.FocusEvent) => {
+    const todas = linhas();
+    const linha = todas.find((li) => li.contains(e.target));
+    if (linha) ultima.current = { linha, posicao: todas.indexOf(linha) };
+  };
+
+  // Sem dependências: a linha sai por qualquer mudança da lista. De layout, e
+  // não comum, para o foco chegar à vizinha antes de a tela ser pintada.
+  useLayoutEffect(() => {
+    const antes = ultima.current;
+    if (!antes) return;
+    const todas = linhas();
+    if (antes.linha.isConnected) {
+      // A linha continua; outras podem ter entrado ou saído antes dela
+      antes.posicao = todas.indexOf(antes.linha);
+      return;
+    }
+    ultima.current = null;
+    const comFoco = document.activeElement;
+    if (comFoco && comFoco !== document.body) return;
+    const vizinha = todas[Math.min(antes.posicao, todas.length - 1)];
+    (vizinha?.querySelector<HTMLElement>('[aria-haspopup="menu"]') ?? titulo.current)?.focus();
+  });
+
+  return { lista: { ref: lista, onFocus }, titulo };
 }

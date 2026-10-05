@@ -5,7 +5,7 @@ import type { FalhaAoSalvar } from '../lib/dadosDaConta';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { useConfirm } from './ui/ConfirmDialog';
-import { Menu } from './ui/Menu';
+import { Menu, useFocoNaLista } from './ui/Menu';
 import { CabecalhoDePagina, Pagina } from './ui/Pagina';
 import { PlataformaIcone } from './ui/PlataformaIcone';
 import { Switch } from './ui/Switch';
@@ -71,6 +71,9 @@ export function CanaisPagina({
   limiteDeLigados,
 }: CanaisPaginaProps) {
   const confirmar = useConfirm();
+  // O canal removido sai da lista só depois da confirmação do banco, com o
+  // foco ainda no "⋯" dele: o foco vai ao "⋯" do vizinho, ou ao título
+  const foco = useFocoNaLista();
   const ligados = canais.filter((c) => c.selected).length;
   // O limite dito antes de alguém esbarrar nele. Acima dele (plano que mudou,
   // dado antigo), diz quantos desligar — nada é desligado sem a pessoa.
@@ -92,6 +95,7 @@ export function CanaisPagina({
   return (
     <Pagina>
       <CabecalhoDePagina
+        refDoTitulo={foco.titulo}
         titulo="Canais"
         descricao={`Os canais ligados recebem a transmissão quando você entra no ar. ${sobreOLimite}`}
         acao={
@@ -108,7 +112,7 @@ export function CanaisPagina({
           </p>
         </div>
       ) : (
-        <ul className="mt-12 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+        <ul {...foco.lista} className="mt-12 divide-y divide-[var(--line)] border-y border-[var(--line)]">
           {canais.map((canal) => {
             const estado = estadoDoCanal(canal);
             const pendencia = pendenciaDoCanal(canal);

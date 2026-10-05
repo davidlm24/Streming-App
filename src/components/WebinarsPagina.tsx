@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useConfirm } from './ui/ConfirmDialog';
+import { useFocoNaLista } from './ui/Menu';
 import { CabecalhoDePagina, Pagina } from './ui/Pagina';
 import { WebinarLinha, ordenarPorHorario, type WebinarResumo } from './WebinarLista';
 
@@ -15,6 +16,9 @@ interface WebinarsPaginaProps {
 /** Todos os webinars. No painel ficavam espremidos, com um "Ver todos" que não levava a lugar nenhum. */
 export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onExcluir }: WebinarsPaginaProps) {
   const confirmar = useConfirm();
+  // O webinar excluído sai da lista na hora, junto com a confirmação que
+  // fecha: o foco vai ao "⋯" do vizinho, ou ao título
+  const foco = useFocoNaLista();
 
   const excluirComConfirmacao = async (webinar: WebinarResumo) => {
     const ok = await confirmar({
@@ -29,6 +33,7 @@ export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onExc
   return (
     <Pagina>
       <CabecalhoDePagina
+        refDoTitulo={foco.titulo}
         titulo="Webinars"
         descricao="Cada webinar guarda o horário, os canais e o roteiro de uma live."
         acao={
@@ -50,7 +55,7 @@ export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onExc
           Nenhum webinar agendado. Agende um para guardar o horário, os canais e o roteiro da próxima live.
         </p>
       ) : (
-        <ul className="mt-12 divide-y divide-[var(--line)] border-y border-[var(--line)]">
+        <ul {...foco.lista} className="mt-12 divide-y divide-[var(--line)] border-y border-[var(--line)]">
           {ordenarPorHorario(webinars).map((w) => (
             <WebinarLinha
               key={w.id}
