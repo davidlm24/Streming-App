@@ -29,6 +29,11 @@ jobs:
       - name: Tipos
         run: npm run lint
 
+      # A regra que diz à pessoa qual teto da conta bateu. Pura, sem banco: um
+      # código novo na migração que ela não conhece reprova aqui.
+      - name: Testes do cliente
+        run: npm run test:cliente
+
       # Hexadecimal cru só dentro dos blocos de token; nada de !important.
       - name: CSS
         run: npm run lint:css

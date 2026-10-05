@@ -22,6 +22,8 @@ const O_QUE_DIZER: Record<FalhaAoSalvar, string> = {
   'sem-login': 'Sua sessão expirou, então o nome não foi salvo.',
   'sem-conexao': 'Sem conexão com a sua conta agora. Tente de novo mais tarde.',
   'sem-confirmacao': 'Não deu para confirmar que o nome foi salvo. Confira a conexão e tente de novo.',
+  'limite-da-conta': 'Não foi possível salvar o nome. Tente de novo.',
+  'grande-demais': 'O nome é grande demais para salvar. Use um nome mais curto.',
   recusado: 'Não foi possível salvar o nome. Tente de novo.',
 };
 

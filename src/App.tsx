@@ -43,6 +43,8 @@ const FRASE_DA_EXCLUSAO: Record<FalhaAoSalvar, string> = {
   'sem-login': 'Sua sessão expirou. Entre de novo e exclua outra vez.',
   'sem-conexao': 'Sem conexão com a sua conta agora. Tente de novo em instantes.',
   'sem-confirmacao': 'Não deu para confirmar a exclusão. Confira a conexão e tente de novo.',
+  'limite-da-conta': 'O banco recusou a exclusão. Tente de novo.',
+  'grande-demais': 'O banco recusou a exclusão. Tente de novo.',
   recusado: 'O banco recusou a exclusão. Tente de novo.',
 };
 

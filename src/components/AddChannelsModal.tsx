@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type Reac
 import { Check, ChevronLeft, ChevronRight, CircleAlert, ExternalLink, Info, Lock, PenLine } from 'lucide-react';
 import type { Destination } from '../types';
 import { cabeLigado, nomeDaPlataforma, pendenciaCurta } from '../lib/canais';
+import { LIMITE_DA_CHAVE_DO_CANAL, LIMITE_DO_NOME_DO_CANAL, LIMITE_DO_SERVIDOR_DO_CANAL } from '../lib/limitesDaConta';
 import { PLANS, getPlan, type PlanId } from '../lib/plans';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
@@ -426,6 +427,7 @@ export function AddChannelsModal({
                     autoComplete="off"
                     value={rascunho.nome}
                     onChange={(e) => editar('nome', e.target.value)}
+                    maxLength={LIMITE_DO_NOME_DO_CANAL}
                     placeholder={nome}
                     className={`${CAMPO} h-11`}
                   />
@@ -444,6 +446,7 @@ export function AddChannelsModal({
                     autoCapitalize="off"
                     spellCheck={false}
                     value={rascunho.servidor}
+                    maxLength={LIMITE_DO_SERVIDOR_DO_CANAL}
                     // Um endereço não tem quebra de linha: colar com uma não a leva junto
                     onChange={(e) => editar('servidor', e.target.value.replace(/[\r\n]+/g, ''))}
                     onKeyDown={(e) => {
@@ -484,6 +487,7 @@ export function AddChannelsModal({
                     spellCheck={false}
                     value={rascunho.chave}
                     onChange={(e) => editar('chave', e.target.value)}
+                    maxLength={LIMITE_DA_CHAVE_DO_CANAL}
                     placeholder="Cole aqui a chave de transmissão"
                     aria-invalid={erros.chave ? true : undefined}
                     aria-describedby={erros.chave ? 'canal-chave-erro' : undefined}

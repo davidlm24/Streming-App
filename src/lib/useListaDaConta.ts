@@ -8,6 +8,8 @@ export const FRASE_DA_FALHA_DA_LISTA: Record<FalhaAoSalvar, string> = {
   'sem-login': 'Sua sessão expirou, então a mudança não foi salva na sua conta. Entre de novo para salvar.',
   'sem-conexao': 'Sem conexão com a sua conta agora. A mudança fica só nesta tela até salvar.',
   'sem-confirmacao': 'Não deu para confirmar que a mudança foi salva. Confira a conexão.',
+  'limite-da-conta': 'Não foi possível salvar a mudança.',
+  'grande-demais': 'A lista passou do limite que a conta guarda, então a mudança não foi salva. Exclua um item que não usa e tente de novo.',
   recusado: 'Não foi possível salvar a mudança.',
 };
 

@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ErroAoSalvar, lerRoteiro, salvarRoteiro, type FalhaAoSalvar } from './dadosDaConta';
+import {
+  LIMITE_DAS_NOTAS_DO_ROTEIRO,
+  LIMITE_DO_TEXTO_DO_ROTEIRO,
+  LIMITE_DOS_ROTEIROS_DA_CONTA,
+  pontosDeCodigo,
+} from './limitesDaConta';
+
+const emMb = (bytes: number) => `${bytes / 1_048_576} MB`;
 
 export type SituacaoDoRoteiro =
   | { tipo: 'carregando' }
@@ -14,6 +22,11 @@ export const FRASE_DA_FALHA: Record<FalhaAoSalvar, string> = {
   'sem-login': 'Sua sessão expirou, então o roteiro não foi salvo. Entre de novo para salvar.',
   'sem-conexao': 'Sem conexão com a sua conta agora. O roteiro fica nesta tela até salvar.',
   'sem-confirmacao': 'Não deu para confirmar que o roteiro foi salvo. Confira a conexão.',
+  // O teto é a soma de todos os roteiros da conta, e não deste: a saída é
+  // apagar texto de outro, e dizer só "passou do limite" mandaria cortar o
+  // roteiro certo
+  'limite-da-conta': `Os roteiros da sua conta já somam ${emMb(LIMITE_DOS_ROTEIROS_DA_CONTA)} de texto, o limite, então este não foi salvo. Apague texto de um roteiro que não usa.`,
+  'grande-demais': `Este roteiro passou do limite (${LIMITE_DO_TEXTO_DO_ROTEIRO.toLocaleString('pt-BR')} caracteres no texto e ${LIMITE_DAS_NOTAS_DO_ROTEIRO.toLocaleString('pt-BR')} nas notas), então não foi salvo. Corte um trecho.`,
   recusado: 'Não foi possível salvar o roteiro.',
 };
 
@@ -22,6 +35,8 @@ export const FRASE_DA_FALHA_AO_LER: Record<FalhaAoSalvar, string> = {
   'sem-login': 'Sua sessão expirou, então o roteiro salvo não abriu. O que você escrever fica só nesta tela.',
   'sem-conexao': 'Sem conexão com a sua conta agora, então o roteiro salvo não abriu. O que você escrever fica só nesta tela.',
   'sem-confirmacao': 'O roteiro salvo não abriu. O que você escrever fica só nesta tela.',
+  'limite-da-conta': 'O roteiro salvo não abriu. O que você escrever fica só nesta tela.',
+  'grande-demais': 'O roteiro salvo não abriu. O que você escrever fica só nesta tela.',
   recusado: 'O roteiro salvo não abriu. O que você escrever fica só nesta tela.',
 };
 
@@ -75,10 +90,17 @@ export function useRoteiro(id: string) {
     if (espera.current) window.clearTimeout(espera.current);
     espera.current = null;
     if (!abriu.current) return;
+    const enviado = atual.current;
+    // Passou do limite do roteiro ou das notas: o banco recusaria, e cada pausa
+    // na digitação mandaria de novo. Nada vai até o texto voltar a caber, e o
+    // texto continua inteiro na tela.
+    if (pontosDeCodigo(enviado.texto) > LIMITE_DO_TEXTO_DO_ROTEIRO || pontosDeCodigo(enviado.notas) > LIMITE_DAS_NOTAS_DO_ROTEIRO) {
+      setSituacao({ tipo: 'falhou', motivo: 'grande-demais', aoLer: false });
+      return;
+    }
     setSituacao({ tipo: 'salvando' });
     // Uma edição feita enquanto este salvamento corria tem o seu próprio: a
     // resposta deste não diz "salvo" (nem "falhou") por cima dela
-    const enviado = atual.current;
     try {
       await salvarRoteiro(id, enviado);
       if (atual.current !== enviado) return;
