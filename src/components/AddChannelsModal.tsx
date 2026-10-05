@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type Reac
 import { Check, ChevronLeft, ChevronRight, CircleAlert, ExternalLink, Info, Lock, PenLine } from 'lucide-react';
 import type { Destination } from '../types';
 import { cabeLigado, nomeDaPlataforma, pendenciaCurta } from '../lib/canais';
+import { ErroAoSalvar, type FalhaAoSalvar } from '../lib/dadosDaConta';
 import { PLANS, getPlan, type PlanId } from '../lib/plans';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
@@ -15,8 +16,14 @@ interface AddChannelsModalProps {
   isOpen: boolean;
   onClose: () => void;
   destinations: Destination[];
-  /** Devolve false quando não salvou (os canais da conta ainda não carregaram). */
-  onAddOrUpdateDestination: (destination: Destination) => boolean;
+  /**
+   * Grava e só resolve depois de o banco confirmar; falha com `ErroAoSalvar`.
+   * Resolve false quando não gravou porque os canais da conta ainda não
+   * carregaram (o aviso vem do app).
+   */
+  onAddOrUpdateDestination: (destination: Destination) => Promise<boolean>;
+  /** Sai da conta e volta à entrada: a saída do aviso de sessão expirada. */
+  onSair: () => void;
   currentPlan?: PlanId;
   onOpenUpgrade?: () => void;
   /** Abre direto no formulário desta plataforma (ex.: "não conectado" no painel). */
@@ -108,6 +115,27 @@ const CAMPO = 'mt-2 block w-full rounded-xl border px-3 text-sm';
 type Rascunho = { nome: string; servidor: string; chave: string };
 type Erros = { servidor?: string; chave?: string };
 type Estado = { texto: string; icone?: ReactNode; alta?: boolean };
+/**
+ * A falha da última tentativa. `novo` fica como era nela: se a escrita chegar
+ * ao banco depois da espera, o canal deixa de ser novo, e a frase não muda.
+ */
+type Falha = { motivo: FalhaAoSalvar; novo: boolean };
+
+/** O que o modal diz quando o banco não confirmou, com a saída: conectar um canal novo ou salvar um existente. */
+const O_QUE_DIZER: Record<'novo' | 'existente', Record<FalhaAoSalvar, string>> = {
+  novo: {
+    'sem-login': 'Sua sessão expirou, então o canal não foi conectado.',
+    'sem-conexao': 'Sem conexão com a sua conta agora, então o canal não foi conectado. Tente de novo mais tarde.',
+    'sem-confirmacao': 'Não deu para confirmar que o canal foi conectado. Confira a conexão e tente de novo.',
+    recusado: 'Não foi possível conectar o canal. Tente de novo.',
+  },
+  existente: {
+    'sem-login': 'Sua sessão expirou, então as alterações não foram salvas.',
+    'sem-conexao': 'Sem conexão com a sua conta agora, então as alterações não foram salvas. Tente de novo mais tarde.',
+    'sem-confirmacao': 'Não deu para confirmar que as alterações foram salvas. Confira a conexão e tente de novo.',
+    recusado: 'Não foi possível salvar as alterações. Tente de novo.',
+  },
+};
 
 /**
  * Conectar ou editar UM canal: escolher a plataforma, colar o servidor e a
@@ -119,12 +147,19 @@ type Estado = { texto: string; icone?: ReactNode; alta?: boolean };
  * limites própria que contradizia os planos. Agora é mestre-detalhe: as
  * plataformas numa coluna, o formulário da escolhida ao lado, e o que foi
  * digitado numa plataforma sobrevive à troca para outra.
+ *
+ * Salvar espera o banco (Regra do Salvo de Verdade). Antes o aviso "…
+ * conectado" saía e o diálogo fechava na hora, e a falha chegava depois, com
+ * o que foi digitado já perdido. Enquanto grava, o diálogo fica parado na
+ * plataforma que está gravando; na falha, fica aberto com o rascunho e diz o
+ * motivo acima das ações.
  */
 export function AddChannelsModal({
   isOpen,
   onClose,
   destinations,
   onAddOrUpdateDestination,
+  onSair,
   currentPlan = 'Free Trial',
   onOpenUpgrade,
   plataformaInicial,
@@ -154,7 +189,17 @@ export function AddChannelsModal({
   const [erros, setErros] = useState<Erros>({});
   const [chaveVisivel, setChaveVisivel] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [salvando, setSalvando] = useState(false);
+  const [falha, setFalha] = useState<Falha | null>(null);
+  // O id de um canal novo nasce na primeira tentativa e se repete nas
+  // seguintes: uma escrita que chegue atrasada é só repetida, não vira um
+  // segundo canal.
+  const [idsNovos, setIdsNovos] = useState<Record<string, string>>({});
   const refServidor = useRef<HTMLTextAreaElement>(null);
+  const refSalvar = useRef<HTMLButtonElement>(null);
+  const refEntrarDeNovo = useRef<HTMLButtonElement>(null);
+  // Para onde o foco vai quando a gravação termina e o diálogo fica aberto
+  const focoDepois = useRef<'salvar' | 'entrar' | null>(null);
 
   // O componente fica montado entre aberturas; cada abertura começa do zero.
   // Acertado durante a renderização, e não num efeito, para a abertura não
@@ -169,8 +214,20 @@ export function AddChannelsModal({
       setErros({});
       setChaveVisivel(false);
       setAviso(null);
+      setFalha(null);
+      setIdsNovos({});
     }
   }
+
+  // Enquanto grava, o primário fica desabilitado, e o foco cairia no <body>.
+  // Quando a gravação termina com o diálogo aberto, o foco vai à saída:
+  // "Entrar de novo" quando a sessão expirou, senão de volta ao primário.
+  useEffect(() => {
+    if (salvando || !focoDepois.current) return;
+    const alvo = focoDepois.current;
+    focoDepois.current = null;
+    (alvo === 'entrar' ? refEntrarDeNovo : refSalvar).current?.focus();
+  }, [salvando]);
 
   const inicialDe = (id: string): Rascunho => {
     const canal = existenteDe(id);
@@ -226,6 +283,7 @@ export function AddChannelsModal({
     setErros({});
     setChaveVisivel(false);
     setAviso(null);
+    setFalha(null);
   };
   const abas = useTabs('canais', IDS, ativa, selecionar, 'vertical');
 
@@ -266,8 +324,11 @@ export function AddChannelsModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  const salvar = (e: FormEvent) => {
+  const salvar = async (e: FormEvent) => {
     e.preventDefault();
+    if (salvando) return;
+    // A falha da tentativa anterior não vale para esta
+    setFalha(null);
     const servidor = rascunho.servidor.trim();
     const chave = rascunho.chave.trim();
     const novos: Erros = {};
@@ -288,22 +349,43 @@ export function AddChannelsModal({
     // Editar não liga nem desliga; um canal novo liga se o plano comporta
     const ligar = existente ? existente.selected : !salvaDesligado;
     const nomeDoCanal = rascunho.nome.trim() || nome;
-    // Sem salvar, o diálogo fica com o que foi digitado; o aviso vem do app
-    const salvou = onAddOrUpdateDestination({
-      ...existente,
-      id: existente?.id ?? `dest-${ativa}-${Date.now()}`,
-      name: nomeDoCanal,
-      // Um servidor NGINX continua NGINX ao ser editado pela linha RTMP
-      platform: existente?.platform ?? ativa,
-      avatarUrl: existente?.avatarUrl ?? '',
-      selected: ligar,
-      streamUrl: servidor,
-      streamKey: chave,
-      isCustom: existente?.isCustom ?? ativa === 'custom',
-      updatedAt: new Date().toISOString(),
-    });
-    if (!salvou) return;
+    const id = existente?.id ?? idsNovos[ativa] ?? `dest-${ativa}-${Date.now()}`;
+    if (!existente) setIdsNovos((ids) => ({ ...ids, [ativa]: id }));
 
+    // Até o banco responder, o diálogo fica nesta plataforma: a lista, os
+    // campos e o fechar esperam, para a falha aparecer onde o rascunho está
+    setSalvando(true);
+    let salvou: boolean;
+    try {
+      salvou = await onAddOrUpdateDestination({
+        ...existente,
+        id,
+        name: nomeDoCanal,
+        // Um servidor NGINX continua NGINX ao ser editado pela linha RTMP
+        platform: existente?.platform ?? ativa,
+        avatarUrl: existente?.avatarUrl ?? '',
+        selected: ligar,
+        streamUrl: servidor,
+        streamKey: chave,
+        isCustom: existente?.isCustom ?? ativa === 'custom',
+        updatedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      const motivo = err instanceof ErroAoSalvar ? err.motivo : 'recusado';
+      focoDepois.current = motivo === 'sem-login' ? 'entrar' : 'salvar';
+      setFalha({ motivo, novo: !existente });
+      setSalvando(false);
+      return;
+    }
+    setSalvando(false);
+    // Os canais da conta ainda não carregaram: nada foi gravado, o que foi
+    // digitado fica, e o aviso vem do app
+    if (!salvou) {
+      focoDepois.current = 'salvar';
+      return;
+    }
+
+    // Só agora, com o banco confirmando, o aviso diz que salvou
     if (ligar) {
       toast.success(existente ? `${nomeDoCanal} salvo` : `${nomeDoCanal} conectado`, existente ? undefined : 'Ligado para a próxima live.');
     } else if (existente) {
@@ -317,12 +399,13 @@ export function AddChannelsModal({
 
     // Outras plataformas com texto não salvo: o diálogo fica, na próxima
     // delas, em vez de fechar e jogar fora o que foi digitado.
-    const pendentes = IDS.filter((id) => id !== ativa && sujo(id));
+    const pendentes = IDS.filter((outra) => outra !== ativa && sujo(outra));
     setRascunhos(({ [ativa]: _salvo, ...resto }) => resto);
     if (pendentes.length === 0) {
       onClose();
       return;
     }
+    focoDepois.current = 'salvar';
     selecionar(pendentes[0]);
     setNoFormulario(true);
     setAviso(`${nomeDoCanal} salvo. Falta salvar: ${pendentes.map(nomeDaPlataforma).join(', ')}.`);
@@ -332,7 +415,7 @@ export function AddChannelsModal({
     // Título neutro e fixo. Seguir a linha escolhida trocava "Conectar" por
     // "Editar" a cada seta e nomeava, na lista do celular, uma escolha que não
     // estava à vista. O verbo mora no botão, junto do formulário que ele salva.
-    <Modal isOpen={isOpen} onClose={onClose} title="Canais" size="xl">
+    <Modal isOpen={isOpen} onClose={onClose} ocupado={salvando} title="Canais" size="xl">
       <div className="md:grid md:grid-cols-[15rem_minmax(0,1fr)]">
         <div
           {...abas.tablist}
@@ -346,12 +429,14 @@ export function AddChannelsModal({
                 key={p.id}
                 type="button"
                 {...abas.tab(p.id)}
+                // Enquanto grava, o diálogo fica na plataforma que está gravando
+                disabled={salvando}
                 onClick={() => {
                   selecionar(p.id);
                   setNoFormulario(true);
                 }}
-                className={`flex min-h-14 w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors duration-150 cursor-pointer ${
-                  ativa === p.id ? 'md:bg-[var(--raise)]' : 'hover:bg-[var(--panel)]'
+                className={`flex min-h-14 w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors duration-150 cursor-pointer disabled:cursor-progress ${
+                  ativa === p.id ? 'md:bg-[var(--raise)]' : 'enabled:hover:bg-[var(--panel)]'
                 }`}
               >
                 <PlataformaIcone plataforma={p.id} size={18} className="shrink-0 text-[var(--ink-lo)]" />
@@ -371,7 +456,12 @@ export function AddChannelsModal({
         {/* md:pt-2 põe o título na linha do nome da primeira plataforma */}
         <section {...abas.panel(ativa)} className={`md:block md:pl-6 md:pt-2 ${noFormulario ? 'block' : 'hidden'}`}>
           <div className="mb-4 md:hidden">
-            <AcaoDeTexto onClick={() => setNoFormulario(false)} icone={<ChevronLeft size={14} />}>
+            <AcaoDeTexto
+              onClick={() => {
+                if (!salvando) setNoFormulario(false);
+              }}
+              icone={<ChevronLeft size={14} />}
+            >
               Plataformas
             </AcaoDeTexto>
           </div>
@@ -424,6 +514,7 @@ export function AddChannelsModal({
                     id="canal-nome"
                     type="text"
                     autoComplete="off"
+                    readOnly={salvando}
                     value={rascunho.nome}
                     onChange={(e) => editar('nome', e.target.value)}
                     placeholder={nome}
@@ -443,6 +534,7 @@ export function AddChannelsModal({
                     autoComplete="off"
                     autoCapitalize="off"
                     spellCheck={false}
+                    readOnly={salvando}
                     value={rascunho.servidor}
                     // Um endereço não tem quebra de linha: colar com uma não a leva junto
                     onChange={(e) => editar('servidor', e.target.value.replace(/[\r\n]+/g, ''))}
@@ -482,6 +574,7 @@ export function AddChannelsModal({
                     autoComplete="off"
                     autoCapitalize="off"
                     spellCheck={false}
+                    readOnly={salvando}
                     value={rascunho.chave}
                     onChange={(e) => editar('chave', e.target.value)}
                     placeholder="Cole aqui a chave de transmissão"
@@ -501,7 +594,13 @@ export function AddChannelsModal({
                       {onOpenUpgrade && (
                         <>
                           {' '}
-                          <AcaoDeTexto sublinhada onClick={onOpenUpgrade}>
+                          <AcaoDeTexto
+                            sublinhada
+                            onClick={() => {
+                              // Levaria para fora do diálogo no meio da gravação
+                              if (!salvando) onOpenUpgrade();
+                            }}
+                          >
                             Ver planos
                           </AcaoDeTexto>
                         </>
@@ -510,11 +609,33 @@ export function AddChannelsModal({
                   </p>
                 )}
 
-                <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
-                  <Button variant="ghost" onClick={onClose}>
-                    Cancelar
-                  </Button>
-                  <Button type="submit">{existente ? 'Salvar alterações' : 'Conectar canal'}</Button>
+                <div className="pt-2">
+                  {/* As ações moram no detalhe, não no rodapé do Modal: a
+                      falha ao salvar fica logo acima delas, junto do rascunho */}
+                  {falha && (
+                    <p role="alert" className="mb-3 flex items-start gap-2 text-pretty text-sm text-[var(--ink-hi)]">
+                      <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+                      <span>
+                        {O_QUE_DIZER[falha.novo ? 'novo' : 'existente'][falha.motivo]}
+                        {falha.motivo === 'sem-login' && (
+                          <>
+                            {' '}
+                            <AcaoDeTexto ref={refEntrarDeNovo} sublinhada onClick={onSair}>
+                              Entrar de novo
+                            </AcaoDeTexto>
+                          </>
+                        )}
+                      </span>
+                    </p>
+                  )}
+                  <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                    <Button variant="ghost" onClick={onClose} disabled={salvando}>
+                      Cancelar
+                    </Button>
+                    <Button ref={refSalvar} type="submit" loading={salvando}>
+                      {existente ? 'Salvar alterações' : 'Conectar canal'}
+                    </Button>
+                  </div>
                 </div>
               </form>
             </>
