@@ -985,7 +985,7 @@ Suporte Técnico: suporte@pwstreamer.com
           {/* STEP 3: PAYMENT CONFIRMED SUCCESS VIEW */}
           {checkoutStep === 'success' && (
             <div className="p-8 text-center space-y-6">
-              <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400 animate-bounce">
+              <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400 animate-confirm-in">
                 <CheckCircle2 size={32} />
               </div>
 

@@ -747,9 +747,9 @@ export function WebhookPanel({ userId, isLive = false, onSaveToFirestore, initia
     <div className="space-y-5 text-left animate-in fade-in duration-150" id="webhook-management-panel">
       
       {/* Top Banner with Platform Status */}
-      <div className="bg-gradient-to-r from-purple-950/50 via-[var(--surface)] to-blue-950/50 border border-purple-500/30 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+      <div className="bg-blue-950/40 border border-blue-500/30 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-purple-500/20 text-purple-300 rounded-xl border border-purple-500/30">
+          <div className="p-2.5 bg-blue-500/20 text-blue-300 rounded-xl border border-blue-500/30">
             <Radio size={22} className="animate-pulse" />
           </div>
           <div>
