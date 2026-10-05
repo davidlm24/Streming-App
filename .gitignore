@@ -6,3 +6,10 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Configuração de máquina, não de projeto: o launch.json guarda nomes de
+# worktree e portas de quem o criou (o deste repositório ficou com
+# "streming-worktree-ui-ux" na 3211), e todo worktree novo herdava isso. Os
+# worktrees em si também são locais.
+.claude/launch.json
+.claude/worktrees/
