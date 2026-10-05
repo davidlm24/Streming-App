@@ -136,8 +136,23 @@ export default function App() {
       ].forEach((chave) =>
         localStorage.removeItem(chave)
       );
+      // A sessão do login antigo, do Firebase, que saiu na migração para o
+      // Supabase. Sem isto, ela fica no navegador de quem já usou o app
+      Object.keys(localStorage)
+        .filter((chave) => chave.startsWith('firebase:'))
+        .forEach((chave) => localStorage.removeItem(chave));
     } catch {
       /* armazenamento indisponível: não há o que limpar */
+    }
+    // Os bancos do Firebase: o primeiro guarda a sessão antiga
+    if (typeof indexedDB !== 'undefined') {
+      ['firebaseLocalStorageDb', 'firebase-heartbeat-database'].forEach((banco) => {
+        try {
+          indexedDB.deleteDatabase(banco);
+        } catch {
+          /* o navegador não deixou apagar: nada depende disso */
+        }
+      });
     }
   }, []);
 

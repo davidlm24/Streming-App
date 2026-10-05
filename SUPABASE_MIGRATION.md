@@ -26,7 +26,7 @@ Use a staged cutover, one pull request per stage. Do not point the production cl
 2. **Server:** validate Supabase access tokens in `src/middleware/auth.ts`; read profiles created by the auth trigger; keep `user_roles` in step with `SUPER_ADMIN_EMAILS`; move the trial check and the Stripe webhook writes to Postgres.
 3. **Client:** Supabase Auth with the Google redirect flow, and Supabase-backed versions of the `firestoreService` functions (profile, webinars, studio settings, banners, tickers, scripts, and the admin client list), keeping the React interfaces.
 4. **Media:** the studio library moves from the browser (IndexedDB) to the `media-assets` bucket. The free plan's 50 MB per-file cap limits video clips.
-5. **Cutover:** create the project in the new account, link it and push the migrations with the CLI (the owner signs in to the CLI), configure the Google provider and redirect URLs, set the environment variables locally and on Vercel, then remove the Firebase packages, configuration, rules, and tests. The old client also left two IndexedDB databases in people's browsers, `firebaseLocalStorageDb` (with the old Firebase session) and `firebase-heartbeat-database`; the app should delete them once.
+5. **Cutover:** create the project in the new account, link it and push the migrations and the Auth settings with the CLI (the owner signs in to the CLI), set the environment variables on Vercel, and remove what is left of Firebase.
 
 ## Target services
 
@@ -128,6 +128,25 @@ Done in stage 4:
 - Housekeeping when the studio opens removes files without a row (an upload that could not undo itself), only when there is no doubt: the tab's own account, every row read (the exact count must match, since the API caps rows silently), only names the studio gives, and only files older than a day.
 - The studio shows the account's usage ("Fica na sua conta: 12 MB de 200 MB."), the upload progress, files still arriving, and files that did not arrive, with a retry.
 - `npm run db:test`: 25 new tests (`supabase/tests/midia_test.sql`).
+
+Done in stage 5 (the cutover):
+
+- **What Firebase left behind is gone:** `firebase.json`, `firestore.rules`, `storage.rules`, `tests/firestore-rules/` and the workflow that ran them. Nothing in `src`, `server.ts`, `package.json` or the CI mentions Firebase or Firestore any more, and the client bundle carries no Firebase code.
+- **The browser is cleaned once:** the old client left two IndexedDB databases in people's browsers, `firebaseLocalStorageDb` (holding the old sign-in session) and `firebase-heartbeat-database`, plus `firebase:` keys in `localStorage`. The app deletes them when it opens, next to the other one-time cleanups in `src/App.tsx`.
+- **The project is `pwstreamer`, ref `eqccaphvoquogxkbclwr`, in `sa-east-1`** (São Paulo), on its own account. The five migrations are applied, including the trigger on `storage.objects` the media stage needed: the hosted project accepts it. `supabase db advisors --linked` reports nothing.
+- **Production Auth lives in `[remotes.producao]`** in `supabase/config.toml`, pushed with `npx supabase config push`. Local development keeps e-mail sign-up and no confirmations; production turns e-mail sign-up off, confirmations on, anonymous off, Google on, and points the site URL and the redirect list at the deployed app. The difference is in git and reviewable, instead of living only in the dashboard.
+  - **`config push` sends everything the file declares, not only the `[remotes]` block.** Without overrides, the local development values travel to production: confirmations off (the hole that lets someone claim the admin address), one confirmation e-mail per second instead of per minute, a 6-digit OTP instead of 8, MFA off, and half the pooler's connections. The remote section repeats the production values for each of those. Run `npx supabase config diff` before every push and read every line.
+  - The app URL comes from `PWSTREAMER_APP_URL` so the same file serves the local test and production. Without the variable the push fails instead of writing a wrong address.
+  - One property cannot be pushed: `auth.sms.twilio.enabled`. The CLI cannot turn an active SMS provider off. Nothing uses SMS, and phone sign-up is already off.
+- **Tested against the hosted project**, with the app running locally and pointed at it: Google sign-in creates the account, the trigger writes the profile with the name and photo from Google, the trial runs 30 days, the server syncs the `super_admin` role from `SUPER_ADMIN_EMAILS`, the administration screen lists the clients through RLS, and a studio image uploads to the real bucket with its row in the owner's folder.
+- **The e-mail and password form now depends on the project, not only on the build.** It is a development form, but the project decides whether e-mail works at all: pointed at production it appeared and every attempt answered "Não deu para entrar. Tente de novo." with no explanation. `formasDeEntrar()` reads `/auth/v1/settings` once and the form only renders when the project accepts e-mail.
+- **The client's Supabase values are build-time.** Vite inlines `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` into the bundle, so they must exist in the deployment environment before the build runs, not only at runtime.
+- **`supabase projects api-keys` masks the secret key** unless `--reveal` is passed. A truncated key (15 characters instead of 41) looks plausible and fails indirectly: the browser holds a valid session, but the server answers `401 Unauthorized: Invalid token` and logs `Admin role sync failed: Invalid API key`, so the app shows the signed-out page. Check the length before using it.
+
+Left for the day the app is published:
+
+- Deploy to Vercel with the environment variables above, then run `PWSTREAMER_APP_URL=<the address> npx supabase config push` so the site URL and the redirect list point at it instead of `http://localhost:3211`.
+- Mark the stacked pull requests ready.
 
 ### Express server
 

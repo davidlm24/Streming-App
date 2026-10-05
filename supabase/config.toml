@@ -424,3 +424,58 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# ── O projeto na nuvem ──────────────────────────────────────────────────────
+# O que está acima vale para o Supabase local, de desenvolvimento. O que está
+# aqui vale para o projeto de produção, e `npx supabase config push` leva só
+# isto para lá. Sem esta separação, um push levaria a confirmação de e-mail
+# desligada do desenvolvimento para a produção, e qualquer pessoa poderia
+# reivindicar o e-mail da administração.
+#
+# O endereço do app vem de PWSTREAMER_APP_URL, porque o mesmo arquivo serve ao
+# teste (http://localhost:3211) e à produção (o endereço da Vercel). Sem a
+# variável, o push falha, em vez de gravar um endereço errado.
+[remotes.producao]
+project_id = "eqccaphvoquogxkbclwr"
+
+[remotes.producao.auth]
+site_url = "env(PWSTREAMER_APP_URL)"
+additional_redirect_urls = ["env(PWSTREAMER_APP_URL)"]
+# Entrar com o Google cria a conta na primeira vez: sem isto, ninguém se cadastra
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[remotes.producao.auth.email]
+# Só Google em produção. O formulário de e-mail e senha existe só em
+# desenvolvimento, e o pacote de produção nem o inclui
+enable_signup = false
+# O servidor trata um e-mail confirmado da lista SUPER_ADMIN_EMAILS como
+# administrador. Sem a confirmação, alguém se cadastraria com esse e-mail
+enable_confirmations = true
+# Um e-mail de confirmação por minuto, e não um por segundo como no
+# desenvolvimento: senão dá para inundar a caixa de alguém
+max_frequency = "1m0s"
+otp_length = 8
+
+[remotes.producao.auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+# O app entra por redirecionamento, e não por id_token: a conferência do nonce
+# vale, ao contrário do que o desenvolvimento local faz
+skip_nonce_check = false
+
+# Daqui para baixo, valores que a produção já tinha e que o desenvolvimento
+# sobrescreveria. O push leva tudo o que o arquivo declara, inclusive o que
+# está na parte local, então o que a produção deve manter é repetido aqui.
+[remotes.producao.auth.mfa.totp]
+# O app não tem tela de MFA, mas desligar no projeto tiraria a proteção de quem
+# a ativasse pelo painel
+enroll_enabled = true
+verify_enabled = true
+
+[remotes.producao.db.pooler]
+# A capacidade que o projeto já traz. O número do desenvolvimento cortaria as
+# conexões de produção pela metade
+default_pool_size = 15
+max_client_conn = 200

@@ -235,22 +235,46 @@ async function carregarPerfil(usuario: User): Promise<UserProfile> {
 }
 
 /**
+ * Quais formas de entrar o projeto aceita. O projeto de produção só aceita o
+ * Google; o local, de desenvolvimento, também aceita e-mail e senha. A
+ * resposta é a mesma para todo mundo e não depende de sessão, então vale uma
+ * consulta por visita.
+ */
+export interface FormasDeEntrar {
+  google: boolean;
+  email: boolean;
+}
+
+let formasPedidas: Promise<FormasDeEntrar> | null = null;
+
+export function formasDeEntrar(): Promise<FormasDeEntrar> {
+  formasPedidas ??= (async () => {
+    const resposta = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/auth/v1/settings`, {
+      headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? '' },
+    });
+    // Sem a resposta dos ajustes, assume que as duas valem: o próprio Supabase
+    // dirá o que houve na tentativa, com a frase da falha
+    if (!resposta.ok) return { google: true, email: true };
+    const ajustes = (await resposta.json()) as { external?: { google?: boolean; email?: boolean } };
+    return { google: ajustes?.external?.google !== false, email: ajustes?.external?.email !== false };
+  })();
+  // Uma falha não fica guardada: a próxima tentativa pergunta de novo
+  formasPedidas.catch(() => {
+    formasPedidas = null;
+  });
+  return formasPedidas;
+}
+
+/**
  * O login do Google está ligado no projeto? Sem isso, o Supabase abriria uma
  * página de erro crua no lugar do Google.
  */
 async function googleLigado(): Promise<boolean> {
-  let resposta: Response;
   try {
-    resposta = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/auth/v1/settings`, {
-      headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? '' },
-    });
+    return (await formasDeEntrar()).google;
   } catch {
     throw new ErroAoEntrar('sem-conexao');
   }
-  // Sem a resposta dos ajustes, tenta: o próprio Supabase diz o que houve
-  if (!resposta.ok) return true;
-  const ajustes = await resposta.json().catch(() => null);
-  return ajustes?.external?.google !== false;
 }
 
 /**

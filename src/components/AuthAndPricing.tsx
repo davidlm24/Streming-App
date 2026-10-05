@@ -3,7 +3,7 @@ import { ArrowRight, CircleAlert } from 'lucide-react';
 import { LegalModal } from './LegalModals';
 import { InicioPublico } from './InicioPublico';
 import { PublicHeader, type VisaoPublica } from './PublicHeader';
-import { ErroAoEntrar, loginWithGoogle, loginWithEmail, registerWithEmail, type FalhaAoEntrar } from '../lib/dadosDaConta';
+import { ErroAoEntrar, formasDeEntrar, loginWithGoogle, loginWithEmail, registerWithEmail, type FalhaAoEntrar } from '../lib/dadosDaConta';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 
@@ -87,6 +87,27 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
   // formulario varias vezes sem nenhum retorno visual.
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
   const [entrandoComGoogle, setEntrandoComGoogle] = useState(false);
+
+  // O formulário de e-mail e senha é de desenvolvimento, mas o projeto do
+  // Supabase é quem decide se aceita e-mail: o de produção só aceita Google.
+  // Apontando o app local para ele, o formulário aparecia e toda tentativa
+  // dava "Não deu para entrar. Tente de novo.", sem dizer por quê. Começa
+  // escondido: mostrar um formulário que não funciona é pior do que esperar.
+  const [aceitaEmail, setAceitaEmail] = useState(false);
+  useEffect(() => {
+    if (!IS_DEV) return;
+    let valendo = true;
+    formasDeEntrar()
+      .then((formas) => {
+        if (valendo) setAceitaEmail(formas.email);
+      })
+      .catch(() => {
+        /* sem os ajustes, o formulário fica escondido e o Google diz o que houve */
+      });
+    return () => {
+      valendo = false;
+    };
+  }, []);
 
   // O navegador sai para o Google e volta com a sessão, que o App recebe. O
   // botão fica em espera até a página trocar.
@@ -240,7 +261,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
               Entrar com Google
             </Button>
 
-            {IS_DEV && (
+            {IS_DEV && aceitaEmail && (
               <form onSubmit={handleLogin} className="mt-8 border-t border-[var(--line)] pt-6">
                 <p className="text-xs text-[var(--ink-lo)]">Só em desenvolvimento: e-mail e senha.</p>
                 <div className="mt-4 space-y-5">
@@ -317,7 +338,7 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
               .
             </p>
 
-            {IS_DEV && (
+            {IS_DEV && aceitaEmail && (
               <form onSubmit={handleRegister} className="mt-8 border-t border-[var(--line)] pt-6">
                 <p className="text-xs text-[var(--ink-lo)]">Só em desenvolvimento: nome, e-mail e senha.</p>
                 <div className="mt-4 space-y-5">
