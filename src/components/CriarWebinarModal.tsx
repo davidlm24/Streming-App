@@ -4,6 +4,7 @@ import type { Destination } from '../types';
 import { PLATAFORMAS_NOMEADAS, estadoDoCanal, nomeDaPlataforma, pendenciaCurta } from '../lib/canais';
 import { ErroAoSalvar, type FalhaAoSalvar } from '../lib/dadosDaConta';
 import { horarioPorExtenso } from '../lib/horario';
+import { LIMITE_DE_WEBINARS } from '../lib/limitesDaConta';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { CaixaDeSelecao } from './ui/CaixaDeSelecao';
@@ -44,6 +45,8 @@ const O_QUE_DIZER: Record<FalhaAoSalvar, string> = {
   'sem-login': 'Sua sessão expirou, então o webinar não foi agendado.',
   'sem-conexao': 'Sem conexão com a sua conta agora. Tente de novo mais tarde.',
   'sem-confirmacao': 'Não deu para confirmar que o webinar foi agendado. Confira a conexão e tente de novo.',
+  'limite-da-conta': `A sua conta já guarda ${LIMITE_DE_WEBINARS} webinars, o limite. Exclua um que não usa e agende de novo.`,
+  'grande-demais': 'Os dados do webinar são grandes demais para salvar. Encurte o título e tente de novo.',
   recusado: 'Não foi possível agendar o webinar. Tente de novo.',
 };
 
