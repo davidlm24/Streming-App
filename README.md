@@ -20,8 +20,14 @@ View your app in AI Studio: https://ai.studio/apps/d116304c-f3fc-41ee-8b60-b6de3
 3. Copy `.env.example` to `.env` and set the Supabase values printed by `npx supabase status -o env`: `VITE_SUPABASE_URL` and `SUPABASE_URL` (the `API_URL`), `VITE_SUPABASE_PUBLISHABLE_KEY` (the `PUBLISHABLE_KEY`) and `SUPABASE_SECRET_KEY` (the `SECRET_KEY`). Without them nobody signs in. Add Stripe, Cloudflare, and Gemini credentials for the corresponding integrations.
 4. Create the local test accounts (`dona@example.test`, `outra@example.test`, `admin@example.test`; the passwords are in `scripts/contas-de-teste.mjs`) and put `admin@example.test` in `SUPER_ADMIN_EMAILS` to use the Administração:
    `npm run db:contas`
-5. Run the app and sign in with the development email form (Google is off locally unless you configure it in `supabase/config.toml`):
+5. Run the app:
    `npm run dev`
+
+   It signs itself in as `dona@example.test`, so reloading a page does not cost a login. The session is real: the studio, the channels and the media work against the local database. To work as somebody else, set `VITE_DEV_LOGIN_EMAIL` and `VITE_DEV_LOGIN_SENHA` in `.env` — `admin@example.test` is the one that sees the Administração.
+
+   Signing out turns the automatic sign-in off, so that it stays testable; the sign-in screen then offers to turn it back on. The e-mail and password form is still there for signing in as anyone else.
+
+   **It only happens in development, against the local Supabase.** Vite removes the whole thing from the production bundle, credentials included, and a development build pointed at the hosted project does not try to sign in at all. Google is off locally unless you configure it in `supabase/config.toml`.
 
 The Supabase secret key belongs only in the server environment. Never prefix it with `VITE_` or expose it to browser code.
 
