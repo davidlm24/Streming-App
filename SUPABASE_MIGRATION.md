@@ -8,7 +8,7 @@
 - **Google sign-in only in production**, as today. Email and password stay in development. The Google Meet scopes the Firebase sign-in requested are dropped: the app never used them.
 - **The full control-plane schema** (`20260924121120_streaming_control_plane.sql`), plus what the app uses today and that schema lacked (`20260930150000_acrescimos_do_app.sql`): teleprompter scripts, separate banner and ticker lists in `studio_settings`, and the profile photo and name from Google.
 - **The RTMP key regeneration route is removed** (stage 2). It had no screen and no ingest behind it, and it wrote to the Firestore `rtmpKeys` and `auditLogs` collections. The `rtmp_keys` tables stay in the schema for when ingest arrives.
-- **Stages 2 and 3 ship together, at the cutover.** After stage 2 the server accepts only Supabase sessions while the client still signs in with Firebase, so the stage 2 pull request stays a draft until stage 3 is ready.
+- **Stages 2 and 3 shipped together, at the cutover.** After stage 2 the server accepts only Supabase sessions while the client still signed in with Firebase, so that stage could not reach `main` on its own. In the end the whole stack went in as one merge, with no intermediate state ever deployed.
 - **The studio media lives in the account** (stage 4).
   - Each account keeps up to 200 MB and 300 files in the `media-assets` bucket, with 50 MB per file (the free plan's cap).
   - Only the formats the studio sends go in: PNG, JPEG, WebP, MP4 and WebM. A logo chosen as SVG is converted to PNG in the browser, because an SVG can carry script.
@@ -151,10 +151,39 @@ Done in stage 5 (the cutover):
 - **The client's Supabase values are build-time.** Vite inlines `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` into the bundle, so they must exist in the deployment environment before the build runs, not only at runtime.
 - **`supabase projects api-keys` masks the secret key** unless `--reveal` is passed. A truncated key (15 characters instead of 41) looks plausible and fails indirectly: the browser holds a valid session, but the server answers `401 Unauthorized: Invalid token` and logs `Admin role sync failed: Invalid API key`, so the app shows the signed-out page. Check the length before using it.
 
-Left for the day the app is published:
+## Where it stands
 
-- Deploy to Vercel with the environment variables above, then run `PWSTREAMER_APP_URL=<the address> npx supabase config push` so the site URL and the redirect list point at it instead of `http://localhost:3211`.
-- Mark the stacked pull requests ready.
+The migration is finished in the code and in the database. Everything below is on `main`, and the hosted project is configured and was exercised end to end.
+
+| | |
+| --- | --- |
+| Project | `pwstreamer`, ref `eqccaphvoquogxkbclwr`, `sa-east-1` |
+| Migrations applied | 6, through `20261001120000_limites_de_tamanho.sql` |
+| `supabase db advisors --linked` | one WARN, below |
+| Auth | Google on, e-mail sign-up off, confirmations on, anonymous off |
+| Verified against the hosted project | sign-in, profile from Google, 30-day trial, `super_admin` sync, the administration list through RLS, and a studio image uploaded to the real bucket |
+
+## What remains
+
+**1. Publish (the only step between here and production).**
+
+- Set the environment variables on Vercel **before the first build**: Vite inlines `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` into the bundle, so a build that runs without them ships the wrong values. Also `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `APP_URL`, the Stripe price IDs, the Stripe webhook secret, and `SUPER_ADMIN_EMAILS`.
+- Deploy, then point the project at the address:
+
+  ```
+  PWSTREAMER_APP_URL=https://<the address> npx supabase config push
+  ```
+
+  Until this runs, the hosted project's `site_url` and redirect list still say `http://localhost:3211`, left from the test, and sign-in returns there.
+- **Google needs nothing.** Its authorized redirect URI is the Supabase callback (`https://eqccaphvoquogxkbclwr.supabase.co/auth/v1/callback`), which does not change with the deploy. The app's address lives in Supabase's allow list, not Google's.
+
+**2. The owner's, and nobody else can do them.**
+
+- Move the database password out of `.env.supabase-producao` into a password manager, and delete the file. The password is not used by the app: only by the CLI, to push migrations. It can be rotated in the dashboard.
+- **Revoke the Cloudflare Stream token that is in the git history.** It predates this migration and is still reachable by anyone who clones the repository.
+- Optional: turn on leaked-password protection (Authentication → Policies). It is the one advisor WARN. It changes nothing today, because production accepts Google only and holds no passwords, but it would already be in place if e-mail is ever enabled. `config.toml` does not expose it; it is a dashboard setting.
+
+**3. Not applicable.** The "source and target counts reconcile after the final delta import" gate below belongs to the import path that was not taken: the migration started from zero, so there is nothing to reconcile.
 
 ### Express server
 
@@ -235,7 +264,9 @@ Then verify:
 
 ## Rollback
 
-Keep the Firebase application configuration and backups intact until the monitoring window closes. If the Supabase cutover fails, restore the previous deployment configuration, re-enable Firebase writes, and use the migration journal to identify records created while the new system was active. Do not delete Firebase data as part of this migration.
+Keep the Firebase project, its data and its backups intact until the monitoring window closes, even though the repository no longer holds any Firebase code, rules or configuration. Do not delete Firebase data as part of this migration.
+
+Rolling back means deploying a commit from before the cutover merge, not reverting files: the app, the server and the database schema changed together. The commit to return to is the first parent of `main`'s merge of the stack. Nobody signed in to Supabase before the cutover, so there is no Supabase data to reconcile on the way back — only accounts created after it, which would have to sign in to Firebase again.
 
 ## References
 
