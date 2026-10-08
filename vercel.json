@@ -1,6 +1,7 @@
 {
   "version": 2,
   "framework": "vite",
+  "regions": ["gru1"],
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "headers": [
