@@ -17,6 +17,8 @@ interface BandejaDoEstudioProps {
   mostrarGuias: boolean;
   onAlternarGuias: () => void;
   onEscolherDispositivo: (tipo: Tipo, deviceId: string, rotulo: string) => void;
+  /** Muda quando a trilha de áudio é trocada dentro do mesmo stream: o medidor passa a ouvir a nova. */
+  versaoDoAudio: number;
 }
 
 /**
@@ -88,6 +90,7 @@ export function BandejaDoEstudio({
   mostrarGuias,
   onAlternarGuias,
   onEscolherDispositivo,
+  versaoDoAudio,
 }: BandejaDoEstudioProps) {
   const dispositivos = useDispositivos(stream);
   const atual = (tipo: Tipo) =>
@@ -123,7 +126,7 @@ export function BandejaDoEstudio({
           <Palavra>{mudo ? 'Microfone mudo' : 'Microfone'}</Palavra>
         </Button>
       </ComMenu>
-      <MedidorDeAudio stream={stream} mudo={mudo} />
+      <MedidorDeAudio key={versaoDoAudio} stream={stream} mudo={mudo} />
 
       <ComMenu rotulo="Escolher a câmera" itens={itensDaCamera}>
         <Button
