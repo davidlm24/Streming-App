@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 /**
@@ -12,15 +12,17 @@ export function Monitor({
   cena,
   children,
   className = '',
+  monitorRef,
 }: {
   papel: 'programa' | 'preview';
   cena: string;
   children: ReactNode;
   className?: string;
+  monitorRef?: Ref<HTMLElement>;
 }) {
   const nome = papel === 'programa' ? 'Programa' : 'Preview';
   return (
-    <section aria-label={`${nome}: ${cena}`} className={`flex min-w-0 flex-col ${className}`}>
+    <section ref={monitorRef} aria-label={`${nome}: ${cena}`} className={`flex min-w-0 flex-col ${className}`}>
       <div className="mb-2 flex h-4 min-w-0 items-baseline gap-2">
         <h2 className="shrink-0 text-xs font-medium leading-4 text-[var(--ink-hi)]">{nome}</h2>
         <span className="truncate text-xs leading-4 text-[var(--ink-lo)]">{cena}</span>
@@ -104,6 +106,7 @@ export function MesaDeMonitores({
   preview,
   proximoCorte,
   transicaoNoCelular,
+  refDoPreview,
 }: {
   cenaDoPrograma: string;
   cenaDoPreview: string;
@@ -111,6 +114,7 @@ export function MesaDeMonitores({
   preview: ReactNode;
   proximoCorte: ReactNode;
   transicaoNoCelular: ReactNode;
+  refDoPreview?: Ref<HTMLElement>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [medidas, setMedidas] = useState<Medidas | null>(null);
@@ -184,7 +188,7 @@ export function MesaDeMonitores({
               {programa}
             </div>
           </Monitor>
-          <Monitor papel="preview" cena={cenaDoPreview}>
+          <Monitor papel="preview" cena={cenaDoPreview} monitorRef={refDoPreview}>
             <div
               className={`relative w-full ${medidas ? '' : 'aspect-video'}`}
               style={medidas ? { height: medidas.alturaDoPreview } : undefined}

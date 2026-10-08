@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ClipeNoPalco, Comment, Destination, GeometriaDoCard, GraficosDoPalco, Participant, StudioSceneState } from '../types';
 import { CENA_INICIAL, FONTE_CAMERA, FONTE_TELA, cenaPeloId, layoutUsaCard, lerCardSalvo, precisaDaTela, salvarCard, type Cena } from '../lib/cenas';
 import { LOGO_PADRAO, QR_PADRAO, graficosVazios, mudancasNoCorte, normalizarLink, relogioParado, type RelogioDoCronometro } from '../lib/graficos';
@@ -405,6 +405,44 @@ export function Estudio({
   // ── O painel da ferramenta aberta ─────────────────────────────────────────
   const [ferramenta, setFerramenta] = useState<Ferramenta>(FERRAMENTA_INICIAL);
   const [mostrarGuias, setMostrarGuias] = useState(false);
+  const areaDoEstudioRef = useRef<HTMLElement>(null);
+  const previewRef = useRef<HTMLElement>(null);
+  const botaoVerPreviewRef = useRef<HTMLButtonElement>(null);
+  const botaoVoltarRef = useRef<HTMLButtonElement>(null);
+  const [posicaoDosAjustes, setPosicaoDosAjustes] = useState<number | null>(null);
+
+  const rolarAoPreview = () => {
+    const area = areaDoEstudioRef.current;
+    const preview = previewRef.current;
+    if (!area || !preview) return;
+    area.scrollTo({
+      top: area.scrollTop + preview.getBoundingClientRect().top - area.getBoundingClientRect().top - 8,
+      behavior: 'instant',
+    });
+    botaoVoltarRef.current?.focus({ preventScroll: true });
+  };
+
+  const verPreview = () => {
+    const area = areaDoEstudioRef.current;
+    if (!area || !previewRef.current) return;
+    // Num segundo toque a posição guardada é a dos ajustes, não a do preview
+    if (posicaoDosAjustes !== null) return rolarAoPreview();
+    setPosicaoDosAjustes(area.scrollTop);
+  };
+
+  const voltarAosAjustes = () => {
+    const area = areaDoEstudioRef.current;
+    if (!area || posicaoDosAjustes === null) return;
+    area.scrollTo({ top: posicaoDosAjustes, behavior: 'instant' });
+    setPosicaoDosAjustes(null);
+    requestAnimationFrame(() => botaoVerPreviewRef.current?.focus({ preventScroll: true }));
+  };
+
+  useLayoutEffect(() => {
+    if (posicaoDosAjustes === null) return;
+    const quadro = requestAnimationFrame(rolarAoPreview);
+    return () => cancelAnimationFrame(quadro);
+  }, [posicaoDosAjustes]);
 
   const painel = (() => {
     switch (ferramenta) {
@@ -512,13 +550,16 @@ export function Estudio({
         canaisProntos={ligados.filter((d) => estadoDoCanal(d) === 'pronto').length}
         onCanais={onCanais}
         onSair={onSair}
+        onVoltarAosAjustes={voltarAosAjustes}
+        mostrarVoltaAosAjustes={posicaoDosAjustes !== null}
+        botaoVoltarRef={botaoVoltarRef}
       />
 
       {/* O console: cenas e transição, programa e preview, chat e ferramentas, e
           a bandeja. Abaixo de lg vira uma coluna que rola, e o painel da
           ferramenta cresce com ela: numa caixa de altura fixa, metade de
           Gráficos ficava numa rolagem dentro da rolagem. */}
-      <main className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[14rem_minmax(0,1fr)_23rem] lg:overflow-hidden">
+      <main ref={areaDoEstudioRef} className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[14rem_minmax(0,1fr)_23rem] lg:overflow-hidden">
         <aside
           aria-label="Cenas e transição"
           className="order-2 border-t border-[var(--line)] bg-[var(--surface)] lg:order-1 lg:overflow-y-auto lg:border-r lg:border-t-0"
@@ -558,6 +599,7 @@ export function Estudio({
             })}
             proximoCorte={<ProximoCorte mudancas={mudancas} />}
             transicaoNoCelular={<BotoesDeTransicao temMudanca={temMudanca} cortando={programaQueSai !== null} onCortar={cortar} />}
+            refDoPreview={previewRef}
           />
         </div>
 
@@ -565,7 +607,15 @@ export function Estudio({
           aria-label="Chat e ferramentas"
           className="order-3 border-t border-[var(--line)] bg-[var(--surface)] lg:min-h-0 lg:border-l lg:border-t-0"
         >
-          <PainelDoEstudio ativa={ferramenta} onEscolher={setFerramenta}>
+          <PainelDoEstudio
+            ativa={ferramenta}
+            onEscolher={(proxima) => {
+              setFerramenta(proxima);
+              setPosicaoDosAjustes(null);
+            }}
+            onVerPreview={verPreview}
+            botaoVerPreviewRef={botaoVerPreviewRef}
+          >
             {painel}
           </PainelDoEstudio>
         </aside>
