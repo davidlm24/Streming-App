@@ -10,6 +10,7 @@ import { rotuloDoHorario } from './lib/horario';
 import { ConfiguracoesPagina } from './components/ConfiguracoesPagina';
 import { Estudio } from './components/Estudio';
 import { AuthAndPricing } from './components/AuthAndPricing';
+import { desligarEntradaAutomatica, entrarSozinho } from './lib/loginDeDesenvolvimento';
 import { SuperAdminPanel } from './components/SuperAdminPanel';
 import { PlansModal } from './components/PlansModal';
 import { PlanoPagina } from './components/PlanoPagina';
@@ -89,7 +90,17 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  // Em desenvolvimento, contra o Supabase local, o app entra sozinho com uma
+  // conta de teste: recarregar a página não custa um login. Em produção o Vite
+  // apaga esta chamada. Quem sai de propósito não volta sozinho.
+  useEffect(() => {
+    void entrarSozinho();
+  }, []);
+
   const handleLogout = async () => {
+    // Antes de sair: senão a recarga logo abaixo entraria de novo sozinha, em
+    // desenvolvimento, e não haveria como testar a saída
+    desligarEntradaAutomatica();
     await sairDaConta();
     window.location.replace('/');
   };

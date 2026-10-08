@@ -4,6 +4,7 @@ import { LegalModal } from './LegalModals';
 import { InicioPublico } from './InicioPublico';
 import { PublicHeader, type VisaoPublica } from './PublicHeader';
 import { ErroAoEntrar, formasDeEntrar, loginWithGoogle, loginWithEmail, registerWithEmail, type FalhaAoEntrar } from '../lib/dadosDaConta';
+import { entradaAutomaticaDesligada, religarEntradaAutomatica } from '../lib/loginDeDesenvolvimento';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 
@@ -260,6 +261,21 @@ export function AuthAndPricing({ onAuthSuccess, initialView = 'landing' }: AuthA
             >
               Entrar com Google
             </Button>
+
+            {entradaAutomaticaDesligada() && (
+              <p className="mt-6 text-xs text-[var(--ink-lo)]">
+                Você saiu, então a entrada automática de desenvolvimento está desligada.{' '}
+                <AcaoDeTexto
+                  sublinhada
+                  onClick={() => {
+                    religarEntradaAutomatica();
+                    window.location.replace('/');
+                  }}
+                >
+                  Religar
+                </AcaoDeTexto>
+              </p>
+            )}
 
             {IS_DEV && aceitaEmail && (
               <form onSubmit={handleLogin} className="mt-8 border-t border-[var(--line)] pt-6">
