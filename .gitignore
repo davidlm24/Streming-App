@@ -13,3 +13,4 @@ coverage/
 # worktrees em si também são locais.
 .claude/launch.json
 .claude/worktrees/
+.vercel

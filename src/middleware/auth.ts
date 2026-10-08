@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getSupabaseUserFromAccessToken, isSupabaseServerConfigured } from '../lib/supabase-admin.ts';
+import { getSupabaseUserFromAccessToken, isSupabaseServerConfigured } from '../lib/supabase-admin.js';
 
 /**
  * Quem fez o pedido, como o serviço de autenticação do Supabase o validou. Os
