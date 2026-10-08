@@ -1,3 +1,4 @@
+import type { Ref } from 'react';
 import { PwStreamLogo } from './PwStreamLogo';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
@@ -9,6 +10,9 @@ interface BarraDoEstudioProps {
   canaisProntos: number;
   onCanais: () => void;
   onSair: () => void;
+  onVoltarAosAjustes: () => void;
+  mostrarVoltaAosAjustes: boolean;
+  botaoVoltarRef: Ref<HTMLButtonElement>;
 }
 
 /**
@@ -20,43 +24,53 @@ interface BarraDoEstudioProps {
  * (que não muda o console) e a conta. O ar ainda não existe, e o que era de
  * canal virou uma linha que diz quantos estão prontos e abre os canais.
  */
-export function BarraDoEstudio({ sessao, canaisLigados, canaisProntos, onCanais, onSair }: BarraDoEstudioProps) {
+export function BarraDoEstudio({ sessao, canaisLigados, canaisProntos, onCanais, onSair, onVoltarAosAjustes, mostrarVoltaAosAjustes, botaoVoltarRef }: BarraDoEstudioProps) {
   const canais =
     canaisLigados === 0
       ? 'Nenhum canal ligado'
       : `Canais: ${canaisProntos} de ${canaisLigados} ${canaisLigados === 1 ? 'pronto' : 'prontos'}`;
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-4 border-b border-[var(--line)] bg-[var(--surface)] px-3 sm:px-4">
-      <button
-        type="button"
-        onClick={onSair}
-        aria-label="PwStreamer, voltar ao Painel"
-        className="flex shrink-0 items-center cursor-pointer"
-      >
-        <span className="hidden sm:inline-flex">
-          <PwStreamLogo iconSize={24} textSize="sm" monocromatico />
-        </span>
-        <span className="inline-flex sm:hidden">
-          <PwStreamLogo iconSize={24} showText={false} monocromatico />
-        </span>
-      </button>
+    <>
+      <header className="flex h-12 shrink-0 items-center gap-4 border-b border-[var(--line)] bg-[var(--surface)] px-3 sm:px-4">
+        <button
+          type="button"
+          onClick={onSair}
+          aria-label="PwStreamer, voltar ao Painel"
+          className="flex shrink-0 items-center cursor-pointer"
+        >
+          <span className="hidden sm:inline-flex">
+            <PwStreamLogo iconSize={24} textSize="sm" monocromatico />
+          </span>
+          <span className="inline-flex sm:hidden">
+            <PwStreamLogo iconSize={24} showText={false} monocromatico />
+          </span>
+        </button>
 
-      <h1 className="min-w-0 truncate text-sm font-medium text-[var(--ink-hi)]">
-        Estúdio
-        {sessao && <span className="font-normal text-[var(--ink-lo)]"> · {sessao}</span>}
-      </h1>
+        <h1 className="min-w-0 truncate text-sm font-medium text-[var(--ink-hi)]">
+          Estúdio
+          {sessao && <span className="font-normal text-[var(--ink-lo)]"> · {sessao}</span>}
+        </h1>
 
-      <div className="ml-auto flex shrink-0 items-center gap-4">
-        <span className="hidden md:inline-flex">
-          <AcaoDeTexto tamanho="xs" onClick={onCanais} className="min-h-11">
-            {canais}
+        <div className="ml-auto flex shrink-0 items-center gap-4">
+          <span className="hidden md:inline-flex">
+            <AcaoDeTexto tamanho="xs" onClick={onCanais} className="min-h-11">
+              {canais}
+            </AcaoDeTexto>
+          </span>
+          <Button variant="ghost" size="sm" onClick={onSair}>
+            Sair do estúdio
+          </Button>
+        </div>
+      </header>
+      <div className={`flex min-h-11 shrink-0 items-center border-b border-[var(--line)] bg-[var(--surface)] px-3 text-xs text-[var(--ink-hi)] lg:hidden ${mostrarVoltaAosAjustes ? 'justify-between gap-2' : 'justify-center'}`}>
+        <span>{mostrarVoltaAosAjustes ? 'Ensaio local · não está no ar.' : 'Ensaio local · nada está sendo transmitido.'}</span>
+        {mostrarVoltaAosAjustes && (
+          <AcaoDeTexto ref={botaoVoltarRef} tamanho="xs" sublinhada className="-mb-px min-h-11 shrink-0 whitespace-nowrap" onClick={onVoltarAosAjustes}>
+            Voltar aos ajustes
           </AcaoDeTexto>
-        </span>
-        <Button variant="ghost" size="sm" onClick={onSair}>
-          Sair do estúdio
-        </Button>
+        )}
       </div>
-    </header>
+    </>
   );
 }

@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
-import { Camera, Film, Layers, MessageSquare, QrCode, ScrollText } from 'lucide-react';
+import type { ReactNode, Ref } from 'react';
+import { Camera, Eye, Film, Layers, MessageSquare, QrCode, ScrollText } from 'lucide-react';
+import { Button } from './ui/Button';
 import { useTabs } from './ui/Tabs';
 
 export type Ferramenta = 'chat' | 'graficos' | 'roteiro' | 'qr' | 'midia' | 'camera';
@@ -30,10 +31,14 @@ export const FERRAMENTA_INICIAL: Ferramenta = 'chat';
 export function PainelDoEstudio({
   ativa,
   onEscolher,
+  onVerPreview,
+  botaoVerPreviewRef,
   children,
 }: {
   ativa: Ferramenta;
   onEscolher: (ferramenta: Ferramenta) => void;
+  onVerPreview: () => void;
+  botaoVerPreviewRef: Ref<HTMLButtonElement>;
   children: ReactNode;
 }) {
   const abas = useTabs(
@@ -51,6 +56,18 @@ export function PainelDoEstudio({
     // painel, para ir até o fim dele.
     <div className="flex lg:h-full lg:min-h-0">
       <div {...abas.panel(ativa)} className="min-w-0 flex-1 border-r border-[var(--line)] lg:overflow-y-auto">
+        <div className="sticky top-0 z-10 border-b border-[var(--line)] bg-[var(--surface)] px-4 py-1 lg:hidden">
+          <Button
+            ref={botaoVerPreviewRef}
+            variant="ghost"
+            size="sm"
+            icon={<Eye size={16} aria-hidden="true" />}
+            onClick={onVerPreview}
+            className="min-h-11 w-full"
+          >
+            Ver preview
+          </Button>
+        </div>
         {children}
       </div>
       <div
