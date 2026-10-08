@@ -1,0 +1,44 @@
+<!-- @dsCard height=288 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<div class="cover">
+  <!--
+    Derivation
+    blocks: brand-deep 272×288 (the program monitor, square, bleeding top and bottom) · brand-lift 144×120 rx radius-xl (a control) · ink-hi 144×120 rx radius-xl (a control, reads on both grounds) · sig 64×24 rx 12 (the LIVE pill: a state colour, kept small)
+    arrangement: one tall slab at x=512 with two rounded satellites to its right, separated by row-y (16px) gaps; the pill sits on the slab like the pill on the bar
+    pattern: the literal motif, the tally corner marks (8 bars, tally-mark 4px thick, arms 13% × 22%), on the slab in n-92 and on the brand-lift block in brand-deep: the system's own sign for "on air", and no generic system would land on it
+    scales: gaps row-y 16px, inset row-y 16px, corners radius-xl 16px, bars tally-mark 4px, pill radius 12px (half its short side)
+  -->
+  <svg class="art" width="960" height="288" viewBox="0 0 960 288" aria-hidden="true">
+    <g class="slab"><rect x="512" y="0" width="272" height="288"/></g>
+    <g class="mark">
+      <rect x="528" y="16" width="35" height="4"/><rect x="528" y="16" width="4" height="63"/>
+      <rect x="733" y="16" width="35" height="4"/><rect x="764" y="16" width="4" height="63"/>
+      <rect x="528" y="268" width="35" height="4"/><rect x="528" y="209" width="4" height="63"/>
+      <rect x="733" y="268" width="35" height="4"/><rect x="764" y="209" width="4" height="63"/>
+    </g>
+    <g class="lift"><rect x="800" y="16" width="144" height="120" rx="16"/></g>
+    <g class="deep">
+      <rect x="816" y="32" width="19" height="4"/><rect x="816" y="32" width="4" height="26"/>
+      <rect x="909" y="32" width="19" height="4"/><rect x="924" y="32" width="4" height="26"/>
+      <rect x="816" y="116" width="19" height="4"/><rect x="816" y="94" width="4" height="26"/>
+      <rect x="909" y="116" width="19" height="4"/><rect x="924" y="94" width="4" height="26"/>
+    </g>
+    <g class="ink"><rect x="800" y="152" width="144" height="120" rx="16"/></g>
+    <g class="sig"><rect x="528" y="232" width="64" height="24" rx="12"/></g>
+  </svg>
+  <div class="name">PwStreamer<br>Live</div>
+  <div class="tag">Uma live em todos os canais. Azul na ação, carmim no ar, o resto na rampa.</div>
+</div>
+<style>
+  html, body { margin: 0; background: var(--bg); }
+  .cover { position: relative; width: 960px; height: 288px; overflow: hidden; background: var(--bg); font-family: var(--font-sans); }
+  .art { position: absolute; inset: 0; display: block; }
+  .slab rect { fill: var(--brand-deep); }
+  .mark rect { fill: var(--n-92); }
+  .lift rect { fill: var(--brand-lift); }
+  .deep rect { fill: var(--brand-deep); }
+  .ink rect { fill: var(--ink-hi); }
+  .sig rect { fill: var(--sig); }
+  .name { position: absolute; left: 32px; bottom: 64px; max-width: 440px; font-size: 72px; font-weight: 600; line-height: 0.95; letter-spacing: -0.025em; color: var(--ink-hi); }
+  .tag { position: absolute; left: 32px; bottom: 24px; max-width: 440px; font-size: 13px; line-height: 1.33; color: var(--ink-lo); }
+</style>

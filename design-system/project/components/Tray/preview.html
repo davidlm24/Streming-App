@@ -1,0 +1,10 @@
+<!-- @dsCard group="Studio" height=130 width=960 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<div id="root" class="pw pw-console" data-theme="console" style="padding:0px"></div>
+<script>
+(function(){
+  var P = window.PwStreamer, h = React.createElement, I = function(n, s, x){ return h(P.Icon, Object.assign({ name: n, size: s || 16 }, x || {})); };
+  var tree = (function(){ return h(P.Tray, { state: { mic: true, camera: true, screen: false, guides: true }, level: 0.62, db: -18, peak: 0.71, mics: [{ label: 'Microfone (Yeti)', icon: I('check', 14) }, { label: 'Microfone do notebook', icon: h('span', { style: { width: 14, display: 'inline-block' } }) }], cameras: [{ label: 'Câmera (Logitech C920)', icon: I('check', 14) }, { label: 'Câmera integrada', icon: h('span', { style: { width: 14, display: 'inline-block' } }) }], note: 'Transmitir para os canais ainda não está no\u00a0ar.' }); })();
+  ReactDOM.createRoot(document.getElementById('root')).render(tree);
+})();
+</script>

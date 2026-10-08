@@ -1,0 +1,48 @@
+{
+  "v": 3,
+  "layout": "files",
+  "createdOnFiles": { "v": 1, "at": "2026-10-08T21:05:00Z" },
+  "title": "PwStreamer Live",
+  "namespace": "PwStreamer",
+  "libraries": [
+    { "name": "react", "version": "18" },
+    { "name": "react-dom", "version": "18" }
+  ],
+  "sections": {},
+  "groups": ["Logos", "Icons", "Images"],
+  "assetGroups": {
+    "Logos": {
+      "name": "Logos",
+      "tile": "l",
+      "order": ["pwstreamer-mark.svg", "pwstreamer-mark-mono.svg"],
+      "files": {
+        "pwstreamer-mark.svg": { "name": "pwstreamer-mark.svg", "blob": "6101b340ef23de557d2972461a7a5d9a", "size": 1214, "type": "image/svg+xml" },
+        "pwstreamer-mark-mono.svg": { "name": "pwstreamer-mark-mono.svg", "blob": "dd6ee58c86510903503b0cc3f3c05b2e", "size": 585, "type": "image/svg+xml" }
+      }
+    },
+    "Icons": {
+      "name": "Icons",
+      "tile": "s",
+      "order": ["kick.svg"],
+      "files": {
+        "kick.svg": { "name": "kick.svg", "blob": "3b9900cd20bef748003c15cbe4ecdf38", "size": 253, "type": "image/svg+xml" }
+      }
+    },
+    "Images": {
+      "name": "Images",
+      "tile": "xl",
+      "order": ["painel-exemplo.png"],
+      "files": {
+        "painel-exemplo.png": { "name": "painel-exemplo.png", "blob": "ccd2df818607144aab127b89d908ecf8", "size": 143163, "type": "image/png" }
+      }
+    }
+  },
+  "blobs": {},
+  "docs": { "readme": "project/README.md", "sections": [] },
+  "lastChange": {
+    "by": "davidlm24",
+    "at": "2026-10-08T21:05:00Z",
+    "via": "Claude Code · davidlm24/Streming-App@4eb6b71",
+    "note": "First build: tokens, brand book, 41 components and cover mined from the PwStreamer codebase and extended for a full multistreaming product."
+  }
+}

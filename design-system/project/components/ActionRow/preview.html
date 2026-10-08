@@ -1,0 +1,10 @@
+<!-- @dsCard group="Lists" height=230 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<div id="root" class="pw" style="padding:16px"></div>
+<script>
+(function(){
+  var P = window.PwStreamer, h = React.createElement, I = function(n, s, x){ return h(P.Icon, Object.assign({ name: n, size: s || 16 }, x || {})); };
+  var tree = (function(){ return h('ul', { className: 'pw-list', style: { maxWidth: 640 } }, h('li', null, h(P.ActionRow, { title: 'Ingestão por OBS, vMix ou Streamlabs', description: 'Servidor RTMP e chave de transmissão.' })), h('li', null, h(P.ActionRow, { title: 'Qualidade de vídeo', description: '1080p a 60 quadros, 6 000 kb/s.', side: h('span', { className: 'label ink-lo' }, '1080p60') })), h('li', null, h(P.ActionRow, { leading: h(P.PlatformTile, { platform: 'youtube' }), title: 'YouTube Principal', description: 'YouTube · pronto' })), h('li', null, h(P.ActionRow, { type: 'expand', expanded: true, title: 'Equipe', description: '2 pessoas · dona e operador' }))); })();
+  ReactDOM.createRoot(document.getElementById('root')).render(tree);
+})();
+</script>

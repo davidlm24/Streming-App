@@ -1,0 +1,10 @@
+<!-- @dsCard group="Analytics" height=170 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<div id="root" class="pw" style="padding:16px"></div>
+<script>
+(function(){
+  var P = window.PwStreamer, h = React.createElement, I = function(n, s, x){ return h(P.Icon, Object.assign({ name: n, size: s || 16 }, x || {})); };
+  var tree = (function(){ return h(P.Stats, null, h(P.StatTile, { label: 'Pico de espectadores', value: '1 284', delta: '12% a mais que a última live' }), h(P.StatTile, { label: 'Média', value: '842' }), h(P.StatTile, { label: 'Tempo assistido', value: '1 930', unit: 'h' }), h(P.StatTile, { label: 'Mensagens no chat', value: '—', delta: 'O chat das plataformas ainda não chega.' })); })();
+  ReactDOM.createRoot(document.getElementById('root')).render(tree);
+})();
+</script>

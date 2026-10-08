@@ -1,0 +1,16 @@
+<!-- @dsCard group="Destinations" height=260 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<div id="root" class="pw pw-console" data-theme="console" style="padding:16px"></div>
+<script>
+(function(){
+  var P = window.PwStreamer, h = React.createElement, I = function(n, s, x){ return h(P.Icon, Object.assign({ name: n, size: s || 16 }, x || {})); };
+  var tree = (function(){ return h(P.DestinationHealthTable, { rows: [
+    { platform: 'youtube', name: 'YouTube Principal', bars: 5, bitrate: 6000, fps: 60, dropped: 0, latency: 1840, state: 'stable' },
+    { platform: 'twitch', name: 'Twitch', bars: 4, bitrate: 5800, fps: 60, dropped: 3, latency: 2110, state: 'stable' },
+    { platform: 'kick', name: 'Kick', bars: 2, bitrate: 2400, fps: 48, dropped: 212, latency: 4360, state: 'unstable' },
+    { platform: 'custom', name: 'Servidor RTMP próprio', bars: 0, state: 'down' },
+    { platform: 'facebook', name: 'Facebook', bars: 1, bitrate: 900, state: 'reconnecting' }
+  ] }); })();
+  ReactDOM.createRoot(document.getElementById('root')).render(tree);
+})();
+</script>

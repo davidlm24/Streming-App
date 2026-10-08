@@ -1,0 +1,10 @@
+<!-- @dsCard group="Studio" height=300 width=960 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<div id="root" class="pw pw-console" data-theme="console" style="padding:24px"></div>
+<script>
+(function(){
+  var P = window.PwStreamer, h = React.createElement, I = function(n, s, x){ return h(P.Icon, Object.assign({ name: n, size: s || 16 }, x || {})); };
+  var tree = (function(){ return h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 } }, h(P.Monitor, { role: 'program', scene: 'Câmera', layout: 'camera' }), h(P.Monitor, { role: 'program', scene: 'Câmera', layout: 'camera', live: true }), h(P.Monitor, { role: 'preview', scene: 'Tela com câmera', layout: 'pip', guides: true })); })();
+  ReactDOM.createRoot(document.getElementById('root')).render(tree);
+})();
+</script>
