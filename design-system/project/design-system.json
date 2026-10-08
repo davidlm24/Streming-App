@@ -41,8 +41,8 @@
   "docs": { "readme": "project/README.md", "sections": [] },
   "lastChange": {
     "by": "davidlm24",
-    "at": "2026-10-08T21:05:00Z",
-    "via": "Claude Code · davidlm24/Streming-App@4eb6b71",
-    "note": "First build: tokens, brand book, 41 components and cover mined from the PwStreamer codebase and extended for a full multistreaming product."
+    "at": "2026-10-08T16:02:55Z",
+    "via": "Claude Code · davidlm24/Streming-App@6256d3c",
+    "note": "Console navy from src/index.css: 6 nv-* colours, 7 console roles repointed, n-* notes corrected."
   }
 }
