@@ -38,6 +38,8 @@ Before production use:
 3. Push the hosted Auth settings: `npx supabase config diff` to review, then `npx supabase config push`. The `[remotes.producao]` section of `supabase/config.toml` holds them, so production differs from local development in the open: e-mail sign-up off, confirmations on, Google on, and the production URLs. Set `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` and `SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET` in the shell that runs the push; they are read from the environment and never written to the file.
 4. Set the deployment environment's variables **before the build**: `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are baked into the client bundle by Vite, so a deploy built without them ships the previous values. Also set `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `APP_URL`, the Stripe price IDs, the Stripe webhook secret, and `SUPER_ADMIN_EMAILS`.
 
+5. Deploy. Production is `https://streming-app-five.vercel.app` (Vercel project `streming-app`). It is not linked to GitHub yet, so deploy with the Vercel CLI from a clean copy of the commit (`git archive`), never from a working tree with `.env` files in it; the exact commands are in `SUPABASE_MIGRATION.md`, "What remains". The functions run in São Paulo (`regions` in `vercel.json`), next to the database.
+
 The cutover checklist is in `SUPABASE_MIGRATION.md`.
 
 ## Supabase migration development

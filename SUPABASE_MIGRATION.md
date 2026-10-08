@@ -162,28 +162,39 @@ The migration is finished in the code and in the database. Everything below is o
 | `supabase db advisors --linked` | one WARN, below |
 | Auth | Google on, e-mail sign-up off, confirmations on, anonymous off |
 | Verified against the hosted project | sign-in, profile from Google, 30-day trial, `super_admin` sync, the administration list through RLS, and a studio image uploaded to the real bucket |
+| Production | `https://streming-app-five.vercel.app`: Vercel project `streming-app` (team `streaming4`), functions in `gru1` (São Paulo) |
+| Verified in production | Google sign-in to the Painel, `/api/health`, and the protected routes refusing a missing or invalid token |
 
 ## What remains
 
-**1. Publish (the only step between here and production).**
+The app is in production since 2026-10-08 (see the table above). What is left:
 
-- Set the environment variables on Vercel **before the first build**: Vite inlines `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` into the bundle, so a build that runs without them ships the wrong values. Also `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `APP_URL`, the Stripe price IDs, the Stripe webhook secret, and `SUPER_ADMIN_EMAILS`.
-- Deploy, then point the project at the address:
+**1. The owner's, and nobody else can do them.**
 
-  ```
-  PWSTREAMER_APP_URL=https://<the address> npx supabase config push
-  ```
-
-  Until this runs, the hosted project's `site_url` and redirect list still say `http://localhost:3211`, left from the test, and sign-in returns there.
-- **Google needs nothing.** Its authorized redirect URI is the Supabase callback (`https://eqccaphvoquogxkbclwr.supabase.co/auth/v1/callback`), which does not change with the deploy. The app's address lives in Supabase's allow list, not Google's.
-
-**2. The owner's, and nobody else can do them.**
-
-- Move the database password out of `.env.supabase-producao` into a password manager, and delete the file. The password is not used by the app: only by the CLI, to push migrations. It can be rotated in the dashboard.
+- **The database password.** It was in `.env.supabase-producao`, which lived only inside a git worktree and was deleted with it on 2026-10-08. If the password is not in a password manager, reset it in the dashboard (Project Settings → Database). The app does not use it: only the CLI does, to push migrations.
 - **Revoke the Cloudflare Stream token that is in the git history.** It predates this migration and is still reachable by anyone who clones the repository.
 - Optional: turn on leaked-password protection (Authentication → Policies). It is the one advisor WARN. It changes nothing today, because production accepts Google only and holds no passwords, but it would already be in place if e-mail is ever enabled. `config.toml` does not expose it; it is a dashboard setting.
 
-**3. Not applicable.** The "source and target counts reconcile after the final delta import" gate below belongs to the import path that was not taken: the migration started from zero, so there is nothing to reconcile.
+**2. The Google client secret is not at hand.** Google sign-in works; the secret only matters for the next `config push`.
+
+- The production `site_url` and redirect list were set to `https://streming-app-five.vercel.app` in the dashboard (Authentication → URL Configuration), the same values `[remotes.producao.auth]` declares, instead of by `config push`.
+- `config push` sends the Google provider too: without `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` and `SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET` in the shell it would write them empty and break sign-in. Always run `npx supabase config diff --project-ref eqccaphvoquogxkbclwr` first.
+- The client in use is `2867108917-8h24qbfolffdo8o2g0hv88btg4l6pp7e.apps.googleusercontent.com` (Google Cloud project number `2867108917`). If its project cannot be found, create a new OAuth client (web application, authorized redirect URI `https://eqccaphvoquogxkbclwr.supabase.co/auth/v1/callback`) and put its id and secret in Supabase (Authentication → Providers → Google), then keep them for the next push.
+
+**3. Not configured in production yet:** Stripe (checkout and the webhook), Cloudflare Stream and Gemini (chat moderation). Their variables are in `.env.example`; add them on Vercel and deploy again.
+
+**4. Deploys are manual.** The Vercel project is not linked to GitHub (installing the Vercel GitHub app from the in-app browser failed: its popups are blocked), so a push to `main` does not deploy. Deploy from a clean copy of the commit, so local `.env` files never upload:
+
+```
+git archive HEAD | tar -x -C <empty folder>
+cp .vercel/project.json <empty folder>/.vercel/
+cd <empty folder> && npx vercel deploy --prod --scope streaming4
+```
+
+`.vercel/project.json` comes from `npx vercel link --project streming-app --scope streaming4`. For automatic deploys, install the Vercel GitHub app from a regular browser and connect the repository to the project.
+
+
+**5. Not applicable.** The "source and target counts reconcile after the final delta import" gate below belongs to the import path that was not taken: the migration started from zero, so there is nothing to reconcile.
 
 ### Express server
 
