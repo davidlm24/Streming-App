@@ -16,6 +16,10 @@
   --n-80:#BEC7D1;  --n-89:#D9E1EA;  --n-92:#E3E9F0;  --n-96:#F0F5F9;
   --n-99:#FAFCFF;  --n-100:#FFFFFF;
 
+  /* O marinho do console: o Y de cada degrau n-* que substitui (±0,02 pp), matiz 264° em OKLCH */
+  --nv-3:#050B1A;  --nv-6:#091326;  --nv-10:#101A31;
+  --nv-14:#17233D; --nv-18:#202C45; --nv-28:#35425E;
+
   --sig:#D91F2D; --sig-deep:#A81622; --sig-lift:#F4666A;
   --brand:#4683E0; --brand-deep:#2C5FB0; --brand-lift:#7FAAEC;
 
@@ -44,8 +48,8 @@
 }
 /* CONSOLE — invariante. Não segue o tema, por colorimetria. */
 [data-surface="console"]{
-  --well:var(--n-0); --bg:var(--n-3); --surface:var(--n-6);
-  --panel:var(--n-10); --raise:var(--n-14); --line:var(--n-18); --line-ctl:var(--n-28);
+  --well:var(--n-0); --bg:var(--nv-3); --surface:var(--nv-6);
+  --panel:var(--nv-10); --raise:var(--nv-14); --line:var(--nv-18); --line-ctl:var(--nv-28);
   --ink-dim:var(--n-58); --ink-lo:var(--n-70); --ink:var(--n-89); --ink-hi:var(--n-96);
   color-scheme:dark;
 }
@@ -112,6 +116,9 @@ td.m{font-family:var(--f-num);font-size:12px;color:var(--ink-lo)}
 .btn--ghost:hover{background:var(--raise);filter:none}
 .btn--danger{background:var(--sig);color:#fff}
 .btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed;filter:none}
+.btn[aria-disabled="true"]:hover,.btn--ghost[aria-disabled="true"]:hover{background:transparent;filter:none}
+.btn--sm{padding:5px 11px;font-size:12px;border-radius:var(--r-md);gap:6px}
 .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 11px;border-radius:var(--r-pill);
   font:600 11px/1.6 var(--f);text-transform:uppercase;letter-spacing:.08em;
   background:var(--raise);color:var(--ink-lo);border:1px solid var(--line-ctl)}
@@ -125,6 +132,18 @@ td.m{font-family:var(--f-num);font-size:12px;color:var(--ink-lo)}
 .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:var(--s-4);overflow-x:auto}
 .tab{padding:8px 14px;border-radius:var(--r-xl) var(--r-xl) 0 0;font-size:12.5px;color:var(--ink-lo);white-space:nowrap}
 .tab[aria-selected="true"]{background:var(--raise);color:var(--ink-hi)}
+
+/* ── segmentado e interruptor ── */
+.seg{display:flex;width:100%;border:1px solid var(--line-ctl);border-radius:var(--r-xl);padding:2px}
+.seg button{flex:1;padding:6px 4px;border-radius:10px;font-size:13px;color:var(--ink-lo);cursor:pointer}
+.seg button:hover{color:var(--ink-hi)}
+.seg button[aria-pressed="true"]{background:var(--raise);color:var(--ink-hi)}
+.seg[aria-busy="true"] button{opacity:.45;cursor:progress}
+.sw{position:relative;flex:0 0 auto;width:40px;height:24px;border-radius:999px;border:1px solid var(--line-ctl);background:var(--panel);cursor:pointer;transition:background-color 150ms}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--ink-lo);transition:transform 150ms}
+.sw[aria-checked="true"]{background:var(--ink-hi);border-color:var(--ink-hi)}
+.sw[aria-checked="true"]::after{transform:translateX(16px);background:var(--bg)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ── monitores + tally ── */
 .mon{min-width:0}
@@ -173,16 +192,97 @@ td.m{font-family:var(--f-num);font-size:12px;color:var(--ink-lo)}
 .cbar{display:flex;align-items:center;gap:var(--s-3);padding:0 var(--s-4);height:44px;background:var(--surface);
   border-bottom:1px solid var(--line);border-radius:var(--r-lg) var(--r-lg) 0 0}
 .clock{margin-left:auto;font:500 14px/1 var(--f-num);color:var(--ink-hi);font-variant-numeric:tabular-nums}
-.cbody{display:grid;grid-template-columns:196px minmax(0,1fr) 260px;min-height:400px}
-@media (max-width:980px){.cbody{grid-template-columns:minmax(0,1fr)}}
-.rail{background:var(--surface);min-width:0;display:flex;flex-direction:column}
+.cbody{display:grid;grid-template-columns:var(--c1,224px) minmax(0,1fr) var(--c2,368px);min-height:430px}
+@media (max-width:1100px){.cbody{grid-template-columns:minmax(0,1fr)}.divisor,.icon-btn{display:none!important}}
+.rail{position:relative;background:var(--surface);min-width:0;display:flex;flex-direction:column}
 .rail--l{border-right:1px solid var(--line)} .rail--r{border-left:1px solid var(--line)}
 .rh{font:500 10px/1 var(--f-num);color:var(--ink-dim);text-transform:uppercase;letter-spacing:.09em;padding:var(--s-4) var(--s-4) var(--s-3)}
-.scene{display:flex;align-items:center;gap:var(--s-3);width:100%;padding:6px var(--s-3);border-radius:var(--r-sm);text-align:left}
-.scene:hover{background:var(--raise)}
+.scene{display:flex;align-items:center;gap:var(--s-3);width:100%;min-height:56px;padding:8px var(--s-3);border-radius:var(--r-xl);text-align:left}
+.scene:hover{background:var(--panel)}
 .scene[aria-current="true"]{background:var(--raise)}
-.scene i{width:32px;height:19px;background:var(--well);border:1px solid var(--line-ctl);border-radius:3px;flex:0 0 auto}
-.scene span{font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scene .sn{display:none;font:500 14px/1 var(--f);color:var(--ink-hi);font-variant-numeric:tabular-nums}
+.scene .sl{display:block;min-width:0;max-width:100%}
+.scene .nm{display:block;font-size:13.5px;color:var(--ink-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scene em{display:block;font:400 12px/1.3 var(--f);color:var(--ink-lo);font-style:normal;white-space:nowrap}
+.scene em:first-line{font-weight:inherit}
+.scenes-list{padding:0 var(--s-2);display:grid;gap:4px}
+.trans{margin-top:var(--s-4);padding:var(--s-4) var(--s-4) var(--s-4);border-top:1px solid var(--line)}
+.keys{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
+.key{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:var(--r-xl);
+  background:var(--raise);border:1px solid var(--line-ctl);font-size:13px;font-weight:600;color:var(--ink-hi)}
+.key:hover{border-color:var(--ink-lo)} .key:active{border-color:var(--ink-hi);background:var(--panel)}
+.key em{font:400 11px/1 var(--f-num);color:var(--ink-lo);font-style:normal}
+#cbody.cenas-rec{--c1:88px}
+#cbody.cenas-rec .rh,#cbody.cenas-rec .scene .nm{display:none}
+#cbody.cenas-rec .scenes-list{padding:0 var(--s-2)}
+#cbody.cenas-rec .scene{flex-direction:column;justify-content:center;min-height:64px;padding:8px 4px;text-align:center}
+#cbody.cenas-rec .scene .sn{display:block}
+#cbody.cenas-rec .scene em{font-size:11px;line-height:1.2}
+#cbody.cenas-rec .scene .sl{text-align:center}
+#cbody.cenas-rec .trans{padding:var(--s-4) var(--s-2)}
+#cbody.cenas-rec .keys{grid-template-columns:1fr}
+#cbody.cenas-rec .key{min-height:52px}
+#cbody.painel-rec{--c2:72px}
+#cbody.painel-rec .panel-tool{display:none}
+.icon-btn{align-self:flex-start;margin:var(--s-2) var(--s-2) 0;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--r-xl);color:var(--ink-hi)}
+.icon-btn:hover{background:var(--raise)}
+#cbody.cenas-rec #col-cenas{align-self:center}
+.ic-panel{width:18px;height:14px;border:1.6px solid currentColor;border-radius:3px;position:relative;display:block}
+.ic-panel::before{content:"";position:absolute;top:0;bottom:0;left:4px;width:1.6px;background:currentColor}
+.ic-panel--r::before{left:auto;right:4px}
+.ic-radio,.ic-t,.ic-arrow{display:inline-block;flex:0 0 auto}
+.ic-radio{width:12px;height:12px;border:1.6px solid currentColor;border-radius:50%;position:relative}
+.ic-radio::after{content:"";position:absolute;inset:2px;background:currentColor;border-radius:50%}
+.ic-t{width:18px;height:18px;border:1.6px solid currentColor;border-radius:5px}
+.ic-arrow{width:8px;height:8px;border-top:1.6px solid currentColor;border-right:1.6px solid currentColor;transform:rotate(45deg);margin-right:8px;color:var(--ink-lo);margin-top:6px}
+.divisor{position:absolute;top:0;bottom:0;width:8px;cursor:col-resize;z-index:5}
+.divisor::after{content:"";position:absolute;top:0;bottom:0;width:1px;background:transparent;right:0;transition:background-color 150ms}
+.divisor--l{left:0}.divisor--l::after{left:0;right:auto}
+.divisor:hover::after,.divisor:focus-visible::after{background:var(--ink-hi)}
+.divisor:focus-visible{outline:none}
+.mark2{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--ink-hi);font-size:13px}
+.mark2 i{width:12px;height:12px;border-radius:4px;background:var(--ink-hi);display:block}
+.cbar-r{margin-left:auto;display:flex;align-items:center;gap:var(--s-4)}
+.txt-xs{font-size:12px;color:var(--ink-lo)}
+.txt-xs-b{font-size:12px;color:var(--ink-hi);font-weight:600;margin-top:2px}
+.note-live{padding:8px var(--s-4);background:var(--panel);border-bottom:1px solid var(--line);font-size:12.5px;color:var(--ink-hi)}
+.note-live b{margin-right:6px}
+.mt{font:600 12px/1.3 var(--f);color:var(--ink-hi)}
+.mc{font-size:12px;color:var(--ink-lo)}
+.mhd{gap:var(--s-3)}
+.mon--pgm .frame{background:var(--n-14)}
+.card-cam{position:absolute;right:3%;bottom:5%;width:24%;aspect-ratio:3/2;border:2px solid var(--n-70);border-radius:8px;background:#1d6b00}
+.nextcut{min-width:0}
+.nc-box{margin-top:6px;background:var(--panel);border:1px solid var(--line);font-size:12.5px;color:var(--ink)}
+.nc-row{display:flex;align-items:flex-start;padding:9px 12px;border-bottom:1px solid var(--line)}
+.nc-row:last-child{border-bottom:none}
+.panel-tool{flex:1;min-width:0;border-right:1px solid var(--line)}
+.rail--r{flex-direction:row}
+.toolrail{display:flex;flex-direction:column;width:72px;flex:0 0 auto;padding:6px}
+.tl{display:flex;flex-direction:column;gap:4px}
+.tb{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:var(--r-xl);font-size:12px;color:var(--ink-lo)}
+.tb:hover{background:var(--panel);color:var(--ink-hi)}
+.tb[aria-selected="true"]{background:var(--raise);color:var(--ink-hi)}
+.toolrail .icon-btn{margin:auto auto 0}
+.ptool .sec{padding:var(--s-4) var(--s-4);border-top:1px solid var(--line)}
+.ptool .sec:first-child{border-top:none}
+.sec-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);min-height:32px}
+.sec-h h3{margin:0;font:500 14px/1.3 var(--f);color:var(--ink-hi)}
+.hint{font-size:12px;color:var(--ink-lo);margin:4px 0 0;max-width:none}
+.lbl{font-size:12px;color:var(--ink);margin:12px 0 4px}
+.item{display:grid;gap:4px;padding:var(--s-3) 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:var(--s-3)}
+.item b{font:500 13px/1.3 var(--f);color:var(--ink-hi)}
+.item-a,.pdf-a{display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--ink-lo)}
+.pdf-p{margin-top:var(--s-3);display:grid;gap:2px}
+.pdf-p b{font:500 13px/1.3 var(--f);color:var(--ink-hi)}
+.pdf-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:var(--s-3)}
+.pdf-a{margin-top:var(--s-3)}
+.meter{width:96px;height:8px;background:var(--well);overflow:hidden;display:block}
+.meter span{display:block;height:100%;background:var(--ink-lo)}
+.tray-note{margin-left:auto;font-size:12px;color:var(--ink-lo)}
+.tray{border-radius:0 0 var(--r-lg) var(--r-lg);border-width:1px 0 0 0}
+
+/* ── monitores + tally (base) ── */
 .stagecol{padding:var(--s-5);display:flex;flex-direction:column;gap:var(--s-4);min-width:0;background:var(--bg)}
 .mons{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:var(--s-5);align-items:start}
 @media (max-width:700px){.mons{grid-template-columns:minmax(0,1fr)}}
@@ -281,16 +381,17 @@ footer.doc{margin-top:var(--s-9);padding-top:var(--s-5);border-top:1px solid var
     <p class="lede">
       Os tokens abaixo <strong style="color:var(--ink-hi)">não são uma proposta paralela</strong> — são os
       valores que já estão em <code>src/index.css</code>, verificados a cada build pelo portão de contraste
-      do CI (56 pares, três escopos, WCAG AA). O que está em revisão aqui é a
+      do CI (70 pares, três escopos, WCAG AA). O que está em revisão aqui é a
       <strong style="color:var(--ink-hi)">aplicação</strong> deles às telas, e as quatro coisas que a
       crítica do bakeoff apontou como nunca desenhadas: overlays, gráficos, o tema claro como projeto,
       e os estados de vazio, carregamento e erro.
     </p>
     <div style="display:flex;gap:var(--s-3);flex-wrap:wrap">
-      <span class="badge"><i></i>56 pares AA</span>
+      <span class="badge"><i></i>70 pares AA</span>
       <span class="badge"><i></i>3 escopos</span>
       <span class="badge"><i></i>Zero animação infinita</span>
       <span class="badge"><i></i>Console invariante</span>
+      <span class="badge"><i></i>Console em marinho</span>
     </div>
   </section>
 
@@ -320,6 +421,18 @@ footer.doc{margin-top:var(--s-9);padding-top:var(--s-5);border-top:1px solid var
       <div><i style="background:var(--n-100)"></i><span>n-100</span></div>
     </div>
 
+    <h4>O marinho do console — a mesma luminância, outro matiz</h4>
+    <p style="margin-bottom:var(--s-4)">O estúdio é a sala escura do produto, e o cinza-azulado da rampa acima o deixava grafite. Cada degrau do console tem o Y do degrau <code>n-*</code> que substitui (±0,02 pp), com matiz 264° em OKLCH e croma de 0,035 a 0,052: toda razão de contraste do console continua a mesma. O palco e o letterbox seguem em <code>n-0</code>, preto puro: vídeo não se tinge.</p>
+    <div class="ramp" style="margin-bottom:var(--s-3)">
+      <div><i style="background:var(--n-0)"></i><span>n-0 · palco</span></div>
+      <div><i style="background:var(--nv-3)"></i><span>nv-3</span></div>
+      <div><i style="background:var(--nv-6)"></i><span>nv-6</span></div>
+      <div><i style="background:var(--nv-10)"></i><span>nv-10</span></div>
+      <div><i style="background:var(--nv-14)"></i><span>nv-14</span></div>
+      <div><i style="background:var(--nv-18)"></i><span>nv-18</span></div>
+      <div><i style="background:var(--nv-28)"></i><span>nv-28</span></div>
+    </div>
+
     <h4>Sinal e marca — os dois únicos matizes</h4>
     <div class="g g3">
       <div class="card"><div class="cap">Tally · --sig</div>
@@ -338,11 +451,11 @@ footer.doc{margin-top:var(--s-9);padding-top:var(--s-5);border-top:1px solid var
       <table>
         <thead><tr><th>Token</th><th>Escuro</th><th>Claro</th><th>Console</th><th>Papel</th></tr></thead>
         <tbody>
-          <tr><td class="m">--well</td><td class="m">n-3</td><td class="m">n-89</td><td class="m">n-0</td><td>Campo, poço, alojamento recuado</td></tr>
-          <tr><td class="m">--bg</td><td class="m">n-6</td><td class="m">n-96</td><td class="m">n-3</td><td>Chão da página</td></tr>
-          <tr><td class="m">--surface</td><td class="m">n-10</td><td class="m">n-99</td><td class="m">n-6</td><td>Cartão, trilho, barra</td></tr>
-          <tr><td class="m">--panel</td><td class="m">n-14</td><td class="m">n-92</td><td class="m">n-10</td><td>Painel aninhado dentro de cartão</td></tr>
-          <tr><td class="m">--raise</td><td class="m">n-18</td><td class="m">n-100</td><td class="m">n-14</td><td>Face de tecla, controle erguido</td></tr>
+          <tr><td class="m">--well</td><td class="m">n-3</td><td class="m">n-89</td><td class="m">n-0 (preto)</td><td>Campo, poço, alojamento recuado</td></tr>
+          <tr><td class="m">--bg</td><td class="m">n-6</td><td class="m">n-96</td><td class="m">nv-3</td><td>Chão da página</td></tr>
+          <tr><td class="m">--surface</td><td class="m">n-10</td><td class="m">n-99</td><td class="m">nv-6</td><td>Cartão, trilho, barra</td></tr>
+          <tr><td class="m">--panel</td><td class="m">n-14</td><td class="m">n-92</td><td class="m">nv-10</td><td>Painel aninhado dentro de cartão</td></tr>
+          <tr><td class="m">--raise</td><td class="m">n-18</td><td class="m">n-100</td><td class="m">nv-14</td><td>Face de tecla, controle erguido</td></tr>
           <tr><td class="m">--ink-hi</td><td class="m">n-96</td><td class="m">n-6</td><td class="m">n-96</td><td>Título, número, dado primário</td></tr>
           <tr><td class="m">--ink</td><td class="m">n-89</td><td class="m">n-18</td><td class="m">n-89</td><td>Corpo</td></tr>
           <tr><td class="m">--ink-lo</td><td class="m">n-80</td><td class="m">n-28</td><td class="m">n-70</td><td>Secundário, legenda</td></tr>
@@ -373,8 +486,9 @@ footer.doc{margin-top:var(--s-9);padding-top:var(--s-5);border-top:1px solid var
           <button class="btn btn--ghost">Secundário</button>
           <button class="btn btn--danger">Encerrar</button>
           <button class="btn" disabled>Enviando…</button>
+          <button class="btn btn--ghost btn--sm" aria-disabled="true">Entrar ao vivo</button>
         </div>
-        <p style="font-size:12px;margin-top:var(--s-4)">Cada um tem <code>:hover</code>, <code>:active</code> e <code>:focus-visible</code>. A auditoria mediu 907 <code>hover:</code> contra 35 <code>active:</code> e zero <code>focus-visible:</code> — a proporção era 26:1.</p>
+        <p style="font-size:12px;margin-top:var(--s-4)">O último é o <strong style="color:var(--ink-hi)">indisponível mas focável</strong> (<code>aria-disabled</code>): 45 %, sem hover nem aperto, com o motivo em <code>aria-describedby</code>. <code>disabled</code> o tiraria do Tab, e quem usa teclado não ouviria por quê. Cada um tem <code>:hover</code>, <code>:active</code> e <code>:focus-visible</code>. A auditoria mediu 907 <code>hover:</code> contra 35 <code>active:</code> e zero <code>focus-visible:</code> — a proporção era 26:1.</p>
       </div>
       <div class="card">
         <div class="cap">Selos</div>
@@ -394,8 +508,25 @@ footer.doc{margin-top:var(--s-9);padding-top:var(--s-5);border-top:1px solid var
       </div>
       <div class="card">
         <div class="cap">Abas</div>
-        <div class="tabs"><span class="tab" aria-selected="true">Chat</span><span class="tab">Destinos</span><span class="tab">Áudio</span><span class="tab">Convidados</span></div>
+        <div class="tabs"><span class="tab" aria-selected="true">Chat</span><span class="tab">Gráficos</span><span class="tab">Roteiro</span><span class="tab">QR code</span><span class="tab">Mídia</span><span class="tab">Câmera</span><span class="tab">Áudio</span></div>
         <p style="font-size:12px">A aba padrão precisa existir. O app entrava no estúdio com <code>'first'</code>, que não casava com painel nenhum — barra lateral em branco na primeira visita.</p>
+      </div>
+      <div class="card">
+        <div class="cap">Segmentado — escolher e esperar</div>
+        <p class="lbl" style="margin:0 0 4px">Resolução</p>
+        <div class="seg" role="group" aria-label="Resolução"><button aria-pressed="true">720p</button><button aria-pressed="false">1080p</button></div>
+        <p class="lbl">Ocupado: pedindo ao aparelho</p>
+        <div class="seg" role="group" aria-label="Resolução, aplicando" aria-busy="true"><button aria-pressed="false" aria-disabled="true">720p</button><button aria-pressed="true" aria-disabled="true">1080p</button></div>
+        <p style="font-size:12px;margin-top:var(--s-4)">Ocupado fica a 45 % e ignora o clique, mas as opções <strong style="color:var(--ink-hi)">seguem focáveis</strong>: com <code>disabled</code>, quem apertava Enter perdia o foco para a página.</p>
+      </div>
+      <div class="card">
+        <div class="cap">Interruptor</div>
+        <div style="display:flex;gap:var(--s-5);align-items:center;flex-wrap:wrap">
+          <button class="sw" role="switch" aria-checked="true" aria-label="Ligado"></button>
+          <button class="sw" role="switch" aria-checked="false" aria-label="Desligado"></button>
+          <button class="sw" role="switch" aria-checked="false" aria-label="Desativado" disabled style="opacity:.45;cursor:not-allowed"></button>
+        </div>
+        <p style="font-size:12px;margin-top:var(--s-4)">Ligado é tinta cheia, e não a cor da marca. O estado mora em <code>aria-checked</code> e na posição, nunca só na cor. Sem o link, o do QR code fica apagado e a dica diz por quê.</p>
       </div>
     </div>
   </section>
@@ -500,71 +631,141 @@ footer.doc{margin-top:var(--s-9);padding-top:var(--s-5);border-top:1px solid var
   <!-- ══════════ ESTÚDIO ══════════ -->
   <section id="estudio">
     <div class="sh"><span class="n">06</span><h2>Estúdio</h2><span class="note">Console · invariante</span></div>
-    <p class="lede">A tela inteira é o console, cabeçalho incluído — e ela <strong style="color:var(--ink-hi)">não acompanha o tema</strong>. Troque o tema no topo desta página: tudo muda, o console fica. A luminância a que o operador se adapta não pode mudar porque alguém apertou um botão no meio de uma transmissão.</p>
-    <div class="con" data-surface="console" data-air="on" id="con">
+    <p class="lede">A tela inteira é o console, barra incluída — e ela <strong style="color:var(--ink-hi)">não acompanha o tema</strong>. Troque o tema no topo desta página: tudo muda, o console fica. O console é <strong style="color:var(--ink-hi)">marinho muito escuro</strong> (<code>nv-*</code>), com o palco em preto puro. E ele <strong style="color:var(--ink-hi)">não finge o ar</strong>: a transmissão para os canais ainda não existe, então não há selo de no ar, relógio de transmissão nem taxa de bits. O que está aqui funciona: cenas, corte, câmera, áudio, gráficos, roteiro, QR code, mídia e PDF.</p>
+
+    <div class="con" data-surface="console" data-air="off" id="con">
       <div class="cbar">
-        <b style="font-size:13px;color:var(--ink-hi)">Webinar de Produto · Q3</b>
-        <span class="badge badge--live" id="chip"><i></i>No ar</span>
-        <span class="clock" id="clock">01:47:22</span>
-        <button class="ctl" id="exit" style="height:30px">Sair do estúdio</button>
+        <span class="mark2"><i></i>PwStreamer</span>
+        <b style="font-size:13px;color:var(--ink-hi);font-weight:500">Estúdio <span style="color:var(--ink-lo);font-weight:400">· Lançamento de teste</span></b>
+        <span class="cbar-r">
+          <span class="txt-xs" id="canais">Canais: 1 de 1 pronto</span>
+          <button class="btn btn--ghost btn--sm" id="live" type="button" aria-disabled="true" aria-describedby="live-motivo"><i class="ic-radio"></i>Entrar ao vivo</button>
+          <span class="sr" id="live-motivo">A transmissão para os canais ainda não está no ar.</span>
+          <button class="btn btn--ghost btn--sm" id="exit" type="button">Sair do estúdio</button>
+        </span>
       </div>
-      <div class="cbody">
-        <div class="rail rail--l">
+      <div class="note-live" id="live-toast" role="status" hidden><b>A transmissão ainda não existe</b> Quando ela chegar, é por aqui que o estúdio entra no ar nos canais ligados.</div>
+
+      <div class="cbody" id="cbody">
+        <div class="rail rail--l" id="scenes">
+          <button class="icon-btn" id="col-cenas" type="button" aria-expanded="true" aria-label="Recolher as cenas" title="Recolher as cenas"><i class="ic-panel"></i></button>
           <div class="rh">Cenas</div>
-          <div style="padding:0 var(--s-3) var(--s-3)">
-            <button class="scene" aria-current="true"><i></i><span>Abertura</span></button>
-            <button class="scene"><i></i><span>Entrevista</span></button>
-            <button class="scene"><i></i><span>Tela + Câmera</span></button>
-            <button class="scene"><i></i><span>Encerramento</span></button>
+          <div class="scenes-list">
+            <button class="scene" aria-current="false"><b class="sn">1</b><span class="sl"><span class="nm">Câmera</span><em>programa</em></span></button>
+            <button class="scene" aria-current="true"><b class="sn">2</b><span class="sl"><span class="nm">Tela com câmera</span><em>preview</em></span></button>
+            <button class="scene" aria-current="false"><b class="sn">3</b><span class="sl"><span class="nm">Câmera e tela lado a lado</span></span></button>
+            <button class="scene" aria-current="false"><b class="sn">4</b><span class="sl"><span class="nm">Câmera e tela iguais</span></span></button>
+            <button class="scene" aria-current="false"><b class="sn">5</b><span class="sl"><span class="nm">Câmera grande e tela</span></span></button>
+            <button class="scene" aria-current="false"><b class="sn">6</b><span class="sl"><span class="nm">Tela</span></span></button>
           </div>
+          <div class="trans">
+            <div class="rh" style="padding-left:0">Transição</div>
+            <div class="keys">
+              <button class="key"><span>Corte</span><em>0 ms</em></button>
+              <button class="key"><span>Fusão</span><em>400 ms</em></button>
+            </div>
+          </div>
+          <span class="divisor" role="separator" aria-orientation="vertical" aria-label="Largura das cenas" aria-valuenow="224" aria-valuemin="192" aria-valuemax="320" tabindex="0" title="Arraste para mudar a largura. Duplo clique volta ao padrão."></span>
         </div>
+
         <div class="stagecol">
           <div class="mons">
             <div class="mon mon--pgm">
-              <div class="mhd"><span class="mtag">PGM</span><span class="mspec">1920×1080 · 59,94p</span></div>
+              <div class="mhd"><span class="mt">Programa</span><span class="mc">Câmera</span></div>
               <div class="frame frame--pgm"><div class="stage">
                 <div class="bars"><div class="bm"></div><div class="bc"></div><div class="bp"></div></div>
-                <span class="gc"><i></i><span><b>Roberto Santos</b><em>Diretor de Produto · PwStream</em></span></span>
               </div></div>
             </div>
             <div class="mon mon--pvw">
-              <div class="mhd"><span class="mtag">PVW</span><span class="mspec">1280×720</span></div>
-              <div class="frame frame--pvw"><div class="stage"><div class="grey"></div></div></div>
+              <div class="mhd"><span class="mt">Preview</span><span class="mc">Tela com câmera</span></div>
+              <div class="frame frame--pvw"><div class="stage"><div class="grey"></div>
+                <span class="card-cam"></span>
+              </div></div>
             </div>
           </div>
-          <div class="reads">
-            <div class="read"><div class="rk">Taxa</div><div class="rv">60 fps</div></div>
-            <div class="read"><div class="rk">Bitrate</div><div class="rv">6,2 Mbps</div></div>
-            <div class="read"><div class="rk">RTT</div><div class="rv">18 ms</div></div>
-            <div class="read"><div class="rk">Perda</div><div class="rv">0,02 %</div></div>
-          </div>
-          <div class="tray">
-            <button class="ctl" aria-pressed="true"><i></i>Microfone</button>
-            <button class="ctl" aria-pressed="true"><i></i>Câmera</button>
-            <button class="ctl" aria-pressed="false"><i></i>Tela</button>
-            <button class="end" id="end">Encerrar transmissão</button>
+          <div class="nextcut">
+            <div class="mt">No próximo corte</div>
+            <div class="nc-box"><div class="nc-row"><i class="ic-arrow"></i>Cena: Tela com câmera</div><div class="nc-row"><i class="ic-arrow"></i>Entra a apresentação: apresentacao-teste</div></div>
           </div>
         </div>
-        <div class="rail rail--r">
-          <div class="rh">Chat</div>
-          <div style="padding:0 var(--s-4) var(--s-4)">
-            <div class="msg"><b>Fernanda Lima <em>01:46</em></b><span>O SRT já está disponível no plano Business?</span></div>
-            <div class="msg"><b>Ana Beatriz <em>01:46</em></b><span>Áudio perfeito aqui em São Paulo.</span></div>
-            <div class="rh" style="padding-left:0">Destinos</div>
-            <div class="dest"><span>YouTube</span><span class="s"><span class="badge"><i></i>No ar</span><span class="b">6,2 Mbps</span></span></div>
-            <div class="dest"><span>Twitch</span><span class="s"><span class="badge">reconectando 3/8</span><span class="b">— Mbps</span></span></div>
-            <div class="rh" style="padding-left:0">Áudio</div>
-            <div class="vu"><b>Mic</b><span class="t"><span class="f" style="--pk:.74"></span></span></div>
-            <div class="vu"><b>Trilha</b><span class="t"><span class="f" style="--pk:.21"></span></span></div>
+
+        <div class="rail rail--r" id="tools">
+          <div class="panel-tool" id="panel-tool">
+            <div class="ptool" data-p="audio">
+              <div class="sec"><div class="sec-h"><h3>Microfone</h3></div>
+                <p class="hint">Fake Default Audio Input. Para trocar, use o menu ao lado do microfone, na bandeja.</p>
+                <p class="hint">O som ainda não vai para os canais, porque a transmissão não existe. Estes ajustes já valem no medidor da bandeja.</p></div>
+              <div class="sec"><div class="sec-h"><h3>Redução de ruído</h3><button class="sw" role="switch" aria-checked="true" aria-label="Redução de ruído"></button></div>
+                <p class="hint">Tira o ruído constante do fundo, como ventilador e ar-condicionado.</p></div>
+              <div class="sec"><div class="sec-h"><h3>Cancelamento de eco</h3><button class="sw" role="switch" aria-checked="true" aria-label="Cancelamento de eco"></button></div>
+                <p class="hint">Corta o som das caixas que volta pelo microfone. Com fone, pode desligar.</p></div>
+              <div class="sec"><div class="sec-h"><h3>Ganho automático</h3><button class="sw" role="switch" aria-checked="true" aria-label="Ganho automático"></button></div>
+                <p class="hint">Sobe a voz baixa e segura a alta. Desligado, o volume é o do microfone e do sistema.</p></div>
+            </div>
+            <div class="ptool" data-p="camera" hidden>
+              <div class="sec"><div class="sec-h"><h3>Qualidade da câmera</h3></div>
+                <p class="hint" id="cam-dica">A câmera entrega 1280 × 720 a 30 quadros por segundo. Cada aparelho chega até onde pode.</p>
+                <p class="lbl">Resolução</p>
+                <div class="seg" role="group" aria-label="Resolução" id="seg-res"><button aria-pressed="true">720p</button><button aria-pressed="false">1080p</button></div>
+                <p class="lbl">Quadros por segundo</p>
+                <div class="seg" role="group" aria-label="Quadros por segundo"><button aria-pressed="true">30 qps</button><button aria-pressed="false">60 qps</button></div>
+              </div>
+              <div class="sec"><div class="sec-h"><h3>Espelhar a câmera</h3><button class="sw" role="switch" aria-checked="false" aria-label="Espelhar a câmera"></button></div>
+                <p class="hint">Vira a imagem no preview e no programa na hora.</p></div>
+            </div>
+            <div class="ptool" data-p="midia" hidden>
+              <div class="sec"><div class="sec-h"><h3>Clipes de vídeo</h3></div>
+                <p class="hint">O clipe entra no lugar da tela e toca no programa a partir do corte, com o som.</p>
+                <div class="item"><b>vinheta-de-abertura</b><span class="hint" style="margin:0">Baixa da sua conta ao ir para o preview.</span><div class="item-a"><button class="btn btn--ghost btn--sm">Pôr no preview</button><u>Excluir</u></div></div></div>
+              <div class="sec"><div class="sec-h"><h3>Apresentação em PDF</h3></div>
+                <p class="txt-xs-b">no preview</p>
+                <p class="hint">Abre só neste navegador: o PDF não vai para a sua conta e fecha com o estúdio. Ela entra no lugar da tela; a página vale na hora nos dois monitores.</p>
+                <div class="pdf-p"><b>apresentacao-teste</b><span class="hint" style="margin:0">Página 2 de 3</span></div>
+                <div class="pdf-nav"><button class="btn btn--ghost btn--sm">‹ Anterior</button><button class="btn btn--ghost btn--sm">Próxima ›</button></div>
+                <div class="pdf-a"><button class="btn btn--ghost btn--sm">Tirar do preview</button><u>Fechar o PDF</u></div>
+              </div>
+            </div>
+            <div class="ptool" data-p="outra" hidden>
+              <div class="sec"><div class="sec-h"><h3 id="outra-t">Chat</h3></div>
+                <p class="hint">Mesmo padrão em todas as ferramentas: uma seção por assunto, com título, o estado em palavras, a dica e os controles. O painel é o único editor; o palco, o único desenho.</p></div>
+            </div>
           </div>
+          <div class="toolrail">
+            <div role="tablist" aria-label="Ferramentas" class="tl">
+              <button role="tab" class="tb" aria-selected="false" data-t="Chat"><i class="ic-t"></i>Chat</button>
+              <button role="tab" class="tb" aria-selected="false" data-t="Gráficos"><i class="ic-t"></i>Gráficos</button>
+              <button role="tab" class="tb" aria-selected="false" data-t="Roteiro"><i class="ic-t"></i>Roteiro</button>
+              <button role="tab" class="tb" aria-selected="false" data-t="QR code"><i class="ic-t"></i>QR code</button>
+              <button role="tab" class="tb" aria-selected="false" data-t="Mídia" data-p="midia"><i class="ic-t"></i>Mídia</button>
+              <button role="tab" class="tb" aria-selected="false" data-t="Câmera" data-p="camera"><i class="ic-t"></i>Câmera</button>
+              <button role="tab" class="tb" aria-selected="true" data-t="Áudio" data-p="audio"><i class="ic-t"></i>Áudio</button>
+            </div>
+            <button class="icon-btn" id="col-painel" type="button" aria-expanded="true" aria-label="Recolher o painel" title="Recolher o painel"><i class="ic-panel ic-panel--r"></i></button>
+          </div>
+          <span class="divisor divisor--l" role="separator" aria-orientation="vertical" aria-label="Largura do painel de ferramentas" aria-valuenow="368" aria-valuemin="304" aria-valuemax="520" tabindex="0" title="Arraste para mudar a largura. Duplo clique volta ao padrão."></span>
         </div>
       </div>
+
+      <div class="tray">
+        <button class="ctl" aria-pressed="true"><i></i>Microfone</button>
+        <span class="meter"><span style="width:62%"></span></span>
+        <button class="ctl" aria-pressed="true"><i></i>Câmera</button>
+        <button class="ctl" aria-pressed="false"><i></i>Compartilhar tela</button>
+        <button class="ctl" aria-pressed="false"><i></i>Guias</button>
+        <span class="tray-note">Transmitir para os canais ainda não está no&nbsp;ar.</span>
+      </div>
     </div>
+    <p style="font-size:12px;margin-top:8px">Interativo: as setas do teclado ou o arrasto mudam as larguras (192–320 px e 304–520 px, com teto de 22 % e 36 % da janela); os dois botões de recolher estreitam as colunas; as abas Mídia, Câmera e Áudio abrem painéis reais; o 1080p mostra o estado ocupado; "Entrar ao vivo" diz por que não age.</p>
+
     <div class="g g2" style="margin-top:var(--s-5)">
-      <div class="card"><div class="cap">O tally, resolvido</div>
-        <p style="font-size:12.5px">O anel de 2 px <strong style="color:var(--ink-hi)">enquadra</strong>; a marca externa de 4 px <strong style="color:var(--ink-hi)">sinaliza</strong>. A carmim precisaria de 8,02 px nos quatro lados para ser legível de canto de olho — e isso comeria imagem. Um neutro claro chega lá com 1,34 px, por fora, custo zero. PGM×PVW saiu de 1,031:1 para 3,802:1.</p></div>
+      <div class="card"><div class="cap">Recolhido, o essencial fica</div>
+        <p style="font-size:12.5px">Com as cenas recolhidas, cada cena vira uma tecla numerada com o estado em palavras (“programa”, “preview”), e Corte e Fusão ficam uma sobre a outra: nada que o operador usa durante a live some. O nome inteiro vai no nome acessível. Só no desktop; no celular as cenas têm nome sempre.</p></div>
+      <div class="card"><div class="cap">Indisponível, mas dizendo por quê</div>
+        <p style="font-size:12.5px">“Entrar ao vivo” ocupa o lugar do antigo GO LIVE com <code>aria-disabled</code>, e não <code>disabled</code>: continua focável, e o teclado ouve o motivo. É um desvio registrado no DESIGN.md, não um padrão para outras telas.</p></div>
+      <div class="card"><div class="cap">Pedido e entregue</div>
+        <p style="font-size:12.5px">1080p e 60 qps são pedidos ao aparelho, e o painel diz o que ele entregou (“A câmera entrega 1920 × 1080 a 20 quadros por segundo”). Enquanto pede, as opções ficam a 45 % e <strong style="color:var(--ink-hi)">continuam focáveis</strong> (<code>aria-disabled</code>, como no interruptor).</p></div>
       <div class="card"><div class="cap">Saída sempre presente</div>
-        <p style="font-size:12.5px">O botão <em>Sair do estúdio</em> vive na barra do console, não só no cabeçalho. O app tinha <code>onExit</code> declarado e recebido em <code>ControlTray</code> — e nunca renderizado, o que deixava o operador sem saída entre 768 e 1279 px.</p></div>
+        <p style="font-size:12.5px">O botão <em>Sair do estúdio</em> vive na barra do console, em toda largura. O app tinha <code>onExit</code> declarado e nunca renderizado, o que deixava o operador sem saída entre 768 e 1279 px.</p></div>
     </div>
   </section>
 
@@ -658,16 +859,17 @@ footer.doc{margin-top:var(--s-9);padding-top:var(--s-5);border-top:1px solid var
       <table>
         <thead><tr><th>Portão</th><th>O que faz</th><th>Falha</th></tr></thead>
         <tbody>
-          <tr><td class="m">lint:contrast</td><td>56 pares texto/superfície, 3 escopos, WCAG AA. Mais um guarda contra comentários que afirmam luminância casada entre estados.</td><td class="ok">Reprova o build</td></tr>
+          <tr><td class="m">lint:contrast</td><td>70 pares texto/superfície, 3 escopos, WCAG AA. Mais um guarda contra comentários que afirmam luminância casada entre estados.</td><td class="ok">Reprova o build</td></tr>
           <tr><td class="m">lint:css</td><td>Hexadecimal cru só dentro dos blocos de token; nada de <code>!important</code> fora do bloco de movimento reduzido.</td><td class="ok">Reprova o build</td></tr>
-          <tr><td class="m">lint:debt</td><td>Catraca de 7 métricas contra linha de base versionada. A dívida pode cair; subir exige decisão explícita no diff.</td><td class="ok">Reprova se subir</td></tr>
+          <tr><td class="m">lint:csp</td><td>A política de segurança de <code>vercel.json</code> é igual à de <code>src/server/csp.ts</code>. Os dois lugares que a escrevem não se separam.</td><td class="ok">Reprova o build</td></tr>
+          <tr><td class="m">lint:debt</td><td>Catraca de 9 métricas contra linha de base versionada. A dívida pode cair; subir exige decisão explícita no diff.</td><td class="ok">Reprova se subir</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
   <footer class="doc">
-    <span>Tokens idênticos a src/index.css</span><span>·</span>
+    <span>Tokens idênticos a src/index.css (inclui o marinho do console)</span><span>·</span>
     <span>Ambos os temas</span><span>·</span><span>Console invariante</span>
     <span style="margin-left:auto">Maquete para aprovação — não é código de produção</span>
   </footer>
@@ -684,21 +886,88 @@ footer.doc{margin-top:var(--s-9);padding-top:var(--s-5);border-top:1px solid var
   document.querySelectorAll('.ctl[aria-pressed]').forEach(function(c){
     c.addEventListener('click',function(){c.setAttribute('aria-pressed',c.getAttribute('aria-pressed')==='true'?'false':'true')});
   });
-  document.querySelectorAll('.scene').forEach(function(s){
-    s.addEventListener('click',function(){
-      document.querySelectorAll('.scene').forEach(function(x){x.setAttribute('aria-current','false')});
-      s.setAttribute('aria-current','true');
+  document.querySelectorAll('.seg').forEach(function(g){
+    g.addEventListener('click',function(e){
+      var b=e.target.closest('button'); if(!b||g.getAttribute('aria-busy')==='true')return;
+      g.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+      if(g.id==='seg-res'){
+        g.setAttribute('aria-busy','true');
+        document.getElementById('cam-dica').textContent='Pedindo à câmera…';
+        setTimeout(function(){
+          g.removeAttribute('aria-busy');
+          document.getElementById('cam-dica').textContent=b.textContent==='1080p'
+            ?'A câmera entrega 1920 × 1080 a 20 quadros por segundo. Cada aparelho chega até onde pode.'
+            :'A câmera entrega 1280 × 720 a 30 quadros por segundo. Cada aparelho chega até onde pode.';
+        },900);
+      }
     });
   });
-  var con=document.getElementById('con');
-  document.getElementById('end').addEventListener('click',function(){
-    var on=con.getAttribute('data-air')==='on';
-    con.setAttribute('data-air',on?'off':'on');
-    this.textContent=on?'Entrar no ar':'Encerrar transmissão';
-    var chip=document.getElementById('chip');
-    chip.className=on?'badge':'badge badge--live';
-    chip.innerHTML='<i></i>'+(on?'Fora do ar':'No ar');
-    document.getElementById('clock').textContent=on?'00:00:00':'01:47:22';
+  document.querySelectorAll('.sw:not([disabled])').forEach(function(s){
+    s.addEventListener('click',function(){s.setAttribute('aria-checked',s.getAttribute('aria-checked')==='true'?'false':'true')});
   });
+  var cbody=document.getElementById('cbody');
+  function pintaScenes(){
+    var lista=document.querySelectorAll('.scene');
+    lista.forEach(function(x){
+      var em=x.querySelector('em'), prev=x.getAttribute('aria-current')==='true', pgm=x.getAttribute('data-pgm')==='1';
+      var txt=[pgm&&'programa',prev&&'preview'].filter(Boolean).join(' e ');
+      if(em)em.remove();
+      if(txt){var e=document.createElement('em');e.textContent=txt;x.querySelector('.sl').appendChild(e);}
+    });
+  }
+  document.querySelectorAll('.scene').forEach(function(s,i){
+    if(i===0)s.setAttribute('data-pgm','1');
+    s.addEventListener('click',function(){
+      document.querySelectorAll('.scene').forEach(function(x){x.setAttribute('aria-current','false')});
+      s.setAttribute('aria-current','true'); pintaScenes();
+    });
+  });
+  pintaScenes();
+  function recolher(btn,classe,rotulos){
+    btn.addEventListener('click',function(){
+      var rec=cbody.classList.toggle(classe);
+      btn.setAttribute('aria-expanded',rec?'false':'true');
+      btn.setAttribute('aria-label',rec?rotulos[1]:rotulos[0]); btn.title=rec?rotulos[1]:rotulos[0];
+      btn.focus();
+    });
+  }
+  recolher(document.getElementById('col-cenas'),'cenas-rec',['Recolher as cenas','Mostrar os nomes das cenas']);
+  recolher(document.getElementById('col-painel'),'painel-rec',['Recolher o painel','Abrir o painel']);
+  var larg={c1:224,c2:368};
+  function setLarg(chave,v,min,max,el){
+    larg[chave]=Math.max(min,Math.min(max,v));
+    cbody.style.setProperty('--'+(chave==='c1'?'c1':'c2'),larg[chave]+'px');
+    el.setAttribute('aria-valuenow',larg[chave]);
+  }
+  document.querySelectorAll('.divisor').forEach(function(d){
+    var esq=d.classList.contains('divisor--l'), chave=esq?'c2':'c1', min=esq?304:192, max=esq?520:320, pad=esq?368:224;
+    d.addEventListener('keydown',function(e){
+      var passo=e.shiftKey?64:16, sentido=esq?-1:1, v=larg[chave];
+      if(e.key==='ArrowRight')v+=passo*sentido; else if(e.key==='ArrowLeft')v-=passo*sentido;
+      else if(e.key==='Home')v=min; else if(e.key==='End')v=max; else return;
+      e.preventDefault(); setLarg(chave,v,min,max,d);
+    });
+    d.addEventListener('dblclick',function(){setLarg(chave,pad,min,max,d)});
+    d.addEventListener('pointerdown',function(e){
+      e.preventDefault(); d.setPointerCapture(e.pointerId);
+      var x0=e.clientX, l0=larg[chave];
+      function mv(ev){setLarg(chave,l0+(ev.clientX-x0)*(esq?-1:1),min,max,d)}
+      function up(){d.removeEventListener('pointermove',mv);d.removeEventListener('pointerup',up)}
+      d.addEventListener('pointermove',mv); d.addEventListener('pointerup',up);
+    });
+  });
+  document.querySelectorAll('.tb').forEach(function(t){
+    t.addEventListener('click',function(){
+      document.querySelectorAll('.tb').forEach(function(x){x.setAttribute('aria-selected',x===t?'true':'false')});
+      var p=t.getAttribute('data-p')||'outra';
+      document.querySelectorAll('.ptool').forEach(function(x){x.hidden=x.getAttribute('data-p')!==p});
+      if(p==='outra')document.getElementById('outra-t').textContent=t.getAttribute('data-t');
+      if(cbody.classList.contains('painel-rec')){cbody.classList.remove('painel-rec');
+        var b=document.getElementById('col-painel');b.setAttribute('aria-expanded','true');b.setAttribute('aria-label','Recolher o painel');b.title='Recolher o painel';}
+    });
+  });
+  var live=document.getElementById('live'), aviso=document.getElementById('live-toast');
+  live.addEventListener('click',function(){aviso.hidden=false;clearTimeout(live._t);live._t=setTimeout(function(){aviso.hidden=true},4000)});
+  document.getElementById('exit').addEventListener('click',function(){aviso.hidden=true});
 })();
 </script>
