@@ -35,7 +35,8 @@ export function PwStreamLogo({
           <path d="M72 50 C72 65, 65 72, 50 72" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.55" />
           <path d="M44 38 L62 50 L44 62 Z" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
         </svg>
-        {showText && <span className={`${textSizes[textSize]} font-black leading-none tracking-tight`}>PwStreamer</span>}
+        {/* O logotipo é o único texto do produto na voz da marca (Poppins) */}
+        {showText && <span className={`${textSizes[textSize]} font-display font-black leading-none tracking-tight`}>PwStreamer</span>}
       </div>
     );
   }
@@ -90,7 +91,7 @@ export function PwStreamLogo({
       {/* Brand Typographic Text */}
       {showText && (
         <div className="flex flex-col text-left">
-          <div className={`${textSizes[textSize]} font-black tracking-tight leading-none text-[var(--ink-hi)] flex items-center`}>
+          <div className={`${textSizes[textSize]} font-display font-black tracking-tight leading-none text-[var(--ink-hi)] flex items-center`}>
             <span>Pw</span>
             <span className="bg-gradient-to-r from-[var(--brand-grad-from)] via-[var(--brand-grad-mid)] to-[var(--brand-grad-to)] bg-clip-text text-transparent">
               Streamer

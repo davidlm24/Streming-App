@@ -10,9 +10,10 @@ export type Transicao = 'corte' | 'fusao';
 export const DURACAO_DA_FUSAO = 400;
 
 // A tecla de transição é um objeto próprio, não um botão fantasma qualquer:
-// elevada, com a borda que acende no aperto e a duração dentro dela.
+// elevada pela sombra, com a borda que acende no aperto e a duração dentro
+// dela. O contorno pesado saiu; o volume agora é luz, não traço.
 const TECLA =
-  'min-h-14 flex-col gap-0.5 border-[var(--line-ctl)] bg-[var(--raise)] text-[var(--ink-hi)] hover:border-[var(--ink-lo)] active:border-[var(--ink-hi)] active:bg-[var(--panel)]';
+  'min-h-14 flex-col gap-0.5 border-transparent bg-[var(--raise)] text-[var(--ink-hi)] shadow-[var(--shadow-raise)] hover:border-[var(--line-ctl)] active:border-[var(--ink-lo)] active:bg-[var(--panel)]';
 
 /**
  * Corte e Fusão: levam o preview ao programa. Ficam no trilho no desktop e,

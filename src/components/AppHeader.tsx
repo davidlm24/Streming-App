@@ -81,7 +81,10 @@ export function AppHeader({ user, currentView, onNavigate, onLogout }: AppHeader
   itensDaConta.push({ rotulo: 'Sair', icone: <LogOut size={14} />, onSelect: onLogout });
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--bg)]">
+    // Translúcido com desfoque: a página passa por baixo e a casca lê como
+    // uma lâmina, não como uma faixa chapada. O fundo a 85% segura a
+    // legibilidade onde o desfoque não é suportado.
+    <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[var(--bg)]/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-stretch gap-6 px-4 sm:px-6">
         <button
           type="button"

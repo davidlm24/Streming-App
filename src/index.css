@@ -1,8 +1,10 @@
-/* Montserrat foi removida: era baixada em cinco pesos a cada carregamento
-   para servir a `--font-display`, um token que NENHUM componente referenciava
-   — a única outra menção era como fallback depois de Poppins, que só entra em
-   cena se Poppins falhar. Cinco pesos de webfont por nada. */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+/* A interface fala Inter; a Poppins ficou só na marca. Antes a Poppins
+   geométrica carregava cada rótulo de 12px em cinco pesos — era a maior
+   parte do que fazia o produto parecer template. A Inter entra em quatro
+   pesos para o texto de trabalho; a Poppins desce a dois, usados apenas
+   pelo logotipo via `--font-display`. (A Montserrat já tinha saído pelo
+   mesmo motivo: webfont servindo token que ninguém referenciava.) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@700;800&display=swap');
 @import "tailwindcss";
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -21,7 +23,16 @@
    ══════════════════════════════════════════════════════════════════════════ */
 
 @theme {
-  --font-sans: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* A voz da marca: só o logotipo fala nela. */
+  --font-display: "Poppins", "Inter", system-ui, sans-serif;
+
+  /* ── curvas de movimento. As nativas do CSS são fracas demais para dar
+        intenção: `ease-out` de fábrica mal desacelera. Duas curvas autorais
+        cobrem o produto: saída forte para o que entra em cena (responde já,
+        assenta macio) e in-out forte para o que se move na tela. */
+  --ease-saida: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-movimento: cubic-bezier(0.77, 0, 0.175, 1);
 
   /* ── primitivas: a rampa. Nunca mudam com o tema. ─────────────────────── */
   /* stylelint-disable color-no-hex -- bloco de tokens: o unico lugar sancionado para hexadecimal cru */
@@ -124,6 +135,16 @@
 
   --stage: var(--color-n-0);
 
+  /* ── profundidade. O piso plano ("nada em repouso projeta sombra")
+        aposentou-se: a direção soft-modern separa superfícies por luz, não
+        por borda. Quatro papéis, do controle ao flutuante. As sombras são
+        tingidas do marinho (nunca preto puro no tema claro) e discretas de
+        propósito: elas dizem "isto está acima", não "olhe para mim". */
+  --shadow-ctl:   0 1px 2px rgb(2 4 10 / 0.35);
+  --shadow-raise: 0 1px 2px rgb(2 4 10 / 0.3), 0 4px 12px -4px rgb(2 4 10 / 0.25);
+  --shadow-menu:  0 4px 12px -2px rgb(2 4 10 / 0.4), 0 16px 40px -12px rgb(2 4 10 / 0.5);
+  --shadow-float: 0 12px 32px -8px rgb(2 4 10 / 0.45), 0 32px 80px -16px rgb(2 4 10 / 0.55);
+
   /* -- graficos. A paleta de series E A RAMPA: separacao por VALOR, nao por
         matiz. O carmim e reservado ao ar e nao entra em grafico; a auditoria
         achou o ramp 500 do Tailwind sendo usado como paleta. Valor sobrevive
@@ -159,6 +180,13 @@
   --ink-hi:  var(--color-n-6);
 
   --stage: var(--color-n-0);   /* o palco de vídeo nunca clareia */
+
+  /* Sombras sobre papel claro: tinta de marinho (nv-14) em vez de preto,
+     mais rasas — a luz ambiente do tema claro é mais alta. */
+  --shadow-ctl:   0 1px 2px rgb(23 35 61 / 0.08);
+  --shadow-raise: 0 1px 2px rgb(23 35 61 / 0.06), 0 4px 12px -4px rgb(23 35 61 / 0.08);
+  --shadow-menu:  0 4px 12px -2px rgb(23 35 61 / 0.08), 0 16px 40px -12px rgb(23 35 61 / 0.16);
+  --shadow-float: 0 12px 32px -8px rgb(23 35 61 / 0.14), 0 32px 80px -16px rgb(23 35 61 / 0.18);
 
   /* ── ACENTOS CROMÁTICOS NO TEMA CLARO
      Os tons 300/400 do Tailwind são feitos para fundo escuro. Sobre papel
@@ -228,6 +256,13 @@
      diferença: aparecem sobre imagem clara ou escura, sem cor própria. */
   --guia:    rgb(255 255 255 / 0.6);
 
+  /* O console é a sala escura: as sombras são as do tema escuro, um pouco
+     mais fundas — o entorno quase preto pede mais alcance para ler altura. */
+  --shadow-ctl:   0 1px 2px rgb(0 2 8 / 0.45);
+  --shadow-raise: 0 1px 2px rgb(0 2 8 / 0.4), 0 4px 12px -4px rgb(0 2 8 / 0.35);
+  --shadow-menu:  0 4px 12px -2px rgb(0 2 8 / 0.5), 0 16px 40px -12px rgb(0 2 8 / 0.6);
+  --shadow-float: 0 12px 32px -8px rgb(0 2 8 / 0.55), 0 32px 80px -16px rgb(0 2 8 / 0.65);
+
   /* O console é escuro SEMPRE, inclusive dentro do tema claro. Então os tons
      300/400 voltam aos valores originais aqui — escurecê-los sobre grafite
      seria o erro inverso do que a regra do tema claro corrige. */
@@ -280,6 +315,11 @@ body {
   background-color: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
+  /* A Inter em tamanho de trabalho rende mais nítida com o antialias do que
+     com o subpixel — é o acabamento que separa "fonte trocada" de "tipografia
+     refeita". */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizelegibility;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -366,12 +406,14 @@ select[aria-invalid="true"] { border-color: var(--ink-hi); }
 /* ── barra de rolagem ─────────────────────────────────────────────────── */
 /* Reserva a calha da barra de rolagem em toda página. Sem isso, as telas
    que rolam (Configurações, Canais) deslocavam cabeçalho e coluna ~6px
-   em relação às que não rolam (Painel) — a casca "pulava" ao navegar. */
+   em relação às que não rolam (Painel) — a casca "pulava" ao navegar.
+   A calha é invisível: uma faixa de --surface pintada da borda ao rodapé
+   era mais uma linha vertical num produto que está tirando linhas. */
 html { scrollbar-gutter: stable; }
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--surface); }
-::-webkit-scrollbar-thumb { background: var(--line-ctl); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-brand); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line-ctl); border-radius: 4px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--ink-dim); }
 
 /* ══════════════════════════════════════════════════════════════════════════
    MOLDURA DE TALLY — PGM × PVW
@@ -414,16 +456,24 @@ html { scrollbar-gutter: stable; }
     font-size: 14px; font-weight: 600; line-height: 1.2;
     background: var(--color-brand-deep); color: var(--color-n-100);
     border: 1px solid transparent;
+    /* O fio de luz na aresta de cima e a sombra de controle: é o que faz o
+       preenchimento ler como objeto, e não como retângulo pintado. */
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1), var(--shadow-ctl);
     cursor: pointer;
-    /* Só `filter` anima: composta na GPU, não força relayout. */
-    transition: filter 110ms linear, background-color 110ms linear;
+    /* Só filter e transform animam: compostos na GPU, sem relayout. O aperto
+       encolhe a 0.97 — o botão responde ao dedo antes de responder ao banco. */
+    transition: filter 110ms linear, background-color 110ms linear,
+                transform 160ms var(--ease-saida), box-shadow 160ms var(--ease-saida);
   }
-  .btn:hover:not([disabled], [aria-disabled="true"])  { filter: brightness(1.1); }
-  .btn:active:not([disabled], [aria-disabled="true"]) { filter: brightness(0.93); }
+  .btn:hover:not([disabled], [aria-disabled="true"])  { filter: brightness(1.08); }
+  .btn:active:not([disabled], [aria-disabled="true"]) { filter: brightness(0.95); transform: scale(0.97); }
 
-  /* Secundário. */
-  .btn--ghost { background: transparent; color: var(--ink); border-color: var(--line-ctl); }
-  .btn--ghost:hover:not([disabled], [aria-disabled="true"]) { background: var(--raise); filter: none; }
+  /* Secundário: tonal, um degrau acima da superfície local, sem contorno
+     pesado — a borda caiu para `line` e o volume vem da sombra de controle.
+     Era `transparent` + `line-ctl`: o visual de caixa vazada que fazia cada
+     tela parecer um formulário dos anos 2010. */
+  .btn--ghost { background: var(--raise); color: var(--ink); border-color: var(--line); }
+  .btn--ghost:hover:not([disabled], [aria-disabled="true"]) { border-color: var(--line-ctl); color: var(--ink-hi); filter: brightness(1.04); }
 
   /* Encerrar. O carmim é o do ar — e encerrar a transmissão É sobre o ar,
      então aqui ele está no seu lugar. 5,02:1 com texto branco. */
@@ -438,12 +488,12 @@ html { scrollbar-gutter: stable; }
      painel. 16px = text-base. */
   .btn--lg { padding: 13px 24px; font-size: 16px; gap: 10px; }
 
-  .btn[disabled] { opacity: 0.45; cursor: not-allowed; filter: none; }
+  .btn[disabled] { opacity: 0.45; cursor: not-allowed; filter: none; transform: none; box-shadow: none; }
 
   /* Indisponível, mas ainda focável: o botão que existe para dizer por que não
      age (o "Entrar ao vivo" do estúdio, enquanto a transmissão não existe).
      `disabled` o tiraria do Tab, e quem usa teclado não ouviria o motivo. */
-  .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; filter: none; }
+  .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; filter: none; transform: none; box-shadow: none; }
 
   /* `Enviando…`: desabilitado E anunciado. `aria-busy` sem `disabled` deixa o
      botão clicável duas vezes; `disabled` sem `aria-busy` não conta ao leitor

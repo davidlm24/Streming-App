@@ -95,7 +95,7 @@ export function PainelDoEstudio({
               onClick={() => onEscolher(id)}
               title={descricao}
               className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-xs transition-colors duration-150 cursor-pointer ${
-                atual ? 'bg-[var(--raise)] text-[var(--ink-hi)]' : 'text-[var(--ink-lo)] hover:bg-[var(--panel)] hover:text-[var(--ink-hi)]'
+                atual ? 'bg-[var(--raise)] text-[var(--ink-hi)] shadow-[var(--shadow-ctl)]' : 'text-[var(--ink-lo)] hover:bg-[var(--panel)] hover:text-[var(--ink-hi)]'
               }`}
             >
               <Icone size={18} aria-hidden="true" />

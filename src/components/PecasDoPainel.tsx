@@ -214,7 +214,7 @@ export function SeletorDeCanto({
     2,
   );
   return (
-    <div role="radiogroup" aria-label={rotulo} className="grid w-fit grid-cols-2 gap-1 rounded-xl border border-[var(--line-ctl)] p-0.5">
+    <div role="radiogroup" aria-label={rotulo} className="grid w-fit grid-cols-2 gap-1 rounded-2xl bg-[var(--well)] p-1">
       {CANTOS.map(({ valor: canto, rotulo: nome }, i) => {
         const Icone = ICONE_DO_CANTO[canto];
         const marcado = valor === canto;
@@ -228,8 +228,8 @@ export function SeletorDeCanto({
             aria-label={nome}
             title={nome}
             onClick={() => onChange(canto)}
-            className={`flex size-11 items-center justify-center rounded-[10px] transition-colors duration-150 cursor-pointer ${
-              marcado ? 'bg-[var(--raise)] text-[var(--ink-hi)]' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
+            className={`flex size-11 items-center justify-center rounded-xl transition-colors duration-150 cursor-pointer ${
+              marcado ? 'bg-[var(--raise)] text-[var(--ink-hi)] shadow-[var(--shadow-ctl)]' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
             }`}
           >
             <Icone size={16} aria-hidden="true" />
@@ -368,7 +368,7 @@ export function GradeDeImagens({
   );
   const opcao = (marcado: boolean) =>
     `relative flex aspect-square items-center justify-center overflow-hidden rounded-xl border bg-[var(--well)] transition-colors duration-150 cursor-pointer ${
-      marcado ? 'border-[var(--ink-hi)] ring-1 ring-[var(--ink-hi)]' : 'border-[var(--line-ctl)] hover:border-[var(--ink-lo)]'
+      marcado ? 'border-[var(--ink-hi)] ring-1 ring-[var(--ink-hi)]' : 'border-[var(--line)] hover:border-[var(--ink-lo)]'
     }`;
 
   // A do preview primeiro; a do programa só quando é outra
@@ -405,7 +405,7 @@ export function GradeDeImagens({
             <li
               key={item.id}
               title={item.nome}
-              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-[var(--line-ctl)] bg-[var(--well)] p-1.5 text-center text-xs text-[var(--ink-lo)]"
+              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border border-[var(--line)] bg-[var(--well)] p-1.5 text-center text-xs text-[var(--ink-lo)]"
             >
               <span className="sr-only">{item.nome}:</span>
               {item.chegada === 'falhou' ? (

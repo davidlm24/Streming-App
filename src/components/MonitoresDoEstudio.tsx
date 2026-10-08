@@ -48,7 +48,9 @@ export function ProximoCorte({ mudancas }: { mudancas: string[] }) {
       <h2 id="estudio-proximo-corte" className="mb-2 h-4 shrink-0 text-xs font-medium leading-4 text-[var(--ink-hi)]">
         No próximo corte
       </h2>
-      <div className="min-h-0 overflow-y-auto border border-[var(--line)] bg-[var(--panel)]">
+      {/* A caixa acompanha a mesa soft-modern: canto generoso e fundo em
+          --panel, sem contorno — a separação é tonal, como nos painéis. */}
+      <div className="min-h-0 overflow-y-auto rounded-2xl bg-[var(--panel)]">
         {mudancas.length === 0 ? (
           <p className="px-4 py-3 text-pretty text-xs text-[var(--ink-lo)]">Nada muda: o preview está igual ao programa.</p>
         ) : (

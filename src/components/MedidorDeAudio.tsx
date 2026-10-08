@@ -91,7 +91,7 @@ export function MedidorDeAudio({ stream, mudo }: { stream: MediaStream | null; m
 
   return (
     <span aria-hidden="true" className="flex items-center gap-2">
-      <span className="relative block h-2 w-16 overflow-hidden bg-[var(--well)] sm:w-24">
+      <span className="relative block h-2 w-16 overflow-hidden rounded-full bg-[var(--well)] sm:w-24">
         <span
           ref={barraRef}
           style={{ '--nivel': 0 } as CSSProperties}
