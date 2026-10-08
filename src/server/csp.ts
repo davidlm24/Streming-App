@@ -117,8 +117,11 @@ export function politicaDeSeguranca({
     // Não há `<iframe>` em nenhuma tela
     'frame-src': ["'none'"],
 
-    // Não há Worker, SharedWorker, service worker nem AudioWorklet
-    'worker-src': ["'none'"],
+    // O único Worker é o do pdf.js, que lê o PDF da apresentação do estúdio
+    // fora da linha principal; é um arquivo do build, da própria origem. Não
+    // há SharedWorker, service worker nem AudioWorklet. Um `blob:` aqui
+    // deixaria um script já rodando abrir um Worker com código qualquer.
+    'worker-src': ["'self'"],
 
     // Os formulários do app são todos `onSubmit`, sem `action`; um formulário
     // sem `action` envia para a própria URL, então `'none'` quebraria qualquer

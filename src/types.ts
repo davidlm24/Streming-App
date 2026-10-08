@@ -127,6 +127,12 @@ export interface ClipeNoPalco {
   url: string;
 }
 
+/** O PDF aberto no estúdio, no lugar da tela. A página não está aqui: é da fonte, vale nos dois monitores. */
+export interface ApresentacaoNoPalco {
+  id: string;
+  nome: string;
+}
+
 /** Os gráficos de um monitor. Tudo aqui vai ao programa no corte, e só no corte. */
 export interface GraficosDoPalco {
   /** A cor dos gráficos: a borda do card da câmera, o subtítulo do banner, o selo do ticker e o cronômetro. */
@@ -147,7 +153,7 @@ export interface GraficosDoPalco {
  */
 export interface StudioSceneState {
   sceneId?: string;
-  layout: '1-cam' | 'dual' | 'screen-share' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery';
+  layout: '1-cam' | 'dual' | 'screen-share' | 'camera-em-destaque' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery';
   activeParticipantIds: string[];
   cardDaCamera?: GeometriaDoCard;
   activeBackground?: string;
@@ -155,4 +161,5 @@ export interface StudioSceneState {
   pinnedComment: Comment | null;
   graficos: GraficosDoPalco;
   clipe: ClipeNoPalco | null;
+  apresentacao: ApresentacaoNoPalco | null;
 }

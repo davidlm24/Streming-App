@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { GeometriaDoCard } from '../types';
 import { CARD_PADRAO, cantoDoCard, dentroDoPalco, lugarDoCanto } from '../lib/cenas';
 import { AJUSTES_PADRAO, ZOOM_MAXIMO, ZOOM_MINIMO, deslocamentoMaximo, dentroDoQuadro, type AjustesDaCamera } from '../lib/camera';
+import { fraseDaCamera, type AjustesDaCaptura, type LeituraDaCaptura, type QuadrosPorSegundo, type Resolucao } from '../lib/captura';
 import { Deslizante, EscolhaDoPainel, SecaoDoPainel, SeletorDeCanto } from './PecasDoPainel';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Segmentado } from './ui/Segmentado';
@@ -13,12 +14,22 @@ const FORMATOS: { valor: GeometriaDoCard['formato']; rotulo: string }[] = [
   { valor: 'circle', rotulo: 'Círculo' },
 ];
 
+const RESOLUCOES: { valor: Resolucao; rotulo: string }[] = [
+  { valor: '720p', rotulo: '720p' },
+  { valor: '1080p', rotulo: '1080p' },
+];
+const QUADROS: { valor: QuadrosPorSegundo; rotulo: string }[] = [
+  { valor: '30', rotulo: '30 qps' },
+  { valor: '60', rotulo: '60 qps' },
+];
+
 const lado = (valor: number, esquerda: string, direita: string) =>
   valor === 0 ? 'centro' : `${Math.abs(valor)}% ${valor < 0 ? esquerda : direita}`;
 
 /**
- * A câmera: o card dela na cena Tela com câmera, o enquadramento, o espelho e
- * o croma. O card é da cena e vai ao programa no corte; os outros ajustes são
+ * A câmera: a qualidade da captura, o card dela na cena Tela com câmera, o
+ * enquadramento, o espelho e o croma. A qualidade é pedida ao aparelho, e a
+ * seção diz o que ele entregou. O card é da cena e vai ao programa no corte; os outros ajustes são
  * da câmera e valem nos dois monitores na hora, como o aparelho escolhido.
  *
  * Era o painel "Temas & Aparência", com o modo claro do estúdio (que só
@@ -32,6 +43,10 @@ export function PainelCamera({
   card,
   onCard,
   cenaTemCard,
+  captura,
+  onCaptura,
+  camera,
+  aplicando,
 }: {
   ajustes: AjustesDaCamera;
   onAjustes: Dispatch<SetStateAction<AjustesDaCamera>>;
@@ -39,6 +54,11 @@ export function PainelCamera({
   onCard: Dispatch<SetStateAction<GeometriaDoCard>>;
   /** A cena do preview desenha o card (Tela com câmera). */
   cenaTemCard: boolean;
+  captura: AjustesDaCaptura;
+  onCaptura: (proxima: AjustesDaCaptura) => void;
+  /** O que a câmera está entregando agora. */
+  camera: LeituraDaCaptura['camera'];
+  aplicando: boolean;
 }) {
   const limite = deslocamentoMaximo(ajustes.zoom);
   // Sempre a partir do estado atual: dois ajustes no mesmo quadro não se desfazem
@@ -47,9 +67,46 @@ export function PainelCamera({
     onAjustes((atual) => ({ ...atual, croma: { ...atual.croma, ...parcial } }));
   const mudarCard = (parcial: Partial<GeometriaDoCard>) => onCard((atual) => dentroDoPalco({ ...atual, ...parcial }));
   const canto = cantoDoCard(card);
+  const entregue = fraseDaCamera(camera);
 
   return (
     <div className="pb-6">
+      <SecaoDoPainel
+        titulo="Qualidade da câmera"
+        dica={
+          !camera
+            ? 'O navegador não liberou a câmera.'
+            : aplicando
+              ? 'Pedindo à câmera…'
+              : entregue
+                ? `A câmera entrega ${entregue}. Cada aparelho chega até onde pode.`
+                : 'A câmera não disse o que entrega.'
+        }
+      >
+        <EscolhaDoPainel rotulo="Resolução">
+          <Segmentado
+            rotulo="Resolução"
+            largura="cheia"
+            opcoes={RESOLUCOES}
+            valor={captura.resolucao}
+            desativado={!camera}
+            ocupado={aplicando}
+            onChange={(resolucao) => onCaptura({ ...captura, resolucao })}
+          />
+        </EscolhaDoPainel>
+        <EscolhaDoPainel rotulo="Quadros por segundo">
+          <Segmentado
+            rotulo="Quadros por segundo"
+            largura="cheia"
+            opcoes={QUADROS}
+            valor={captura.quadros}
+            desativado={!camera}
+            ocupado={aplicando}
+            onChange={(quadros) => onCaptura({ ...captura, quadros })}
+          />
+        </EscolhaDoPainel>
+      </SecaoDoPainel>
+
       <SecaoDoPainel
         titulo="Card da câmera"
         dica={
