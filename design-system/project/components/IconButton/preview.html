@@ -1,0 +1,10 @@
+<!-- @dsCard group="Actions" height=90 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<div id="root" class="pw" style="padding:16px"></div>
+<script>
+(function(){
+  var P = window.PwStreamer, h = React.createElement, I = function(n, s, x){ return h(P.Icon, Object.assign({ name: n, size: s || 16 }, x || {})); };
+  var tree = (function(){ return h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' } }, h(P.IconButton, { label: 'Buscar no chat' }, I('search', 18)), h(P.IconButton, { label: 'Fixar no programa' }, I('pin', 18)), h(P.IconButton, { label: 'Fechar' }, I('x', 18)), h(P.IconButton, { label: 'Abrir menu' }, I('more', 18))); })();
+  ReactDOM.createRoot(document.getElementById('root')).render(tree);
+})();
+</script>

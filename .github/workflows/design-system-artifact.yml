@@ -1,0 +1,88 @@
+name: Design system artifact
+
+# Keeps design-system/ (the files behind the "PwStreamer Live" Design System
+# artifact) in step with src/index.css, and says when the artifact needs a
+# republish.
+#
+# The publish itself cannot run here: claude.ai artifacts only publish from a
+# Claude Code session signed in with /login, and are off in GitHub Action
+# contexts (code.claude.com/docs/en/artifacts, "Availability"). So CI does the
+# deterministic half (rebuild and compare) and the republish is one command in
+# Claude Code: /republish-design-system.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/index.css
+      - design-system/**
+      - .github/workflows/design-system-artifact.yml
+  pull_request:
+    paths:
+      - src/index.css
+      - design-system/**
+      - .github/workflows/design-system-artifact.yml
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The summary lists what changed since the previous push.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The producer has no dependencies: no npm ci needed.
+      # Fails when tokens.json no longer matches src/index.css.
+      - name: Tokens in sync with src/index.css
+        run: node design-system/build-tokens.mjs --check
+
+      # The component READMEs and previews are generated too: a hand edit to
+      # one of them, or a catalogue change not rebuilt, fails here.
+      - name: Components in sync with the catalogue
+        run: |
+          node design-system/gen-components.mjs
+          if ! git diff --quiet -- design-system/project/components; then
+            echo "::error::design-system/project/components is out of date with design-system/gen-components.mjs. Run \`npm run ds:build\` and commit design-system/."
+            git diff --stat -- design-system/project/components
+            exit 1
+          fi
+
+      - name: Bundle syntax
+        run: node --check design-system/project/components/bundle.js
+
+      # On main, the files are now ahead of the published artifact.
+      - name: Republish due
+        if: github.event_name == 'push'
+        run: |
+          {
+            echo "## Design system artifact: republish due"
+            echo
+            echo "\`design-system/\` changed in ${GITHUB_SHA::7} and is now ahead of the published artifact."
+            echo
+            echo "Republish from Claude Code, signed in with /login, in a checkout of this commit:"
+            echo
+            echo '```'
+            echo '/republish-design-system'
+            echo '```'
+            echo
+            echo "Changed files:"
+            echo
+            git diff --name-only "${{ github.event.before }}" "$GITHUB_SHA" -- src/index.css design-system 2>/dev/null | sed 's/^/- /' || true
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice title=Design system artifact::Republish due. Run /republish-design-system in Claude Code."
+
+      - name: Upload the built system
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-system-${{ github.sha }}
+          path: design-system/project
+          retention-days: 30

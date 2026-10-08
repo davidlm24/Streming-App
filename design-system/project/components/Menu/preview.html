@@ -1,0 +1,12 @@
+<!-- @dsCard group="Actions" height=220 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<div id="root" class="pw" style="padding:16px"></div>
+<script>
+(function(){
+  var P = window.PwStreamer, h = React.createElement, I = function(n, s, x){ return h(P.Icon, Object.assign({ name: n, size: s || 16 }, x || {})); };
+  var tree = (function(){ return h('div', { style: { display: 'flex', gap: 48, alignItems: 'flex-start', minHeight: 180 } },
+    h('div', null, h('div', { className: 'label ink-lo', style: { marginBottom: 8 } }, 'Ações de um webinar'), h(P.Menu, { label: 'Ações de Lançamento de outubro', defaultOpen: true, align: 'left', items: [{ label: 'Inscrições', icon: I('users', 14) }, { label: 'Criar capa', icon: I('film', 14) }, { label: 'Excluir webinar', icon: I('trash', 14), danger: true }] })),
+    h('div', { style: { marginLeft: 'auto' } }, h('div', { className: 'label ink-lo', style: { marginBottom: 8 } }, 'Conta'), h(P.Menu, { label: 'Conta', trigger: h('span', { className: 'pw-avatar' }, 'DG'), triggerClassName: 'pw-header__brand', header: h('div', null, h('div', { className: 'ink-hi', style: { fontWeight: 500 } }, 'Dona da conta'), h('div', { className: 'label ink-lo' }, 'dona@example.test')), items: [{ label: 'Dados de cadastro', icon: I('user', 14) }, { label: 'Plano e cobrança', icon: I('creditCard', 14) }, { label: 'Administração', icon: I('shield', 14) }, { label: 'Sair', icon: I('logOut', 14) }] }))); })();
+  ReactDOM.createRoot(document.getElementById('root')).render(tree);
+})();
+</script>

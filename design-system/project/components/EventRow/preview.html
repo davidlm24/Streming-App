@@ -1,0 +1,10 @@
+<!-- @dsCard group="Lists" height=260 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<div id="root" class="pw" style="padding:16px"></div>
+<script>
+(function(){
+  var P = window.PwStreamer, h = React.createElement, I = function(n, s, x){ return h(P.Icon, Object.assign({ name: n, size: s || 16 }, x || {})); };
+  var tree = (function(){ return h('ul', { className: 'pw-list', style: { maxWidth: 640, listStyle: 'none', padding: 0, margin: 0 } }, h('li', null, h(P.EventRow, { title: 'Lançamento de outubro', when: { text: 'Hoje, às', time: '20:00' }, meta: '3 canais', action: h(P.Button, { variant: 'ghost', size: 'sm' }, 'Entrar'), menu: [{ label: 'Inscrições' }, { label: 'Criar capa' }, { label: 'Excluir webinar', danger: true }] })), h('li', null, h(P.EventRow, { title: 'Aula aberta: fluxo de caixa', when: { text: 'Domingo, 27 de setembro, às', time: '19:30' }, meta: 'YouTube e LinkedIn', menu: [{ label: 'Inscrições' }, { label: 'Excluir webinar', danger: true }] })), h('li', null, h(P.EventRow, { title: 'Bastidores da redação', recording: '00:42:17', action: h(P.Button, { variant: 'ghost', size: 'sm' }, 'Parar') })), h('li', null, h(P.EventRow, { title: 'Perguntas e respostas de setembro', when: { text: '24 de setembro, às', time: '20:00' }, duration: '1:12:40', meta: '1080p', action: h(P.TextAction, { size: 'sm', icon: I('download', 14) }, 'Baixar'), menu: [{ label: 'Publicar no YouTube' }, { label: 'Excluir gravação', danger: true }] }))); })();
+  ReactDOM.createRoot(document.getElementById('root')).render(tree);
+})();
+</script>

@@ -1,0 +1,10 @@
+<!-- @dsCard group="Destinations" height=120 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<div id="root" class="pw" style="padding:16px"></div>
+<script>
+(function(){
+  var P = window.PwStreamer, h = React.createElement, I = function(n, s, x){ return h(P.Icon, Object.assign({ name: n, size: s || 16 }, x || {})); };
+  var tree = (function(){ return h(P.ChipRow, null, h(P.Chip, { platform: 'youtube', state: 'ready' }, 'YouTube Principal'), h(P.Chip, { platform: 'twitch', state: 'ready' }, 'Twitch'), h(P.Chip, { platform: 'kick', state: 'pending', stateLabel: 'sem chave' }, 'Kick'), h(P.Chip, { platform: 'custom', state: 'pending', stateLabel: 'desligado' }, 'Servidor RTMP próprio'), h(P.Chip, { platform: 'linkedin', state: 'pending', stateLabel: 'não conectado' }, 'LinkedIn'), h(P.Chip, { add: true }, 'Conectar canal')); })();
+  ReactDOM.createRoot(document.getElementById('root')).render(tree);
+})();
+</script>

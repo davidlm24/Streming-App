@@ -1,0 +1,10 @@
+<!-- @dsCard group="Navigation" height=230 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<div id="root" class="pw" style="padding:16px"></div>
+<script>
+(function(){
+  var P = window.PwStreamer, h = React.createElement, I = function(n, s, x){ return h(P.Icon, Object.assign({ name: n, size: s || 16 }, x || {})); };
+  var tree = (function(){ return h('div', null, h(P.Section, { id: 's1', title: 'Canais', count: '3 conectados', first: true, action: h(P.TextAction, { icon: I('plus', 14) }, 'Conectar canal') }, h(P.ChipRow, null, h(P.Chip, { platform: 'youtube', state: 'ready' }, 'YouTube Principal'), h(P.Chip, { platform: 'twitch', state: 'ready' }, 'Twitch'), h(P.Chip, { platform: 'kick', state: 'pending', stateLabel: 'sem chave' }, 'Kick'))), h(P.Section, { id: 's2', title: 'Próximas lives' }, h(P.EmptyState, { action: { label: 'Agendar webinar', icon: I('calendar', 14) } }, 'Nenhuma live agendada.'))); })();
+  ReactDOM.createRoot(document.getElementById('root')).render(tree);
+})();
+</script>
