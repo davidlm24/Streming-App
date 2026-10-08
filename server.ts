@@ -2,13 +2,12 @@ import express from "express";
 import path from "path";
 import crypto from "crypto";
 import net from "net";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
-import { getSupabaseAdminClient, isSupabaseServerConfigured } from "./src/lib/supabase-admin.ts";
-import { AuthRequest, configuredSuperAdmins, isSuperAdmin, requireAuth } from "./src/middleware/auth.ts";
-import { resolvePublicAddress } from "./src/server/safe-http.ts";
-import { ORIGENS_DO_SUPABASE_EM_PRODUCAO, origensDoSupabase, politicaDeSeguranca } from "./src/server/csp.ts";
+import { getSupabaseAdminClient, isSupabaseServerConfigured } from "./src/lib/supabase-admin.js";
+import { AuthRequest, configuredSuperAdmins, isSuperAdmin, requireAuth } from "./src/middleware/auth.js";
+import { resolvePublicAddress } from "./src/server/safe-http.js";
+import { ORIGENS_DO_SUPABASE_EM_PRODUCAO, origensDoSupabase, politicaDeSeguranca } from "./src/server/csp.js";
 
 dotenv.config();
 
@@ -891,6 +890,10 @@ Retorne estritamente um JSON estruturado com:
     });
 
     if (desenvolvimento) {
+      // Só o servidor de desenvolvimento carrega o Vite: na função da Vercel e no
+      // `npm start` ele seria peso morto, e um pacote de desenvolvimento a menos
+      // para a função encontrar em produção
+      const { createServer: createViteServer } = await import("vite");
       const vite = await createViteServer({
         server: { middlewareMode: true },
         appType: "spa",
