@@ -1,7 +1,9 @@
-import type { Ref } from 'react';
+import { useId, type Ref } from 'react';
+import { Radio } from 'lucide-react';
 import { PwStreamLogo } from './PwStreamLogo';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
+import { useToast } from './ui/Toast';
 
 interface BarraDoEstudioProps {
   /** O título do webinar pelo qual se entrou no estúdio, quando houver. */
@@ -23,8 +25,15 @@ interface BarraDoEstudioProps {
  * RECORDING OFF", o GO LIVE em laranja, "Sair do Webinar", o botão de tema
  * (que não muda o console) e a conta. O ar ainda não existe, e o que era de
  * canal virou uma linha que diz quantos estão prontos e abre os canais.
+ *
+ * "Entrar ao vivo" volta ao lugar do GO LIVE, mas indisponível e dizendo por
+ * quê: o botão existe para o operador saber onde o ar vai morar, e nada nele
+ * finge que a transmissão existe. Fica focável (`aria-disabled`, não
+ * `disabled`) para quem usa teclado ouvir o motivo, e o clique o repete.
  */
 export function BarraDoEstudio({ sessao, canaisLigados, canaisProntos, onCanais, onSair, onVoltarAosAjustes, mostrarVoltaAosAjustes, botaoVoltarRef }: BarraDoEstudioProps) {
+  const toast = useToast();
+  const idDoMotivo = useId();
   const canais =
     canaisLigados === 0
       ? 'Nenhum canal ligado'
@@ -57,6 +66,22 @@ export function BarraDoEstudio({ sessao, canaisLigados, canaisProntos, onCanais,
             <AcaoDeTexto tamanho="xs" onClick={onCanais} className="min-h-11">
               {canais}
             </AcaoDeTexto>
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-disabled="true"
+            aria-describedby={idDoMotivo}
+            icon={<Radio size={14} aria-hidden="true" />}
+            onClick={() =>
+              toast.info('A transmissão ainda não existe', 'Quando ela chegar, é por aqui que o estúdio entra no ar nos canais ligados.')
+            }
+            className="hidden sm:inline-flex"
+          >
+            Entrar ao vivo
+          </Button>
+          <span id={idDoMotivo} className="sr-only">
+            A transmissão para os canais ainda não está no ar.
           </span>
           <Button variant="ghost" size="sm" onClick={onSair}>
             Sair do estúdio

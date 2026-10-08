@@ -1,4 +1,4 @@
-import { useId, useRef, type InputHTMLAttributes, type KeyboardEvent, type ReactNode } from 'react';
+import { useId, useRef, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type Ref } from 'react';
 import { ArrowDownLeft, ArrowDownRight, ArrowUpLeft, ArrowUpRight, CircleAlert, Plus } from 'lucide-react';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { ErroDeCampo } from './ui/ErroDeCampo';
@@ -280,14 +280,20 @@ export function EnviarArquivo({
   aceita,
   progresso,
   onArquivo,
+  ocupado = false,
+  refDoCampo,
 }: {
   rotulo: string;
   aceita: string;
   /** O envio em andamento, de 0 a 100; undefined sem envio. */
   progresso: number | undefined;
   onArquivo: (arquivo: File) => void;
+  /** Esperando sem porcentagem (abrir um PDF): o campo não aceita outro arquivo, e o rótulo diz o que está acontecendo. */
+  ocupado?: boolean;
+  /** Para devolver o foco ao campo quando ele volta à tela. */
+  refDoCampo?: Ref<HTMLInputElement>;
 }) {
-  const enviando = progresso !== undefined;
+  const enviando = progresso !== undefined || ocupado;
   return (
     <label
       className={`envio flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--line-ctl)] px-3 text-sm text-[var(--ink)] transition-colors duration-150 ${
@@ -295,8 +301,9 @@ export function EnviarArquivo({
       }`}
     >
       <Plus size={16} aria-hidden="true" />
-      {enviando ? <span className="tabular-nums">Enviando… {progresso}%</span> : rotulo}
+      {progresso !== undefined ? <span className="tabular-nums">Enviando… {progresso}%</span> : rotulo}
       <input
+        ref={refDoCampo}
         type="file"
         accept={aceita}
         disabled={enviando}

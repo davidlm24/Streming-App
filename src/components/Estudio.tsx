@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { ClipeNoPalco, Comment, Destination, GeometriaDoCard, GraficosDoPalco, Participant, StudioSceneState } from '../types';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import type { ApresentacaoNoPalco, ClipeNoPalco, Comment, Destination, GeometriaDoCard, GraficosDoPalco, Participant, StudioSceneState } from '../types';
 import { CENA_INICIAL, FONTE_CAMERA, FONTE_TELA, cenaPeloId, layoutUsaCard, lerCardSalvo, precisaDaTela, salvarCard, type Cena } from '../lib/cenas';
 import { LOGO_PADRAO, QR_PADRAO, graficosVazios, mudancasNoCorte, normalizarLink, relogioParado, type RelogioDoCronometro } from '../lib/graficos';
 import { AJUSTES_PADRAO, dentroDoQuadro, type AjustesDaCamera } from '../lib/camera';
@@ -10,6 +10,11 @@ import { estadoDoCanal } from '../lib/canais';
 import { salvarBanners, salvarTickers, subscribeBanners, subscribeTickers } from '../lib/dadosDaConta';
 import { useMidiaDoEstudio } from '../context/MidiaDoEstudio';
 import { BarraDoEstudio } from './BarraDoEstudio';
+import { PainelAudio } from './PainelAudio';
+import { SecaoDaApresentacao } from './SecaoDaApresentacao';
+import { useApresentacao } from '../lib/useApresentacao';
+import { CAPTURA_PADRAO, capturaValida, lerCaptura, restricoesDeAudio, restricoesDeVideo, type AjustesDaCaptura } from '../lib/captura';
+import { DivisorDeColuna } from './DivisorDeColuna';
 import { BotoesDeTransicao, DURACAO_DA_FUSAO, TrilhoDeCenas, type Transicao } from './TrilhoDeCenas';
 import { MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
 import { FERRAMENTA_INICIAL, PainelDoEstudio, type Ferramenta } from './PainelDoEstudio';
@@ -62,6 +67,37 @@ const ESCOLHA_INICIAL: EscolhaDosGraficos = {
   logo: { ...LOGO_PADRAO },
   cronometro: { noPreview: false, titulo: '' },
 };
+
+// As larguras das colunas do console no desktop, em px. O máximo também é
+// limitado pela janela (tetoNaJanela: 22vw e 36vw), para os monitores nunca
+// ficarem sem espaço; o padrão é o de antes do divisor (14rem e 23rem).
+const COLUNAS = {
+  cenas: { minimo: 192, maximo: 320, padrao: 224, tetoNaJanela: 0.22 },
+  painel: { minimo: 304, maximo: 520, padrao: 368, tetoNaJanela: 0.36 },
+} as const;
+
+/** A largura do console de desktop (lg do Tailwind, 64rem). */
+function useDesktop() {
+  const consulta = '(min-width: 64rem)';
+  const [desktop, setDesktop] = useState(() => window.matchMedia(consulta).matches);
+  useEffect(() => {
+    const lista = window.matchMedia(consulta);
+    const mudou = () => setDesktop(lista.matches);
+    lista.addEventListener('change', mudou);
+    mudou();
+    return () => lista.removeEventListener('change', mudou);
+  }, []);
+  return desktop;
+}
+interface Colunas {
+  cenas: number;
+  painel: number;
+  cenasRecolhidas: boolean;
+  painelRecolhido: boolean;
+}
+const COLUNAS_INICIAIS: Colunas = { cenas: COLUNAS.cenas.padrao, painel: COLUNAS.painel.padrao, cenasRecolhidas: false, painelRecolhido: false };
+const entre = (valor: unknown, { minimo, maximo, padrao }: { minimo: number; maximo: number; padrao: number; tetoNaJanela: number }) =>
+  typeof valor === 'number' && Number.isFinite(valor) ? Math.min(maximo, Math.max(minimo, Math.round(valor))) : padrao;
 
 const QR_INICIAL: QrDoEstudio = { link: '', titulo: '', preco: '', ...QR_PADRAO, noPreview: false };
 
@@ -124,17 +160,28 @@ export function Estudio({
   const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
   const [mudo, setMudo] = useState(false);
   const [cameraDesligada, setCameraDesligada] = useState(false);
-  const [aparelhos, setAparelhos] = useState<{ microfone?: string; camera?: string }>({});
+  const [captura, setCaptura] = usePreferencia<AjustesDaCaptura>('pw_captura_do_estudio', CAPTURA_PADRAO, capturaValida);
+  // Um pedido aos aparelhos de cada vez: trocar de microfone no meio de um
+  // ajuste de som deixava duas trilhas abertas, e o stream com a trilha parada
+  const [aplicandoCaptura, setAplicandoCaptura] = useState(false);
+  const aplicandoRef = useRef(false);
+  // A trilha de áudio é trocada dentro do mesmo stream (a câmera não pisca);
+  // isto refaz a leitura das trilhas e o medidor da bandeja
+  const [versaoDoAudio, setVersaoDoAudio] = useState(0);
   const streamRef = useRef<MediaStream | null>(null);
   const telaRef = useRef<MediaStream | null>(null);
   streamRef.current = localStream;
   telaRef.current = screenStream;
+  // Um pedido que volta depois de sair do estúdio fecha o que abriu, em vez de
+  // deixar o microfone ligado no Painel
+  const noEstudioRef = useRef(false);
 
   // Câmera e microfone só no estúdio: pedidos ao entrar, desligados ao sair
   useEffect(() => {
+    noEstudioRef.current = true;
     let saiu = false;
     navigator.mediaDevices
-      ?.getUserMedia({ video: { width: 1280, height: 720 }, audio: true })
+      ?.getUserMedia({ video: restricoesDeVideo(captura), audio: restricoesDeAudio(captura) })
       .then((stream) => {
         if (saiu) {
           stream.getTracks().forEach((t) => t.stop());
@@ -145,10 +192,19 @@ export function Estudio({
       .catch((err) => console.warn('Câmera e microfone não liberados:', err));
     return () => {
       saiu = true;
+      noEstudioRef.current = false;
       streamRef.current?.getTracks().forEach((t) => t.stop());
       telaRef.current?.getTracks().forEach((t) => t.stop());
     };
   }, []);
+
+  // Mudo e câmera desligada valem em qualquer trilha, inclusive a que chega
+  // depois de um pedido em andamento: com o valor do clique, uma trilha nova
+  // podia entrar ligada com a bandeja dizendo "Microfone mudo"
+  useEffect(() => {
+    localStream?.getAudioTracks().forEach((t) => (t.enabled = !mudo));
+    localStream?.getVideoTracks().forEach((t) => (t.enabled = !cameraDesligada));
+  }, [localStream, mudo, cameraDesligada, versaoDoAudio]);
 
   const alternarMicrofone = () => {
     const proximo = !mudo;
@@ -162,24 +218,104 @@ export function Estudio({
     setCameraDesligada(proxima);
   };
 
+  /** O pedido acabou num estúdio que já fechou, ou noutro stream: o que ele abriu é fechado. */
+  const pedidoVencido = (stream: MediaStream | null, abertos: MediaStream | null) => {
+    if (noEstudioRef.current && streamRef.current === stream) return false;
+    abertos?.getTracks().forEach((t) => t.stop());
+    return true;
+  };
+
+  const comecarPedido = () => {
+    if (aplicandoRef.current) return false;
+    aplicandoRef.current = true;
+    setAplicandoCaptura(true);
+    return true;
+  };
+  const acabarPedido = () => {
+    aplicandoRef.current = false;
+    setAplicandoCaptura(false);
+    setVersaoDoAudio((n) => n + 1);
+  };
+
+  // O aparelho que a trilha usa de verdade, e não o último pedido: um pedido
+  // que falhou não muda o aparelho em uso
+  const aparelhoDe = (trilha: MediaStreamTrack | undefined) => trilha?.getSettings().deviceId || undefined;
+
   // Trocar de aparelho pede um stream novo só com o que mudou e troca a trilha
   const escolherAparelho = async (tipo: 'audio' | 'video', deviceId: string) => {
-    const proximos = { ...aparelhos, [tipo === 'audio' ? 'microfone' : 'camera']: deviceId };
-    setAparelhos(proximos);
+    const stream = streamRef.current;
+    if (!comecarPedido()) return;
+    let novo: MediaStream | null = null;
     try {
-      const novo = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720, ...(proximos.camera ? { deviceId: { exact: proximos.camera } } : {}) },
-        audio: proximos.microfone ? { deviceId: { exact: proximos.microfone } } : true,
+      novo = await navigator.mediaDevices.getUserMedia({
+        video: restricoesDeVideo(captura, tipo === 'video' ? deviceId : aparelhoDe(stream?.getVideoTracks()[0])),
+        audio: restricoesDeAudio(captura, tipo === 'audio' ? deviceId : aparelhoDe(stream?.getAudioTracks()[0])),
       });
-      novo.getAudioTracks().forEach((t) => (t.enabled = !mudo));
-      novo.getVideoTracks().forEach((t) => (t.enabled = !cameraDesligada));
-      streamRef.current?.getTracks().forEach((t) => t.stop());
+      if (pedidoVencido(stream, novo)) return;
+      stream?.getTracks().forEach((t) => t.stop());
       setLocalStream(novo);
     } catch (err) {
       console.warn('Não foi possível trocar de aparelho:', err);
       toast.info('O aparelho não respondeu', 'Confira se ele está ligado e se outro programa não o está usando.');
+    } finally {
+      acabarPedido();
     }
   };
+
+  // A qualidade da câmera muda a trilha de vídeo que já existe
+  // (applyConstraints). O processamento do som não muda numa trilha aberta em
+  // todo navegador, então a trilha de áudio é trocada por uma nova, no mesmo
+  // stream: os monitores seguem com o mesmo vídeo, sem piscar.
+  const mudarCaptura = async (proxima: AjustesDaCaptura) => {
+    const stream = streamRef.current;
+    const anterior = captura;
+    if (!stream) {
+      setCaptura(proxima);
+      return;
+    }
+    if (!comecarPedido()) return;
+    setCaptura(proxima);
+    try {
+      const video = stream.getVideoTracks()[0];
+      if (video && (proxima.resolucao !== anterior.resolucao || proxima.quadros !== anterior.quadros)) {
+        await video.applyConstraints(restricoesDeVideo(proxima, aparelhoDe(video)));
+      }
+      const somMudou =
+        proxima.reducaoDeRuido !== anterior.reducaoDeRuido ||
+        proxima.cancelamentoDeEco !== anterior.cancelamentoDeEco ||
+        proxima.ganhoAutomatico !== anterior.ganhoAutomatico;
+      const audioAntigo = stream.getAudioTracks()[0];
+      if (!somMudou || !audioAntigo || pedidoVencido(stream, null)) return;
+
+      // A trilha velha fecha antes: com ela aberta, o Chrome dá à nova o
+      // processamento da captura que já existe, e o pedido não vale
+      const microfone = aparelhoDe(audioAntigo);
+      audioAntigo.stop();
+      stream.removeTrack(audioAntigo);
+      const pedir = (ajustes: AjustesDaCaptura) =>
+        navigator.mediaDevices.getUserMedia({ audio: restricoesDeAudio(ajustes, microfone) }).catch(() => null);
+      let som = await pedir(proxima);
+      // O pedido novo falhou: o microfone volta como estava, em vez de ficar mudo
+      const voltou = !som;
+      if (!som) {
+        setCaptura(anterior);
+        som = await pedir(anterior);
+      }
+      if (pedidoVencido(stream, som)) return;
+      if (!som) {
+        toast.info('O microfone parou', 'Ele não voltou depois do ajuste. Escolha o microfone de novo na bandeja ou saia e entre no estúdio.');
+        return;
+      }
+      som.getAudioTracks().forEach((t) => stream.addTrack(t));
+      if (voltou) toast.info('O microfone não aceitou o ajuste', 'Ele voltou como estava.');
+    } catch (err) {
+      console.warn('A câmera ou o microfone não aceitou o ajuste:', err);
+      toast.info('O aparelho não aceitou o ajuste', 'O painel mostra o que ele está entregando agora.');
+    } finally {
+      acabarPedido();
+    }
+  };
+  const leitura = lerCaptura(localStream);
 
   // ── Cenas, preview e programa ─────────────────────────────────────────────
   const [idDaCena, setIdDaCena] = useState(CENA_INICIAL.id);
@@ -202,6 +338,8 @@ export function Estudio({
   // O QR code é da conta, como a mídia: outra conta no mesmo navegador não vê o link nem o preço
   const [qr, setQr] = usePreferencia<QrDoEstudio>(`pw_qr_do_estudio_${usuario.uid}`, QR_INICIAL, (q) => ({ ...q, noPreview: false }));
   const [clipeNoPreview, setClipeNoPreview] = useState<ClipeNoPalco | null>(null);
+  const apresentacao = useApresentacao();
+  const [apresentacaoNoPreview, setApresentacaoNoPreview] = useState<ApresentacaoNoPalco | null>(null);
   const [comentarioFixado, setComentarioFixado] = useState<Comment | null>(null);
   const [relogio, setRelogio] = useState<RelogioDoCronometro>(() => relogioParado(300));
 
@@ -245,6 +383,7 @@ export function Estudio({
     pinnedComment: comentarioFixado,
     graficos: graficosDoPreview,
     clipe: clipeNoPreview,
+    apresentacao: apresentacaoNoPreview,
   };
 
   // O programa começa na cena inicial, sem gráficos: o que o preview já traz entra pelo corte
@@ -258,6 +397,7 @@ export function Estudio({
     pinnedComment: null,
     graficos: graficosVazios(cor),
     clipe: null,
+    apresentacao: null,
   }));
   // O clipe do programa toca num player só (lib/playerDoClipe). Na fusão, o
   // programa que sai leva o player dele, e a camada que some desenha o quadro
@@ -326,15 +466,16 @@ export function Estudio({
   // ── Tela compartilhada ────────────────────────────────────────────────────
   const cenaDoPreviewRef = useRef(cena);
   cenaDoPreviewRef.current = cena;
-  const clipeRef = useRef(clipeNoPreview);
-  clipeRef.current = clipeNoPreview;
+  // O clipe ou a apresentação no lugar da tela: com um deles, a cena com tela continua tendo o que mostrar
+  const substitutoRef = useRef(!!clipeNoPreview || !!apresentacaoNoPreview);
+  substitutoRef.current = !!clipeNoPreview || !!apresentacaoNoPreview;
 
   // Parar a tela pela bandeja ou pelo "Parar compartilhamento" do navegador.
   // Se o preview dependia dela (e não há um clipe no lugar), volta para a câmera.
   const pararTela = () => {
     telaRef.current?.getTracks().forEach((t) => t.stop());
     setScreenStream(null);
-    if (precisaDaTela(cenaDoPreviewRef.current) && !clipeRef.current) escolherCena(CENA_INICIAL);
+    if (precisaDaTela(cenaDoPreviewRef.current) && !substitutoRef.current) escolherCena(CENA_INICIAL);
   };
 
   const alternarTela = async () => {
@@ -352,13 +493,28 @@ export function Estudio({
     if (comTela) escolherCena(comTela);
   };
 
-  // Um clipe entra no lugar da tela: se a cena do preview não usa a tela, vai para a cena Tela
+  // Um clipe ou a apresentação entra no lugar da tela, um de cada vez: se a
+  // cena do preview não usa a tela, vai para a cena Tela
+  const irParaUmaCenaComTela = () => {
+    if (precisaDaTela(cena)) return;
+    const soTela = cenaPeloId('cena-tela');
+    if (soTela) escolherCena(soTela);
+  };
   const porClipe = (clipe: ClipeNoPalco | null) => {
     setClipeNoPreview(clipe);
-    if (clipe && !precisaDaTela(cena)) {
-      const soTela = cenaPeloId('cena-tela');
-      if (soTela) escolherCena(soTela);
+    if (!clipe) return;
+    setApresentacaoNoPreview(null);
+    irParaUmaCenaComTela();
+  };
+  const porApresentacao = (entra: boolean) => {
+    const aberta = apresentacao.aberta;
+    if (!entra || !aberta) {
+      setApresentacaoNoPreview(null);
+      return;
     }
+    setApresentacaoNoPreview({ id: aberta.id, nome: aberta.nome });
+    setClipeNoPreview(null);
+    irParaUmaCenaComTela();
   };
 
   // ── Roteiro e teleprompter ────────────────────────────────────────────────
@@ -405,6 +561,19 @@ export function Estudio({
   // ── O painel da ferramenta aberta ─────────────────────────────────────────
   const [ferramenta, setFerramenta] = useState<Ferramenta>(FERRAMENTA_INICIAL);
   const [mostrarGuias, setMostrarGuias] = useState(false);
+  const [colunas, setColunas] = usePreferencia<Colunas>('pw_colunas_do_estudio', COLUNAS_INICIAIS, (c) => ({
+    cenas: entre(c.cenas, COLUNAS.cenas),
+    painel: entre(c.painel, COLUNAS.painel),
+    cenasRecolhidas: c.cenasRecolhidas === true,
+    painelRecolhido: c.painelRecolhido === true,
+  }));
+  const larguraDasColunas = {
+    '--col-cenas': colunas.cenasRecolhidas ? '5.5rem' : `min(${colunas.cenas}px, ${COLUNAS.cenas.tetoNaJanela * 100}vw)`,
+    '--col-painel': colunas.painelRecolhido ? '4.5rem' : `min(${colunas.painel}px, ${COLUNAS.painel.tetoNaJanela * 100}vw)`,
+  } as CSSProperties;
+  // Recolher é do desktop: no celular as cenas voltam a ter nome, e o Corte e a
+  // Fusão ficam só sob o preview, mesmo que o recolhimento esteja guardado
+  const desktop = useDesktop();
   const areaDoEstudioRef = useRef<HTMLElement>(null);
   const previewRef = useRef<HTMLElement>(null);
   const botaoVerPreviewRef = useRef<HTMLButtonElement>(null);
@@ -495,6 +664,7 @@ export function Estudio({
         return <PainelQrCode qr={qr} onQr={setQr} noPrograma={!!programa.graficos.qr} />;
       case 'midia':
         return (
+          <>
           <PainelMidia
             clipeNoPreview={clipeNoPreview}
             clipeNoPrograma={programa.clipe?.id ?? null}
@@ -510,6 +680,13 @@ export function Estudio({
             }}
             onClipe={porClipe}
           />
+          <SecaoDaApresentacao
+            apresentacao={apresentacao}
+            noPreview={!!apresentacaoNoPreview && apresentacaoNoPreview.id === apresentacao.aberta?.id}
+            noPrograma={!!programa.apresentacao && programa.apresentacao.id === apresentacao.aberta?.id}
+            onPreview={porApresentacao}
+          />
+          </>
         );
       case 'camera':
         return (
@@ -519,6 +696,19 @@ export function Estudio({
             card={cardDaCamera}
             onCard={setCardDaCamera}
             cenaTemCard={layoutUsaCard(cena.layout)}
+            captura={captura}
+            onCaptura={(proxima) => void mudarCaptura(proxima)}
+            camera={leitura.camera}
+            aplicando={aplicandoCaptura}
+          />
+        );
+      case 'audio':
+        return (
+          <PainelAudio
+            captura={captura}
+            onCaptura={(proxima) => void mudarCaptura(proxima)}
+            microfone={leitura.microfone}
+            aplicando={aplicandoCaptura}
           />
         );
     }
@@ -536,6 +726,7 @@ export function Estudio({
       relogio={relogio}
       mostrarGuias={mostrarGuias}
       playerDoClipe={player}
+      paginaDaApresentacao={apresentacao.mostrada}
       {...extra}
     />
   );
@@ -559,20 +750,36 @@ export function Estudio({
           a bandeja. Abaixo de lg vira uma coluna que rola, e o painel da
           ferramenta cresce com ela: numa caixa de altura fixa, metade de
           Gráficos ficava numa rolagem dentro da rolagem. */}
-      <main ref={areaDoEstudioRef} className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[14rem_minmax(0,1fr)_23rem] lg:overflow-hidden">
+      <main
+        ref={areaDoEstudioRef}
+        style={larguraDasColunas}
+        className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[var(--col-cenas)_minmax(0,1fr)_var(--col-painel)] lg:overflow-hidden"
+      >
         <aside
           aria-label="Cenas e transição"
-          className="order-2 border-t border-[var(--line)] bg-[var(--surface)] lg:order-1 lg:overflow-y-auto lg:border-r lg:border-t-0"
+          className="relative order-2 border-t border-[var(--line)] bg-[var(--surface)] lg:order-1 lg:overflow-y-auto lg:border-r lg:border-t-0"
         >
           <TrilhoDeCenas
             idDoPrograma={programa.sceneId || CENA_INICIAL.id}
             idDoPreview={cena.id}
-            temTela={!!screenStream || !!clipeNoPreview}
+            temTela={!!screenStream || !!clipeNoPreview || !!apresentacaoNoPreview}
             temMudanca={temMudanca}
             cortando={programaQueSai !== null}
             onEscolher={escolherCena}
             onCortar={cortar}
+            recolhido={colunas.cenasRecolhidas && desktop}
+            onRecolher={() => setColunas((c) => ({ ...c, cenasRecolhidas: !c.cenasRecolhidas }))}
           />
+          {!colunas.cenasRecolhidas && (
+            <DivisorDeColuna
+              rotulo="Largura das cenas"
+              lado="direita"
+              largura={colunas.cenas}
+              {...COLUNAS.cenas}
+              onLargura={(cenas) => setColunas((c) => ({ ...c, cenas }))}
+              className="hidden lg:block"
+            />
+          )}
         </aside>
 
         <div className="order-1 min-w-0 p-3 sm:p-4 lg:order-2 lg:min-h-0">
@@ -605,19 +812,33 @@ export function Estudio({
 
         <aside
           aria-label="Chat e ferramentas"
-          className="order-3 border-t border-[var(--line)] bg-[var(--surface)] lg:min-h-0 lg:border-l lg:border-t-0"
+          className="relative order-3 border-t border-[var(--line)] bg-[var(--surface)] lg:min-h-0 lg:border-l lg:border-t-0"
         >
           <PainelDoEstudio
             ativa={ferramenta}
             onEscolher={(proxima) => {
               setFerramenta(proxima);
               setPosicaoDosAjustes(null);
+              // Escolher uma ferramenta com o painel recolhido é querer vê-la
+              setColunas((c) => (c.painelRecolhido ? { ...c, painelRecolhido: false } : c));
             }}
             onVerPreview={verPreview}
             botaoVerPreviewRef={botaoVerPreviewRef}
+            recolhido={colunas.painelRecolhido}
+            onRecolher={() => setColunas((c) => ({ ...c, painelRecolhido: !c.painelRecolhido }))}
           >
             {painel}
           </PainelDoEstudio>
+          {!colunas.painelRecolhido && (
+            <DivisorDeColuna
+              rotulo="Largura do painel de ferramentas"
+              lado="esquerda"
+              largura={colunas.painel}
+              {...COLUNAS.painel}
+              onLargura={(painel) => setColunas((c) => ({ ...c, painel }))}
+              className="hidden lg:block"
+            />
+          )}
         </aside>
       </main>
 
@@ -632,6 +853,7 @@ export function Estudio({
         mostrarGuias={mostrarGuias}
         onAlternarGuias={() => setMostrarGuias((v) => !v)}
         onEscolherDispositivo={(tipo, deviceId) => void escolherAparelho(tipo, deviceId)}
+        versaoDoAudio={versaoDoAudio}
       />
 
       {janelaAberta && (

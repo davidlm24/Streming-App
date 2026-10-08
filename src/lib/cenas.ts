@@ -9,9 +9,14 @@ import type { CantoDoPalco, GeometriaDoCard } from '../types';
  * "Entrevista Duo" dependia de um convidado que não existe, e "Abertura" só
  * se diferenciava por uma foto do Unsplash e um banner de boas-vindas que o
  * estúdio não traz mais. Voltam quando houver convidados de verdade.
+ *
+ * Com as mesmas duas fontes cabem seis composições: só uma, uma sobre a
+ * outra (o card) e três divisões lado a lado (a tela maior, as duas iguais,
+ * a câmera maior). O mockup tinha sete layouts, mas a grade e a galeria só
+ * têm sentido com convidados.
  */
 
-export type LayoutDoPalco = '1-cam' | 'dual' | 'screen-share' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery';
+export type LayoutDoPalco = '1-cam' | 'dual' | 'screen-share' | 'camera-em-destaque' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery';
 
 /** Os ids dos participantes que o App mantém: a câmera de quem opera e a tela compartilhada. */
 export const FONTE_CAMERA = 'p-local';
@@ -28,6 +33,8 @@ export const CENAS: Cena[] = [
   { id: 'cena-camera', nome: 'Câmera', layout: '1-cam', fontes: [FONTE_CAMERA] },
   { id: 'cena-tela-e-camera', nome: 'Tela com câmera', layout: 'picture-in-picture', fontes: [FONTE_CAMERA, FONTE_TELA] },
   { id: 'cena-lado-a-lado', nome: 'Câmera e tela lado a lado', layout: 'screen-share', fontes: [FONTE_CAMERA, FONTE_TELA] },
+  { id: 'cena-metades', nome: 'Câmera e tela iguais', layout: 'dual', fontes: [FONTE_CAMERA, FONTE_TELA] },
+  { id: 'cena-camera-em-destaque', nome: 'Câmera grande e tela', layout: 'camera-em-destaque', fontes: [FONTE_CAMERA, FONTE_TELA] },
   { id: 'cena-tela', nome: 'Tela', layout: 'screen-share', fontes: [FONTE_TELA] },
 ];
 

@@ -43,7 +43,7 @@ export function PainelQrCode({
       <SecaoDoPainel
         titulo="QR code"
         estado={<EstadoNoPalco noPrograma={noPrograma} noPreview={qr.noPreview && !!link} />}
-        dica="Gerado neste navegador: o link não passa por nenhum serviço."
+        dica={link ? 'Gerado neste navegador: o link não passa por nenhum serviço.' : 'Gerado neste navegador: o link não passa por nenhum serviço. Para mostrar o QR code, escreva o link abaixo.'}
         acao={
           <Switch
             rotulo="Mostrar o QR code no preview"

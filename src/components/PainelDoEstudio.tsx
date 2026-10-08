@@ -1,17 +1,19 @@
 import type { ReactNode, Ref } from 'react';
-import { Camera, Eye, Film, Layers, MessageSquare, QrCode, ScrollText } from 'lucide-react';
+import { AudioLines, Camera, Eye, Film, Layers, MessageSquare, PanelRightClose, PanelRightOpen, QrCode, ScrollText } from 'lucide-react';
+import { BotaoDeIcone } from './ui/BotaoDeIcone';
 import { Button } from './ui/Button';
 import { useTabs } from './ui/Tabs';
 
-export type Ferramenta = 'chat' | 'graficos' | 'roteiro' | 'qr' | 'midia' | 'camera';
+export type Ferramenta = 'chat' | 'graficos' | 'roteiro' | 'qr' | 'midia' | 'camera' | 'audio';
 
 const FERRAMENTAS: { id: Ferramenta; rotulo: string; descricao: string; Icone: typeof MessageSquare }[] = [
   { id: 'chat', rotulo: 'Chat', descricao: 'Chat do estúdio', Icone: MessageSquare },
   { id: 'graficos', rotulo: 'Gráficos', descricao: 'Banner, ticker, logo, cronômetro, cor, fundo e sobreposição', Icone: Layers },
   { id: 'roteiro', rotulo: 'Roteiro', descricao: 'Roteiro, teleprompter e notas', Icone: ScrollText },
   { id: 'qr', rotulo: 'QR code', descricao: 'QR code com título e preço', Icone: QrCode },
-  { id: 'midia', rotulo: 'Mídia', descricao: 'Clipes de vídeo', Icone: Film },
-  { id: 'camera', rotulo: 'Câmera', descricao: 'Card, enquadramento, espelho e croma', Icone: Camera },
+  { id: 'midia', rotulo: 'Mídia', descricao: 'Clipes de vídeo e apresentação em PDF', Icone: Film },
+  { id: 'camera', rotulo: 'Câmera', descricao: 'Qualidade, card, enquadramento, espelho e croma', Icone: Camera },
+  { id: 'audio', rotulo: 'Áudio', descricao: 'Redução de ruído, cancelamento de eco e ganho automático', Icone: AudioLines },
 ];
 
 export const FERRAMENTA_INICIAL: Ferramenta = 'chat';
@@ -27,18 +29,25 @@ export const FERRAMENTA_INICIAL: Ferramenta = 'chat';
  * bandeja com transmissão, gravação e OBS que ainda não existem. Na fase 2
  * saiu Extras (chat flutuante, lousa e captura, que não chegavam ao
  * programa ou não mostravam o palco), e Estilo virou Câmera.
+ *
+ * No desktop o painel recolhe e fica só a lista, para os monitores ganharem
+ * a largura; escolher uma ferramenta com ele recolhido o abre de novo.
  */
 export function PainelDoEstudio({
   ativa,
   onEscolher,
   onVerPreview,
   botaoVerPreviewRef,
+  recolhido,
+  onRecolher,
   children,
 }: {
   ativa: Ferramenta;
   onEscolher: (ferramenta: Ferramenta) => void;
   onVerPreview: () => void;
   botaoVerPreviewRef: Ref<HTMLButtonElement>;
+  recolhido: boolean;
+  onRecolher: () => void;
   children: ReactNode;
 }) {
   const abas = useTabs(
@@ -55,7 +64,10 @@ export function PainelDoEstudio({
     // fica presa no alto enquanto ele passa. A linha entre os dois é do
     // painel, para ir até o fim dele.
     <div className="flex lg:h-full lg:min-h-0">
-      <div {...abas.panel(ativa)} className="min-w-0 flex-1 border-r border-[var(--line)] lg:overflow-y-auto">
+      <div
+        {...abas.panel(ativa)}
+        className={`min-w-0 flex-1 border-r border-[var(--line)] lg:overflow-y-auto ${recolhido ? 'lg:hidden' : ''}`}
+      >
         <div className="sticky top-0 z-10 border-b border-[var(--line)] bg-[var(--surface)] px-4 py-1 lg:hidden">
           <Button
             ref={botaoVerPreviewRef}
@@ -70,11 +82,9 @@ export function PainelDoEstudio({
         </div>
         {children}
       </div>
-      <div
-        {...abas.tablist}
-        aria-label="Ferramentas"
-        className="sticky top-0 flex w-[4.5rem] shrink-0 flex-col gap-1 self-start p-1.5 lg:static lg:self-stretch lg:overflow-y-auto"
-      >
+      {/* A tablist só tem abas: o botão de recolher fica ao lado dela, no mesmo trilho */}
+      <div className="sticky top-0 flex w-[4.5rem] shrink-0 flex-col self-start p-1.5 lg:static lg:self-stretch lg:overflow-y-auto">
+        <div {...abas.tablist} aria-label="Ferramentas" className="flex flex-col gap-1">
         {FERRAMENTAS.map(({ id, rotulo, descricao, Icone }) => {
           const atual = id === ativa;
           return (
@@ -93,6 +103,12 @@ export function PainelDoEstudio({
             </button>
           );
         })}
+        </div>
+        <span className="mt-auto hidden justify-center pt-2 lg:flex">
+          <BotaoDeIcone rotulo={recolhido ? 'Abrir o painel' : 'Recolher o painel'} aria-expanded={!recolhido} onClick={onRecolher}>
+            {recolhido ? <PanelRightOpen size={18} aria-hidden="true" /> : <PanelRightClose size={18} aria-hidden="true" />}
+          </BotaoDeIcone>
+        </span>
       </div>
     </div>
   );

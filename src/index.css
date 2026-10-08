@@ -44,6 +44,18 @@
   --color-n-99:  #FAFCFF;  /* Y  97,16 % */
   --color-n-100: #FFFFFF;  /* Y 100,00 % */
 
+  /* ── o marinho do console. O estúdio é a sala escura do produto, e o
+        cinza-azulado da rampa acima o deixava grafite. Cada degrau tem o Y
+        do degrau n-* que substitui (±0,02 pp), com matiz 264° em OKLCH e croma
+        de 0,035 a 0,052: toda razão de contraste do console continua a mesma.
+        O preto do palco e do letterbox (n-0) não muda: vídeo não se tinge. ── */
+  --color-nv-3:  #050B1A;  /* Y 0,35 % */
+  --color-nv-6:  #091326;  /* Y 0,66 % */
+  --color-nv-10: #101A31;  /* Y 1,07 % */
+  --color-nv-14: #17233D;  /* Y 1,72 % */
+  --color-nv-18: #202C45;  /* Y 2,54 % */
+  --color-nv-28: #35425E;  /* Y 5,46 % */
+
   /* ── sinal. O tally é o único vermelho do sistema. ────────────────────── */
   --color-sig:      #D91F2D;  /* Y 15,92 % */
   --color-sig-deep: #A81622;  /* Y  9,01 % — sinal como texto sobre claro */
@@ -195,12 +207,12 @@
    ══════════════════════════════════════════════════════════════════════════ */
 [data-surface="console"] {
   --well:    var(--color-n-0);
-  --bg:      var(--color-n-3);
-  --surface: var(--color-n-6);
-  --panel:   var(--color-n-10);
-  --raise:   var(--color-n-14);
-  --line:    var(--color-n-18);
-  --line-ctl:var(--color-n-28);
+  --bg:      var(--color-nv-3);
+  --surface: var(--color-nv-6);
+  --panel:   var(--color-nv-10);
+  --raise:   var(--color-nv-14);
+  --line:    var(--color-nv-18);
+  --line-ctl:var(--color-nv-28);
 
   /* n-46 reprovava em TODOS os fundos escuros (3,01–3,80:1). Um degrau acima
      passa nos quatro: 4,57 a 5,78:1. Era o mesmo defeito que a auditoria
@@ -239,7 +251,7 @@
         matiz. O carmim e reservado ao ar e nao entra em grafico; a auditoria
         achou o ramp 500 do Tailwind sendo usado como paleta. Valor sobrevive
         a protanopia, a deuteranopia e a escala de cinza. Matiz nao. -------- */
-  --chart-grid:  var(--color-n-10);
+  --chart-grid:  var(--color-nv-10);
   --chart-axis:  var(--color-n-46);
   --chart-1:     var(--color-n-96);
   --chart-2:     var(--color-n-80);
@@ -406,12 +418,12 @@ html { scrollbar-gutter: stable; }
     /* Só `filter` anima: composta na GPU, não força relayout. */
     transition: filter 110ms linear, background-color 110ms linear;
   }
-  .btn:hover:not([disabled])  { filter: brightness(1.1); }
-  .btn:active:not([disabled]) { filter: brightness(0.93); }
+  .btn:hover:not([disabled], [aria-disabled="true"])  { filter: brightness(1.1); }
+  .btn:active:not([disabled], [aria-disabled="true"]) { filter: brightness(0.93); }
 
   /* Secundário. */
   .btn--ghost { background: transparent; color: var(--ink); border-color: var(--line-ctl); }
-  .btn--ghost:hover:not([disabled]) { background: var(--raise); filter: none; }
+  .btn--ghost:hover:not([disabled], [aria-disabled="true"]) { background: var(--raise); filter: none; }
 
   /* Encerrar. O carmim é o do ar — e encerrar a transmissão É sobre o ar,
      então aqui ele está no seu lugar. 5,02:1 com texto branco. */
@@ -427,6 +439,11 @@ html { scrollbar-gutter: stable; }
   .btn--lg { padding: 13px 24px; font-size: 16px; gap: 10px; }
 
   .btn[disabled] { opacity: 0.45; cursor: not-allowed; filter: none; }
+
+  /* Indisponível, mas ainda focável: o botão que existe para dizer por que não
+     age (o "Entrar ao vivo" do estúdio, enquanto a transmissão não existe).
+     `disabled` o tiraria do Tab, e quem usa teclado não ouviria o motivo. */
+  .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; filter: none; }
 
   /* `Enviando…`: desabilitado E anunciado. `aria-busy` sem `disabled` deixa o
      botão clicável duas vezes; `disabled` sem `aria-busy` não conta ao leitor

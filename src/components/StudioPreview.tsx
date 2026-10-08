@@ -1,10 +1,11 @@
-import { useEffect, useId, useRef, useState, type MouseEvent as EventoDeMouse, type TouchEvent as EventoDeToque } from 'react';
+import { useEffect, useId, useRef, useState, type MouseEvent as EventoDeMouse, type ReactNode, type TouchEvent as EventoDeToque } from 'react';
 import { Maximize2, User } from 'lucide-react';
 import type { GeometriaDoCard, Participant, StudioSceneState } from '../types';
 import { CARD_PADRAO, FORMATOS_DO_CARD, dentroDoPalco } from '../lib/cenas';
 import { matrizDaChave, matrizDoDescarte, suavizacaoEmPx, transformacaoDaCamera, type AjustesDaCamera } from '../lib/camera';
 import type { RelogioDoCronometro } from '../lib/graficos';
 import type { PlayerDoClipe } from '../lib/playerDoClipe';
+import type { PaginaMostrada } from '../lib/useApresentacao';
 import { GraficosDoPalco } from './GraficosDoPalco';
 import { Button } from './ui/Button';
 
@@ -118,6 +119,8 @@ interface StudioPreviewProps {
   playerDoClipe?: PlayerDoClipe | null;
   /** A camada do programa que sai na fusão: desenha o clipe pelo espelho, sem som. */
   camadaQueSai?: boolean;
+  /** A página da apresentação aberta: vale em todo monitor cujo estado traz a apresentação. */
+  paginaDaApresentacao?: PaginaMostrada | null;
   /** Só no preview: cada ajuste do card da câmera feito à mão sobre a imagem. */
   onCardDaCamera?: (card: GeometriaDoCard) => void;
   /** Só no preview: a saída do palco sem fonte. */
@@ -147,6 +150,7 @@ export function StudioPreview({
   relogio,
   mostrarGuias,
   playerDoClipe = null,
+  paginaDaApresentacao = null,
   camadaQueSai = false,
   onCardDaCamera,
   onPorACamera,
@@ -207,6 +211,8 @@ export function StudioPreview({
   const desenharTela = () => {
     const clipe = estado.clipe;
     const doPlayer = clipe && playerDoClipe?.id === clipe.id ? playerDoClipe : null;
+    const apresentacao = estado.apresentacao;
+    const pagina = apresentacao && paginaDaApresentacao?.id === apresentacao.id ? paginaDaApresentacao : null;
     return (
       <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[var(--stage)]">
         {clipe ? (
@@ -224,6 +230,12 @@ export function StudioPreview({
             <EspelhoDoClipe video={doPlayer.video} />
           ) : (
             <video key={clipe.id} src={clipe.url} muted playsInline preload="auto" className="h-full w-full object-contain" />
+          )
+        ) : apresentacao ? (
+          pagina ? (
+            <img src={pagina.url} alt="" className="h-full w-full object-contain" />
+          ) : (
+            <p className="p-4 text-center text-sm text-[var(--ink-lo)]">Desenhando a página…</p>
           )
         ) : screenStream ? (
           <video
@@ -393,15 +405,31 @@ export function StudioPreview({
           </div>
         );
       }
-      // Lado a lado: a tela com três quartos da largura e a câmera em 16:9 ao
-      // lado, centrada na altura. Margem e vão em % da largura, para o
-      // preview e o programa terem a mesma composição.
+      // Lado a lado: a fonte maior com três quartos da largura e a outra em
+      // 16:9 ao lado, centrada na altura; em metades, as duas em 16:9 do mesmo
+      // tamanho. Margem e vão em % da largura, para o preview e o programa
+      // terem a mesma composição.
+      const emCaixa = (fonte: ReactNode) => <div className="aspect-video w-full shrink-0">{fonte}</div>;
+      if (estado.layout === 'dual') {
+        return (
+          <div className="flex h-full w-full items-center gap-[1.6%] p-[1.6%]">
+            <div className="flex-1">{emCaixa(desenharCamera(fonteDaCamera.name))}</div>
+            <div className="flex-1">{emCaixa(desenharTela())}</div>
+          </div>
+        );
+      }
+      if (estado.layout === 'camera-em-destaque') {
+        return (
+          <div className="flex h-full w-full gap-[1.6%] p-[1.6%]">
+            <div className="h-full flex-[3]">{desenharCamera(fonteDaCamera.name)}</div>
+            <div className="flex flex-1 flex-col justify-center">{emCaixa(desenharTela())}</div>
+          </div>
+        );
+      }
       return (
         <div className="flex h-full w-full gap-[1.6%] p-[1.6%]">
           <div className="h-full flex-[3]">{desenharTela()}</div>
-          <div className="flex flex-1 flex-col justify-center">
-            <div className="aspect-video w-full shrink-0">{desenharCamera(fonteDaCamera.name)}</div>
-          </div>
+          <div className="flex flex-1 flex-col justify-center">{emCaixa(desenharCamera(fonteDaCamera.name))}</div>
         </div>
       );
     }

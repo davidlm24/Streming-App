@@ -188,6 +188,12 @@ export function mudancasNoCorte(programa: StudioSceneState, preview: StudioScene
   });
   if (clipe) mudancas.push(clipe);
 
+  const apresentacao = frase('apresentação', 'a', programa.apresentacao, preview.apresentacao, {
+    nomeAoEntrar: (a) => a.nome,
+    troca: (de, para) => (de.id !== para.id ? para.nome : null),
+  });
+  if (apresentacao) mudancas.push(apresentacao);
+
   const fundo = frase('fundo', 'o', programa.activeBackground || null, preview.activeBackground || null, {
     troca: (de, para) => (de !== para ? '' : null),
   });
