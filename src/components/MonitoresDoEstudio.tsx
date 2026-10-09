@@ -12,6 +12,7 @@ import { AcaoDeTexto } from './ui/AcaoDeTexto';
 export function Monitor({
   papel,
   cena,
+  aoVivo = false,
   children,
   className = '',
   monitorRef,
@@ -19,15 +20,18 @@ export function Monitor({
   /** `saida`: o monitor único, quando o preview está igual ao programa. */
   papel: 'programa' | 'preview' | 'saida';
   cena: string;
+  /** O programa está indo aos canais: a palavra do ar no rótulo, no carmim que é só dele. */
+  aoVivo?: boolean;
   children: ReactNode;
   className?: string;
   monitorRef?: Ref<HTMLElement>;
 }) {
   const nome = papel === 'programa' ? 'Programa' : papel === 'preview' ? 'Preview' : 'Programa e preview';
   return (
-    <section ref={monitorRef} aria-label={`${nome}: ${cena}`} className={`flex min-w-0 flex-col ${className}`}>
+    <section ref={monitorRef} aria-label={`${nome}: ${cena}${aoVivo ? ', ao vivo' : ''}`} className={`flex min-w-0 flex-col ${className}`}>
       <div className="mb-2 flex h-4 min-w-0 items-baseline gap-2">
         <h2 className="shrink-0 text-xs font-medium leading-4 text-[var(--ink-hi)]">{nome}</h2>
+        {aoVivo && <span className="shrink-0 text-xs font-medium leading-4 text-[var(--color-sig-lift)]">Ao vivo</span>}
         <span className="truncate text-xs leading-4 text-[var(--ink-lo)]">{cena}</span>
       </div>
       {children}
@@ -152,6 +156,7 @@ export function AvisoDoMonitorUnico({ onSempreDois }: { onSempreDois: () => void
  */
 export function MesaDeMonitores({
   cenaDoPrograma,
+  programaAoVivo = false,
   cenaDoPreview,
   programa,
   preview,
@@ -162,6 +167,7 @@ export function MesaDeMonitores({
   avisoDoUnico,
 }: {
   cenaDoPrograma: string;
+  programaAoVivo?: boolean;
   cenaDoPreview: string;
   programa: ReactNode;
   preview: ReactNode;
@@ -228,7 +234,7 @@ export function MesaDeMonitores({
     <div ref={ref} className="lg:h-full">
       {medidas?.desktop ? (
         <div className="mx-auto flex flex-col" style={{ width: medidas.largura, gap: VAO }}>
-          <Monitor papel={papel} cena={cenaDoPrograma}>
+          <Monitor papel={papel} cena={cenaDoPrograma} aoVivo={programaAoVivo}>
             <div className="relative" style={{ height: medidas.alturaDoPrograma }}>
               {programa}
             </div>
@@ -251,7 +257,7 @@ export function MesaDeMonitores({
       ) : (
         // Até a primeira medida, 16:9 puro; depois, a moldura inteira
         <div className="flex flex-col gap-4">
-          <Monitor papel={papel} cena={cenaDoPrograma} monitorRef={unico ? refDoPreview : undefined}>
+          <Monitor papel={papel} cena={cenaDoPrograma} aoVivo={programaAoVivo} monitorRef={unico ? refDoPreview : undefined}>
             <div
               className={`relative w-full ${medidas ? '' : 'aspect-video'}`}
               style={medidas ? { height: medidas.alturaDoPrograma } : undefined}

@@ -103,7 +103,7 @@ function estadoDaPlataforma(canais: Destination[], plataforma: Plataforma): stri
   if (daPlataforma.length === 0) return 'não conectado';
   const ligado = daPlataforma.find((c) => c.selected);
   if (!ligado) return 'desligado';
-  return estadoDoCanal(ligado) === 'pronto' ? 'configurado' : pendenciaCurta(ligado) ?? 'configurado';
+  return estadoDoCanal(ligado) === 'pronto' ? 'pronto' : pendenciaCurta(ligado) ?? 'pronto';
 }
 
 /**

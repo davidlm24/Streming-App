@@ -15,11 +15,11 @@ O produto tem quatro públicos, em situações diferentes:
 - **Operador no estúdio, durante a live.** É o momento de maior pressão. A atenção dele está no que vai ao ar: câmeras, cenas, banners, chat. Ele troca de cena (preview → programa), modera comentários e aciona ofertas. Um erro aqui é público.
 - **Anfitrião entre as lives, no painel.** Agenda webinars, conecta canais e destinos, configura a ingestão por OBS/vMix, cuida do plano e da conta.
 - **Espectador na página pública do webinar** (ainda não está no ar: volta com o link público e a transmissão). Faz a inscrição, espera a contagem regressiva, assiste, conversa no chat e vota em enquetes. Não tem conta no produto.
-- **Administração da plataforma** (interno): a lista de clientes. As chaves de transmissão dos clientes e o registro de auditoria voltam quando houver ingestão, feitos pelo servidor.
+- **Administração da plataforma** (interno): a lista de clientes. As chaves de transmissão dos clientes ficam na conta de cada um (`studio_settings`) e vão do navegador ao motor de transmissão; o registro de auditoria fica para depois.
 
 ## Product Purpose
 
-Transmitir uma live para todos os canais de uma vez, direto do navegador e sem instalar nada. O mesmo produto cobre o ciclo inteiro do webinar: agendar, divulgar a página de inscrição, transmitir com recursos de venda e acompanhar o público. Hoje estão no ar o agendamento e o estúdio; a página de inscrição e a transmissão para os canais ainda não.
+Transmitir uma live para todos os canais de uma vez, direto do navegador e sem instalar nada. O mesmo produto cobre o ciclo inteiro do webinar: agendar, divulgar a página de inscrição, transmitir com recursos de venda e acompanhar o público. Hoje estão no ar o agendamento, o estúdio e a transmissão para os canais por RTMP; a página de inscrição ainda não.
 
 O produto dá certo quando o operador passa a live inteira sem precisar sair dele e sem errar o que vai ao ar.
 
@@ -32,14 +32,15 @@ O produto dá certo quando o operador passa a live inteira sem precisar sair del
 ## Operating Context
 
 - **Estúdio:** funciona como uma mesa de corte. Tem programa (o que está no ar) e preview (o que vai entrar), troca de cena por "take", tally de "no ar" e chat unificado das plataformas com moderação por IA (Gemini). Também tem banners, tickers, chroma key, teleprompter, compartilhamento de tela e trilha sonora.
-- **Ingestão externa:** servidor RTMP e chave de transmissão para OBS, vMix e Streamlabs. Destinos personalizados por RTMP/RTMPS.
+- **Transmissão:** o programa do estúdio vai do navegador ao motor de transmissão (`motor/`: Node + ffmpeg no Fly.io, em São Paulo) por WebSocket, e de lá por RTMP/RTMPS a cada canal ligado: YouTube, Facebook, Twitch e qualquer servidor RTMP com URL e chave. Uma transmissão por conta de cada vez, em 720p a 30 qps. A ingestão por OBS/vMix (um servidor RTMP nosso) ainda não existe.
 - **Painel:** webinars agendados, canais conectados, integrações (RTMP, redes sociais, webhooks), qualidade de vídeo e capa (thumbnail).
 - **Conta:** planos, faturamento, dados de cadastro e consumo do plano.
 
 ## Capabilities and Constraints
 
-- **Stack:** React 19, Tailwind v4 e Vite. A API é montada em `server.ts` (`createApiApp`) e roda na Vercel (`api/index.ts`) e no servidor local (`start-server.ts`). O login e os dados são do Supabase (Auth e Postgres, com RLS em cada tabela e as listas em tempo real), e há integração com Cloudflare Stream.
+- **Stack:** React 19, Tailwind v4 e Vite. A API é montada em `server.ts` (`createApiApp`) e roda na Vercel (`api/index.ts`) e no servidor local (`start-server.ts`). O login e os dados são do Supabase (Auth e Postgres, com RLS em cada tabela e as listas em tempo real), e o motor de transmissão roda fora da Vercel, no Fly.io, porque precisa de ffmpeg e de conexões que duram a live. O servidor tem rotas de Cloudflare Stream (criar entradas ao vivo) que nenhum fluxo usa.
 - **Login:** em produção é só pelo Google. Por enquanto, e-mail e senha só existem no ambiente de desenvolvimento.
+- **Horas do plano:** cada transmissão fica registrada (`stream_sessions`: início, fim, duração, canais); o limite de horas por mês dos planos ainda não é aplicado, e entra com a cobrança.
 - **Planos e preços:** a fonte única é `src/lib/plans.ts`. Teste grátis de 30 dias; Standard R$ 49,90, Professional R$ 99,90 e Business R$ 199,90 por mês.
 - **Pagamento:** ainda não há cobrança nem checkout. O site público e o app mostram os planos e dizem que a assinatura abre em breve. O webhook do Stripe está no servidor, mas sem checkout nada o aciona.
 - **Chat das plataformas:** ainda não chega ao estúdio, porque não há ingestão real de comentários. O chat mostra só o que é enviado do estúdio.

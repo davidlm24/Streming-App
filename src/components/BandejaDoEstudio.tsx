@@ -26,6 +26,8 @@ interface BandejaDoEstudioProps {
   /** O navegador não liberou o áudio: o arquivo sai só com a imagem, e o tempo diz isso. */
   gravandoSemSom: boolean;
   onAlternarGravacao: () => void;
+  /** A frase do ar, à direita a partir de `lg`: o que está (ou não) sendo transmitido. */
+  fraseDoAr: ReactNode;
 }
 
 /** O tempo gravado até agora, no pulso da bandeja (mono, como a leitura do medidor), e "sem som" quando for o caso. */
@@ -119,6 +121,7 @@ export function BandejaDoEstudio({
   inicioDaGravacao,
   gravandoSemSom,
   onAlternarGravacao,
+  fraseDoAr,
 }: BandejaDoEstudioProps) {
   const dispositivos = useDispositivos(stream);
   const atual = (tipo: Tipo) =>
@@ -206,11 +209,7 @@ export function BandejaDoEstudio({
       </Button>
       {gravando && inicioDaGravacao !== null && <TempoDeGravacao inicioEm={inicioDaGravacao} semSom={gravandoSemSom} />}
 
-      {/* Que a transmissão não existe, a barra do alto diz (o selo "Ensaio"):
-          aqui a frase miúda ficava longe do olho e perdia para os controles. */}
-      <p className="ml-auto hidden text-pretty text-xs text-[var(--ink-lo)] lg:block">
-        {gravando ? 'A gravação fica neste computador.' : 'Gravar salva o programa neste computador.'}
-      </p>
+      <p className="ml-auto hidden text-pretty text-right text-xs text-[var(--ink-lo)] lg:block">{fraseDoAr}</p>
     </footer>
   );
 }

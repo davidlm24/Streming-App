@@ -1,16 +1,15 @@
 import type { ReactNode } from 'react';
-import { Check, CircleAlert, CircleDashed, Minus } from 'lucide-react';
+import { Check, CircleAlert, Minus } from 'lucide-react';
 import { fraseDaCamera, type LeituraDaCaptura } from '../lib/captura';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 
-/** Pronto, pede atenção, opcional ou ainda não existe — por ícone e palavra, nunca só por cor. */
-type Situacao = 'ok' | 'atencao' | 'opcional' | 'indisponivel';
+/** Pronto, pede atenção ou opcional — por ícone e palavra, nunca só por cor. */
+type Situacao = 'ok' | 'atencao' | 'opcional';
 
 const ICONES: Record<Situacao, ReactNode> = {
   ok: <Check size={16} aria-hidden="true" />,
   atencao: <CircleAlert size={16} aria-hidden="true" />,
   opcional: <Minus size={16} aria-hidden="true" />,
-  indisponivel: <CircleDashed size={16} aria-hidden="true" />,
 };
 
 function Item({
@@ -61,7 +60,9 @@ export function PainelPreparo({
   podeCompartilhar,
   onCompartilhar,
   canaisLigados,
-  canaisConfigurados,
+  canaisProntos,
+  impedimento,
+  noAr,
   onCanais,
   onAbrir,
 }: {
@@ -75,13 +76,17 @@ export function PainelPreparo({
   podeCompartilhar: boolean;
   onCompartilhar: () => void;
   canaisLigados: number;
-  canaisConfigurados: number;
+  canaisProntos: number;
+  /** Por que "Entrar ao vivo" não age agora (o mesmo texto da barra), ou null. */
+  impedimento: string | null;
+  /** Há uma transmissão em curso. */
+  noAr: boolean;
   onCanais: () => void;
   /** Abre a ferramenta dos ajustes finos (Câmera ou Áudio). */
   onAbrir: (ferramenta: 'camera' | 'audio') => void;
 }) {
   const semPermissao = 'O navegador não liberou. Permita no cadeado da barra de endereço e entre de novo no estúdio.';
-  const faltamCanais = canaisLigados - canaisConfigurados;
+  const faltamCanais = canaisLigados - canaisProntos;
 
   return (
     <div className="pb-6">
@@ -127,19 +132,22 @@ export function PainelPreparo({
               : faltamCanais > 0
                 ? {
                     situacao: 'atencao' as const,
-                    frase: `${canaisConfigurados} de ${canaisLigados} configurados. ${faltamCanais === 1 ? 'Falta configurar 1' : `Faltam ${faltamCanais}`}.`,
+                    frase: `${canaisProntos} de ${canaisLigados} prontos. Falta o servidor ou a chave de ${faltamCanais === 1 ? 'um deles' : faltamCanais}.`,
                     acao: { rotulo: 'Consertar', onClick: onCanais },
                   }
                 : {
                     situacao: 'ok' as const,
-                    frase: `${canaisLigados === 1 ? 'O canal ligado está configurado' : `Os ${canaisLigados} canais ligados estão configurados`}.`,
+                    frase: `${canaisLigados === 1 ? 'O canal ligado está pronto' : `Os ${canaisLigados} canais ligados estão prontos`}.`,
                     acao: { rotulo: 'Ver', onClick: onCanais },
                   })}
           />
           <Item
             titulo="Transmissão"
-            situacao="indisponivel"
-            frase="Ainda não existe: o estúdio ensaia e grava o programa neste computador, mas nada vai aos canais."
+            {...(noAr
+              ? { situacao: 'ok' as const, frase: 'No ar. "Encerrar transmissão", no alto, tira o programa dos canais.' }
+              : impedimento
+                ? { situacao: 'atencao' as const, frase: `${impedimento} Até lá, o estúdio ensaia e grava neste computador.` }
+                : { situacao: 'ok' as const, frase: 'Pronta. "Entrar ao vivo", no alto, leva o programa aos canais prontos.' })}
           />
         </ul>
       </section>
@@ -151,7 +159,7 @@ export function PainelPreparo({
         <dl className="mt-2 space-y-2 text-pretty text-xs text-[var(--ink-lo)]">
           <div>
             <dt className="inline font-medium text-[var(--ink-hi)]">Programa</dt>
-            <dd className="inline"> é a saída: o que a gravação registra e o que a transmissão vai enviar.</dd>
+            <dd className="inline"> é a saída: o que vai aos canais e o que a gravação registra.</dd>
           </div>
           <div>
             <dt className="inline font-medium text-[var(--ink-hi)]">Preview</dt>

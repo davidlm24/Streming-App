@@ -285,7 +285,7 @@ export function AddChannelsModal({
     // chave") quebrava em duas linhas na coluna e desigualava a lista.
     const pendencia = pendenciaCurta(canal);
     if (pendencia) return { texto: pendencia[0].toUpperCase() + pendencia.slice(1), icone: <CircleAlert size={12} />, alta: true };
-    return canal.selected ? { texto: 'Configurado', icone: <Check size={12} /> } : { texto: 'Desligado' };
+    return canal.selected ? { texto: 'Pronto', icone: <Check size={12} /> } : { texto: 'Desligado' };
   };
 
   const selecionar = (id: string) => {
