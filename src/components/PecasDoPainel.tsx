@@ -1,6 +1,7 @@
-import { useId, useRef, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type Ref } from 'react';
-import { ArrowDownLeft, ArrowDownRight, ArrowUpLeft, ArrowUpRight, CircleAlert, Plus } from 'lucide-react';
+import { useId, useRef, useState, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type Ref } from 'react';
+import { ArrowDownLeft, ArrowDownRight, ArrowUpLeft, ArrowUpRight, ChevronRight, CircleAlert, Plus } from 'lucide-react';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
+import { Button } from './ui/Button';
 import { ErroDeCampo } from './ui/ErroDeCampo';
 import type { CantoDoPalco } from '../types';
 import { CANTOS } from '../lib/graficos';
@@ -141,6 +142,39 @@ export function EscolhaDoPainel({ rotulo, children }: { rotulo: string; children
         {rotulo}
       </p>
       {children}
+    </div>
+  );
+}
+
+/**
+ * Os ajustes que quase ninguém mexe durante a live, recolhidos no fim do
+ * painel: uma linha que abre e fecha (aria-expanded), com o que há dentro
+ * dito ao lado. Antes ficavam abertos no meio do painel, e o operador
+ * passava por eles para chegar ao que usa.
+ */
+export function SecaoAvancada({ resumo, abertaDeInicio = false, children }: { resumo: string; abertaDeInicio?: boolean; children: ReactNode }) {
+  const [aberta, setAberta] = useState(abertaDeInicio);
+  const id = useId();
+  return (
+    <div className="border-t border-[var(--line)]">
+      <Button
+        variant="ghost"
+        aria-expanded={aberta}
+        aria-controls={id}
+        onClick={() => setAberta((a) => !a)}
+        icon={
+          <ChevronRight
+            size={16}
+            aria-hidden="true"
+            className={`shrink-0 text-[var(--ink-lo)] transition-transform duration-150 ${aberta ? 'rotate-90' : ''}`}
+          />
+        }
+        className="min-h-12 w-full justify-start gap-2 rounded-none border-transparent bg-transparent px-4 text-left shadow-none hover:bg-[var(--panel)]"
+      >
+        <span className="text-sm font-medium text-[var(--ink-hi)]">Avançado</span>
+        <span className="min-w-0 truncate text-xs font-normal text-[var(--ink-lo)]">{resumo}</span>
+      </Button>
+      {aberta && <div id={id}>{children}</div>}
     </div>
   );
 }

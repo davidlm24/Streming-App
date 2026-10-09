@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { CircleAlert, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
-import { CENAS, precisaDaTela, type Cena } from '../lib/cenas';
+import { CARD_PADRAO, CENAS, FONTE_CAMERA, medidasDoCard, precisaDaTela, type Cena } from '../lib/cenas';
+import { ALTURA_DO_PALCO, LARGURA_DO_PALCO, caixasDaDivisao, type Caixa } from '../lib/palco/medidas';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { BotaoDeIcone } from './ui/BotaoDeIcone';
 import { Button } from './ui/Button';
@@ -15,6 +16,128 @@ export const DURACAO_DA_FUSAO = 400;
 // dela. O contorno pesado saiu; o volume agora é luz, não traço.
 const TECLA =
   'min-h-14 flex-col gap-0.5 border-transparent bg-[var(--raise)] text-[var(--ink-hi)] shadow-[var(--shadow-raise)] hover:border-[var(--line-ctl)] active:border-[var(--ink-lo)] active:bg-[var(--panel)]';
+
+const GRUPOS = [
+  { id: 'uma-fonte', titulo: 'Uma fonte', cenas: CENAS.filter((c) => c.fontes.length === 1) },
+  { id: 'camera-e-tela', titulo: 'Câmera e tela', cenas: CENAS.filter((c) => c.fontes.length > 1) },
+];
+
+type Fonte = 'camera' | 'tela';
+
+/** Onde cada fonte fica na cena, em px do palco: as contas do compositor, para a miniatura ser a cena. */
+function caixasDaCena(cena: Cena): { fonte: Fonte; caixa: Caixa; card?: boolean }[] {
+  const inteira: Caixa = { x: 0, y: 0, w: LARGURA_DO_PALCO, h: ALTURA_DO_PALCO };
+  const temCamera = cena.fontes.includes(FONTE_CAMERA);
+  if (!precisaDaTela(cena)) return [{ fonte: 'camera', caixa: inteira }];
+  if (!temCamera) return [{ fonte: 'tela', caixa: inteira }];
+  switch (cena.layout) {
+    case 'picture-in-picture':
+    case 'presentation': {
+      const { largura, altura } = medidasDoCard(CARD_PADRAO);
+      const card: Caixa = {
+        x: (CARD_PADRAO.x / 100) * LARGURA_DO_PALCO,
+        y: (CARD_PADRAO.y / 100) * ALTURA_DO_PALCO,
+        w: (largura / 100) * LARGURA_DO_PALCO,
+        h: (altura / 100) * ALTURA_DO_PALCO,
+      };
+      return [
+        { fonte: 'tela', caixa: inteira },
+        { fonte: 'camera', caixa: card, card: true },
+      ];
+    }
+    case 'dual': {
+      const { primeira, segunda } = caixasDaDivisao('metades');
+      return [
+        { fonte: 'camera', caixa: primeira },
+        { fonte: 'tela', caixa: segunda },
+      ];
+    }
+    case 'camera-em-destaque': {
+      const { primeira, segunda } = caixasDaDivisao('maior-e-menor');
+      return [
+        { fonte: 'camera', caixa: primeira },
+        { fonte: 'tela', caixa: segunda },
+      ];
+    }
+    default: {
+      const { primeira, segunda } = caixasDaDivisao('maior-e-menor');
+      return [
+        { fonte: 'tela', caixa: primeira },
+        { fonte: 'camera', caixa: segunda },
+      ];
+    }
+  }
+}
+
+/**
+ * A cena em miniatura: onde a câmera (cheia, com uma cabeça) e a tela (mais
+ * clara, com a barra de uma janela) ficam no palco. A tela que falta vira um
+ * contorno tracejado, sem preenchimento: a cena escolhida assim mostraria o
+ * vazio. Só nomes, como antes, "Câmera e tela iguais" e "Câmera e tela lado
+ * a lado" não se distinguiam de relance durante a live.
+ */
+function MiniaturaDaCena({ cena, semTela, noPrograma, className = '' }: { cena: Cena; semTela: boolean; noPrograma: boolean; className?: string }) {
+  return (
+    <svg
+      viewBox={`0 0 ${LARGURA_DO_PALCO} ${ALTURA_DO_PALCO}`}
+      aria-hidden="true"
+      className={`aspect-video shrink-0 overflow-visible rounded-[3px] bg-[var(--stage)] ${
+        noPrograma ? 'outline outline-2 outline-offset-1 outline-[var(--ink-hi)]' : ''
+      } ${className}`}
+    >
+      {caixasDaCena(cena).map(({ fonte, caixa, card }) => {
+        const r = card ? 40 : 16;
+        if (fonte === 'tela') {
+          if (semTela) {
+            const meio = 18;
+            return (
+              <rect
+                key={fonte}
+                x={caixa.x + meio}
+                y={caixa.y + meio}
+                width={caixa.w - 2 * meio}
+                height={caixa.h - 2 * meio}
+                rx={r}
+                fill="none"
+                stroke="var(--ink-lo)"
+                strokeWidth={28}
+                strokeDasharray="70 50"
+              />
+            );
+          }
+          return (
+            <g key={fonte}>
+              <rect x={caixa.x} y={caixa.y} width={caixa.w} height={caixa.h} rx={r} fill="var(--ink-lo)" opacity={0.35} />
+              <rect x={caixa.x} y={caixa.y} width={caixa.w} height={Math.min(90, caixa.h * 0.14)} rx={r} fill="var(--ink-lo)" opacity={0.6} />
+            </g>
+          );
+        }
+        // A câmera: o quadro e uma pessoa (cabeça e ombros), centrada no quadro
+        const cx = caixa.x + caixa.w / 2;
+        const lado = Math.min(caixa.w, caixa.h);
+        return (
+          <g key={fonte}>
+            <rect
+              x={caixa.x}
+              y={caixa.y}
+              width={caixa.w}
+              height={caixa.h}
+              rx={r}
+              fill="var(--raise)"
+              stroke={card ? 'var(--stage)' : undefined}
+              strokeWidth={card ? 16 : undefined}
+            />
+            <circle cx={cx} cy={caixa.y + caixa.h * 0.42} r={lado * 0.17} fill="var(--ink-lo)" />
+            <path
+              d={`M ${cx - lado * 0.32} ${caixa.y + caixa.h} a ${lado * 0.32} ${lado * 0.26} 0 0 1 ${lado * 0.64} 0 Z`}
+              fill="var(--ink-lo)"
+            />
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
 
 /**
  * O que impede o corte: a cena do preview depende de uma fonte que não está
@@ -141,63 +264,74 @@ export function TrilhoDeCenas({ idDoPrograma, idDoPreview, temTela, temMudanca, 
     return { noPrograma, noPreview, semTela, legenda };
   };
 
-  // Uma tecla por cena, nas duas larguras. Aberta, o nome e o estado embaixo
-  // dele, numa linha de altura fixa: com a palavra ao lado, "Tela com câmera"
-  // quebrava ao virar programa, e cada corte mexia a lista sob o ponteiro.
-  // Recolhida, o número no lugar do nome, que vai no nome acessível e no title.
-  const lista = (
-    <ul className="space-y-1">
-      {CENAS.map((cena, i) => {
-        const { noPrograma, noPreview, semTela, legenda } = descrever(cena);
-        return (
-          <li key={cena.id}>
-            <button
-              type="button"
-              onClick={() => onEscolher(cena)}
-              aria-current={noPreview ? 'true' : undefined}
-              aria-label={recolhido ? (legenda ? `${cena.nome}, ${legenda}` : cena.nome) : undefined}
-              title={cena.nome}
-              className={`flex w-full flex-col justify-center rounded-xl py-2 transition-colors duration-150 cursor-pointer ${
-                recolhido ? 'min-h-16 items-center px-1 text-center' : 'min-h-14 px-2 text-left'
-              } ${noPreview ? 'bg-[var(--raise)]' : 'hover:bg-[var(--panel)]'}`}
-            >
-              {recolhido ? (
-                <>
-                  <span aria-hidden="true" className="block text-sm font-medium tabular-nums text-[var(--ink-hi)]">
-                    {i + 1}
-                  </span>
-                  {noPrograma && (
-                    <span aria-hidden="true" className="block text-xs font-medium text-[var(--ink-hi)]">
-                      programa
-                    </span>
-                  )}
-                  {noPreview && (
-                    <span aria-hidden="true" className="block text-xs text-[var(--ink-lo)]">
-                      preview
-                    </span>
-                  )}
-                  {semTela && <CircleAlert size={12} aria-hidden="true" className="mt-0.5 text-[var(--ink-lo)]" />}
-                </>
-              ) : (
-                <>
-                  {/* Uma linha cada, mesmo com a coluna estreitada: o texto que quebrava fazia a linha crescer */}
-                  <span className="block max-w-full truncate text-sm text-[var(--ink-hi)]">{cena.nome}</span>
-                  {legenda && (
-                    <span
-                      className={`flex max-w-full items-center gap-1 text-xs ${noPrograma || (noPreview && semTela) ? 'font-medium text-[var(--ink-hi)]' : 'text-[var(--ink-lo)]'}`}
-                    >
-                      {/* Sem a fonte, um alerta junto da palavra: a cena escolhida assim não vai ao programa */}
-                      {semTela && <CircleAlert size={12} aria-hidden="true" className="shrink-0" />}
-                      <span className="truncate">{legenda}</span>
-                    </span>
-                  )}
-                </>
+  // Uma tecla por cena, nas duas larguras, com a miniatura da composição.
+  // Aberta, o nome (até duas linhas: ele não muda no corte) e o estado embaixo,
+  // numa linha só: com a palavra ao lado, "Tela com câmera" quebrava ao virar
+  // programa, e cada corte mexia a lista sob o ponteiro. Recolhida, a
+  // miniatura no lugar do nome, que vai no nome acessível e no title.
+  const tecla = (cena: Cena) => {
+    const { noPrograma, noPreview, semTela, legenda } = descrever(cena);
+    return (
+      <li key={cena.id}>
+        <button
+          type="button"
+          onClick={() => onEscolher(cena)}
+          aria-current={noPreview ? 'true' : undefined}
+          aria-label={recolhido ? (legenda ? `${cena.nome}, ${legenda}` : cena.nome) : undefined}
+          title={cena.nome}
+          className={`flex w-full rounded-xl py-2 transition-colors duration-150 cursor-pointer ${
+            recolhido ? 'min-h-16 flex-col items-center justify-center gap-1 px-1 text-center' : 'min-h-14 items-center gap-2.5 px-2 text-left'
+          } ${noPreview ? 'bg-[var(--raise)]' : 'hover:bg-[var(--panel)]'}`}
+        >
+          <MiniaturaDaCena cena={cena} semTela={semTela} noPrograma={noPrograma} className={recolhido ? 'w-14' : 'w-12'} />
+          {recolhido ? (
+            <>
+              {noPrograma && (
+                <span aria-hidden="true" className="block text-xs font-medium text-[var(--ink-hi)]">
+                  programa
+                </span>
               )}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+              {noPreview && (
+                <span aria-hidden="true" className="block text-xs text-[var(--ink-lo)]">
+                  preview
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="min-w-0 flex-1">
+              <span className="line-clamp-2 text-sm leading-snug text-[var(--ink-hi)]">{cena.nome}</span>
+              {legenda && (
+                <span
+                  className={`flex max-w-full items-center gap-1 text-xs ${noPrograma || (noPreview && semTela) ? 'font-medium text-[var(--ink-hi)]' : 'text-[var(--ink-lo)]'}`}
+                >
+                  {/* Sem a fonte, um alerta junto da palavra: a cena escolhida assim não vai ao programa */}
+                  {semTela && <CircleAlert size={12} aria-hidden="true" className="shrink-0" />}
+                  <span className="truncate">{legenda}</span>
+                </span>
+              )}
+            </span>
+          )}
+        </button>
+      </li>
+    );
+  };
+
+  // As seis cenas em dois grupos: as de uma fonte só e as que juntam câmera e
+  // tela. Antes, seis nomes numa lista corrida, quatro deles quase iguais.
+  const lista = (
+    <div className="space-y-3">
+      {GRUPOS.map((grupo) => (
+        <section key={grupo.id} aria-labelledby={`estudio-cenas-${grupo.id}`}>
+          <h3
+            id={`estudio-cenas-${grupo.id}`}
+            className={recolhido ? 'sr-only' : 'px-2 pb-1 text-xs text-[var(--ink-lo)]'}
+          >
+            {grupo.titulo}
+          </h3>
+          <ul className="space-y-1">{grupo.cenas.map(tecla)}</ul>
+        </section>
+      ))}
+    </div>
   );
 
   if (recolhido) {

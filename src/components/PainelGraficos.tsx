@@ -16,6 +16,7 @@ import {
   GradeDeImagens,
   NotaDaMidia,
   SecaoDoPainel,
+  ondeEsta,
   SeletorDeCanto,
   useSetasDoGrupo,
   type ItemDaBiblioteca,
@@ -26,6 +27,7 @@ import { ErroDeCampo } from './ui/ErroDeCampo';
 import { Segmentado } from './ui/Segmentado';
 import { Switch } from './ui/Switch';
 import { useConfirm } from './ui/ConfirmDialog';
+import { useTabs } from './ui/Tabs';
 
 /** O que o estúdio escolheu para os gráficos do preview. O conteúdo vem das listas; o corte leva o conteúdo. */
 export interface EscolhaDosGraficos {
@@ -208,6 +210,14 @@ function FalhaDaLista({ lista }: { lista: ListaDaConta<unknown> }) {
 
 // ── O painel ───────────────────────────────────────────────────────────────
 
+type GrupoDosGraficos = 'texto' | 'marca' | 'fundo';
+
+const GRUPOS_DOS_GRAFICOS: { id: GrupoDosGraficos; rotulo: string; descricao: string }[] = [
+  { id: 'texto', rotulo: 'Texto', descricao: 'Banner, ticker e cronômetro' },
+  { id: 'marca', rotulo: 'Marca', descricao: 'Logo e cor dos gráficos' },
+  { id: 'fundo', rotulo: 'Fundo', descricao: 'Fundo e sobreposição' },
+];
+
 /**
  * Os gráficos do palco: banner, ticker, logo, cronômetro, a cor dos gráficos,
  * o fundo e a sobreposição. O que entra aqui vai ao preview; o corte leva ao
@@ -218,6 +228,10 @@ function FalhaDaLista({ lista }: { lista: ListaDaConta<unknown> }) {
  * subtítulo "Stream like a Pro - OneStream Live Studio" em todo banner novo,
  * um limite "/50" que o código não aplicava e lixeiras que apagavam sem
  * perguntar. O logo e a marca d'água viraram um logo só.
+ *
+ * As sete seções eram um formulário só, de rolar. Agora são três grupos de
+ * tarefa (Texto, Marca, Fundo) e, no alto, o que está em uso em qualquer um
+ * deles. O painel abre no grupo do primeiro gráfico em uso.
  */
 export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa, relogio, onRelogio, cor, onCor }: PainelGraficosProps) {
   // Sempre a partir do estado atual: dois cliques no mesmo quadro não se desfazem
@@ -241,8 +255,8 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
         onArquivo={(arquivo) => void midia.enviar(tipo, arquivo)}
       />
       {erroDoEnvio(tipo)}
-      {/* A lista que não abriu aparece uma vez, no logo, a primeira seção de mídia */}
-      <NotaDaMidia tipo={tipo} anunciaFalha={tipo === 'logo'} />
+      {/* A lista que não abriu aparece uma vez por grupo, na primeira seção de mídia dele (logo e fundo) */}
+      <NotaDaMidia tipo={tipo} anunciaFalha={tipo === 'logo' || tipo === 'fundo'} />
     </>
   );
 
@@ -274,350 +288,426 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
   // zerava, sem corte, o cronômetro que estava no programa
   const emContagem = andando || restante < relogio.duracao;
 
+  // O que está no palco, na ordem do painel. A cor não entra: está sempre em uso
+  const emUso = [
+    { nome: 'Banner', grupo: 'texto', noPrograma: !!programa.graficos.banner, noPreview: !!escolha.bannerId },
+    { nome: 'Ticker', grupo: 'texto', noPrograma: !!programa.graficos.ticker, noPreview: !!escolha.tickerId },
+    { nome: 'Cronômetro', grupo: 'texto', noPrograma: !!programa.graficos.cronometro, noPreview: escolha.cronometro.noPreview },
+    { nome: 'Logo', grupo: 'marca', noPrograma: !!programa.graficos.logo, noPreview: !!midia.ativas.logo },
+    { nome: 'Fundo', grupo: 'fundo', noPrograma: !!programa.activeBackground, noPreview: !!midia.ativas.fundo },
+    { nome: 'Sobreposição', grupo: 'fundo', noPrograma: !!programa.activeOverlay, noPreview: !!midia.ativas.sobreposicao },
+  ].flatMap(({ noPrograma, noPreview, ...item }) => {
+    const onde = ondeEsta(noPrograma, noPreview);
+    return onde ? [{ ...item, grupo: item.grupo as GrupoDosGraficos, onde }] : [];
+  });
+  const [grupo, setGrupo] = useState<GrupoDosGraficos>(() => emUso[0]?.grupo ?? 'texto');
+  const abas = useTabs(
+    'graficos',
+    GRUPOS_DOS_GRAFICOS.map((g) => g.id),
+    grupo,
+    setGrupo,
+  );
+
   const indiceDaCor = CORES_DOS_GRAFICOS.findIndex((c) => c.cor.toLowerCase() === cor.toLowerCase());
   const setasDaCor = useSetasDoGrupo(CORES_DOS_GRAFICOS.length, indiceDaCor, (i) => onCor(CORES_DOS_GRAFICOS[i].cor));
 
   return (
     <div className="pb-6">
-      {/* ── Banner ── */}
-      <SecaoDoPainel titulo="Banner" dica="Título e subtítulo, embaixo ou em cima da imagem.">
-        {banners.itens.length > 0 && (
-          <ul className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
-            {banners.itens.map((banner) =>
-              editandoBanner === banner.id ? (
-                <li key={banner.id} className="py-3">
-                  <FormularioDoItem
-                    campos={[
-                      { rotulo: 'Título', valor: banner.text, obrigatorio: true, max: 80 },
-                      { rotulo: 'Subtítulo (opcional)', valor: banner.subtitle ?? '', max: 80 },
-                    ]}
-                    rotuloDoSalvar="Salvar o banner"
-                    onSalvar={([text, subtitle]) => {
-                      banners.salvar({ ...banner, text, subtitle });
-                      setEditandoBanner(null);
-                    }}
-                    onCancelar={() => setEditandoBanner(null)}
-                  />
-                </li>
-              ) : (
-                <LinhaDoItem
-                  key={banner.id}
-                  titulo={banner.text}
-                  detalhe={banner.subtitle || undefined}
-                  noPrograma={programa.graficos.banner?.id === banner.id}
-                  noPreview={escolha.bannerId === banner.id}
-                  naConta={naConta(banners, banner.id)}
-                  onPreview={() => mudar({ bannerId: escolha.bannerId === banner.id ? null : banner.id })}
-                  onEditar={() => setEditandoBanner(banner.id)}
-                  onExcluir={() =>
-                    excluirComConfirmacao(`Excluir o banner "${banner.text}"?`, 'Excluir o banner', () => {
-                      if (escolha.bannerId === banner.id) mudar({ bannerId: null });
-                      banners.excluir(banner.id);
-                    })
-                  }
-                />
-              ),
-            )}
-          </ul>
-        )}
-        <FalhaDaLista lista={banners} />
-        {editandoBanner === 'novo' ? (
-          <FormularioDoItem
-            campos={[
-              { rotulo: 'Título', valor: '', obrigatorio: true, max: 80, placeholder: 'Ana Souza' },
-              { rotulo: 'Subtítulo (opcional)', valor: '', max: 80, placeholder: 'Fotógrafa' },
-            ]}
-            rotuloDoSalvar="Salvar o banner"
-            onSalvar={([text, subtitle]) => {
-              banners.salvar({ id: `banner-${Date.now()}`, text, subtitle });
-              setEditandoBanner(null);
-            }}
-            onCancelar={() => setEditandoBanner(null)}
-          />
-        ) : (
-          <BotaoDeAdicionar onClick={() => setEditandoBanner('novo')} usados={banners.itens.length} limite={LIMITE_DE_BANNERS} coisa="banners">
-            Novo banner
-          </BotaoDeAdicionar>
-        )}
-        <EscolhaDoPainel rotulo="Posição">
-          <Segmentado
-            rotulo="Posição do banner"
-            largura="cheia"
-            opcoes={[
-              { valor: 'embaixo', rotulo: 'Embaixo' },
-              { valor: 'em-cima', rotulo: 'Em cima' },
-            ]}
-            valor={escolha.bannerPosicao}
-            onChange={(bannerPosicao) => mudar({ bannerPosicao })}
-          />
-        </EscolhaDoPainel>
-      </SecaoDoPainel>
+      <div className="px-4 pt-4">
+        <div {...abas.tablist} aria-label="Grupos de gráficos" className="flex w-full rounded-full bg-[var(--well)] p-1">
+          {GRUPOS_DOS_GRAFICOS.map((g) => (
+            <Button
+              key={g.id}
+              variant="ghost"
+              size="sm"
+              {...abas.tab(g.id)}
+              onClick={() => setGrupo(g.id)}
+              title={g.descricao}
+              className={`min-h-0 flex-1 rounded-full border-transparent px-1 py-1.5 text-sm font-normal ${
+                grupo === g.id
+                  ? 'bg-[var(--raise)] text-[var(--ink-hi)] shadow-[var(--shadow-ctl)]'
+                  : 'bg-transparent text-[var(--ink-lo)] shadow-none hover:text-[var(--ink-hi)]'
+              }`}
+            >
+              {g.rotulo}
+            </Button>
+          ))}
+        </div>
+        {/* O que está no palco, de todos os grupos, e o atalho para ele: com o
+            painel dividido, o banner no programa não pode sumir de vista */}
+        <p className="mt-2 text-pretty text-xs text-[var(--ink-lo)]">
+          {emUso.length === 0 ? (
+            'Nenhum gráfico no programa nem no preview.'
+          ) : (
+            <>
+              Em uso:{' '}
+              {emUso.map((item, i) => (
+                <span key={item.nome}>
+                  {i > 0 && ', '}
+                  <AcaoDeTexto tamanho="xs" sublinhada onClick={() => setGrupo(item.grupo)} className="font-medium text-[var(--ink-hi)]">
+                    {item.nome}
+                  </AcaoDeTexto>{' '}
+                  {item.onde}
+                </span>
+              ))}
+            </>
+          )}
+        </p>
+      </div>
 
-      {/* ── Ticker ── */}
-      <SecaoDoPainel titulo="Ticker" dica="Uma faixa de texto que passa no pé da imagem.">
-        {tickers.itens.length > 0 && (
-          <ul className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
-            {tickers.itens.map((ticker) =>
-              editandoTicker === ticker.id ? (
-                <li key={ticker.id} className="py-3">
-                  <FormularioDoItem
-                    campos={[
-                      { rotulo: 'Texto', valor: ticker.text, obrigatorio: true, max: 200 },
-                      { rotulo: 'Selo (opcional)', valor: ticker.badgeText ?? '', max: 20 },
-                    ]}
-                    rotuloDoSalvar="Salvar o ticker"
-                    onSalvar={([text, badgeText]) => {
-                      tickers.salvar({ ...ticker, text, badgeText });
-                      setEditandoTicker(null);
-                    }}
-                    onCancelar={() => setEditandoTicker(null)}
-                  />
-                </li>
-              ) : (
-                <LinhaDoItem
-                  key={ticker.id}
-                  titulo={ticker.text}
-                  detalhe={ticker.badgeText ? `Selo: ${ticker.badgeText}` : undefined}
-                  noPrograma={programa.graficos.ticker?.id === ticker.id}
-                  noPreview={escolha.tickerId === ticker.id}
-                  naConta={naConta(tickers, ticker.id)}
-                  onPreview={() => mudar({ tickerId: escolha.tickerId === ticker.id ? null : ticker.id })}
-                  onEditar={() => setEditandoTicker(ticker.id)}
-                  onExcluir={() =>
-                    excluirComConfirmacao('Excluir este ticker?', 'Excluir o ticker', () => {
-                      if (escolha.tickerId === ticker.id) mudar({ tickerId: null });
-                      tickers.excluir(ticker.id);
-                    })
-                  }
-                />
-              ),
-            )}
-          </ul>
-        )}
-        <FalhaDaLista lista={tickers} />
-        {editandoTicker === 'novo' ? (
-          <FormularioDoItem
-            campos={[
-              { rotulo: 'Texto', valor: '', obrigatorio: true, max: 200, placeholder: 'Inscrições abertas até sexta' },
-              { rotulo: 'Selo (opcional)', valor: '', max: 20, placeholder: 'Aviso' },
-            ]}
-            rotuloDoSalvar="Salvar o ticker"
-            onSalvar={([text, badgeText]) => {
-              tickers.salvar({ id: `ticker-${Date.now()}`, text, badgeText });
-              setEditandoTicker(null);
-            }}
-            onCancelar={() => setEditandoTicker(null)}
-          />
-        ) : (
-          <BotaoDeAdicionar onClick={() => setEditandoTicker('novo')} usados={tickers.itens.length} limite={LIMITE_DE_TICKERS} coisa="tickers">
-            Novo ticker
-          </BotaoDeAdicionar>
-        )}
-        <EscolhaDoPainel rotulo="Velocidade">
-          <Segmentado
-            rotulo="Velocidade do ticker"
-            largura="cheia"
-            opcoes={[
-              { valor: 'lenta', rotulo: 'Lenta' },
-              { valor: 'normal', rotulo: 'Normal' },
-              { valor: 'rapida', rotulo: 'Rápida' },
-            ]}
-            valor={escolha.tickerVelocidade}
-            onChange={(tickerVelocidade) => mudar({ tickerVelocidade })}
-          />
-        </EscolhaDoPainel>
-        <EscolhaDoPainel rotulo="O texto anda para a">
-          <Segmentado
-            rotulo="Sentido do ticker"
-            largura="cheia"
-            opcoes={[
-              { valor: 'esquerda', rotulo: 'Esquerda' },
-              { valor: 'direita', rotulo: 'Direita' },
-            ]}
-            valor={escolha.tickerDirecao}
-            onChange={(tickerDirecao) => mudar({ tickerDirecao })}
-          />
-        </EscolhaDoPainel>
-      </SecaoDoPainel>
-
-      {/* ── Logo ── */}
-      <SecaoDoPainel titulo="Logo" dica="Uma imagem num canto. PNG com fundo transparente fica melhor.">
-        <GradeDeImagens
-          rotulo="Logo no preview"
-          itens={midia.itens.logo}
-          selecionada={midia.ativas.logo}
-          noPrograma={programa.graficos.logo?.url ?? ''}
-          textoDoNenhum="Nenhum"
-          onSelecionar={(url) => midia.escolher('logo', url)}
-          onExcluir={(item) => excluirImagem(item, 'Excluir o logo')}
-        />
-        {midia.ativas.logo && (
+      <div {...abas.panel(grupo)} className="mt-3 border-t border-[var(--line)]">
+        {grupo === 'texto' && (
           <>
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-xs text-[var(--ink)]">Canto</span>
-              <SeletorDeCanto
-                rotulo="Canto do logo"
-                valor={escolha.logo.canto}
-                onChange={(canto) => mudar({ logo: { ...escolha.logo, canto } })}
+            {/* ── Banner ── */}
+            <SecaoDoPainel titulo="Banner" dica="Título e subtítulo, embaixo ou em cima da imagem.">
+              {banners.itens.length > 0 && (
+                <ul className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
+                  {banners.itens.map((banner) =>
+                    editandoBanner === banner.id ? (
+                      <li key={banner.id} className="py-3">
+                        <FormularioDoItem
+                          campos={[
+                            { rotulo: 'Título', valor: banner.text, obrigatorio: true, max: 80 },
+                            { rotulo: 'Subtítulo (opcional)', valor: banner.subtitle ?? '', max: 80 },
+                          ]}
+                          rotuloDoSalvar="Salvar o banner"
+                          onSalvar={([text, subtitle]) => {
+                            banners.salvar({ ...banner, text, subtitle });
+                            setEditandoBanner(null);
+                          }}
+                          onCancelar={() => setEditandoBanner(null)}
+                        />
+                      </li>
+                    ) : (
+                      <LinhaDoItem
+                        key={banner.id}
+                        titulo={banner.text}
+                        detalhe={banner.subtitle || undefined}
+                        noPrograma={programa.graficos.banner?.id === banner.id}
+                        noPreview={escolha.bannerId === banner.id}
+                        naConta={naConta(banners, banner.id)}
+                        onPreview={() => mudar({ bannerId: escolha.bannerId === banner.id ? null : banner.id })}
+                        onEditar={() => setEditandoBanner(banner.id)}
+                        onExcluir={() =>
+                          excluirComConfirmacao(`Excluir o banner "${banner.text}"?`, 'Excluir o banner', () => {
+                            if (escolha.bannerId === banner.id) mudar({ bannerId: null });
+                            banners.excluir(banner.id);
+                          })
+                        }
+                      />
+                    ),
+                  )}
+                </ul>
+              )}
+              <FalhaDaLista lista={banners} />
+              {editandoBanner === 'novo' ? (
+                <FormularioDoItem
+                  campos={[
+                    { rotulo: 'Título', valor: '', obrigatorio: true, max: 80, placeholder: 'Ana Souza' },
+                    { rotulo: 'Subtítulo (opcional)', valor: '', max: 80, placeholder: 'Fotógrafa' },
+                  ]}
+                  rotuloDoSalvar="Salvar o banner"
+                  onSalvar={([text, subtitle]) => {
+                    banners.salvar({ id: `banner-${Date.now()}`, text, subtitle });
+                    setEditandoBanner(null);
+                  }}
+                  onCancelar={() => setEditandoBanner(null)}
+                />
+              ) : (
+                <BotaoDeAdicionar onClick={() => setEditandoBanner('novo')} usados={banners.itens.length} limite={LIMITE_DE_BANNERS} coisa="banners">
+                  Novo banner
+                </BotaoDeAdicionar>
+              )}
+              <EscolhaDoPainel rotulo="Posição">
+                <Segmentado
+                  rotulo="Posição do banner"
+                  largura="cheia"
+                  opcoes={[
+                    { valor: 'embaixo', rotulo: 'Embaixo' },
+                    { valor: 'em-cima', rotulo: 'Em cima' },
+                  ]}
+                  valor={escolha.bannerPosicao}
+                  onChange={(bannerPosicao) => mudar({ bannerPosicao })}
+                />
+              </EscolhaDoPainel>
+            </SecaoDoPainel>
+
+            {/* ── Ticker ── */}
+            <SecaoDoPainel titulo="Ticker" dica="Uma faixa de texto que passa no pé da imagem.">
+              {tickers.itens.length > 0 && (
+                <ul className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
+                  {tickers.itens.map((ticker) =>
+                    editandoTicker === ticker.id ? (
+                      <li key={ticker.id} className="py-3">
+                        <FormularioDoItem
+                          campos={[
+                            { rotulo: 'Texto', valor: ticker.text, obrigatorio: true, max: 200 },
+                            { rotulo: 'Selo (opcional)', valor: ticker.badgeText ?? '', max: 20 },
+                          ]}
+                          rotuloDoSalvar="Salvar o ticker"
+                          onSalvar={([text, badgeText]) => {
+                            tickers.salvar({ ...ticker, text, badgeText });
+                            setEditandoTicker(null);
+                          }}
+                          onCancelar={() => setEditandoTicker(null)}
+                        />
+                      </li>
+                    ) : (
+                      <LinhaDoItem
+                        key={ticker.id}
+                        titulo={ticker.text}
+                        detalhe={ticker.badgeText ? `Selo: ${ticker.badgeText}` : undefined}
+                        noPrograma={programa.graficos.ticker?.id === ticker.id}
+                        noPreview={escolha.tickerId === ticker.id}
+                        naConta={naConta(tickers, ticker.id)}
+                        onPreview={() => mudar({ tickerId: escolha.tickerId === ticker.id ? null : ticker.id })}
+                        onEditar={() => setEditandoTicker(ticker.id)}
+                        onExcluir={() =>
+                          excluirComConfirmacao('Excluir este ticker?', 'Excluir o ticker', () => {
+                            if (escolha.tickerId === ticker.id) mudar({ tickerId: null });
+                            tickers.excluir(ticker.id);
+                          })
+                        }
+                      />
+                    ),
+                  )}
+                </ul>
+              )}
+              <FalhaDaLista lista={tickers} />
+              {editandoTicker === 'novo' ? (
+                <FormularioDoItem
+                  campos={[
+                    { rotulo: 'Texto', valor: '', obrigatorio: true, max: 200, placeholder: 'Inscrições abertas até sexta' },
+                    { rotulo: 'Selo (opcional)', valor: '', max: 20, placeholder: 'Aviso' },
+                  ]}
+                  rotuloDoSalvar="Salvar o ticker"
+                  onSalvar={([text, badgeText]) => {
+                    tickers.salvar({ id: `ticker-${Date.now()}`, text, badgeText });
+                    setEditandoTicker(null);
+                  }}
+                  onCancelar={() => setEditandoTicker(null)}
+                />
+              ) : (
+                <BotaoDeAdicionar onClick={() => setEditandoTicker('novo')} usados={tickers.itens.length} limite={LIMITE_DE_TICKERS} coisa="tickers">
+                  Novo ticker
+                </BotaoDeAdicionar>
+              )}
+              <EscolhaDoPainel rotulo="Velocidade">
+                <Segmentado
+                  rotulo="Velocidade do ticker"
+                  largura="cheia"
+                  opcoes={[
+                    { valor: 'lenta', rotulo: 'Lenta' },
+                    { valor: 'normal', rotulo: 'Normal' },
+                    { valor: 'rapida', rotulo: 'Rápida' },
+                  ]}
+                  valor={escolha.tickerVelocidade}
+                  onChange={(tickerVelocidade) => mudar({ tickerVelocidade })}
+                />
+              </EscolhaDoPainel>
+              <EscolhaDoPainel rotulo="O texto anda para a">
+                <Segmentado
+                  rotulo="Sentido do ticker"
+                  largura="cheia"
+                  opcoes={[
+                    { valor: 'esquerda', rotulo: 'Esquerda' },
+                    { valor: 'direita', rotulo: 'Direita' },
+                  ]}
+                  valor={escolha.tickerDirecao}
+                  onChange={(tickerDirecao) => mudar({ tickerDirecao })}
+                />
+              </EscolhaDoPainel>
+            </SecaoDoPainel>
+
+            {/* ── Cronômetro ── */}
+            <SecaoDoPainel
+              titulo="Cronômetro"
+              estado={<EstadoNoPalco noPrograma={!!programa.graficos.cronometro} noPreview={escolha.cronometro.noPreview} />}
+              dica="Uma contagem regressiva no meio da imagem. O relógio anda nos dois monitores na hora; o corte leva o cronômetro e o título."
+              acao={
+                <Switch
+                  rotulo="Mostrar o cronômetro no preview"
+                  checked={escolha.cronometro.noPreview}
+                  onChange={(noPreview) => mudar({ cronometro: { ...escolha.cronometro, noPreview } })}
+                />
+              }
+            >
+              <CampoDoPainel
+                rotulo="Título (opcional)"
+                placeholder="Começamos em"
+                maxLength={40}
+                value={escolha.cronometro.titulo}
+                onChange={(e) => mudar({ cronometro: { ...escolha.cronometro, titulo: e.target.value } })}
               />
-            </div>
-            <Deslizante
-              rotulo="Tamanho"
-              valor={escolha.logo.tamanho}
-              min={4}
-              max={30}
-              medida={`${escolha.logo.tamanho}% da largura`}
-              onChange={(tamanho) => mudar({ logo: { ...escolha.logo, tamanho } })}
-            />
-            <Deslizante
-              rotulo="Opacidade"
-              valor={Math.round(escolha.logo.opacidade * 100)}
-              min={20}
-              max={100}
-              passo={5}
-              medida={`${Math.round(escolha.logo.opacidade * 100)}%`}
-              onChange={(v) => mudar({ logo: { ...escolha.logo, opacidade: v / 100 } })}
-            />
+              <EscolhaDoPainel rotulo="Duração, em minutos">
+                <Segmentado
+                  rotulo="Duração do cronômetro, em minutos"
+                  largura="cheia"
+                  opcoes={[
+                    { valor: '300', rotulo: '5' },
+                    { valor: '600', rotulo: '10' },
+                    { valor: '900', rotulo: '15' },
+                    { valor: '1800', rotulo: '30' },
+                  ]}
+                  valor={String(relogio.duracao)}
+                  onChange={(v) => onRelogio(relogioParado(Number(v)))}
+                  desativado={emContagem}
+                />
+                {emContagem && <p className="mt-1 text-xs text-[var(--ink-lo)]">Zere o cronômetro para trocar a duração.</p>}
+              </EscolhaDoPainel>
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-mono text-base tabular-nums text-[var(--ink-hi)]" aria-live="off">
+                  {formatarTempo(restante)}
+                </p>
+                <div className="flex items-center gap-4">
+                  {andando ? (
+                    <Button variant="ghost" size="sm" onClick={() => onRelogio({ ...relogio, fimEm: null, restante })}>
+                      Pausar
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={restante <= 0}
+                      onClick={() => onRelogio({ ...relogio, fimEm: Date.now() + restante * 1000 })}
+                    >
+                      {restante < relogio.duracao ? 'Continuar' : 'Iniciar'}
+                    </Button>
+                  )}
+                  <AcaoDeTexto tamanho="xs" onClick={() => onRelogio(relogioParado(relogio.duracao))}>
+                    Zerar
+                  </AcaoDeTexto>
+                </div>
+              </div>
+            </SecaoDoPainel>
+
           </>
         )}
-        {envioDeImagem('logo', 'Enviar logo')}
-      </SecaoDoPainel>
+        {grupo === 'marca' && (
+          <>
+            {/* ── Logo ── */}
+            <SecaoDoPainel titulo="Logo" dica="Uma imagem num canto. PNG com fundo transparente fica melhor.">
+              <GradeDeImagens
+                rotulo="Logo no preview"
+                itens={midia.itens.logo}
+                selecionada={midia.ativas.logo}
+                noPrograma={programa.graficos.logo?.url ?? ''}
+                textoDoNenhum="Nenhum"
+                onSelecionar={(url) => midia.escolher('logo', url)}
+                onExcluir={(item) => excluirImagem(item, 'Excluir o logo')}
+              />
+              {midia.ativas.logo && (
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs text-[var(--ink)]">Canto</span>
+                    <SeletorDeCanto
+                      rotulo="Canto do logo"
+                      valor={escolha.logo.canto}
+                      onChange={(canto) => mudar({ logo: { ...escolha.logo, canto } })}
+                    />
+                  </div>
+                  <Deslizante
+                    rotulo="Tamanho"
+                    valor={escolha.logo.tamanho}
+                    min={4}
+                    max={30}
+                    medida={`${escolha.logo.tamanho}% da largura`}
+                    onChange={(tamanho) => mudar({ logo: { ...escolha.logo, tamanho } })}
+                  />
+                  <Deslizante
+                    rotulo="Opacidade"
+                    valor={Math.round(escolha.logo.opacidade * 100)}
+                    min={20}
+                    max={100}
+                    passo={5}
+                    medida={`${Math.round(escolha.logo.opacidade * 100)}%`}
+                    onChange={(v) => mudar({ logo: { ...escolha.logo, opacidade: v / 100 } })}
+                  />
+                </>
+              )}
+              {envioDeImagem('logo', 'Enviar logo')}
+            </SecaoDoPainel>
 
-      {/* ── Cronômetro ── */}
-      <SecaoDoPainel
-        titulo="Cronômetro"
-        estado={<EstadoNoPalco noPrograma={!!programa.graficos.cronometro} noPreview={escolha.cronometro.noPreview} />}
-        dica="Uma contagem regressiva no meio da imagem. O relógio anda nos dois monitores na hora; o corte leva o cronômetro e o título."
-        acao={
-          <Switch
-            rotulo="Mostrar o cronômetro no preview"
-            checked={escolha.cronometro.noPreview}
-            onChange={(noPreview) => mudar({ cronometro: { ...escolha.cronometro, noPreview } })}
-          />
-        }
-      >
-        <CampoDoPainel
-          rotulo="Título (opcional)"
-          placeholder="Começamos em"
-          maxLength={40}
-          value={escolha.cronometro.titulo}
-          onChange={(e) => mudar({ cronometro: { ...escolha.cronometro, titulo: e.target.value } })}
-        />
-        <EscolhaDoPainel rotulo="Duração, em minutos">
-          <Segmentado
-            rotulo="Duração do cronômetro, em minutos"
-            largura="cheia"
-            opcoes={[
-              { valor: '300', rotulo: '5' },
-              { valor: '600', rotulo: '10' },
-              { valor: '900', rotulo: '15' },
-              { valor: '1800', rotulo: '30' },
-            ]}
-            valor={String(relogio.duracao)}
-            onChange={(v) => onRelogio(relogioParado(Number(v)))}
-            desativado={emContagem}
-          />
-          {emContagem && <p className="mt-1 text-xs text-[var(--ink-lo)]">Zere o cronômetro para trocar a duração.</p>}
-        </EscolhaDoPainel>
-        <div className="flex items-center justify-between gap-3">
-          <p className="font-mono text-base tabular-nums text-[var(--ink-hi)]" aria-live="off">
-            {formatarTempo(restante)}
-          </p>
-          <div className="flex items-center gap-4">
-            {andando ? (
-              <Button variant="ghost" size="sm" onClick={() => onRelogio({ ...relogio, fimEm: null, restante })}>
-                Pausar
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={restante <= 0}
-                onClick={() => onRelogio({ ...relogio, fimEm: Date.now() + restante * 1000 })}
-              >
-                {restante < relogio.duracao ? 'Continuar' : 'Iniciar'}
-              </Button>
-            )}
-            <AcaoDeTexto tamanho="xs" onClick={() => onRelogio(relogioParado(relogio.duracao))}>
-              Zerar
-            </AcaoDeTexto>
-          </div>
-        </div>
-      </SecaoDoPainel>
-
-      {/* ── Cor dos gráficos ── */}
-      <SecaoDoPainel
-        titulo="Cor dos gráficos"
-        dica="Na borda do card da câmera, no subtítulo do banner, no selo do ticker, no preço do QR code e no cronômetro."
-      >
-        <div className="space-y-2">
-          <div role="radiogroup" aria-label="Cor dos gráficos" className="grid grid-cols-6 gap-1">
-            {CORES_DOS_GRAFICOS.map((opcao, i) => {
-              const marcada = i === indiceDaCor;
-              return (
-                <button
-                  key={opcao.cor}
-                  {...setasDaCor(i)}
-                  type="button"
-                  role="radio"
-                  aria-checked={marcada}
-                  aria-label={opcao.nome}
-                  title={opcao.nome}
-                  onClick={() => onCor(opcao.cor)}
-                  className={`flex aspect-square w-full items-center justify-center rounded-xl border transition-colors duration-150 cursor-pointer ${
-                    marcada ? 'border-[var(--ink-hi)]' : 'border-transparent hover:border-[var(--line-ctl)]'
+            {/* ── Cor dos gráficos ── */}
+            <SecaoDoPainel
+              titulo="Cor dos gráficos"
+              dica="Na borda do card da câmera, no subtítulo do banner, no selo do ticker, no preço do QR code e no cronômetro."
+            >
+              <div className="space-y-2">
+                <div role="radiogroup" aria-label="Cor dos gráficos" className="grid grid-cols-6 gap-1">
+                  {CORES_DOS_GRAFICOS.map((opcao, i) => {
+                    const marcada = i === indiceDaCor;
+                    return (
+                      <button
+                        key={opcao.cor}
+                        {...setasDaCor(i)}
+                        type="button"
+                        role="radio"
+                        aria-checked={marcada}
+                        aria-label={opcao.nome}
+                        title={opcao.nome}
+                        onClick={() => onCor(opcao.cor)}
+                        className={`flex aspect-square w-full items-center justify-center rounded-xl border transition-colors duration-150 cursor-pointer ${
+                          marcada ? 'border-[var(--ink-hi)]' : 'border-transparent hover:border-[var(--line-ctl)]'
+                        }`}
+                      >
+                        <span aria-hidden="true" className="size-7 rounded-lg border border-[var(--line-ctl)]" style={{ background: opcao.cor }} />
+                      </button>
+                    );
+                  })}
+                </div>
+                <label
+                  className={`envio flex h-11 w-fit items-center gap-2 rounded-xl border px-3 text-xs text-[var(--ink)] cursor-pointer hover:bg-[var(--panel)] ${
+                    indiceDaCor < 0 ? 'border-[var(--ink-hi)]' : 'border-[var(--line-ctl)]'
                   }`}
                 >
-                  <span aria-hidden="true" className="size-7 rounded-lg border border-[var(--line-ctl)]" style={{ background: opcao.cor }} />
-                </button>
-              );
-            })}
-          </div>
-          <label
-            className={`envio flex h-11 w-fit items-center gap-2 rounded-xl border px-3 text-xs text-[var(--ink)] cursor-pointer hover:bg-[var(--panel)] ${
-              indiceDaCor < 0 ? 'border-[var(--ink-hi)]' : 'border-[var(--line-ctl)]'
-            }`}
-          >
-            <span aria-hidden="true" className="size-4 rounded border border-[var(--line-ctl)]" style={{ background: cor }} />
-            Outra cor
-            <input type="color" value={cor} onChange={(e) => onCor(e.target.value)} className="sr-only" />
-          </label>
-        </div>
-      </SecaoDoPainel>
+                  <span aria-hidden="true" className="size-4 rounded border border-[var(--line-ctl)]" style={{ background: cor }} />
+                  Outra cor
+                  <input type="color" value={cor} onChange={(e) => onCor(e.target.value)} className="sr-only" />
+                </label>
+              </div>
+            </SecaoDoPainel>
 
-      {/* ── Fundo ── */}
-      <SecaoDoPainel
-        titulo="Fundo"
-        dica="Aparece atrás da câmera com o croma ligado e nas margens da cena lado a lado."
-      >
-        <GradeDeImagens
-          rotulo="Fundo no preview"
-          itens={midia.itens.fundo}
-          selecionada={midia.ativas.fundo}
-          noPrograma={programa.activeBackground ?? ''}
-          textoDoNenhum="Nenhum"
-          onSelecionar={(url) => midia.escolher('fundo', url)}
-          onExcluir={(item) => excluirImagem(item, 'Excluir o fundo')}
-        />
-        {envioDeImagem('fundo', 'Enviar fundo')}
-      </SecaoDoPainel>
+          </>
+        )}
+        {grupo === 'fundo' && (
+          <>
+            {/* ── Fundo ── */}
+            <SecaoDoPainel
+              titulo="Fundo"
+              dica="Aparece atrás da câmera com o croma ligado e nas margens da cena lado a lado."
+            >
+              <GradeDeImagens
+                rotulo="Fundo no preview"
+                itens={midia.itens.fundo}
+                selecionada={midia.ativas.fundo}
+                noPrograma={programa.activeBackground ?? ''}
+                textoDoNenhum="Nenhum"
+                onSelecionar={(url) => midia.escolher('fundo', url)}
+                onExcluir={(item) => excluirImagem(item, 'Excluir o fundo')}
+              />
+              {envioDeImagem('fundo', 'Enviar fundo')}
+            </SecaoDoPainel>
 
-      {/* ── Sobreposição ── */}
-      <SecaoDoPainel
-        titulo="Sobreposição"
-        dica="Uma moldura por cima das fontes. Use um PNG 16:9 com o meio transparente."
-      >
-        <GradeDeImagens
-          rotulo="Sobreposição no preview"
-          itens={midia.itens.sobreposicao}
-          selecionada={midia.ativas.sobreposicao}
-          noPrograma={programa.activeOverlay ?? ''}
-          textoDoNenhum="Nenhuma"
-          onSelecionar={(url) => midia.escolher('sobreposicao', url)}
-          onExcluir={(item) => excluirImagem(item, 'Excluir a sobreposição')}
-        />
-        {envioDeImagem('sobreposicao', 'Enviar sobreposição')}
-      </SecaoDoPainel>
+            {/* ── Sobreposição ── */}
+            <SecaoDoPainel
+              titulo="Sobreposição"
+              dica="Uma moldura por cima das fontes. Use um PNG 16:9 com o meio transparente."
+            >
+              <GradeDeImagens
+                rotulo="Sobreposição no preview"
+                itens={midia.itens.sobreposicao}
+                selecionada={midia.ativas.sobreposicao}
+                noPrograma={programa.activeOverlay ?? ''}
+                textoDoNenhum="Nenhuma"
+                onSelecionar={(url) => midia.escolher('sobreposicao', url)}
+                onExcluir={(item) => excluirImagem(item, 'Excluir a sobreposição')}
+              />
+              {envioDeImagem('sobreposicao', 'Enviar sobreposição')}
+            </SecaoDoPainel>
+          </>
+        )}
+      </div>
     </div>
   );
 }
