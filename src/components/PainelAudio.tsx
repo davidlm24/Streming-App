@@ -1,5 +1,5 @@
-import type { AjustesDaCaptura, LeituraDaCaptura } from '../lib/captura';
-import { SecaoDoPainel } from './PecasDoPainel';
+import { CAPTURA_PADRAO, type AjustesDaCaptura, type LeituraDaCaptura } from '../lib/captura';
+import { SecaoAvancada, SecaoDoPainel } from './PecasDoPainel';
 import { Switch } from './ui/Switch';
 
 type Processamento = 'reducaoDeRuido' | 'cancelamentoDeEco' | 'ganhoAutomatico';
@@ -45,39 +45,50 @@ export function PainelAudio({
             : 'O navegador não liberou o microfone. Permita o acesso nas configurações do site e entre de novo no estúdio.'
         }
       >
-        <p className="text-pretty text-xs text-[var(--ink-lo)]">
-          O som ainda não vai para os canais, porque a transmissão não existe. Estes ajustes já valem no medidor da bandeja.
-        </p>
+        {microfone && (
+          <p className="text-pretty text-xs text-[var(--ink-lo)]">
+            O som ainda não vai para os canais, porque a transmissão não existe. Os ajustes de Avançado já valem no medidor da bandeja e na gravação.
+          </p>
+        )}
       </SecaoDoPainel>
 
-      {PROCESSAMENTOS.map(({ chave, titulo, dica }) => {
-        const lido = microfone?.[chave];
-        // O microfone respondeu outra coisa: o pedido não foi aceito
-        const recusado = !aplicando && lido !== undefined && lido !== captura[chave];
-        return (
-          <SecaoDoPainel
-            key={chave}
-            titulo={titulo}
-            acao={
-              <Switch
-                rotulo={titulo}
-                checked={captura[chave]}
-                disabled={!microfone}
-                ocupado={aplicando}
-                onChange={(ligado) => onCaptura({ ...captura, [chave]: ligado })}
+      {/* Sem microfone não há o que processar: em vez de três interruptores
+          apagados, só a frase acima. Com ele, o processamento fica em
+          Avançado, aberto se alguém já mudou o padrão do navegador. */}
+      {microfone && (
+        <SecaoAvancada
+          resumo="Ruído, eco e ganho"
+          abertaDeInicio={PROCESSAMENTOS.some(({ chave }) => captura[chave] !== CAPTURA_PADRAO[chave])}
+        >
+          {PROCESSAMENTOS.map(({ chave, titulo, dica }) => {
+            const lido = microfone?.[chave];
+            // O microfone respondeu outra coisa: o pedido não foi aceito
+            const recusado = !aplicando && lido !== undefined && lido !== captura[chave];
+            return (
+              <SecaoDoPainel
+                key={chave}
+                titulo={titulo}
+                acao={
+                  <Switch
+                    rotulo={titulo}
+                    checked={captura[chave]}
+                    ocupado={aplicando}
+                    onChange={(ligado) => onCaptura({ ...captura, [chave]: ligado })}
+                  />
+                }
+                estado={
+                  recusado ? (
+                    <p className="mt-0.5 text-xs text-[var(--ink-hi)]">
+                      Este microfone não aceitou a mudança.
+                    </p>
+                  ) : undefined
+                }
+                dica={dica}
               />
-            }
-            estado={
-              recusado ? (
-                <p className="mt-0.5 text-xs text-[var(--ink-hi)]">
-                  Este microfone não aceitou a mudança.
-                </p>
-              ) : undefined
-            }
-            dica={dica}
-          />
-        );
-      })}
+            );
+          })}
+        </SecaoAvancada>
+      )}
     </div>
   );
 }
