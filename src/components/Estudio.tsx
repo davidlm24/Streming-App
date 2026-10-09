@@ -18,7 +18,7 @@ import { SecaoDaApresentacao } from './SecaoDaApresentacao';
 import { useApresentacao } from '../lib/useApresentacao';
 import { CAPTURA_PADRAO, capturaValida, lerCaptura, restricoesDeAudio, restricoesDeVideo, type AjustesDaCaptura } from '../lib/captura';
 import { DivisorDeColuna } from './DivisorDeColuna';
-import { BotoesDeTransicao, DURACAO_DA_FUSAO, TrilhoDeCenas, type Transicao } from './TrilhoDeCenas';
+import { BotoesDeTransicao, DURACAO_DA_FUSAO, TrilhoDeCenas, type BloqueioDoCorte, type Transicao } from './TrilhoDeCenas';
 import { MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
 import { FERRAMENTA_INICIAL, PainelDoEstudio, type Ferramenta } from './PainelDoEstudio';
 import { BandejaDoEstudio } from './BandejaDoEstudio';
@@ -29,6 +29,7 @@ import { PainelRoteiro } from './PainelRoteiro';
 import { PainelQrCode, type QrDoEstudio } from './PainelQrCode';
 import { PainelMidia } from './PainelMidia';
 import { PainelCamera } from './PainelCamera';
+import { PainelPreparo } from './PainelPreparo';
 import {
   ControlesDaJanela,
   JanelaDoTeleprompter,
@@ -437,6 +438,10 @@ export function Estudio({
   }, [player]);
   const mudancas = mudancasNoCorte(programa, estadoDoPreview);
   const temMudanca = mudancas.length > 0;
+  // O clipe ou a apresentação no preview ocupam o lugar da tela: com um deles, a cena com tela tem o que mostrar
+  const temTela = !!screenStream || !!clipeNoPreview || !!apresentacaoNoPreview;
+  // Uma cena com tela e nada no lugar dela não vai ao programa: iria uma moldura vazia
+  const faltaATela = precisaDaTela(cena) && !temTela;
 
   // Corte: o preview vai ao programa na hora. Fusão: o programa que sai fica
   // por cima e some em DURACAO_DA_FUSAO.
@@ -454,6 +459,7 @@ export function Estudio({
   );
 
   const cortar = (transicao: Transicao) => {
+    if (faltaATela) return;
     if (fusaoRef.current) window.clearTimeout(fusaoRef.current);
     // Um player que ainda saía de uma fusão anterior já pode ser solto
     if (saindoRef.current && saindoRef.current !== playerRef.current) soltarPlayer(saindoRef.current);
@@ -509,7 +515,9 @@ export function Estudio({
     if (!stream) return;
     setScreenStream(stream);
     stream.getVideoTracks()[0]?.addEventListener('ended', pararTela);
-    // A tela entra no preview, pronta para o corte
+    // A tela entra no preview, pronta para o corte. Se o preview já tem uma
+    // cena com tela (a que esperava por ela), fica a que foi escolhida
+    if (precisaDaTela(cenaDoPreviewRef.current)) return;
     const comTela = cenaPeloId('cena-tela-e-camera');
     if (comTela) escolherCena(comTela);
   };
@@ -537,6 +545,15 @@ export function Estudio({
     setClipeNoPreview(null);
     irParaUmaCenaComTela();
   };
+
+  const bloqueio: BloqueioDoCorte | null = faltaATela
+    ? {
+        motivo: `A cena “${cena.nome}” precisa da tela compartilhada, e nenhuma tela está chegando.`,
+        acao: navigator.mediaDevices?.getDisplayMedia
+          ? { rotulo: 'Compartilhar tela', onClick: () => void alternarTela() }
+          : { rotulo: 'Voltar à câmera', onClick: () => escolherCena(CENA_INICIAL) },
+      }
+    : null;
 
   // ── Roteiro e teleprompter ────────────────────────────────────────────────
   const roteiro = useRoteiro(webinar?.id ?? 'geral');
@@ -762,8 +779,29 @@ export function Estudio({
     return () => cancelAnimationFrame(quadro);
   }, [posicaoDosAjustes]);
 
+  const ligados = canais.filter((d) => d.selected);
+  const configurados = ligados.filter((d) => estadoDoCanal(d) === 'pronto').length;
+
   const painel = (() => {
     switch (ferramenta) {
+      case 'preparar':
+        return (
+          <PainelPreparo
+            camera={leitura.camera}
+            cameraDesligada={cameraDesligada}
+            onLigarCamera={alternarCamera}
+            microfone={leitura.microfone}
+            mudo={mudo}
+            onLigarMicrofone={alternarMicrofone}
+            compartilhando={!!screenStream}
+            podeCompartilhar={!!navigator.mediaDevices?.getDisplayMedia}
+            onCompartilhar={() => void alternarTela()}
+            canaisLigados={ligados.length}
+            canaisConfigurados={configurados}
+            onCanais={onCanais}
+            onAbrir={setFerramenta}
+          />
+        );
       case 'chat':
         return (
           <div className="flex h-[36rem] flex-col p-4 lg:h-full">
@@ -880,8 +918,6 @@ export function Estudio({
     />
   );
 
-  const ligados = canais.filter((d) => d.selected);
-
   // O que o próximo quadro do vídeo desenha; roda a cada render do estúdio
   useEffect(() => {
     compositor.atualizar({
@@ -901,7 +937,7 @@ export function Estudio({
       <BarraDoEstudio
         sessao={webinar?.title}
         canaisLigados={ligados.length}
-        canaisProntos={ligados.filter((d) => estadoDoCanal(d) === 'pronto').length}
+        canaisProntos={configurados}
         onCanais={onCanais}
         onSair={sairDoEstudio}
         onVoltarAosAjustes={voltarAosAjustes}
@@ -925,9 +961,10 @@ export function Estudio({
           <TrilhoDeCenas
             idDoPrograma={programa.sceneId || CENA_INICIAL.id}
             idDoPreview={cena.id}
-            temTela={!!screenStream || !!clipeNoPreview || !!apresentacaoNoPreview}
+            temTela={temTela}
             temMudanca={temMudanca}
             cortando={programaQueSai !== null}
+            bloqueio={bloqueio}
             onEscolher={escolherCena}
             onCortar={cortar}
             recolhido={colunas.cenasRecolhidas && desktop}
@@ -954,8 +991,10 @@ export function Estudio({
               onCardDaCamera: setCardDaCamera,
               onPorACamera: () => escolherCena(CENA_INICIAL),
             })}
-            proximoCorte={<ProximoCorte mudancas={mudancas} />}
-            transicaoNoCelular={<BotoesDeTransicao temMudanca={temMudanca} cortando={programaQueSai !== null} onCortar={cortar} />}
+            proximoCorte={<ProximoCorte mudancas={mudancas} bloqueio={bloqueio} />}
+            transicaoNoCelular={
+              <BotoesDeTransicao temMudanca={temMudanca} cortando={programaQueSai !== null} bloqueio={bloqueio} onCortar={cortar} />
+            }
             refDoPreview={previewRef}
           />
         </div>

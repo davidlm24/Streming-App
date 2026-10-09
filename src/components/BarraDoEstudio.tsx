@@ -1,5 +1,5 @@
 import { useId, type Ref } from 'react';
-import { Radio } from 'lucide-react';
+import { CircleDashed, Radio } from 'lucide-react';
 import { PwStreamLogo } from './PwStreamLogo';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
@@ -37,7 +37,7 @@ export function BarraDoEstudio({ sessao, canaisLigados, canaisProntos, onCanais,
   const canais =
     canaisLigados === 0
       ? 'Nenhum canal ligado'
-      : `Canais: ${canaisProntos} de ${canaisLigados} ${canaisLigados === 1 ? 'pronto' : 'prontos'}`;
+      : `Canais: ${canaisProntos} de ${canaisLigados} ${canaisLigados === 1 ? 'configurado' : 'configurados'}`;
 
   return (
     <>
@@ -60,6 +60,17 @@ export function BarraDoEstudio({ sessao, canaisLigados, canaisProntos, onCanais,
           Estúdio
           {sessao && <span className="font-normal text-[var(--ink-lo)]"> · {sessao}</span>}
         </h1>
+
+        {/* O estado do produto à vista, no alto, e não numa frase miúda na
+            bandeja: ao lado de "Canais: 1 de 1 configurado", o estúdio podia
+            ler como pronto para o ar. No celular, a faixa abaixo diz o mesmo. */}
+        <p className="hidden shrink-0 items-center gap-1.5 rounded-full bg-[var(--panel)] px-3 py-1 text-xs text-[var(--ink-hi)] lg:inline-flex">
+          <CircleDashed size={12} aria-hidden="true" />
+          <span>
+            <span className="font-medium">Ensaio</span>
+            <span className="text-[var(--ink-lo)]"> · nada está sendo transmitido</span>
+          </span>
+        </p>
 
         <div className="ml-auto flex shrink-0 items-center gap-4">
           <span className="hidden md:inline-flex">

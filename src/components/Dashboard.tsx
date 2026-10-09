@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { ArrowRight, Check, CircleAlert, Plus } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowRight, Check, CircleAlert, CircleDashed, Plus } from 'lucide-react';
 import type { Destination } from '../types';
 import { estadoDoCanal, nomeDaPlataforma, pendenciaCurta, plataformaPeloNome } from '../lib/canais';
 import { rotuloDoHorario } from '../lib/horario';
@@ -83,6 +83,8 @@ export function Dashboard({
             </>
           )}
 
+          {carregado && <Prontidao />}
+
           <div className="mt-8">
             <Button size="lg" onClick={() => onEntrarNoEstudio(proxima)} className="w-full sm:w-auto sm:min-w-64">
               Entrar no estúdio
@@ -130,6 +132,79 @@ export function Dashboard({
         )}
       </div>
     </main>
+  );
+}
+
+type Permissao = 'liberada' | 'a-pedir' | 'bloqueada' | 'desconhecida';
+
+/**
+ * A permissão de câmera e microfone deste navegador, sem pedir nada: o
+ * pedido de verdade é do estúdio. Navegadores sem a consulta (ou que não
+ * conhecem "camera") ficam em "desconhecida", e a linha não afirma nada.
+ */
+function usePermissaoDosAparelhos(): Permissao {
+  const [permissao, setPermissao] = useState<Permissao>('desconhecida');
+  useEffect(() => {
+    if (!navigator.permissions?.query) return;
+    let vivo = true;
+    const estados: PermissionStatus[] = [];
+    const ler = () => {
+      if (!vivo || estados.length < 2) return;
+      const lidos = estados.map((e) => e.state);
+      setPermissao(lidos.includes('denied') ? 'bloqueada' : lidos.every((s) => s === 'granted') ? 'liberada' : 'a-pedir');
+    };
+    Promise.all(
+      (['camera', 'microphone'] as const).map((nome) => navigator.permissions.query({ name: nome as PermissionName })),
+    )
+      .then((lidos) => {
+        estados.push(...lidos);
+        lidos.forEach((e) => e.addEventListener('change', ler));
+        ler();
+      })
+      .catch(() => {});
+    return () => {
+      vivo = false;
+      estados.forEach((e) => e.removeEventListener('change', ler));
+    };
+  }, []);
+  return permissao;
+}
+
+/**
+ * O que a próxima live tem e o que ainda não existe, antes de entrar no
+ * estúdio. O estado do produto fica à vista: a contagem de canais
+ * configurados, logo abaixo, podia ler como "pronto para o ar" ao lado de
+ * uma transmissão que ainda não existe.
+ */
+function Prontidao() {
+  const permissao = usePermissaoDosAparelhos();
+  const aparelhos: Record<Exclude<Permissao, 'desconhecida'>, { ok: boolean; frase: string }> = {
+    liberada: { ok: true, frase: 'Câmera e microfone liberados neste navegador.' },
+    'a-pedir': { ok: false, frase: 'Câmera e microfone: o navegador vai pedir permissão ao entrar no estúdio.' },
+    bloqueada: { ok: false, frase: 'Câmera ou microfone bloqueados. Permita no cadeado da barra de endereço.' },
+  };
+  const linhaDosAparelhos = permissao === 'desconhecida' ? null : aparelhos[permissao];
+
+  return (
+    <ul aria-label="Prontidão" className="mt-6 space-y-2 text-sm">
+      {linhaDosAparelhos && (
+        <li className="flex items-start gap-2 text-[var(--ink-hi)]">
+          {linhaDosAparelhos.ok ? (
+            <Check size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+          ) : (
+            <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+          )}
+          <span className="text-pretty">{linhaDosAparelhos.frase}</span>
+        </li>
+      )}
+      <li className="flex items-start gap-2 text-[var(--ink-lo)]">
+        <CircleDashed size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+        <span className="text-pretty">
+          <span className="font-medium text-[var(--ink-hi)]">Só ensaio por enquanto.</span> A transmissão para os canais ainda não existe; no
+          estúdio dá para montar as cenas e gravar o programa neste computador.
+        </span>
+      </li>
+    </ul>
   );
 }
 
@@ -189,7 +264,7 @@ function LinhaDeCanais({
           Canais
           {naLinha > 0 && (
             <span className="ml-2 text-sm font-normal text-[var(--ink-lo)]">
-              {prontos} de {naLinha} {naLinha === 1 ? 'pronto' : 'prontos'}
+              {prontos} de {naLinha} {naLinha === 1 ? 'configurado' : 'configurados'}
             </span>
           )}
         </h2>
@@ -224,7 +299,7 @@ function LinhaDeCanais({
               >
                 <Chip
                   onClick={pendencia ? () => onEditarCanal(canal.id) : onVerCanais}
-                  rotulo={`${canal.name}: ${pendencia ?? 'pronto'}`}
+                  rotulo={`${canal.name}: ${pendencia ?? 'configurado'}`}
                   icone={<PlataformaIcone plataforma={canal.platform} />}
                   estado={<EstadoDoChip pendencia={pendencia} />}
                 >

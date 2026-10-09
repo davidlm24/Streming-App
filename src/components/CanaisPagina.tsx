@@ -164,7 +164,7 @@ export function CanaisPagina({
                           {pendencia}
                         </span>
                       ) : (
-                        <span>{estado === 'pronto' ? 'Pronto' : 'Desligado'}</span>
+                        <span>{estado === 'pronto' ? 'Configurado' : 'Desligado'}</span>
                       )}
                     </p>
                   </div>

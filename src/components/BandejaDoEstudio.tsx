@@ -206,8 +206,10 @@ export function BandejaDoEstudio({
       </Button>
       {gravando && inicioDaGravacao !== null && <TempoDeGravacao inicioEm={inicioDaGravacao} semSom={gravandoSemSom} />}
 
+      {/* Que a transmissão não existe, a barra do alto diz (o selo "Ensaio"):
+          aqui a frase miúda ficava longe do olho e perdia para os controles. */}
       <p className="ml-auto hidden text-pretty text-xs text-[var(--ink-lo)] lg:block">
-        Transmitir para os canais ainda não está no&nbsp;ar.
+        {gravando ? 'A gravação fica neste computador.' : 'Gravar salva o programa neste computador.'}
       </p>
     </footer>
   );
