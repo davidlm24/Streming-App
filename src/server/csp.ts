@@ -32,6 +32,21 @@
  */
 export const ORIGENS_DO_SUPABASE_EM_PRODUCAO = ['https://*.supabase.co', 'wss://*.supabase.co'] as const;
 
+/** O motor de transmissão em produção (motor/fly.toml): o estúdio abre um WebSocket nele para entrar ao vivo. */
+export const ORIGEM_DO_MOTOR_EM_PRODUCAO = 'wss://pwstreamer-motor.fly.dev';
+
+/** A origem do motor a partir de MOTOR_URL (`wss://host` ou `ws://localhost:8787`), para a política de desenvolvimento. */
+export function origemDoMotor(endereco: string): string {
+  let url: URL;
+  try {
+    url = new URL(endereco);
+  } catch {
+    throw new Error(`MOTOR_URL não é um endereço válido: ${endereco}`);
+  }
+  if (url.protocol !== 'ws:' && url.protocol !== 'wss:') throw new Error(`MOTOR_URL precisa começar com ws:// ou wss://: ${endereco}`);
+  return url.origin;
+}
+
 /**
  * As duas origens de um endereço do Supabase: a de HTTP (Auth, PostgREST e
  * Storage) e a do websocket do Realtime, que `ouvirMudancas` abre em

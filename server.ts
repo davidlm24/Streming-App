@@ -7,7 +7,10 @@ import dotenv from "dotenv";
 import { getSupabaseAdminClient, isSupabaseServerConfigured } from "./src/lib/supabase-admin.js";
 import { AuthRequest, configuredSuperAdmins, isSuperAdmin, requireAuth } from "./src/middleware/auth.js";
 import { resolvePublicAddress } from "./src/server/safe-http.js";
-import { ORIGENS_DO_SUPABASE_EM_PRODUCAO, origensDoSupabase, politicaDeSeguranca } from "./src/server/csp.js";
+import { ORIGEM_DO_MOTOR_EM_PRODUCAO, ORIGENS_DO_SUPABASE_EM_PRODUCAO, origemDoMotor, origensDoSupabase, politicaDeSeguranca } from "./src/server/csp.js";
+import { emitirBilhete, segredoConfere } from "./src/server/tokenDoMotor.js";
+import { MAX_DESTINOS, URL_DE_CANAL, type EstadoDoDestino, type EventoDoMotor } from "./src/server/protocoloDoMotor.js";
+import { limiteDeCanaisLigados } from "./src/lib/plans.js";
 
 dotenv.config();
 
@@ -368,219 +371,148 @@ Retorne estritamente um JSON estruturado com:
   });
 
   // ==========================================
-  // STREAMING ENGINE & SESSION CONTROLLER
+  // A TRANSMISSÃO: A API REGISTRA, O MOTOR TRANSMITE
   // ==========================================
-  interface StreamDestination {
-    platform: string;
-    targetUrl: string;
-    streamKey?: string;
-    status: 'idle' | 'connecting' | 'live' | 'error' | 'reconnecting';
-    latencyMs?: number;
-    error?: string;
-  }
+  // O programa composto sai do navegador por WebSocket para o motor de
+  // transmissão (motor/, no Fly.io), que codifica e empurra por RTMP para
+  // cada canal. Aqui ficam as duas pontas que precisam do banco: criar a
+  // transmissão (e assinar o bilhete que o motor aceita) e receber do motor o
+  // que aconteceu. As chaves dos canais não passam por aqui: vão do navegador
+  // ao motor, que as esquece ao encerrar.
+  //
+  // Antes havia aqui um "stream engine" em memória, com latências sorteadas e
+  // CPU inventada, que nenhuma tela chamava. Saiu com a transmissão real.
+  const motorConfigurado = () => Boolean(process.env.MOTOR_URL?.trim() && process.env.MOTOR_SEGREDO?.trim());
+  const estadoDoDestinoNoBanco: Record<EstadoDoDestino, string> = {
+    conectando: 'connecting',
+    'no-ar': 'live',
+    reconectando: 'reconnecting',
+    falhou: 'failed',
+    parado: 'stopped',
+  };
 
-  interface StreamSession {
-    id: string;
-    userId: string;
-    title: string;
-    resolution: '720p' | '1080p';
-    bitrateKbps: number;
-    fps: number;
-    status: 'created' | 'starting' | 'live' | 'stopped' | 'error';
-    ingestProtocol: 'RTMP' | 'WHIP' | 'SRT' | 'BrowserCanvas';
-    startedAt: string | null;
-    stoppedAt: string | null;
-    durationSeconds: number;
-    destinations: StreamDestination[];
-    metrics: {
-      fps: number;
-      bitrateKbps: number;
-      cpuPercent: number;
-      droppedFrames: number;
-      totalFrames: number;
-      uptimeSeconds: number;
-      memoryMb: number;
-    };
-  }
+  interface PedidoDeDestino { canal: string; nome: string; plataforma: string; url: string }
+  const pedidoDeDestino = (d: unknown): d is PedidoDeDestino =>
+    !!d && typeof d === 'object'
+    && typeof (d as PedidoDeDestino).canal === 'string' && (d as PedidoDeDestino).canal.length > 0 && (d as PedidoDeDestino).canal.length <= 64
+    && typeof (d as PedidoDeDestino).nome === 'string' && (d as PedidoDeDestino).nome.trim().length > 0 && (d as PedidoDeDestino).nome.length <= 120
+    && typeof (d as PedidoDeDestino).plataforma === 'string' && (d as PedidoDeDestino).plataforma.length > 0 && (d as PedidoDeDestino).plataforma.length <= 80
+    && typeof (d as PedidoDeDestino).url === 'string' && URL_DE_CANAL.test((d as PedidoDeDestino).url) && (d as PedidoDeDestino).url.length <= 2048;
 
-  const activeStreamSessions = new Map<string, StreamSession>();
-  const canAccessSession = (req: AuthRequest, session: StreamSession) =>
-    session.userId === req.user?.uid || isSuperAdmin(req.user);
-
-  // 1. Create a stream session
-  app.post("/api/streams", requireAuth, requireJsonObject, (req: AuthRequest, res) => {
-    const { title, resolution = '1080p', bitrateKbps = 6000, fps = 30, destinations = [], ingestProtocol = 'BrowserCanvas' } = req.body;
-    const parsedBitrate = Number(bitrateKbps);
-    const parsedFps = Number(fps);
-    const allowedProtocols = new Set(['RTMP', 'WHIP', 'SRT', 'BrowserCanvas']);
-    if ((title !== undefined && (typeof title !== 'string' || title.length > 200))
-      || !Number.isInteger(parsedBitrate) || parsedBitrate < 100 || parsedBitrate > 20_000
-      || ![24, 25, 30, 50, 60].includes(parsedFps)
-      || !allowedProtocols.has(ingestProtocol)
-      || !Array.isArray(destinations) || destinations.length > 10
-      || destinations.some((destination) => !destination || typeof destination !== 'object'
-        || typeof destination.platform !== 'string' || destination.platform.length > 80
-        || typeof (destination.targetUrl || destination.url || '') !== 'string'
-        || (destination.targetUrl || destination.url || '').length > 2048
-        || (destination.streamKey !== undefined && (typeof destination.streamKey !== 'string' || destination.streamKey.length > 1024)))) {
-      return res.status(400).json({ error: 'Invalid stream configuration' });
+  app.post('/api/transmissoes', requireAuth, requireJsonObject, userRateLimit('transmissao', 10), async (req: AuthRequest, res) => {
+    if (!motorConfigurado()) {
+      return res.status(503).json({ error: 'A transmissão para os canais não está configurada neste servidor.' });
     }
-    
-    const sessionId = `stream_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-    const session: StreamSession = {
-      id: sessionId,
-      userId: req.user!.uid,
-      title: title || 'Transmissão Ao Vivo PwStreamer',
-      resolution: resolution === '720p' ? '720p' : '1080p',
-      bitrateKbps: parsedBitrate,
-      fps: parsedFps,
-      status: 'created',
-      ingestProtocol,
-      startedAt: null,
-      stoppedAt: null,
-      durationSeconds: 0,
-      destinations: (destinations || []).map((d: any) => ({
-        platform: d.platform || 'Custom RTMP',
-        targetUrl: d.targetUrl || d.url || '',
-        streamKey: d.streamKey || '',
-        status: 'idle',
-        latencyMs: 0
-      })),
-      metrics: {
-        fps: parsedFps,
-        bitrateKbps: parsedBitrate,
-        cpuPercent: 14.5,
-        droppedFrames: 0,
-        totalFrames: 0,
-        uptimeSeconds: 0,
-        memoryMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
+    const { titulo, webinarId, destinos } = req.body as { titulo?: unknown; webinarId?: unknown; destinos?: unknown };
+    if ((titulo !== undefined && (typeof titulo !== 'string' || titulo.length > 200))
+      || (webinarId !== undefined && (typeof webinarId !== 'string' || !UUID.test(webinarId)))
+      || !Array.isArray(destinos) || destinos.length < 1 || destinos.length > MAX_DESTINOS
+      || !destinos.every(pedidoDeDestino)) {
+      return res.status(400).json({ error: 'O pedido de transmissão está incompleto.' });
+    }
+    // O plano manda: uma conta vencida não entra ao vivo, e os canais ao mesmo
+    // tempo são os do plano (a tela já limita; aqui é o que vale para um POST direto)
+    const conta = await ensureServerManagedProfile(req.user!);
+    if (conta.isExpired) {
+      return res.status(403).json({ error: 'O teste grátis ou a assinatura acabou. Escolha um plano para entrar ao vivo.' });
+    }
+    const limite = limiteDeCanaisLigados(conta.plan);
+    if (destinos.length > limite) {
+      return res.status(403).json({ error: `O plano ${conta.plan} transmite para até ${limite} ${limite === 1 ? 'canal' : 'canais'} ao mesmo tempo.` });
+    }
+    // Os canais só podem apontar para a internet: nem o motor nem esta API
+    // servem de ponte para a rede onde rodam. Só o teste de ponta a ponta, em
+    // desenvolvimento, aponta para canais na rede do Docker.
+    const permiteRedePrivada = process.env.MOTOR_PERMITE_REDE_PRIVADA === '1' && process.env.NODE_ENV !== 'production';
+    for (const destino of permiteRedePrivada ? [] : destinos) {
+      try {
+        const host = new URL(destino.url.replace(/^rtmps:/i, 'https:').replace(/^rtmp:/i, 'http:')).hostname;
+        await resolvePublicAddress(host);
+      } catch (erro) {
+        // Um DNS que falhou agora não é um canal errado: a pessoa precisa saber qual dos dois
+        const codigo = (erro as NodeJS.ErrnoException).code;
+        console.warn('Endereço de canal recusado:', destino.url, codigo ?? (erro as Error).message);
+        if (codigo === 'EAI_AGAIN' || codigo === 'ENOTFOUND') {
+          return res.status(503).json({ error: `Não deu para achar o servidor do canal ${destino.nome} agora. Tente de novo.` });
+        }
+        return res.status(400).json({ error: `O canal ${destino.nome} aponta para um endereço que não pode receber a live.` });
       }
-    };
-
-    activeStreamSessions.set(sessionId, session);
-    return res.status(201).json({ success: true, session });
-  });
-
-  // 2. Start streaming on session
-  app.post("/api/streams/:id/start", requireAuth, (req: AuthRequest, res) => {
-    const id = String(req.params.id);
-    let session = activeStreamSessions.get(id);
-
-    if (!session) return res.status(404).json({ error: 'Sessão de transmissão não encontrada' });
-    if (!canAccessSession(req, session)) return res.status(403).json({ error: 'Forbidden' });
-
-    session.status = 'live';
-    session.startedAt = new Date().toISOString();
-    session.stoppedAt = null;
-
-    // Connect all active destinations
-    session.destinations.forEach(dest => {
-      dest.status = 'live';
-      dest.latencyMs = Math.floor(Math.random() * 25) + 20; // 20-45ms real roundtrip
-    });
-
-    console.log(`[STREAM ENGINE] Broadcast session started: ${session.id} with ${session.destinations.length} destinations.`);
-    return res.json({ success: true, status: 'live', session });
-  });
-
-  // 3. Stop streaming on session
-  app.post("/api/streams/:id/stop", requireAuth, (req: AuthRequest, res) => {
-    const id = String(req.params.id);
-    const session = activeStreamSessions.get(id);
-
-    if (!session) {
-      return res.json({ success: true, message: "Sessão já finalizada." });
-    }
-    if (!canAccessSession(req, session)) return res.status(403).json({ error: 'Forbidden' });
-
-    session.status = 'stopped';
-    session.stoppedAt = new Date().toISOString();
-
-    if (session.startedAt) {
-      const startMs = new Date(session.startedAt).getTime();
-      session.durationSeconds = Math.max(1, Math.round((Date.now() - startMs) / 1000));
     }
 
-    session.destinations.forEach(dest => {
-      dest.status = 'idle';
+    const uid = req.user!.uid;
+    // A transmissão e os canais entram numa transação só, por uma função que
+    // só a chave secreta executa (o servidor não tem acesso direto às tabelas)
+    const { data: registro, error } = await getSupabaseAdminClient().rpc('registrar_transmissao', {
+      p_owner_id: uid,
+      p_webinar_id: webinarId ?? null,
+      p_title: (typeof titulo === 'string' && titulo.trim()) || 'Transmissão',
+      p_destinos: destinos.map((d) => ({ platform: d.plataforma, target_url: d.url })),
     });
-
-    console.log(`[STREAM ENGINE] Broadcast session stopped: ${session.id}. Total duration: ${session.durationSeconds}s.`);
-    return res.json({ 
-      success: true, 
-      status: 'stopped', 
-      session,
-      reportSummary: {
-        id: session.id,
-        durationSeconds: session.durationSeconds,
-        finalFps: session.metrics.fps,
-        averageBitrate: `${session.metrics.bitrateKbps} kbps`,
-        droppedFrames: session.metrics.droppedFrames,
-        totalFrames: session.durationSeconds * session.metrics.fps,
-        destinationsCount: session.destinations.length
-      }
-    });
-  });
-
-  // 4. Query stream status
-  app.get("/api/streams/:id/status", requireAuth, (req: AuthRequest, res) => {
-    const id = String(req.params.id);
-    const session = activeStreamSessions.get(id);
-
-    if (!session) {
-      return res.status(404).json({ error: "Sessão de transmissão não encontrada" });
+    const sessao = registro as { id: string; destinos: { id: string; position: number }[] } | null;
+    if (error || !sessao?.id) {
+      console.error('A transmissão não foi registrada:', error);
+      return res.status(503).json({ error: 'A transmissão não pôde ser registrada agora. Tente de novo.' });
     }
-    if (!canAccessSession(req, session)) return res.status(403).json({ error: 'Forbidden' });
-
-    if (session.status === 'live' && session.startedAt) {
-      const startMs = new Date(session.startedAt).getTime();
-      session.durationSeconds = Math.round((Date.now() - startMs) / 1000);
-      session.metrics.uptimeSeconds = session.durationSeconds;
-      session.metrics.totalFrames = session.durationSeconds * session.metrics.fps;
-    }
-
-    return res.json({
-      id: session.id,
-      status: session.status,
-      startedAt: session.startedAt,
-      durationSeconds: session.durationSeconds,
-      destinations: session.destinations,
-      metrics: session.metrics
+    const porPosicao = new Map(sessao.destinos.map((g) => [g.position, g.id]));
+    return res.status(201).json({
+      id: sessao.id,
+      bilhete: emitirBilhete({ sid: sessao.id, uid, n: destinos.length }, process.env.MOTOR_SEGREDO!.trim()),
+      motor: `${process.env.MOTOR_URL!.trim().replace(/\/+$/, '')}/transmitir`,
+      destinos: destinos.map((d, i) => ({ canal: d.canal, id: porPosicao.get(i) })),
     });
   });
 
-  // 5. Query stream real-time technical stats
-  app.get("/api/streams/:id/stats", requireAuth, (req: AuthRequest, res) => {
+  // A API registrou a transmissão, mas o motor não a aceitou (ou o navegador
+  // não chegou nele): quem opera avisa, para o banco não guardar uma
+  // transmissão "começando" para sempre. Só o dono encerra a sua.
+  app.post('/api/transmissoes/:id/encerrar', requireAuth, requireJsonObject, userRateLimit('transmissao-fim', 20), async (req: AuthRequest, res) => {
     const id = String(req.params.id);
-    const session = activeStreamSessions.get(id);
-    if (!session) return res.status(404).json({ error: 'Sessão de transmissão não encontrada' });
-    if (!canAccessSession(req, session)) return res.status(403).json({ error: 'Forbidden' });
-
-    const mem = process.memoryUsage();
-    const stats = {
-      sessionId: id,
-      isLive: session ? session.status === 'live' : false,
-      fps: session?.metrics.fps || 30,
-      bitrateKbps: session?.metrics.bitrateKbps || 6000,
-      droppedFrames: session?.metrics.droppedFrames || 0,
-      cpuPercent: session ? Number((12 + (session.durationSeconds % 5)).toFixed(1)) : 8.4,
-      memoryMb: Math.round(mem.heapUsed / 1024 / 1024),
-      uptimeSeconds: session?.durationSeconds || 0,
-      ingestHealthy: true,
-      protocol: session?.ingestProtocol || 'BrowserCanvas',
-      timestamp: new Date().toISOString()
-    };
-
-    return res.json(stats);
+    const { motivo } = req.body as { motivo?: unknown };
+    if (!UUID.test(id) || (motivo !== undefined && (typeof motivo !== 'string' || motivo.length > 500))) {
+      return res.status(400).json({ error: 'Pedido incompleto.' });
+    }
+    const { data: mudou, error } = await getSupabaseAdminClient().rpc('evento_do_motor', {
+      p_sessao: id,
+      p_evento: 'fim',
+      p_detalhe: typeof motivo === 'string' ? motivo : 'A transmissão não começou.',
+      p_owner_id: req.user!.uid,
+    });
+    if (error) {
+      console.error('O fim pedido pelo dono não foi gravado:', error);
+      return res.status(503).json({ error: 'O encerramento não foi gravado.' });
+    }
+    return res.json({ ok: true, mudou: mudou === true });
   });
 
-  // 6. List recent stream sessions
-  app.get("/api/streams", requireAuth, (req: AuthRequest, res) => {
-    return res.json({
-      sessions: Array.from(activeStreamSessions.values())
-        .filter((session) => canAccessSession(req, session))
-        .slice(-10)
-    });
+  // O que o motor conta: o início, cada mudança de canal e o fim. Autenticado
+  // pelo segredo em comum, nunca pelo login de ninguém.
+  app.post('/api/motor/eventos', requireJsonObject, async (req, res) => {
+    const segredo = process.env.MOTOR_SEGREDO?.trim();
+    const cabecalho = req.headers.authorization;
+    const recebido = cabecalho?.startsWith('Bearer ') ? cabecalho.slice('Bearer '.length).trim() : undefined;
+    if (!segredo || !segredoConfere(recebido, segredo)) return res.status(401).json({ error: 'Unauthorized' });
+    const evento = req.body as Partial<EventoDoMotor>;
+    if (typeof evento.sessao !== 'string' || !UUID.test(evento.sessao)) return res.status(400).json({ error: 'Evento sem sessão.' });
+    let chamada: { p_sessao: string; p_evento: string; p_destino?: string; p_estado?: string; p_detalhe?: string | null };
+    if (evento.evento === 'inicio') {
+      chamada = { p_sessao: evento.sessao, p_evento: 'inicio' };
+    } else if (evento.evento === 'destino') {
+      const estado = estadoDoDestinoNoBanco[evento.estado as EstadoDoDestino];
+      if (typeof evento.destino !== 'string' || !UUID.test(evento.destino) || !estado) return res.status(400).json({ error: 'Evento de canal incompleto.' });
+      chamada = { p_sessao: evento.sessao, p_evento: 'destino', p_destino: evento.destino, p_estado: estado, p_detalhe: typeof evento.detalhe === 'string' ? evento.detalhe.slice(0, 500) : null };
+    } else if (evento.evento === 'fim') {
+      chamada = { p_sessao: evento.sessao, p_evento: 'fim', p_detalhe: typeof evento.motivo === 'string' ? evento.motivo.slice(0, 500) : null };
+    } else {
+      return res.status(400).json({ error: 'Evento desconhecido.' });
+    }
+    const { data: mudou, error } = await getSupabaseAdminClient().rpc('evento_do_motor', chamada);
+    if (error) {
+      console.error('O evento do motor não foi gravado:', error);
+      return res.status(503).json({ error: 'O evento não foi gravado.' });
+    }
+    // Um início ou fim que não achou a transmissão (ou a achou já encerrada) é sinal de descompasso
+    if (mudou === false && evento.evento !== 'destino') console.warn('Evento do motor sem efeito:', evento.evento, evento.sessao);
+    return res.json({ ok: true, mudou: mudou === true });
   });
 
   // ==========================================
@@ -879,9 +811,10 @@ Retorne estritamente um JSON estruturado com:
     // próprio. As origens do Supabase saem da variável que o navegador usa,
     // para o endereço do stack local valer em desenvolvimento.
     const politica = politicaDeSeguranca({
-      origensDeDados: process.env.VITE_SUPABASE_URL
-        ? origensDoSupabase(process.env.VITE_SUPABASE_URL)
-        : ORIGENS_DO_SUPABASE_EM_PRODUCAO,
+      origensDeDados: [
+        ...(process.env.VITE_SUPABASE_URL ? origensDoSupabase(process.env.VITE_SUPABASE_URL) : ORIGENS_DO_SUPABASE_EM_PRODUCAO),
+        process.env.MOTOR_URL ? origemDoMotor(process.env.MOTOR_URL) : ORIGEM_DO_MOTOR_EM_PRODUCAO,
+      ],
       desenvolvimento,
     });
     app.use((_req, res, next) => {
