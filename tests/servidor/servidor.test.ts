@@ -1,5 +1,6 @@
 // O servidor de verdade (createApiApp) contra o Supabase local: login, perfil,
-// papel de admin, teste grátis, webhook do Stripe e portal de cobrança. Cria
+// papel de admin, teste grátis, disponibilidade da transmissão, webhook do
+// Stripe e portal de cobrança. Cria
 // contas de teste e as apaga no fim, então só roda no Supabase local.
 //
 // Uso: `npm run db:start` e depois `npm run test:servidor`.
@@ -195,6 +196,26 @@ test('com o teste vencido, a live não começa', async () => {
   situacao = await (await pedir('/api/validate-trial', dona.token, { method: 'POST' })).json();
   assert.equal(situacao.isExpired, true);
   assert.equal(situacao.canBroadcast, false);
+});
+
+// ── Transmissão ───────────────────────────────────────────────────────────
+test('a disponibilidade da transmissão segue a configuração do motor, e pede login', async () => {
+  assert.equal((await pedir('/api/transmissoes/disponivel')).status, 401);
+  const antes = { url: process.env.MOTOR_URL, segredo: process.env.MOTOR_SEGREDO };
+  try {
+    delete process.env.MOTOR_URL;
+    delete process.env.MOTOR_SEGREDO;
+    assert.deepEqual(await (await pedir('/api/transmissoes/disponivel', dona.token)).json(), { disponivel: false });
+    process.env.MOTOR_URL = 'ws://localhost:8787';
+    assert.deepEqual(await (await pedir('/api/transmissoes/disponivel', dona.token)).json(), { disponivel: false });
+    process.env.MOTOR_SEGREDO = 'segredo-de-teste';
+    assert.deepEqual(await (await pedir('/api/transmissoes/disponivel', dona.token)).json(), { disponivel: true });
+  } finally {
+    if (antes.url === undefined) delete process.env.MOTOR_URL;
+    else process.env.MOTOR_URL = antes.url;
+    if (antes.segredo === undefined) delete process.env.MOTOR_SEGREDO;
+    else process.env.MOTOR_SEGREDO = antes.segredo;
+  }
 });
 
 // ── Stripe ────────────────────────────────────────────────────────────────
