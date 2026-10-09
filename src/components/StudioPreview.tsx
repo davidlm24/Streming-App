@@ -439,15 +439,19 @@ export function StudioPreview({
   return (
     <div className="flex h-full min-h-0 w-full flex-1 flex-col">
       <div ref={lugarRef} className="flex min-h-0 w-full flex-1 items-center justify-start overflow-hidden">
+        {/* A mesa quadrada aposentou-se com a direção soft-modern: a moldura
+            volta ao raio padrão (radius-lg + 2px) e o palco acompanha. As
+            marcas de canto do tally continuam retas — o sinal não mora no
+            raio. O raio fica fora da área segura: nenhum gráfico encosta nele. */}
         <div
           className={`pw-frame ${noPrograma ? 'pw-frame--pgm' : 'pw-frame--pvw'}`}
-          style={{ ['--pw-frame-radius' as string]: '0px' }}
+          style={{ ['--pw-frame-radius' as string]: 'var(--radius-lg)' }}
         >
           <div
             ref={palcoRef}
             inert={noPrograma || undefined}
             style={tamanho.largura > 0 ? { width: tamanho.largura, height: tamanho.altura } : undefined}
-            className={`palco relative flex items-center justify-center overflow-hidden bg-[var(--stage)] ${
+            className={`palco relative flex items-center justify-center overflow-hidden rounded-[var(--radius-lg)] bg-[var(--stage)] ${
               estado.graficos.ticker ? 'palco--com-ticker' : ''
             }`}
           >

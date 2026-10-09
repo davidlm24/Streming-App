@@ -37,33 +37,33 @@ colors:
   brand-grad-to: "#EC407A"
 typography:
   display:
-    fontFamily: "Poppins, system-ui, -apple-system, Segoe UI, sans-serif"
+    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, sans-serif"
     fontSize: "1.875rem"
     fontWeight: 600
     lineHeight: 1.2
     letterSpacing: "-0.025em"
   title:
-    fontFamily: "Poppins, system-ui, -apple-system, Segoe UI, sans-serif"
+    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, sans-serif"
     fontSize: "1rem"
     fontWeight: 600
     lineHeight: 1.5
   body:
-    fontFamily: "Poppins, system-ui, -apple-system, Segoe UI, sans-serif"
+    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.43
   body-strong:
-    fontFamily: "Poppins, system-ui, -apple-system, Segoe UI, sans-serif"
+    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 500
     lineHeight: 1.43
   label:
-    fontFamily: "Poppins, system-ui, -apple-system, Segoe UI, sans-serif"
+    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, sans-serif"
     fontSize: "0.75rem"
     fontWeight: 400
     lineHeight: 1.33
   button:
-    fontFamily: "Poppins, system-ui, -apple-system, Segoe UI, sans-serif"
+    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, sans-serif"
     fontSize: "14px"
     fontWeight: 600
     lineHeight: 1.2
@@ -307,7 +307,7 @@ components:
 
 **Creative North Star: "O Lançador"**
 
-A casca do PwStreamer (tudo fora do estúdio) existe para levar o anfitrião ao ar. Cada tela tem uma ação, e o resto é estado. No Painel, essa ação é "Entrar no estúdio". A tela diz o que vem a seguir, para onde a live vai e o que falta consertar. Não mostra indicadores, cartões nem nada do que o produto sabe fazer sem que a tarefa do momento peça. É uma coluna estreita sobre uma rampa azul-marinho de 18 degraus, em Poppins e em quatro tamanhos. A estrutura é feita de linhas de 1px.
+A casca do PwStreamer (tudo fora do estúdio) existe para levar o anfitrião ao ar. Cada tela tem uma ação, e o resto é estado. No Painel, essa ação é "Entrar no estúdio". A tela diz o que vem a seguir, para onde a live vai e o que falta consertar. Não mostra indicadores, cartões nem nada do que o produto sabe fazer sem que a tarefa do momento peça. É uma coluna estreita sobre uma rampa azul-marinho de 18 degraus, em Inter e em quatro tamanhos. A estrutura é feita de linhas de 1px nas seções; os controles são tonais, separados por luz.
 
 A cor é escassa de propósito. O azul da marca preenche só o botão da ação da tela, e o vermelho do tally pertence ao ar (e, como texto, às ações que apagam algo). Todo o resto, inclusive os estados "ligado", "selecionado" e "atual", sobe ou desce na rampa neutra. O estado é dito por ícone e palavra, e não por matiz. A rampa foi gerada com luminância casada contra o cinza neutro, e por isso o marinho não custa contraste.
 
@@ -321,7 +321,7 @@ O estúdio é uma mesa de corte para montar e ensaiar o programa: as cenas à es
 - Uma ação colorida por tela; o resto em tinta neutra.
 - Vermelho = ar. Não entra em gráfico, em alerta, em erro de campo nem em decoração.
 - Linhas de 1px (`--line`) separam seções e linhas de lista; sem cartões na casca.
-- Poppins em `text-xs`, `text-sm`, `text-base` e `text-3xl`; mono tabular só para medidas.
+- Inter em `text-xs`, `text-sm`, `text-base` e `text-3xl`; mono tabular só para medidas; Poppins só no logotipo.
 - Estado por ícone + texto, sempre com o nome acessível completo.
 - Três escopos de tema sobre a mesma rampa: escuro (padrão), claro e console, que troca as superfícies e as linhas pelo marinho de mesma luminância (`nv-*`).
 - Um único momento de movimento por página. Na casca, o chip de um canal recém-conectado entra deslizando uma vez; no site público, o contorno desliza sobre a captura do Painel; no estúdio, o programa que sai some na fusão. Diálogos entram só pela primitiva `Modal`.
@@ -379,11 +379,11 @@ Gráficos usam a rampa por **valor**, nunca por matiz (`--chart-1..5`, `--chart-
 
 ## Typography
 
-**Display Font:** Poppins (com system-ui, -apple-system, Segoe UI)
-**Body Font:** Poppins
+**UI Font:** Inter (com system-ui, -apple-system, Segoe UI) — todo o texto de trabalho
+**Brand Font:** Poppins (`--font-display`) — só o logotipo
 **Label/Mono Font:** a pilha mono padrão do Tailwind (`font-mono`: ui-monospace, SFMono-Regular, Menlo…) com `tabular-nums`
 
-**Character:** Uma geométrica só, em quatro tamanhos e três pesos, com o contraste feito por tamanho e tinta, não por cor. O mono é a voz das medidas: aparece onde há um número que se lê como instrumento.
+**Character:** A Inter carrega a interface em quatro tamanhos e quatro pesos, com o contraste feito por tamanho e tinta, não por cor — a voz neutra e precisa das ferramentas profissionais. A Poppins geométrica, que antes falava em todo rótulo, ficou restrita à marca: é o que distingue o logotipo sem dar cara de template ao produto. O mono é a voz das medidas: aparece onde há um número que se lê como instrumento.
 
 ### Hierarchy
 - **Display** (600, `text-3xl`, tracking-tight): uma por tela. É o `h1` das páginas (`CabecalhoDePagina`) e, no Painel, o título da próxima live, com `text-balance`. No site, o `h1` do início (com `text-balance`), de Entrar e de Criar conta.
@@ -393,12 +393,12 @@ Gráficos usam a rampa por **valor**, nunca por matiz (`--chart-1..5`, `--chart-
 - **Label** (400, `text-xs`): a linha de metadados abaixo de um nome (plataforma · estado, horário · canais), a palavra de estado na lista mestre, a linha de origem de um registro ("É o e-mail com que você entra."), dicas e erros de campo, rodapé e aviso de teste no cabeçalho.
 - **Button** (600, 14px; `lg` 16px; `sm` 12px): definido em `.btn`, e os três caem sobre os degraus `sm`/`base`/`xs` da escala.
 - **Measure** (mono, tabular, na tinta `--ink`): só a hora dentro do rótulo do horário (`Horario` isola `20:00` e deixa "Hoje, às" ou "Domingo, 27 de setembro, às" na fonte do texto). Ver a Regra do Horário Derivado. No estúdio, também a leitura do medidor ("−25 dB"), a duração dentro das teclas de transição ("0 ms", "400 ms") e a hora das mensagens do chat, em `text-xs` `--ink-lo`, e a leitura do card da câmera durante o ajuste ("X 71% · Y 64%", "120%"), em `--ink`.
-- **Preço** (Poppins, `text-sm` 500, `tabular-nums`, `--ink-hi`; o total do ano abaixo em `text-xs` `--ink-lo`, também tabular): preço não é instrumento, então fica na fonte do texto, mas em algarismos tabulares para as linhas se lerem em coluna. Sempre por `formatPrice` (BRL, "R$ 39,90").
+- **Preço** (Inter, `text-sm` 500, `tabular-nums`, `--ink-hi`; o total do ano abaixo em `text-xs` `--ink-lo`, também tabular): preço não é instrumento, então fica na fonte do texto, mas em algarismos tabulares para as linhas se lerem em coluna. Sempre por `formatPrice` (BRL, "R$ 39,90").
 
 ### Named Rules
 **Regra dos Quatro Tamanhos.** A casca usa `text-xs`, `text-sm`, `text-base` e `text-3xl`, e nada mais. Tamanho em px avulso (`text-[13px]`) é dívida contada pela catraca (`tamanho-de-fonte-avulso`).
 
-**Regra do Mono como Medida.** Mono aparece só em medidas (a hora; no estúdio, a leitura em dB do medidor, a duração das transições, a hora do chat e a leitura de posição e tamanho do card da câmera), sempre com `tabular-nums`. Não há bitrate nem contador de rede: sem transmissão, esses números não existem. Nunca como rótulo, sobretítulo ou enfeite. Dinheiro não é medida: preço fica em Poppins com `tabular-nums`.
+**Regra do Mono como Medida.** Mono aparece só em medidas (a hora; no estúdio, a leitura em dB do medidor, a duração das transições, a hora do chat e a leitura de posição e tamanho do card da câmera), sempre com `tabular-nums`. Não há bitrate nem contador de rede: sem transmissão, esses números não existem. Nunca como rótulo, sobretítulo ou enfeite. Dinheiro não é medida: preço fica em Inter com `tabular-nums`.
 
 **Regra do Número Colado.** Entre um número e sua unidade vai um espaço inseparável (U+00A0: "3 horas", "30 dias"), e o último par de palavras de um limite ou de uma frase também ("ao vivo", "no ar"), para que nenhuma linha estreita quebre em "30 | dias" nem deixe uma palavra sozinha. As frases de várias linhas em `text-xs` e `text-sm` que vão a colunas estreitas (erro e dica de campo, linha de origem, linha de falha ao salvar) levam `text-pretty`, que faz o mesmo pela última linha do parágrafo; os dois se somam, um não substitui o outro.
 
@@ -446,25 +446,28 @@ Camadas de empilhamento em quatro degraus nomeados: `--z-sticky` 20, `--z-dropdo
 
 ## Elevation & Depth
 
-A casca é plana. A profundidade vem da rampa: página em `--bg`, superfícies flutuantes em `--raise` ou `--surface`, e a separação em repouso é sempre uma linha de 1px, nunca uma sombra nem um cartão com fundo. A sombra existe só no que flutua sobre a página e some quando ela fecha. Dentro de um diálogo vale a mesma regra: as colunas do mestre-detalhe são separadas por uma linha, e a linha escolhida sobe para `--raise` sem sombra.
+A profundidade fala em dois registros. A ESTRUTURA continua na rampa e na linha: página em `--bg`, regiões separadas por 1px em `--line`, seções abertas por linha — nenhum bloco de conteúdo vira cartão. Os CONTROLES, desde a direção soft-modern, separam-se por luz: um controle em repouso senta em um fundo tonal (`--well` afundado, `--panel`/`--raise` elevado) com uma sombra de papel discreta, em vez de um contorno de 1px. O estado também fala por altura: na bandeja do console, desligado é afundado no poço, ligado sobe para `--raise` com `--shadow-ctl`.
 
 ### Shadow Vocabulary
-- **Menu ancorado** (`box-shadow: 0 8px 24px -8px rgb(0 0 0 / 0.45)`): o popover do `Menu` (ações "⋯" e conta).
-- **Diálogo e aviso** (`shadow-2xl` do Tailwind: `0 25px 50px -12px rgb(0 0 0 / 0.25)`): `Modal`, `ConfirmDialog` e `Toast`.
+Quatro papéis por tema (tingidos de marinho no claro, mais fundos no console; definidos em `src/index.css` por escopo):
+- **`--shadow-ctl`**: a sombra de controle — botão, opção ativa do segmentado, aba de ferramenta ativa, chip, polegar do switch.
+- **`--shadow-raise`**: o objeto elevado em repouso — as teclas de Corte e Fusão.
+- **`--shadow-menu`**: o popover ancorado (`Menu`), que também nasce do gatilho (`transform-origin` no canto da âncora, entrada de 150ms).
+- **`--shadow-float`**: a camada que flutua sobre tudo — `Modal`, `ConfirmDialog`, `Toast`.
 - **Véu do contorno** (`0 0 0 100vmax rgb(0 0 0 / 0.55)`, recortado pela moldura da captura): não é profundidade. É o escurecimento em volta do contorno na captura do Painel, e só existe enquanto o mouse aponta um item; em repouso fica a 0 % de opacidade.
 
 ### Named Rules
 **Regra da Linha, Não do Cartão.** Estrutura é uma linha de 1px em `--line`. Seção, lista e rodapé são separados por borda; nenhum bloco da casca tem fundo próprio para se destacar. Se parece precisar de um cartão, precisa de uma seção.
 
-**Regra do Chão Plano.** Nada em repouso na página tem sombra. Sombra só em camada que flutua (menu, diálogo, aviso). O console segue a mesma regra: a barra, as colunas, a mesa e a bandeja se separam por linhas de 1px, e o único flutuante é o menu dos aparelhos.
+**Regra do Controle Tonal.** O contorno de 1px saiu dos controles: segmentado, chip, teclas, bandeja e abas falam por preenchimento tonal e sombra do seu papel. A borda sólida fica nos campos de formulário (`--line-ctl`, a gramática do campo) e nas molduras de mídia; a tracejada continua reservada a "adicionar". A sombra é sempre a do papel do controle, nunca um valor avulso.
 
 ## Shapes
 
-Cantos generosos e consistentes, e uma geometria que distingue controle de estrutura. Os controles são arredondados (botão 16px, botão denso 10px, botão de ícone 16px, campo de formulário 16px, linha da lista mestre 16px, menu 16px com itens de 12px, segmentado 16px por fora e 10px por dentro, modal 20px). Chips e switches são pílulas completas. A caixa de seleção é a única exceção abaixo da escala: 20px com 5px de raio, porque os raios nomeados (8px para cima) a fariam ler como botão de rádio. A estrutura (linhas, seções, a divisória do mestre-detalhe) é reta e sem raio. O anel de foco tem 4px de raio.
+Cantos generosos e consistentes, e uma geometria que distingue controle de estrutura. Os controles são arredondados (botão 16px, botão denso 10px, botão de ícone 16px, campo de formulário 16px, linha da lista mestre 16px, menu 20px com itens de 16px, modal 26px). Chips, switches e o segmentado são pílulas completas (o segmentado é uma calha-pílula em `--well` com a opção ativa elevada). A caixa de seleção é a única exceção abaixo da escala: 20px com 5px de raio, porque os raios nomeados (8px para cima) a fariam ler como botão de rádio. A estrutura (linhas, seções, a divisória do mestre-detalhe) é reta e sem raio. O anel de foco tem 4px de raio.
 
-A borda sólida é o padrão de todo controle com contorno (`--line-ctl`). O tracejado é reservado para "adicionar": uma pendência nunca pode parecer uma vaga vazia. O ícone de plataforma na página de Canais fica numa moldura quadrada de 40px, com 16px de raio e borda em `--line`. A captura do Painel fica numa moldura de 16px de raio com borda `--line`, e o contorno dentro dela tem 12px.
+O campo de formulário mantém a borda sólida (`--line-ctl`) — é a gramática do campo. O tracejado é reservado para "adicionar": uma pendência nunca pode parecer uma vaga vazia. O ícone de plataforma na página de Canais fica numa moldura quadrada de 40px, com 16px de raio e borda em `--line`. A captura do Painel fica numa moldura de 16px de raio com borda `--line`, e o contorno dentro dela tem 12px.
 
-No console, o que mostra imagem ou medida é reto, como numa mesa: os monitores (a moldura `.pw-frame` com `--pw-frame-radius: 0px`), a caixa do próximo corte e o trilho do medidor não têm raio. Os controles do console seguem a escala: a linha de cena, a tecla de transição, o controle da bandeja e a aba de ferramenta têm 16px.
+No console, a mesa quadrada aposentou-se: os monitores têm canto suave (`--pw-frame-radius: var(--radius-lg)`, 12px — menor que o dos controles, porque moldura de imagem pede discrição; as marcas de canto do tally continuam retas), a caixa do próximo corte é `rounded-2xl` e o trilho do medidor é pílula. Os controles do console seguem a escala: a linha de cena, a tecla de transição, o controle da bandeja e a aba de ferramenta têm 16px.
 
 ## Components
 
@@ -785,7 +788,7 @@ A frase de cada linha da lista de planos é montada desses campos por `limitesDo
 ### Don't:
 - **Don't** usar o azul da marca em estado, seleção, link, ícone ou destaque; ele é do botão da ação da tela.
 - **Don't** usar o carmim fora do ar e das ações que apagam ou encerram: nada de vermelho em pendência, aviso, erro de campo, gráfico ou decoração.
-- **Don't** montar a casca com cartões de indicador, fundos de bloco ou sombras em repouso.
+- **Don't** montar a casca com cartões de indicador ou fundos de bloco no conteúdo; sombra em repouso é vocabulário de CONTROLE (os quatro papéis `--shadow-*`), nunca de seção ou lista.
 - **Don't** usar tamanho de fonte em px avulso nem um quinto tamanho na casca; a catraca `tamanho-de-fonte-avulso` só pode descer.
 - **Don't** pôr mais de uma ação visível por linha de lista; o resto vai para o "⋯".
 - **Don't** colorir ícones de plataforma com as cores das marcas, nem dar o mesmo ícone a duas plataformas. O G do botão do Google é a única marca colorida.

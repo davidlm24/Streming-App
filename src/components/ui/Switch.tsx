@@ -40,7 +40,7 @@ export function Switch({ checked, onChange, rotulo, disabled = false, ocupado = 
     >
       <span
         aria-hidden="true"
-        className={`absolute size-4 rounded-full transition-transform duration-150 ease-out ${
+        className={`absolute size-4 rounded-full shadow-[var(--shadow-ctl)] transition-transform duration-200 ease-[var(--ease-saida)] ${
           checked ? 'translate-x-[1.125rem] bg-[var(--bg)]' : 'translate-x-[0.1875rem] bg-[var(--ink-lo)]'
         }`}
       />

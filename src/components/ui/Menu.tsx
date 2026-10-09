@@ -93,7 +93,13 @@ export function Menu({ rotulo, itens, gatilho, classeDoGatilho, cabecalho, lado 
           role="menu"
           aria-label={rotulo}
           onKeyDown={onKeyDown}
-          className={`absolute ${alinhar === 'esquerda' ? 'left-0' : 'right-0'} ${lado === 'cima' ? 'bottom-full mb-1' : 'top-full mt-1'} z-40 min-w-48 rounded-xl border border-[var(--line)] bg-[var(--raise)] p-1 shadow-[0_8px_24px_-8px_rgb(0_0_0/0.45)]`}
+          // O menu nasce do gatilho, não do centro: a origem da escala fica no
+          // canto que o ancora, e a entrada é curta (150ms) com fade + zoom.
+          className={`absolute ${alinhar === 'esquerda' ? 'left-0' : 'right-0'} ${lado === 'cima' ? 'bottom-full mb-1.5' : 'top-full mt-1.5'} ${
+            lado === 'cima'
+              ? alinhar === 'esquerda' ? 'origin-bottom-left' : 'origin-bottom-right'
+              : alinhar === 'esquerda' ? 'origin-top-left' : 'origin-top-right'
+          } z-40 min-w-48 rounded-2xl border border-[var(--line)] bg-[var(--raise)] p-1.5 shadow-[var(--shadow-menu)] motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 motion-safe:duration-150`}
         >
           {cabecalho && <div className="border-b border-[var(--line)] px-3 pb-2.5 pt-2 mb-1">{cabecalho}</div>}
           {itens.map((item, i) => (
@@ -104,7 +110,7 @@ export function Menu({ rotulo, itens, gatilho, classeDoGatilho, cabecalho, lado 
               role="menuitem"
               tabIndex={-1}
               onClick={() => { fechar(); item.onSelect(); }}
-              className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition-colors duration-150 cursor-pointer hover:bg-[var(--panel)] focus-visible:bg-[var(--panel)] ${
+              className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition-colors duration-150 cursor-pointer hover:bg-[var(--panel)] focus-visible:bg-[var(--panel)] ${
                 item.perigo ? 'text-[var(--sig-texto)]' : 'text-[var(--ink)] hover:text-[var(--ink-hi)]'
               }`}
             >

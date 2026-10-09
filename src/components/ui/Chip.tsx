@@ -22,7 +22,7 @@ export function Chip({ onClick, children, icone, estado, rotulo }: ChipProps) {
       type="button"
       onClick={onClick}
       aria-label={rotulo}
-      className="inline-flex h-9 max-w-full items-center gap-1 rounded-full border border-[var(--line-ctl)] px-2.5 text-sm text-[var(--ink-hi)] transition-colors duration-150 hover:bg-[var(--raise)] cursor-pointer"
+      className="inline-flex h-9 max-w-full items-center gap-1 rounded-full bg-[var(--panel)] px-3 text-sm text-[var(--ink-hi)] shadow-[var(--shadow-ctl)] transition-colors duration-150 hover:bg-[var(--raise)] cursor-pointer"
     >
       {icone && <span aria-hidden="true" className="inline-flex text-[var(--ink-lo)]">{icone}</span>}
       <span className="truncate">{children}</span>

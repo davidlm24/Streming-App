@@ -101,7 +101,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           return (
             <div
               key={t.id}
-              className="pointer-events-auto sm:w-80 flex items-start gap-3 bg-[var(--raise)] border border-[var(--line-ctl)] rounded-xl p-3.5 shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-200"
+              className="pointer-events-auto sm:w-80 flex items-start gap-3 bg-[var(--raise)] border border-[var(--line)] rounded-2xl p-3.5 shadow-[var(--shadow-float)] animate-in fade-in slide-in-from-bottom-2 duration-200"
             >
               <Icon size={16} className={`${TONE[t.kind]} shrink-0 mt-0.5`} />
               <div className="min-w-0 flex-1">

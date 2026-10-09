@@ -32,7 +32,11 @@ export function Segmentado<T extends string>({ rotulo, opcoes, valor, onChange, 
       role="group"
       aria-label={rotulo}
       aria-busy={ocupado || undefined}
-      className={`${cheia ? 'flex w-full' : 'inline-flex'} shrink-0 rounded-xl border border-[var(--line-ctl)] p-0.5`}
+      // A calha é um poço (--well), sem contorno: a opção ativa sobe dela em
+      // --raise com a sombra de controle. Antes era uma caixa de borda com a
+      // ativa pintada por dentro — a gramática de formulário que a direção
+      // soft-modern tirou dos controles.
+      className={`${cheia ? 'flex w-full' : 'inline-flex'} shrink-0 rounded-full bg-[var(--well)] p-1`}
     >
       {opcoes.map((opcao) => (
         <button
@@ -44,8 +48,8 @@ export function Segmentado<T extends string>({ rotulo, opcoes, valor, onChange, 
           onClick={() => {
             if (!ocupado) onChange(opcao.valor);
           }}
-          className={`${cheia ? 'flex-1 px-1' : 'px-3'} rounded-[10px] py-1.5 text-sm transition-colors duration-150 cursor-pointer disabled:cursor-not-allowed disabled:opacity-45 aria-disabled:cursor-progress aria-disabled:opacity-45 ${
-            valor === opcao.valor ? 'bg-[var(--raise)] text-[var(--ink-hi)]' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
+          className={`${cheia ? 'flex-1 px-1' : 'px-3'} rounded-full py-1.5 text-sm transition-colors duration-150 cursor-pointer disabled:cursor-not-allowed disabled:opacity-45 aria-disabled:cursor-progress aria-disabled:opacity-45 ${
+            valor === opcao.valor ? 'bg-[var(--raise)] text-[var(--ink-hi)] shadow-[var(--shadow-ctl)]' : 'text-[var(--ink-lo)] hover:text-[var(--ink-hi)]'
           }`}
         >
           {opcao.rotulo}

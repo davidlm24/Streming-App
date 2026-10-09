@@ -367,7 +367,7 @@ export function VirtualizedChat({
             type="submit"
             rotulo="Enviar a mensagem"
             disabled={!typedComment.trim()}
-            className="border border-[var(--line-ctl)] text-[var(--ink)] disabled:cursor-not-allowed disabled:opacity-45"
+            className="bg-[var(--raise)] text-[var(--ink)] shadow-[var(--shadow-ctl)] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
           >
             <Send size={16} aria-hidden="true" />
           </BotaoDeIcone>

@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"PwStreamer","components":[{"name":"Logo"},{"name":"Button"},{"name":"IconButton"},{"name":"TextAction"},{"name":"Menu"},{"name":"Field"},{"name":"StreamKey"},{"name":"Switch"},{"name":"Checkbox"},{"name":"Segmented"},{"name":"Slider"},{"name":"Chip"},{"name":"PlatformIcon"},{"name":"DestinationHealth"},{"name":"AppHeader"},{"name":"PageHeader"},{"name":"Section"},{"name":"ActionRow"},{"name":"Modal"},{"name":"Toast"},{"name":"EmptyState"},{"name":"Skeleton"},{"name":"EventRow"},{"name":"PlanList"},{"name":"UsageMeter"},{"name":"Registry"},{"name":"StatTile"},{"name":"ValueChart"},{"name":"StudioBar"},{"name":"OnAir"},{"name":"SceneRail"},{"name":"TransitionKeys"},{"name":"Monitor"},{"name":"NextCut"},{"name":"Tray"},{"name":"AudioMeter"},{"name":"ToolRail"},{"name":"LayoutPicker"},{"name":"StageGraphics"},{"name":"ChatMessage"},{"name":"ChatComposer"}]} */
+/* @ds-bundle: {"format":4,"namespace":"PwStreamer","components":[{"name":"Logo"},{"name":"Button"},{"name":"IconButton"},{"name":"TextAction"},{"name":"Menu"},{"name":"Field"},{"name":"StreamKey"},{"name":"Switch"},{"name":"Checkbox"},{"name":"Segmented"},{"name":"Slider"},{"name":"Chip"},{"name":"PlatformIcon"},{"name":"DestinationHealth"},{"name":"AppHeader"},{"name":"PageHeader"},{"name":"Section"},{"name":"ActionRow"},{"name":"Modal"},{"name":"Toast"},{"name":"EmptyState"},{"name":"Skeleton"},{"name":"EventRow"},{"name":"PlanList"},{"name":"UsageMeter"},{"name":"Registry"},{"name":"StatTile"},{"name":"ValueChart"},{"name":"StudioBar"},{"name":"OnAir"},{"name":"SceneRail"},{"name":"TransitionKeys"},{"name":"Monitor"},{"name":"NextCut"},{"name":"Tray"},{"name":"AudioMeter"},{"name":"ToolRail"},{"name":"LayoutPicker"},{"name":"StageGraphics"},{"name":"ChatMessage"},{"name":"ChatComposer"},{"name":"Avatar"},{"name":"Tabs"},{"name":"SearchField"},{"name":"CopyField"},{"name":"Notice"},{"name":"Stepper"},{"name":"ProgressBar"},{"name":"UploadZone"},{"name":"DataTable"},{"name":"BarChart"},{"name":"Pagination"},{"name":"ConfirmDialog"},{"name":"MemberRow"},{"name":"NotificationRow"},{"name":"SignInButton"},{"name":"Prose"},{"name":"Kbd"},{"name":"PlatformPicker"},{"name":"GuestRow"},{"name":"SourceRow"},{"name":"MediaTile"},{"name":"Teleprompter"},{"name":"Readiness"},{"name":"Countdown"},{"name":"Poll"},{"name":"StageAlert"},{"name":"Player"},{"name":"WatchHeader"},{"name":"ReactionBar"}]} */
 /* PwStreamer Live — component bundle. Classic script: reads window.React and
    window.ReactDOM, assigns window.PwStreamer. Styled by bundle.css over the
    tokens in tokens.css. Hand-written from the shipped primitives in
@@ -72,7 +72,39 @@
     square: ['M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z'],
     sun: ['M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z', 'M12 2v2', 'M12 20v2', 'm4.93 4.93 1.41 1.41', 'm17.66 17.66 1.41 1.41', 'M2 12h2', 'M20 12h2', 'm6.34 17.66-1.41 1.41', 'm19.07 4.93-1.41 1.41'],
     pencil: ['M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z', 'm15 5 4 4'],
-    clock: ['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z', 'M12 6v6l4 2']
+    clock: ['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z', 'M12 6v6l4 2'],
+    play: ['M6 3 20 12 6 21 6 3Z'],
+    pause: ['M14 4h4v16h-4z', 'M6 4h4v16H6z'],
+    volume: ['M11 5 6 9H2v6h4l5 4V5Z', 'M15.54 8.46a5 5 0 0 1 0 7.07', 'M19.07 4.93a10 10 0 0 1 0 14.14'],
+    volumeX: ['M11 5 6 9H2v6h4l5 4V5Z', 'm22 9-6 6', 'm16 9 6 6'],
+    maximize: ['M8 3H5a2 2 0 0 0-2 2v3', 'M21 8V5a2 2 0 0 0-2-2h-3', 'M3 16v3a2 2 0 0 0 2 2h3', 'M16 21h3a2 2 0 0 0 2-2v-3'],
+    sliders: ['M21 4h-7', 'M10 4H3', 'M21 12h-9', 'M8 12H3', 'M21 20h-5', 'M12 20H3', 'M14 2v4', 'M8 10v4', 'M16 18v4'],
+    upload: ['M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4', 'm17 8-5-5-5 5', 'M12 3v12'],
+    image: ['M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z', 'M9 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z', 'm21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21'],
+    bell: ['M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9', 'M10.3 21a1.94 1.94 0 0 0 3.4 0'],
+    arrowLeft: ['m12 19-7-7 7-7', 'M19 12H5'],
+    arrowUp: ['m5 12 7-7 7 7', 'M12 19V5'],
+    arrowDown: ['M12 5v14', 'm19 12-7 7-7-7'],
+    chevronUp: ['m18 15-6-6-6 6'],
+    chevronsUpDown: ['m7 15 5 5 5-5', 'm7 9 5-5 5 5'],
+    userPlus: ['M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2', 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z', 'M19 8v6', 'M22 11h-6'],
+    heart: ['M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'],
+    thumbsUp: ['M7 10v12', 'M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z'],
+    hand: ['M18 11V6a2 2 0 0 0-4 0v1', 'M14 10V4a2 2 0 0 0-4 0v2', 'M10 10.5V6a2 2 0 0 0-4 0v8', 'M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15'],
+    share: ['M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8', 'm16 6-4-4-4 4', 'M12 2v13'],
+    monitor: ['M20 3H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z', 'M8 21h8', 'M12 17v4'],
+    fileText: ['M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z', 'M14 2v4a2 2 0 0 0 2 2h4', 'M10 9H8', 'M16 13H8', 'M16 17H8'],
+    mail: ['m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7', 'M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Z'],
+    lock: ['M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Z', 'M7 11V7a5 5 0 0 1 10 0v4'],
+    minus: ['M5 12h14'],
+    barChart: ['M3 3v16a2 2 0 0 0 2 2h16', 'M18 17V9', 'M13 17V5', 'M8 17v-3'],
+    scissors: ['M6 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z', 'M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z', 'M20 4 8.12 15.88', 'M14.47 14.48 20 20', 'M8.12 8.12 12 12'],
+    globe: ['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z', 'M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20', 'M2 12h20'],
+    activity: ['M22 12h-4l-3 9L9 3l-3 9H2'],
+    video: ['m22 8-6 4 6 4V8Z', 'M14 6H3a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2Z'],
+    logIn: ['M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4', 'm10 17 5-5-5-5', 'M15 12H3'],
+    refresh: ['M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8', 'M21 3v5h-5'],
+    settings: ['M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z', 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z']
   };
   function Icon(props) {
     var size = props.size || 16;
@@ -494,14 +526,364 @@
         m.pinned && h('div', { className: 'pw-chat-msg__pin' }, I('pin', 12), 'Fixado no programa'),
         h('div', { className: 'pw-chat-msg__head' }, h('span', { className: 'pw-chat-msg__author' }, m.author), h('span', { className: 'pw-chat-msg__time' }, m.time)),
         h('p', { className: 'pw-chat-msg__text' }, m.text),
-        m.flagged && h('div', { className: 'pw-chat-msg__flag' }, I('circleAlert', 14), m.flagged, h(TextAction, { size: 'xs' }, 'Liberar'))),
-      h('div', { className: 'pw-chat-msg__actions' }, h(IconButton, { label: m.pinned ? 'Desafixar' : 'Fixar no programa', style: { width: 32, height: 32 } }, I('pin', 14)), h(Menu, { label: 'Ações da mensagem', items: [{ label: 'Responder' }, { label: 'Ocultar' }, { label: 'Banir autor', danger: true }] })));
+        m.flagged && !m.viewer && h('div', { className: 'pw-chat-msg__flag' }, I('circleAlert', 14), m.flagged, h(TextAction, { size: 'xs' }, 'Liberar'))),
+      !m.viewer && h('div', { className: 'pw-chat-msg__actions' }, h(IconButton, { label: m.pinned ? 'Desafixar' : 'Fixar no programa', style: { width: 32, height: 32 } }, I('pin', 14)), h(Menu, { label: 'Ações da mensagem', items: [{ label: 'Responder' }, { label: 'Ocultar' }, { label: 'Banir autor', danger: true }] })));
   }
   function ChatComposer(props) {
     return h('div', null, h('div', { className: 'pw-composer' },
       h('textarea', { rows: 1, placeholder: props.placeholder || 'Responder como ' + (props.author || 'você'), 'aria-label': 'Mensagem' }),
       h(Button, { icon: I('send', 14), 'aria-label': 'Enviar' }, 'Enviar')),
       props.to && h('p', { className: 'pw-composer__to' }, props.to));
+  }
+
+
+  /* ── Shell additions (intentional additions, 2026-10) ─────────────────── */
+  function Avatar(props) {
+    var initials = props.initials || (props.name || '?').split(' ').map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+    return h('span', { className: cx('pw-avatar', props.size === 'sm' && 'pw-avatar--sm', props.size === 'lg' && 'pw-avatar--lg', props.className), role: props.name ? 'img' : undefined, 'aria-label': props.name, 'aria-hidden': props.name ? undefined : 'true' },
+      props.src ? h('img', { src: props.src, alt: '' }) : initials);
+  }
+  function Tabs(props) {
+    var items = props.items || [];
+    var _s = useState(props.value || (items[0] && items[0].id)), v = props.value && props.onChange ? props.value : _s[0];
+    return h('div', { role: 'tablist', 'aria-label': props.label, className: cx('pw-tabs', props.className) }, items.map(function (t) {
+      var on = t.id === v;
+      return h('button', { key: t.id, type: 'button', role: 'tab', 'aria-selected': on, 'aria-controls': t.controls, tabIndex: on ? 0 : -1, className: 'pw-tab', onClick: function () { _s[1](t.id); props.onChange && props.onChange(t.id); } }, t.label, t.count != null && h('span', { className: 'pw-tab__count' }, t.count));
+    }));
+  }
+  function SearchField(props) {
+    var _s = useState(props.defaultValue || ''), v = props.value != null && props.onChange ? props.value : _s[0];
+    var set = function (x) { _s[1](x); props.onChange && props.onChange(x); };
+    return h('div', { className: cx('pw-search', props.className) },
+      I('search', 16, { className: 'pw-search__icon' }),
+      h('input', { type: 'search', className: 'pw-input', 'aria-label': props.label || 'Buscar', placeholder: props.placeholder || 'Buscar', value: v, onChange: function (e) { set(e.target.value); } }),
+      v ? h('button', { type: 'button', className: 'pw-search__clear', 'aria-label': 'Limpar busca', onClick: function () { set(''); } }, I('x', 14)) : null);
+  }
+  function CopyField(props) {
+    var _c = useState(false), copied = _c[0];
+    var id = useId(), multi = !!props.multiline;
+    function copy() { try { navigator.clipboard && navigator.clipboard.writeText(props.value || ''); } catch (e) {} _c[1](true); setTimeout(function () { _c[1](false); }, 1600); }
+    return h('div', { className: 'pw-field' },
+      h('label', { htmlFor: id, className: 'pw-field__label' }, h('span', null, props.label)),
+      h('div', { className: cx('pw-streamkey', multi && 'pw-streamkey--multi') },
+        h(multi ? 'textarea' : 'input', { id: id, className: 'pw-input mono', readOnly: true, value: props.value || '', rows: multi ? 3 : undefined }),
+        h(Button, { variant: 'ghost', onClick: copy, icon: I(copied ? 'check' : 'copy', 14), 'aria-live': 'polite' }, copied ? 'Copiado' : 'Copiar')),
+      props.hint && h('p', { className: 'pw-field__hint' }, props.hint));
+  }
+  var NOTICE_ICON = { info: 'info', attention: 'circleAlert', success: 'circleCheck' };
+  function Notice(props) {
+    var kind = props.kind || 'info';
+    return h('div', { role: kind === 'attention' ? 'alert' : 'status', className: cx('pw-notice', 'pw-notice--' + kind, props.className) },
+      h('span', { className: 'pw-notice__icon' }, I(NOTICE_ICON[kind] || 'info', 16)),
+      h('p', { className: 'pw-notice__text' }, props.children),
+      props.action && h(TextAction, { size: 'sm', onClick: props.action.onClick }, props.action.label),
+      props.onDismiss && h('button', { type: 'button', 'aria-label': 'Dispensar aviso', className: 'pw-notice__close', onClick: props.onDismiss }, I('x', 14)));
+  }
+  function Stepper(props) {
+    var cur = props.current || 0, steps = props.steps || [];
+    return h('ol', { className: cx('pw-stepper', props.vertical && 'pw-stepper--v'), 'aria-label': props.label || 'Etapas' }, steps.map(function (s, i) {
+      var done = i < cur, now = i === cur;
+      return h('li', { key: i, className: cx('pw-step', done && 'pw-step--done', now && 'pw-step--now'), 'aria-current': now ? 'step' : undefined },
+        h('span', { className: 'pw-step__mark', 'aria-hidden': 'true' }, done ? I('check', 12, { strokeWidth: 2.5 }) : String(i + 1)),
+        h('span', { className: 'pw-step__text' }, h('span', { className: 'pw-step__title' }, s.title), s.description && h('span', { className: 'pw-step__desc' }, s.description)),
+        h('span', { className: 'sr-only' }, done ? ': concluída' : now ? ': etapa atual' : ''));
+    }));
+  }
+  function ProgressBar(props) {
+    var pct = props.value == null ? null : Math.max(0, Math.min(100, Math.round(props.value)));
+    return h('div', { className: cx('pw-progress', props.className) },
+      h('div', { className: 'pw-progress__head' }, h('span', { className: 'pw-progress__title' }, props.label), h('span', { className: 'pw-progress__num' }, pct == null ? '' : [pct, h('small', { key: 'u' }, '%')])),
+      h('div', { className: cx('pw-progress__bar', pct == null && 'pw-progress__bar--indet'), role: 'progressbar', 'aria-label': props.label, 'aria-valuenow': pct == null ? undefined : pct, 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-busy': (pct == null || pct < 100) ? 'true' : undefined },
+        h('div', { className: 'pw-progress__fill', style: pct == null ? undefined : { width: pct + '%' } })),
+      props.note && h('p', { className: 'pw-progress__note' }, props.note));
+  }
+  function UploadZone(props) {
+    var id = useId();
+    return h('label', { htmlFor: id, className: cx('pw-upload', props.compact && 'pw-upload--compact', props.className) },
+      h('input', { id: id, type: 'file', accept: props.accept, multiple: props.multiple, className: 'sr-only', onChange: function (e) { props.onFiles && props.onFiles(Array.prototype.slice.call(e.target.files || [])); } }),
+      I('upload', 18),
+      h('span', { className: 'pw-upload__text' }, h('span', { className: 'pw-upload__title' }, props.title || 'Enviar arquivo'), props.hint && h('span', { className: 'pw-upload__hint' }, props.hint)));
+  }
+  function DataTable(props) {
+    var cols = props.columns || [], rows = props.rows || [];
+    var _s = useState(props.sort || null), sort = _s[0];
+    var sorted = rows;
+    if (sort) sorted = rows.slice().sort(function (a, b) { var x = a[sort.key], y = b[sort.key]; var r = typeof x === 'number' && typeof y === 'number' ? x - y : String(x == null ? '' : x).localeCompare(String(y == null ? '' : y), 'pt-BR'); return sort.dir === 'desc' ? -r : r; });
+    return h('div', { className: cx('pw-tablewrap', props.className) },
+      h('table', { className: cx('pw-table', props.dense && 'pw-table--dense') },
+        props.label && h('caption', { className: 'sr-only' }, props.label),
+        h('thead', null, h('tr', null, cols.map(function (c) {
+          var on = sort && sort.key === c.key, dir = on ? sort.dir : null;
+          var inner = c.sortable ? h('button', { type: 'button', className: 'pw-table__sort', onClick: function () { _s[1]({ key: c.key, dir: on && dir === 'asc' ? 'desc' : 'asc' }); } }, c.label, I(on ? (dir === 'asc' ? 'arrowUp' : 'arrowDown') : 'chevronsUpDown', 12)) : c.label;
+          return h('th', { key: c.key, scope: 'col', className: cx(c.align === 'right' && 'num'), 'aria-sort': on ? (dir === 'asc' ? 'ascending' : 'descending') : undefined }, inner);
+        }))),
+        h('tbody', null, sorted.length === 0
+          ? h('tr', null, h('td', { colSpan: cols.length, className: 'pw-table__empty' }, props.empty || 'Nada por aqui.'))
+          : sorted.map(function (r, i) {
+            return h('tr', { key: r.id != null ? r.id : i }, cols.map(function (c, k) {
+              var v = c.render ? c.render(r) : r[c.key];
+              return h(k === 0 ? 'th' : 'td', { key: c.key, scope: k === 0 ? 'row' : undefined, className: cx(c.align === 'right' && 'num', c.mono && 'mono', k === 0 && 'pw-table__first') }, v == null ? '—' : v);
+            }));
+          }))));
+  }
+  function BarChart(props) {
+    var items = props.items || [], unit = props.unit;
+    var max = props.max || Math.max.apply(null, items.map(function (i) { return i.value || 0; }).concat([1]));
+    var top = Math.max.apply(null, items.map(function (i) { return i.value || 0; }).concat([0]));
+    return h('div', { className: cx('pw-bars', props.className), role: 'img', 'aria-label': (props.title ? props.title + ': ' : '') + items.map(function (i) { return i.label + ' ' + i.value + (unit ? ' ' + unit : ''); }).join(', ') },
+      props.title && h('div', { className: 'pw-chart__head' }, h('span', { className: 'pw-chart__title' }, props.title)),
+      items.map(function (it, k) {
+        var pct = Math.max(0, Math.min(100, (it.value || 0) / max * 100));
+        return h('div', { key: k, className: cx('pw-bar', it.value === top && top > 0 && 'pw-bar--top') },
+          h('span', { className: 'pw-bar__label' }, it.platform && h(PlatformIcon, { platform: it.platform, size: 14 }), h('span', null, it.label)),
+          h('span', { className: 'pw-bar__track' }, h('span', { className: 'pw-bar__fill', style: { width: pct + '%' } })),
+          h('span', { className: 'pw-bar__num' }, props.format ? props.format(it.value) : it.value, unit && h('small', null, ' ' + unit)));
+      }));
+  }
+  function Pagination(props) {
+    var page = props.page || 1, total = props.pages || 1;
+    return h('nav', { 'aria-label': 'Páginas', className: cx('pw-pagination', props.className) },
+      h('span', { className: 'pw-pagination__info tabular' }, props.info || ('Página ' + page + ' de ' + total)),
+      h('div', { className: 'pw-pagination__ctl' },
+        h(Button, { variant: 'ghost', size: 'sm', disabled: page <= 1, icon: I('chevronLeft', 14), onClick: function () { props.onChange && props.onChange(page - 1); } }, 'Anterior'),
+        h(Button, { variant: 'ghost', size: 'sm', disabled: page >= total, onClick: function () { props.onChange && props.onChange(page + 1); } }, 'Próxima', I('chevronRight', 14))));
+  }
+  function ConfirmDialog(props) {
+    var cancelRef = useRef(null);
+    useEffect(function () { if (cancelRef.current && cancelRef.current.focus) cancelRef.current.focus(); }, []);
+    return h(Modal, { title: props.title, description: props.description, size: 'sm', inline: props.inline, onClose: props.onCancel, busy: props.busy,
+      footer: [
+        h(Button, { key: 'c', ref: cancelRef, variant: 'ghost', disabled: props.busy, onClick: props.onCancel }, props.cancelLabel || 'Cancelar'),
+        h(Button, { key: 'ok', variant: props.destructive ? 'danger' : 'primary', loading: props.busy, onClick: props.onConfirm }, props.confirmLabel)] },
+      props.children);
+  }
+  var ROLE_WORD = { owner: 'Dona da conta', admin: 'Administra', operator: 'Opera o estúdio', viewer: 'Só vê' };
+  function MemberRow(props) {
+    var m = props;
+    var roleEl = h('span', { className: 'pw-member__role' }, ROLE_WORD[m.role] || m.role, m.onRole && m.role !== 'owner' && I('chevronDown', 12));
+    return h('div', { className: cx('pw-member', m.pending && 'pw-member--pending'), role: 'row', 'aria-label': m.name + ', ' + (ROLE_WORD[m.role] || m.role) + (m.pending ? ', convite enviado' : '') },
+      h(Avatar, { name: m.name, initials: m.initials, src: m.avatar }),
+      h('div', { className: 'pw-member__text' },
+        h('span', { className: 'pw-member__name' }, m.name, m.you && h('span', { className: 'ink-lo', style: { fontWeight: 400 } }, ' · você')),
+        h('span', { className: 'pw-member__meta' }, m.pending ? [I('circleAlert', 12, { key: 'i' }), ' Convite enviado para ', m.email] : m.email)),
+      h('div', { className: 'pw-member__side' },
+        m.onRole && m.role !== 'owner'
+          ? h(Menu, { label: 'Papel de ' + m.name, trigger: roleEl, triggerClassName: 'pw-member__rolebtn', items: ['admin', 'operator', 'viewer'].map(function (k) { return { label: ROLE_WORD[k], icon: k === m.role ? I('check', 14) : h('span', { style: { width: 14, display: 'inline-block' } }), onSelect: function () { m.onRole(k); } }; }) })
+          : roleEl,
+        m.menu && h(Menu, { label: 'Ações de ' + m.name, items: m.menu })));
+  }
+  function NotificationRow(props) {
+    var n = props;
+    return h('div', { className: cx('pw-notif', n.unread && 'pw-notif--unread'), role: 'row', 'aria-label': n.title + (n.unread ? ' (não lida)' : '') },
+      h('span', { className: 'pw-notif__icon' }, n.platform ? h(PlatformIcon, { platform: n.platform, size: 16 }) : I(n.icon || 'bell', 16)),
+      h('div', { className: 'pw-notif__text' }, h('span', { className: 'pw-notif__title' }, n.title), n.detail && h('span', { className: 'pw-notif__detail' }, n.detail)),
+      h('div', { className: 'pw-notif__side' }, h('span', { className: 'pw-notif__time' }, n.time), n.action && h(TextAction, { size: 'xs', onClick: n.action.onClick }, n.action.label)));
+  }
+  function GoogleG(props) {
+    var s = props.size || 18;
+    return h('svg', { width: s, height: s, viewBox: '0 0 48 48', 'aria-hidden': 'true' },
+      h('path', { fill: '#EA4335', d: 'M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z' }),
+      h('path', { fill: '#4285F4', d: 'M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z' }),
+      h('path', { fill: '#FBBC05', d: 'M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z' }),
+      h('path', { fill: '#34A853', d: 'M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z' }));
+  }
+  function SignInButton(props) {
+    return h(Button, { variant: 'ghost', size: 'lg', loading: props.loading, onClick: props.onClick, className: cx('pw-signin', props.className), icon: h(GoogleG, { size: 18 }) }, props.children || 'Entrar com o Google');
+  }
+  function Prose(props) { return h('div', { className: cx('pw-prose', props.className) }, props.children); }
+  function Kbd(props) { return h('kbd', { className: 'pw-kbd' }, props.children); }
+  var PLATFORMS = [
+    { id: 'youtube', name: 'YouTube' }, { id: 'twitch', name: 'Twitch' }, { id: 'facebook', name: 'Facebook' }, { id: 'instagram', name: 'Instagram' },
+    { id: 'linkedin', name: 'LinkedIn' }, { id: 'tiktok', name: 'TikTok' }, { id: 'kick', name: 'Kick' }, { id: 'x', name: 'X' }, { id: 'rumble', name: 'Rumble' },
+    { id: 'rtmp', name: 'Servidor RTMP', note: 'qualquer destino com servidor e chave' }
+  ];
+  function PlatformPicker(props) {
+    var _s = useState(props.value || null), v = props.value && props.onChange ? props.value : _s[0];
+    var list = props.platforms || PLATFORMS, connected = props.connected || [];
+    return h('div', { role: 'group', 'aria-label': props.label || 'Plataforma', className: cx('pw-platforms', props.list && 'pw-platforms--list', props.className) }, list.map(function (p) {
+      var on = v === p.id, has = connected.indexOf(p.id) >= 0;
+      return h('button', { key: p.id, type: 'button', 'aria-pressed': on, className: 'pw-platforms__item', onClick: function () { _s[1](p.id); props.onChange && props.onChange(p.id); } },
+        h(PlatformTile, { platform: p.id }),
+        h('span', { className: 'pw-platforms__text' }, h('span', { className: 'pw-platforms__name' }, p.name), (has || p.note) && h('span', { className: 'pw-platforms__meta' }, has ? 'já conectado' : p.note)));
+    }));
+  }
+
+  /* ── Studio additions ─────────────────────────────────────────────────── */
+  var GUEST_WORD = { waiting: 'na sala de espera', stage: 'no palco', invited: 'convite enviado', left: 'saiu' };
+  function GuestRow(props) {
+    var g = props, onStage = g.state === 'stage', word = GUEST_WORD[g.state] || g.state;
+    return h('div', { className: cx('pw-guest', onStage && 'pw-guest--stage', g.state === 'waiting' && 'pw-guest--waiting'), role: 'row', 'aria-label': g.name + ': ' + word },
+      h(Avatar, { name: g.name, initials: g.initials }),
+      h('div', { className: 'pw-guest__text' },
+        h('span', { className: 'pw-guest__name' }, g.name),
+        h('span', { className: 'pw-guest__state' }, g.state === 'waiting' && I('circleAlert', 12), word, g.since && [' · ', h('span', { key: 't', className: 'mono' }, g.since)])),
+      (g.state === 'waiting' || onStage) && h('span', { className: 'pw-guest__av', 'aria-hidden': 'true' },
+        I(g.mic === false ? 'micOff' : 'mic', 14, { className: g.mic === false ? 'ink-lo' : 'ink-hi' }),
+        I(g.camera === false ? 'cameraOff' : 'camera', 14, { className: g.camera === false ? 'ink-lo' : 'ink-hi' })),
+      h('div', { className: 'pw-guest__side' },
+        g.state === 'waiting' && h(Button, { size: 'sm', variant: 'ghost', onClick: g.onAdmit }, 'Admitir ao palco'),
+        onStage && h(Button, { size: 'sm', variant: 'ghost', onClick: g.onRemove }, 'Tirar do palco'),
+        g.state === 'invited' && h(TextAction, { size: 'xs', onClick: g.onResend }, 'Reenviar convite'),
+        g.menu && h(Menu, { label: 'Ações de ' + g.name, items: g.menu })));
+  }
+  var SOURCE_ICON = { camera: 'camera', screen: 'monitor', media: 'film', guest: 'users', rtmp: 'server', image: 'image', audio: 'mic' };
+  function SourceRow(props) {
+    var s = props;
+    return h('div', { className: cx('pw-source', s.live && 'pw-source--live', s.missing && 'pw-source--missing'), role: 'row', 'aria-label': s.name + (s.missing ? ': ' + s.missing : s.live ? ': no programa' : '') },
+      h('span', { className: 'pw-source__icon' }, I(SOURCE_ICON[s.type] || 'square', 16)),
+      h('div', { className: 'pw-source__text' },
+        h('span', { className: 'pw-source__name' }, s.name),
+        h('span', { className: 'pw-source__meta' }, s.missing ? [I('circleAlert', 12, { key: 'i' }), ' ', s.missing] : s.live ? 'no programa' : s.meta)),
+      h('div', { className: 'pw-source__side' },
+        s.onToggle && h(Switch, { checked: !!s.visible, onChange: s.onToggle, label: 'Mostrar ' + s.name, disabled: !!s.missing }),
+        s.menu && h(Menu, { label: 'Ações de ' + s.name, items: s.menu })));
+  }
+  function MediaTile(props) {
+    var m = props;
+    return h('button', { type: 'button', className: cx('pw-media', m.selected && 'pw-media--on', m.processing && 'pw-media--proc'), 'aria-pressed': m.onSelect ? !!m.selected : undefined, 'aria-busy': m.processing || undefined, onClick: m.onSelect, 'aria-label': m.name + (m.duration ? ', ' + m.duration : '') + (m.processing ? ', processando' : '') },
+      h('span', { className: 'pw-media__thumb', style: m.src ? { backgroundImage: 'url(' + m.src + ')' } : undefined },
+        !m.src && I(m.kind === 'image' ? 'image' : m.kind === 'audio' ? 'mic' : 'film', 18),
+        m.duration && h('span', { className: 'pw-media__dur' }, m.duration)),
+      h('span', { className: 'pw-media__name' }, m.name),
+      h('span', { className: 'pw-media__meta' }, m.processing ? 'Processando' : m.meta));
+  }
+  function MediaGrid(props) { return h('div', { className: cx('pw-mediagrid', props.className), role: 'group', 'aria-label': props.label }, props.children); }
+  function Teleprompter(props) {
+    var _p = useState(!!props.playing), playing = _p[0];
+    var _s = useState(props.speed || 3), speed = _s[0];
+    var _m = useState(!!props.mirror), mirror = _m[0];
+    var lines = (props.text || '').split('\n');
+    return h('div', { className: cx('pw-prompter', props.className) },
+      h('div', { className: 'pw-prompter__ctl' },
+        h(Button, { variant: 'ghost', size: 'sm', 'aria-pressed': playing, icon: I(playing ? 'pause' : 'play', 14), onClick: function () { _p[1](!playing); } }, playing ? 'Pausar' : 'Rolar'),
+        h('label', { className: 'pw-prompter__speed' }, h('span', { className: 'label ink-lo' }, 'Velocidade'), h('span', { className: 'mono ink-hi' }, speed),
+          h('input', { type: 'range', className: 'pw-slider', min: 1, max: 10, value: speed, 'aria-label': 'Velocidade do roteiro', onChange: function (e) { _s[1](Number(e.target.value)); } })),
+        h(Button, { variant: 'ghost', size: 'sm', 'aria-pressed': mirror, onClick: function () { _m[1](!mirror); } }, 'Espelhar')),
+      h('div', { className: cx('pw-prompter__view', mirror && 'pw-prompter__view--mirror') },
+        h('div', { className: cx('pw-prompter__text', playing && 'pw-prompter__text--roll'), style: { animationDuration: Math.round(60 / speed) + 's' } }, lines.map(function (l, i) { return h('p', { key: i }, l || ' '); })),
+        h('i', { className: 'pw-prompter__line', 'aria-hidden': 'true' })));
+  }
+  var READY_WORD = { ok: 'pronto', pending: 'falta', busy: 'verificando', off: 'desligado' };
+  function Readiness(props) {
+    var items = props.items || [];
+    var missing = items.filter(function (i) { return i.state === 'pending'; }).length;
+    return h('div', { className: cx('pw-ready', props.className) },
+      h('ul', { className: 'pw-ready__list', 'aria-label': props.label || 'Antes de ir ao ar' }, items.map(function (it, i) {
+        var st = it.state || 'ok';
+        return h('li', { key: i, className: cx('pw-ready__item', st === 'pending' && 'pw-ready__item--hi'), 'aria-busy': st === 'busy' || undefined },
+          h('span', { className: 'pw-ready__mark', 'aria-hidden': 'true' }, st === 'ok' ? I('check', 14) : st === 'busy' ? I('loader', 14, { className: 'pw-spin' }) : st === 'off' ? I('minus', 14) : I('circleAlert', 14)),
+          h('span', { className: 'pw-ready__text' }, h('span', { className: 'pw-ready__title' }, it.title), h('span', { className: 'pw-ready__detail' }, it.detail || READY_WORD[st])),
+          it.action && h(TextAction, { size: 'xs', onClick: it.action.onClick }, it.action.label));
+      })),
+      h('p', { className: cx('pw-ready__sum', missing && 'ink-hi') }, missing ? (missing === 1 ? '1 item falta antes de ir ao ar.' : missing + ' itens faltam antes de ir ao ar.') : 'Tudo pronto para ir ao ar.'));
+  }
+  function Countdown(props) {
+    var _r = useState(props.seconds || 0), left = _r[0];
+    useEffect(function () { _r[1](props.seconds || 0); }, [props.seconds]);
+    useEffect(function () {
+      if (!props.running) return;
+      var t = setInterval(function () { _r[1](function (x) { return x > 0 ? x - 1 : 0; }); }, 1000);
+      return function () { clearInterval(t); };
+    }, [props.running]);
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    if (props.cue) return h('div', { className: cx('pw-count pw-count--cue', props.className), role: 'timer', 'aria-live': 'assertive', 'aria-label': left ? 'Ir ao ar em ' + left : 'No ar' },
+      h('span', { className: 'pw-count__cue' }, left ? String(left) : 'Ar'),
+      h('span', { className: 'pw-count__label' }, left ? 'Ir ao ar em' : 'No ar'));
+    var d = Math.floor(left / 86400), hh = Math.floor(left % 86400 / 3600), mm = Math.floor(left % 3600 / 60), ss = left % 60;
+    var parts = [];
+    if (d) parts.push([String(d), d === 1 ? 'dia' : 'dias']);
+    parts.push([pad(hh), 'h'], [pad(mm), 'min'], [pad(ss), 's']);
+    return h('div', { className: cx('pw-count', props.className), role: 'timer', 'aria-label': (props.label ? props.label + ' ' : '') + parts.map(function (p) { return p[0] + ' ' + p[1]; }).join(' ') },
+      props.label && h('span', { className: 'pw-count__label' }, props.label),
+      h('span', { className: 'pw-count__digits', 'aria-hidden': 'true' }, parts.map(function (p, i) { return h('span', { key: i, className: 'pw-count__part' }, h('span', { className: 'pw-count__n' }, p[0]), h('span', { className: 'pw-count__u' }, p[1])); })));
+  }
+  function Poll(props) {
+    var p = props, opts = p.options || [];
+    var total = opts.reduce(function (a, o) { return a + (o.votes || 0); }, 0);
+    var top = Math.max.apply(null, opts.map(function (o) { return o.votes || 0; }).concat([0]));
+    var _v = useState(p.voted != null ? p.voted : null), voted = _v[0];
+    var showResults = p.results || voted != null || p.closed || p.operator;
+    var state = p.closed ? 'Encerrada' : p.live ? 'No ar' : 'Rascunho';
+    return h('div', { className: cx('pw-poll', props.className), role: 'group', 'aria-label': p.question },
+      h('div', { className: 'pw-poll__head' }, h('span', { className: 'pw-poll__q' }, p.question), h('span', { className: 'pw-poll__meta' }, state, ' · ', h('span', { className: 'mono' }, total), total === 1 ? ' voto' : ' votos')),
+      h('ul', { className: 'pw-poll__opts' }, opts.map(function (o, i) {
+        var pct = total ? Math.round((o.votes || 0) / total * 100) : 0;
+        if (showResults) return h('li', { key: i, className: cx('pw-poll__opt pw-poll__opt--res', top > 0 && o.votes === top && 'pw-poll__opt--top', voted === i && 'pw-poll__opt--mine') },
+          h('span', { className: 'pw-poll__fill', style: { width: pct + '%' }, 'aria-hidden': 'true' }),
+          h('span', { className: 'pw-poll__label' }, voted === i && I('check', 14), o.label, voted === i && h('span', { className: 'sr-only' }, ' (seu voto)')),
+          h('span', { className: 'pw-poll__pct' }, pct, h('small', null, '%')));
+        return h('li', { key: i, className: 'pw-poll__opt' }, h('button', { type: 'button', className: 'pw-poll__vote', onClick: function () { _v[1](i); p.onVote && p.onVote(i); } }, o.label));
+      })),
+      p.operator && h('div', { className: 'pw-poll__ctl' },
+        !p.live && !p.closed && h(Button, { variant: 'ghost', size: 'sm', onClick: p.onStart }, 'Lançar no chat'),
+        p.live && h(Button, { variant: 'ghost', size: 'sm', onClick: p.onClose }, 'Encerrar enquete'),
+        p.live && h(TextAction, { size: 'xs', onClick: p.onStage }, p.onStageLabel || 'Mostrar no programa')));
+  }
+  function StageAlert(props) {
+    return h('div', { className: cx('pw-g pw-g--tr pw-g-alert', props.className), role: 'status' },
+      h('span', { className: 'pw-g-alert__icon' }, props.platform ? h(PlatformIcon, { platform: props.platform, size: 14 }) : I(props.icon || 'bell', 14)),
+      h('span', { className: 'pw-g-alert__text' }, h('span', { className: 'pw-g-alert__t' }, props.title), props.detail && h('span', { className: 'pw-g-alert__d' }, props.detail)));
+  }
+
+  /* ── Viewer page ──────────────────────────────────────────────────────── */
+  function fmtTime(s) { s = Math.max(0, Math.round(s || 0)); var hh = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), r = s % 60; return (hh ? hh + ':' + (m < 10 ? '0' : '') : '') + m + ':' + (r < 10 ? '0' : '') + r; }
+  function Player(props) {
+    var p = props, mode = p.mode || 'live';
+    var _pl = useState(p.playing !== false), playing = _pl[0];
+    var _mu = useState(!!p.muted), muted = _mu[0];
+    var pct = mode === 'vod' && p.duration ? Math.min(100, (p.position || 0) / p.duration * 100) : 100;
+    var waiting = mode === 'upcoming' || mode === 'ended';
+    return h('div', { className: cx('pw-player', p.className), 'data-theme': 'console', style: p.style },
+      h('div', { className: 'pw-player__pic' },
+        waiting
+          ? h('div', { className: 'pw-player__wait' },
+            h('span', { className: 'pw-player__wait-t' }, mode === 'ended' ? 'A transmissão terminou.' : p.title),
+            mode === 'upcoming' && p.startsAt && h('span', { className: 'pw-player__wait-s' }, 'Começa ', p.startsAt),
+            mode === 'ended' && p.onReplay && h(TextAction, { onClick: p.onReplay, icon: I('play', 12) }, 'Ver a gravação'))
+          : h(Stage, { layout: p.layout || 'camera' }, p.children)),
+      !waiting && h('div', { className: 'pw-player__bar' },
+        h('div', { className: 'pw-player__track', role: mode === 'vod' ? 'slider' : undefined, 'aria-label': mode === 'vod' ? 'Posição' : undefined, 'aria-valuenow': mode === 'vod' ? Math.round(p.position || 0) : undefined, 'aria-valuemin': mode === 'vod' ? 0 : undefined, 'aria-valuemax': mode === 'vod' ? Math.round(p.duration || 0) : undefined, 'aria-valuetext': mode === 'vod' ? fmtTime(p.position) + ' de ' + fmtTime(p.duration) : undefined, tabIndex: mode === 'vod' ? 0 : undefined },
+          h('span', { className: 'pw-player__fill', style: { width: pct + '%' } }),
+          mode === 'vod' && p.duration && (p.chapters || []).map(function (c, i) { return h('i', { key: i, className: 'pw-player__chap', style: { left: (c.at / p.duration * 100) + '%' }, title: c.title }); })),
+        h('div', { className: 'pw-player__ctl' },
+          h(IconButton, { label: playing ? 'Pausar' : 'Reproduzir', className: 'pw-player__btn', onClick: function () { _pl[1](!playing); p.onPlay && p.onPlay(!playing); } }, I(playing ? 'pause' : 'play', 18)),
+          h(IconButton, { label: muted ? 'Ativar o som' : 'Silenciar', className: 'pw-player__btn', onClick: function () { _mu[1](!muted); p.onMute && p.onMute(!muted); } }, I(muted ? 'volumeX' : 'volume', 18)),
+          mode === 'live'
+            ? h('span', { className: 'pw-player__live' }, h('span', { className: 'pw-live' }, 'AO VIVO'), p.viewers != null && h('span', { className: 'pw-player__viewers' }, h('span', { className: 'mono' }, p.viewers), ' assistindo'))
+            : h('span', { className: 'pw-player__time' }, fmtTime(p.position), h('span', { className: 'ink-lo' }, ' / ', fmtTime(p.duration))),
+          h('span', { className: 'pw-player__grow' }),
+          p.quality && h(Menu, { label: 'Qualidade', side: 'up', trigger: h('span', { className: 'pw-player__q' }, p.quality, I('chevronUp', 12)), triggerClassName: 'pw-player__qbtn', items: (p.qualities || ['Auto', '1080p', '720p', '480p']).map(function (q) { return { label: q, icon: q === p.quality ? I('check', 14) : h('span', { style: { width: 14, display: 'inline-block' } }), onSelect: function () { p.onQuality && p.onQuality(q); } }; }) }),
+          h(IconButton, { label: 'Tela cheia', className: 'pw-player__btn', onClick: p.onFullscreen }, I('maximize', 18)))));
+  }
+  function WatchHeader(props) {
+    var p = props, state = p.live ? 'live' : p.ended ? 'ended' : 'upcoming';
+    return h('header', { className: cx('pw-watch', props.className) },
+      h('div', { className: 'pw-watch__row' },
+        state === 'live' && h('span', { className: 'pw-live' }, 'AO VIVO'),
+        h('span', { className: 'pw-watch__state' },
+          state === 'live' ? (p.viewers != null ? [h('span', { key: 'v', className: 'mono' }, p.viewers), ' assistindo agora'] : 'Agora')
+            : state === 'ended' ? ['Transmitido ', p.when]
+            : ['Começa ', p.when, p.time && [' às ', h('span', { key: 't', className: 'mono' }, p.time)]])),
+      h('h1', { className: 'pw-watch__title' }, p.title),
+      p.host && h('div', { className: 'pw-watch__host' }, h(Avatar, { name: p.host, initials: p.hostInitials, size: 'sm' }), h('span', { className: 'pw-watch__hostname' }, p.host), p.hostNote && h('span', { className: 'ink-lo' }, ' · ', p.hostNote)),
+      p.description && h('p', { className: 'pw-watch__desc' }, p.description),
+      h('div', { className: 'pw-watch__actions' },
+        state === 'upcoming' && (p.registered
+          ? h(Button, { size: 'lg', variant: 'ghost', icon: I('check', 16), onClick: p.onRegister }, 'Inscrição confirmada')
+          : h(Button, { size: 'lg', icon: I('calendar', 16), onClick: p.onRegister }, 'Inscrever-se')),
+        state === 'ended' && p.onReplay && h(Button, { size: 'lg', icon: I('play', 16), onClick: p.onReplay }, 'Ver a gravação'),
+        h(TextAction, { icon: I('share', 12), onClick: p.onShare }, 'Compartilhar'),
+        p.platforms && p.platforms.length > 0 && h('span', { className: 'pw-watch__also' }, 'Também em ', p.platforms.map(function (pl) { return h('span', { key: pl, className: 'pw-watch__pl', title: pl }, h(PlatformIcon, { platform: pl, size: 14 })); }))));
+  }
+  var REACTIONS = [{ id: 'like', icon: 'thumbsUp', label: 'Curtir' }, { id: 'love', icon: 'heart', label: 'Amei' }, { id: 'hand', icon: 'hand', label: 'Levantar a mão' }];
+  function ReactionBar(props) {
+    var counts = props.counts || {};
+    var _m = useState(props.mine || null), mine = _m[0];
+    return h('div', { className: cx('pw-reactions', props.className), role: 'group', 'aria-label': 'Reações' }, (props.reactions || REACTIONS).map(function (r) {
+      var on = mine === r.id;
+      return h('button', { key: r.id, type: 'button', className: cx('pw-reaction', on && 'pw-reaction--on'), 'aria-pressed': on, 'aria-label': r.label + (counts[r.id] != null ? ', ' + counts[r.id] : ''), onClick: function () { _m[1](on ? null : r.id); props.onReact && props.onReact(r.id, !on); } },
+        I(r.icon, 16), counts[r.id] != null && h('span', { className: 'pw-reaction__n' }, counts[r.id]));
+    }));
   }
 
   window.PwStreamer = {
@@ -515,6 +897,11 @@
     StatTile: StatTile, Stats: Stats, ValueChart: ValueChart,
     StudioBar: StudioBar, OnAir: OnAir, SceneRail: SceneRail, TransitionKeys: TransitionKeys, Monitor: Monitor, Stage: Stage, Guides: Guides, NextCut: NextCut, Tray: Tray, AudioMeter: AudioMeter, ToolRail: ToolRail, LayoutPicker: LayoutPicker, StageGraphics: StageGraphics,
     ChatMessage: ChatMessage, ChatComposer: ChatComposer,
-    LAYOUTS: LAYOUTS, TOOLS: TOOLS
+    Avatar: Avatar, Tabs: Tabs, SearchField: SearchField, CopyField: CopyField, Notice: Notice, Stepper: Stepper, ProgressBar: ProgressBar, UploadZone: UploadZone,
+    DataTable: DataTable, BarChart: BarChart, Pagination: Pagination, ConfirmDialog: ConfirmDialog, MemberRow: MemberRow, NotificationRow: NotificationRow,
+    SignInButton: SignInButton, GoogleG: GoogleG, Prose: Prose, Kbd: Kbd, PlatformPicker: PlatformPicker,
+    GuestRow: GuestRow, SourceRow: SourceRow, MediaTile: MediaTile, MediaGrid: MediaGrid, Teleprompter: Teleprompter, Readiness: Readiness, Countdown: Countdown, Poll: Poll, StageAlert: StageAlert,
+    Player: Player, WatchHeader: WatchHeader, ReactionBar: ReactionBar,
+    LAYOUTS: LAYOUTS, TOOLS: TOOLS, PLATFORMS: PLATFORMS, REACTIONS: REACTIONS
   };
 })();

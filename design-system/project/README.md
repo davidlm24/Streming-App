@@ -1,6 +1,6 @@
-PwStreamer is a browser studio that puts one live on every channel at once. This system is the product's visual grammar, mined from the shipped code (`src/index.css`, `DESIGN.md`, the `ui/` primitives and the studio console) and extended to the full surface a multistreaming product needs: destinations, going on air, stream health, chat from every platform, recordings, analytics, scheduling, guests, teams and billing.
+PwStreamer is a browser studio that puts one live on every channel at once. This system is the product's visual grammar, mined from the shipped code (`src/index.css`, `DESIGN.md`, the `ui/` primitives and the studio console) and extended to the full surface a multistreaming product needs: destinations, going on air, stream health, chat from every platform, recordings, analytics, scheduling, guests, teams, billing, and the public page where people watch.
 
-Its creative north star is **the launcher and the desk**. Outside the studio the app is a launcher: every screen has one action, and the rest is state, set on a narrow column over an 18-step navy ramp in Poppins. Inside the studio it is a cutting desk: program and preview, scenes, keys, meters, a chat and a tray, always dark, with instrument numbers in mono. Colour is scarce on purpose: **the brand blue fills the one action on the screen, and carmine means ON AIR.** Everything else, including "on", "selected", "current", "healthy" and "degraded", climbs or descends the neutral ramp and is said by an icon and a word.
+Its creative north star is **the launcher and the desk, soft-modern**. Outside the studio the app is a launcher: every screen has one action, and the rest is state, set on a narrow column over an 18-step navy ramp in Inter. Inside the studio it is a cutting desk: program and preview, scenes, keys, meters, a chat and a tray, always dark, with instrument numbers in mono — but the desk is upholstered, not industrial: generous radii, tonal controls separated by light instead of outlines, and four quiet shadow roles. Colour is scarce on purpose: **the brand blue fills the one action on the screen, and carmine means ON AIR.** Everything else, including "on", "selected", "current", "healthy" and "degraded", climbs or descends the neutral ramp and is said by an icon and a word.
 
 ## Content fundamentals
 
@@ -18,7 +18,7 @@ Use roles (`var(--ink)`, `var(--raise)`), never primitives (`n-*`) or raw hex in
 
 - **Grounds.** Page in `bg`. Fields and sunken wells in `well`. Dialogs, the studio bar and tray in `surface`. One step up for what is chosen or hovered: `panel` for hover, `raise` for the chosen/active/pressed thing and for anything that floats (menu, toast).
 - **Ink.** `ink-hi` for titles, names, the current item and anything that needs attention (a pending destination, a field error, the meter near the limit). `ink` for body. `ink-lo` for descriptions, hints and the metadata line. `ink-dim` only for placeholders and the unchecked box border, never under 12px.
-- **Structure is a 1px line** in `line`, never a card, never a shadow at rest. Controls with an outline use `line-ctl` (a known contrast debt inherited from the source, kept exact and noted on the token).
+- **Structure is a 1px line** in `line`, never a card: sections, lists and region borders stay hairline. **Controls are tonal**: they sit on a fill from the ramp (`well` sunken, `panel`/`raise` lifted) with the shadow of their role instead of a 1px outline. Form fields keep the solid `line-ctl` border — that is the field's grammar (a known contrast debt inherited from the source, kept exact and noted on the token).
 - **The single-voice rule.** One screen, one coloured area: the primary `Button` in `brand-deep` with `on-brand` text. "On", "selected", "current", "ready" are said on the ramp: the switch on is full `ink-hi`, the active segment and the chosen row rise to `raise`, the current destination gets a 2px `ink-hi` underline. A screen that shows something you cannot do yet (plans before checkout) has no primary and therefore no colour.
 - **The air rule.** `sig` is ON AIR: the program frame while live, the LIVE pill in the studio bar, the danger button that ends a transmission or deletes something. It never means warning, error, pending, recording or decoration, and it never enters a chart. A field error is `ink-hi` with an icon. A destination that dropped rises to `ink-hi` with an alert icon and the word "caiu".
 - **The focus ring** is `focus` (brand-lift), 2px solid, offset 2px, 4px corner, on every surface, in every theme. It is the one exception to the single voice.
@@ -29,7 +29,7 @@ Use roles (`var(--ink)`, `var(--raise)`), never primitives (`n-*`) or raw hex in
 
 ## Typography
 
-Poppins, hosted by Google Fonts, in four sizes and three weights; the system mono stack for measures. Contrast comes from size and ink, not colour.
+Inter, hosted by Google Fonts, in four sizes and up to four weights, carries every working label; Poppins survives only inside the logo (`display` family) as the brand's voice; the system mono stack for measures. Contrast comes from size and ink, not colour.
 
 - `display` once per screen: the page h1 or the next live's title. `title` for sections, dialogs and the on-air session. `abertura` for the one sentence under a home h1.
 - `body` is the working size; `body-strong` for names and field labels; `label` for the metadata line under a name, states, hints, errors, monitor labels and tool captions; `price` for money.
@@ -47,10 +47,10 @@ Poppins, hosted by Google Fonts, in four sizes and three weights; the system mon
 
 ## Shape, depth and motion
 
-- Controls are rounded (`radius-xl` for buttons, fields, rows and keys; `radius-md` inside dense and segmented controls; `radius-2xl` for dialogs; `radius-full` for chips, switches and the LIVE pill). The checkbox is 20px with `radius-check`. Structure, monitors, the next-cut box, the meter and every stage graphic are square: a desk is square.
-- Solid borders on every outlined control; a dashed border means "add" and nothing else, so a pending item never reads as an empty slot.
-- Flat floor: nothing at rest casts a shadow. `shadow-menu` on the anchored menu, `shadow-float` on dialogs, toasts and the camera card over the stage.
-- One moment of motion per page: a newly connected destination's chip slides in once; the outline slides over the home capture; the outgoing program fades in a Fusão (`dissolve`, 400ms). Dialogs enter with `enter` + `ease-enter` only through `Modal`. Buttons animate only `filter` (`tap`). A success mark scales once (`confirm`) and stops. Under `prefers-reduced-motion` everything becomes a cut and the ticker stands still.
+- Controls are rounded (`radius-xl` for buttons, fields, rows and keys; `radius-2xl` for the next-cut box, menus and toasts; `radius-3xl` for dialogs; `radius-full` for chips, switches, the segmented control, the meter track and the LIVE pill). The checkbox is 20px with `radius-check`. Monitors carry a quieter `radius-lg` (an image frame asks for discretion); the tally's corner marks stay square — the signal does not live in the radius. Stage graphics are square: what goes to air is its own vocabulary.
+- Fields keep a solid border; a dashed border means "add" and nothing else (`UploadZone`, the add chip), so a pending item never reads as an empty slot. Every other control is tonal, without an outline.
+- Depth in four roles, per theme: `shadow-ctl` on buttons, active options and chips; `shadow-raise` on the transition keys and the countdown cue; `shadow-menu` on the anchored menu (which scales in from its trigger corner); `shadow-float` on dialogs, toasts and the camera card over the stage. In the tray, state speaks by height: off sits sunken in the well, on rises to `raise` with `shadow-ctl`. Pressing any button scales it to 0.97 (160ms, strong ease-out).
+- One moment of motion per page: a newly connected destination's chip slides in once; the outline slides over the home capture; the outgoing program fades in a Fusão (`dissolve`, 400ms). Dialogs enter with `enter` + `ease-enter` only through `Modal`. Buttons animate `filter` and the press scale (`tap`). A success mark scales once (`confirm`) and stops. Under `prefers-reduced-motion` everything becomes a cut and the ticker stands still.
 
 ## States
 
@@ -64,6 +64,26 @@ Poppins, hosted by Google Fonts, in four sizes and three weights; the system mon
 
 Lucide, 16px in rows and buttons, 14px inside menus and chips, 18px in the tool rail, stroke 1.75, `currentColor`, `aria-hidden` with the name on the control. Platform marks come from the same set and the same stroke (`assets/Icons/kick.svg` is the one drawn by hand). The brand mark is the hexagon with the play glyph (`assets/Logos`): gradient in the shell, monochrome in the console, never redrawn.
 
+## The viewer page
+
+The public page is the one surface a stranger sees, so it keeps the shell's rules in the shell's theme (light or dark, the visitor's choice) with two exceptions.
+
+- **The player is console.** `Player` sets the console scope on itself, so its chrome is dark on any page, for the same reason the studio is: eyes adapt to the picture. Its bar is `player-bar` high, on `surface`, with the LIVE pill in `sig` because the pill means exactly what it means in the studio. Everything else on the page (`WatchHeader`, `ReactionBar`, the viewer `ChatMessage`s, `Poll`, `Countdown`) is shell.
+- **One action, from the state of the live.** "Inscrever-se" before air, nothing during (the page is for watching), "Ver a gravação" after. A registered visitor sees a ghost "Inscrição confirmada" and a page with no colour.
+- **Honest numbers.** "1 284 assistindo" is the number the platforms report, in `measure`, or nothing. No follower count, no like count before anyone liked, no "assistindo" before air. Reactions are Lucide icons with real counts; a hand raised reaches the studio. Tips and payments are never collected here: when a platform offers them, the page says so in a sentence and links out.
+- **The embed** (`CopyField`, multiline) carries the same player; a site that embeds it gets the console chrome and its own page's theme around it.
+
 ## Intentional additions
 
 The shipped code stops where the air begins: it has no go-live, no telemetry, no recording, no analytics, no guests. The product brief (a Restream-class multistreamer) needs them, so this system adds the following families on top of the source's own, each built from the rules above and marked "intentional addition" in its guidelines: `OnAir` (the go-live action, the LIVE pill and the on-air clock), `DestinationHealth` (per-destination bitrate, dropped frames and latency on the value ramp), `StreamKey` (reveal and copy an RTMP key), `LayoutPicker` (the stage layouts as tiles), `ChatMessage` and `ChatComposer` (the unified chat), `StatTile` and `ValueChart` (analytics on the ramp), `EventRow` (the schedule), `UsageMeter` (plan consumption), `EmptyState` and `Skeleton`.
+
+A second round (October 2026) covers what the first left out, surface by surface, each family again built from the rules above and marked "intentional addition":
+
+- **Shell.** `Avatar`, `Tabs` (sections of a page; `Segmented` stays for a choice in a form), `SearchField`, `CopyField` (a value safe to show, with copy; `StreamKey` keeps the mask), `Notice` (an in-flow message between two lines), `Stepper` (onboarding and any real sequence), `ProgressBar` (a job that ends; `UsageMeter` is a quota), `UploadZone` (the one dashed border), `DataTable` (records with numbers to compare), `BarChart` (one value per item on the ramp), `Pagination`, `ConfirmDialog` (cancel focused, the verb on the button), `MemberRow` (roles as words), `NotificationRow` (the inbox; unread climbs the ramp), `SignInButton` (the Google G, the one coloured third-party mark), `Prose` (terms, privacy, help), `Kbd`, `PlatformPicker` (the first step of "Conectar canal").
+- **Studio.** `GuestRow` (waiting room and stage), `SourceRow` (a scene's sources; a missing device says what happened), `MediaTile` and `MediaGrid` (clips and recordings), `Teleprompter`, `Readiness` (the list "Ir ao ar" waits for), `Countdown` (the next live, and the 3-2-1 cue), `Poll` (made here, answered there, shown on the program), `StageAlert` (a follower, a guest, a hand raised, on the picture in the live's colours; never a payment).
+- **Viewer page.** `Player`, `WatchHeader`, `ReactionBar`, and `ChatMessage` with `viewer`.
+- **Tokens.** `avatar-sm`/`avatar`/`avatar-lg`, `player-bar`, `thumb` (sizes) and `alert-hold` (duration). The four shell sizes and the three weights are unchanged: nothing new is set outside 12, 14, 16 and 30.
+
+A third round (the soft-modern redesign) changed no family's API: it re-skinned the whole set through `tokens.json` and `bundle.css` — Inter in place of Poppins, the four `shadow-*` roles, tonal controls, the rounded desk — so every preview above renders the product as it ships today.
+
+What the system still does not draw, on purpose: a payment form (nothing is charged today), a per-platform title/visibility form (it is `Field`s in the destination's detail, documented in `surfaces.md`), and any state that would need a colour.

@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('./project/components/', import.meta.url));
 
-const FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">';
+// Inter is the UI face; Poppins survives only in the logo (two weights).
+const FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@700;800&display=swap" rel="stylesheet">';
 
 function preview({ group, height, width, theme, body, pad = 16, bg }) {
   const root = theme === 'console'
@@ -40,9 +41,9 @@ C.push({ name: 'Logo', group: 'Brand', height: 150, readme: `The PwStreamer mark
 
 C.push({ name: 'Button', group: 'Actions', height: 170, readme: `The system's button: primary is the screen's one action, ghost is everything secondary, danger ends or deletes.
 
-- Variants: \`primary\` (\`brand-deep\` fill, \`on-brand\` text, one per screen, never two in a viewport), \`ghost\` (transparent, \`ink\`, \`line-ctl\` border, hover \`raise\`), \`danger\` (\`sig\` fill: "Encerrar transmissão", confirming a deletion).
+- Variants: \`primary\` (\`brand-deep\` fill with a 1px inner highlight and \`shadow-ctl\`, \`on-brand\` text, one per screen, never two in a viewport), \`ghost\` (tonal: \`raise\` fill, \`ink\`, a \`line\` hairline, hover lifts the border to \`line-ctl\`), \`danger\` (\`sig\` fill: "Encerrar transmissão", confirming a deletion).
 - Sizes: default 9px × 18px in \`button\`; \`lg\` (13px × 24px, \`button-lg\`) only for the screen's action ("Entrar no estúdio", "Criar conta", "Ir ao ar"); \`sm\` (5px × 11px, \`button-sm\`, \`radius-md\`) on dense surfaces.
-- States: hover \`brightness(1.1)\`, active \`0.93\`, only \`filter\` animates (\`tap\`); disabled at 45%; \`loading\` disables **and** sets \`aria-busy\`, swapping the icon for a spinner.
+- States: hover \`brightness(1.08)\`; pressing scales to 0.97 over 160ms (strong ease-out) and dims to 0.95 — only \`filter\` and \`transform\` animate (\`tap\`); disabled at 45% with no shadow; \`loading\` disables **and** sets \`aria-busy\`, swapping the icon for a spinner.
 - The label is the verb of what happens to the object in view. An icon goes left at 8px (\`chip-gap\`); the screen action takes an arrow on the right.
 - Don't: put two primaries in one viewport; colour "Criar conta" in the public header (it is ghost there); use the brand blue for anything that is not this button.`,
   body: `return ${col(16, row(10, `h(P.Button, null, 'Conectar canal')`, `h(P.Button, { variant: 'ghost' }, 'Cancelar')`, `h(P.Button, { variant: 'danger' }, 'Encerrar transmissão')`, `h(P.Button, { disabled: true }, 'Salvar alterações')`, `h(P.Button, { loading: true }, 'Enviando')`), row(10, `h(P.Button, { size: 'lg', icon: I('arrowRight', 16) }, 'Entrar no estúdio')`, `h(P.Button, { size: 'sm', variant: 'ghost' }, 'Sair do estúdio')`, `h(P.Button, { size: 'sm' }, 'Entrar')`, `h(P.Button, { variant: 'ghost', icon: I('plus', 14) }, 'Novo banner')`))};` });
@@ -64,7 +65,7 @@ C.push({ name: 'TextAction', group: 'Actions', height: 110, readme: `A secondary
 C.push({ name: 'Menu', group: 'Actions', height: 220, readme: `Secondary actions behind a "⋯" trigger, so each list row keeps one visible action.
 
 - WAI-ARIA menu button: arrows move, Home/End jump, Esc closes and returns focus to the trigger, clicking outside closes. Choosing an item returns focus to the trigger before the action runs.
-- The popover sits on \`raise\` with a \`line\` border and \`shadow-menu\`, \`radius-xl\`, items \`radius-lg\`, hover \`panel\`. A destructive item (\`danger\`) is set in \`sig-texto\`.
+- The popover sits on \`raise\` with a \`line\` hairline and \`shadow-menu\`, \`radius-2xl\`, items \`radius-xl\`, hover \`panel\`. It scales in from its trigger's corner (\`transform-origin\` follows \`side\` and \`align\`) in 150ms. A destructive item (\`danger\`) is set in \`sig-texto\`.
 - \`header\` pins a line above the items (name and e-mail in the account menu). \`side "up"\` for triggers at the foot of the screen (the tray). \`align "left"\` for triggers at the left edge. \`trigger\` replaces the "⋯" (the avatar, a chevron).`,
   body: `return h('div', { style: { display: 'flex', gap: 48, alignItems: 'flex-start', minHeight: 180 } },
     h('div', null, h('div', { className: 'label ink-lo', style: { marginBottom: 8 } }, 'Ações de um webinar'), h(P.Menu, { label: 'Ações de Lançamento de outubro', defaultOpen: true, align: 'left', items: [{ label: 'Inscrições', icon: I('users', 14) }, { label: 'Criar capa', icon: I('film', 14) }, { label: 'Excluir webinar', icon: I('trash', 14), danger: true }] })),
@@ -86,7 +87,7 @@ C.push({ name: 'StreamKey', group: 'Forms', height: 130, readme: `A stream key o
 
 C.push({ name: 'Switch', group: 'Forms', height: 210, readme: `An on/off switch (\`role="switch"\`) whose "on" is full ink, not the brand colour.
 
-- 40 × 24px pill, 16px thumb. Off: \`panel\` track, \`line-ctl\` border, \`ink-lo\` thumb. On: \`ink-hi\` track, \`bg\` thumb. The state lives in \`aria-checked\` and the thumb position, never in colour alone.
+- 40 × 24px pill, 16px thumb with \`shadow-ctl\`, sliding on the strong ease-out curve. Off: \`panel\` track, \`line-ctl\` border, \`ink-lo\` thumb. On: \`ink-hi\` track, \`bg\` thumb. The state lives in \`aria-checked\` and the thumb position, never in colour alone.
 - \`busy\`: saving; the switch stays put at 45% with \`aria-busy\` and \`aria-disabled\` (not \`disabled\`, so keyboard focus is kept) until the database confirms.
 - \`SwitchRow\` pairs it with a title and description in a list row with a \`line\` divider (notification settings, "Transmitir para YouTube").`,
   body: `return h('div', { style: { maxWidth: 520 } }, h(P.SwitchRow, { title: 'Transmitir para YouTube Principal', description: 'Entra no ar junto com os outros canais ligados.', checked: true, onChange: function(){} }), h(P.SwitchRow, { title: 'Avisar quando um destino cair', description: 'Um aviso no estúdio e um e-mail.', checked: false, onChange: function(){} }), h(P.SwitchRow, { title: 'Gravar a live na nuvem', description: 'Salvando…', checked: true, busy: true, onChange: function(){} }));` });
@@ -99,7 +100,7 @@ C.push({ name: 'Checkbox', group: 'Forms', height: 170, readme: `A checkbox alre
 
 C.push({ name: 'Segmented', group: 'Forms', height: 130, readme: `A choice between a few exclusive options, side by side; the active one rises a step on the ramp.
 
-- Outer \`radius-xl\` with a \`line-ctl\` border and 2px padding; options \`radius-md\`, \`ink-lo\`, the pressed one \`raise\` + \`ink-hi\` (\`aria-pressed\`).
+- A pill trough (\`radius-full\`) sunken in \`well\` with 4px padding and no outline; options are pills in \`ink-lo\`, and the pressed one rises to \`raise\` + \`ink-hi\` with \`shadow-ctl\` (\`aria-pressed\`).
 - \`full\` divides the width equally for narrow columns (the studio panels). \`disabled\` while nothing may change (the timer while it runs).
 - Used for theme, Mensal/Anual, the analytics period, the transition and the camera card shape.`,
   body: `return ${col(16, `h(P.Segmented, { label: 'Período de cobrança', options: [{ value: 'mensal', label: 'Mensal' }, { value: 'anual', label: 'Anual, 20% menos' }], value: 'anual' })`, `h('div', { style: { width: 264 } }, h(P.Segmented, { label: 'Formato do card', full: true, options: [{ value: 'rounded', label: 'Arredondado' }, { value: 'compact', label: 'Compacto' }, { value: 'circle', label: 'Círculo' }], value: 'rounded' }))`)};` });
@@ -112,7 +113,7 @@ C.push({ name: 'Slider', group: 'Forms', height: 150, readme: `A range control f
 
 C.push({ name: 'Chip', group: 'Destinations', height: 120, readme: `A destination with its state, clickable: the readiness line on the Painel.
 
-- 36px pill, \`line-ctl\` border, name in \`ink-hi\`, platform mark on the left in \`ink-lo\`, hover \`raise\`.
+- 36px pill, tonal: \`panel\` fill with \`shadow-ctl\` and no outline, name in \`ink-hi\`, platform mark on the left in \`ink-lo\`, hover \`raise\`.
 - \`state "ready"\` shows a tick; \`"pending"\` an alert icon and the word (\`stateLabel\`: "sem chave", "sem servidor", "desligado", "não conectado"), always in the name's ink. The \`aria-label\` carries the whole phrase ("YouTube Principal: pronto"). Clicking a pending chip opens that destination's form at the missing field.
 - \`add\` is the only dashed chip: "Conectar canal". A pending item never reads as an empty slot.
 - Chips wrap with \`chip-gap\` between them (\`ChipRow\`).`,
@@ -167,7 +168,7 @@ C.push({ name: 'ActionRow', group: 'Lists', height: 230, readme: `A list row tha
 
 C.push({ name: 'Modal', group: 'Feedback', height: 360, readme: `The overlay primitive: dialog semantics, focus trap, Esc, scrim click, scroll lock and focus return.
 
-- Panel on \`surface\` with a \`line\` border, \`radius-2xl\`, \`shadow-float\`, entering with \`enter\` + 95% zoom; scrim \`scrim\` with a 2px blur at \`z-scrim\`, panel at \`z-modal\`.
+- Panel on \`surface\` with a \`line\` hairline, \`radius-3xl\`, \`shadow-float\`, entering with \`enter\` + 95% zoom; scrim \`scrim\` with a 3px blur at \`z-scrim\`, panel at \`z-modal\`.
 - Sizes: \`sm\` (confirmations), \`md\` (\`modal-md\`, a short form), \`lg\` (\`modal-lg\`, a list), \`xl\` (\`modal-xl\`, master-detail). Header: optional icon, \`title\` h2, \`description\` p, the close button. Footer: ghost "Cancelar" then the verb button, 10px apart.
 - \`dismissible false\` for destructive flows; \`busy\` while saving disables close, Esc and the scrim. The title never follows the inner selection: the verb goes on the button.
 - A confirmation of something irreversible uses the \`danger\` button and focuses "Cancelar".`,
@@ -175,7 +176,7 @@ C.push({ name: 'Modal', group: 'Feedback', height: 360, readme: `The overlay pri
 
 C.push({ name: 'Toast', group: 'Feedback', height: 250, readme: `A non-blocking notice, above every dialog (\`z-toast\`), polite to screen readers.
 
-- On \`raise\` with a \`line-ctl\` border, \`radius-xl\`, \`shadow-float\`, sliding up 8px over \`enter\`. Title \`body-strong\` \`ink-hi\`, detail \`label\` \`ink-lo\`, an optional action underlined in \`ink-hi\`.
+- On \`raise\` with a \`line\` hairline, \`radius-2xl\`, \`shadow-float\`, sliding up 8px over \`enter\`. Title \`body-strong\` \`ink-hi\`, detail \`label\` \`ink-lo\`, an optional action underlined in \`ink-hi\`.
 - Kinds: \`success\` (check icon), \`error\` (alert icon in \`sig-texto\`, the one place carmine says "failure", and it stays 6s), \`info\` (4s). Success stays 3.2s. At most four at once, bottom right.
 - Replaced \`alert()\` and \`confirm()\`, which freeze the encoder mid-live.`,
   body: `return h('div', { className: 'pw-toaststack', style: { alignItems: 'flex-start' } }, h(P.Toast, { kind: 'success', title: 'Canal conectado', detail: 'YouTube Principal está pronto para a próxima live.' }), h(P.Toast, { kind: 'error', title: 'Não deu para salvar', detail: 'Sem conexão agora. Confira a internet e tente de novo.', action: { label: 'Tentar de novo' } }), h(P.Toast, { kind: 'info', title: 'O Kick caiu', detail: 'Reconectando. Os outros canais seguem no ar.', action: { label: 'Ver destinos' } }));` });
@@ -202,7 +203,7 @@ C.push({ name: 'EventRow', group: 'Lists', height: 260, readme: `A webinar, live
 C.push({ name: 'PlanList', group: 'Account', height: 330, readme: `The plans as action rows: name and limits on the left, the price on the right, each opening its full list.
 
 - Name in \`body-strong\`; the current plan says so in a word ("Standard · seu plano"), never by colour, border or badge. Limits in \`label\` \`ink-lo\` with non-breaking spaces ("3 canais ao mesmo tempo").
-- Price in \`price\` (Poppins, tabular) with the yearly total in \`label\` below when annual. Features open below the row with ticks in \`ink-lo\`.
+- Price in \`price\` (Inter, tabular) with the yearly total in \`label\` below when annual. Features open below the row with ticks in \`ink-lo\`.
 - Same list on the Plano page, in the studio's plans dialog and on the public home. No primary button until checkout exists: "A assinatura abre em breve" is said in words.`,
   body: `return h('div', { style: { maxWidth: 640 } }, h(P.PlanList, { defaultOpen: 'pro', plans: [
     { id: 'free', name: 'Teste grátis', limits: '1 canal · 2 pessoas na tela · 30 dias', price: 'Grátis', sub: 'por 30 dias' },
@@ -258,45 +259,45 @@ C.push({ name: 'SceneRail', group: 'Studio', height: 420, theme: 'console', read
 
 C.push({ name: 'TransitionKeys', group: 'Studio', height: 130, theme: 'console', readme: `Corte and Fusão: the keys that send the preview to the program.
 
-- Raised objects, not ghost buttons: \`raise\` fill, \`line-ctl\` border, 56px, \`radius-xl\`, the name in \`button\` and the duration inside in \`measure\` ("0 ms", "400 ms"). Hover lifts the border to \`ink-lo\`; pressing lights it to \`ink-hi\` and drops the fill to \`panel\`.
+- Raised objects, not ghost buttons: \`raise\` fill with \`shadow-raise\` and no outline, 56px, \`radius-xl\`, the name in \`button\` and the duration inside in \`measure\` ("0 ms", "400 ms"). Hover lights a \`line-ctl\` border; pressing lights it to \`ink-lo\`, drops the fill to \`panel\` and scales the key to 0.97.
 - Both disable while nothing differs (\`hasChange false\`) or a cut is running, and the note says "O preview está igual ao programa." Fusão's duration is \`dissolve\`; under reduced motion it becomes a cut.`,
   body: `return h('div', { style: { width: 224, display: 'flex', flexDirection: 'column', gap: 16 } }, h(P.TransitionKeys, { hasChange: true }), h(P.TransitionKeys, { hasChange: false }));` });
 
-C.push({ name: 'Monitor', group: 'Studio', height: 300, width: 960, theme: 'console', readme: `A console monitor: the role and the scene above, the picture below, in a square tally frame.
+C.push({ name: 'Monitor', group: 'Studio', height: 300, width: 960, theme: 'console', readme: `A console monitor: the role and the scene above, the picture below, in a softly rounded tally frame.
 
 - Label outside the picture: "Programa" or "Preview" in \`label\` 500 \`ink-hi\`, the scene name in \`ink-lo\`. Inside the picture only what goes to air, plus the guides (\`guia\`, difference blend) when asked.
 - The frame (\`.pw-frame\`) is \`tally-ring\` 2px of padding: \`n-14\` on the program at rest, \`n-89\` on the preview (the two differ by value, 3.8:1 against carmine). With \`live\`, the program frame turns \`sig\` and the eight \`tally-mark\` corner marks (\`n-92\`, 10px outside) appear: the ring frames, the marks signal, and the marks are neutral so the state reads under any colour vision and under blur.
-- The stage is \`stage\` black, 16:9, \`radius-2xl\`; the frame follows it. The desk keeps the preview row as wide as the program.`,
+- The stage is \`stage\` black, 16:9, with a quiet \`radius-lg\` corner (an image frame asks for less than a control); the frame follows it by the ring's width, and the corner marks stay square. The desk keeps the preview row as wide as the program.`,
   pad: 24, body: `return h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 } }, h(P.Monitor, { role: 'program', scene: 'Câmera', layout: 'camera' }), h(P.Monitor, { role: 'program', scene: 'Câmera', layout: 'camera', live: true }), h(P.Monitor, { role: 'preview', scene: 'Tela com câmera', layout: 'pip', guides: true }));` });
 
 C.push({ name: 'NextCut', group: 'Studio', height: 200, theme: 'console', readme: `What the next cut carries from preview to program, in words.
 
-- Label outside like a monitor's ("No próximo corte"); a square box with a \`line\` border on \`panel\`, rows in \`body\` \`ink\` with an arrow in \`ink-lo\`, separated by \`line\`. Scrolls only past the preview's height; never stretched to it.
+- Label outside like a monitor's ("No próximo corte"); a \`radius-2xl\` box on \`panel\` without an outline, rows in \`body\` \`ink\` with an arrow in \`ink-lo\`, separated by \`line\`. Scrolls only past the preview's height; never stretched to it.
 - Empty: "Nada muda: o preview está igual ao programa." in \`label\` \`ink-lo\`. This is where the approved console once put telemetry; without a transmission those numbers do not exist, and what the operator needs before cutting is what will change.`,
   body: `return h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 640 } }, h(P.NextCut, { changes: ['Entra a tela compartilhada', 'A câmera vai para o card, no canto de baixo à direita', 'Sai o banner "Inscrições abertas"'] }), h(P.NextCut, { changes: [] }));` });
 
 C.push({ name: 'Tray', group: 'Studio', height: 130, width: 960, theme: 'console', readme: `The console's tray: microphone with the real meter, camera, screen, guides, and what is not yet possible, in words.
 
-- \`surface\` with a \`line\` above, 8px gaps. Each control is a ghost \`Button\` with \`aria-pressed\`: on rises to \`raise\` + \`ink-hi\`, off sits in \`well\` + \`ink-lo\`; the icon and the word say the state ("Microfone mudo", "Câmera desligada"). On phones the word goes to screen readers and the control is a 44px square.
-- A device picker is a chevron \`Menu\` glued to the control's right (\`radius-xl\` on the outer corner only), opening upward with the device in use ticked.
+- \`surface\` with a \`line\` above, 8px gaps. Each control is a ghost \`Button\` with \`aria-pressed\` and no outline: on rises to \`raise\` + \`ink-hi\` with \`shadow-ctl\`, off sits sunken in \`well\` + \`ink-lo\` — the height says the state together with the icon and the word ("Microfone mudo", "Câmera desligada"). On phones the word goes to screen readers and the control is a 44px square.
+- A device picker is a chevron \`Menu\` glued to the control's right behind a \`line\` hairline (\`radius-xl\` on the outer corner only), opening upward with the device in use ticked.
 - The right-hand note says what is absent ("Transmitir para os canais ainda não está no ar.") instead of a disabled control.`,
   pad: 0, body: `return h(P.Tray, { state: { mic: true, camera: true, screen: false, guides: true }, level: 0.62, db: -18, peak: 0.71, mics: [{ label: 'Microfone (Yeti)', icon: I('check', 14) }, { label: 'Microfone do notebook', icon: h('span', { style: { width: 14, display: 'inline-block' } }) }], cameras: [{ label: 'Câmera (Logitech C920)', icon: I('check', 14) }, { label: 'Câmera integrada', icon: h('span', { style: { width: 14, display: 'inline-block' } }) }], note: 'Transmitir para os canais ainda não está no\\u00a0ar.' });` });
 
 C.push({ name: 'AudioMeter', group: 'Studio', height: 140, theme: 'console', readme: `The microphone level from the stream itself: a segmented bar, the peak held one second, and the reading in dB.
 
-- 96px × 8px (\`meter-h\`), square, on \`well\`, segments every 6px with a 1px gap in \`surface\`. Graduated by value, not hue: \`ink-lo\` below −12 dBFS, \`ink-hi\` above (\`db\`). The peak is a 2px \`ink-hi\` line. The reading ("−25 dB") is \`measure\` \`ink-lo\`; "—" when muted or silent.
+- 96px × 8px (\`meter-h\`), a pill on \`well\`, segments every 6px with a 1px gap in \`surface\`. Graduated by value, not hue: \`ink-lo\` below −12 dBFS, \`ink-hi\` above (\`db\`). The peak is a 2px \`ink-hi\` line. The reading ("−25 dB") is \`measure\` \`ink-lo\`; "—" when muted or silent.
 - Writes straight to the DOM each frame in the product; never \`Math.random\`. Red never enters the meter: it is the air.`,
   body: `return ${col(12, `h(P.AudioMeter, { level: 0.45, db: -28, peak: 0.52 })`, `h(P.AudioMeter, { level: 0.86, db: -6, peak: 0.92 })`, `h(P.AudioMeter, { level: 0 })`)};` });
 
 C.push({ name: 'ToolRail', group: 'Studio', height: 480, theme: 'console', readme: `The vertical tab list on the console's right edge: one tab per tool, the open one raised.
 
-- 72px wide (\`tool-rail\`), \`line\` on the left. Each tab is 56px, \`radius-xl\`, an 18px icon over a \`label\` caption, \`ink-lo\`; hover \`panel\`; the selected one \`raise\` + \`ink-hi\` (\`aria-selected\`). WAI-ARIA tabs, vertical: one Tab stop, arrows move.
+- 72px wide (\`tool-rail\`), \`line\` on the left. Each tab is 56px, \`radius-xl\`, an 18px icon over a \`label\` caption, \`ink-lo\`; hover \`panel\`; the selected one \`raise\` + \`ink-hi\` with \`shadow-ctl\` (\`aria-selected\`). WAI-ARIA tabs, vertical: one Tab stop, arrows move.
 - Tools: Chat, Gráficos, Roteiro, QR code, Mídia, Câmera, and the additions Convidados and Destinos. Under \`lg\` the rail is sticky at the top while the panel scrolls.`,
   pad: 0, body: `return h('div', { style: { display: 'flex', justifyContent: 'flex-end', height: 480 } }, h(P.ToolRail, { active: 'destinos' }));` });
 
 C.push({ name: 'LayoutPicker', group: 'Studio', height: 230, theme: 'console', readme: `The stage layouts as tiles: the chosen one rises on the ramp. Intentional addition.
 
-- Four per row, each a \`radius-xl\` button with a \`line-ctl\` border: a 16:9 \`well\` tile with the sources drawn as \`ink-lo\` blocks, and the name in \`label\` below. Pressed: \`raise\`, \`ink-hi\` blocks, \`ink-lo\` border (\`aria-pressed\`).
+- Four per row, each a \`radius-xl\` button on \`panel\` without an outline: a 16:9 \`well\` tile with the sources drawn as \`ink-lo\` blocks, and the name in \`label\` below. Pressed: \`raise\` with \`shadow-ctl\`, \`ink-hi\` blocks (\`aria-pressed\`).
 - Layouts: Câmera, Tela com câmera, Lado a lado, Tela, Dois convidados, Grade, Apresentação, Galeria. Layouts that need a source the studio lacks (a guest, a screen) stay listed and the scene row says "sem tela compartilhada".`,
   body: `return h('div', { style: { maxWidth: 560 } }, h(P.LayoutPicker, { value: 'pip' }));` });
 
@@ -311,7 +312,8 @@ C.push({ name: 'ChatMessage', group: 'Chat', height: 300, theme: 'console', read
 
 - Mark in \`ink-lo\`, author \`body-strong\` \`ink-hi\`, time \`measure\` \`ink-lo\` on the right, text \`body\` \`ink\` with \`text-wrap: pretty\`. Rows separated by \`line\`; each new one enters 6px up over 250ms.
 - \`pinned\`: the row sits on \`panel\` with "Fixado no programa" and the pin icon; the same text goes to the stage as the pinned comment. \`flagged\`: the moderation note in \`ink-hi\` with the alert icon and "Liberar"; the text drops to \`ink-lo\`. Never red.
-- Actions (pin, "⋯" with Responder, Ocultar, Banir autor in \`sig-texto\`) appear on hover or focus. Virtualised in the product.`,
+- Actions (pin, "⋯" with Responder, Ocultar, Banir autor in \`sig-texto\`) appear on hover or focus. Virtualised in the product.
+- \`viewer\`: the same row on the public page, without the actions and the moderation note; a flagged message simply does not reach viewers. The composer below it is \`ChatComposer\` with the viewer's own name.`,
   pad: 0, body: `return h('div', { style: { maxWidth: 420 } }, h(P.ChatMessage, { platform: 'youtube', author: 'Marina', time: '20:14', text: 'Vai ter replay dessa aula?', pinned: true }), h(P.ChatMessage, { platform: 'twitch', author: 'joaop_dev', time: '20:15', text: 'O áudio está ótimo hoje 👏' }), h(P.ChatMessage, { platform: 'kick', author: 'anon4421', time: '20:15', text: 'compra seguidor barato no meu perfil', flagged: 'Marcada pela moderação: parece spam.' }), h(P.ChatMessage, { platform: 'linkedin', author: 'Carla Mendes', time: '20:16', text: 'Dá para usar isso num time de 5 pessoas?' }));` });
 
 C.push({ name: 'ChatComposer', group: 'Chat', height: 130, theme: 'console', readme: `The reply box at the foot of the chat, saying where the reply goes. Intentional addition.

@@ -38,12 +38,14 @@ function useDispositivos(stream: MediaStream | null) {
   return lista;
 }
 
-// Os controles da bandeja: ligado sobe um degrau na rampa, desligado fica no
-// poço e em tinta baixa, e o ícone e a palavra dizem o estado. No celular a
-// palavra fica só para o leitor de tela e o botão vira um quadrado de 44px:
-// com ela à vista a bandeja quebrava em três linhas e tomava 165px da tela.
+// Os controles da bandeja: ligado sobe um degrau na rampa E ganha a sombra
+// de controle (afundado = desligado, elevado = ligado — a altura diz o
+// estado junto do ícone e da palavra). O contorno saiu com a direção
+// soft-modern. No celular a palavra fica só para o leitor de tela e o botão
+// vira um quadrado de 44px: com ela à vista a bandeja quebrava em três
+// linhas e tomava 165px da tela.
 const CONTROLE =
-  'min-h-11 max-sm:w-11 max-sm:px-0 border-[var(--line-ctl)] bg-[var(--well)] text-[var(--ink-lo)] aria-pressed:bg-[var(--raise)] aria-pressed:text-[var(--ink-hi)]';
+  'min-h-11 max-sm:w-11 max-sm:px-0 border-transparent bg-[var(--well)] text-[var(--ink-lo)] shadow-none hover:text-[var(--ink-hi)] aria-pressed:bg-[var(--raise)] aria-pressed:text-[var(--ink-hi)] aria-pressed:shadow-[var(--shadow-ctl)]';
 
 /** A palavra do controle: à vista a partir de `sm`, só para o leitor de tela antes disso. */
 const Palavra = ({ children }: { children: ReactNode }) => <span className="max-sm:sr-only">{children}</span>;
@@ -63,7 +65,7 @@ function ComMenu({ children, rotulo, itens }: { children: ReactNode; rotulo: str
           gatilho={<ChevronDown size={14} aria-hidden="true" />}
           lado="cima"
           alinhar="esquerda"
-          classeDoGatilho="inline-flex min-h-11 w-9 items-center justify-center rounded-r-xl border border-l-0 border-[var(--line-ctl)] bg-[var(--well)] text-[var(--ink-lo)] transition-colors duration-150 hover:bg-[var(--raise)] hover:text-[var(--ink-hi)] cursor-pointer"
+          classeDoGatilho="inline-flex min-h-11 w-9 items-center justify-center rounded-r-xl border-l border-[var(--line)] bg-[var(--well)] text-[var(--ink-lo)] transition-colors duration-150 hover:bg-[var(--raise)] hover:text-[var(--ink-hi)] cursor-pointer"
         />
       )}
     </div>

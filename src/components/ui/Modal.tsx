@@ -165,7 +165,7 @@ export function Modal({
       style={{ zIndex: 'var(--z-scrim)' }}
     >
       <div
-        className="absolute inset-0 bg-[var(--color-n-0)]/70 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-[var(--color-n-0)]/60 backdrop-blur-[3px]"
         onClick={handleClose}
         aria-hidden="true"
       />
@@ -180,7 +180,7 @@ export function Modal({
         className={`relative flex flex-col animate-in fade-in zoom-in-95 duration-200 ${
           bare
             ? 'w-full items-center'
-            : `w-full ${SIZES[size]} bg-[var(--surface)] border border-[var(--line)] rounded-2xl shadow-2xl max-h-[calc(100dvh-2rem)]`
+            : `w-full ${SIZES[size]} bg-[var(--surface)] border border-[var(--line)] rounded-3xl shadow-[var(--shadow-float)] max-h-[calc(100dvh-2rem)]`
         }`}
         style={{ zIndex: 'var(--z-modal)' }}
       >
