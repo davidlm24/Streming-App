@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { AvisoDoBloqueio, type BloqueioDoCorte } from './TrilhoDeCenas';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
+import { AvisoDoBloqueio, type BloqueioDoCorte } from './CenasETransicao';
 
 /**
  * Um monitor do console: o papel e a cena em cima, a imagem embaixo. O
@@ -45,19 +45,21 @@ export function Monitor({
  * esses números não existem, e o que o operador precisa saber antes de
  * cortar é o que vai mudar. Um painel regrado, como o da telemetria.
  *
- * O rótulo fica fora, como o dos monitores, e a caixa tem o canto reto da
- * mesa e a altura do que lista; rola só se passar da altura do preview.
- * Esticada até a altura do preview, com uma linha só, parecia uma vaga vazia.
+ * O rótulo fica fora, como o dos monitores, e a caixa tem a altura do que
+ * lista; rola só se passar da altura do preview. Corte e Fusão moram aqui
+ * embaixo (`transicao`): esta caixa diz o que elas levam.
  */
 export function ProximoCorte({
   mudancas,
   bloqueio = null,
   onJuntar,
+  transicao,
 }: {
   mudancas: string[];
   bloqueio?: BloqueioDoCorte | null;
   /** Com os dois monitores fixos: volta a juntá-los quando o preview fica igual ao programa. */
   onJuntar?: () => void;
+  transicao?: ReactNode;
 }) {
   return (
     <section aria-labelledby="estudio-proximo-corte" className="flex min-h-0 min-w-0 flex-col">
@@ -67,7 +69,7 @@ export function ProximoCorte({
       {/* A caixa acompanha a mesa soft-modern: canto generoso e fundo em
           --panel, sem contorno — a separação é tonal, como nos painéis. */}
       <div className="min-h-0 overflow-y-auto rounded-2xl bg-[var(--panel)]">
-        {/* O corte travado diz por quê aqui também: é para cá que o olho vai antes de cortar */}
+        {/* O corte travado diz por quê aqui: é para cá que o olho vai antes de cortar */}
         {bloqueio && mudancas.length > 0 && (
           <AvisoDoBloqueio bloqueio={bloqueio} className="border-b border-[var(--line)] px-4 py-3" />
         )}
@@ -91,6 +93,8 @@ export function ProximoCorte({
           </ul>
         )}
       </div>
+      {/* Corte e Fusão moram aqui: esta caixa diz o que elas levam ao programa */}
+      {transicao && <div className="mt-3 shrink-0">{transicao}</div>}
     </section>
   );
 }
@@ -98,6 +102,10 @@ export function ProximoCorte({
 // Medidas da mesa: o rótulo de cada monitor (16px + 8px) e o vão entre as linhas
 const ROTULO = 24;
 const VAO = 16;
+/** A fileira de controles sob o programa (alvos de 44px). */
+const CONTROLES = 44;
+/** A fileira de ícones de cena, na largura do programa (44px). */
+const CENAS = 44;
 /** A reserva para a frase sob o monitor único: até três linhas de 20px, na coluna mais estreita (lg). */
 const LINHA_DO_UNICO = 60;
 /** A menor largura do painel do próximo corte, ao lado do preview. */
@@ -139,20 +147,19 @@ export function AvisoDoMonitorUnico({ onSempreDois }: { onSempreDois: () => void
 }
 
 /**
- * A mesa de monitores. No desktop ela mede a própria coluna e dimensiona o
- * programa pela altura que sobra, sem passar da largura; a linha de baixo
- * tem a mesma largura do programa, com o preview medido pela imagem e o
- * painel do próximo corte encostado nele até a borda. Antes o preview ficava
- * centrado na célula, com vãos dos dois lados, e o painel solto na ponta.
- * No celular, tudo empilha na largura da coluna, com a transição logo
- * abaixo do preview. Nos dois casos o lugar de cada monitor é a moldura
- * inteira, palco e anel.
+ * A mesa de monitores, na geometria das referências: o programa com a
+ * fileira de controles da captura logo abaixo, a fileira de cenas sob ela, e
+ * então a linha do preview com o próximo corte ao lado. No desktop a mesa
+ * mede a própria coluna e dimensiona o programa pela altura que sobra depois
+ * das fileiras; no celular tudo empilha na largura da coluna. O lugar de
+ * cada monitor é a moldura inteira, o palco em 16:9 mais o anel de 2px.
  *
  * `unico`: com o preview igual ao programa, os dois monitores mostravam a
  * mesma imagem, e o programa ficava com 60% da altura. Agora fica um monitor
  * só, com a altura toda, e a mesa de corte volta quando há o que cortar. O
  * programa fica no mesmo lugar da árvore nos dois modos: trocar de modo não
- * remonta o canvas.
+ * remonta o canvas. As cenas ficam nos dois modos — é por elas que o preview
+ * volta a divergir.
  */
 export function MesaDeMonitores({
   cenaDoPrograma,
@@ -161,7 +168,8 @@ export function MesaDeMonitores({
   programa,
   preview,
   proximoCorte,
-  transicaoNoCelular,
+  controles,
+  cenas,
   refDoPreview,
   unico,
   avisoDoUnico,
@@ -172,7 +180,10 @@ export function MesaDeMonitores({
   programa: ReactNode;
   preview: ReactNode;
   proximoCorte: ReactNode;
-  transicaoNoCelular: ReactNode;
+  /** Mic, câmera, tela, guias e gravar, logo sob o programa — a fileira das referências. */
+  controles: ReactNode;
+  /** Os ícones das cenas, na largura do programa: é no preview que a cena escolhida entra. */
+  cenas: ReactNode;
   /** O monitor que "Ver preview" (celular) mostra: o preview ou, no modo único, o monitor que sobra. */
   refDoPreview?: Ref<HTMLElement>;
   unico: boolean;
@@ -196,10 +207,12 @@ export function MesaDeMonitores({
         const H = el.clientHeight;
         if (H === 0) return;
         if (unico) {
-          const largura = Math.min(W, larguraDaMoldura(H - ROTULO - VAO - LINHA_DO_UNICO));
+          // O rótulo, os três vãos, as duas fileiras e a frase saem da altura útil
+          const largura = Math.min(W, larguraDaMoldura(H - ROTULO - 3 * VAO - CONTROLES - CENAS - LINHA_DO_UNICO));
           proximas = { desktop: true, unico, largura, alturaDoPrograma: alturaDaMoldura(largura), larguraDoPreview: 0, alturaDoPreview: 0 };
         } else {
-          const alturaDasImagens = H - 2 * ROTULO - VAO;
+          // Os dois rótulos, os três vãos e as duas fileiras saem da altura útil
+          const alturaDasImagens = H - 2 * ROTULO - 3 * VAO - CONTROLES - CENAS;
           const largura = Math.min(W, larguraDaMoldura(alturaDasImagens * PARTE_DO_PROGRAMA));
           const alturaDoPrograma = alturaDaMoldura(largura);
           const alturaLivre = alturaDasImagens - alturaDoPrograma;
@@ -239,6 +252,10 @@ export function MesaDeMonitores({
               {programa}
             </div>
           </Monitor>
+          {/* A fileira das referências: os controles da captura logo sob a tela principal */}
+          <div style={{ minHeight: CONTROLES }}>{controles}</div>
+          {/* As cenas na largura do programa: numa coluna estreita de preview a fileira quebrava e saía cortada */}
+          <div style={{ minHeight: CENAS }}>{cenas}</div>
           {unico ? (
             avisoDoUnico
           ) : (
@@ -265,6 +282,8 @@ export function MesaDeMonitores({
               {programa}
             </div>
           </Monitor>
+          {controles}
+          {cenas}
           {unico ? (
             avisoDoUnico
           ) : (
@@ -277,7 +296,6 @@ export function MesaDeMonitores({
                   {preview}
                 </div>
               </Monitor>
-              {transicaoNoCelular}
               {proximoCorte}
             </>
           )}

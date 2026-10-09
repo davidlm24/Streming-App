@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type MouseEvent as EventoDeMouse, type ReactNode, type TouchEvent as EventoDeToque } from 'react';
 import { Maximize2, User } from 'lucide-react';
 import type { GeometriaDoCard, Participant, StudioSceneState } from '../types';
+import { ALTURA_DO_PALCO, LARGURA_DO_PALCO, caixasDaGrade } from '../lib/palco/medidas';
 import { CARD_PADRAO, FORMATOS_DO_CARD, dentroDoPalco } from '../lib/cenas';
 import { matrizDaChave, matrizDoDescarte, suavizacaoEmPx, transformacaoDaCamera, type AjustesDaCamera } from '../lib/camera';
 import type { RelogioDoCronometro } from '../lib/graficos';
@@ -364,8 +365,60 @@ export function StudioPreview({
     );
   };
 
+  // Um convidado da sala: a imagem em cover, ou o nome com a inicial quando falta
+  const desenharConvidado = (p: Participant) => (
+    <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[var(--stage)]">
+      {p.stream && p.hasVideo ? (
+        <video
+          ref={(el) => {
+            if (el && el.srcObject !== p.stream) el.srcObject = p.stream;
+          }}
+          autoPlay
+          muted
+          playsInline
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex flex-col items-center gap-2 text-center">
+          <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--raise)] text-base font-medium text-[var(--ink-hi)]">
+            {p.name.charAt(0).toUpperCase()}
+          </span>
+          <p className="text-xs text-[var(--ink-lo)]">{p.name}</p>
+        </div>
+      )}
+    </div>
+  );
+
   // ── A composição da cena ────────────────────────────────────────────────
   const composicao = () => {
+    // A Grade: as MESMAS caixas do compositor, em % do palco (Regra do Preview Fiel)
+    if (estado.layout === 'grid') {
+      const pessoas = estado.activeParticipantIds
+        .map((id) => participantes.find((p) => p.id === id))
+        .filter((p): p is Participant => !!p && !p.isScreenShare);
+      const caixas = caixasDaGrade(Math.max(1, pessoas.length));
+      return (
+        <div className="relative h-full w-full">
+          {pessoas.map((p, i) => {
+            const c = caixas[i];
+            return (
+              <div
+                key={p.id}
+                className="absolute overflow-hidden"
+                style={{
+                  left: `${(c.x / LARGURA_DO_PALCO) * 100}%`,
+                  top: `${(c.y / ALTURA_DO_PALCO) * 100}%`,
+                  width: `${(c.w / LARGURA_DO_PALCO) * 100}%`,
+                  height: `${(c.h / ALTURA_DO_PALCO) * 100}%`,
+                }}
+              >
+                {p.isLocal ? desenharCamera(p.name) : desenharConvidado(p)}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
     if (!fonteDaCamera && !fonteDaTela) {
       return (
         // Era "Transmissão Vazia" com um escudo de alerta na cor da marca e um

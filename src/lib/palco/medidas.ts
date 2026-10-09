@@ -96,3 +96,34 @@ export function quebrarLinhas(ctx: CanvasRenderingContext2D, texto: string, maxW
   linhas.push(atual);
   return linhas;
 }
+
+/**
+ * As caixas da grade: todos no palco em caixas 16:9 iguais, como numa
+ * chamada. 1 fica inteira, 2 lado a lado, 3 e 4 em duas colunas, de 5 em
+ * diante em três. A última fileira incompleta fica centrada, como no Meet.
+ * O preview em HTML divide os mesmos números por LARGURA/ALTURA_DO_PALCO
+ * para virar porcentagem: é a MESMA grade nos dois monitores.
+ */
+export function caixasDaGrade(quantos: number): Caixa[] {
+  const n = Math.max(1, quantos);
+  if (n === 1) return [{ x: 0, y: 0, w: LARGURA_DO_PALCO, h: ALTURA_DO_PALCO }];
+  const m = 1.6 * umCqw;
+  const colunas = n <= 2 ? 2 : n <= 4 ? 2 : 3;
+  const fileiras = Math.ceil(n / colunas);
+  const larguraDaCelula = (LARGURA_DO_PALCO - m * (colunas + 1)) / colunas;
+  const alturaDaCelula = (ALTURA_DO_PALCO - m * (fileiras + 1)) / fileiras;
+  const caixas: Caixa[] = [];
+  for (let i = 0; i < n; i++) {
+    const fileira = Math.floor(i / colunas);
+    const nestaFileira = Math.min(colunas, n - fileira * colunas);
+    const coluna = i - fileira * colunas;
+    const celula: Caixa = {
+      x: (LARGURA_DO_PALCO - nestaFileira * larguraDaCelula - (nestaFileira - 1) * m) / 2 + coluna * (larguraDaCelula + m),
+      y: m + fileira * (alturaDaCelula + m),
+      w: larguraDaCelula,
+      h: alturaDaCelula,
+    };
+    caixas.push(caixaContida(16, 9, celula));
+  }
+  return caixas;
+}

@@ -46,6 +46,11 @@ related_targets: ["src/App.tsx","src/components/Estudio.tsx","src/components/Bar
 - As horas de transmissão ficam registradas no banco desde já; o limite do plano entra com a cobrança.
 - O carmim do ar só acende com um canal de fato no ar; o estado de cada canal vem do motor.
 
+**A mesa das referências e a sala de convidados (decididas com o usuário em 2026-10-09):**
+- A geometria segue StreamYard/Restream: os controles da captura logo sob o programa, as cenas como ícones-diagrama na largura do programa, acima do preview, Corte e Fusão na caixa do próximo corte; a coluna esquerda saiu e os monitores ganharam a largura dela.
+- Convidados por link público (`/sala/<token>`), chamada tipo Meet: WebRTC em malha com sinalização pelo tempo real do Supabase, sem servidor de mídia (escolhido sobre LiveKit e sobre TURN já de início; o TURN fica para as redes fechadas). O convidado vê a chamada, não a arte final.
+- "Pôr no palco" leva à cena Grade (caixas iguais, as mesmas frações nos dois monitores); o limite é o de pessoas na tela do plano. A voz do convidado só entra no ar enquanto ele está no programa.
+
 **Momento memorável:** o corte. A cena escolhida vai para o preview, e ao lado dele está a lista do que muda no próximo corte; "Corte" ou "Fusão" leva tudo ao programa.
 
 ## Direction contract

@@ -14,13 +14,14 @@ import {
   TINTAS_DO_PALCO,
   caixaContida,
   caixasDaDivisao,
+  caixasDaGrade,
   fonteDoPalco,
   recorteDeCapa,
   umCqw,
   type Caixa,
 } from './medidas';
 
-/** A duração da fusão. A mesma de `DURACAO_DA_FUSAO` (TrilhoDeCenas); copiada para a lib não importar componente. */
+/** A duração da fusão. A mesma de `DURACAO_DA_FUSAO` (CenasETransicao); copiada para a lib não importar componente. */
 export const FUSAO_NO_PALCO_MS = 400;
 
 export interface SaidaDaFusao {
@@ -36,6 +37,8 @@ export interface EntradaDoCompositor {
   saindo: SaidaDaFusao | null;
   /** O primeiro nome de quem opera, para o lugar da câmera sem imagem. */
   nome: string;
+  /** Os convidados da sala que podem estar em cena: o nome fica no lugar da imagem que faltar. */
+  convidados: { id: string; nome: string; semVideo: boolean }[];
   cameraDesligada: boolean;
   /** Ao vivo nos dois monitores, como o próprio aparelho (exceções do corte). */
   camera: AjustesDaCamera;
@@ -77,6 +80,10 @@ export class CompositorDoPrograma {
 
   private videoDaCamera = videoDeFonte();
   private videoDaTela = videoDeFonte();
+  /** Um vídeo por convidado da sala, pelo id dele na cena (g-…). */
+  private videosDosConvidados = new Map<string, HTMLVideoElement>();
+  /** O último nome conhecido de cada convidado: quem saiu da sala ainda é nomeado no programa até o corte. */
+  private nomesDosConvidados = new Map<string, string>();
   private imagens = new Map<string, { img: HTMLImageElement; pronta: boolean; falhou: boolean }>();
   /** A página da apresentação no cache: uma só, para não guardar o PDF inteiro decodificado. */
   private paginaEmCache: string | null = null;
@@ -123,6 +130,9 @@ export class CompositorDoPrograma {
     this.cromaAplicado = '';
     this.videoDaCamera.srcObject = null;
     this.videoDaTela.srcObject = null;
+    for (const video of this.videosDosConvidados.values()) video.srcObject = null;
+    this.videosDosConvidados.clear();
+    this.nomesDosConvidados.clear();
     this.imagens.clear();
     this.paginaEmCache = null;
   }
@@ -141,6 +151,11 @@ export class CompositorDoPrograma {
     if (entrada.saindo?.player) this.som.ligarClipe(entrada.saindo.player.video);
     const telaNoAr = desenhaATela(entrada.programa) && !entrada.programa.clipe && !entrada.programa.apresentacao;
     this.som.telaNoAr(telaNoAr);
+    for (const c of entrada.convidados) this.nomesDosConvidados.set(c.id, c.nome);
+    // A voz de um convidado entra na mistura enquanto ele está no programa —
+    // e segue na fusão enquanto o desenho que sai ainda o mostra
+    const noAr = new Set([...entrada.programa.activeParticipantIds, ...(entrada.saindo?.estado.activeParticipantIds ?? [])]);
+    this.som.convidadosNoAr(new Set([...noAr].filter((id) => this.videosDosConvidados.has(id))));
     this.ajustarCroma(entrada.camera.croma);
   }
 
@@ -166,6 +181,26 @@ export class CompositorDoPrograma {
 
   setMicrofone(trilha: MediaStreamTrack | null) {
     this.som.setMicrofone(trilha);
+  }
+
+  /** A câmera e a voz de um convidado da sala; null quando ele sai. */
+  setConvidado(id: string, stream: MediaStream | null) {
+    let video = this.videosDosConvidados.get(id);
+    if (!stream) {
+      if (video) video.srcObject = null;
+      this.videosDosConvidados.delete(id);
+      this.som.setConvidado(id, null);
+      return;
+    }
+    if (!video) {
+      video = videoDeFonte();
+      this.videosDosConvidados.set(id, video);
+    }
+    if (video.srcObject !== stream) {
+      video.srcObject = stream;
+      void video.play().catch(avisarSeNaoTocou('um convidado'));
+    }
+    this.som.setConvidado(id, stream.getAudioTracks()[0] ?? null);
   }
 
   // ── O laço: rAF à vista, o worker escondido, segurado em 30 qps ──────────
@@ -256,6 +291,20 @@ export class CompositorDoPrograma {
     const temTela = desenhaATela(estado);
     const inteira: Caixa = { x: 0, y: 0, w: LARGURA_DO_PALCO, h: ALTURA_DO_PALCO };
 
+    // A grade: todos os que estão na cena, em caixas iguais, como numa chamada.
+    // Quem saiu da sala CONTINUA com a caixa dele até o próximo corte: o
+    // programa não se recompõe sozinho no ar (vira a silhueta com "Saiu da sala").
+    if (estado.layout === 'grid') {
+      const pessoas = estado.activeParticipantIds.filter((id) => id === FONTE_CAMERA || id.startsWith('g-'));
+      const caixas = caixasDaGrade(Math.max(1, pessoas.length));
+      pessoas.forEach((id, i) => {
+        if (id === FONTE_CAMERA) this.desenharCamera(e, caixas[i], estado);
+        else this.desenharConvidado(id, caixas[i], e);
+      });
+      if (pessoas.length === 0) this.aviso('Nenhuma fonte nesta cena.', inteira, TINTAS_DO_PALCO.ink);
+      return;
+    }
+
     if (!temCamera && !temTela) {
       this.aviso('Nenhuma fonte nesta cena.', inteira, TINTAS_DO_PALCO.ink);
       return;
@@ -341,7 +390,34 @@ export class CompositorDoPrograma {
     ctx.restore();
   }
 
+  /** Um convidado da sala numa caixa: a imagem em cover, ou o nome com a silhueta quando ela falta. */
+  private desenharConvidado(id: string, caixa: Caixa, e: EntradaDoCompositor) {
+    const { ctx } = this;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(caixa.x, caixa.y, caixa.w, caixa.h);
+    ctx.clip();
+    ctx.fillStyle = TINTAS_DO_PALCO.palco;
+    ctx.fillRect(caixa.x, caixa.y, caixa.w, caixa.h);
+    const video = this.videosDosConvidados.get(id);
+    const presente = e.convidados.find((c) => c.id === id);
+    const nome = presente?.nome ?? this.nomesDosConvidados.get(id) ?? 'Convidado';
+    const trilha = (video?.srcObject as MediaStream | null)?.getVideoTracks()[0];
+    // A câmera desligada do convidado manda quadros pretos: a silhueta vem do semVideo dele, como no preview
+    if (presente && !presente.semVideo && video && trilha?.readyState === 'live' && video.readyState >= 2 && video.videoWidth > 0) {
+      const { sx, sy, sw, sh } = recorteDeCapa(video.videoWidth, video.videoHeight, caixa.w, caixa.h);
+      ctx.drawImage(video, sx, sy, sw, sh, caixa.x, caixa.y, caixa.w, caixa.h);
+    } else {
+      this.desenharPessoaSemImagem(nome, presente ? (presente.semVideo ? 'Câmera desligada' : 'Sem imagem da câmera') : 'Saiu da sala', caixa);
+    }
+    ctx.restore();
+  }
+
   private desenharCameraSemImagem(e: EntradaDoCompositor, caixa: Caixa) {
+    this.desenharPessoaSemImagem(e.nome, e.cameraDesligada ? 'Câmera desligada' : 'Sem imagem da câmera', caixa);
+  }
+
+  private desenharPessoaSemImagem(nome: string, frase: string, caixa: Caixa) {
     const { ctx } = this;
     const cx = caixa.x + caixa.w / 2;
     const d = Math.min(caixa.h * 0.4, 64 * ESCALA_DE_PX_FIXO);
@@ -370,10 +446,10 @@ export class CompositorDoPrograma {
     ctx.textBaseline = 'middle';
     ctx.fillStyle = TINTAS_DO_PALCO.inkHi;
     ctx.font = fonteDoPalco(nomePx, 500);
-    ctx.fillText(e.nome, cx, cy + d * 0.5 + nomePx);
+    ctx.fillText(nome, cx, cy + d * 0.5 + nomePx);
     ctx.fillStyle = TINTAS_DO_PALCO.inkLo;
     ctx.font = fonteDoPalco(estadoPx);
-    ctx.fillText(e.cameraDesligada ? 'Câmera desligada' : 'Sem imagem da câmera', cx, cy + d * 0.5 + nomePx + estadoPx * 1.6);
+    ctx.fillText(frase, cx, cy + d * 0.5 + nomePx + estadoPx * 1.6);
     ctx.textAlign = 'left';
   }
 
