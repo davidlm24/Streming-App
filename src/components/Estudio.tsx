@@ -6,7 +6,11 @@ import { AJUSTES_PADRAO, dentroDoQuadro, type AjustesDaCamera } from '../lib/cam
 import { useRoteiro } from '../lib/useRoteiro';
 import { useListaDaConta } from '../lib/useListaDaConta';
 import { EVENTOS_DO_PLAYER, ajustarPlayer, criarPlayer, desenhaATela, situacaoDoClipe, soltarPlayer, tocar, type PlayerDoClipe } from '../lib/playerDoClipe';
-import { estadoDoCanal } from '../lib/canais';
+import { PALAVRA_DO_CANAL, estadoDoCanal, nomeDaPlataforma } from '../lib/canais';
+import { desistirDaTransmissao, pedirTransmissao } from '../lib/transmissao';
+import { comecarTransmissao, type TransmissaoEmCurso } from '../lib/palco/transmissor';
+import type { EstadoDoDestino } from '../server/protocoloDoMotor';
+import { formatarTempo, juntar } from '../lib/graficos';
 import { salvarBanners, salvarTickers, subscribeBanners, subscribeTickers } from '../lib/dadosDaConta';
 import { useMidiaDoEstudio } from '../context/MidiaDoEstudio';
 import { BarraDoEstudio } from './BarraDoEstudio';
@@ -40,6 +44,7 @@ import {
   type JanelaAberta,
 } from './Teleprompter';
 import { useToast } from './ui/Toast';
+import { useConfirm } from './ui/ConfirmDialog';
 
 /** Uma preferência do estúdio guardada neste navegador (posições, velocidades, ajustes da câmera). */
 function usePreferencia<T>(chave: string, inicial: T, aoLer: (salvo: T) => T = (v) => v) {
@@ -148,6 +153,7 @@ export function Estudio({
   onCor,
 }: EstudioProps) {
   const toast = useToast();
+  const confirm = useConfirm();
   const midia = useMidiaDoEstudio();
 
   // ── Fontes: a câmera de quem opera e a tela compartilhada ─────────────────
@@ -671,14 +677,160 @@ export function Estudio({
     window.addEventListener('beforeunload', avisar);
     return () => window.removeEventListener('beforeunload', avisar);
   }, [gravacao]);
-  // Sair do estúdio gravando, por qualquer caminho (o botão, a sessão que cai,
-  // outra rota), encerra e baixa antes de soltar as trilhas que a gravação lê
+  // ── A transmissão: o programa vai aos canais ─────────────────────────────
+  // Pedir à API (que registra e assina o bilhete), abrir o motor, mandar o
+  // vídeo. O estado de cada canal vem do motor e mora aqui para a barra, a
+  // bandeja e os avisos; o carmim do ar só acende com um canal de fato no ar.
+  interface CanalNoAr { id: string; nome: string; estado: EstadoDoDestino; detalhe?: string }
+  const [faseDoAr, setFaseDoAr] = useState<'parada' | 'entrando' | 'no-ar' | 'encerrando'>('parada');
+  const [transmissao, setTransmissao] = useState<{ id: string; curso: TransmissaoEmCurso; canais: CanalNoAr[] } | null>(null);
+  // O ref é a verdade entre um render e outro: é preenchido antes do setState
+  // (um fim que chega nesse meio tempo não pode se perder) e zerado por quem
+  // encerra (o setState vem depois e não o repõe)
+  const transmissaoRef = useRef<{ id: string; curso: TransmissaoEmCurso; canais: CanalNoAr[] } | null>(null);
+  /** O estúdio ainda está montado: uma transmissão que só chegou depois de sair é encerrada na hora. */
+  const montadoRef = useRef(true);
+  useEffect(() => {
+    montadoRef.current = true;
+    return () => {
+      montadoRef.current = false;
+    };
+  }, []);
+  const canaisProntos = canais.filter((d) => d.selected && estadoDoCanal(d) === 'pronto');
+  const impedimento =
+    canaisProntos.length === 0
+      ? canais.some((d) => d.selected)
+        ? 'Falta o servidor ou a chave de um canal ligado. Complete o canal em Canais.'
+        : 'Nenhum canal ligado. Ligue um canal com servidor e chave em Canais.'
+      : null;
+  const canaisNoAr = transmissao?.canais.filter((c) => c.estado === 'no-ar').length ?? 0;
+  const canaisQueDesistiram = transmissao?.canais.filter((c) => c.estado === 'falhou').length ?? 0;
+  const aoVivo = faseDoAr !== 'parada' && canaisNoAr > 0;
+
+  const entrarAoVivo = async () => {
+    if (faseDoAr !== 'parada' || impedimento || !compositor.stream) return;
+    const nomes = canaisProntos.map((c) => c.name || nomeDaPlataforma(c.platform));
+    const ok = await confirm({
+      title: canaisProntos.length === 1 ? `Entrar ao vivo em ${nomes[0]}?` : `Entrar ao vivo em ${canaisProntos.length} canais?`,
+      description: `O programa começa a ir para ${juntar(nomes)} assim que o servidor conectar. O que está no preview continua fora do ar até o corte.`,
+      confirmLabel: 'Entrar ao vivo',
+    });
+    if (!ok || faseDoAr !== 'parada') return;
+    setFaseDoAr('entrando');
+    let autorizada: Awaited<ReturnType<typeof pedirTransmissao>> | null = null;
+    try {
+      // O clique na confirmação é o gesto que libera o som
+      const comSom = await compositor.prepararSom();
+      autorizada = await pedirTransmissao(canais, webinar?.title, webinar?.id);
+      if (!compositor.stream) throw new Error('O programa não está mais disponível.');
+      const registrada = autorizada;
+      const curso = await comecarTransmissao({
+        stream: compositor.stream,
+        comSom,
+        motor: autorizada.motor,
+        bilhete: autorizada.bilhete,
+        destinos: autorizada.destinos,
+        aoDestino: (id, estado, detalhe) => {
+          const atual = transmissaoRef.current;
+          if (atual?.id === registrada.id) {
+            atual.canais = atual.canais.map((c) => (c.id === id ? { ...c, estado, detalhe } : c));
+            setTransmissao({ ...atual });
+          }
+          const canal = registrada.destinos.find((d) => d.id === id);
+          const outrosNoAr = (atual?.canais ?? []).filter((c) => c.id !== id && c.estado === 'no-ar').length;
+          const osOutros = outrosNoAr > 0 ? ' Os outros canais seguem no ar.' : ' Nenhum canal está recebendo a live agora.';
+          if (estado === 'falhou') toast.error(`${canal?.nome ?? 'Um canal'} caiu e não voltou`, `${detalhe ?? 'O servidor desistiu desse canal.'}${osOutros}`);
+          else if (estado === 'reconectando') toast.info(`${canal?.nome ?? 'Um canal'} caiu`, `O servidor está religando.${osOutros}`);
+        },
+        aoEncerrar: (motivo, duracaoS) => {
+          if (transmissaoRef.current?.id !== registrada.id) return;
+          transmissaoRef.current = null;
+          setTransmissao(null);
+          setFaseDoAr('parada');
+          toast.error('A transmissão caiu', `${motivo} Os canais pararam de receber a live${duracaoS ? ` depois de ${formatarTempo(duracaoS)}` : ''}.`);
+        },
+      });
+      if (!montadoRef.current) {
+        // A pessoa saiu do estúdio enquanto o motor conectava: a transmissão nasceu órfã e morre aqui
+        void curso.parar();
+        return;
+      }
+      transmissaoRef.current = { id: registrada.id, curso, canais: registrada.destinos.map((d) => ({ id: d.id, nome: d.nome, estado: 'conectando' })) };
+      setTransmissao(transmissaoRef.current);
+      setFaseDoAr('no-ar');
+      if (!comSom) toast.info('Entrando no ar sem som', 'O navegador não liberou o áudio. O programa vai aos canais só com a imagem.');
+    } catch (erro) {
+      console.error('Não deu para entrar ao vivo:', erro);
+      // A API já registrou a transmissão: o banco precisa saber que ela não aconteceu
+      if (autorizada) void desistirDaTransmissao(autorizada.id, erro instanceof Error ? erro.message : 'A transmissão não começou.');
+      if (montadoRef.current) {
+        setFaseDoAr('parada');
+        toast.error('Não deu para entrar ao vivo', erro instanceof Error ? erro.message : 'Tente de novo.');
+      }
+    }
+  };
+
+  const pararTransmissao = async () => {
+    const atual = transmissaoRef.current;
+    if (!atual) return;
+    transmissaoRef.current = null;
+    setFaseDoAr('encerrando');
+    const n = atual.canais.filter((c) => c.estado === 'no-ar').length;
+    const { confirmado } = await atual.curso.parar();
+    setTransmissao(null);
+    setFaseDoAr('parada');
+    const tempo = formatarTempo(Math.floor((Date.now() - atual.curso.inicioEm) / 1000));
+    if (!confirmado) toast.info('Transmissão encerrada', 'O servidor não confirmou o fim; os canais podem levar alguns segundos para parar.');
+    else if (n === 0) toast.info('Transmissão encerrada', 'Nenhum canal chegou a receber a live.');
+    else toast.success('Transmissão encerrada', `${tempo} no ar em ${n} ${n === 1 ? 'canal' : 'canais'}.`);
+  };
+  const encerrarTransmissao = async () => {
+    if (faseDoAr !== 'no-ar') return;
+    const ok = await confirm({
+      title: 'Encerrar a transmissão?',
+      description: 'Os canais param de receber a live agora. O estúdio continua aberto.',
+      confirmLabel: 'Encerrar transmissão',
+      destructive: true,
+    });
+    if (ok) await pararTransmissao();
+  };
+  // O carmim do ar nos monitores (`[data-air="on"]` no index.css) e a aba que pergunta antes de fechar
+  useEffect(() => {
+    document.body.dataset.air = aoVivo ? 'on' : 'off';
+    return () => {
+      delete document.body.dataset.air;
+    };
+  }, [aoVivo]);
+  useEffect(() => {
+    if (!transmissao) return;
+    const avisar = (evento: BeforeUnloadEvent) => {
+      evento.preventDefault();
+      evento.returnValue = '';
+    };
+    window.addEventListener('beforeunload', avisar);
+    return () => window.removeEventListener('beforeunload', avisar);
+  }, [transmissao]);
+  const pararTransmissaoRef = useRef(pararTransmissao);
+  pararTransmissaoRef.current = pararTransmissao;
+
+  const fraseDoAr = transmissao
+    ? (() => {
+        const noAr = transmissao.canais.filter((c) => c.estado === 'no-ar').map((c) => c.nome);
+        const outros = transmissao.canais.filter((c) => c.estado !== 'no-ar').map((c) => `${c.nome}: ${PALAVRA_DO_CANAL[c.estado]}`);
+        const todosDesistiram = transmissao.canais.every((c) => c.estado === 'falhou');
+        return [noAr.length ? `No ar em ${juntar(noAr)}` : todosDesistiram ? 'Nenhum canal no ar' : 'Conectando aos canais', ...outros].join(' · ');
+      })()
+    : 'Fora do ar: nada está sendo transmitido.';
+
+  // Sair do estúdio gravando ou transmitindo, por qualquer caminho (o botão, a
+  // sessão que cai, outra rota), encerra antes de soltar as trilhas que os dois leem
   const pararEGuardarRef = useRef(pararEGuardar);
   pararEGuardarRef.current = pararEGuardar;
   useEffect(() => {
     compositor.iniciar();
     return () => {
       if (gravacaoRef.current) void pararEGuardarRef.current();
+      if (transmissaoRef.current) void pararTransmissaoRef.current();
       compositor.soltar();
     };
   }, [compositor]);
@@ -706,7 +858,21 @@ export function Estudio({
     return () => tirar.forEach((f) => f());
   }, [localStream, versaoDoAudio, toast]);
 
-  const sairDoEstudio = () => {
+  const sairDoEstudio = async () => {
+    if (faseDoAr === 'entrando') {
+      toast.info('A transmissão está começando', 'Espere ela entrar no ar para encerrar e sair.');
+      return;
+    }
+    if (transmissaoRef.current) {
+      const ok = await confirm({
+        title: 'Encerrar a transmissão e sair?',
+        description: 'Os canais param de receber a live agora.',
+        confirmLabel: 'Encerrar e sair',
+        destructive: true,
+      });
+      if (!ok) return;
+      await pararTransmissao();
+    }
     if (gravacaoRef.current) void pararEGuardar();
     onSair();
   };
@@ -903,7 +1069,15 @@ export function Estudio({
         canaisLigados={ligados.length}
         canaisProntos={ligados.filter((d) => estadoDoCanal(d) === 'pronto').length}
         onCanais={onCanais}
-        onSair={sairDoEstudio}
+        transmissao={
+          faseDoAr === 'no-ar' && transmissao
+            ? { fase: 'no-ar', inicioEm: transmissao.curso.inicioEm, canaisNoAr, canaisQueDesistiram, canaisTotal: transmissao.canais.length }
+            : { fase: faseDoAr === 'no-ar' ? 'entrando' : faseDoAr }
+        }
+        impedimento={impedimento}
+        onEntrarAoVivo={() => void entrarAoVivo()}
+        onEncerrar={() => void encerrarTransmissao()}
+        onSair={() => void sairDoEstudio()}
         onVoltarAosAjustes={voltarAosAjustes}
         mostrarVoltaAosAjustes={posicaoDosAjustes !== null}
         botaoVoltarRef={botaoVoltarRef}
@@ -948,6 +1122,7 @@ export function Estudio({
         <div className="order-1 min-w-0 p-3 sm:p-4 lg:order-2 lg:min-h-0">
           <MesaDeMonitores
             cenaDoPrograma={cenaPeloId(programa.sceneId)?.nome ?? ''}
+            programaAoVivo={aoVivo}
             cenaDoPreview={cena.nome}
             programa={<PalcoDoPrograma compositor={compositor} mostrarGuias={mostrarGuias} />}
             preview={monitor(estadoDoPreview, {
@@ -1008,6 +1183,7 @@ export function Estudio({
         inicioDaGravacao={gravacao?.inicioEm ?? null}
         gravandoSemSom={gravacao !== null && !gravacao.comSom}
         onAlternarGravacao={() => void alternarGravacao()}
+        fraseDoAr={fraseDoAr}
       />
 
       {janelaAberta && (

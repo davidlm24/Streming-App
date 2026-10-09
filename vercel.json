@@ -1,7 +1,9 @@
 {
   "version": 2,
   "framework": "vite",
-  "regions": ["gru1"],
+  "regions": [
+    "gru1"
+  ],
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "headers": [
@@ -10,7 +12,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: https://*.googleusercontent.com; media-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; frame-src 'none'; worker-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: https://*.googleusercontent.com; media-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co wss://pwstreamer-motor.fly.dev; object-src 'none'; frame-src 'none'; worker-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
         }
       ]
     }

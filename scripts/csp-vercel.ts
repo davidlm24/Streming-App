@@ -12,12 +12,12 @@
  * está no `vercel.json`. Mexer num exige mexer no outro.
  */
 import { readFileSync } from 'node:fs';
-import { ORIGENS_DO_SUPABASE_EM_PRODUCAO, politicaDeSeguranca } from '../src/server/csp.ts';
+import { ORIGEM_DO_MOTOR_EM_PRODUCAO, ORIGENS_DO_SUPABASE_EM_PRODUCAO, politicaDeSeguranca } from '../src/server/csp.ts';
 
 const CAMINHO = 'vercel.json';
 
 const esperada = politicaDeSeguranca({
-  origensDeDados: ORIGENS_DO_SUPABASE_EM_PRODUCAO,
+  origensDeDados: [...ORIGENS_DO_SUPABASE_EM_PRODUCAO, ORIGEM_DO_MOTOR_EM_PRODUCAO],
   desenvolvimento: false,
 });
 
