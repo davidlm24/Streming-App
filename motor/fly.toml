@@ -1,0 +1,40 @@
+# O motor de transmissão no Fly.io, em São Paulo (gru), perto da API (gru1).
+# Deploy, da raiz do repositório:
+#   fly deploy --config motor/fly.toml --dockerfile motor/Dockerfile .
+# Segredos (uma vez): fly secrets set MOTOR_SEGREDO=... APP_URL=https://... --config motor/fly.toml
+#
+# A máquina para quando não há transmissão e liga na primeira conexão (uns
+# segundos; o estúdio espera). Um WebSocket aberto conta como conexão, então
+# ela não para no meio de uma live.
+
+app = "pwstreamer-motor"
+primary_region = "gru"
+# Tempo para o motor encerrar as lives e relatar o fim à API antes de o Fly matar o processo (o padrão, 5 s, não dá)
+kill_timeout = 30
+
+[env]
+  PORT = "8080"
+  MOTOR_MAX_SESSOES = "2"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/saude"
+
+[[vm]]
+  size = "shared-cpu-2x"
+  memory = "1024mb"

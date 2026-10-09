@@ -1,4 +1,5 @@
 import type { Destination } from '../types';
+import type { EstadoDoDestino } from '../server/protocoloDoMotor';
 
 /**
  * Estado de um canal para a próxima live. Uma regra só, lida pelo painel e
@@ -91,3 +92,12 @@ export function plataformaPeloNome(nome: string): string | undefined {
   const alvo = primeira(nome);
   return Object.keys(NOMES).find((id) => alvo === id || alvo === primeira(NOMES[id]));
 }
+
+/** O estado de um canal durante a transmissão, nas palavras da tela (o motor fala em `EstadoDoDestino`). */
+export const PALAVRA_DO_CANAL: Record<EstadoDoDestino, string> = {
+  conectando: 'conectando',
+  'no-ar': 'no ar',
+  reconectando: 'religando',
+  falhou: 'caiu',
+  parado: 'parado',
+};
