@@ -8,6 +8,7 @@ import { useListaDaConta } from '../lib/useListaDaConta';
 import { EVENTOS_DO_PLAYER, ajustarPlayer, criarPlayer, desenhaATela, situacaoDoClipe, soltarPlayer, tocar, type PlayerDoClipe } from '../lib/playerDoClipe';
 import { PALAVRA_DO_CANAL, estadoDoCanal, nomeDaPlataforma } from '../lib/canais';
 import { desistirDaTransmissao, pedirTransmissao } from '../lib/transmissao';
+import { useTransmissaoDisponivel } from '../lib/useTransmissaoDisponivel';
 import { comecarTransmissao, type TransmissaoEmCurso } from '../lib/palco/transmissor';
 import type { EstadoDoDestino } from '../server/protocoloDoMotor';
 import { formatarTempo, juntar } from '../lib/graficos';
@@ -721,12 +722,16 @@ export function Estudio({
     };
   }, []);
   const canaisProntos = canais.filter((d) => d.selected && estadoDoCanal(d) === 'pronto');
+  // Sem o motor no servidor, nenhum canal adianta: esse impedimento vem antes
+  const transmissaoDisponivel = useTransmissaoDisponivel();
   const impedimento =
-    canaisProntos.length === 0
-      ? canais.some((d) => d.selected)
-        ? 'Falta o servidor ou a chave de um canal ligado. Complete o canal em Canais.'
-        : 'Nenhum canal ligado. Ligue um canal com servidor e chave em Canais.'
-      : null;
+    transmissaoDisponivel === false
+      ? 'A transmissão para os canais ainda não está configurada neste servidor.'
+      : canaisProntos.length === 0
+        ? canais.some((d) => d.selected)
+          ? 'Falta o servidor ou a chave de um canal ligado. Complete o canal em Canais.'
+          : 'Nenhum canal ligado. Ligue um canal com servidor e chave em Canais.'
+        : null;
   const canaisNoAr = transmissao?.canais.filter((c) => c.estado === 'no-ar').length ?? 0;
   const canaisQueDesistiram = transmissao?.canais.filter((c) => c.estado === 'falhou').length ?? 0;
   const aoVivo = faseDoAr !== 'parada' && canaisNoAr > 0;

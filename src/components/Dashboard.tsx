@@ -3,6 +3,7 @@ import { ArrowRight, Check, CircleAlert, Plus } from 'lucide-react';
 import type { Destination } from '../types';
 import { estadoDoCanal, nomeDaPlataforma, pendenciaCurta, plataformaPeloNome } from '../lib/canais';
 import { rotuloDoHorario } from '../lib/horario';
+import { useTransmissaoDisponivel } from '../lib/useTransmissaoDisponivel';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { Chip } from './ui/Chip';
@@ -185,12 +186,16 @@ function usePermissaoDosAparelhos(): Permissao {
 
 /**
  * O que a próxima live tem e o que falta, antes de entrar no estúdio: a
- * permissão dos aparelhos e se há canal pronto para o ar. Sem canal pronto,
- * "Entrar ao vivo" não age, e o painel diz isso aqui, onde se prepara, e não
+ * permissão dos aparelhos, se o servidor transmite e se há canal pronto para
+ * o ar. Sem um ou outro, "Entrar ao vivo" não age, e o painel diz isso aqui, onde se prepara, e não
  * só no estúdio.
  */
 function Prontidao({ canaisProntos }: { canaisProntos: number }) {
   const permissao = usePermissaoDosAparelhos();
+  // Sem o motor no servidor, canal pronto não basta. Enquanto a resposta não
+  // chega (ou se ela falhar), a linha fala só dos canais, sem prometer o ar
+  const transmissaoDisponivel = useTransmissaoDisponivel();
+  const nCanais = `${canaisProntos} ${canaisProntos === 1 ? 'canal' : 'canais'}`;
   const aparelhos: Record<Exclude<Permissao, 'desconhecida'>, { ok: boolean; frase: string }> = {
     liberada: { ok: true, frase: 'Câmera e microfone liberados neste navegador.' },
     'a-pedir': { ok: false, frase: 'Câmera e microfone: o navegador vai pedir permissão ao entrar no estúdio.' },
@@ -198,12 +203,13 @@ function Prontidao({ canaisProntos }: { canaisProntos: number }) {
   };
   const linhas = [
     ...(permissao === 'desconhecida' ? [] : [aparelhos[permissao]]),
-    canaisProntos > 0
-      ? {
-          ok: true,
-          frase: `Pronto para entrar ao vivo em ${canaisProntos} ${canaisProntos === 1 ? 'canal' : 'canais'}, pelo botão Entrar ao vivo do estúdio.`,
-        }
-      : { ok: false, frase: 'Nenhum canal pronto: até um canal ligado ter servidor e chave, o estúdio só ensaia e grava neste computador.' },
+    transmissaoDisponivel === false
+      ? { ok: false, frase: 'A transmissão para os canais ainda não está configurada neste servidor: por enquanto, o estúdio ensaia e grava neste computador.' }
+      : canaisProntos === 0
+        ? { ok: false, frase: 'Nenhum canal pronto: até um canal ligado ter servidor e chave, o estúdio só ensaia e grava neste computador.' }
+        : transmissaoDisponivel
+          ? { ok: true, frase: `Pronto para entrar ao vivo em ${nCanais}, pelo botão Entrar ao vivo do estúdio.` }
+          : { ok: true, frase: `${nCanais} com servidor e chave.` },
   ];
 
   return (
