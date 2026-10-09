@@ -23,7 +23,7 @@ export const ESCALA_DE_PX_FIXO = LARGURA_DO_PALCO / 640;
 /** Os tokens que o canvas não lê do CSS (o console, escuro sempre). */
 export const TINTAS_DO_PALCO = {
   palco: '#000000',
-  raise: '#17233D',
+  raise: '#161D29',
   inkHi: '#F0F5F9',
   ink: '#D9E1EA',
   inkLo: '#A2ACB7',
