@@ -56,16 +56,18 @@
   --color-n-100: #FFFFFF;  /* Y 100,00 % */
 
   /* ── o marinho do console. O estúdio é a sala escura do produto, e o
-        cinza-azulado da rampa acima o deixava grafite. Cada degrau tem o Y
-        do degrau n-* que substitui (±0,02 pp), com matiz 264° em OKLCH e croma
-        de 0,035 a 0,052: toda razão de contraste do console continua a mesma.
+        cinza-azulado da rampa acima o deixava grafite. Aqui o fundo é mais
+        escuro que o do cinza (Y menor em nv-3 a nv-14), com matiz 258° em OKLCH
+        e croma de 0,020 a 0,027: um marinho fechado, quase neutro, que só se
+        entrega ao lado do grafite. As linhas (nv-18, nv-28) ficam perto do Y
+        de n-18 e n-28, então o contraste delas sobre o fundo só sobe.
         O preto do palco e do letterbox (n-0) não muda: vídeo não se tinge. ── */
-  --color-nv-3:  #050B1A;  /* Y 0,35 % */
-  --color-nv-6:  #091326;  /* Y 0,66 % */
-  --color-nv-10: #101A31;  /* Y 1,07 % */
-  --color-nv-14: #17233D;  /* Y 1,72 % */
-  --color-nv-18: #202C45;  /* Y 2,54 % */
-  --color-nv-28: #35425E;  /* Y 5,46 % */
+  --color-nv-3:  #040810;  /* Y 0,24 % */
+  --color-nv-6:  #080F18;  /* Y 0,46 % */
+  --color-nv-10: #0E1520;  /* Y 0,73 % */
+  --color-nv-14: #161D29;  /* Y 1,21 % */
+  --color-nv-18: #212936;  /* Y 2,18 % */
+  --color-nv-28: #363F4D;  /* Y 4,88 % */
 
   /* ── sinal. O tally é o único vermelho do sistema. ────────────────────── */
   --color-sig:      #D91F2D;  /* Y 15,92 % */
