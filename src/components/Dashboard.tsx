@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, CircleAlert, CircleDashed, Plus } from 'lucide-react';
+import { ArrowRight, Check, CircleAlert, Plus } from 'lucide-react';
 import type { Destination } from '../types';
 import { estadoDoCanal, nomeDaPlataforma, pendenciaCurta, plataformaPeloNome } from '../lib/canais';
 import { rotuloDoHorario } from '../lib/horario';
@@ -95,7 +95,7 @@ export function Dashboard({
             </>
           )}
 
-          {carregado && <Prontidao />}
+          {carregado && <Prontidao canaisProntos={canais.filter((c) => c.selected && estadoDoCanal(c) === 'pronto').length} />}
 
           <div className="mt-8">
             <Button size="lg" onClick={() => onEntrarNoEstudio(proxima)} className="w-full sm:w-auto sm:min-w-64">
@@ -184,39 +184,36 @@ function usePermissaoDosAparelhos(): Permissao {
 }
 
 /**
- * O que a próxima live tem e o que ainda não existe, antes de entrar no
- * estúdio. O estado do produto fica à vista: a contagem de canais
- * configurados, logo abaixo, podia ler como "pronto para o ar" ao lado de
- * uma transmissão que ainda não existe.
+ * O que a próxima live tem e o que falta, antes de entrar no estúdio: a
+ * permissão dos aparelhos e se há canal pronto para o ar. Sem canal pronto,
+ * "Entrar ao vivo" não age, e o painel diz isso aqui, onde se prepara, e não
+ * só no estúdio.
  */
-function Prontidao() {
+function Prontidao({ canaisProntos }: { canaisProntos: number }) {
   const permissao = usePermissaoDosAparelhos();
   const aparelhos: Record<Exclude<Permissao, 'desconhecida'>, { ok: boolean; frase: string }> = {
     liberada: { ok: true, frase: 'Câmera e microfone liberados neste navegador.' },
     'a-pedir': { ok: false, frase: 'Câmera e microfone: o navegador vai pedir permissão ao entrar no estúdio.' },
     bloqueada: { ok: false, frase: 'Câmera ou microfone bloqueados. Permita no cadeado da barra de endereço.' },
   };
-  const linhaDosAparelhos = permissao === 'desconhecida' ? null : aparelhos[permissao];
+  const linhas = [
+    ...(permissao === 'desconhecida' ? [] : [aparelhos[permissao]]),
+    canaisProntos > 0
+      ? {
+          ok: true,
+          frase: `Pronto para entrar ao vivo em ${canaisProntos} ${canaisProntos === 1 ? 'canal' : 'canais'}, pelo botão Entrar ao vivo do estúdio.`,
+        }
+      : { ok: false, frase: 'Nenhum canal pronto: até um canal ligado ter servidor e chave, o estúdio só ensaia e grava neste computador.' },
+  ];
 
   return (
-    <ul aria-label="Prontidão" className="mt-6 space-y-2 text-sm">
-      {linhaDosAparelhos && (
-        <li className="flex items-start gap-2 text-[var(--ink-hi)]">
-          {linhaDosAparelhos.ok ? (
-            <Check size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-          ) : (
-            <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-          )}
-          <span className="text-pretty">{linhaDosAparelhos.frase}</span>
+    <ul aria-label="Prontidão" className="mt-6 space-y-2 text-sm text-[var(--ink-hi)]">
+      {linhas.map(({ ok, frase }) => (
+        <li key={frase} className="flex items-start gap-2">
+          {ok ? <Check size={16} aria-hidden="true" className="mt-0.5 shrink-0" /> : <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />}
+          <span className="text-pretty">{frase}</span>
         </li>
-      )}
-      <li className="flex items-start gap-2 text-[var(--ink-lo)]">
-        <CircleDashed size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
-        <span className="text-pretty">
-          <span className="font-medium text-[var(--ink-hi)]">Só ensaio por enquanto.</span> A transmissão para os canais ainda não existe; no
-          estúdio dá para montar as cenas e gravar o programa neste computador.
-        </span>
-      </li>
+      ))}
     </ul>
   );
 }
@@ -277,7 +274,7 @@ function LinhaDeCanais({
           Canais
           {naLinha > 0 && (
             <span className="ml-2 text-sm font-normal text-[var(--ink-lo)]">
-              {prontos} de {naLinha} {naLinha === 1 ? 'configurado' : 'configurados'}
+              {prontos} de {naLinha} {naLinha === 1 ? 'pronto' : 'prontos'}
             </span>
           )}
         </h2>
@@ -312,7 +309,7 @@ function LinhaDeCanais({
               >
                 <Chip
                   onClick={pendencia ? () => onEditarCanal(canal.id) : onVerCanais}
-                  rotulo={`${canal.name}: ${pendencia ?? 'configurado'}`}
+                  rotulo={`${canal.name}: ${pendencia ?? 'pronto'}`}
                   icone={<PlataformaIcone plataforma={canal.platform} />}
                   estado={<EstadoDoChip pendencia={pendencia} />}
                 >

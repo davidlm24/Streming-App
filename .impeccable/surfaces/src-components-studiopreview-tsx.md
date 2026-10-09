@@ -40,6 +40,12 @@ related_targets: ["src/App.tsx","src/components/Estudio.tsx","src/components/Bar
 - O compositor chega junto com "Gravar": a gravação local, num arquivo baixado, é a prova de ponta a ponta antes da transmissão existir.
 - As guias ficam sobre o canvas, fora do vídeo.
 
+**A transmissão (decidida com o usuário em 2026-10-09):** o segundo passo, o ar de verdade.
+- O programa sai do navegador por WebSocket (os mesmos pedaços WebM da gravação) para um motor nosso (Node + ffmpeg, `motor/`), que codifica uma vez e empurra por RTMP a cada canal. Escolhido sobre WebRTC/WHIP + MediaMTX (menos peças) e sobre a Cloudflare Stream (o WebRTC dela não retransmite para canais).
+- O motor roda no Fly.io, região São Paulo, com a máquina parada sem transmissão; a Vercel não roda ffmpeg nem conexões longas.
+- As horas de transmissão ficam registradas no banco desde já; o limite do plano entra com a cobrança.
+- O carmim do ar só acende com um canal de fato no ar; o estado de cada canal vem do motor.
+
 **Momento memorável:** o corte. A cena escolhida vai para o preview, e ao lado dele está a lista do que muda no próximo corte; "Corte" ou "Fusão" leva tudo ao programa.
 
 ## Direction contract
