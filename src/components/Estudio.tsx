@@ -10,6 +10,9 @@ import { estadoDoCanal } from '../lib/canais';
 import { salvarBanners, salvarTickers, subscribeBanners, subscribeTickers } from '../lib/dadosDaConta';
 import { useMidiaDoEstudio } from '../context/MidiaDoEstudio';
 import { BarraDoEstudio } from './BarraDoEstudio';
+import { PalcoDoPrograma } from './PalcoDoPrograma';
+import { CompositorDoPrograma, type SaidaDaFusao } from '../lib/palco/compositor';
+import { baixarGravacao, comecarGravacao, type GravacaoEmCurso } from '../lib/palco/gravador';
 import { PainelAudio } from './PainelAudio';
 import { SecaoDaApresentacao } from './SecaoDaApresentacao';
 import { useApresentacao } from '../lib/useApresentacao';
@@ -123,8 +126,9 @@ interface EstudioProps {
 /**
  * O estúdio: cenas e transição, programa e preview, chat e ferramentas, e a
  * bandeja. Ele é dono do que o console monta. O preview é o estado em
- * edição; o programa, o do último corte. Os dois são desenhados pelo mesmo
- * compositor (StudioPreview) a partir de um StudioSceneState.
+ * edição; o programa, o do último corte. O preview é desenhado em HTML pelo
+ * StudioPreview; o programa, no canvas do compositor (lib/palco), que é o
+ * vídeo gravado. Os dois partem de um StudioSceneState, com as mesmas medidas.
  *
  * Morava no App, com cerca de setenta estados, e o LeftSidebar recebia 160
  * props, parte delas de abas que nenhum caminho abria mais.
@@ -176,25 +180,43 @@ export function Estudio({
   // deixar o microfone ligado no Painel
   const noEstudioRef = useRef(false);
 
-  // Câmera e microfone só no estúdio: pedidos ao entrar, desligados ao sair
+  // Câmera e microfone só no estúdio: pedidos ao entrar, desligados ao sair.
+  //
+  // Um pedido só por entrada no estúdio. O StrictMode desmonta e remonta na
+  // hora, e antes cada montagem abria o seu pedido: encerrar o primeiro
+  // derrubava a captura do aparelho que o segundo tinha herdado, e a câmera
+  // chegava com a trilha já terminada (ended, sem nenhum stop nela). Agora a
+  // desmontagem só AGENDA o encerramento; uma remontagem logo em seguida o
+  // cancela e segue com o mesmo pedido, e só a saída de verdade fecha tudo.
+  const pedidoDaCaptura = useRef<Promise<MediaStream | null> | null>(null);
+  const encerramento = useRef<number | null>(null);
   useEffect(() => {
     noEstudioRef.current = true;
-    let saiu = false;
-    navigator.mediaDevices
-      ?.getUserMedia({ video: restricoesDeVideo(captura), audio: restricoesDeAudio(captura) })
-      .then((stream) => {
-        if (saiu) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
-        }
-        setLocalStream(stream);
-      })
-      .catch((err) => console.warn('Câmera e microfone não liberados:', err));
+    if (encerramento.current !== null) {
+      window.clearTimeout(encerramento.current);
+      encerramento.current = null;
+    }
+    let desta = true;
+    pedidoDaCaptura.current ??=
+      navigator.mediaDevices?.getUserMedia({ video: restricoesDeVideo(captura), audio: restricoesDeAudio(captura) }).catch((err) => {
+        console.warn('Câmera e microfone não liberados:', err);
+        return null;
+      }) ?? Promise.resolve(null);
+    void pedidoDaCaptura.current.then((stream) => {
+      if (desta && stream) setLocalStream(stream);
+    });
     return () => {
-      saiu = true;
+      desta = false;
       noEstudioRef.current = false;
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-      telaRef.current?.getTracks().forEach((t) => t.stop());
+      encerramento.current = window.setTimeout(() => {
+        encerramento.current = null;
+        const pedido = pedidoDaCaptura.current;
+        pedidoDaCaptura.current = null;
+        // O pedido pode ainda não ter voltado: o que ele abrir é fechado ao chegar
+        void pedido?.then((stream) => stream?.getTracks().forEach((t) => t.stop()));
+        streamRef.current?.getTracks().forEach((t) => t.stop());
+        telaRef.current?.getTracks().forEach((t) => t.stop());
+      }, 0);
     };
   }, []);
 
@@ -400,12 +422,11 @@ export function Estudio({
     apresentacao: null,
   }));
   // O clipe do programa toca num player só (lib/playerDoClipe). Na fusão, o
-  // programa que sai leva o player dele, e a camada que some desenha o quadro
-  // desse player.
+  // compositor dissolve o programa que sai, desenhando-o pelo player dele.
   const [player, setPlayer] = useState<PlayerDoClipe | null>(null);
   const playerRef = useRef<PlayerDoClipe | null>(null);
   playerRef.current = player;
-  const [programaQueSai, setProgramaQueSai] = useState<{ estado: StudioSceneState; player: PlayerDoClipe | null } | null>(null);
+  const [programaQueSai, setProgramaQueSai] = useState<SaidaDaFusao | null>(null);
   // Tocar, pausar, chegar ao fim e o navegador recusar mudam o que a Mídia diz do clipe
   const [, setMudancasDoPlayer] = useState(0);
   useEffect(() => {
@@ -447,7 +468,7 @@ export function Estudio({
     if (sai) sai.video.pause();
 
     if (transicao === 'fusao') {
-      setProgramaQueSai({ estado: programa, player: atual });
+      setProgramaQueSai({ estado: programa, player: atual, inicioEm: performance.now() });
       saindoRef.current = sai;
       fusaoRef.current = window.setTimeout(() => {
         setProgramaQueSai(null);
@@ -561,6 +582,134 @@ export function Estudio({
   // ── O painel da ferramenta aberta ─────────────────────────────────────────
   const [ferramenta, setFerramenta] = useState<Ferramenta>(FERRAMENTA_INICIAL);
   const [mostrarGuias, setMostrarGuias] = useState(false);
+
+  // ── O programa em vídeo (lib/palco) ───────────────────────────────────────
+  // O canvas do compositor É o monitor de programa: o que o operador vê é o
+  // que a gravação baixa e a transmissão enviará. Nasce passivo e liga no
+  // efeito, porque o StrictMode cria e descarta uma instância a mais.
+  const [compositor] = useState(() => new CompositorDoPrograma());
+
+  // ── A gravação local: o vídeo composto num arquivo baixado ───────────────
+  const [gravacao, setGravacao] = useState<GravacaoEmCurso | null>(null);
+  const gravacaoRef = useRef<GravacaoEmCurso | null>(null);
+  gravacaoRef.current = gravacao;
+  const baixar = (arquivo: Blob) => {
+    try {
+      return baixarGravacao(arquivo);
+    } catch (erro) {
+      console.error('O download da gravação falhou:', erro);
+      return null;
+    }
+  };
+  const pararEGuardar = async () => {
+    const atual = gravacaoRef.current;
+    if (!atual) return;
+    // O ref zera já: sair do estúdio logo depois não pede um segundo arquivo
+    gravacaoRef.current = null;
+    setGravacao(null);
+    const arquivo = await atual.parar();
+    if (!arquivo) {
+      toast.error('Nada foi gravado', 'O navegador não entregou nenhum trecho do programa. Grave de novo.');
+      return;
+    }
+    // O app não sabe se o download terminou (o navegador pode perguntar onde
+    // salvar): diz que começou e deixa baixar de novo enquanto o aviso está aberto
+    const deNovo = { label: 'Baixar de novo', onClick: () => void baixar(arquivo) };
+    const nome = baixar(arquivo);
+    if (nome) toast.info('Gravação pronta', `O download de ${nome} começou.`, deNovo);
+    else toast.error('O download não começou', 'O navegador não baixou a gravação.', deNovo);
+  };
+  const comecando = useRef(false);
+  const alternarGravacao = async () => {
+    if (gravacaoRef.current) {
+      void pararEGuardar();
+      return;
+    }
+    if (!compositor.stream || comecando.current) return;
+    comecando.current = true;
+    try {
+      // O clique é o gesto que libera o som; sem ele, grava só a imagem e diz isso
+      const comSom = await compositor.prepararSom();
+      if (!compositor.stream) return;
+      const nova = comecarGravacao(compositor.stream, {
+        comSom,
+        aoParar: (erro) => {
+          if (gravacaoRef.current !== nova) return;
+          console.error('A gravação parou sozinha:', erro);
+          toast.error('A gravação parou', 'O navegador interrompeu a gravação. O que foi gravado até aqui vai ser baixado.');
+          void pararEGuardar();
+        },
+      });
+      gravacaoRef.current = nova;
+      setGravacao(nova);
+      if (!comSom) toast.info('Gravando sem som', 'O navegador não liberou o áudio. A imagem do programa está sendo gravada.');
+    } catch (erro) {
+      console.error('A gravação não começou:', erro);
+      toast.error('A gravação não começou', 'Este navegador não conseguiu gravar o programa. Tente no Chrome ou no Edge atualizados.');
+    } finally {
+      comecando.current = false;
+    }
+  };
+  // Uma gravação que não recebe nada há segundos travou: melhor saber agora que no fim da live
+  useEffect(() => {
+    if (!gravacao) return;
+    let avisou = false;
+    const id = window.setInterval(() => {
+      if (avisou || Date.now() - gravacao.ultimoPedacoEm() < 5000) return;
+      avisou = true;
+      toast.error('A gravação não está recebendo nada', 'Nenhum trecho chega ao arquivo há alguns segundos. Pare e grave de novo.');
+    }, 2000);
+    return () => window.clearInterval(id);
+  }, [gravacao, toast]);
+  // Fechar ou recarregar a aba gravando perderia tudo: o navegador pergunta antes
+  useEffect(() => {
+    if (!gravacao) return;
+    const avisar = (evento: BeforeUnloadEvent) => {
+      evento.preventDefault();
+      evento.returnValue = ''; // o Safari e os Chromes antigos só perguntam com isto
+    };
+    window.addEventListener('beforeunload', avisar);
+    return () => window.removeEventListener('beforeunload', avisar);
+  }, [gravacao]);
+  // Sair do estúdio gravando, por qualquer caminho (o botão, a sessão que cai,
+  // outra rota), encerra e baixa antes de soltar as trilhas que a gravação lê
+  const pararEGuardarRef = useRef(pararEGuardar);
+  pararEGuardarRef.current = pararEGuardar;
+  useEffect(() => {
+    compositor.iniciar();
+    return () => {
+      if (gravacaoRef.current) void pararEGuardarRef.current();
+      compositor.soltar();
+    };
+  }, [compositor]);
+  useEffect(() => compositor.setCamera(localStream), [compositor, localStream]);
+  useEffect(() => compositor.setTela(screenStream), [compositor, screenStream]);
+  // versaoDoAudio: a trilha trocada dentro do mesmo stream (ajustes de som)
+  useEffect(() => {
+    compositor.setMicrofone(localStream?.getAudioTracks()[0] ?? null);
+  }, [compositor, localStream, versaoDoAudio]);
+
+  // A câmera ou o microfone que param no meio (aparelho desligado, outro
+  // programa os tomou) param o programa: quem opera fica sabendo na hora.
+  // O stop() das trocas de aparelho não dispara `ended`, então não avisa.
+  useEffect(() => {
+    if (!localStream) return;
+    const tirar = localStream.getTracks().map((trilha) => {
+      const aoAcabar = () =>
+        toast.error(
+          trilha.kind === 'video' ? 'A câmera parou' : 'O microfone parou',
+          'O aparelho foi desligado ou outro programa o tomou. Escolha o aparelho de novo na bandeja.',
+        );
+      trilha.addEventListener('ended', aoAcabar);
+      return () => trilha.removeEventListener('ended', aoAcabar);
+    });
+    return () => tirar.forEach((f) => f());
+  }, [localStream, versaoDoAudio, toast]);
+
+  const sairDoEstudio = () => {
+    if (gravacaoRef.current) void pararEGuardar();
+    onSair();
+  };
   const [colunas, setColunas] = usePreferencia<Colunas>('pw_colunas_do_estudio', COLUNAS_INICIAIS, (c) => ({
     cenas: entre(c.cenas, COLUNAS.cenas),
     painel: entre(c.painel, COLUNAS.painel),
@@ -714,9 +863,9 @@ export function Estudio({
     }
   })();
 
-  const monitor = (papel: 'preview' | 'programa', estado: StudioSceneState, extra: Partial<Parameters<typeof StudioPreview>[0]> = {}) => (
+  // Só o preview segue em HTML (interativo: o card se arrasta); o programa é o compositor
+  const monitor = (estado: StudioSceneState, extra: Partial<Parameters<typeof StudioPreview>[0]> = {}) => (
     <StudioPreview
-      papel={papel}
       estado={estado}
       participantes={participantes}
       localStream={localStream}
@@ -733,6 +882,20 @@ export function Estudio({
 
   const ligados = canais.filter((d) => d.selected);
 
+  // O que o próximo quadro do vídeo desenha; roda a cada render do estúdio
+  useEffect(() => {
+    compositor.atualizar({
+      programa,
+      saindo: programaQueSai,
+      nome,
+      cameraDesligada,
+      camera: ajustes,
+      relogio,
+      playerDoClipe: player,
+      paginaDaApresentacao: apresentacao.mostrada,
+    });
+  });
+
   return (
     <>
       <BarraDoEstudio
@@ -740,7 +903,7 @@ export function Estudio({
         canaisLigados={ligados.length}
         canaisProntos={ligados.filter((d) => estadoDoCanal(d) === 'pronto').length}
         onCanais={onCanais}
-        onSair={onSair}
+        onSair={sairDoEstudio}
         onVoltarAosAjustes={voltarAosAjustes}
         mostrarVoltaAosAjustes={posicaoDosAjustes !== null}
         botaoVoltarRef={botaoVoltarRef}
@@ -786,21 +949,8 @@ export function Estudio({
           <MesaDeMonitores
             cenaDoPrograma={cenaPeloId(programa.sceneId)?.nome ?? ''}
             cenaDoPreview={cena.nome}
-            programa={
-              <>
-                {monitor('programa', programa)}
-                {programaQueSai && (
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0"
-                    style={{ animation: `fusao-sai ${DURACAO_DA_FUSAO}ms ease-out forwards` }}
-                  >
-                    {monitor('programa', programaQueSai.estado, { camadaQueSai: true, playerDoClipe: programaQueSai.player })}
-                  </div>
-                )}
-              </>
-            }
-            preview={monitor('preview', estadoDoPreview, {
+            programa={<PalcoDoPrograma compositor={compositor} mostrarGuias={mostrarGuias} />}
+            preview={monitor(estadoDoPreview, {
               onCardDaCamera: setCardDaCamera,
               onPorACamera: () => escolherCena(CENA_INICIAL),
             })}
@@ -854,6 +1004,10 @@ export function Estudio({
         onAlternarGuias={() => setMostrarGuias((v) => !v)}
         onEscolherDispositivo={(tipo, deviceId) => void escolherAparelho(tipo, deviceId)}
         versaoDoAudio={versaoDoAudio}
+        gravando={gravacao !== null}
+        inicioDaGravacao={gravacao?.inicioEm ?? null}
+        gravandoSemSom={gravacao !== null && !gravacao.comSom}
+        onAlternarGravacao={() => void alternarGravacao()}
       />
 
       {janelaAberta && (

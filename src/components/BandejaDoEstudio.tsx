@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Camera, CameraOff, Check, ChevronDown, Grid3x3, Mic, MicOff, MonitorUp, MonitorX } from 'lucide-react';
+import { Camera, CameraOff, Check, ChevronDown, Circle, Grid3x3, Mic, MicOff, MonitorUp, MonitorX, Square } from 'lucide-react';
+import { formatarTempo } from '../lib/graficos';
 import { MedidorDeAudio } from './MedidorDeAudio';
 import { Button } from './ui/Button';
 import { Menu, type ItemDeMenu } from './ui/Menu';
@@ -19,6 +20,27 @@ interface BandejaDoEstudioProps {
   onEscolherDispositivo: (tipo: Tipo, deviceId: string, rotulo: string) => void;
   /** Muda quando a trilha de áudio é trocada dentro do mesmo stream: o medidor passa a ouvir a nova. */
   versaoDoAudio: number;
+  /** A gravação local do programa: um .webm que baixa neste computador. */
+  gravando: boolean;
+  inicioDaGravacao: number | null;
+  /** O navegador não liberou o áudio: o arquivo sai só com a imagem, e o tempo diz isso. */
+  gravandoSemSom: boolean;
+  onAlternarGravacao: () => void;
+}
+
+/** O tempo gravado até agora, no pulso da bandeja (mono, como a leitura do medidor), e "sem som" quando for o caso. */
+function TempoDeGravacao({ inicioEm, semSom }: { inicioEm: number; semSom: boolean }) {
+  const [agora, setAgora] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setAgora(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+  return (
+    <span className="text-xs text-[var(--ink-lo)] max-sm:hidden">
+      <span className="font-mono tabular-nums">{formatarTempo(Math.floor((agora - inicioEm) / 1000))}</span>
+      {semSom && <> · sem&nbsp;som</>}
+    </span>
+  );
 }
 
 /**
@@ -93,6 +115,10 @@ export function BandejaDoEstudio({
   onAlternarGuias,
   onEscolherDispositivo,
   versaoDoAudio,
+  gravando,
+  inicioDaGravacao,
+  gravandoSemSom,
+  onAlternarGravacao,
 }: BandejaDoEstudioProps) {
   const dispositivos = useDispositivos(stream);
   const atual = (tipo: Tipo) =>
@@ -165,6 +191,20 @@ export function BandejaDoEstudio({
       >
         <Palavra>Guias</Palavra>
       </Button>
+
+      {/* Gravar é real: o programa composto vira um .webm baixado. O tempo ao
+          lado diz que anda; o estado mora no aria-pressed e na palavra. */}
+      <Button
+        variant="ghost"
+        aria-pressed={gravando}
+        onClick={onAlternarGravacao}
+        title="Grava o programa num arquivo .webm, neste computador"
+        icon={gravando ? <Square size={16} aria-hidden="true" /> : <Circle size={16} aria-hidden="true" />}
+        className={CONTROLE}
+      >
+        <Palavra>{gravando ? 'Parar a gravação' : 'Gravar'}</Palavra>
+      </Button>
+      {gravando && inicioDaGravacao !== null && <TempoDeGravacao inicioEm={inicioDaGravacao} semSom={gravandoSemSom} />}
 
       <p className="ml-auto hidden text-pretty text-xs text-[var(--ink-lo)] lg:block">
         Transmitir para os canais ainda não está no&nbsp;ar.
