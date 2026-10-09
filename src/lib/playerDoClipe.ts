@@ -3,8 +3,8 @@ import { FONTE_TELA } from './cenas';
 
 /**
  * O clipe do programa toca num elemento de vídeo só, criado no corte que o
- * põe no programa e solto no corte que o tira. O palco do programa encaixa
- * esse elemento na caixa da tela, e trocar de cena só muda a caixa. Antes o
+ * põe no programa e solto no corte que o tira. O compositor desenha os
+ * quadros desse elemento na caixa da tela, e trocar de cena só muda a caixa. Antes o
  * `<video>` vivia dentro do desenho de cada cena, e o corte que mudava o
  * formato da cena o recriava: o clipe voltava ao começo.
  */

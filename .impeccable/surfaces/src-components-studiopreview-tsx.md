@@ -34,6 +34,12 @@ related_targets: ["src/App.tsx","src/components/Estudio.tsx","src/components/Bar
 - O editor de capas sai até a capa ter uso: só baixava um JPG diferente da prévia, com fundos do Unsplash, e a capa não aparecia em lugar nenhum.
 - O clipe do programa toca num player só, que muda de caixa entre as cenas sem recomeçar. Numa cena sem tela, pausa e continua quando a tela volta. O preview e a camada que sai na fusão desenham o quadro desse player.
 
+**O compositor (decidido com o usuário em 2026-10-08):** o primeiro passo até transmitir.
+- O monitor de programa é o canvas do compositor, e o que ele mostra é o vídeo: a gravação de hoje e a transmissão de amanhã recebem essa imagem, sem um segundo desenhista. O preview continua em HTML.
+- 1280×720 a 30 quadros por segundo; o som do programa é a mistura do microfone, do clipe no ar e do som da tela enquanto ela está no programa.
+- O compositor chega junto com "Gravar": a gravação local, num arquivo baixado, é a prova de ponta a ponta antes da transmissão existir.
+- As guias ficam sobre o canvas, fora do vídeo.
+
 **Momento memorável:** o corte. A cena escolhida vai para o preview, e ao lado dele está a lista do que muda no próximo corte; "Corte" ou "Fusão" leva tudo ao programa.
 
 ## Direction contract

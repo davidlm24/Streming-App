@@ -20,6 +20,24 @@
         ],
         "createdAt": "2026-09-25T10:18:41.294Z",
         "reason": "Agent: mockups/ sao estudos de direcao anteriores ao build (d1-d4, tally, navy-console, FINAL-direction, design-system.html) e usam fontes que o sistema final nao adotou; a regra continua ativa em src/"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "files": [
+          "src/index.css"
+        ],
+        "createdAt": "2026-10-09T17:55:13.292Z",
+        "reason": "Agent: a Inter é a fonte da interface escolhida na direção soft-modern (PR #45, aprovada e mesclada pelo usuário) e declarada no DESIGN.md (Tipografia)."
+      },
+      {
+        "rule": "design-system-font",
+        "value": "poppins",
+        "files": [
+          "src/index.css"
+        ],
+        "createdAt": "2026-10-09T17:55:13.571Z",
+        "reason": "Agent: a Poppins é a Brand Font do DESIGN.md (só o logotipo, via --font-display); o import em src/index.css é o dela."
       }
     ]
   }

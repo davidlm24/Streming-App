@@ -7,6 +7,7 @@ import type { RelogioDoCronometro } from '../lib/graficos';
 import type { PlayerDoClipe } from '../lib/playerDoClipe';
 import type { PaginaMostrada } from '../lib/useApresentacao';
 import { GraficosDoPalco } from './GraficosDoPalco';
+import { GuiasDoPalco } from './GuiasDoPalco';
 import { Button } from './ui/Button';
 
 /** A espessura do anel da moldura do monitor (`.pw-frame` no index.css). */
@@ -15,9 +16,10 @@ const ANEL_DA_MOLDURA = 2;
 /**
  * O tamanho do palco em 16:9 dentro do lugar do monitor, descontado o anel
  * da moldura. Sem descontar, a moldura passava 4px do lugar e o anel da
- * direita e o de baixo saíam cortados.
+ * direita e o de baixo saíam cortados. O monitor de programa (PalcoDoPrograma)
+ * usa a mesma medida para o canvas do compositor.
  */
-function useTamanhoDoPalco() {
+export function useTamanhoDoPalco() {
   const lugarRef = useRef<HTMLDivElement>(null);
   const [tamanho, setTamanho] = useState({ largura: 0, altura: 0 });
 
@@ -103,8 +105,7 @@ function EspelhoDoClipe({ video }: { video: HTMLVideoElement }) {
 }
 
 interface StudioPreviewProps {
-  papel: 'preview' | 'programa';
-  /** O que este monitor mostra: o estado em edição (preview) ou o do último corte (programa). */
+  /** O estado em edição: o que o próximo corte leva ao programa. */
   estado: StudioSceneState;
   /** As fontes do estúdio: a câmera de quem opera e a tela compartilhada. */
   participantes: Participant[];
@@ -115,10 +116,8 @@ interface StudioPreviewProps {
   camera: AjustesDaCamera;
   relogio: RelogioDoCronometro;
   mostrarGuias: boolean;
-  /** O player do clipe do programa (lib/playerDoClipe): o programa o encaixa, os outros monitores o espelham. */
+  /** O player do clipe do programa (lib/playerDoClipe): o preview o espelha quando traz o mesmo clipe. */
   playerDoClipe?: PlayerDoClipe | null;
-  /** A camada do programa que sai na fusão: desenha o clipe pelo espelho, sem som. */
-  camadaQueSai?: boolean;
   /** A página da apresentação aberta: vale em todo monitor cujo estado traz a apresentação. */
   paginaDaApresentacao?: PaginaMostrada | null;
   /** Só no preview: cada ajuste do card da câmera feito à mão sobre a imagem. */
@@ -128,10 +127,11 @@ interface StudioPreviewProps {
 }
 
 /**
- * O compositor do estúdio: desenha um monitor a partir do estado dele. O
- * preview e o programa são este mesmo componente, com estados diferentes, e
- * é por isso que o preview mostra exatamente o que o corte leva (DESIGN.md,
- * Regra do Preview Fiel).
+ * O monitor de preview: desenha em HTML o estado em edição. O programa é o
+ * canvas do compositor (lib/palco), que repete as frações deste palco
+ * (medidas.ts, graficosNoCanvas.ts); é por isso que o preview mostra
+ * exatamente o que o corte leva (DESIGN.md, Regra do Preview Fiel). Mudou
+ * uma medida aqui, muda lá também.
  *
  * Era um componente de 3.278 linhas que desenhava também o que não ia ao ar:
  * o teleprompter por cima do preview, botões de chat flutuante, lousa e
@@ -140,7 +140,6 @@ interface StudioPreviewProps {
  * programa sem corte.
  */
 export function StudioPreview({
-  papel,
   estado,
   participantes,
   localStream,
@@ -151,13 +150,11 @@ export function StudioPreview({
   mostrarGuias,
   playerDoClipe = null,
   paginaDaApresentacao = null,
-  camadaQueSai = false,
   onCardDaCamera,
   onPorACamera,
 }: StudioPreviewProps) {
   const { lugarRef, tamanho } = useTamanhoDoPalco();
   const palcoRef = useRef<HTMLDivElement>(null);
-  const noPrograma = papel === 'programa';
   const idDoFiltro = `croma-${useId().replace(/:/g, '')}`;
   const croma = camera.croma;
   const fundo = estado.activeBackground || '';
@@ -200,14 +197,11 @@ export function StudioPreview({
     </div>
   );
 
-  // ── Tela (ou o clipe no lugar dela) ──────────────────────────────────────
+  // ── Tela (ou o clipe, ou a página, no lugar dela) ────────────────────────
   // O clipe toca no programa a partir do corte, com som só ali, num player só
-  // que o programa encaixa na caixa da tela: trocar de cena muda a caixa, e o
-  // clipe segue de onde está. Se o preview traz o mesmo clipe (ou é a camada
-  // que sai na fusão), desenha o quadro desse player; um clipe que ainda não
-  // está no programa fica parado no primeiro quadro, que é de onde o corte o
-  // começa. Antes o clipe entrava nos dois monitores ao mesmo tempo, com os
-  // controles do navegador por cima e o som em dobro.
+  // (o compositor o desenha no vídeo). Se o preview traz o mesmo clipe,
+  // espelha o quadro desse player; um clipe que ainda não está no programa
+  // fica parado no primeiro quadro, que é de onde o corte o começa.
   const desenharTela = () => {
     const clipe = estado.clipe;
     const doPlayer = clipe && playerDoClipe?.id === clipe.id ? playerDoClipe : null;
@@ -216,17 +210,7 @@ export function StudioPreview({
     return (
       <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[var(--stage)]">
         {clipe ? (
-          doPlayer && noPrograma && !camadaQueSai ? (
-            <div
-              ref={(el) => {
-                if (!el || doPlayer.video.parentElement === el) return;
-                el.replaceChildren(doPlayer.video);
-                // Mudar o vídeo de caixa não deve pausar; se o navegador pausar, retoma
-                if (doPlayer.tocando && doPlayer.video.paused && !doPlayer.video.ended) void doPlayer.video.play().catch(() => {});
-              }}
-              className="h-full w-full"
-            />
-          ) : doPlayer ? (
+          doPlayer ? (
             <EspelhoDoClipe video={doPlayer.video} />
           ) : (
             <video key={clipe.id} src={clipe.url} muted playsInline preload="auto" className="h-full w-full object-contain" />
@@ -258,7 +242,7 @@ export function StudioPreview({
   const card = estado.cardDaCamera ?? CARD_PADRAO;
   const cardAtual = useRef(card);
   cardAtual.current = card;
-  const podeEditarCard = !noPrograma && !!onCardDaCamera;
+  const podeEditarCard = !!onCardDaCamera;
   const mudarCard = (parcial: Partial<GeometriaDoCard>) => {
     if (!podeEditarCard) return;
     const novo = dentroDoPalco({ ...cardAtual.current, ...parcial });
@@ -388,7 +372,7 @@ export function StudioPreview({
         // botão azul: o palco sem fonte não é um alerta, e não há transmissão.
         <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center">
           <p className="text-sm text-[var(--ink)]">Nenhuma fonte nesta cena.</p>
-          {!noPrograma && onPorACamera && (
+          {onPorACamera && (
             <Button variant="ghost" size="sm" onClick={onPorACamera} className="mt-3">
               Pôr a câmera no palco
             </Button>
@@ -444,12 +428,11 @@ export function StudioPreview({
             marcas de canto do tally continuam retas — o sinal não mora no
             raio. O raio fica fora da área segura: nenhum gráfico encosta nele. */}
         <div
-          className={`pw-frame ${noPrograma ? 'pw-frame--pgm' : 'pw-frame--pvw'}`}
+          className="pw-frame pw-frame--pvw"
           style={{ ['--pw-frame-radius' as string]: 'var(--radius-lg)' }}
         >
           <div
             ref={palcoRef}
-            inert={noPrograma || undefined}
             style={tamanho.largura > 0 ? { width: tamanho.largura, height: tamanho.altura } : undefined}
             className={`palco relative flex items-center justify-center overflow-hidden rounded-[var(--radius-lg)] bg-[var(--stage)] ${
               estado.graficos.ticker ? 'palco--com-ticker' : ''
@@ -472,20 +455,8 @@ export function StudioPreview({
 
             <GraficosDoPalco graficos={estado.graficos} comentario={estado.pinnedComment} relogio={relogio} />
 
-            {/* Guias: terços, área segura e centro, por cima de tudo e sem receber
-                clique. A mistura por diferença deixa a linha visível sobre
-                imagem clara ou escura. */}
-            {mostrarGuias && (
-              <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-40 mix-blend-difference">
-                <span className="absolute inset-y-0 left-1/3 w-px bg-[var(--guia)]" />
-                <span className="absolute inset-y-0 left-2/3 w-px bg-[var(--guia)]" />
-                <span className="absolute inset-x-0 top-1/3 h-px bg-[var(--guia)]" />
-                <span className="absolute inset-x-0 top-2/3 h-px bg-[var(--guia)]" />
-                <span className="absolute border border-[var(--guia)]" style={{ inset: '7% 6%' }} />
-                <span className="absolute left-1/2 top-1/2 h-px w-[18px] -translate-x-1/2 -translate-y-1/2 bg-[var(--guia)]" />
-                <span className="absolute left-1/2 top-1/2 h-[18px] w-px -translate-x-1/2 -translate-y-1/2 bg-[var(--guia)]" />
-              </div>
-            )}
+            {/* Guias: ajuda de operação, DOM por cima da imagem (GuiasDoPalco) */}
+            {mostrarGuias && <GuiasDoPalco />}
 
             {/* O croma de cada monitor: a chave sai da imagem original, e o
                 descarte do reflexo vem depois dela. Com suavização, o alfa da
