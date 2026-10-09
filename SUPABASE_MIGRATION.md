@@ -158,7 +158,7 @@ The migration is finished in the code and in the database. Everything below is o
 | | |
 | --- | --- |
 | Project | `pwstreamer`, ref `eqccaphvoquogxkbclwr`, `sa-east-1` |
-| Migrations applied | 6, through `20261001120000_limites_de_tamanho.sql` |
+| Migrations applied | 6, through `20261001120000_limites_de_tamanho.sql`; the 7th, `20261010120000_transmissao.sql` (the transmission), goes with the transmission deploy |
 | `supabase db advisors --linked` | one WARN, below |
 | Auth | Google on, e-mail sign-up off, confirmations on, anonymous off |
 | Verified against the hosted project | sign-in, profile from Google, 30-day trial, `super_admin` sync, the administration list through RLS, and a studio image uploaded to the real bucket |
@@ -182,6 +182,8 @@ The app is in production since 2026-10-08 (see the table above). What is left:
 - The client in use is `2867108917-8h24qbfolffdo8o2g0hv88btg4l6pp7e.apps.googleusercontent.com` (Google Cloud project number `2867108917`). If its project cannot be found, create a new OAuth client (web application, authorized redirect URI `https://eqccaphvoquogxkbclwr.supabase.co/auth/v1/callback`) and put its id and secret in Supabase (Authentication → Providers → Google), then keep them for the next push.
 
 **3. Not configured in production yet:** Stripe (checkout and the webhook), Cloudflare Stream and Gemini (chat moderation). Their variables are in `.env.example`; add them on Vercel and deploy again.
+
+**3b. The transmission needs three steps on the owner's accounts** (README, "Motor de transmissão"): push the 7th migration (`npx supabase db push`, with the database password); create the Fly.io app and deploy `motor/` (`fly launch`/`fly deploy` with `motor/fly.toml`), setting `MOTOR_SEGREDO` and `APP_URL` as its secrets; set `MOTOR_URL=wss://pwstreamer-motor.fly.dev` and the same `MOTOR_SEGREDO` on Vercel and deploy again. Until then "Entrar ao vivo" answers "A transmissão para os canais não está configurada neste servidor."
 
 **4. Deploys are manual.** The Vercel project is not linked to GitHub (installing the Vercel GitHub app from the in-app browser failed: its popups are blocked), so a push to `main` does not deploy. Deploy from a clean copy of the commit, so local `.env` files never upload:
 

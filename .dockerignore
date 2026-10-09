@@ -1,0 +1,21 @@
+# O contexto do Docker é a raiz, só para o motor (motor/Dockerfile) alcançar
+# src/server/. Nada de segredo, de build nem de ferramenta sobe para a imagem.
+.git
+.claude
+.impeccable
+.vercel
+.env*
+node_modules
+dist
+coverage
+audit
+design-system
+mockups
+public
+supabase
+tests
+scripts
+api
+src/components
+src/lib
+*.md
