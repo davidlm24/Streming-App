@@ -254,6 +254,11 @@ export default function App() {
 
   // Agendar webinar (o rascunho mora no próprio modal)
   const [isCreateWebinarOpen, setIsCreateWebinarOpen] = useState(false);
+  // Editar ou reagendar: o mesmo formulário, aberto com os dados do webinar e o foco no título ou na data
+  const [webinarEmEdicao, setWebinarEmEdicao] = useState<{ id: string; foco: 'titulo' | 'data' } | null>(null);
+  const editarWebinar = (webinar: { id: string }, foco: 'titulo' | 'data') => setWebinarEmEdicao({ id: webinar.id, foco });
+  // Pelo id na lista atual: se outra aba excluir o webinar, o formulário fecha em vez de recriá-lo
+  const emEdicao = webinarEmEdicao ? webinars.find((w) => w.id === webinarEmEdicao.id) : undefined;
 
   const [destinations, setDestinations] = useState<Destination[]>(INITIAL_DESTINATIONS);
   // O webinar pelo qual se entrou no estúdio: dá o nome da sessão e o roteiro dela
@@ -630,6 +635,7 @@ export default function App() {
           onAgendar={() => setIsCreateWebinarOpen(true)}
           onEntrar={entrarNoEstudio}
           onExcluir={(webinar) => handleDeleteWebinar(webinar.id)}
+          onEditar={editarWebinar}
         />
       ) : currentView === 'settings' ? (
         <ConfiguracoesPagina
@@ -643,6 +649,7 @@ export default function App() {
           canais={destinations}
           onEntrarNoEstudio={entrarNoEstudio}
           onAgendar={() => setIsCreateWebinarOpen(true)}
+          onEditarWebinar={editarWebinar}
           onConectarCanal={conectarCanal}
           onEditarCanal={editarCanal}
           onVerCanais={() => setCurrentView('channels')}
@@ -684,6 +691,25 @@ export default function App() {
         }}
         onSair={handleLogout}
       />
+
+      {/* 4b. Editar ou reagendar: montado por edição (key no id), para começar dos dados do webinar */}
+      {emEdicao && webinarEmEdicao && (
+        <CriarWebinarModal
+          key={emEdicao.id}
+          isOpen
+          editando={emEdicao}
+          focoInicial={webinarEmEdicao.foco}
+          onClose={() => setWebinarEmEdicao(null)}
+          canais={destinations}
+          onAgendar={async (webinar) => {
+            await agendarWebinar(webinar);
+            setWebinars((prev) => prev.map((w) => (w.id === webinar.id ? webinar : w)));
+            setWebinarEmEdicao(null);
+            toast.success('Webinar atualizado', rotuloDoHorario(webinar));
+          }}
+          onSair={handleLogout}
+        />
+      )}
 
       {/* Interactive Legal Document Modals */}
       <LegalModal 
