@@ -16,6 +16,8 @@ interface DashboardProps {
   canais: Destination[];
   onEntrarNoEstudio: (webinar?: WebinarResumo) => void;
   onAgendar: () => void;
+  /** Editar abre no título; reagendar, na data. */
+  onEditarWebinar: (webinar: WebinarResumo, foco: 'titulo' | 'data') => void;
   /** Sem argumento, conecta um canal novo; com a plataforma, abre direto nela. */
   onConectarCanal: (plataforma?: string) => void;
   /** Abre o modal neste canal, para consertar o que falta. */
@@ -39,6 +41,7 @@ export function Dashboard({
   canais,
   onEntrarNoEstudio,
   onAgendar,
+  onEditarWebinar,
   onConectarCanal,
   onEditarCanal,
   onVerCanais,
@@ -70,6 +73,15 @@ export function Dashboard({
                 <Horario texto={rotuloDoHorario(proxima)} />
                 {proxima.type === 'pre-recorded' && <> · vídeo gravado</>}
               </p>
+              {/* A próxima live se ajusta daqui: antes, mudar a hora era excluir e agendar de novo */}
+              <div className="mt-2 flex gap-5">
+                <AcaoDeTexto tamanho="xs" onClick={() => onEditarWebinar(proxima, 'titulo')}>
+                  Editar
+                </AcaoDeTexto>
+                <AcaoDeTexto tamanho="xs" onClick={() => onEditarWebinar(proxima, 'data')}>
+                  Reagendar
+                </AcaoDeTexto>
+              </div>
             </>
           ) : (
             <>
@@ -124,6 +136,7 @@ export function Dashboard({
                     key={w.id}
                     webinar={w}
                     onEntrar={onEntrarNoEstudio}
+                    onEditar={onEditarWebinar}
                   />
                 ))}
               </ul>
