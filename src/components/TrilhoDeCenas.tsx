@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { CircleAlert, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { CENAS, precisaDaTela, type Cena } from '../lib/cenas';
+import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { BotaoDeIcone } from './ui/BotaoDeIcone';
 import { Button } from './ui/Button';
 
@@ -16,22 +17,52 @@ const TECLA =
   'min-h-14 flex-col gap-0.5 border-transparent bg-[var(--raise)] text-[var(--ink-hi)] shadow-[var(--shadow-raise)] hover:border-[var(--line-ctl)] active:border-[var(--ink-lo)] active:bg-[var(--panel)]';
 
 /**
+ * O que impede o corte: a cena do preview depende de uma fonte que não está
+ * chegando. Sem isto, "Tela com câmera" sem tela ia ao programa como uma
+ * moldura escrita "Nenhuma tela compartilhada", com o Corte aceso.
+ */
+export interface BloqueioDoCorte {
+  motivo: string;
+  acao?: { rotulo: string; onClick: () => void };
+}
+
+/** Alerta + frase na tinta alta, e o conserto ao lado quando houver um. */
+export function AvisoDoBloqueio({ bloqueio, className = '' }: { bloqueio: BloqueioDoCorte; className?: string }) {
+  return (
+    <div className={`text-pretty text-xs text-[var(--ink-hi)] ${className}`}>
+      <p className="flex items-start gap-1.5">
+        <CircleAlert size={14} aria-hidden="true" className="mt-px shrink-0" />
+        <span>{bloqueio.motivo}</span>
+      </p>
+      {bloqueio.acao && (
+        <AcaoDeTexto tamanho="xs" sublinhada onClick={bloqueio.acao.onClick} className="ml-5 mt-1 min-h-8">
+          {bloqueio.acao.rotulo}
+        </AcaoDeTexto>
+      )}
+    </div>
+  );
+}
+
+/**
  * Corte e Fusão: levam o preview ao programa. Ficam no trilho no desktop e,
  * no celular, logo abaixo do preview.
  */
 export function BotoesDeTransicao({
   temMudanca,
   cortando,
+  bloqueio = null,
   onCortar,
   compacto = false,
 }: {
   temMudanca: boolean;
   cortando: boolean;
+  /** A cena do preview não tem o que mostrar: as teclas apagam e dizem por quê. */
+  bloqueio?: BloqueioDoCorte | null;
   onCortar: (transicao: Transicao) => void;
   /** Na coluna recolhida: uma tecla sobre a outra, e a frase só para o leitor de tela. */
   compacto?: boolean;
 }) {
-  const parado = !temMudanca || cortando;
+  const parado = !temMudanca || cortando || bloqueio !== null;
   return (
     <div>
       <div className={`grid gap-2 ${compacto ? 'grid-cols-1' : 'grid-cols-2'}`}>
@@ -44,8 +75,16 @@ export function BotoesDeTransicao({
           <span className="font-mono text-xs font-normal tabular-nums text-[var(--ink-lo)]">{DURACAO_DA_FUSAO}&nbsp;ms</span>
         </Button>
       </div>
-      {!temMudanca && (
-        <p className={compacto ? 'sr-only' : 'mt-2 text-pretty text-xs text-[var(--ink-lo)]'}>O preview está igual ao programa.</p>
+      {bloqueio && temMudanca ? (
+        compacto ? (
+          <p className="sr-only">{bloqueio.motivo}</p>
+        ) : (
+          <AvisoDoBloqueio bloqueio={bloqueio} className="mt-2" />
+        )
+      ) : (
+        !temMudanca && (
+          <p className={compacto ? 'sr-only' : 'mt-2 text-pretty text-xs text-[var(--ink-lo)]'}>O preview está igual ao programa.</p>
+        )
       )}
     </div>
   );
@@ -58,6 +97,7 @@ interface TrilhoDeCenasProps {
   temTela: boolean;
   temMudanca: boolean;
   cortando: boolean;
+  bloqueio: BloqueioDoCorte | null;
   onEscolher: (cena: Cena) => void;
   onCortar: (transicao: Transicao) => void;
   /** Só no desktop: a coluna estreita, com o número de cada cena e as teclas uma sobre a outra. */
@@ -77,7 +117,7 @@ interface TrilhoDeCenasProps {
  * vira uma tecla com o número e o estado em palavras, e Corte e Fusão ficam
  * uma sobre a outra. O nome inteiro vai no nome acessível e no `title`.
  */
-export function TrilhoDeCenas({ idDoPrograma, idDoPreview, temTela, temMudanca, cortando, onEscolher, onCortar, recolhido, onRecolher }: TrilhoDeCenasProps) {
+export function TrilhoDeCenas({ idDoPrograma, idDoPreview, temTela, temMudanca, cortando, bloqueio, onEscolher, onCortar, recolhido, onRecolher }: TrilhoDeCenasProps) {
   // Recolher troca a coluna inteira, e o botão que tinha o foco sai com ela:
   // o foco vai ao botão que desfaz, em vez de cair no <body>
   const alternador = useRef<HTMLButtonElement>(null);
@@ -98,7 +138,7 @@ export function TrilhoDeCenas({ idDoPrograma, idDoPreview, temTela, temMudanca, 
     const semTela = precisaDaTela(cena) && !temTela;
     const estado = [noPrograma && 'programa', noPreview && 'preview'].filter(Boolean).join(' e ');
     const legenda = estado ? `${estado}${semTela ? ' · sem tela' : ''}` : semTela ? 'sem tela compartilhada' : '';
-    return { noPrograma, noPreview, legenda };
+    return { noPrograma, noPreview, semTela, legenda };
   };
 
   // Uma tecla por cena, nas duas larguras. Aberta, o nome e o estado embaixo
@@ -108,7 +148,7 @@ export function TrilhoDeCenas({ idDoPrograma, idDoPreview, temTela, temMudanca, 
   const lista = (
     <ul className="space-y-1">
       {CENAS.map((cena, i) => {
-        const { noPrograma, noPreview, legenda } = descrever(cena);
+        const { noPrograma, noPreview, semTela, legenda } = descrever(cena);
         return (
           <li key={cena.id}>
             <button
@@ -136,14 +176,19 @@ export function TrilhoDeCenas({ idDoPrograma, idDoPreview, temTela, temMudanca, 
                       preview
                     </span>
                   )}
+                  {semTela && <CircleAlert size={12} aria-hidden="true" className="mt-0.5 text-[var(--ink-lo)]" />}
                 </>
               ) : (
                 <>
                   {/* Uma linha cada, mesmo com a coluna estreitada: o texto que quebrava fazia a linha crescer */}
                   <span className="block max-w-full truncate text-sm text-[var(--ink-hi)]">{cena.nome}</span>
                   {legenda && (
-                    <span className={`block max-w-full truncate text-xs ${noPrograma ? 'font-medium text-[var(--ink-hi)]' : 'text-[var(--ink-lo)]'}`}>
-                      {legenda}
+                    <span
+                      className={`flex max-w-full items-center gap-1 text-xs ${noPrograma || (noPreview && semTela) ? 'font-medium text-[var(--ink-hi)]' : 'text-[var(--ink-lo)]'}`}
+                    >
+                      {/* Sem a fonte, um alerta junto da palavra: a cena escolhida assim não vai ao programa */}
+                      {semTela && <CircleAlert size={12} aria-hidden="true" className="shrink-0" />}
+                      <span className="truncate">{legenda}</span>
                     </span>
                   )}
                 </>
@@ -171,7 +216,7 @@ export function TrilhoDeCenas({ idDoPrograma, idDoPreview, temTela, temMudanca, 
           <h2 id="estudio-transicao" className="sr-only">
             Transição
           </h2>
-          <BotoesDeTransicao temMudanca={temMudanca} cortando={cortando} onCortar={onCortar} compacto />
+          <BotoesDeTransicao temMudanca={temMudanca} cortando={cortando} bloqueio={bloqueio} onCortar={onCortar} compacto />
         </section>
       </div>
     );
@@ -198,7 +243,7 @@ export function TrilhoDeCenas({ idDoPrograma, idDoPreview, temTela, temMudanca, 
         <h2 id="estudio-transicao" className="pb-2 text-xs text-[var(--ink-lo)]">
           Transição
         </h2>
-        <BotoesDeTransicao temMudanca={temMudanca} cortando={cortando} onCortar={onCortar} />
+        <BotoesDeTransicao temMudanca={temMudanca} cortando={cortando} bloqueio={bloqueio} onCortar={onCortar} />
       </section>
     </div>
   );

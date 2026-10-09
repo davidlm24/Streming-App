@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, CircleAlert, Plus } from 'lucide-react';
 import type { Destination } from '../types';
 import { estadoDoCanal, nomeDaPlataforma, pendenciaCurta, plataformaPeloNome } from '../lib/canais';
@@ -83,6 +83,8 @@ export function Dashboard({
             </>
           )}
 
+          {carregado && <Prontidao canaisProntos={canais.filter((c) => c.selected && estadoDoCanal(c) === 'pronto').length} />}
+
           <div className="mt-8">
             <Button size="lg" onClick={() => onEntrarNoEstudio(proxima)} className="w-full sm:w-auto sm:min-w-64">
               Entrar no estúdio
@@ -130,6 +132,76 @@ export function Dashboard({
         )}
       </div>
     </main>
+  );
+}
+
+type Permissao = 'liberada' | 'a-pedir' | 'bloqueada' | 'desconhecida';
+
+/**
+ * A permissão de câmera e microfone deste navegador, sem pedir nada: o
+ * pedido de verdade é do estúdio. Navegadores sem a consulta (ou que não
+ * conhecem "camera") ficam em "desconhecida", e a linha não afirma nada.
+ */
+function usePermissaoDosAparelhos(): Permissao {
+  const [permissao, setPermissao] = useState<Permissao>('desconhecida');
+  useEffect(() => {
+    if (!navigator.permissions?.query) return;
+    let vivo = true;
+    const estados: PermissionStatus[] = [];
+    const ler = () => {
+      if (!vivo || estados.length < 2) return;
+      const lidos = estados.map((e) => e.state);
+      setPermissao(lidos.includes('denied') ? 'bloqueada' : lidos.every((s) => s === 'granted') ? 'liberada' : 'a-pedir');
+    };
+    Promise.all(
+      (['camera', 'microphone'] as const).map((nome) => navigator.permissions.query({ name: nome as PermissionName })),
+    )
+      .then((lidos) => {
+        estados.push(...lidos);
+        lidos.forEach((e) => e.addEventListener('change', ler));
+        ler();
+      })
+      .catch(() => {});
+    return () => {
+      vivo = false;
+      estados.forEach((e) => e.removeEventListener('change', ler));
+    };
+  }, []);
+  return permissao;
+}
+
+/**
+ * O que a próxima live tem e o que falta, antes de entrar no estúdio: a
+ * permissão dos aparelhos e se há canal pronto para o ar. Sem canal pronto,
+ * "Entrar ao vivo" não age, e o painel diz isso aqui, onde se prepara, e não
+ * só no estúdio.
+ */
+function Prontidao({ canaisProntos }: { canaisProntos: number }) {
+  const permissao = usePermissaoDosAparelhos();
+  const aparelhos: Record<Exclude<Permissao, 'desconhecida'>, { ok: boolean; frase: string }> = {
+    liberada: { ok: true, frase: 'Câmera e microfone liberados neste navegador.' },
+    'a-pedir': { ok: false, frase: 'Câmera e microfone: o navegador vai pedir permissão ao entrar no estúdio.' },
+    bloqueada: { ok: false, frase: 'Câmera ou microfone bloqueados. Permita no cadeado da barra de endereço.' },
+  };
+  const linhas = [
+    ...(permissao === 'desconhecida' ? [] : [aparelhos[permissao]]),
+    canaisProntos > 0
+      ? {
+          ok: true,
+          frase: `Pronto para entrar ao vivo em ${canaisProntos} ${canaisProntos === 1 ? 'canal' : 'canais'}, pelo botão Entrar ao vivo do estúdio.`,
+        }
+      : { ok: false, frase: 'Nenhum canal pronto: até um canal ligado ter servidor e chave, o estúdio só ensaia e grava neste computador.' },
+  ];
+
+  return (
+    <ul aria-label="Prontidão" className="mt-6 space-y-2 text-sm text-[var(--ink-hi)]">
+      {linhas.map(({ ok, frase }) => (
+        <li key={frase} className="flex items-start gap-2">
+          {ok ? <Check size={16} aria-hidden="true" className="mt-0.5 shrink-0" /> : <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />}
+          <span className="text-pretty">{frase}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 

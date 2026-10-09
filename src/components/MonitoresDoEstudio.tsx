@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { AvisoDoBloqueio, type BloqueioDoCorte } from './TrilhoDeCenas';
 
 /**
  * Um monitor do console: o papel e a cena em cima, a imagem embaixo. O
@@ -46,7 +47,7 @@ export function Monitor({
  * mesa e a altura do que lista; rola só se passar da altura do preview.
  * Esticada até a altura do preview, com uma linha só, parecia uma vaga vazia.
  */
-export function ProximoCorte({ mudancas }: { mudancas: string[] }) {
+export function ProximoCorte({ mudancas, bloqueio = null }: { mudancas: string[]; bloqueio?: BloqueioDoCorte | null }) {
   return (
     <section aria-labelledby="estudio-proximo-corte" className="flex min-h-0 min-w-0 flex-col">
       <h2 id="estudio-proximo-corte" className="mb-2 h-4 shrink-0 text-xs font-medium leading-4 text-[var(--ink-hi)]">
@@ -55,6 +56,10 @@ export function ProximoCorte({ mudancas }: { mudancas: string[] }) {
       {/* A caixa acompanha a mesa soft-modern: canto generoso e fundo em
           --panel, sem contorno — a separação é tonal, como nos painéis. */}
       <div className="min-h-0 overflow-y-auto rounded-2xl bg-[var(--panel)]">
+        {/* O corte travado diz por quê aqui também: é para cá que o olho vai antes de cortar */}
+        {bloqueio && mudancas.length > 0 && (
+          <AvisoDoBloqueio bloqueio={bloqueio} className="border-b border-[var(--line)] px-4 py-3" />
+        )}
         {mudancas.length === 0 ? (
           <p className="px-4 py-3 text-pretty text-xs text-[var(--ink-lo)]">Nada muda: o preview está igual ao programa.</p>
         ) : (
