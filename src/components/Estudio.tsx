@@ -946,7 +946,6 @@ export function Estudio({
   }, [posicaoDosAjustes]);
 
   const ligados = canais.filter((d) => d.selected);
-  const configurados = ligados.filter((d) => estadoDoCanal(d) === 'pronto').length;
 
   const painel = (() => {
     switch (ferramenta) {
@@ -963,7 +962,9 @@ export function Estudio({
             podeCompartilhar={!!navigator.mediaDevices?.getDisplayMedia}
             onCompartilhar={() => void alternarTela()}
             canaisLigados={ligados.length}
-            canaisConfigurados={configurados}
+            canaisProntos={canaisProntos.length}
+            impedimento={impedimento}
+            noAr={faseDoAr !== 'parada'}
             onCanais={onCanais}
             onAbrir={setFerramenta}
           />
@@ -1103,7 +1104,7 @@ export function Estudio({
       <BarraDoEstudio
         sessao={webinar?.title}
         canaisLigados={ligados.length}
-        canaisProntos={configurados}
+        canaisProntos={canaisProntos.length}
         onCanais={onCanais}
         transmissao={
           faseDoAr === 'no-ar' && transmissao
