@@ -23,7 +23,7 @@ import { useApresentacao } from '../lib/useApresentacao';
 import { CAPTURA_PADRAO, capturaValida, lerCaptura, restricoesDeAudio, restricoesDeVideo, type AjustesDaCaptura } from '../lib/captura';
 import { DivisorDeColuna } from './DivisorDeColuna';
 import { BotoesDeTransicao, DURACAO_DA_FUSAO, TrilhoDeCenas, type BloqueioDoCorte, type Transicao } from './TrilhoDeCenas';
-import { MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
+import { AvisoDoMonitorUnico, MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
 import { FERRAMENTA_INICIAL, PainelDoEstudio, type Ferramenta } from './PainelDoEstudio';
 import { BandejaDoEstudio } from './BandejaDoEstudio';
 import { StudioPreview } from './StudioPreview';
@@ -448,6 +448,13 @@ export function Estudio({
   const temTela = !!screenStream || !!clipeNoPreview || !!apresentacaoNoPreview;
   // Uma cena com tela e nada no lugar dela não vai ao programa: iria uma moldura vazia
   const faltaATela = precisaDaTela(cena) && !temTela;
+  // Com o preview igual ao programa, um monitor só; a mesa de corte volta
+  // quando há o que cortar, ou fica sempre, na visão de quem produz
+  const [monitores, setMonitores] = usePreferencia('pw_monitores_do_estudio', { sempreDois: false }, (m) => ({
+    sempreDois: m.sempreDois === true,
+  }));
+  // Durante a fusão os dois ficam: a mesa não muda de tamanho no meio da dissolução
+  const monitorUnico = !temMudanca && programaQueSai === null && !monitores.sempreDois;
 
   // Corte: o preview vai ao programa na hora. Fusão: o programa que sai fica
   // por cima e some em DURACAO_DA_FUSAO.
@@ -1167,7 +1174,15 @@ export function Estudio({
               onCardDaCamera: setCardDaCamera,
               onPorACamera: () => escolherCena(CENA_INICIAL),
             })}
-            proximoCorte={<ProximoCorte mudancas={mudancas} bloqueio={bloqueio} />}
+            proximoCorte={
+              <ProximoCorte
+                mudancas={mudancas}
+                bloqueio={bloqueio}
+                onJuntar={monitores.sempreDois ? () => setMonitores({ sempreDois: false }) : undefined}
+              />
+            }
+            unico={monitorUnico}
+            avisoDoUnico={<AvisoDoMonitorUnico onSempreDois={() => setMonitores({ sempreDois: true })} />}
             transicaoNoCelular={
               <BotoesDeTransicao temMudanca={temMudanca} cortando={programaQueSai !== null} bloqueio={bloqueio} onCortar={cortar} />
             }
@@ -1188,6 +1203,7 @@ export function Estudio({
               setColunas((c) => (c.painelRecolhido ? { ...c, painelRecolhido: false } : c));
             }}
             onVerPreview={verPreview}
+            rotuloVerPreview={monitorUnico ? 'Ver o programa' : 'Ver preview'}
             botaoVerPreviewRef={botaoVerPreviewRef}
             recolhido={colunas.painelRecolhido}
             onRecolher={() => setColunas((c) => ({ ...c, painelRecolhido: !c.painelRecolhido }))}

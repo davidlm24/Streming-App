@@ -40,6 +40,7 @@ export function PainelDoEstudio({
   ativa,
   onEscolher,
   onVerPreview,
+  rotuloVerPreview = 'Ver preview',
   botaoVerPreviewRef,
   recolhido,
   onRecolher,
@@ -48,6 +49,8 @@ export function PainelDoEstudio({
   ativa: Ferramenta;
   onEscolher: (ferramenta: Ferramenta) => void;
   onVerPreview: () => void;
+  /** Com o monitor único, o botão leva a ele: 'Ver o programa'. */
+  rotuloVerPreview?: string;
   botaoVerPreviewRef: Ref<HTMLButtonElement>;
   recolhido: boolean;
   onRecolher: () => void;
@@ -80,7 +83,7 @@ export function PainelDoEstudio({
             onClick={onVerPreview}
             className="min-h-11 w-full"
           >
-            Ver preview
+            {rotuloVerPreview}
           </Button>
         </div>
         {children}
