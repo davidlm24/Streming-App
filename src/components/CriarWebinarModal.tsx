@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { CircleAlert } from 'lucide-react';
 import type { Destination } from '../types';
-import { PLATAFORMAS_NOMEADAS, estadoDoCanal, nomeDaPlataforma, pendenciaCurta } from '../lib/canais';
+import { PLATAFORMAS_NOMEADAS, estadoDoCanal, nomeDaPlataforma, pendenciaCurta, plataformaPeloNome } from '../lib/canais';
 import { ErroAoSalvar, type FalhaAoSalvar } from '../lib/dadosDaConta';
 import { horarioPorExtenso } from '../lib/horario';
 import { LIMITE_DE_WEBINARS } from '../lib/limitesDaConta';
@@ -15,13 +15,28 @@ import { PlataformaIcone } from './ui/PlataformaIcone';
 export interface NovoWebinar {
   id: string;
   title: string;
+  /** Só em webinars antigos, e só passa adiante na edição: o campo saiu do formulário. */
+  desc?: string;
   /** O horário por extenso, para quem lê só o texto. */
   time: string;
   /** O horário em ISO 8601: dele vêm a ordem da lista e "Hoje/Amanhã". */
   startsAt: string;
   /** Nomes das plataformas ("YouTube"); `plataformaPeloNome` volta deles à plataforma. */
   channels: string[];
-  type: 'webinar';
+  /** Os novos são 'webinar'; a edição mantém o tipo de um webinar antigo. */
+  type: 'live' | 'webinar' | 'pre-recorded';
+  videoName: string;
+}
+
+/** O que a edição precisa saber do webinar que já existe. */
+export interface WebinarEditavel {
+  id: string;
+  title: string;
+  desc?: string;
+  time: string;
+  startsAt?: string;
+  channels: string[];
+  type: string;
   videoName: string;
 }
 
@@ -34,6 +49,14 @@ interface CriarWebinarModalProps {
   onAgendar: (webinar: NovoWebinar) => Promise<void>;
   /** Sai da conta e volta à entrada: a saída do aviso de sessão expirada. */
   onSair: () => void;
+  /**
+   * Editar ou reagendar um webinar que já existe: o formulário abre com os
+   * dados dele, e salvar grava no mesmo id. Quem chama monta o modal com
+   * `key` no id, para cada edição começar dos dados do banco.
+   */
+  editando?: WebinarEditavel;
+  /** Onde o foco começa: no título (Editar) ou na data (Reagendar). */
+  focoInicial?: 'titulo' | 'data';
 }
 
 type Plataforma = (typeof PLATAFORMAS_NOMEADAS)[number];
@@ -41,18 +64,38 @@ type Erros = { titulo?: string; data?: string; hora?: string };
 
 const CAMPO = 'mt-2 block w-full rounded-xl border px-3 text-sm';
 
-const O_QUE_DIZER: Record<FalhaAoSalvar, string> = {
-  'sem-login': 'Sua sessão expirou, então o webinar não foi agendado.',
-  'sem-conexao': 'Sem conexão com a sua conta agora. Tente de novo mais tarde.',
-  'sem-confirmacao': 'Não deu para confirmar que o webinar foi agendado. Confira a conexão e tente de novo.',
-  'limite-da-conta': `A sua conta já guarda ${LIMITE_DE_WEBINARS} webinars, o limite. Exclua um que não usa e agende de novo.`,
-  'grande-demais': 'Os dados do webinar são grandes demais para salvar. Encurte o título e tente de novo.',
-  recusado: 'Não foi possível agendar o webinar. Tente de novo.',
-};
+/** A falha ao gravar, no verbo do que se fazia: agendar um novo ou salvar as mudanças de um que existe. */
+function oQueDizer(falha: FalhaAoSalvar, editando: boolean): string {
+  const feito = editando ? 'as mudanças foram salvas' : 'o webinar foi agendado';
+  switch (falha) {
+    case 'sem-login':
+      return editando ? 'Sua sessão expirou, então as mudanças não foram salvas.' : 'Sua sessão expirou, então o webinar não foi agendado.';
+    case 'sem-conexao':
+      return 'Sem conexão com a sua conta agora. Tente de novo mais tarde.';
+    case 'sem-confirmacao':
+      return `Não deu para confirmar que ${feito}. Confira a conexão e tente de novo.`;
+    case 'limite-da-conta':
+      return `A sua conta já guarda ${LIMITE_DE_WEBINARS} webinars, o limite. Exclua um que não usa e agende de novo.`;
+    case 'grande-demais':
+      return 'Os dados do webinar são grandes demais para salvar. Encurte o título e tente de novo.';
+    case 'recusado':
+      return editando ? 'Não foi possível salvar as mudanças. Tente de novo.' : 'Não foi possível agendar o webinar. Tente de novo.';
+  }
+}
 
 const doisDigitos = (n: number) => String(n).padStart(2, '0');
 /** A data local no formato do campo nativo (aaaa-mm-dd). */
 const dataDoCampo = (d: Date) => `${d.getFullYear()}-${doisDigitos(d.getMonth() + 1)}-${doisDigitos(d.getDate())}`;
+/** A hora local no formato do campo nativo (hh:mm). */
+const horaDoCampo = (d: Date) => `${doisDigitos(d.getHours())}:${doisDigitos(d.getMinutes())}`;
+
+/** O horário salvo, como data local; nada para os webinars antigos de texto livre. */
+const inicioSalvo = (webinar?: WebinarEditavel) => {
+  const ms = webinar?.startsAt ? Date.parse(webinar.startsAt) : NaN;
+  return Number.isNaN(ms) ? null : new Date(ms);
+};
+
+const ehPlataforma = (p: string | undefined): p is Plataforma => !!p && (PLATAFORMAS_NOMEADAS as readonly string[]).includes(p);
 
 /** A palavra de estado da plataforma, no vocabulário da linha de canais do Painel. */
 function estadoDaPlataforma(canais: Destination[], plataforma: Plataforma): string {
@@ -79,19 +122,29 @@ function estadoDaPlataforma(canais: Destination[], plataforma: Plataforma): stri
  *
  * A Descrição saiu na fase 3, com a página pública, que era a única tela que
  * a mostrava ao público (Regra do Dado com Uso). Volta com o link público.
+ *
+ * Com `editando`, o mesmo formulário edita e reagenda: um webinar agendado
+ * deixava de ser uma entrada só de ida para o estúdio, que só se podia
+ * excluir. A edição grava no mesmo id, e o roteiro do webinar fica com ele.
  */
-export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }: CriarWebinarModalProps) {
-  const [titulo, setTitulo] = useState('');
-  const [data, setData] = useState('');
-  const [hora, setHora] = useState('');
-  const [plataformas, setPlataformas] = useState<Plataforma[]>([]);
+export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair, editando, focoInicial = 'titulo' }: CriarWebinarModalProps) {
+  const inicioOriginal = inicioSalvo(editando);
+  // Os canais que a lista de plataformas não conhece passam adiante como estavam
+  const canaisSemPlataforma = (editando?.channels ?? []).filter((nome) => !ehPlataforma(plataformaPeloNome(nome)));
+  const [titulo, setTitulo] = useState(editando?.title ?? '');
+  const [data, setData] = useState(inicioOriginal ? dataDoCampo(inicioOriginal) : '');
+  const [hora, setHora] = useState(inicioOriginal ? horaDoCampo(inicioOriginal) : '');
+  const [plataformas, setPlataformas] = useState<Plataforma[]>(() =>
+    (editando?.channels ?? []).map(plataformaPeloNome).filter(ehPlataforma),
+  );
   const [erros, setErros] = useState<Erros>({});
   const [falha, setFalha] = useState<FalhaAoSalvar | null>(null);
   const [salvando, setSalvando] = useState(false);
-  const tocouNosCanais = useRef(false);
+  // Na edição, os canais já são os do webinar: a abertura não troca pelos ligados hoje
+  const tocouNosCanais = useRef(!!editando);
   // O id nasce na primeira tentativa e se repete nas seguintes: uma escrita que
   // chegue atrasada é só repetida, não vira um segundo webinar.
-  const idDoRascunho = useRef<string | null>(null);
+  const idDoRascunho = useRef<string | null>(editando?.id ?? null);
   const refTitulo = useRef<HTMLInputElement>(null);
   const refData = useRef<HTMLInputElement>(null);
   const refHora = useRef<HTMLInputElement>(null);
@@ -114,7 +167,7 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
   // os daquele momento.
   useEffect(() => {
     if (!isOpen) return;
-    refTitulo.current?.focus();
+    (focoInicial === 'data' ? refData : refTitulo).current?.focus();
     if (!tocouNosCanais.current) {
       setPlataformas(PLATAFORMAS_NOMEADAS.filter((p) => canais.some((c) => c.platform === p && c.selected)));
     }
@@ -138,7 +191,10 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
     if (!data) novos.data = 'Falta a data.';
     if (!hora) novos.hora = 'Falta a hora.';
     const inicio = data && hora ? new Date(`${data}T${hora}`) : null;
-    if (inicio && !novos.data && !novos.hora && inicio.getTime() <= Date.now()) {
+    // Na edição, um horário que não mudou passa mesmo já tendo passado: corrigir
+    // o título de uma live de ontem não obriga a reagendá-la
+    const mesmoHorario = !!inicio && !!inicioOriginal && inicio.getTime() === inicioOriginal.getTime();
+    if (inicio && !novos.data && !novos.hora && !mesmoHorario && inicio.getTime() <= Date.now()) {
       novos.hora = 'Esse horário já passou. Escolha um a partir de agora.';
     }
 
@@ -155,12 +211,16 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
       await onAgendar({
         id: idDoRascunho.current,
         title: titulo.trim(),
+        // O que o formulário não mostra fica como estava no webinar editado
+        ...(editando?.desc ? { desc: editando.desc } : {}),
         time: horarioPorExtenso(inicio!),
         startsAt: inicio!.toISOString(),
-        channels: PLATAFORMAS_NOMEADAS.filter((p) => plataformas.includes(p)).map(nomeDaPlataforma),
-        type: 'webinar',
-        videoName: '',
+        channels: [...PLATAFORMAS_NOMEADAS.filter((p) => plataformas.includes(p)).map(nomeDaPlataforma), ...canaisSemPlataforma],
+        type: editando?.type === 'live' || editando?.type === 'pre-recorded' ? editando.type : 'webinar',
+        videoName: editando?.videoName ?? '',
       });
+      // A edição fecha e sai de cena (o modal é montado de novo na próxima); só o rascunho de um novo é limpo
+      if (editando) return;
       setTitulo('');
       setData('');
       setHora('');
@@ -181,7 +241,7 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
       onClose={onClose}
       // Enquanto grava, o diálogo não fecha: a falha aparece com o rascunho à vista
       ocupado={salvando}
-      title="Novo webinar"
+      title={editando ? 'Editar webinar' : 'Novo webinar'}
       size="md"
       footer={
         // A falha fica no rodapé, logo acima dos botões e fora da área que
@@ -191,7 +251,7 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
             <p role="alert" className="mb-3 flex items-start gap-2 text-pretty text-sm text-[var(--ink-hi)]">
               <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
               <span>
-                {O_QUE_DIZER[falha]}
+                {oQueDizer(falha, !!editando)}
                 {falha === 'sem-login' && (
                   <>
                     {' '}
@@ -208,7 +268,7 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
               Cancelar
             </Button>
             <Button ref={refAgendar} type="submit" form="agendar-webinar" loading={salvando}>
-              Agendar webinar
+              {editando ? 'Salvar mudanças' : 'Agendar webinar'}
             </Button>
           </div>
         </div>
@@ -246,7 +306,8 @@ export function CriarWebinarModal({ isOpen, onClose, canais, onAgendar, onSair }
               ref={refData}
               id="webinar-data"
               type="date"
-              min={dataDoCampo(new Date())}
+              // Na edição de uma live que já passou, a data dela continua válida no campo
+              min={dataDoCampo(inicioOriginal && inicioOriginal.getTime() < Date.now() ? inicioOriginal : new Date())}
               value={data}
               onChange={(e) => {
                 setData(e.target.value);

@@ -20,12 +20,12 @@ colors:
   navy-96: "#F0F5F9"
   navy-99: "#FAFCFF"
   navy-100: "#FFFFFF"
-  nv-3: "#050B1A"
-  nv-6: "#091326"
-  nv-10: "#101A31"
-  nv-14: "#17233D"
-  nv-18: "#202C45"
-  nv-28: "#35425E"
+  nv-3: "#040810"
+  nv-6: "#080F18"
+  nv-10: "#0E1520"
+  nv-14: "#161D29"
+  nv-18: "#212936"
+  nv-28: "#363F4D"
   brand: "#4683E0"
   brand-deep: "#2C5FB0"
   brand-lift: "#7FAAEC"
@@ -313,7 +313,7 @@ A cor é escassa de propósito. O azul da marca preenche só o botão da ação 
 
 O site público (início, Entrar e Criar conta) fala com a mesma voz. A ação da tela é "Criar conta", a única imagem é uma captura real do Painel, e o que ainda não está no ar é dito em "Em breve", em palavras, sem promessa.
 
-A densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo (`[data-surface="console"]`), escuro sempre, mesmo no tema claro, porque o operador se adapta à luminância do entorno do vídeo e ela não pode mudar no meio de uma live. As superfícies e as linhas dele vão num marinho próprio (`nv-*`), com a mesma luminância da rampa e mais azul, para o console ler como a sala escura do produto e não como grafite; o palco continua preto.
+A densidade é baixa na casca e alta no estúdio. O estúdio é outro escopo (`[data-surface="console"]`), escuro sempre, mesmo no tema claro, porque o operador se adapta à luminância do entorno do vídeo e ela não pode mudar no meio de uma live. As superfícies e as linhas dele vão num marinho próprio (`nv-*`), mais escuro que a rampa e com um tom discreto de azul, para o console ler como a sala escura do produto e não como grafite; o palco continua preto.
 
 O estúdio é uma mesa de corte para montar e ensaiar o programa, na geometria dos consoles de referência: o programa grande com os controles da captura logo abaixo, o preview sob eles com as cenas em ícones, o Corte e a Fusão na caixa do próximo corte, e o chat e as ferramentas à direita. Escolher uma cena a leva ao preview; "Corte" ou "Fusão" leva o preview ao programa. Convidados entram por um link de sala, como numa chamada, e vão ao ar pela cena Grade. O ar existe: "Entrar ao vivo" leva o programa aos canais prontos pelo motor de transmissão (`motor/`), e só então o estúdio ganha cor, o carmim do tally no programa, do selo "Ao vivo" e de "Encerrar transmissão" (Regra do Ar). Fora do ar, nenhuma cor, e a bandeja diz em palavras que nada está sendo transmitido. O relatório e a telemetria ficam para depois; a gravação é local, um arquivo baixado neste computador.
 
@@ -323,7 +323,7 @@ O estúdio é uma mesa de corte para montar e ensaiar o programa, na geometria d
 - Linhas de 1px (`--line`) separam seções e linhas de lista; sem cartões na casca.
 - Inter em `text-xs`, `text-sm`, `text-base` e `text-3xl`; mono tabular só para medidas; Poppins só no logotipo.
 - Estado por ícone + texto, sempre com o nome acessível completo.
-- Três escopos de tema sobre a mesma rampa: escuro (padrão), claro e console, que troca as superfícies e as linhas pelo marinho de mesma luminância (`nv-*`).
+- Três escopos de tema sobre a mesma rampa: escuro (padrão), claro e console, que troca as superfícies e as linhas pelo marinho fechado (`nv-*`).
 - Um único momento de movimento por página. Na casca, o chip de um canal recém-conectado entra deslizando uma vez; no site público, o contorno desliza sobre a captura do Painel; no estúdio, o programa que sai some na fusão. Diálogos entram só pela primitiva `Modal`.
 - No estúdio, o preview mostra exatamente o que o corte leva, e nada que não iria ao ar fica sobre a imagem.
 
@@ -362,7 +362,7 @@ Os papéis semânticos trocam com o escopo; as primitivas `navy-*` e `nv-*` nunc
 | `--stage` | letterbox do vídeo; nunca clareia | navy-0 | navy-0 | navy-0 |
 | `--guia` | as guias sobre a imagem do monitor, em `mix-blend-difference` | — | — | branco a 60 % |
 
-**O marinho do console (`nv-3` a `nv-28`).** Seis primitivas só do console, em `index.css`. Cada degrau tem a luminância (Y) do degrau `navy-*` que substitui, a ±0,02 ponto, com matiz 264° em OKLCH e croma de 0,035 a 0,052; por isso toda razão de contraste do console continua a mesma. Elas vestem só as superfícies e as linhas (`--bg`, `--surface`, `--panel`, `--raise`, `--line`, `--line-ctl`) e a grade dos gráficos. A tinta continua na rampa neutra, e `--well` e `--stage` ficam no preto (`navy-0`): vídeo não se tinge. O anel dos monitores (`navy-14` e `navy-89`, direto em `.pw-frame`) também não muda.
+**O marinho do console (`nv-3` a `nv-28`).** Seis primitivas só do console, em `index.css`. Do fundo ao `raise` (`nv-3` a `nv-14`) a luminância (Y) é menor que a do degrau `navy-*` que substitui; nas linhas (`nv-18`, `nv-28`) ela fica perto da dele. O matiz é 258° em OKLCH e o croma vai de 0,020 a 0,027: um marinho fechado, quase neutro. Como só o fundo escurece, toda razão de contraste do console sobe ou fica igual. Elas vestem só as superfícies e as linhas (`--bg`, `--surface`, `--panel`, `--raise`, `--line`, `--line-ctl`) e a grade dos gráficos. A tinta continua na rampa neutra, e `--well` e `--stage` ficam no preto (`navy-0`): vídeo não se tinge. O anel dos monitores (`navy-14` e `navy-89`, direto em `.pw-frame`) também não muda.
 
 Gráficos usam a rampa por **valor**, nunca por matiz (`--chart-1..5`, `--chart-grid`, `--chart-axis`). A separação sobrevive a protanopia, deuteranopia e escala de cinza. No console, a grade (`--chart-grid`) é `nv-10`; o eixo e as séries ficam na rampa neutra.
 

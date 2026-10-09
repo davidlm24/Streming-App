@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, CircleAlert, Plus } from 'lucide-react';
 import type { Destination } from '../types';
 import { estadoDoCanal, nomeDaPlataforma, pendenciaCurta, plataformaPeloNome } from '../lib/canais';
 import { rotuloDoHorario } from '../lib/horario';
+import { useTransmissaoDisponivel } from '../lib/useTransmissaoDisponivel';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { Chip } from './ui/Chip';
@@ -16,6 +17,8 @@ interface DashboardProps {
   canais: Destination[];
   onEntrarNoEstudio: (webinar?: WebinarResumo) => void;
   onAgendar: () => void;
+  /** Editar abre no título; reagendar, na data. */
+  onEditarWebinar: (webinar: WebinarResumo, foco: 'titulo' | 'data') => void;
   /** Sem argumento, conecta um canal novo; com a plataforma, abre direto nela. */
   onConectarCanal: (plataforma?: string) => void;
   /** Abre o modal neste canal, para consertar o que falta. */
@@ -39,6 +42,7 @@ export function Dashboard({
   canais,
   onEntrarNoEstudio,
   onAgendar,
+  onEditarWebinar,
   onConectarCanal,
   onEditarCanal,
   onVerCanais,
@@ -70,6 +74,15 @@ export function Dashboard({
                 <Horario texto={rotuloDoHorario(proxima)} />
                 {proxima.type === 'pre-recorded' && <> · vídeo gravado</>}
               </p>
+              {/* A próxima live se ajusta daqui: antes, mudar a hora era excluir e agendar de novo */}
+              <div className="mt-2 flex gap-5">
+                <AcaoDeTexto tamanho="xs" onClick={() => onEditarWebinar(proxima, 'titulo')}>
+                  Editar
+                </AcaoDeTexto>
+                <AcaoDeTexto tamanho="xs" onClick={() => onEditarWebinar(proxima, 'data')}>
+                  Reagendar
+                </AcaoDeTexto>
+              </div>
             </>
           ) : (
             <>
@@ -82,6 +95,8 @@ export function Dashboard({
               </p>
             </>
           )}
+
+          {carregado && <Prontidao canaisProntos={canais.filter((c) => c.selected && estadoDoCanal(c) === 'pronto').length} />}
 
           <div className="mt-8">
             <Button size="lg" onClick={() => onEntrarNoEstudio(proxima)} className="w-full sm:w-auto sm:min-w-64">
@@ -122,6 +137,7 @@ export function Dashboard({
                     key={w.id}
                     webinar={w}
                     onEntrar={onEntrarNoEstudio}
+                    onEditar={onEditarWebinar}
                   />
                 ))}
               </ul>
@@ -130,6 +146,81 @@ export function Dashboard({
         )}
       </div>
     </main>
+  );
+}
+
+type Permissao = 'liberada' | 'a-pedir' | 'bloqueada' | 'desconhecida';
+
+/**
+ * A permissão de câmera e microfone deste navegador, sem pedir nada: o
+ * pedido de verdade é do estúdio. Navegadores sem a consulta (ou que não
+ * conhecem "camera") ficam em "desconhecida", e a linha não afirma nada.
+ */
+function usePermissaoDosAparelhos(): Permissao {
+  const [permissao, setPermissao] = useState<Permissao>('desconhecida');
+  useEffect(() => {
+    if (!navigator.permissions?.query) return;
+    let vivo = true;
+    const estados: PermissionStatus[] = [];
+    const ler = () => {
+      if (!vivo || estados.length < 2) return;
+      const lidos = estados.map((e) => e.state);
+      setPermissao(lidos.includes('denied') ? 'bloqueada' : lidos.every((s) => s === 'granted') ? 'liberada' : 'a-pedir');
+    };
+    Promise.all(
+      (['camera', 'microphone'] as const).map((nome) => navigator.permissions.query({ name: nome as PermissionName })),
+    )
+      .then((lidos) => {
+        estados.push(...lidos);
+        lidos.forEach((e) => e.addEventListener('change', ler));
+        ler();
+      })
+      .catch(() => {});
+    return () => {
+      vivo = false;
+      estados.forEach((e) => e.removeEventListener('change', ler));
+    };
+  }, []);
+  return permissao;
+}
+
+/**
+ * O que a próxima live tem e o que falta, antes de entrar no estúdio: a
+ * permissão dos aparelhos, se o servidor transmite e se há canal pronto para
+ * o ar. Sem um ou outro, "Entrar ao vivo" não age, e o painel diz isso aqui, onde se prepara, e não
+ * só no estúdio.
+ */
+function Prontidao({ canaisProntos }: { canaisProntos: number }) {
+  const permissao = usePermissaoDosAparelhos();
+  // Sem o motor no servidor, canal pronto não basta. Enquanto a resposta não
+  // chega (ou se ela falhar), a linha fala só dos canais, sem prometer o ar
+  const transmissaoDisponivel = useTransmissaoDisponivel();
+  const nCanais = `${canaisProntos} ${canaisProntos === 1 ? 'canal' : 'canais'}`;
+  const aparelhos: Record<Exclude<Permissao, 'desconhecida'>, { ok: boolean; frase: string }> = {
+    liberada: { ok: true, frase: 'Câmera e microfone liberados neste navegador.' },
+    'a-pedir': { ok: false, frase: 'Câmera e microfone: o navegador vai pedir permissão ao entrar no estúdio.' },
+    bloqueada: { ok: false, frase: 'Câmera ou microfone bloqueados. Permita no cadeado da barra de endereço.' },
+  };
+  const linhas = [
+    ...(permissao === 'desconhecida' ? [] : [aparelhos[permissao]]),
+    transmissaoDisponivel === false
+      ? { ok: false, frase: 'A transmissão para os canais ainda não está configurada neste servidor: por enquanto, o estúdio ensaia e grava neste computador.' }
+      : canaisProntos === 0
+        ? { ok: false, frase: 'Nenhum canal pronto: até um canal ligado ter servidor e chave, o estúdio só ensaia e grava neste computador.' }
+        : transmissaoDisponivel
+          ? { ok: true, frase: `Pronto para entrar ao vivo em ${nCanais}, pelo botão Entrar ao vivo do estúdio.` }
+          : { ok: true, frase: `${nCanais} com servidor e chave.` },
+  ];
+
+  return (
+    <ul aria-label="Prontidão" className="mt-6 space-y-2 text-sm text-[var(--ink-hi)]">
+      {linhas.map(({ ok, frase }) => (
+        <li key={frase} className="flex items-start gap-2">
+          {ok ? <Check size={16} aria-hidden="true" className="mt-0.5 shrink-0" /> : <CircleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />}
+          <span className="text-pretty">{frase}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 

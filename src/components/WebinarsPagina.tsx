@@ -11,10 +11,11 @@ interface WebinarsPaginaProps {
   onAgendar: () => void;
   onEntrar: (webinar: WebinarResumo) => void;
   onExcluir: (webinar: WebinarResumo) => void;
+  onEditar: (webinar: WebinarResumo, foco: 'titulo' | 'data') => void;
 }
 
 /** Todos os webinars. No painel ficavam espremidos, com um "Ver todos" que não levava a lugar nenhum. */
-export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onExcluir }: WebinarsPaginaProps) {
+export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onExcluir, onEditar }: WebinarsPaginaProps) {
   const confirmar = useConfirm();
   // O webinar excluído sai da lista na hora, junto com a confirmação que
   // fecha: o foco vai ao "⋯" do vizinho, ou ao título
@@ -62,6 +63,7 @@ export function WebinarsPagina({ webinars, carregado, onAgendar, onEntrar, onExc
               webinar={w}
               onEntrar={onEntrar}
               onExcluir={excluirComConfirmacao}
+              onEditar={onEditar}
             />
           ))}
         </ul>

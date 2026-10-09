@@ -8,6 +8,7 @@ import { useListaDaConta } from '../lib/useListaDaConta';
 import { EVENTOS_DO_PLAYER, ajustarPlayer, criarPlayer, desenhaATela, situacaoDoClipe, soltarPlayer, tocar, type PlayerDoClipe } from '../lib/playerDoClipe';
 import { PALAVRA_DO_CANAL, estadoDoCanal, nomeDaPlataforma } from '../lib/canais';
 import { desistirDaTransmissao, pedirTransmissao } from '../lib/transmissao';
+import { useTransmissaoDisponivel } from '../lib/useTransmissaoDisponivel';
 import { comecarTransmissao, type TransmissaoEmCurso } from '../lib/palco/transmissor';
 import type { EstadoDoDestino } from '../server/protocoloDoMotor';
 import { formatarTempo, juntar } from '../lib/graficos';
@@ -26,8 +27,8 @@ import { SecaoDaApresentacao } from './SecaoDaApresentacao';
 import { useApresentacao } from '../lib/useApresentacao';
 import { CAPTURA_PADRAO, capturaValida, lerCaptura, restricoesDeAudio, restricoesDeVideo, type AjustesDaCaptura } from '../lib/captura';
 import { DivisorDeColuna } from './DivisorDeColuna';
-import { BotoesDeTransicao, DURACAO_DA_FUSAO, IconesDeCena, type Transicao } from './CenasETransicao';
-import { MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
+import { BotoesDeTransicao, DURACAO_DA_FUSAO, IconesDeCena, type BloqueioDoCorte, type Transicao } from './CenasETransicao';
+import { AvisoDoMonitorUnico, MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
 import { FERRAMENTA_INICIAL, PainelDoEstudio, type Ferramenta } from './PainelDoEstudio';
 import { BandejaDoEstudio } from './BandejaDoEstudio';
 import { StudioPreview } from './StudioPreview';
@@ -37,6 +38,7 @@ import { PainelRoteiro } from './PainelRoteiro';
 import { PainelQrCode, type QrDoEstudio } from './PainelQrCode';
 import { PainelMidia } from './PainelMidia';
 import { PainelCamera } from './PainelCamera';
+import { PainelPreparo } from './PainelPreparo';
 import {
   ControlesDaJanela,
   JanelaDoTeleprompter,
@@ -498,6 +500,17 @@ export function Estudio({
   }, [player]);
   const mudancas = mudancasNoCorte(programa, estadoDoPreview);
   const temMudanca = mudancas.length > 0;
+  // O clipe ou a apresentação no preview ocupam o lugar da tela: com um deles, a cena com tela tem o que mostrar
+  const temTela = !!screenStream || !!clipeNoPreview || !!apresentacaoNoPreview;
+  // Uma cena com tela e nada no lugar dela não vai ao programa: iria uma moldura vazia
+  const faltaATela = precisaDaTela(cena) && !temTela;
+  // Com o preview igual ao programa, um monitor só; a mesa de corte volta
+  // quando há o que cortar, ou fica sempre, na visão de quem produz
+  const [monitores, setMonitores] = usePreferencia('pw_monitores_do_estudio', { sempreDois: false }, (m) => ({
+    sempreDois: m.sempreDois === true,
+  }));
+  // Durante a fusão os dois ficam: a mesa não muda de tamanho no meio da dissolução
+  const monitorUnico = !temMudanca && programaQueSai === null && !monitores.sempreDois;
 
   // Corte: o preview vai ao programa na hora. Fusão: o programa que sai fica
   // por cima e some em DURACAO_DA_FUSAO.
@@ -515,6 +528,7 @@ export function Estudio({
   );
 
   const cortar = (transicao: Transicao) => {
+    if (faltaATela) return;
     if (fusaoRef.current) window.clearTimeout(fusaoRef.current);
     // Um player que ainda saía de uma fusão anterior já pode ser solto
     if (saindoRef.current && saindoRef.current !== playerRef.current) soltarPlayer(saindoRef.current);
@@ -570,7 +584,9 @@ export function Estudio({
     if (!stream) return;
     setScreenStream(stream);
     stream.getVideoTracks()[0]?.addEventListener('ended', pararTela);
-    // A tela entra no preview, pronta para o corte
+    // A tela entra no preview, pronta para o corte. Se o preview já tem uma
+    // cena com tela (a que esperava por ela), fica a que foi escolhida
+    if (precisaDaTela(cenaDoPreviewRef.current)) return;
     const comTela = cenaPeloId('cena-tela-e-camera');
     if (comTela) escolherCena(comTela);
   };
@@ -598,6 +614,15 @@ export function Estudio({
     setClipeNoPreview(null);
     irParaUmaCenaComTela();
   };
+
+  const bloqueio: BloqueioDoCorte | null = faltaATela
+    ? {
+        motivo: `A cena “${cena.nome}” precisa da tela compartilhada, e nenhuma tela está chegando.`,
+        acao: navigator.mediaDevices?.getDisplayMedia
+          ? { rotulo: 'Compartilhar tela', onClick: () => void alternarTela() }
+          : { rotulo: 'Voltar à câmera', onClick: () => escolherCena(CENA_INICIAL) },
+      }
+    : null;
 
   // ── Roteiro e teleprompter ────────────────────────────────────────────────
   const roteiro = useRoteiro(webinar?.id ?? 'geral');
@@ -752,12 +777,16 @@ export function Estudio({
     };
   }, []);
   const canaisProntos = canais.filter((d) => d.selected && estadoDoCanal(d) === 'pronto');
+  // Sem o motor no servidor, nenhum canal adianta: esse impedimento vem antes
+  const transmissaoDisponivel = useTransmissaoDisponivel();
   const impedimento =
-    canaisProntos.length === 0
-      ? canais.some((d) => d.selected)
-        ? 'Falta o servidor ou a chave de um canal ligado. Complete o canal em Canais.'
-        : 'Nenhum canal ligado. Ligue um canal com servidor e chave em Canais.'
-      : null;
+    transmissaoDisponivel === false
+      ? 'A transmissão para os canais ainda não está configurada neste servidor.'
+      : canaisProntos.length === 0
+        ? canais.some((d) => d.selected)
+          ? 'Falta o servidor ou a chave de um canal ligado. Complete o canal em Canais.'
+          : 'Nenhum canal ligado. Ligue um canal com servidor e chave em Canais.'
+        : null;
   const canaisNoAr = transmissao?.canais.filter((c) => c.estado === 'no-ar').length ?? 0;
   const canaisQueDesistiram = transmissao?.canais.filter((c) => c.estado === 'falhou').length ?? 0;
   const aoVivo = faseDoAr !== 'parada' && canaisNoAr > 0;
@@ -985,8 +1014,30 @@ export function Estudio({
     return () => cancelAnimationFrame(quadro);
   }, [posicaoDosAjustes]);
 
+  const ligados = canais.filter((d) => d.selected);
+
   const painel = (() => {
     switch (ferramenta) {
+      case 'preparar':
+        return (
+          <PainelPreparo
+            camera={leitura.camera}
+            cameraDesligada={cameraDesligada}
+            onLigarCamera={alternarCamera}
+            microfone={leitura.microfone}
+            mudo={mudo}
+            onLigarMicrofone={alternarMicrofone}
+            compartilhando={!!screenStream}
+            podeCompartilhar={!!navigator.mediaDevices?.getDisplayMedia}
+            onCompartilhar={() => void alternarTela()}
+            canaisLigados={ligados.length}
+            canaisProntos={canaisProntos.length}
+            impedimento={impedimento}
+            noAr={faseDoAr !== 'parada'}
+            onCanais={onCanais}
+            onAbrir={setFerramenta}
+          />
+        );
       case 'chat':
         return (
           <div className="flex h-[36rem] flex-col p-4 lg:h-full">
@@ -1115,8 +1166,6 @@ export function Estudio({
     />
   );
 
-  const ligados = canais.filter((d) => d.selected);
-
   // O que o próximo quadro do vídeo desenha; roda a cada render do estúdio
   useEffect(() => {
     compositor.atualizar({
@@ -1142,7 +1191,7 @@ export function Estudio({
       <BarraDoEstudio
         sessao={webinar?.title}
         canaisLigados={ligados.length}
-        canaisProntos={ligados.filter((d) => estadoDoCanal(d) === 'pronto').length}
+        canaisProntos={canaisProntos.length}
         onCanais={onCanais}
         transmissao={
           faseDoAr === 'no-ar' && transmissao
@@ -1182,7 +1231,9 @@ export function Estudio({
             proximoCorte={
               <ProximoCorte
                 mudancas={mudancas}
-                transicao={<BotoesDeTransicao temMudanca={temMudanca} cortando={programaQueSai !== null} onCortar={cortar} />}
+                bloqueio={bloqueio}
+                onJuntar={monitores.sempreDois ? () => setMonitores({ sempreDois: false }) : undefined}
+                transicao={<BotoesDeTransicao temMudanca={temMudanca} cortando={programaQueSai !== null} bloqueio={bloqueio} onCortar={cortar} />}
               />
             }
             controles={
@@ -1210,11 +1261,13 @@ export function Estudio({
                 cenas={cenasDoEstudio}
                 idDoPrograma={programa.sceneId || CENA_INICIAL.id}
                 idDoPreview={cena.id}
-                temTela={!!screenStream || !!clipeNoPreview || !!apresentacaoNoPreview}
+                temTela={temTela}
                 aoVivo={aoVivo}
                 onEscolher={escolherCena}
               />
             }
+            unico={monitorUnico}
+            avisoDoUnico={<AvisoDoMonitorUnico onSempreDois={() => setMonitores({ sempreDois: true })} />}
             refDoPreview={previewRef}
           />
         </div>
@@ -1232,6 +1285,7 @@ export function Estudio({
               setColunas((c) => (c.painelRecolhido ? { ...c, painelRecolhido: false } : c));
             }}
             onVerPreview={verPreview}
+            rotuloVerPreview={monitorUnico ? 'Ver o programa' : 'Ver preview'}
             botaoVerPreviewRef={botaoVerPreviewRef}
             recolhido={colunas.painelRecolhido}
             onRecolher={() => setColunas((c) => ({ ...c, painelRecolhido: !c.painelRecolhido }))}

@@ -1,7 +1,32 @@
+import { CircleAlert } from 'lucide-react';
 import { CENA_GRADE, precisaDaTela, type Cena } from '../lib/cenas';
+import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 
 export type Transicao = 'corte' | 'fusao';
+
+/** O corte travado: a cena do preview não tem o que mostrar, e isto diz por quê (e o conserto). */
+export interface BloqueioDoCorte {
+  motivo: string;
+  acao?: { rotulo: string; onClick: () => void };
+}
+
+/** Alerta + frase na tinta alta, e o conserto ao lado quando houver um. */
+export function AvisoDoBloqueio({ bloqueio, className = '' }: { bloqueio: BloqueioDoCorte; className?: string }) {
+  return (
+    <div className={`text-pretty text-xs text-[var(--ink-hi)] ${className}`}>
+      <p className="flex items-start gap-1.5">
+        <CircleAlert size={14} aria-hidden="true" className="mt-px shrink-0" />
+        <span>{bloqueio.motivo}</span>
+      </p>
+      {bloqueio.acao && (
+        <AcaoDeTexto tamanho="xs" sublinhada onClick={bloqueio.acao.onClick} className="ml-5 mt-1 min-h-8">
+          {bloqueio.acao.rotulo}
+        </AcaoDeTexto>
+      )}
+    </div>
+  );
+}
 
 /** A duração da fusão, em ms. É a que o monitor de programa usa (FUSAO_NO_PALCO_MS copia). */
 export const DURACAO_DA_FUSAO = 400;
@@ -16,16 +41,19 @@ const TECLA =
 export function BotoesDeTransicao({
   temMudanca,
   cortando,
+  bloqueio = null,
   onCortar,
   compacto = false,
 }: {
   temMudanca: boolean;
   cortando: boolean;
+  /** A cena do preview não tem o que mostrar: as teclas apagam (o aviso visível fica na caixa do próximo corte). */
+  bloqueio?: BloqueioDoCorte | null;
   onCortar: (transicao: Transicao) => void;
   /** Lado a lado é o normal; `compacto` empilha (não usado hoje; fica para colunas estreitas). */
   compacto?: boolean;
 }) {
-  const parado = !temMudanca || cortando;
+  const parado = !temMudanca || cortando || bloqueio !== null;
   return (
     <div>
       <div className={`grid gap-2 ${compacto ? 'grid-cols-1' : 'grid-cols-2'}`}>
@@ -38,6 +66,8 @@ export function BotoesDeTransicao({
           <span className="font-mono text-xs font-normal tabular-nums text-[var(--ink-lo)]">{DURACAO_DA_FUSAO}&nbsp;ms</span>
         </Button>
       </div>
+      {/* O motivo visível mora na caixa logo acima (ProximoCorte); aqui vai só ao leitor de tela */}
+      {bloqueio && temMudanca && <p className="sr-only">{bloqueio.motivo}</p>}
     </div>
   );
 }

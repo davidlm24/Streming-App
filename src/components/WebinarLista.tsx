@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { Trash2 } from 'lucide-react';
+import { CalendarClock, PenLine, Trash2 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { Menu, type ItemDeMenu } from './ui/Menu';
 import { rotuloDoHorario } from '../lib/horario';
@@ -7,6 +7,8 @@ import { rotuloDoHorario } from '../lib/horario';
 export interface WebinarResumo {
   id: string;
   title: string;
+  /** Só em webinars antigos: não aparece, mas a edição o mantém. */
+  desc?: string;
   time: string;
   channels: string[];
   type: string;
@@ -49,22 +51,32 @@ interface WebinarLinhaProps {
   webinar: WebinarResumo;
   onEntrar: (webinar: WebinarResumo) => void;
   onExcluir?: (webinar: WebinarResumo) => void;
+  /** Editar abre no título; reagendar, na data. */
+  onEditar?: (webinar: WebinarResumo, foco: 'titulo' | 'data') => void;
 }
 
 /**
  * O que mais se faz com um webinar, no "⋯". Sem nada para fazer, não há
  * menu. "Página de inscrição" e "Criar capa" saíram na fase 3: a página só
  * abria para o próprio anfitrião, e a capa não aparecia em lugar nenhum.
+ * Editar e Reagendar abrem o mesmo formulário do agendamento: antes, o
+ * único caminho de um webinar agendado era o estúdio ou a lixeira.
  */
-export function acoesDoWebinar(webinar: WebinarResumo, { onExcluir }: Pick<WebinarLinhaProps, 'onExcluir'>): ItemDeMenu[] {
-  return onExcluir
-    ? [{ rotulo: 'Excluir webinar', icone: <Trash2 size={14} />, perigo: true, onSelect: () => onExcluir(webinar) }]
-    : [];
+export function acoesDoWebinar(webinar: WebinarResumo, { onExcluir, onEditar }: Pick<WebinarLinhaProps, 'onExcluir' | 'onEditar'>): ItemDeMenu[] {
+  return [
+    ...(onEditar
+      ? [
+          { rotulo: 'Editar', icone: <PenLine size={14} />, onSelect: () => onEditar(webinar, 'titulo') },
+          { rotulo: 'Reagendar', icone: <CalendarClock size={14} />, onSelect: () => onEditar(webinar, 'data') },
+        ]
+      : []),
+    ...(onExcluir ? [{ rotulo: 'Excluir webinar', icone: <Trash2 size={14} />, perigo: true, onSelect: () => onExcluir(webinar) }] : []),
+  ];
 }
 
 /** Uma linha de webinar: uma ação visível (entrar), o resto no menu. */
-export function WebinarLinha({ webinar, onEntrar, onExcluir }: WebinarLinhaProps) {
-  const acoes = acoesDoWebinar(webinar, { onExcluir });
+export function WebinarLinha({ webinar, onEntrar, onExcluir, onEditar }: WebinarLinhaProps) {
+  const acoes = acoesDoWebinar(webinar, { onExcluir, onEditar });
   return (
     <li className="flex items-center gap-4 py-4">
       <div className="min-w-0 flex-1">

@@ -3,7 +3,7 @@ import type { GeometriaDoCard } from '../types';
 import { CARD_PADRAO, cantoDoCard, dentroDoPalco, lugarDoCanto } from '../lib/cenas';
 import { AJUSTES_PADRAO, ZOOM_MAXIMO, ZOOM_MINIMO, deslocamentoMaximo, dentroDoQuadro, type AjustesDaCamera } from '../lib/camera';
 import { fraseDaCamera, type AjustesDaCaptura, type LeituraDaCaptura, type QuadrosPorSegundo, type Resolucao } from '../lib/captura';
-import { Deslizante, EscolhaDoPainel, SecaoDoPainel, SeletorDeCanto } from './PecasDoPainel';
+import { Deslizante, EscolhaDoPainel, SecaoAvancada, SecaoDoPainel, SeletorDeCanto } from './PecasDoPainel';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Segmentado } from './ui/Segmentado';
 import { Switch } from './ui/Switch';
@@ -36,6 +36,10 @@ const lado = (valor: number, esquerda: string, direita: string) =>
  * clareava os avisos), presets de marca com logos do Unsplash e do Flaticon,
  * um estilo de texto que o palco não lia e os atalhos do card com as contas
  * do card antigo.
+ *
+ * O que se mexe durante a live vem primeiro (card, enquadramento, espelho);
+ * a qualidade da captura e o croma ficam em Avançado, que abre sozinho com o
+ * croma ligado. Sem câmera, a qualidade só diz por quê, sem seletores apagados.
  */
 export function PainelCamera({
   ajustes,
@@ -71,42 +75,6 @@ export function PainelCamera({
 
   return (
     <div className="pb-6">
-      <SecaoDoPainel
-        titulo="Qualidade da câmera"
-        dica={
-          !camera
-            ? 'O navegador não liberou a câmera.'
-            : aplicando
-              ? 'Pedindo à câmera…'
-              : entregue
-                ? `A câmera entrega ${entregue}. Cada aparelho chega até onde pode.`
-                : 'A câmera não disse o que entrega.'
-        }
-      >
-        <EscolhaDoPainel rotulo="Resolução">
-          <Segmentado
-            rotulo="Resolução"
-            largura="cheia"
-            opcoes={RESOLUCOES}
-            valor={captura.resolucao}
-            desativado={!camera}
-            ocupado={aplicando}
-            onChange={(resolucao) => onCaptura({ ...captura, resolucao })}
-          />
-        </EscolhaDoPainel>
-        <EscolhaDoPainel rotulo="Quadros por segundo">
-          <Segmentado
-            rotulo="Quadros por segundo"
-            largura="cheia"
-            opcoes={QUADROS}
-            valor={captura.quadros}
-            desativado={!camera}
-            ocupado={aplicando}
-            onChange={(quadros) => onCaptura({ ...captura, quadros })}
-          />
-        </EscolhaDoPainel>
-      </SecaoDoPainel>
-
       <SecaoDoPainel
         titulo="Card da câmera"
         dica={
@@ -195,53 +163,93 @@ export function PainelCamera({
         acao={<Switch rotulo="Espelhar a câmera" checked={ajustes.espelhar} onChange={(espelhar) => mudar({ espelhar })} />}
       />
 
-      <SecaoDoPainel
-        titulo="Croma"
-        dica="Tira o fundo verde ou azul atrás de você e mostra no lugar o fundo escolhido em Gráficos, ou o palco escuro. Vale no preview e no programa na hora, como o enquadramento."
-        acao={<Switch rotulo="Ligar o croma" checked={ajustes.croma.ligado} onChange={(ligado) => mudarCroma({ ligado })} />}
-      >
-        {ajustes.croma.ligado && (
-          <>
-            <Segmentado
-              rotulo="Cor do fundo"
-              largura="cheia"
-              opcoes={[
-                { valor: 'verde', rotulo: 'Verde' },
-                { valor: 'azul', rotulo: 'Azul' },
-              ]}
-              valor={ajustes.croma.cor}
-              onChange={(cor) => mudarCroma({ cor })}
-            />
-            <Deslizante
-              rotulo="Tolerância"
-              valor={ajustes.croma.tolerancia}
-              min={0}
-              max={100}
-              medida={`${ajustes.croma.tolerancia}%`}
-              onChange={(tolerancia) => mudarCroma({ tolerancia })}
-            />
-            <Deslizante
-              rotulo="Suavização da borda"
-              valor={ajustes.croma.suavizacao}
-              min={0}
-              max={100}
-              medida={`${ajustes.croma.suavizacao}%`}
-              onChange={(suavizacao) => mudarCroma({ suavizacao })}
-            />
-            <Deslizante
-              rotulo="Reflexo da cor na pele e na roupa"
-              valor={ajustes.croma.descarte}
-              min={0}
-              max={100}
-              medida={`${ajustes.croma.descarte}%`}
-              onChange={(descarte) => mudarCroma({ descarte })}
-            />
-            <AcaoDeTexto tamanho="xs" onClick={() => mudarCroma({ ...AJUSTES_PADRAO.croma, ligado: true, cor: ajustes.croma.cor })}>
-              Voltar ao padrão do croma
-            </AcaoDeTexto>
-          </>
-        )}
-      </SecaoDoPainel>
+      <SecaoAvancada resumo="Qualidade da captura e croma" abertaDeInicio={ajustes.croma.ligado}>
+        <SecaoDoPainel
+          titulo="Qualidade da câmera"
+          dica={
+            !camera
+              ? 'O navegador não liberou a câmera. A qualidade se escolhe quando ela chegar.'
+              : aplicando
+                ? 'Pedindo à câmera…'
+                : entregue
+                  ? `A câmera entrega ${entregue}. Cada aparelho chega até onde pode.`
+                  : 'A câmera não disse o que entrega.'
+          }
+        >
+          {camera && (
+            <>
+              <EscolhaDoPainel rotulo="Resolução">
+                <Segmentado
+                  rotulo="Resolução"
+                  largura="cheia"
+                  opcoes={RESOLUCOES}
+                  valor={captura.resolucao}
+                  ocupado={aplicando}
+                  onChange={(resolucao) => onCaptura({ ...captura, resolucao })}
+                />
+              </EscolhaDoPainel>
+              <EscolhaDoPainel rotulo="Quadros por segundo">
+                <Segmentado
+                  rotulo="Quadros por segundo"
+                  largura="cheia"
+                  opcoes={QUADROS}
+                  valor={captura.quadros}
+                  ocupado={aplicando}
+                  onChange={(quadros) => onCaptura({ ...captura, quadros })}
+                />
+              </EscolhaDoPainel>
+            </>
+          )}
+        </SecaoDoPainel>
+
+        <SecaoDoPainel
+          titulo="Croma"
+          dica="Tira o fundo verde ou azul atrás de você e mostra no lugar o fundo escolhido em Gráficos, ou o palco escuro. Vale no preview e no programa na hora, como o enquadramento."
+          acao={<Switch rotulo="Ligar o croma" checked={ajustes.croma.ligado} onChange={(ligado) => mudarCroma({ ligado })} />}
+        >
+          {ajustes.croma.ligado && (
+            <>
+              <Segmentado
+                rotulo="Cor do fundo"
+                largura="cheia"
+                opcoes={[
+                  { valor: 'verde', rotulo: 'Verde' },
+                  { valor: 'azul', rotulo: 'Azul' },
+                ]}
+                valor={ajustes.croma.cor}
+                onChange={(cor) => mudarCroma({ cor })}
+              />
+              <Deslizante
+                rotulo="Tolerância"
+                valor={ajustes.croma.tolerancia}
+                min={0}
+                max={100}
+                medida={`${ajustes.croma.tolerancia}%`}
+                onChange={(tolerancia) => mudarCroma({ tolerancia })}
+              />
+              <Deslizante
+                rotulo="Suavização da borda"
+                valor={ajustes.croma.suavizacao}
+                min={0}
+                max={100}
+                medida={`${ajustes.croma.suavizacao}%`}
+                onChange={(suavizacao) => mudarCroma({ suavizacao })}
+              />
+              <Deslizante
+                rotulo="Reflexo da cor na pele e na roupa"
+                valor={ajustes.croma.descarte}
+                min={0}
+                max={100}
+                medida={`${ajustes.croma.descarte}%`}
+                onChange={(descarte) => mudarCroma({ descarte })}
+              />
+              <AcaoDeTexto tamanho="xs" onClick={() => mudarCroma({ ...AJUSTES_PADRAO.croma, ligado: true, cor: ajustes.croma.cor })}>
+                Voltar ao padrão do croma
+              </AcaoDeTexto>
+            </>
+          )}
+        </SecaoDoPainel>
+      </SecaoAvancada>
     </div>
   );
 }

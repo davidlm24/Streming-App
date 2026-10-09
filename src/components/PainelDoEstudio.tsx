@@ -1,12 +1,13 @@
 import type { ReactNode, Ref } from 'react';
-import { AudioLines, Camera, Eye, Film, Layers, MessageSquare, PanelRightClose, PanelRightOpen, QrCode, ScrollText, Users } from 'lucide-react';
+import { AudioLines, Camera, Eye, Film, Layers, ListChecks, MessageSquare, PanelRightClose, PanelRightOpen, QrCode, ScrollText, Users } from 'lucide-react';
 import { BotaoDeIcone } from './ui/BotaoDeIcone';
 import { Button } from './ui/Button';
 import { useTabs } from './ui/Tabs';
 
-export type Ferramenta = 'chat' | 'convidados' | 'graficos' | 'roteiro' | 'qr' | 'midia' | 'camera' | 'audio';
+export type Ferramenta = 'preparar' | 'chat' | 'convidados' | 'graficos' | 'roteiro' | 'qr' | 'midia' | 'camera' | 'audio';
 
 const FERRAMENTAS: { id: Ferramenta; rotulo: string; descricao: string; Icone: typeof MessageSquare }[] = [
+  { id: 'preparar', rotulo: 'Preparar', descricao: 'O que está pronto e o que falta antes de começar', Icone: ListChecks },
   { id: 'chat', rotulo: 'Chat', descricao: 'Chat do estúdio', Icone: MessageSquare },
   { id: 'convidados', rotulo: 'Sala', descricao: 'Convidados: o link da sala e quem entrou por ele', Icone: Users },
   { id: 'graficos', rotulo: 'Gráficos', descricao: 'Banner, ticker, logo, cronômetro, cor, fundo e sobreposição', Icone: Layers },
@@ -17,7 +18,9 @@ const FERRAMENTAS: { id: Ferramenta; rotulo: string; descricao: string; Icone: t
   { id: 'audio', rotulo: 'Áudio', descricao: 'Redução de ruído, cancelamento de eco e ganho automático', Icone: AudioLines },
 ];
 
-export const FERRAMENTA_INICIAL: Ferramenta = 'chat';
+// Preparar, e não o Chat: no ensaio o chat está sempre vazio, e o que o
+// operador precisa ver ao entrar é o que falta (câmera, microfone, canais)
+export const FERRAMENTA_INICIAL: Ferramenta = 'preparar';
 
 /**
  * A coluna da direita do console: o painel da ferramenta aberta e, na borda,
@@ -38,6 +41,7 @@ export function PainelDoEstudio({
   ativa,
   onEscolher,
   onVerPreview,
+  rotuloVerPreview = 'Ver preview',
   botaoVerPreviewRef,
   recolhido,
   onRecolher,
@@ -46,6 +50,8 @@ export function PainelDoEstudio({
   ativa: Ferramenta;
   onEscolher: (ferramenta: Ferramenta) => void;
   onVerPreview: () => void;
+  /** Com o monitor único, o botão leva a ele: 'Ver o programa'. */
+  rotuloVerPreview?: string;
   botaoVerPreviewRef: Ref<HTMLButtonElement>;
   recolhido: boolean;
   onRecolher: () => void;
@@ -78,7 +84,7 @@ export function PainelDoEstudio({
             onClick={onVerPreview}
             className="min-h-11 w-full"
           >
-            Ver preview
+            {rotuloVerPreview}
           </Button>
         </div>
         {children}

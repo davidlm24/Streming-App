@@ -383,6 +383,12 @@ Retorne estritamente um JSON estruturado com:
   // Antes havia aqui um "stream engine" em memória, com latências sorteadas e
   // CPU inventada, que nenhuma tela chamava. Saiu com a transmissão real.
   const motorConfigurado = () => Boolean(process.env.MOTOR_URL?.trim() && process.env.MOTOR_SEGREDO?.trim());
+
+  // O Painel e o estúdio perguntam antes de prometer o ar: sem o motor, eles
+  // diziam "Pronto para entrar ao vivo" e o clique só recebia o 503 abaixo
+  app.get('/api/transmissoes/disponivel', requireAuth, (_req, res) => {
+    res.json({ disponivel: motorConfigurado() });
+  });
   const estadoDoDestinoNoBanco: Record<EstadoDoDestino, string> = {
     conectando: 'connecting',
     'no-ar': 'live',
