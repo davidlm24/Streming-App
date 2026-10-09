@@ -13,7 +13,17 @@
  * - A tela só entra enquanto está no programa (quem decide é o compositor,
  *   por `telaNoAr`), e nunca vai ao alto-falante: o som da própria tela
  *   ecoaria na sala.
+ * - Cada convidado da sala tem um ganho: a voz entra na mistura só enquanto
+ *   ele está no programa (`convidadosNoAr`). Fora do ar quem opera o ouve
+ *   pelo monitor local da sala, não por aqui.
  */
+interface ConvidadoNoSom {
+  trilha: MediaStreamTrack;
+  fonte: MediaStreamAudioSourceNode | null;
+  ganho: GainNode | null;
+  noAr: boolean;
+}
+
 interface ClipeCapturado {
   captura: MediaStream;
   /** A fonte no grafo, quando a trilha de áudio já chegou. */
@@ -32,6 +42,9 @@ export class SomDoPrograma {
   private ganhoDaTela: GainNode | null = null;
   private streamDaTela: MediaStream | null = null;
 
+  /** Os convidados da sala: a trilha de voz de cada um, com o ganho que o põe e tira do ar. */
+  private convidados = new Map<string, ConvidadoNoSom>();
+
   /** A captura de cada elemento de clipe, uma por elemento; `null` onde o navegador não captura. */
   private clipes = new WeakMap<HTMLVideoElement, ClipeCapturado | null>();
   /** Os elementos de clipe que já avisam quando a trilha chega; os ouvintes ficam no elemento. */
@@ -43,6 +56,7 @@ export class SomDoPrograma {
     this.destino = this.contexto.createMediaStreamDestination();
     if (this.trilhaDoMicrofone) this.ligarMicrofone(this.trilhaDoMicrofone);
     if (this.streamDaTela) this.ligarTela(this.streamDaTela);
+    for (const convidado of this.convidados.values()) this.ligarConvidado(convidado);
     return this.destino.stream.getAudioTracks()[0];
   }
 
@@ -53,6 +67,10 @@ export class SomDoPrograma {
     this.microfone = null;
     this.tela = null;
     this.ganhoDaTela = null;
+    for (const convidado of this.convidados.values()) {
+      convidado.fonte = null;
+      convidado.ganho = null;
+    }
     this.clipes = new WeakMap();
   }
 
@@ -94,6 +112,38 @@ export class SomDoPrograma {
   setTela(stream: MediaStream | null) {
     this.streamDaTela = stream;
     this.ligarTela(stream);
+  }
+
+  /** A voz de um convidado da sala; null quando ele sai (ou fica sem microfone). */
+  setConvidado(id: string, trilha: MediaStreamTrack | null) {
+    const atual = this.convidados.get(id);
+    if (atual?.trilha === trilha) return;
+    if (atual) {
+      atual.fonte?.disconnect();
+      atual.ganho?.disconnect();
+      this.convidados.delete(id);
+    }
+    if (!trilha) return;
+    const convidado: ConvidadoNoSom = { trilha, fonte: null, ganho: null, noAr: atual?.noAr ?? false };
+    this.convidados.set(id, convidado);
+    this.ligarConvidado(convidado);
+  }
+
+  /** Quais convidados estão no programa agora: só esses entram na mistura. */
+  convidadosNoAr(ids: ReadonlySet<string>) {
+    for (const [id, convidado] of this.convidados) {
+      convidado.noAr = ids.has(id);
+      if (convidado.ganho) convidado.ganho.gain.value = convidado.noAr ? 1 : 0;
+    }
+  }
+
+  private ligarConvidado(convidado: ConvidadoNoSom) {
+    if (!this.contexto || !this.destino) return;
+    convidado.fonte = this.contexto.createMediaStreamSource(new MediaStream([convidado.trilha]));
+    convidado.ganho = this.contexto.createGain();
+    convidado.ganho.gain.value = convidado.noAr ? 1 : 0;
+    convidado.fonte.connect(convidado.ganho);
+    convidado.ganho.connect(this.destino);
   }
 
   /** A tela compartilhada está no programa agora (e não um clipe ou um PDF no lugar dela). */

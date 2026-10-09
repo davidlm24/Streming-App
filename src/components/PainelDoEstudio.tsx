@@ -1,13 +1,14 @@
 import type { ReactNode, Ref } from 'react';
-import { AudioLines, Camera, Eye, Film, Layers, MessageSquare, PanelRightClose, PanelRightOpen, QrCode, ScrollText } from 'lucide-react';
+import { AudioLines, Camera, Eye, Film, Layers, MessageSquare, PanelRightClose, PanelRightOpen, QrCode, ScrollText, Users } from 'lucide-react';
 import { BotaoDeIcone } from './ui/BotaoDeIcone';
 import { Button } from './ui/Button';
 import { useTabs } from './ui/Tabs';
 
-export type Ferramenta = 'chat' | 'graficos' | 'roteiro' | 'qr' | 'midia' | 'camera' | 'audio';
+export type Ferramenta = 'chat' | 'convidados' | 'graficos' | 'roteiro' | 'qr' | 'midia' | 'camera' | 'audio';
 
 const FERRAMENTAS: { id: Ferramenta; rotulo: string; descricao: string; Icone: typeof MessageSquare }[] = [
   { id: 'chat', rotulo: 'Chat', descricao: 'Chat do estúdio', Icone: MessageSquare },
+  { id: 'convidados', rotulo: 'Sala', descricao: 'Convidados: o link da sala e quem entrou por ele', Icone: Users },
   { id: 'graficos', rotulo: 'Gráficos', descricao: 'Banner, ticker, logo, cronômetro, cor, fundo e sobreposição', Icone: Layers },
   { id: 'roteiro', rotulo: 'Roteiro', descricao: 'Roteiro, teleprompter e notas', Icone: ScrollText },
   { id: 'qr', rotulo: 'QR code', descricao: 'QR code com título e preço', Icone: QrCode },

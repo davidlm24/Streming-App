@@ -46,7 +46,7 @@ export function Monitor({
  * mesa e a altura do que lista; rola só se passar da altura do preview.
  * Esticada até a altura do preview, com uma linha só, parecia uma vaga vazia.
  */
-export function ProximoCorte({ mudancas }: { mudancas: string[] }) {
+export function ProximoCorte({ mudancas, transicao }: { mudancas: string[]; transicao?: ReactNode }) {
   return (
     <section aria-labelledby="estudio-proximo-corte" className="flex min-h-0 min-w-0 flex-col">
       <h2 id="estudio-proximo-corte" className="mb-2 h-4 shrink-0 text-xs font-medium leading-4 text-[var(--ink-hi)]">
@@ -68,6 +68,8 @@ export function ProximoCorte({ mudancas }: { mudancas: string[] }) {
           </ul>
         )}
       </div>
+      {/* Corte e Fusão moram aqui: esta caixa diz o que elas levam ao programa */}
+      {transicao && <div className="mt-3 shrink-0">{transicao}</div>}
     </section>
   );
 }
@@ -75,6 +77,10 @@ export function ProximoCorte({ mudancas }: { mudancas: string[] }) {
 // Medidas da mesa: o rótulo de cada monitor (16px + 8px) e o vão entre as linhas
 const ROTULO = 24;
 const VAO = 16;
+/** A fileira de controles sob o programa (alvos de 44px). */
+const CONTROLES = 44;
+/** A fileira de ícones de cena, na largura do programa (44px). */
+const CENAS = 44;
 /** A menor largura do painel do próximo corte, ao lado do preview. */
 const PAINEL_MINIMO = 224;
 /** A parte da altura das imagens que fica com o programa. */
@@ -112,7 +118,8 @@ export function MesaDeMonitores({
   programa,
   preview,
   proximoCorte,
-  transicaoNoCelular,
+  controles,
+  cenas,
   refDoPreview,
 }: {
   cenaDoPrograma: string;
@@ -121,7 +128,10 @@ export function MesaDeMonitores({
   programa: ReactNode;
   preview: ReactNode;
   proximoCorte: ReactNode;
-  transicaoNoCelular: ReactNode;
+  /** Mic, câmera, tela, guias e gravar, logo sob o programa — a fileira das referências. */
+  controles: ReactNode;
+  /** Os ícones das cenas, sob o preview: é nele que a cena escolhida entra. */
+  cenas: ReactNode;
   refDoPreview?: Ref<HTMLElement>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -141,7 +151,8 @@ export function MesaDeMonitores({
       } else {
         const H = el.clientHeight;
         if (H === 0) return;
-        const alturaDasImagens = H - 2 * ROTULO - VAO;
+        // Os rótulos, os três vãos e as duas fileiras (controles e cenas) saem da altura útil
+        const alturaDasImagens = H - 2 * ROTULO - 3 * VAO - CONTROLES - CENAS;
         const largura = Math.min(W, larguraDaMoldura(alturaDasImagens * PARTE_DO_PROGRAMA));
         const alturaDoPrograma = alturaDaMoldura(largura);
         const alturaLivre = alturaDasImagens - alturaDoPrograma;
@@ -174,6 +185,10 @@ export function MesaDeMonitores({
               {programa}
             </div>
           </Monitor>
+          {/* A fileira das referências: os controles da captura logo sob a tela principal */}
+          <div style={{ minHeight: CONTROLES }}>{controles}</div>
+          {/* As cenas na largura do programa: numa coluna estreita de preview a fileira quebrava e saía cortada */}
+          <div style={{ minHeight: CENAS }}>{cenas}</div>
           <div className="flex" style={{ gap: VAO }}>
             <Monitor papel="preview" cena={cenaDoPreview} className="shrink-0">
               <div className="relative" style={{ width: medidas.larguraDoPreview, height: medidas.alturaDoPreview }}>
@@ -196,6 +211,7 @@ export function MesaDeMonitores({
               {programa}
             </div>
           </Monitor>
+          {controles}
           <Monitor papel="preview" cena={cenaDoPreview} monitorRef={refDoPreview}>
             <div
               className={`relative w-full ${medidas ? '' : 'aspect-video'}`}
@@ -204,7 +220,7 @@ export function MesaDeMonitores({
               {preview}
             </div>
           </Monitor>
-          {transicaoNoCelular}
+          {cenas}
           {proximoCorte}
         </div>
       )}

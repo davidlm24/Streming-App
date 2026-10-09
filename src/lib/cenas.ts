@@ -5,15 +5,11 @@ import type { CantoDoPalco, GeometriaDoCard } from '../types';
  * nele. Só existem cenas que dá para montar com o que o estúdio tem hoje,
  * a câmera e a tela compartilhada.
  *
- * Eram cinco, em ScenesPanel, e nenhuma podia ser escolhida em lugar nenhum.
- * "Entrevista Duo" dependia de um convidado que não existe, e "Abertura" só
- * se diferenciava por uma foto do Unsplash e um banner de boas-vindas que o
- * estúdio não traz mais. Voltam quando houver convidados de verdade.
- *
- * Com as mesmas duas fontes cabem seis composições: só uma, uma sobre a
- * outra (o card) e três divisões lado a lado (a tela maior, as duas iguais,
- * a câmera maior). O mockup tinha sete layouts, mas a grade e a galeria só
- * têm sentido com convidados.
+ * Com a câmera e a tela cabem seis composições: só uma, uma sobre a outra
+ * (o card) e três divisões lado a lado (a tela maior, as duas iguais, a
+ * câmera maior). Com convidados no palco (a sala, lib/sala) entra a sétima,
+ * a Grade, montada na hora porque as fontes dela mudam com quem está no
+ * palco.
  */
 
 export type LayoutDoPalco = '1-cam' | 'dual' | 'screen-share' | 'camera-em-destaque' | 'picture-in-picture' | 'presentation' | 'grid' | 'gallery';
@@ -40,7 +36,15 @@ export const CENAS: Cena[] = [
 
 export const CENA_INICIAL = CENAS[0];
 
-export const cenaPeloId = (id: string | undefined) => CENAS.find((c) => c.id === id);
+/**
+ * A grade: todos os que estão no palco (quem opera e os convidados da sala)
+ * em caixas iguais, como numa chamada. Só aparece na lista com convidado no
+ * palco; as fontes de verdade são montadas na hora da escolha, porque mudam
+ * com quem está no palco.
+ */
+export const CENA_GRADE: Cena = { id: 'cena-grade', nome: 'Grade', layout: 'grid', fontes: [FONTE_CAMERA] };
+
+export const cenaPeloId = (id: string | undefined) => (id === CENA_GRADE.id ? CENA_GRADE : CENAS.find((c) => c.id === id));
 
 /** A cena precisa da tela compartilhada para mostrar alguma coisa. */
 export const precisaDaTela = (cena: Cena) => cena.fontes.includes(FONTE_TELA);

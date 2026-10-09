@@ -22,7 +22,8 @@ import { Destination, Comment } from './types';
 import { INITIAL_DESTINATIONS, INITIAL_COMMENTS } from './data';
 import { LegalModal } from './components/LegalModals';
 import { useToast } from './components/ui/Toast';
-import { limiteDeCanaisLigados } from './lib/plans';
+import { limiteDeCanaisLigados, getPlan } from './lib/plans';
+import { SalaDoConvidado } from './components/SalaDoConvidado';
 import { cabeLigado } from './lib/canais';
 import { COR_PADRAO } from './lib/graficos';
 import {
@@ -565,6 +566,13 @@ export default function App() {
     setComments([]);
   };
 
+  // A página do convidado é pública: quem recebe o link entra sem conta,
+  // como numa chamada do Meet. Fica antes do portão de login de propósito.
+  const sala = window.location.pathname.match(/^\/sala\/([^/]+)\/?$/);
+  if (sala) {
+    return <SalaDoConvidado token={sala[1]} />;
+  }
+
   if (!user) {
     return (
       <AuthAndPricing 
@@ -592,6 +600,7 @@ export default function App() {
         <MidiaDoEstudioProvider key={user.uid} conta={user.uid}>
           <Estudio
             usuario={{ uid: user.uid, name: user.name }}
+            limiteDePessoas={getPlan(user.plan)?.participantes ?? 3}
             webinar={webinarNoEstudio}
             canais={destinations}
             onCanais={() => setIsAddChannelsModalOpen(true)}

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import type { ApresentacaoNoPalco, ClipeNoPalco, Comment, Destination, GeometriaDoCard, GraficosDoPalco, Participant, StudioSceneState } from '../types';
-import { CENA_INICIAL, FONTE_CAMERA, FONTE_TELA, cenaPeloId, layoutUsaCard, lerCardSalvo, precisaDaTela, salvarCard, type Cena } from '../lib/cenas';
+import { CENAS, CENA_GRADE, CENA_INICIAL, FONTE_CAMERA, FONTE_TELA, cenaPeloId, layoutUsaCard, lerCardSalvo, precisaDaTela, salvarCard, type Cena } from '../lib/cenas';
 import { LOGO_PADRAO, QR_PADRAO, graficosVazios, mudancasNoCorte, normalizarLink, relogioParado, type RelogioDoCronometro } from '../lib/graficos';
 import { AJUSTES_PADRAO, dentroDoQuadro, type AjustesDaCamera } from '../lib/camera';
 import { useRoteiro } from '../lib/useRoteiro';
@@ -13,6 +13,10 @@ import type { EstadoDoDestino } from '../server/protocoloDoMotor';
 import { formatarTempo, juntar } from '../lib/graficos';
 import { salvarBanners, salvarTickers, subscribeBanners, subscribeTickers } from '../lib/dadosDaConta';
 import { useMidiaDoEstudio } from '../context/MidiaDoEstudio';
+import { getSupabaseBrowserClient } from '../lib/supabase';
+import { MalhaDaSala, guardarTokenDaSala, lerOuCriarTokenDaSala, novoTokenDeSala, type PessoaDaSala } from '../lib/sala/malha';
+import { PainelConvidados } from './PainelConvidados';
+import { SomDe } from './SalaDoConvidado';
 import { BarraDoEstudio } from './BarraDoEstudio';
 import { PalcoDoPrograma } from './PalcoDoPrograma';
 import { CompositorDoPrograma, type SaidaDaFusao } from '../lib/palco/compositor';
@@ -22,7 +26,7 @@ import { SecaoDaApresentacao } from './SecaoDaApresentacao';
 import { useApresentacao } from '../lib/useApresentacao';
 import { CAPTURA_PADRAO, capturaValida, lerCaptura, restricoesDeAudio, restricoesDeVideo, type AjustesDaCaptura } from '../lib/captura';
 import { DivisorDeColuna } from './DivisorDeColuna';
-import { BotoesDeTransicao, DURACAO_DA_FUSAO, TrilhoDeCenas, type Transicao } from './TrilhoDeCenas';
+import { BotoesDeTransicao, DURACAO_DA_FUSAO, IconesDeCena, type Transicao } from './CenasETransicao';
 import { MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
 import { FERRAMENTA_INICIAL, PainelDoEstudio, type Ferramenta } from './PainelDoEstudio';
 import { BandejaDoEstudio } from './BandejaDoEstudio';
@@ -84,26 +88,11 @@ const COLUNAS = {
   painel: { minimo: 304, maximo: 520, padrao: 368, tetoNaJanela: 0.36 },
 } as const;
 
-/** A largura do console de desktop (lg do Tailwind, 64rem). */
-function useDesktop() {
-  const consulta = '(min-width: 64rem)';
-  const [desktop, setDesktop] = useState(() => window.matchMedia(consulta).matches);
-  useEffect(() => {
-    const lista = window.matchMedia(consulta);
-    const mudou = () => setDesktop(lista.matches);
-    lista.addEventListener('change', mudou);
-    mudou();
-    return () => lista.removeEventListener('change', mudou);
-  }, []);
-  return desktop;
-}
 interface Colunas {
-  cenas: number;
   painel: number;
-  cenasRecolhidas: boolean;
   painelRecolhido: boolean;
 }
-const COLUNAS_INICIAIS: Colunas = { cenas: COLUNAS.cenas.padrao, painel: COLUNAS.painel.padrao, cenasRecolhidas: false, painelRecolhido: false };
+const COLUNAS_INICIAIS: Colunas = { painel: COLUNAS.painel.padrao, painelRecolhido: false };
 const entre = (valor: unknown, { minimo, maximo, padrao }: { minimo: number; maximo: number; padrao: number; tetoNaJanela: number }) =>
   typeof valor === 'number' && Number.isFinite(valor) ? Math.min(maximo, Math.max(minimo, Math.round(valor))) : padrao;
 
@@ -112,6 +101,8 @@ const QR_INICIAL: QrDoEstudio = { link: '', titulo: '', preco: '', ...QR_PADRAO,
 interface EstudioProps {
   /** A conta: a mídia, o QR code, os banners e os tickers do estúdio são dela. */
   usuario: { uid: string; name?: string };
+  /** Pessoas na tela no máximo, contando quem opera (plans.participantes). */
+  limiteDePessoas: number;
   /** O webinar pelo qual se entrou no estúdio, quando houver. O roteiro é dele. */
   webinar?: { id: string; title: string };
   canais: Destination[];
@@ -140,6 +131,7 @@ interface EstudioProps {
  */
 export function Estudio({
   usuario,
+  limiteDePessoas,
   webinar,
   canais,
   onCanais,
@@ -158,12 +150,55 @@ export function Estudio({
 
   // ── Fontes: a câmera de quem opera e a tela compartilhada ─────────────────
   const nome = usuario.name?.trim().split(/\s+/)[0] || 'Apresentador';
+// ── A sala de convidados: a chamada em volta do programa ─────────────────
+  // O link é o segredo, como no Meet; a malha (lib/sala) conecta navegador a
+  // navegador, e quem está na sala mora neste estado, para o painel, as cenas
+  // e o compositor. Os efeitos que ligam a câmera e a tela à malha ficam mais
+  // abaixo, depois de a captura existir.
+  const [tokenDaSala, setTokenDaSala] = useState(() => lerOuCriarTokenDaSala(usuario.uid));
+  const [pessoasDaSala, setPessoasDaSala] = useState<PessoaDaSala[]>([]);
+  const [salaConectada, setSalaConectada] = useState(false);
+  const criarMalha = (token: string) =>
+    new MalhaDaSala(getSupabaseBrowserClient(), token, crypto.randomUUID(), {
+      nome,
+      anfitriao: true,
+      aoMudar: (estado) => {
+        // Outro anfitrião (uma segunda aba desta conta) não é convidado
+        setPessoasDaSala(estado.pessoas.filter((p) => !p.anfitriao));
+        setSalaConectada(estado.conectada);
+      },
+    });
+  const [malha, setMalha] = useState(() => criarMalha(tokenDaSala));
+  const novoLinkDaSala = () => {
+    const token = novoTokenDeSala();
+    guardarTokenDaSala(usuario.uid, token);
+    setTokenDaSala(token);
+    setPessoasDaSala([]);
+    setMalha(criarMalha(token)); // o efeito sai da malha antiga e entra na nova
+  };
+  const linkDaSala = `${window.location.origin}/sala/${tokenDaSala}`;
+  /** Quem está no palco entra nas cenas com convidados (a Grade); sair da sala tira do palco. */
+  const [convidadosNoPalco, setConvidadosNoPalco] = useState<string[]>([]);
+  useEffect(() => {
+    setConvidadosNoPalco((atuais) => atuais.filter((id) => pessoasDaSala.some((p) => p.id === id)));
+  }, [pessoasDaSala]);
+
   const participantes: Participant[] = useMemo(
     () => [
       { id: FONTE_CAMERA, name: nome, avatarUrl: '', isLocal: true, isActive: true, hasVideo: true, hasAudio: true },
       { id: FONTE_TELA, name: 'Tela compartilhada', avatarUrl: '', isLocal: false, isScreenShare: true, isActive: true, hasVideo: true, hasAudio: false },
+      ...pessoasDaSala.map((p) => ({
+        id: `g-${p.id}`,
+        name: p.nome,
+        avatarUrl: '',
+        isLocal: false,
+        isActive: true,
+        hasVideo: !p.semVideo,
+        hasAudio: !p.mudo,
+        stream: p.camera,
+      })),
     ],
-    [nome],
+    [nome, pessoasDaSala],
   );
 
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -345,10 +380,30 @@ export function Estudio({
   };
   const leitura = lerCaptura(localStream);
 
+  // A malha vive com o estúdio; a câmera, a tela e o estado (mudo, sem vídeo) a seguem
+  useEffect(() => {
+    malha.entrar();
+    return () => malha.sair();
+  }, [malha]);
+  useEffect(() => malha.setCamera(localStream), [malha, localStream, versaoDoAudio]);
+  useEffect(() => malha.setTela(screenStream), [malha, screenStream]);
+  useEffect(() => malha.setEstado({ mudo, semVideo: cameraDesligada }), [malha, mudo, cameraDesligada]);
+
   // ── Cenas, preview e programa ─────────────────────────────────────────────
   const [idDaCena, setIdDaCena] = useState(CENA_INICIAL.id);
   const cena = cenaPeloId(idDaCena) ?? CENA_INICIAL;
   const escolherCena = (c: Cena) => setIdDaCena(c.id);
+  // A Grade sem ninguém no palco não é cena: volta para a câmera
+  useEffect(() => {
+    if (idDaCena === CENA_GRADE.id && convidadosNoPalco.length === 0) setIdDaCena(CENA_INICIAL.id);
+  }, [idDaCena, convidadosNoPalco]);
+  /** As cenas desta sessão: as seis de sempre e, com convidado no palco, a Grade. */
+  const cenasDoEstudio = convidadosNoPalco.length > 0 ? [...CENAS, CENA_GRADE] : CENAS;
+  const porNoPalco = (id: string, entra: boolean) => {
+    setConvidadosNoPalco((atuais) => (entra ? [...atuais.filter((x) => x !== id), id] : atuais.filter((x) => x !== id)));
+    // O convidado entra no preview, pronto para o corte — como a tela compartilhada
+    if (entra && cena.id !== CENA_GRADE.id) escolherCena(CENA_GRADE);
+  };
 
   const [cardDaCamera, setCardDaCamera] = useState<GeometriaDoCard>(lerCardSalvo);
   useEffect(() => salvarCard(cardDaCamera), [cardDaCamera]);
@@ -404,7 +459,7 @@ export function Estudio({
   const estadoDoPreview: StudioSceneState = {
     sceneId: cena.id,
     layout: cena.layout,
-    activeParticipantIds: cena.fontes,
+    activeParticipantIds: cena.id === CENA_GRADE.id ? [FONTE_CAMERA, ...convidadosNoPalco.map((id) => `g-${id}`)] : cena.fontes,
     cardDaCamera,
     activeBackground: midia.ativas.fundo,
     activeOverlay: midia.ativas.sobreposicao,
@@ -840,6 +895,14 @@ export function Estudio({
   useEffect(() => {
     compositor.setMicrofone(localStream?.getAudioTracks()[0] ?? null);
   }, [compositor, localStream, versaoDoAudio]);
+  // Os convidados da sala chegam ao vídeo e à mistura; quem saiu, sai de lá também
+  const convidadosNoCompositor = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const atuais = new Set(pessoasDaSala.map((p) => `g-${p.id}`));
+    for (const antigo of convidadosNoCompositor.current) if (!atuais.has(antigo)) compositor.setConvidado(antigo, null);
+    for (const p of pessoasDaSala) compositor.setConvidado(`g-${p.id}`, p.camera);
+    convidadosNoCompositor.current = atuais;
+  }, [compositor, pessoasDaSala]);
 
   // A câmera ou o microfone que param no meio (aparelho desligado, outro
   // programa os tomou) param o programa: quem opera fica sabendo na hora.
@@ -877,18 +940,12 @@ export function Estudio({
     onSair();
   };
   const [colunas, setColunas] = usePreferencia<Colunas>('pw_colunas_do_estudio', COLUNAS_INICIAIS, (c) => ({
-    cenas: entre(c.cenas, COLUNAS.cenas),
     painel: entre(c.painel, COLUNAS.painel),
-    cenasRecolhidas: c.cenasRecolhidas === true,
     painelRecolhido: c.painelRecolhido === true,
   }));
   const larguraDasColunas = {
-    '--col-cenas': colunas.cenasRecolhidas ? '5.5rem' : `min(${colunas.cenas}px, ${COLUNAS.cenas.tetoNaJanela * 100}vw)`,
     '--col-painel': colunas.painelRecolhido ? '4.5rem' : `min(${colunas.painel}px, ${COLUNAS.painel.tetoNaJanela * 100}vw)`,
   } as CSSProperties;
-  // Recolher é do desktop: no celular as cenas voltam a ter nome, e o Corte e a
-  // Fusão ficam só sob o preview, mesmo que o recolhimento esteja guardado
-  const desktop = useDesktop();
   const areaDoEstudioRef = useRef<HTMLElement>(null);
   const previewRef = useRef<HTMLElement>(null);
   const botaoVerPreviewRef = useRef<HTMLButtonElement>(null);
@@ -1003,6 +1060,18 @@ export function Estudio({
           />
           </>
         );
+      case 'convidados':
+        return (
+          <PainelConvidados
+            link={linkDaSala}
+            onNovoLink={novoLinkDaSala}
+            conectada={salaConectada}
+            pessoas={pessoasDaSala}
+            noPalco={convidadosNoPalco}
+            limiteDePessoas={limiteDePessoas}
+            onPalco={porNoPalco}
+          />
+        );
       case 'camera':
         return (
           <PainelCamera
@@ -1059,11 +1128,17 @@ export function Estudio({
       relogio,
       playerDoClipe: player,
       paginaDaApresentacao: apresentacao.mostrada,
+      convidados: pessoasDaSala.map((p) => ({ id: `g-${p.id}`, nome: p.nome, semVideo: p.semVideo })),
     });
   });
 
   return (
     <>
+      {/* O retorno da conversa: quem opera ouve os convidados com QUALQUER
+          ferramenta aberta — o som não pode morar numa aba */}
+      {pessoasDaSala.map((p) => (
+        <SomDe key={p.id} stream={p.camera} />
+      ))}
       <BarraDoEstudio
         sessao={webinar?.title}
         canaisLigados={ligados.length}
@@ -1083,43 +1158,18 @@ export function Estudio({
         botaoVoltarRef={botaoVoltarRef}
       />
 
-      {/* O console: cenas e transição, programa e preview, chat e ferramentas, e
-          a bandeja. Abaixo de lg vira uma coluna que rola, e o painel da
+      {/* O console, como nas referências: o programa com os controles da
+          captura logo abaixo, o preview com as cenas em ícones sob ele, o
+          Corte e a Fusão na caixa do próximo corte, e o chat e as ferramentas
+          à direita. Abaixo de lg vira uma coluna que rola, e o painel da
           ferramenta cresce com ela: numa caixa de altura fixa, metade de
           Gráficos ficava numa rolagem dentro da rolagem. */}
       <main
         ref={areaDoEstudioRef}
         style={larguraDasColunas}
-        className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[var(--col-cenas)_minmax(0,1fr)_var(--col-painel)] lg:overflow-hidden"
+        className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_var(--col-painel)] lg:overflow-hidden"
       >
-        <aside
-          aria-label="Cenas e transição"
-          className="relative order-2 border-t border-[var(--line)] bg-[var(--surface)] lg:order-1 lg:overflow-y-auto lg:border-r lg:border-t-0"
-        >
-          <TrilhoDeCenas
-            idDoPrograma={programa.sceneId || CENA_INICIAL.id}
-            idDoPreview={cena.id}
-            temTela={!!screenStream || !!clipeNoPreview || !!apresentacaoNoPreview}
-            temMudanca={temMudanca}
-            cortando={programaQueSai !== null}
-            onEscolher={escolherCena}
-            onCortar={cortar}
-            recolhido={colunas.cenasRecolhidas && desktop}
-            onRecolher={() => setColunas((c) => ({ ...c, cenasRecolhidas: !c.cenasRecolhidas }))}
-          />
-          {!colunas.cenasRecolhidas && (
-            <DivisorDeColuna
-              rotulo="Largura das cenas"
-              lado="direita"
-              largura={colunas.cenas}
-              {...COLUNAS.cenas}
-              onLargura={(cenas) => setColunas((c) => ({ ...c, cenas }))}
-              className="hidden lg:block"
-            />
-          )}
-        </aside>
-
-        <div className="order-1 min-w-0 p-3 sm:p-4 lg:order-2 lg:min-h-0">
+        <div className="order-1 min-w-0 p-3 sm:p-4 lg:min-h-0">
           <MesaDeMonitores
             cenaDoPrograma={cenaPeloId(programa.sceneId)?.nome ?? ''}
             programaAoVivo={aoVivo}
@@ -1129,15 +1179,49 @@ export function Estudio({
               onCardDaCamera: setCardDaCamera,
               onPorACamera: () => escolherCena(CENA_INICIAL),
             })}
-            proximoCorte={<ProximoCorte mudancas={mudancas} />}
-            transicaoNoCelular={<BotoesDeTransicao temMudanca={temMudanca} cortando={programaQueSai !== null} onCortar={cortar} />}
+            proximoCorte={
+              <ProximoCorte
+                mudancas={mudancas}
+                transicao={<BotoesDeTransicao temMudanca={temMudanca} cortando={programaQueSai !== null} onCortar={cortar} />}
+              />
+            }
+            controles={
+              <BandejaDoEstudio
+                stream={localStream}
+                mudo={mudo}
+                onAlternarMicrofone={alternarMicrofone}
+                cameraDesligada={cameraDesligada}
+                onAlternarCamera={alternarCamera}
+                compartilhando={!!screenStream}
+                onAlternarTela={() => void alternarTela()}
+                mostrarGuias={mostrarGuias}
+                onAlternarGuias={() => setMostrarGuias((v) => !v)}
+                onEscolherDispositivo={(tipo, deviceId) => void escolherAparelho(tipo, deviceId)}
+                versaoDoAudio={versaoDoAudio}
+                gravando={gravacao !== null}
+                inicioDaGravacao={gravacao?.inicioEm ?? null}
+                gravandoSemSom={gravacao !== null && !gravacao.comSom}
+                onAlternarGravacao={() => void alternarGravacao()}
+                fraseDoAr={fraseDoAr}
+              />
+            }
+            cenas={
+              <IconesDeCena
+                cenas={cenasDoEstudio}
+                idDoPrograma={programa.sceneId || CENA_INICIAL.id}
+                idDoPreview={cena.id}
+                temTela={!!screenStream || !!clipeNoPreview || !!apresentacaoNoPreview}
+                aoVivo={aoVivo}
+                onEscolher={escolherCena}
+              />
+            }
             refDoPreview={previewRef}
           />
         </div>
 
         <aside
           aria-label="Chat e ferramentas"
-          className="relative order-3 border-t border-[var(--line)] bg-[var(--surface)] lg:min-h-0 lg:border-l lg:border-t-0"
+          className="relative order-2 border-t border-[var(--line)] bg-[var(--surface)] lg:min-h-0 lg:border-l lg:border-t-0"
         >
           <PainelDoEstudio
             ativa={ferramenta}
@@ -1166,25 +1250,6 @@ export function Estudio({
           )}
         </aside>
       </main>
-
-      <BandejaDoEstudio
-        stream={localStream}
-        mudo={mudo}
-        onAlternarMicrofone={alternarMicrofone}
-        cameraDesligada={cameraDesligada}
-        onAlternarCamera={alternarCamera}
-        compartilhando={!!screenStream}
-        onAlternarTela={() => void alternarTela()}
-        mostrarGuias={mostrarGuias}
-        onAlternarGuias={() => setMostrarGuias((v) => !v)}
-        onEscolherDispositivo={(tipo, deviceId) => void escolherAparelho(tipo, deviceId)}
-        versaoDoAudio={versaoDoAudio}
-        gravando={gravacao !== null}
-        inicioDaGravacao={gravacao?.inicioEm ?? null}
-        gravandoSemSom={gravacao !== null && !gravacao.comSom}
-        onAlternarGravacao={() => void alternarGravacao()}
-        fraseDoAr={fraseDoAr}
-      />
 
       {janelaAberta && (
         <JanelaDoTeleprompter aberta={janelaAberta} onFechada={janelaFechada}>
