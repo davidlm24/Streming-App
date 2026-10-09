@@ -19,9 +19,8 @@ const PROCESSAMENTOS: { chave: Processamento; titulo: string; dica: string }[] =
  * Cada interruptor pede um processamento; o painel lê a trilha depois e diz
  * quando o microfone não aceitou, em vez de mostrar o pedido como feito.
  *
- * O aparelho se escolhe na bandeja, ao lado do microfone, como antes. O som
- * ainda não sai do estúdio, e o painel diz isso: os ajustes já valem no
- * medidor da bandeja.
+ * O aparelho se escolhe na bandeja, ao lado do microfone, como antes. Os
+ * ajustes valem no som do programa (canais e gravação) e no medidor da bandeja.
  */
 export function PainelAudio({
   captura,
@@ -47,7 +46,7 @@ export function PainelAudio({
       >
         {microfone && (
           <p className="text-pretty text-xs text-[var(--ink-lo)]">
-            O som ainda não vai para os canais, porque a transmissão não existe. Os ajustes de Avançado já valem no medidor da bandeja e na gravação.
+            Os ajustes de Avançado valem no som que vai aos canais e à gravação; o medidor da bandeja já mostra o efeito.
           </p>
         )}
       </SecaoDoPainel>
