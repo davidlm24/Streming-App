@@ -63,6 +63,15 @@ fly deploy --config motor/fly.toml --dockerfile motor/Dockerfile .
 
 Once, set its secrets (`fly secrets set MOTOR_SEGREDO=… APP_URL=https://streming-app-five.vercel.app --config motor/fly.toml`) and, on Vercel, `MOTOR_URL=wss://pwstreamer-motor.fly.dev` and the same `MOTOR_SEGREDO`. The CSP in `vercel.json` already allows that origin.
 
+## Sala de convidados e TURN
+
+Guests join the studio through a link (`/sala/<token>`), browser to browser over WebRTC, with signaling on Supabase Realtime. STUN alone fails on strict networks (corporate firewalls, carrier-grade NAT), so the room can use **Cloudflare Realtime TURN** to relay the video:
+
+1. In the Cloudflare dashboard, Realtime → TURN Server, create a TURN key.
+2. On Vercel (Production), set `TURN_KEY_ID` (the key's id) and `TURN_KEY_API_TOKEN` (its API token), then redeploy.
+
+Only the API holds the key. The studio asks the API to sign its room token (`POST /api/sala/assinatura`, signed-in only), and the guest link carries the signature (`/sala/<token>/<signature>`). `POST /api/sala/ice` gives 12-hour TURN credentials only for a matching token and signature, rate-limited per room; anything else gets STUN only, as before. Once TURN is configured, the studio shows the signed link for the same room; links already shared without a signature keep working, without the relay. Rotating the Cloudflare token sends existing links back to STUN, because the signature key derives from it.
+
 ## Supabase migration development
 
 The staged Supabase control-plane schema, RLS policies, and regression tests are in `supabase/`. It is not linked to a cloud project yet, so these commands only operate on the local Docker stack:
