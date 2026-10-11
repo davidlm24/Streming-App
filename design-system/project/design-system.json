@@ -40,9 +40,9 @@
   "blobs": {},
   "docs": { "readme": "project/README.md", "sections": [] },
   "lastChange": {
-    "by": "davidlm24",
-    "at": "2026-10-08T16:02:55Z",
-    "via": "Claude Code · davidlm24/Streming-App@6256d3c",
-    "note": "Console navy from src/index.css: 6 nv-* colours, 7 console roles repointed, n-* notes corrected."
+    "by": "Davi",
+    "at": "2026-10-11T21:50:00Z",
+    "via": "Claude Code · davidlm24/Streming-App@2920293",
+    "note": "Second console navy ramp (nv-9..nv-32: near-neutral, lighter so the black stage pops), console ink roles up a step, tray/scene component previews."
   }
 }
