@@ -77,6 +77,8 @@ export class CompositorDoPrograma {
   private relogio: Worker | null = null;
   /** Um quadro que falhou já foi contado no console: não repete trinta vezes por segundo. */
   private quadroFalhou = false;
+  /** A escala da saída sobre as medidas lógicas do palco: 1 é 720p, 1,5 é 1080p. */
+  private fator = 1;
 
   private videoDaCamera = videoDeFonte();
   private videoDaTela = videoDeFonte();
@@ -168,6 +170,20 @@ export class CompositorDoPrograma {
     return this.som.retomar();
   }
 
+  /**
+   * A resolução da saída: fator 1 é 1280×720; 1,5 é 1920×1080. Todo o desenho
+   * segue nas medidas lógicas de 720p — o quadro inteiro escala na base do
+   * contexto, e o `captureStream` passa a entregar o tamanho novo. Trocar no
+   * meio de uma gravação ou transmissão quebra o MediaRecorder: quem chama só
+   * troca com a saída parada (a UI impede).
+   */
+  setResolucao(fator: 1 | 1.5) {
+    if (fator === this.fator) return;
+    this.fator = fator;
+    this.canvas.width = LARGURA_DO_PALCO * fator;
+    this.canvas.height = ALTURA_DO_PALCO * fator;
+  }
+
   setCamera(stream: MediaStream | null) {
     this.videoDaCamera.srcObject = stream;
     if (stream) void this.videoDaCamera.play().catch(avisarSeNaoTocou('a câmera'));
@@ -242,7 +258,7 @@ export class CompositorDoPrograma {
     } catch (erro) {
       // Um save() sem restore() deixaria recorte, transformação ou opacidade
       // em todos os quadros seguintes: redimensionar zera o contexto inteiro
-      this.canvas.width = LARGURA_DO_PALCO;
+      this.canvas.width = LARGURA_DO_PALCO * this.fator;
       if (!this.quadroFalhou) console.error('Um quadro do programa falhou:', erro);
       this.quadroFalhou = true;
     }
@@ -250,6 +266,8 @@ export class CompositorDoPrograma {
 
   private desenhar(agora: number) {
     const { ctx } = this;
+    // A base do quadro: a escala da resolução; daqui para baixo, tudo em 1280×720
+    ctx.setTransform(this.fator, 0, 0, this.fator, 0, 0);
     ctx.fillStyle = TINTAS_DO_PALCO.palco;
     ctx.fillRect(0, 0, LARGURA_DO_PALCO, ALTURA_DO_PALCO);
     const e = this.entrada;

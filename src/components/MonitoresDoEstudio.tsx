@@ -17,8 +17,7 @@ export function Monitor({
   className = '',
   monitorRef,
 }: {
-  /** `saida`: o monitor único, quando o preview está igual ao programa. */
-  papel: 'programa' | 'preview' | 'saida';
+  papel: 'programa' | 'preview';
   cena: string;
   /** O programa está indo aos canais: a palavra do ar no rótulo, no carmim que é só dele. */
   aoVivo?: boolean;
@@ -26,7 +25,7 @@ export function Monitor({
   className?: string;
   monitorRef?: Ref<HTMLElement>;
 }) {
-  const nome = papel === 'programa' ? 'Programa' : papel === 'preview' ? 'Preview' : 'Programa e preview';
+  const nome = papel === 'programa' ? 'Programa' : 'Preview';
   return (
     <section ref={monitorRef} aria-label={`${nome}: ${cena}${aoVivo ? ', ao vivo' : ''}`} className={`flex min-w-0 flex-col ${className}`}>
       <div className="mb-2 flex h-4 min-w-0 items-baseline gap-2">
@@ -78,7 +77,7 @@ export function ProximoCorte({
             <p className="text-pretty text-xs text-[var(--ink-lo)]">Nada muda: o preview está igual ao programa.</p>
             {onJuntar && (
               <AcaoDeTexto tamanho="xs" sublinhada onClick={onJuntar} className="mt-1 min-h-8">
-                Juntar os monitores quando forem iguais
+                Voltar ao corte direto, sem o preview
               </AcaoDeTexto>
             )}
           </div>
@@ -102,12 +101,10 @@ export function ProximoCorte({
 // Medidas da mesa: o rótulo de cada monitor (16px + 8px) e o vão entre as linhas
 const ROTULO = 24;
 const VAO = 16;
-/** A fileira de controles sob o programa (alvos de 44px). */
-const CONTROLES = 44;
 /** A fileira de ícones de cena, na largura do programa (44px). */
 const CENAS = 44;
-/** A reserva para a frase sob o monitor único: até três linhas de 20px, na coluna mais estreita (lg). */
-const LINHA_DO_UNICO = 60;
+/** A faixa reservada no pé da coluna para a bandeja flutuante (pílula de 60px + o respiro). */
+const FLUTUANTE = 76;
 /** A menor largura do painel do próximo corte, ao lado do preview. */
 const PAINEL_MINIMO = 224;
 /** A parte da altura das imagens que fica com o programa. */
@@ -130,36 +127,18 @@ interface Medidas {
 }
 
 /**
- * A linha sob o monitor único: diz por que o preview sumiu, como trazê-lo de
- * volta (é só escolher alguma coisa) e como deixá-lo sempre à vista.
- */
-export function AvisoDoMonitorUnico({ onSempreDois }: { onSempreDois: () => void }) {
-  return (
-    // Uma frase só, com a ação no fim dela: em duas peças lado a lado, a ação
-    // descia sozinha para uma linha de 32px e a altura variava com a largura
-    <p className="text-pretty text-xs leading-5 text-[var(--ink-lo)]">
-      O preview está igual ao programa: escolha uma cena ou um gráfico para montar o próximo corte.{' '}
-      <AcaoDeTexto tamanho="xs" sublinhada onClick={onSempreDois} className="inline">
-        Mostrar o preview sempre
-      </AcaoDeTexto>
-    </p>
-  );
-}
-
-/**
  * A mesa de monitores, na geometria das referências: o programa com a
- * fileira de controles da captura logo abaixo, a fileira de cenas sob ela, e
- * então a linha do preview com o próximo corte ao lado. No desktop a mesa
- * mede a própria coluna e dimensiona o programa pela altura que sobra depois
- * das fileiras; no celular tudo empilha na largura da coluna. O lugar de
- * cada monitor é a moldura inteira, o palco em 16:9 mais o anel de 2px.
+ * fileira de cenas logo abaixo e, no pé da coluna, a bandeja da captura
+ * FLUTUANDO — uma pílula centrada, descolada da borda, numa faixa reservada
+ * para ela nunca cobrir a imagem. No desktop a mesa mede a própria coluna e
+ * dimensiona o programa pela altura que sobra; no celular tudo empilha e a
+ * pílula gruda no pé da rolagem (sticky). O lugar de cada monitor é a
+ * moldura inteira, o palco em 16:9 mais o anel de 2px.
  *
- * `unico`: com o preview igual ao programa, os dois monitores mostravam a
- * mesma imagem, e o programa ficava com 60% da altura. Agora fica um monitor
- * só, com a altura toda, e a mesa de corte volta quando há o que cortar. O
+ * `unico` é o modo direto (o padrão): só o programa — clicar numa cena já o
+ * troca. Sem ele, a mesa de corte: o preview com o próximo corte ao lado. O
  * programa fica no mesmo lugar da árvore nos dois modos: trocar de modo não
- * remonta o canvas. As cenas ficam nos dois modos — é por elas que o preview
- * volta a divergir.
+ * remonta o canvas.
  */
 export function MesaDeMonitores({
   cenaDoPrograma,
@@ -172,7 +151,6 @@ export function MesaDeMonitores({
   cenas,
   refDoPreview,
   unico,
-  avisoDoUnico,
 }: {
   cenaDoPrograma: string;
   programaAoVivo?: boolean;
@@ -180,14 +158,13 @@ export function MesaDeMonitores({
   programa: ReactNode;
   preview: ReactNode;
   proximoCorte: ReactNode;
-  /** Mic, câmera, tela, guias e gravar, logo sob o programa — a fileira das referências. */
+  /** A bandeja da captura (mic, câmera, tela, guias, gravar…): a pílula flutuante do pé da coluna. */
   controles: ReactNode;
-  /** Os ícones das cenas, na largura do programa: é no preview que a cena escolhida entra. */
+  /** Os ícones das cenas, na largura do programa. */
   cenas: ReactNode;
-  /** O monitor que "Ver preview" (celular) mostra: o preview ou, no modo único, o monitor que sobra. */
+  /** O monitor que "Ver preview" (celular) mostra: o preview ou, no modo direto, o programa. */
   refDoPreview?: Ref<HTMLElement>;
   unico: boolean;
-  avisoDoUnico: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [medidas, setMedidas] = useState<Medidas | null>(null);
@@ -207,12 +184,12 @@ export function MesaDeMonitores({
         const H = el.clientHeight;
         if (H === 0) return;
         if (unico) {
-          // O rótulo, os três vãos, as duas fileiras e a frase saem da altura útil
-          const largura = Math.min(W, larguraDaMoldura(H - ROTULO - 3 * VAO - CONTROLES - CENAS - LINHA_DO_UNICO));
+          // O rótulo, os dois vãos, a fileira de cenas e a faixa da flutuante saem da altura útil
+          const largura = Math.min(W, larguraDaMoldura(H - ROTULO - 2 * VAO - CENAS - FLUTUANTE));
           proximas = { desktop: true, unico, largura, alturaDoPrograma: alturaDaMoldura(largura), larguraDoPreview: 0, alturaDoPreview: 0 };
         } else {
-          // Os dois rótulos, os três vãos e as duas fileiras saem da altura útil
-          const alturaDasImagens = H - 2 * ROTULO - 3 * VAO - CONTROLES - CENAS;
+          // Os dois rótulos, os três vãos, a fileira de cenas e a faixa da flutuante saem da altura útil
+          const alturaDasImagens = H - 2 * ROTULO - 3 * VAO - CENAS - FLUTUANTE;
           const largura = Math.min(W, larguraDaMoldura(alturaDasImagens * PARTE_DO_PROGRAMA));
           const alturaDoPrograma = alturaDaMoldura(largura);
           const alturaLivre = alturaDasImagens - alturaDoPrograma;
@@ -240,41 +217,40 @@ export function MesaDeMonitores({
     };
   }, [unico]);
 
-  // O monitor único é as duas coisas, e o rótulo diz isso
-  const papel = unico ? 'saida' : 'programa';
-
   return (
-    <div ref={ref} className="lg:h-full">
+    <div ref={ref} className="relative lg:h-full">
       {medidas?.desktop ? (
-        <div className="mx-auto flex flex-col" style={{ width: medidas.largura, gap: VAO }}>
-          <Monitor papel={papel} cena={cenaDoPrograma} aoVivo={programaAoVivo}>
-            <div className="relative" style={{ height: medidas.alturaDoPrograma }}>
-              {programa}
-            </div>
-          </Monitor>
-          {/* A fileira das referências: os controles da captura logo sob a tela principal */}
-          <div style={{ minHeight: CONTROLES }}>{controles}</div>
-          {/* As cenas na largura do programa: numa coluna estreita de preview a fileira quebrava e saía cortada */}
-          <div style={{ minHeight: CENAS }}>{cenas}</div>
-          {unico ? (
-            avisoDoUnico
-          ) : (
-            <div className="flex" style={{ gap: VAO }}>
-              <Monitor papel="preview" cena={cenaDoPreview} className="shrink-0">
-                <div className="relative" style={{ width: medidas.larguraDoPreview, height: medidas.alturaDoPreview }}>
-                  {preview}
-                </div>
-              </Monitor>
-              <div className="flex min-w-0 flex-1 flex-col" style={{ maxHeight: ROTULO + medidas.alturaDoPreview }}>
-                {proximoCorte}
+        <>
+          <div className="mx-auto flex flex-col" style={{ width: medidas.largura, gap: VAO }}>
+            <Monitor papel="programa" cena={cenaDoPrograma} aoVivo={programaAoVivo}>
+              <div className="relative" style={{ height: medidas.alturaDoPrograma }}>
+                {programa}
               </div>
-            </div>
-          )}
-        </div>
+            </Monitor>
+            {/* As cenas na largura do programa: numa coluna estreita de preview a fileira quebrava e saía cortada */}
+            <div style={{ minHeight: CENAS }}>{cenas}</div>
+            {!unico && (
+              <div className="flex" style={{ gap: VAO }}>
+                <Monitor papel="preview" cena={cenaDoPreview} className="shrink-0">
+                  <div className="relative" style={{ width: medidas.larguraDoPreview, height: medidas.alturaDoPreview }}>
+                    {preview}
+                  </div>
+                </Monitor>
+                <div className="flex min-w-0 flex-1 flex-col" style={{ maxHeight: ROTULO + medidas.alturaDoPreview }}>
+                  {proximoCorte}
+                </div>
+              </div>
+            )}
+          </div>
+          {/* A bandeja flutua na faixa reservada: centrada, descolada da borda, sem cobrir a imagem */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
+            <div className="pointer-events-auto max-w-full">{controles}</div>
+          </div>
+        </>
       ) : (
         // Até a primeira medida, 16:9 puro; depois, a moldura inteira
         <div className="flex flex-col gap-4">
-          <Monitor papel={papel} cena={cenaDoPrograma} aoVivo={programaAoVivo} monitorRef={unico ? refDoPreview : undefined}>
+          <Monitor papel="programa" cena={cenaDoPrograma} aoVivo={programaAoVivo} monitorRef={unico ? refDoPreview : undefined}>
             <div
               className={`relative w-full ${medidas ? '' : 'aspect-video'}`}
               style={medidas ? { height: medidas.alturaDoPrograma } : undefined}
@@ -282,11 +258,8 @@ export function MesaDeMonitores({
               {programa}
             </div>
           </Monitor>
-          {controles}
           {cenas}
-          {unico ? (
-            avisoDoUnico
-          ) : (
+          {!unico && (
             <>
               <Monitor papel="preview" cena={cenaDoPreview} monitorRef={refDoPreview}>
                 <div
@@ -299,6 +272,10 @@ export function MesaDeMonitores({
               {proximoCorte}
             </>
           )}
+          {/* No celular a pílula gruda no pé da rolagem, flutuando sobre o caminho já rolado */}
+          <div className="pointer-events-none sticky bottom-3 z-10 flex justify-center">
+            <div className="pointer-events-auto max-w-full">{controles}</div>
+          </div>
         </div>
       )}
     </div>

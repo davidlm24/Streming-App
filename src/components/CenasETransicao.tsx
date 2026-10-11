@@ -73,34 +73,19 @@ export function BotoesDeTransicao({
 }
 
 // ── Os ícones das cenas ──────────────────────────────────────────────────────
-// Cada cena é um diagrama do arranjo, não uma frase: uma pessoa é a silhueta,
-// a tela é a caixa com linhas, como nos consoles de referência. O nome inteiro
-// e o estado ficam no nome acessível e no title.
+// Cada cena é só a PARTIÇÃO do palco, como no seletor de layouts das
+// referências: uma caixa por região, sem glifo dentro. A região sólida é
+// gente; a vazada é a tela. O nome inteiro e o estado ficam no nome
+// acessível e no title.
 
-/** A silhueta de uma pessoa (cabeça e ombros), centrada na caixa dada. */
-function Pessoa({ cx, cy, escala = 1 }: { cx: number; cy: number; escala?: number }) {
-  const r = 2.1 * escala;
-  const ombro = 3.4 * escala;
-  return (
-    <g fill="currentColor">
-      <circle cx={cx} cy={cy - 1.4 * escala} r={r} />
-      <path d={`M ${cx - ombro} ${cy + 3.4 * escala} a ${ombro} ${ombro} 0 0 1 ${2 * ombro} 0 Z`} />
-    </g>
-  );
-}
+/** Uma região de gente: caixa sólida. */
+const Cheia = ({ x, y, w, h, r = 2 }: { x: number; y: number; w: number; h: number; r?: number }) => (
+  <rect x={x} y={y} width={w} height={h} rx={r} fill="currentColor" />
+);
 
-/** O conteúdo de uma tela: duas linhas, como um documento à mostra. */
-function Tela({ x, y, w }: { x: number; y: number; w: number }) {
-  return (
-    <g stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.7">
-      <line x1={x} y1={y} x2={x + w} y2={y} />
-      <line x1={x} y1={y + 3.2} x2={x + w * 0.62} y2={y + 3.2} />
-    </g>
-  );
-}
-
-const Caixa = ({ x, y, w, h }: { x: number; y: number; w: number; h: number }) => (
-  <rect x={x} y={y} width={w} height={h} rx="2" fill="none" stroke="currentColor" strokeWidth="1.4" />
+/** Uma região de tela: caixa vazada. */
+const Vazada = ({ x, y, w, h, r = 2 }: { x: number; y: number; w: number; h: number; r?: number }) => (
+  <rect x={x} y={y} width={w} height={h} rx={r} fill="none" stroke="currentColor" strokeWidth="1.5" />
 );
 
 /** O diagrama de uma cena, pelo id dela. */
@@ -108,70 +93,48 @@ export function IconeDaCena({ id }: { id: string }) {
   const desenho = (() => {
     switch (id) {
       case 'cena-camera':
-        return (
-          <>
-            <Caixa x={1} y={1} w={34} h={18} />
-            <Pessoa cx={18} cy={10} escala={1.4} />
-          </>
-        );
+        return <Cheia x={1} y={1} w={34} h={18} r={3} />;
+      case 'cena-tela':
+        return <Vazada x={1.75} y={1.75} w={32.5} h={16.5} r={3} />;
       case 'cena-tela-e-camera':
         return (
           <>
-            <Caixa x={1} y={1} w={34} h={18} />
-            <Tela x={5} y={6} w={17} />
-            <rect x={22.5} y={10.5} width={10} height={6.5} rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
-            <Pessoa cx={27.5} cy={14.4} escala={0.62} />
+            <Vazada x={1.75} y={1.75} w={32.5} h={16.5} r={3} />
+            <Cheia x={22} y={10.5} w={10} h={6} r={1.5} />
           </>
         );
       case 'cena-lado-a-lado':
         return (
           <>
-            <Caixa x={1} y={1} w={24} h={18} />
-            <Tela x={5} y={7} w={16} />
-            <Caixa x={27} y={6} w={8} h={8} />
-            <Pessoa cx={31} cy={10.4} escala={0.62} />
+            <Vazada x={1.75} y={1.75} w={22.5} h={16.5} r={2.5} />
+            <Cheia x={27} y={6.5} w={8} h={7} r={1.5} />
           </>
         );
       case 'cena-metades':
         return (
           <>
-            <Caixa x={1} y={5} w={16} h={10} />
-            <Pessoa cx={9} cy={10.4} escala={0.85} />
-            <Caixa x={19} y={5} w={16} h={10} />
-            <Tela x={22} y={9} w={10} />
+            <Cheia x={1} y={5} w={16} h={10} r={2} />
+            <Vazada x={19.75} y={5.75} w={14.5} h={8.5} r={2} />
           </>
         );
       case 'cena-camera-em-destaque':
         return (
           <>
-            <Caixa x={1} y={1} w={24} h={18} />
-            <Pessoa cx={13} cy={10} escala={1.2} />
-            <Caixa x={27} y={6} w={8} h={8} />
-            <Tela x={28.6} y={9} w={4.8} />
-          </>
-        );
-      case 'cena-tela':
-        return (
-          <>
-            <Caixa x={1} y={1} w={34} h={18} />
-            <Tela x={6} y={7} w={24} />
+            <Cheia x={1} y={1} w={24} h={18} r={2.5} />
+            <Vazada x={27.75} y={7.25} w={6.5} h={5.5} r={1.5} />
           </>
         );
       case CENA_GRADE.id:
         return (
           <>
-            <Caixa x={1} y={1} w={16} h={8.5} />
-            <Pessoa cx={9} cy={5.6} escala={0.62} />
-            <Caixa x={19} y={1} w={16} h={8.5} />
-            <Pessoa cx={27} cy={5.6} escala={0.62} />
-            <Caixa x={1} y={10.5} w={16} h={8.5} />
-            <Pessoa cx={9} cy={15.1} escala={0.62} />
-            <Caixa x={19} y={10.5} w={16} h={8.5} />
-            <Pessoa cx={27} cy={15.1} escala={0.62} />
+            <Cheia x={1} y={1} w={16} h={8.5} r={1.5} />
+            <Cheia x={19} y={1} w={16} h={8.5} r={1.5} />
+            <Cheia x={1} y={10.5} w={16} h={8.5} r={1.5} />
+            <Cheia x={19} y={10.5} w={16} h={8.5} r={1.5} />
           </>
         );
       default:
-        return <Caixa x={1} y={1} w={34} h={18} />;
+        return <Vazada x={1.75} y={1.75} w={32.5} h={16.5} r={3} />;
     }
   })();
   return (
@@ -193,11 +156,12 @@ interface IconesDeCenaProps {
 }
 
 /**
- * As cenas como uma fileira de diagramas sob o preview — é nele que a cena
- * escolhida entra. A que está no preview fica elevada; a que está no programa
- * carrega um ponto (carmim só no ar, Regra do Ar). Tudo o mais vai em
- * palavras no nome acessível, não na tela: a fileira é o lugar mais olhado e
- * o mais apertado do console.
+ * As cenas como uma fileira de diagramas sob o programa. No modo direto (o
+ * padrão) o clique já corta: a cena escolhida fica elevada E com o ponto. Na
+ * mesa de corte, a elevada é a do preview e o ponto marca a do programa
+ * (carmim só no ar, Regra do Ar). Tudo o mais vai em palavras no nome
+ * acessível, não na tela: a fileira é o lugar mais olhado e o mais apertado
+ * do console.
  */
 export function IconesDeCena({ cenas, idDoPrograma, idDoPreview, temTela, aoVivo, onEscolher }: IconesDeCenaProps) {
   return (

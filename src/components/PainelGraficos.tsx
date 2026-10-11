@@ -2,6 +2,7 @@ import { useId, useState, type Dispatch, type FormEvent, type ReactNode, type Se
 import { PenLine, Plus } from 'lucide-react';
 import type { Banner, CantoDoPalco, StudioSceneState, TickerItem } from '../types';
 import { fraseDaFalhaDoEnvio, useMidiaDoEstudio, type TipoDeImagem } from '../context/MidiaDoEstudio';
+import { useDestinoDoPalco, useModoDireto } from '../context/ModoDaMesa';
 import { FORMATOS } from '../lib/midiaDaConta';
 import { CORES_DOS_GRAFICOS, formatarTempo, relogioParado, restanteDoRelogio, type RelogioDoCronometro } from '../lib/graficos';
 import { LIMITE_DE_BANNERS, LIMITE_DE_TICKERS } from '../lib/limitesDaConta';
@@ -168,6 +169,7 @@ function LinhaDoItem({
   onEditar: () => void;
   onExcluir: () => void;
 }) {
+  const destino = useDestinoDoPalco();
   return (
     <li className="py-3">
       <p className="text-pretty text-sm text-[var(--ink-hi)]">{titulo}</p>
@@ -189,7 +191,7 @@ function LinhaDoItem({
       />
       <div className="mt-2 flex items-center gap-4">
         <Button variant="ghost" size="sm" onClick={onPreview}>
-          {noPreview ? 'Tirar do preview' : 'Pôr no preview'}
+          {noPreview ? `Tirar do ${destino}` : `Pôr no ${destino}`}
         </Button>
         <AcaoDeTexto tamanho="xs" onClick={onEditar}>
           Editar
@@ -234,6 +236,8 @@ const GRUPOS_DOS_GRAFICOS: { id: GrupoDosGraficos; rotulo: string; descricao: st
  * deles. O painel abre no grupo do primeiro gráfico em uso.
  */
 export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa, relogio, onRelogio, cor, onCor }: PainelGraficosProps) {
+  const direto = useModoDireto();
+  const destino = useDestinoDoPalco();
   // Sempre a partir do estado atual: dois cliques no mesmo quadro não se desfazem
   const mudar = (parcial: Partial<EscolhaDosGraficos>) => onEscolha((atual) => ({ ...atual, ...parcial }));
   const confirmar = useConfirm();
@@ -297,7 +301,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
     { nome: 'Fundo', grupo: 'fundo', noPrograma: !!programa.activeBackground, noPreview: !!midia.ativas.fundo },
     { nome: 'Sobreposição', grupo: 'fundo', noPrograma: !!programa.activeOverlay, noPreview: !!midia.ativas.sobreposicao },
   ].flatMap(({ noPrograma, noPreview, ...item }) => {
-    const onde = ondeEsta(noPrograma, noPreview);
+    const onde = ondeEsta(noPrograma, noPreview, direto);
     return onde ? [{ ...item, grupo: item.grupo as GrupoDosGraficos, onde }] : [];
   });
   const [grupo, setGrupo] = useState<GrupoDosGraficos>(() => emUso[0]?.grupo ?? 'texto');
@@ -337,7 +341,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
             painel dividido, o banner no programa não pode sumir de vista */}
         <p className="mt-2 text-pretty text-xs text-[var(--ink-lo)]">
           {emUso.length === 0 ? (
-            'Nenhum gráfico no programa nem no preview.'
+            direto ? 'Nenhum gráfico no programa.' : 'Nenhum gráfico no programa nem no preview.'
           ) : (
             <>
               Em uso:{' '}
@@ -523,10 +527,14 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
             <SecaoDoPainel
               titulo="Cronômetro"
               estado={<EstadoNoPalco noPrograma={!!programa.graficos.cronometro} noPreview={escolha.cronometro.noPreview} />}
-              dica="Uma contagem regressiva no meio da imagem. O relógio anda nos dois monitores na hora; o corte leva o cronômetro e o título."
+              dica={
+                direto
+                  ? 'Uma contagem regressiva no meio da imagem, no programa na hora.'
+                  : 'Uma contagem regressiva no meio da imagem. O relógio anda nos dois monitores na hora; o corte leva o cronômetro e o título.'
+              }
               acao={
                 <Switch
-                  rotulo="Mostrar o cronômetro no preview"
+                  rotulo={`Mostrar o cronômetro no ${destino}`}
                   checked={escolha.cronometro.noPreview}
                   onChange={(noPreview) => mudar({ cronometro: { ...escolha.cronometro, noPreview } })}
                 />
@@ -588,7 +596,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
             {/* ── Logo ── */}
             <SecaoDoPainel titulo="Logo" dica="Uma imagem num canto. PNG com fundo transparente fica melhor.">
               <GradeDeImagens
-                rotulo="Logo no preview"
+                rotulo={`Logo no ${destino}`}
                 itens={midia.itens.logo}
                 selecionada={midia.ativas.logo}
                 noPrograma={programa.graficos.logo?.url ?? ''}
@@ -678,7 +686,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
               dica="Aparece atrás da câmera com o croma ligado e nas margens da cena lado a lado."
             >
               <GradeDeImagens
-                rotulo="Fundo no preview"
+                rotulo={`Fundo no ${destino}`}
                 itens={midia.itens.fundo}
                 selecionada={midia.ativas.fundo}
                 noPrograma={programa.activeBackground ?? ''}
@@ -695,7 +703,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
               dica="Uma moldura por cima das fontes. Use um PNG 16:9 com o meio transparente."
             >
               <GradeDeImagens
-                rotulo="Sobreposição no preview"
+                rotulo={`Sobreposição no ${destino}`}
                 itens={midia.itens.sobreposicao}
                 selecionada={midia.ativas.sobreposicao}
                 noPrograma={programa.activeOverlay ?? ''}

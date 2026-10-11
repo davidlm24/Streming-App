@@ -65,6 +65,7 @@ export function PainelPreparo({
   noAr,
   onCanais,
   onAbrir,
+  mesaDeCorte,
 }: {
   camera: LeituraDaCaptura['camera'];
   cameraDesligada: boolean;
@@ -84,6 +85,8 @@ export function PainelPreparo({
   onCanais: () => void;
   /** Abre a ferramenta dos ajustes finos (Câmera ou Áudio). */
   onAbrir: (ferramenta: 'camera' | 'audio') => void;
+  /** A mesa de corte (preview + Corte/Fusão) ligada — muda a explicação do fim. */
+  mesaDeCorte: boolean;
 }) {
   const semPermissao = 'O navegador não liberou. Permita no cadeado da barra de endereço e entre de novo no estúdio.';
   const faltamCanais = canaisLigados - canaisProntos;
@@ -161,14 +164,29 @@ export function PainelPreparo({
             <dt className="inline font-medium text-[var(--ink-hi)]">Programa</dt>
             <dd className="inline"> é a saída: o que vai aos canais e o que a gravação registra.</dd>
           </div>
-          <div>
-            <dt className="inline font-medium text-[var(--ink-hi)]">Preview</dt>
-            <dd className="inline"> é a próxima saída. Cenas e gráficos que você escolhe entram aqui primeiro.</dd>
-          </div>
-          <div>
-            <dt className="inline font-medium text-[var(--ink-hi)]">Corte</dt>
-            <dd className="inline"> leva o preview ao programa na hora; Fusão faz a troca dissolvendo.</dd>
-          </div>
+          {mesaDeCorte ? (
+            <>
+              <div>
+                <dt className="inline font-medium text-[var(--ink-hi)]">Preview</dt>
+                <dd className="inline"> é a próxima saída. Cenas e gráficos que você escolhe entram aqui primeiro.</dd>
+              </div>
+              <div>
+                <dt className="inline font-medium text-[var(--ink-hi)]">Corte</dt>
+                <dd className="inline"> leva o preview ao programa na hora; Fusão faz a troca dissolvendo.</dd>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <dt className="inline font-medium text-[var(--ink-hi)]">Cenas</dt>
+                <dd className="inline"> trocam o programa na hora, dissolvendo; gráficos entram no instante em que você os liga.</dd>
+              </div>
+              <div>
+                <dt className="inline font-medium text-[var(--ink-hi)]">Mesa de corte</dt>
+                <dd className="inline"> (preview + Corte/Fusão) liga no menu da saída, na barra de cima, para preparar o próximo corte antes de ele ir ao ar.</dd>
+              </div>
+            </>
+          )}
         </dl>
       </section>
     </div>

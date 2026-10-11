@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import { fraseDaFalhaDoPdf } from '../lib/apresentacao';
 import type { Apresentacao } from '../lib/useApresentacao';
+import { useDestinoDoPalco } from '../context/ModoDaMesa';
 import { EnviarArquivo, EstadoNoPalco, SecaoDoPainel } from './PecasDoPainel';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
@@ -32,6 +33,7 @@ export function SecaoDaApresentacao({
   noPrograma: boolean;
   onPreview: (entra: boolean) => void;
 }) {
+  const destino = useDestinoDoPalco();
   const { aberta, pagina, mostrada, abrindo, falha } = apresentacao;
   const campo = useRef<HTMLInputElement>(null);
   const porNoPreview = useRef<HTMLButtonElement>(null);
@@ -104,7 +106,7 @@ export function SecaoDaApresentacao({
 
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <Button ref={porNoPreview} variant="ghost" size="sm" onClick={() => onPreview(!noPreview)} className="whitespace-nowrap">
-              {noPreview ? 'Tirar do preview' : 'Pôr no preview'}
+              {noPreview ? `Tirar do ${destino}` : `Pôr no ${destino}`}
             </Button>
             {noPrograma ? (
               <p className="text-xs text-[var(--ink-lo)]">No programa: tire com um corte para fechar.</p>

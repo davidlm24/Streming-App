@@ -14,11 +14,12 @@ import type { EstadoDoDestino } from '../server/protocoloDoMotor';
 import { formatarTempo, juntar } from '../lib/graficos';
 import { salvarBanners, salvarTickers, subscribeBanners, subscribeTickers } from '../lib/dadosDaConta';
 import { useMidiaDoEstudio } from '../context/MidiaDoEstudio';
+import { ModoDireto } from '../context/ModoDaMesa';
 import { getSupabaseBrowserClient } from '../lib/supabase';
 import { MalhaDaSala, guardarTokenDaSala, lerOuCriarTokenDaSala, novoTokenDeSala, type PessoaDaSala } from '../lib/sala/malha';
 import { PainelConvidados } from './PainelConvidados';
 import { SomDe } from './SalaDoConvidado';
-import { BarraDoEstudio } from './BarraDoEstudio';
+import { BarraDoEstudio, type ResolucaoDoPrograma } from './BarraDoEstudio';
 import { PalcoDoPrograma } from './PalcoDoPrograma';
 import { CompositorDoPrograma, type SaidaDaFusao } from '../lib/palco/compositor';
 import { baixarGravacao, comecarGravacao, type GravacaoEmCurso } from '../lib/palco/gravador';
@@ -28,7 +29,8 @@ import { useApresentacao } from '../lib/useApresentacao';
 import { CAPTURA_PADRAO, capturaValida, lerCaptura, restricoesDeAudio, restricoesDeVideo, type AjustesDaCaptura } from '../lib/captura';
 import { DivisorDeColuna } from './DivisorDeColuna';
 import { BotoesDeTransicao, DURACAO_DA_FUSAO, IconesDeCena, type BloqueioDoCorte, type Transicao } from './CenasETransicao';
-import { AvisoDoMonitorUnico, MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
+import { MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
+import { TrilhoDaSala } from './TrilhoDaSala';
 import { FERRAMENTA_INICIAL, PainelDoEstudio, type Ferramenta } from './PainelDoEstudio';
 import { BandejaDoEstudio } from './BandejaDoEstudio';
 import { StudioPreview } from './StudioPreview';
@@ -392,9 +394,21 @@ export function Estudio({
   useEffect(() => malha.setEstado({ mudo, semVideo: cameraDesligada }), [malha, mudo, cameraDesligada]);
 
   // ── Cenas, preview e programa ─────────────────────────────────────────────
+  // A mesa de corte (preview + Corte/Fusão) é a preferência de quem produz;
+  // o padrão é o modo DIRETO, como nas referências: o que muda entra no
+  // programa na hora, e o preview nem aparece
+  const [monitores, setMonitores] = usePreferencia('pw_monitores_do_estudio', { sempreDois: false }, (m) => ({
+    sempreDois: m.sempreDois === true,
+  }));
+  const direto = !monitores.sempreDois;
   const [idDaCena, setIdDaCena] = useState(CENA_INICIAL.id);
   const cena = cenaPeloId(idDaCena) ?? CENA_INICIAL;
-  const escolherCena = (c: Cena) => setIdDaCena(c.id);
+  // No modo direto a troca de cena entra com a fusão; o resto entra seco
+  const transicaoPendenteRef = useRef<Transicao | null>(null);
+  const escolherCena = (c: Cena) => {
+    transicaoPendenteRef.current = 'fusao';
+    setIdDaCena(c.id);
+  };
   // A Grade sem ninguém no palco não é cena: volta para a câmera
   useEffect(() => {
     if (idDaCena === CENA_GRADE.id && convidadosNoPalco.length === 0) setIdDaCena(CENA_INICIAL.id);
@@ -504,13 +518,8 @@ export function Estudio({
   const temTela = !!screenStream || !!clipeNoPreview || !!apresentacaoNoPreview;
   // Uma cena com tela e nada no lugar dela não vai ao programa: iria uma moldura vazia
   const faltaATela = precisaDaTela(cena) && !temTela;
-  // Com o preview igual ao programa, um monitor só; a mesa de corte volta
-  // quando há o que cortar, ou fica sempre, na visão de quem produz
-  const [monitores, setMonitores] = usePreferencia('pw_monitores_do_estudio', { sempreDois: false }, (m) => ({
-    sempreDois: m.sempreDois === true,
-  }));
-  // Durante a fusão os dois ficam: a mesa não muda de tamanho no meio da dissolução
-  const monitorUnico = !temMudanca && programaQueSai === null && !monitores.sempreDois;
+  // No modo direto há um monitor só, sempre; a mesa de corte mostra os dois
+  const monitorUnico = direto;
 
   // Corte: o preview vai ao programa na hora. Fusão: o programa que sai fica
   // por cima e some em DURACAO_DA_FUSAO.
@@ -558,6 +567,22 @@ export function Estudio({
     setPlayer(proximo);
     setPrograma(entra);
   };
+
+  // O corte do modo direto: qualquer divergência do preview vai ao programa
+  // no instante em que aparece — com a fusão quando veio de uma troca de
+  // cena (o clique dela pediu), seca para o resto (gráficos, card, fundo),
+  // como nas referências. Sem lista de dependências de propósito: a
+  // divergência é recalculada a cada render, e o corte a zera no mesmo.
+  useEffect(() => {
+    if (!direto) {
+      transicaoPendenteRef.current = null;
+      return;
+    }
+    if (!temMudanca || faltaATela) return;
+    const transicao = transicaoPendenteRef.current ?? 'corte';
+    transicaoPendenteRef.current = null;
+    cortar(transicao);
+  });
 
   // ── Tela compartilhada ────────────────────────────────────────────────────
   const cenaDoPreviewRef = useRef(cena);
@@ -623,6 +648,15 @@ export function Estudio({
           : { rotulo: 'Voltar à câmera', onClick: () => escolherCena(CENA_INICIAL) },
       }
     : null;
+
+  // No modo direto a cena sem tela nem chega a entrar: o clique explica e aponta o conserto
+  const escolherCenaDaMesa = (c: Cena) => {
+    if (direto && precisaDaTela(c) && !temTela) {
+      toast.info('Essa cena precisa da tela', 'Compartilhe a tela, ou ponha um clipe ou uma apresentação no lugar dela pela ferramenta Mídia.');
+      return;
+    }
+    escolherCena(c);
+  };
 
   // ── Roteiro e teleprompter ────────────────────────────────────────────────
   const roteiro = useRoteiro(webinar?.id ?? 'geral');
@@ -791,12 +825,31 @@ export function Estudio({
   const canaisQueDesistiram = transmissao?.canais.filter((c) => c.estado === 'falhou').length ?? 0;
   const aoVivo = faseDoAr !== 'parada' && canaisNoAr > 0;
 
+  // ── A resolução da saída (gravação E live) ───────────────────────────────
+  // 720p por padrão; 1080p escala o MESMO desenho (o compositor multiplica a
+  // base). Só troca com a saída parada: mudar o tamanho do canvas no meio
+  // quebraria o MediaRecorder da gravação e o da transmissão.
+  const [resolucao, setResolucao] = usePreferencia<{ saida: ResolucaoDoPrograma }>('pw_resolucao_do_programa', { saida: '720p' }, (r) => ({
+    saida: r.saida === '1080p' ? '1080p' : '720p',
+  }));
+  useEffect(() => {
+    compositor.setResolucao(resolucao.saida === '1080p' ? 1.5 : 1);
+  }, [compositor, resolucao]);
+  const mudarResolucao = (saida: ResolucaoDoPrograma) => {
+    if (saida === resolucao.saida) return;
+    if (gravacao || faseDoAr !== 'parada') {
+      toast.info('A saída está em uso', 'Pare a gravação e a transmissão antes de trocar a resolução.');
+      return;
+    }
+    setResolucao({ saida });
+  };
+
   const entrarAoVivo = async () => {
     if (faseDoAr !== 'parada' || impedimento || !compositor.stream) return;
     const nomes = canaisProntos.map((c) => c.name || nomeDaPlataforma(c.platform));
     const ok = await confirm({
       title: canaisProntos.length === 1 ? `Entrar ao vivo em ${nomes[0]}?` : `Entrar ao vivo em ${canaisProntos.length} canais?`,
-      description: `O programa começa a ir para ${juntar(nomes)} assim que o servidor conectar. O que está no preview continua fora do ar até o corte.`,
+      description: `O programa começa a ir para ${juntar(nomes)} assim que o servidor conectar.${direto ? '' : ' O que está no preview continua fora do ar até o corte.'}`,
       confirmLabel: 'Entrar ao vivo',
     });
     if (!ok || faseDoAr !== 'parada') return;
@@ -981,6 +1034,23 @@ export function Estudio({
   const botaoVoltarRef = useRef<HTMLButtonElement>(null);
   const [posicaoDosAjustes, setPosicaoDosAjustes] = useState<number | null>(null);
 
+  // Abrir uma ferramenta por fora da lista (o trilho da sala, a bandeja)
+  const abrirFerramenta = (proxima: Ferramenta) => {
+    setFerramenta(proxima);
+    setPosicaoDosAjustes(null);
+    setColunas((c) => (c.painelRecolhido ? { ...c, painelRecolhido: false } : c));
+  };
+  // Convidar está à mão na bandeja e no trilho: copia o link da sala
+  const convidar = async () => {
+    try {
+      await navigator.clipboard.writeText(linkDaSala);
+      toast.info('Link da sala copiado', 'Quem abrir o link entra na conversa com você — e fica fora do ar até você pôr no palco.');
+    } catch {
+      abrirFerramenta('convidados');
+      toast.error('Não deu para copiar', 'Copie o link na ferramenta Sala.');
+    }
+  };
+
   const rolarAoPreview = () => {
     const area = areaDoEstudioRef.current;
     const preview = previewRef.current;
@@ -1036,6 +1106,7 @@ export function Estudio({
             noAr={faseDoAr !== 'parada'}
             onCanais={onCanais}
             onAbrir={setFerramenta}
+            mesaDeCorte={monitores.sempreDois}
           />
         );
       case 'chat':
@@ -1182,7 +1253,8 @@ export function Estudio({
   });
 
   return (
-    <>
+    // Os painéis leem o modo para falar a língua certa ("Pôr no programa" × "Pôr no preview")
+    <ModoDireto.Provider value={direto}>
       {/* O retorno da conversa: quem opera ouve os convidados com QUALQUER
           ferramenta aberta — o som não pode morar numa aba */}
       {pessoasDaSala.map((p) => (
@@ -1205,6 +1277,12 @@ export function Estudio({
         onVoltarAosAjustes={voltarAosAjustes}
         mostrarVoltaAosAjustes={posicaoDosAjustes !== null}
         botaoVoltarRef={botaoVoltarRef}
+        resolucao={resolucao.saida}
+        onResolucao={mudarResolucao}
+        gravando={gravacao !== null}
+        mesaDeCorte={monitores.sempreDois}
+        onMesaDeCorte={(ligada) => setMonitores({ sempreDois: ligada })}
+        fraseDoAr={fraseDoAr}
       />
 
       {/* O console, como nas referências: o programa com os controles da
@@ -1216,9 +1294,21 @@ export function Estudio({
       <main
         ref={areaDoEstudioRef}
         style={larguraDasColunas}
-        className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_var(--col-painel)] lg:overflow-hidden"
+        className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto lg:grid-cols-[auto_minmax(0,1fr)_var(--col-painel)] lg:overflow-hidden"
       >
-        <div className="order-1 min-w-0 p-3 sm:p-4 lg:min-h-0">
+        {/* O trilho da esquerda, como nas referências — só que de gente, não de cenas */}
+        <TrilhoDaSala
+          localStream={localStream}
+          cameraDesligada={cameraDesligada}
+          mudo={mudo}
+          pessoas={pessoasDaSala}
+          noPalco={convidadosNoPalco}
+          limiteDePessoas={limiteDePessoas}
+          onPalco={porNoPalco}
+          onConvidar={() => void convidar()}
+          onAbrirSala={() => abrirFerramenta('convidados')}
+        />
+        <div className="order-1 min-w-0 p-3 sm:p-4 lg:order-none lg:min-h-0">
           <MesaDeMonitores
             cenaDoPrograma={cenaPeloId(programa.sceneId)?.nome ?? ''}
             programaAoVivo={aoVivo}
@@ -1229,12 +1319,15 @@ export function Estudio({
               onPorACamera: () => escolherCena(CENA_INICIAL),
             })}
             proximoCorte={
-              <ProximoCorte
-                mudancas={mudancas}
-                bloqueio={bloqueio}
-                onJuntar={monitores.sempreDois ? () => setMonitores({ sempreDois: false }) : undefined}
-                transicao={<BotoesDeTransicao temMudanca={temMudanca} cortando={programaQueSai !== null} bloqueio={bloqueio} onCortar={cortar} />}
-              />
+              // Só a mesa de corte tem próximo corte: no modo direto não há espera
+              direto ? null : (
+                <ProximoCorte
+                  mudancas={mudancas}
+                  bloqueio={bloqueio}
+                  onJuntar={() => setMonitores({ sempreDois: false })}
+                  transicao={<BotoesDeTransicao temMudanca={temMudanca} cortando={programaQueSai !== null} bloqueio={bloqueio} onCortar={cortar} />}
+                />
+              )
             }
             controles={
               <BandejaDoEstudio
@@ -1253,7 +1346,7 @@ export function Estudio({
                 inicioDaGravacao={gravacao?.inicioEm ?? null}
                 gravandoSemSom={gravacao !== null && !gravacao.comSom}
                 onAlternarGravacao={() => void alternarGravacao()}
-                fraseDoAr={fraseDoAr}
+                onConvidar={() => void convidar()}
               />
             }
             cenas={
@@ -1263,11 +1356,10 @@ export function Estudio({
                 idDoPreview={cena.id}
                 temTela={temTela}
                 aoVivo={aoVivo}
-                onEscolher={escolherCena}
+                onEscolher={escolherCenaDaMesa}
               />
             }
             unico={monitorUnico}
-            avisoDoUnico={<AvisoDoMonitorUnico onSempreDois={() => setMonitores({ sempreDois: true })} />}
             refDoPreview={previewRef}
           />
         </div>
@@ -1278,12 +1370,7 @@ export function Estudio({
         >
           <PainelDoEstudio
             ativa={ferramenta}
-            onEscolher={(proxima) => {
-              setFerramenta(proxima);
-              setPosicaoDosAjustes(null);
-              // Escolher uma ferramenta com o painel recolhido é querer vê-la
-              setColunas((c) => (c.painelRecolhido ? { ...c, painelRecolhido: false } : c));
-            }}
+            onEscolher={abrirFerramenta}
             onVerPreview={verPreview}
             rotuloVerPreview={monitorUnico ? 'Ver o programa' : 'Ver preview'}
             botaoVerPreviewRef={botaoVerPreviewRef}
@@ -1327,6 +1414,6 @@ export function Estudio({
           </div>
         </JanelaDoTeleprompter>
       )}
-    </>
+    </ModoDireto.Provider>
   );
 }

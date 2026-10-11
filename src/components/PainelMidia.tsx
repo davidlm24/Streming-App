@@ -3,6 +3,7 @@ import { Film } from 'lucide-react';
 import type { ClipeNoPalco } from '../types';
 import type { SituacaoDoClipe } from '../lib/playerDoClipe';
 import { fraseDaFalhaDoEnvio, useMidiaDoEstudio, type ItemDeMidia } from '../context/MidiaDoEstudio';
+import { useDestinoDoPalco } from '../context/ModoDaMesa';
 import { FORMATOS } from '../lib/midiaDaConta';
 import { EnviarArquivo, EstadoNoPalco, FalhaNoPainel, NotaDaMidia, SecaoDoPainel } from './PecasDoPainel';
 import { Button } from './ui/Button';
@@ -36,7 +37,7 @@ const PALAVRA_DA_SITUACAO: Record<SituacaoDoClipe, string | null> = {
 
 /** Um clipe que ainda não está nesta aba diz como vem; o que já chegou não diz nada. */
 function chegadaDoClipe(clipe: ItemDeMidia): string | null {
-  if (clipe.chegada === 'na-conta') return 'Baixa da sua conta ao ir para o preview.';
+  if (clipe.chegada === 'na-conta') return 'Baixa da sua conta ao entrar.';
   if (clipe.chegada === 'na-fila') return 'Na fila para baixar da sua conta.';
   if (clipe.chegada === 'baixando') return clipe.progresso === null ? 'Baixando da sua conta…' : `Baixando da sua conta… ${clipe.progresso}%`;
   if (clipe.chegada === 'falhou') return 'Não abriu nesta tela.';
@@ -62,6 +63,7 @@ export function PainelMidia({
   onTocarNoPrograma: () => void;
   onClipe: (clipe: ClipeNoPalco | null) => void;
 }) {
+  const destino = useDestinoDoPalco();
   const midia = useMidiaDoEstudio();
   const clipes = midia.itens.clipe;
   const falha = midia.falhaDoEnvio?.tipo === 'clipe' ? midia.falhaDoEnvio : null;
@@ -137,7 +139,7 @@ export function PainelMidia({
                   <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pl-7">
                     {noPreview ? (
                       <Button variant="ghost" size="sm" onClick={() => onClipe(null)} className="whitespace-nowrap">
-                        Tirar do preview
+                        {`Tirar do ${destino}`}
                       </Button>
                     ) : (
                       <Button
@@ -148,7 +150,7 @@ export function PainelMidia({
                         onClick={() => porNoPreview(clipe)}
                         className="whitespace-nowrap"
                       >
-                        Pôr no preview
+                        {`Pôr no ${destino}`}
                       </Button>
                     )}
                     <div className="flex items-center gap-4 whitespace-nowrap">
