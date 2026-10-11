@@ -218,6 +218,39 @@ test('a disponibilidade da transmissão segue a configuração do motor, e pede 
   }
 });
 
+// ── Sala de convidados e TURN ─────────────────────────────────────────────
+test('a sala só ganha TURN com a assinatura que o servidor deu a quem tem login', async () => {
+  const { salaConfere } = await import('../../src/server/turnDaSala.ts');
+  const token = 'abcdef0123456789abcdef0123456789';
+  const json = (corpo: object) => ({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) });
+  const antes = { id: process.env.TURN_KEY_ID, chave: process.env.TURN_KEY_API_TOKEN };
+  try {
+    delete process.env.TURN_KEY_ID;
+    delete process.env.TURN_KEY_API_TOKEN;
+    assert.equal((await pedir('/api/sala/assinatura', undefined, json({ token }))).status, 401);
+    assert.deepEqual(await (await pedir('/api/sala/assinatura', dona.token, json({ token }))).json(), { assinatura: null });
+    const semTurn = await (await pedir('/api/sala/ice', undefined, json({ token }))).json();
+    assert.equal(semTurn.turn, false);
+    assert.ok(Array.isArray(semTurn.iceServers) && semTurn.iceServers.length > 0);
+
+    process.env.TURN_KEY_ID = 'chave-de-teste';
+    process.env.TURN_KEY_API_TOKEN = 'token-de-teste';
+    assert.equal((await pedir('/api/sala/assinatura', dona.token, json({ token: 'curto' }))).status, 400);
+    const { assinatura } = await (await pedir('/api/sala/assinatura', dona.token, json({ token }))).json();
+    assert.match(assinatura, /^[0-9a-f]{32}$/);
+    assert.equal(salaConfere(token, assinatura, 'token-de-teste'), true);
+    // Sem a assinatura certa, nada de TURN (e nada de pedido à Cloudflare)
+    assert.equal((await pedir('/api/sala/ice', undefined, json({ token }))).status, 403);
+    assert.equal((await pedir('/api/sala/ice', undefined, json({ token, assinatura: '0'.repeat(32) }))).status, 403);
+    assert.equal((await pedir('/api/sala/ice', undefined, json({ token: 'f'.repeat(32), assinatura }))).status, 403);
+  } finally {
+    if (antes.id === undefined) delete process.env.TURN_KEY_ID;
+    else process.env.TURN_KEY_ID = antes.id;
+    if (antes.chave === undefined) delete process.env.TURN_KEY_API_TOKEN;
+    else process.env.TURN_KEY_API_TOKEN = antes.chave;
+  }
+});
+
 // ── Stripe ────────────────────────────────────────────────────────────────
 const stripe = new Stripe('sk_test_local');
 const AGORA = Math.floor(Date.now() / 1000);

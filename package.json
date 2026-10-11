@@ -29,7 +29,7 @@
     "db:test": "supabase test db",
     "db:contas": "node scripts/contas-de-teste.mjs",
     "test:cliente": "tsx --test tests/cliente/*.test.ts",
-    "test:servidor": "tsx --test tests/servidor/servidor.test.ts",
+    "test:servidor": "tsx --test tests/servidor/*.test.ts",
     "motor:dev": "tsx motor/motor.ts",
     "motor:build": "esbuild motor/motor.ts --bundle --platform=node --target=node22 --format=cjs --outfile=motor/dist/motor.cjs",
     "test:motor": "tsx --test tests/motor/*.test.ts"

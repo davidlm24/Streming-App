@@ -17,6 +17,7 @@ import { useMidiaDoEstudio } from '../context/MidiaDoEstudio';
 import { ModoDireto } from '../context/ModoDaMesa';
 import { getSupabaseBrowserClient } from '../lib/supabase';
 import { MalhaDaSala, guardarTokenDaSala, lerOuCriarTokenDaSala, novoTokenDeSala, type PessoaDaSala } from '../lib/sala/malha';
+import { assinarSala, obterIceDaSala } from '../lib/sala/ice';
 import { PainelConvidados } from './PainelConvidados';
 import { SomDe } from './SalaDoConvidado';
 import { BarraDoEstudio, type ResolucaoDoPrograma } from './BarraDoEstudio';
@@ -180,7 +181,25 @@ export function Estudio({
     setPessoasDaSala([]);
     setMalha(criarMalha(token)); // o efeito sai da malha antiga e entra na nova
   };
-  const linkDaSala = `${window.location.origin}/sala/${tokenDaSala}`;
+  // O servidor assina o token (só quem tem login consegue), e o link leva a
+  // assinatura: com ela, o convidado ganha o TURN para redes fechadas. Quem
+  // opera também usa o TURN. Sem TURN no servidor, o link fica sem assinatura
+  // e a sala segue no STUN, como antes.
+  const [assinaturaDaSala, setAssinaturaDaSala] = useState<string | null>(null);
+  useEffect(() => {
+    let desta = true;
+    setAssinaturaDaSala(null);
+    void assinarSala(tokenDaSala).then(async (assinatura) => {
+      if (!desta) return;
+      setAssinaturaDaSala(assinatura);
+      const servidores = await obterIceDaSala(tokenDaSala, assinatura);
+      if (desta) malha.usarIce(servidores);
+    });
+    return () => {
+      desta = false;
+    };
+  }, [tokenDaSala, malha]);
+  const linkDaSala = `${window.location.origin}/sala/${tokenDaSala}${assinaturaDaSala ? `/${assinaturaDaSala}` : ''}`;
   /** Quem está no palco entra nas cenas com convidados (a Grade); sair da sala tira do palco. */
   const [convidadosNoPalco, setConvidadosNoPalco] = useState<string[]>([]);
   useEffect(() => {

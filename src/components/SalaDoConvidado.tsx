@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Mic, MicOff, Video, VideoOff } from 'lucide-react';
 import { getSupabaseBrowserClient } from '../lib/supabase';
 import { MalhaDaSala, TOKEN_DE_SALA, type PessoaDaSala } from '../lib/sala/malha';
+import { ASSINATURA_DA_SALA, obterIceDaSala } from '../lib/sala/ice';
 import { PwStreamLogo } from './PwStreamLogo';
 import { Button } from './ui/Button';
 
@@ -70,8 +71,24 @@ function Silhueta({ nome }: { nome: string }) {
   );
 }
 
-export function SalaDoConvidado({ token }: { token: string }) {
+export function SalaDoConvidado({ token, assinatura }: { token: string; assinatura?: string }) {
   const valido = TOKEN_DE_SALA.test(token);
+  // Os servidores ICE, pedidos já na preparação: com a assinatura do link,
+  // vêm com o TURN para redes fechadas; sem ela (ou se falhar), só o STUN
+  const iceRef = useRef<RTCIceServer[] | null>(null);
+  useEffect(() => {
+    if (!valido) return;
+    let desta = true;
+    const assinaturaValida = assinatura && ASSINATURA_DA_SALA.test(assinatura) ? assinatura : null;
+    void obterIceDaSala(token, assinaturaValida).then((servidores) => {
+      if (!desta) return;
+      iceRef.current = servidores;
+      malhaRef.current?.usarIce(servidores);
+    });
+    return () => {
+      desta = false;
+    };
+  }, [valido, token, assinatura]);
   const [fase, setFase] = useState<Fase>('preparando');
   const [nome, setNome] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -119,6 +136,8 @@ export function SalaDoConvidado({ token }: { token: string }) {
       },
     });
     malhaRef.current = malha;
+    // Os servidores ICE costumam chegar antes de entrar; se não, chegam pelo efeito acima
+    if (iceRef.current) malha.usarIce(iceRef.current);
     malha.entrar();
     malha.setCamera(stream);
     setFase('na-sala');

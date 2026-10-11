@@ -573,9 +573,10 @@ export default function App() {
 
   // A página do convidado é pública: quem recebe o link entra sem conta,
   // como numa chamada do Meet. Fica antes do portão de login de propósito.
-  const sala = window.location.pathname.match(/^\/sala\/([^/]+)\/?$/);
+  // O link pode levar a assinatura do servidor (/sala/<token>/<assinatura>), que dá o TURN
+  const sala = window.location.pathname.match(/^\/sala\/([^/]+)(?:\/([^/]+))?\/?$/);
   if (sala) {
-    return <SalaDoConvidado token={sala[1]} />;
+    return <SalaDoConvidado token={sala[1]} assinatura={sala[2]} />;
   }
 
   if (!user) {
