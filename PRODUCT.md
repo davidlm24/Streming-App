@@ -12,7 +12,7 @@ Mesmo nicho do Restream: quem transmite ao vivo para várias plataformas ao mesm
 
 O produto tem quatro públicos, em situações diferentes:
 
-- **Operador no estúdio, durante a live.** É o momento de maior pressão. A atenção dele está no que vai ao ar: câmeras, cenas, banners, chat. Ele troca de cena (preview → programa), modera comentários e aciona ofertas. Um erro aqui é público.
+- **Operador no estúdio, durante a live.** É o momento de maior pressão. A atenção dele está no que vai ao ar: câmeras, cenas, banners, chat. Ele troca de cena direto no programa (ou por preview → corte, na mesa de corte opcional), modera comentários e aciona ofertas. Um erro aqui é público.
 - **Anfitrião entre as lives, no painel.** Agenda webinars, conecta canais e destinos, configura a ingestão por OBS/vMix, cuida do plano e da conta.
 - **Convidado na sala do estúdio.** Entra por um link, sem conta, como numa chamada: vê e ouve quem opera e os outros convidados, controla o próprio microfone e câmera, e vai ao ar quando quem opera o põe no palco (a cena Grade). O limite de pessoas na tela é o do plano.
 - **Espectador na página pública do webinar** (ainda não está no ar: volta com o link público e a transmissão). Faz a inscrição, espera a contagem regressiva, assiste, conversa no chat e vota em enquetes. Não tem conta no produto.
@@ -32,7 +32,7 @@ O produto dá certo quando o operador passa a live inteira sem precisar sair del
 
 ## Operating Context
 
-- **Estúdio:** funciona como uma mesa de corte. Tem programa (o que está no ar) e preview (o que vai entrar), troca de cena por "take", tally de "no ar" e chat unificado das plataformas com moderação por IA (Gemini). Também tem convidados por link (chamada WebRTC em malha, sinalizada pelo Supabase, sem servidor de mídia), banners, tickers, chroma key, teleprompter e compartilhamento de tela.
+- **Estúdio:** corta direto por padrão (clicar na cena troca o programa na hora, como no StreamYard/Restream); a mesa de corte clássica — preview, Corte/Fusão — é um modo opcional. Tem tally de "no ar", saída em 720p ou 1080p (gravação e live) e chat unificado das plataformas com moderação por IA (Gemini). Também tem convidados por link (chamada WebRTC em malha, sinalizada pelo Supabase, sem servidor de mídia), banners, tickers, chroma key, teleprompter e compartilhamento de tela.
 - **Transmissão:** o programa do estúdio vai do navegador ao motor de transmissão (`motor/`: Node + ffmpeg no Fly.io, em São Paulo) por WebSocket, e de lá por RTMP/RTMPS a cada canal ligado: YouTube, Facebook, Twitch e qualquer servidor RTMP com URL e chave. Uma transmissão por conta de cada vez, em 720p a 30 qps. A ingestão por OBS/vMix (um servidor RTMP nosso) ainda não existe.
 - **Painel:** webinars agendados, canais conectados, integrações (RTMP, redes sociais, webhooks), qualidade de vídeo e capa (thumbnail).
 - **Conta:** planos, faturamento, dados de cadastro e consumo do plano.

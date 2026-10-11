@@ -6,6 +6,7 @@ import { ErroDeCampo } from './ui/ErroDeCampo';
 import type { CantoDoPalco } from '../types';
 import { CANTOS } from '../lib/graficos';
 import { fraseDaLeitura, fraseDoUso, useMidiaDoEstudio, type ChegadaDaMidia, type TipoDeMidia } from '../context/MidiaDoEstudio';
+import { useModoDireto } from '../context/ModoDaMesa';
 
 /**
  * As peças dos painéis do estúdio. Os painéis são uma coluna de ~260px ao
@@ -44,8 +45,13 @@ export function SecaoDoPainel({
   );
 }
 
-/** Onde um gráfico está, nas palavras das cenas: "no programa", "no preview" ou "no programa e no preview". */
-export function ondeEsta(noPrograma: boolean, noPreview: boolean): string | null {
+/**
+ * Onde um gráfico está, nas palavras das cenas: "no programa", "no preview"
+ * ou "no programa e no preview". No modo direto não existe preview — o que
+ * está ligado está no programa, e é só isso que se diz.
+ */
+export function ondeEsta(noPrograma: boolean, noPreview: boolean, direto = false): string | null {
+  if (direto) return noPrograma || noPreview ? 'no programa' : null;
   if (noPrograma && noPreview) return 'no programa e no preview';
   if (noPrograma) return 'no programa';
   if (noPreview) return 'no preview';
@@ -59,7 +65,7 @@ export function ondeEsta(noPrograma: boolean, noPreview: boolean): string | null
  * estava no programa não aparecia em lugar nenhum.
  */
 export function EstadoNoPalco({ noPrograma, noPreview, extra }: { noPrograma: boolean; noPreview: boolean; extra?: ReactNode }) {
-  const onde = ondeEsta(noPrograma, noPreview);
+  const onde = ondeEsta(noPrograma, noPreview, useModoDireto());
   if (!onde && !extra) return null;
   return (
     <p className="mt-0.5 flex flex-wrap items-center gap-x-1 text-xs">

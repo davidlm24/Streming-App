@@ -1,9 +1,10 @@
-import { useEffect, useId, useState, type Ref } from 'react';
-import { Radio } from 'lucide-react';
+import { useEffect, useId, useState, type ReactNode, type Ref } from 'react';
+import { Check, ChevronDown, Radio } from 'lucide-react';
 import { formatarTempo } from '../lib/graficos';
 import { PwStreamLogo } from './PwStreamLogo';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
+import { Menu, type ItemDeMenu } from './ui/Menu';
 import { useToast } from './ui/Toast';
 
 /** O que a barra sabe da transmissão. */
@@ -12,6 +13,9 @@ export type TransmissaoNaBarra =
   | { fase: 'entrando' }
   | { fase: 'no-ar'; inicioEm: number; canaisNoAr: number; canaisQueDesistiram: number; canaisTotal: number }
   | { fase: 'encerrando' };
+
+/** A resolução do programa composto: vale para a gravação E para a live. */
+export type ResolucaoDoPrograma = '720p' | '1080p';
 
 interface BarraDoEstudioProps {
   /** O título do webinar pelo qual se entrou no estúdio, quando houver. */
@@ -28,6 +32,16 @@ interface BarraDoEstudioProps {
   onVoltarAosAjustes: () => void;
   mostrarVoltaAosAjustes: boolean;
   botaoVoltarRef: Ref<HTMLButtonElement>;
+  /** O menu da saída: a resolução (720p/1080p) e a mesa de corte. */
+  resolucao: ResolucaoDoPrograma;
+  /** Recusa por conta própria (com um aviso) quando a saída está em uso. */
+  onResolucao: (resolucao: ResolucaoDoPrograma) => void;
+  gravando: boolean;
+  /** A mesa de corte (preview + Corte/Fusão) ligada — o padrão é o corte direto. */
+  mesaDeCorte: boolean;
+  onMesaDeCorte: (ligada: boolean) => void;
+  /** A frase do ar, no miolo da barra em telas largas: o que está (ou não) sendo transmitido. */
+  fraseDoAr?: ReactNode;
 }
 
 /** O tempo no ar, no pulso de um segundo, em mono como toda leitura. */
@@ -73,9 +87,27 @@ export function BarraDoEstudio({
   onVoltarAosAjustes,
   mostrarVoltaAosAjustes,
   botaoVoltarRef,
+  resolucao,
+  onResolucao,
+  gravando,
+  mesaDeCorte,
+  onMesaDeCorte,
+  fraseDoAr,
 }: BarraDoEstudioProps) {
   const toast = useToast();
   const idDoMotivo = useId();
+  // O menu da saída: o que o programa composto entrega, e como se opera o corte
+  const marcado = <Check size={14} aria-hidden="true" />;
+  const vazio = <span aria-hidden="true" className="inline-block size-3.5" />;
+  const itensDaSaida: ItemDeMenu[] = [
+    { rotulo: 'Saída em 720p (HD)', icone: resolucao === '720p' ? marcado : vazio, onSelect: () => onResolucao('720p') },
+    { rotulo: 'Saída em 1080p (Full HD)', icone: resolucao === '1080p' ? marcado : vazio, onSelect: () => onResolucao('1080p') },
+    {
+      rotulo: 'Mesa de corte (preview e Corte/Fusão)',
+      icone: mesaDeCorte ? marcado : vazio,
+      onSelect: () => onMesaDeCorte(!mesaDeCorte),
+    },
+  ];
   const canais =
     canaisLigados === 0
       ? 'Nenhum canal ligado'
@@ -109,12 +141,37 @@ export function BarraDoEstudio({
           </span>
         </button>
 
-        <h1 className="min-w-0 truncate text-sm font-medium text-[var(--ink-hi)]">
+        <h1 className="min-w-0 shrink-0 truncate text-sm font-medium text-[var(--ink-hi)]">
           Estúdio
           {sessao && <span className="font-normal text-[var(--ink-lo)]"> · {sessao}</span>}
         </h1>
 
+        {/* A frase do ar morava na bandeja; a bandeja agora flutua, e a leitura corrida fica aqui */}
+        {fraseDoAr && (
+          <p
+            className="hidden min-w-0 flex-1 truncate text-center text-xs text-[var(--ink-lo)] xl:block"
+            title={typeof fraseDoAr === 'string' ? fraseDoAr : undefined}
+          >
+            {fraseDoAr}
+          </p>
+        )}
+
         <div className="ml-auto flex shrink-0 items-center gap-4">
+          <Menu
+            rotulo="Saída do programa"
+            itens={itensDaSaida}
+            alinhar="direita"
+            classeDoGatilho="hidden min-h-11 items-center gap-1.5 rounded-xl px-2 transition-colors duration-150 hover:bg-[var(--panel)] cursor-pointer sm:inline-flex"
+            gatilho={
+              <span className="flex items-center gap-1.5">
+                <span className="flex flex-col items-start gap-0.5 leading-none">
+                  <span className="text-xs font-semibold leading-none text-[var(--ink-hi)]">{resolucao}</span>
+                  <span className="text-xs leading-none text-[var(--ink-lo)]">{gravando ? 'Gravando' : 'Saída'}</span>
+                </span>
+                <ChevronDown size={14} aria-hidden="true" className="text-[var(--ink-lo)]" />
+              </span>
+            }
+          />
           {noAr ? (
             <span className="hidden items-center gap-3 text-xs text-[var(--ink-hi)] md:inline-flex" role="status">
               {acesa && <SeloDoAr />}

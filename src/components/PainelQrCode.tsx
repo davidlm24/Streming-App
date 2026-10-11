@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import type { CantoDoPalco } from '../types';
 import { normalizarLink } from '../lib/graficos';
+import { useDestinoDoPalco } from '../context/ModoDaMesa';
 import { CampoDoPainel, Deslizante, EstadoNoPalco, SecaoDoPainel, SeletorDeCanto } from './PecasDoPainel';
 import { Switch } from './ui/Switch';
 
@@ -34,6 +35,7 @@ export function PainelQrCode({
   /** Há um QR code no programa. */
   noPrograma: boolean;
 }) {
+  const destino = useDestinoDoPalco();
   const mudar = (parcial: Partial<QrDoEstudio>) => onQr((atual) => ({ ...atual, ...parcial }));
   const link = normalizarLink(qr.link);
   const linkInvalido = qr.link.trim() !== '' && !link;
@@ -46,7 +48,7 @@ export function PainelQrCode({
         dica={link ? 'Gerado neste navegador: o link não passa por nenhum serviço.' : 'Gerado neste navegador: o link não passa por nenhum serviço. Para mostrar o QR code, escreva o link abaixo.'}
         acao={
           <Switch
-            rotulo="Mostrar o QR code no preview"
+            rotulo={`Mostrar o QR code no ${destino}`}
             checked={qr.noPreview && !!link}
             disabled={!link}
             onChange={(noPreview) => mudar({ noPreview })}

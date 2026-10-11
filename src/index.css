@@ -55,19 +55,20 @@
   --color-n-99:  #FAFCFF;  /* Y  97,16 % */
   --color-n-100: #FFFFFF;  /* Y 100,00 % */
 
-  /* ── o marinho do console. O estúdio é a sala escura do produto, e o
-        cinza-azulado da rampa acima o deixava grafite. Aqui o fundo é mais
-        escuro que o do cinza (Y menor em nv-3 a nv-14), com matiz 258° em OKLCH
-        e croma de 0,020 a 0,027: um marinho fechado, quase neutro, que só se
-        entrega ao lado do grafite. As linhas (nv-18, nv-28) ficam perto do Y
-        de n-18 e n-28, então o contraste delas sobre o fundo só sobe.
+  /* ── o marinho do console. O estúdio é a sala escura do produto — mas a
+        primeira rampa marinho era escura DEMAIS: o fundo (Y 0,24 %) quase
+        empatava com o preto do palco (1,19:1 a olho nenhum), e o croma de
+        0,020–0,027 ainda se dizia azul. Esta é a segunda: matiz 258° mantido,
+        croma caído a 0,008–0,011 (um sussurro, quase neutro — "opaco") e as
+        luminâncias SUBIDAS, para o palco em n-0 ser o único preto da tela e
+        saltar do console em vez de se fundir nele.
         O preto do palco e do letterbox (n-0) não muda: vídeo não se tinge. ── */
-  --color-nv-3:  #040810;  /* Y 0,24 % */
-  --color-nv-6:  #080F18;  /* Y 0,46 % */
-  --color-nv-10: #0E1520;  /* Y 0,73 % */
-  --color-nv-14: #161D29;  /* Y 1,21 % */
-  --color-nv-18: #212936;  /* Y 2,18 % */
-  --color-nv-28: #363F4D;  /* Y 4,88 % */
+  --color-nv-9:  #16191C;  /* Y 0,95 % */
+  --color-nv-12: #1C1F23;  /* Y 1,35 % */
+  --color-nv-15: #23262B;  /* Y 1,92 % */
+  --color-nv-19: #2C2F34;  /* Y 2,82 % */
+  --color-nv-24: #363A40;  /* Y 4,18 % */
+  --color-nv-32: #474B51;  /* Y 6,97 % */
 
   /* ── sinal. O tally é o único vermelho do sistema. ────────────────────── */
   --color-sig:      #D91F2D;  /* Y 15,92 % */
@@ -183,7 +184,7 @@
 
   --stage: var(--color-n-0);   /* o palco de vídeo nunca clareia */
 
-  /* Sombras sobre papel claro: tinta de marinho (nv-14) em vez de preto,
+  /* Sombras sobre papel claro: tinta de marinho em vez de preto,
      mais rasas — a luz ambiente do tema claro é mais alta. */
   --shadow-ctl:   0 1px 2px rgb(23 35 61 / 0.08);
   --shadow-raise: 0 1px 2px rgb(23 35 61 / 0.06), 0 4px 12px -4px rgb(23 35 61 / 0.08);
@@ -237,20 +238,20 @@
    ══════════════════════════════════════════════════════════════════════════ */
 [data-surface="console"] {
   --well:    var(--color-n-0);
-  --bg:      var(--color-nv-3);
-  --surface: var(--color-nv-6);
-  --panel:   var(--color-nv-10);
-  --raise:   var(--color-nv-14);
-  --line:    var(--color-nv-18);
-  --line-ctl:var(--color-nv-28);
+  --bg:      var(--color-nv-9);
+  --surface: var(--color-nv-12);
+  --panel:   var(--color-nv-15);
+  --raise:   var(--color-nv-19);
+  --line:    var(--color-nv-24);
+  --line-ctl:var(--color-nv-32);
 
-  /* n-46 reprovava em TODOS os fundos escuros (3,01–3,80:1). Um degrau acima
-     passa nos quatro: 4,57 a 5,78:1. Era o mesmo defeito que a auditoria
-     apontou na direção original — um token declarado "nunca texto essencial"
-     e usado como texto essencial. */
-  --ink-dim: var(--color-n-58);
+  /* Os fundos subiram de luminância (para o palco preto saltar), então as
+     tintas apagadas sobem um degrau junto: n-58 caiu a 3,94:1 sobre o novo
+     raise; n-70 dá 5,83–7,67:1 nos quatro fundos, e n-80 acompanha como
+     ink-lo (7,85:1 no pior caso). */
+  --ink-dim: var(--color-n-70);
   --sig-texto: var(--color-sig-lift);  /* ação destrutiva como texto, no console */
-  --ink-lo:  var(--color-n-70);
+  --ink-lo:  var(--color-n-80);
   --ink:     var(--color-n-89);
   --ink-hi:  var(--color-n-96);
 

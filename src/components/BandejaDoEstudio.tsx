@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Camera, CameraOff, Check, ChevronDown, Circle, Grid3x3, Mic, MicOff, MonitorUp, MonitorX, Square } from 'lucide-react';
+import { Camera, CameraOff, Check, ChevronDown, Circle, Grid3x3, Mic, MicOff, MonitorUp, MonitorX, Square, UserPlus } from 'lucide-react';
 import { formatarTempo } from '../lib/graficos';
 import { MedidorDeAudio } from './MedidorDeAudio';
 import { Button } from './ui/Button';
@@ -26,8 +26,8 @@ interface BandejaDoEstudioProps {
   /** O navegador não liberou o áudio: o arquivo sai só com a imagem, e o tempo diz isso. */
   gravandoSemSom: boolean;
   onAlternarGravacao: () => void;
-  /** A frase do ar, à direita a partir de `lg`: o que está (ou não) sendo transmitido. */
-  fraseDoAr: ReactNode;
+  /** Copia o link da sala de convidados (a pílula é o lugar mais à mão de convidar). */
+  onConvidar: () => void;
 }
 
 /** O tempo gravado até agora, no pulso da bandeja (mono, como a leitura do medidor), e "sem som" quando for o caso. */
@@ -62,13 +62,12 @@ function useDispositivos(stream: MediaStream | null) {
   return lista;
 }
 
-// Os controles sob o programa: ligado sobe um degrau na rampa E ganha a
-// sombra de controle (afundado = desligado, elevado = ligado — a altura diz
-// o estado junto do ícone). Como nas referências, são quadrados de 44px só
-// com o ícone: a palavra vai no title e no leitor de tela, e a fileira cabe
-// numa linha na largura do programa, sem empurrar o preview para baixo.
+// Os controles da pílula flutuante: círculos de 44px só com o ícone (a
+// palavra vai no title e no leitor de tela). Sobre o fundo elevado da
+// pílula, ligado sobe MAIS um degrau na rampa e ganha a sombra de controle —
+// a altura diz o estado junto do ícone; desligado fica na tinta apagada.
 const CONTROLE =
-  'min-h-11 w-11 justify-center px-0 border-transparent bg-[var(--well)] text-[var(--ink-lo)] shadow-none hover:text-[var(--ink-hi)] aria-pressed:bg-[var(--raise)] aria-pressed:text-[var(--ink-hi)] aria-pressed:shadow-[var(--shadow-ctl)]';
+  'min-h-11 w-11 justify-center rounded-full px-0 border-transparent bg-transparent text-[var(--ink-lo)] shadow-none hover:bg-[var(--line)] hover:text-[var(--ink-hi)] aria-pressed:bg-[var(--line-ctl)] aria-pressed:text-[var(--ink-hi)] aria-pressed:shadow-[var(--shadow-ctl)]';
 
 /** A palavra do controle: para o leitor de tela (o olho tem o ícone, o estado e o title). */
 const Palavra = ({ children }: { children: ReactNode }) => <span className="sr-only">{children}</span>;
@@ -88,7 +87,7 @@ function ComMenu({ children, rotulo, itens }: { children: ReactNode; rotulo: str
           gatilho={<ChevronDown size={14} aria-hidden="true" />}
           lado="cima"
           alinhar="esquerda"
-          classeDoGatilho="inline-flex min-h-11 w-9 items-center justify-center rounded-r-xl border-l border-[var(--line)] bg-[var(--well)] text-[var(--ink-lo)] transition-colors duration-150 hover:bg-[var(--raise)] hover:text-[var(--ink-hi)] cursor-pointer"
+          classeDoGatilho="inline-flex min-h-11 w-8 items-center justify-center rounded-r-full border-l border-[var(--line)] text-[var(--ink-lo)] transition-colors duration-150 hover:bg-[var(--line)] hover:text-[var(--ink-hi)] cursor-pointer"
         />
       )}
     </div>
@@ -120,7 +119,7 @@ export function BandejaDoEstudio({
   inicioDaGravacao,
   gravandoSemSom,
   onAlternarGravacao,
-  fraseDoAr,
+  onConvidar,
 }: BandejaDoEstudioProps) {
   const dispositivos = useDispositivos(stream);
   const atual = (tipo: Tipo) =>
@@ -144,9 +143,13 @@ export function BandejaDoEstudio({
   const itensDaCamera = itens('video');
 
   return (
-    // A fileira das referências: sob o monitor de programa, sem moldura própria —
-    // a mesa é o fundo, e cada controle fala por preenchimento tonal
-    <div role="group" aria-label="Captura e gravação" className="flex flex-wrap items-center gap-2">
+    // A pílula flutuante das referências: elevada pela sombra de flutuação,
+    // centrada sob o programa — os controles falam por preenchimento tonal
+    <div
+      role="group"
+      aria-label="Captura e gravação"
+      className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-3xl bg-[var(--raise)] px-3 py-2 shadow-[var(--shadow-float)]"
+    >
       <ComMenu rotulo="Escolher o microfone" itens={itensDoMicrofone}>
         <Button
           variant="ghost"
@@ -159,7 +162,10 @@ export function BandejaDoEstudio({
           <Palavra>{mudo ? 'Microfone mudo' : 'Microfone'}</Palavra>
         </Button>
       </ComMenu>
-      <MedidorDeAudio key={versaoDoAudio} stream={stream} mudo={mudo} />
+      {/* O medidor fica para telas com chão: no celular ele quebrava a pílula em duas linhas */}
+      <span className="hidden sm:block">
+        <MedidorDeAudio key={versaoDoAudio} stream={stream} mudo={mudo} />
+      </span>
 
       <ComMenu rotulo="Escolher a câmera" itens={itensDaCamera}>
         <Button
@@ -214,7 +220,18 @@ export function BandejaDoEstudio({
       </Button>
       {gravando && inicioDaGravacao !== null && <TempoDeGravacao inicioEm={inicioDaGravacao} semSom={gravandoSemSom} />}
 
-      <p className="ml-auto hidden min-w-0 flex-1 truncate text-right text-xs text-[var(--ink-lo)] lg:block" title={typeof fraseDoAr === 'string' ? fraseDoAr : undefined}>{fraseDoAr}</p>
+      <span aria-hidden="true" className="mx-1 hidden h-6 w-px bg-[var(--line)] sm:block" />
+
+      {/* Convidar à mão, como nas referências: copia o link da sala; a ferramenta Sala tem o resto */}
+      <Button
+        variant="ghost"
+        title="Convidar para a sala (copia o link)"
+        onClick={onConvidar}
+        icon={<UserPlus size={16} aria-hidden="true" />}
+        className={CONTROLE}
+      >
+        <Palavra>Convidar para a sala</Palavra>
+      </Button>
     </div>
   );
 }
