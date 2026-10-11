@@ -1,4 +1,5 @@
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
+import { ICE_PADRAO } from './ice';
 
 /**
  * A sala de convidados: uma malha WebRTC entre navegadores, sem servidor de
@@ -9,8 +10,9 @@ import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
  * Meet com o link secreto.
  *
  * O que NÃO passa por aqui: o vídeo e o som, que vão de navegador a
- * navegador (STUN só; redes muito fechadas ficam para um TURN futuro), e
- * qualquer segredo da conta — o convidado não tem login.
+ * navegador (STUN, e um TURN da Cloudflare para redes fechadas quando o
+ * link é assinado: lib/sala/ice), e qualquer segredo da conta — o convidado
+ * não tem login.
  *
  * A negociação é a "perfect negotiation" do WebRTC: os dois lados podem
  * oferecer ao mesmo tempo (os dois criam a conexão ao se descobrirem), e o
@@ -61,8 +63,6 @@ interface Par {
 /** Um teto defensivo: nenhum plano chega perto, e um link vazado não abre conexões sem fim. */
 const MAX_PARES = 16;
 
-const ICE: RTCIceServer[] = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] }];
-
 /** A meta vem de outro navegador: só entra o que tem a forma certa, nos tamanhos certos. */
 function sanearMeta(bruta: unknown): Meta | null {
   if (!bruta || typeof bruta !== 'object') return null;
@@ -76,11 +76,15 @@ function sanearMeta(bruta: unknown): Meta | null {
   };
 }
 
-/** Espera o ICE juntar os candidatos (ou 2 s): a descrição vai completa, numa mensagem só. */
+/**
+ * Espera o ICE juntar os candidatos (ou 3 s): a descrição vai completa, numa
+ * mensagem só. Com TURN, o candidato do relay pede uma ida e volta a mais ao
+ * servidor; 2 s cortavam esse candidato em redes lentas.
+ */
 function esperarCandidatos(pc: RTCPeerConnection): Promise<void> {
   if (pc.iceGatheringState === 'complete') return Promise.resolve();
   return new Promise((pronto) => {
-    const prazo = setTimeout(terminar, 2000);
+    const prazo = setTimeout(terminar, 3000);
     function mudou() {
       if (pc.iceGatheringState === 'complete') terminar();
     }
@@ -101,6 +105,7 @@ export class MalhaDaSala {
   private telaLocal = new MediaStream();
   private viva = false;
   private conectada = false;
+  private iceServers: RTCIceServer[] = ICE_PADRAO;
 
   constructor(
     private readonly supabase: SupabaseClient,
@@ -145,6 +150,23 @@ export class MalhaDaSala {
     const canal = this.canal;
     this.canal = null;
     if (canal) void this.supabase.removeChannel(canal);
+  }
+
+  /**
+   * Os servidores ICE (lib/sala/ice): valem para as conexões novas. Uma
+   * conexão que ainda não fechou recomeça o ICE com eles, para ganhar o relay;
+   * uma que já conectou fica como está.
+   */
+  usarIce(servidores: RTCIceServer[]) {
+    this.iceServers = servidores;
+    for (const par of this.pares.values()) {
+      try {
+        par.pc.setConfiguration({ ...par.pc.getConfiguration(), iceServers: servidores });
+        if (par.pc.connectionState !== 'connected') par.pc.restartIce();
+      } catch (erro) {
+        console.warn('O par não aceitou os servidores ICE novos:', erro);
+      }
+    }
   }
 
   /** A câmera com o microfone desta pessoa. Trocar de aparelho troca as trilhas nas conexões. */
@@ -232,7 +254,7 @@ export class MalhaDaSala {
   }
 
   private criarPar(id: string): Par {
-    const pc = new RTCPeerConnection({ iceServers: ICE });
+    const pc = new RTCPeerConnection({ iceServers: this.iceServers });
     const par: Par = {
       pc,
       meta: null,

@@ -9,6 +9,7 @@ import { AuthRequest, configuredSuperAdmins, isSuperAdmin, requireAuth } from ".
 import { resolvePublicAddress } from "./src/server/safe-http.js";
 import { ORIGEM_DO_MOTOR_EM_PRODUCAO, ORIGENS_DO_SUPABASE_EM_PRODUCAO, origemDoMotor, origensDoSupabase, politicaDeSeguranca } from "./src/server/csp.js";
 import { emitirBilhete, segredoConfere } from "./src/server/tokenDoMotor.js";
+import { STUN_PADRAO, TOKEN_DE_SALA, assinarSala, configuracaoDoTurn, gerarIceDaCloudflare, salaConfere } from "./src/server/turnDaSala.js";
 import { MAX_DESTINOS, URL_DE_CANAL, type EstadoDoDestino, type EventoDoMotor } from "./src/server/protocoloDoMotor.js";
 import { limiteDeCanaisLigados } from "./src/lib/plans.js";
 
@@ -30,11 +31,12 @@ export async function createApiApp({ serveFrontend = false } = {}) {
     : Promise.resolve();
 
   const rateLimitBuckets = new Map<string, { count: number; resetsAt: number }>();
-  const userRateLimit = (scope: string, limit: number, windowMs = 60_000): express.RequestHandler =>
+  /** O limite por usuário (ou IP); com `chave`, por outra coisa do pedido (ex.: a sala). */
+  const userRateLimit = (scope: string, limit: number, windowMs = 60_000, chave?: (request: express.Request) => string): express.RequestHandler =>
     (request, response, next) => {
       const req = request as AuthRequest;
       const now = Date.now();
-      const bucketKey = `${scope}:${req.user?.uid || request.ip}`;
+      const bucketKey = `${scope}:${chave ? chave(request) : req.user?.uid || request.ip}`;
       const current = rateLimitBuckets.get(bucketKey);
       const bucket = !current || current.resetsAt <= now
         ? { count: 0, resetsAt: now + windowMs }
@@ -65,6 +67,40 @@ export async function createApiApp({ serveFrontend = false } = {}) {
   // Health check endpoint
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  // ==========================================
+  // A sala de convidados e o TURN (src/server/turnDaSala.ts): quem opera
+  // pede a assinatura do token da sala dele; o link do convidado a leva; e
+  // só um par token + assinatura que confere recebe credenciais de TURN.
+  // Sem TURN configurado, as duas rotas respondem sem ele e a sala segue no STUN.
+  app.post('/api/sala/assinatura', requireAuth, requireJsonObject, userRateLimit('sala-assinatura', 20), (req: AuthRequest, res) => {
+    const { token } = req.body as { token?: unknown };
+    if (typeof token !== 'string' || !TOKEN_DE_SALA.test(token)) return res.status(400).json({ error: 'Token de sala inválido.' });
+    const turn = configuracaoDoTurn();
+    res.json({ assinatura: turn ? assinarSala(token, turn.tokenDaApi) : null });
+  });
+
+  // Pública (o convidado não tem login). A assinatura é conferida antes do
+  // limite: um token inventado é recusado sem abrir uma contagem só dele. O
+  // limite é por sala: um link vazado pede no máximo isto por minuto, e as
+  // credenciais vencem sozinhas
+  const conferirSala: express.RequestHandler = (req, res, next) => {
+    const { token, assinatura } = req.body as { token?: unknown; assinatura?: unknown };
+    const turn = configuracaoDoTurn();
+    if (!turn) return res.json({ iceServers: STUN_PADRAO, turn: false });
+    if (!salaConfere(token, assinatura, turn.tokenDaApi)) return res.status(403).json({ error: 'Este link de sala não dá direito ao TURN.' });
+    next();
+  };
+  const salaDoPedido = (request: express.Request) => String((request.body as { token: string }).token);
+  app.post('/api/sala/ice', requireJsonObject, conferirSala, userRateLimit('sala-ice', 30, 60_000, salaDoPedido), async (_req, res) => {
+    const turn = configuracaoDoTurn()!;
+    try {
+      res.json({ iceServers: await gerarIceDaCloudflare(turn), turn: true });
+    } catch (erro) {
+      console.error('As credenciais de TURN não vieram:', erro);
+      res.status(502).json({ error: 'O TURN não respondeu agora.' });
+    }
   });
 
   // API route for AI moderation of chat comments
