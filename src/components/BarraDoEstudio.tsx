@@ -97,7 +97,7 @@ export function BarraDoEstudio({
   const toast = useToast();
   const idDoMotivo = useId();
   // O menu da saída: o que o programa composto entrega, e como se opera o corte
-  const marcado = <Check size={14} aria-hidden="true" />;
+  const marcado = <Check size={14} aria-hidden="true" className="text-[var(--sel-ink)]" />;
   const vazio = <span aria-hidden="true" className="inline-block size-3.5" />;
   const itensDaSaida: ItemDeMenu[] = [
     { rotulo: 'Saída em 720p (HD)', icone: resolucao === '720p' ? marcado : vazio, onSelect: () => onResolucao('720p') },
@@ -133,11 +133,12 @@ export function BarraDoEstudio({
           aria-label="PwStreamer, voltar ao Painel"
           className="flex shrink-0 items-center cursor-pointer"
         >
+          {/* A marca fala no console, mas quieta: o gradiente sem o brilho nem o círculo que pisca */}
           <span className="hidden sm:inline-flex">
-            <PwStreamLogo iconSize={24} textSize="sm" monocromatico />
+            <PwStreamLogo iconSize={24} textSize="sm" discreto />
           </span>
           <span className="inline-flex sm:hidden">
-            <PwStreamLogo iconSize={24} showText={false} monocromatico />
+            <PwStreamLogo iconSize={24} showText={false} discreto />
           </span>
         </button>
 
@@ -190,8 +191,9 @@ export function BarraDoEstudio({
 
           {transmissao.fase === 'parada' && (
             <>
+              {/* A ação da tela do console, e por isso a única com a cor da marca (Regra da Voz Única) */}
               <Button
-                variant="ghost"
+                variant="primary"
                 size="sm"
                 aria-disabled={impedimento ? 'true' : undefined}
                 aria-describedby={impedimento ? idDoMotivo : undefined}
@@ -209,7 +211,7 @@ export function BarraDoEstudio({
             </>
           )}
           {transmissao.fase === 'entrando' && (
-            <Button variant="ghost" size="sm" loading icon={<Radio size={14} aria-hidden="true" />} className="hidden sm:inline-flex">
+            <Button variant="primary" size="sm" loading icon={<Radio size={14} aria-hidden="true" />} className="hidden sm:inline-flex">
               Entrando ao vivo…
             </Button>
           )}

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-11T19:33:41.550Z",
+  "generatedAt": "2026-10-14T20:31:16.467Z",
   "title": "Design System: PwStreamer",
   "extensions": {
     "colorMeta": {
@@ -128,6 +128,21 @@
         "role": "neutral",
         "displayName": "Tinta Baixa (escuro)",
         "canonical": "#BEC7D1"
+      },
+      "brand-tint": {
+        "role": "primary",
+        "displayName": "Marinho da Marca",
+        "canonical": "#223A66",
+        "tonalRamp": [
+          "#0E1F3B",
+          "#16305B",
+          "#223A66",
+          "#2C5FB0",
+          "#4683E0",
+          "#7FAAEC",
+          "#B3CCF4",
+          "#DCE6F7"
+        ]
       }
     },
     "semanticRoles": {
@@ -145,7 +160,9 @@
         "ink": "navy-89",
         "ink-hi": "navy-96",
         "sig-texto": "tally-lift",
-        "stage": "navy-0"
+        "stage": "navy-0",
+        "sel": "brand-tint",
+        "sel-ink": "brand-lift"
       },
       "light": {
         "well": "navy-89",
@@ -160,7 +177,9 @@
         "ink": "navy-18",
         "ink-hi": "navy-6",
         "sig-texto": "tally-deep",
-        "stage": "navy-0"
+        "stage": "navy-0",
+        "sel": "brand-tint-claro",
+        "sel-ink": "brand-deep"
       },
       "console": {
         "well": "navy-0",
@@ -175,7 +194,9 @@
         "ink": "navy-89",
         "ink-hi": "navy-96",
         "sig-texto": "tally-lift",
-        "stage": "navy-0"
+        "stage": "navy-0",
+        "sel": "brand-tint",
+        "sel-ink": "brand-lift"
       }
     },
     "typographyMeta": {
@@ -844,7 +865,7 @@
       "name": "Barra do estúdio",
       "kind": "nav",
       "refersTo": "studio-bar",
-      "description": "48px em --surface, linha embaixo: logo monocromático (leva ao Painel), \"Estúdio · {sessão}\", a frase do ar no miolo (xl+), o menu da SAÍDA (gatilho de duas linhas: a resolução sobre \"Saída\"/\"Gravando\"; itens 720p/1080p com ✓ e \"Mesa de corte\"), a ação de texto dos canais (md+), \"Entrar ao vivo\" (fantasma sm, aria-disabled com motivo quando não pode) e \"Sair do estúdio\". No ar: SeloDoAr, tempo em mono, canais no ar e \"Encerrar transmissão\" (danger, a única ação em carmim).",
+      "description": "48px em --surface, linha embaixo: logo discreto — o gradiente sem brilho nem pulso (leva ao Painel), \"Estúdio · {sessão}\", a frase do ar no miolo (xl+), o menu da SAÍDA (gatilho de duas linhas: a resolução sobre \"Saída\"/\"Gravando\"; itens 720p/1080p com ✓ e \"Mesa de corte\"), a ação de texto dos canais (md+), \"Entrar ao vivo\" (o primário do console, brand-deep, sm; aria-disabled com motivo quando não pode) e \"Sair do estúdio\". No ar: SeloDoAr, tempo em mono, canais no ar e \"Encerrar transmissão\" (danger, a única ação em carmim).",
       "html": "<header class=\"ds-sb\" data-surface=\"console\"><span class=\"ds-sb-logo\">PwStreamer</span><h1 class=\"ds-sb-t\">Estúdio<span class=\"ds-sb-s\"> · Aula de iluminação</span></h1><div class=\"ds-sb-r\"><button type=\"button\" class=\"ds-sb-c\">Canais: 2 de 3 prontos</button><button type=\"button\" class=\"ds-sb-g\">Sair do estúdio</button></div></header>",
       "css": ".ds-sb { display: flex; align-items: center; gap: 16px; height: 48px; padding: 0 16px; background: var(--surface, #111315); border-bottom: 1px solid var(--line, #282D31); font-family: Poppins, system-ui, sans-serif; } .ds-sb-logo { font-size: 16px; font-weight: 900; color: var(--ink-hi, #F0F5F9); } .ds-sb-t { margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-sb-s { font-weight: 400; color: var(--ink-lo, #A2ACB7); } .ds-sb-r { margin-left: auto; display: flex; align-items: center; gap: 16px; } .ds-sb-c { min-height: 44px; background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--ink-lo, #A2ACB7); cursor: pointer; } .ds-sb-c:hover { color: var(--ink-hi, #F0F5F9); text-decoration: underline; } .ds-sb-g { padding: 5px 11px; border-radius: 10px; border: 1px solid var(--line-ctl, #3C4349); background: transparent; color: var(--ink, #D9E1EA); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; } .ds-sb-g:hover { background: var(--raise, #202429); } @media (max-width: 767px) { .ds-sb-c { display: none; } }"
     },
@@ -852,7 +873,7 @@
       "name": "Cenas em ícones",
       "kind": "custom",
       "refersTo": "scene-row",
-      "description": "Fileira de diagramas sob o programa, na largura dele: cada cena é só a PARTIÇÃO do palco (caixa sólida = gente, vazada = tela), azulejo de 56×44 raio xl. No modo direto o clique já corta (fusão): o azulejo escolhido fica elevado (raise + shadow-ctl + aria-current) com o ponto do programa (ink-hi; carmim só no ar); cena sem tela fica a 60% e o clique explica num aviso, sem entrar. Na mesa de corte o clique leva ao preview. Nome e estado inteiros no aria-label e no title.",
+      "description": "Fileira de diagramas sob o programa, na largura dele: cada cena é só a PARTIÇÃO do palco (caixa sólida = gente, vazada = tela), azulejo de 56×44 raio xl. No modo direto o clique já corta (fusão): o azulejo escolhido veste a seleção (--sel + ícone --sel-ink + shadow-ctl + aria-current) com o ponto do programa (ink-hi; carmim só no ar); cena sem tela fica a 60% e o clique explica num aviso, sem entrar. Na mesa de corte o clique leva ao preview. Nome e estado inteiros no aria-label e no title.",
       "html": "<section class=\"ds-sc\" data-surface=\"console\" aria-labelledby=\"ds-sc-t\"><h2 id=\"ds-sc-t\" class=\"ds-sc-t\">Cenas</h2><ul class=\"ds-sc-l\"><li><button type=\"button\" class=\"ds-sc-r\"><span class=\"ds-sc-n\">Câmera</span><span class=\"ds-sc-e ds-sc-pgm\">programa</span></button></li><li><button type=\"button\" class=\"ds-sc-r\" aria-current=\"true\"><span class=\"ds-sc-n\">Tela com câmera</span><span class=\"ds-sc-e\">preview</span></button></li><li><button type=\"button\" class=\"ds-sc-r\"><span class=\"ds-sc-n\">Câmera e tela lado a lado</span></button></li><li><button type=\"button\" class=\"ds-sc-r\"><span class=\"ds-sc-n\">Tela</span><span class=\"ds-sc-e\">sem tela compartilhada</span></button></li></ul></section>",
       "css": ".ds-sc { width: 224px; padding: 16px 8px; background: var(--surface, #111315); font-family: Poppins, system-ui, sans-serif; } .ds-sc-t { margin: 0; padding: 0 8px 8px; font-size: 12px; font-weight: 400; color: var(--ink-lo, #A2ACB7); } .ds-sc-l { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; } .ds-sc-r { display: flex; flex-direction: column; justify-content: center; width: 100%; min-height: 56px; padding: 8px; border: 0; border-radius: 16px; background: transparent; text-align: left; font: inherit; cursor: pointer; transition: background-color 150ms; } .ds-sc-r:hover { background: var(--panel, #181B1F); } .ds-sc-r[aria-current=\"true\"] { background: var(--raise, #202429); } .ds-sc-n { font-size: 14px; color: var(--ink-hi, #F0F5F9); } .ds-sc-e { font-size: 12px; color: var(--ink-lo, #A2ACB7); } .ds-sc-pgm { font-weight: 500; color: var(--ink-hi, #F0F5F9); } .ds-sc-r:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     },
@@ -884,7 +905,7 @@
       "name": "Controle da bandeja com medidor",
       "kind": "button",
       "refersTo": "tray-control-on",
-      "description": "A pílula FLUTUANTE da captura (group \"Captura e gravação\"): raise, raio 3xl, shadow-float, centrada no pé da coluna (sticky no celular). Controles circulares de 44px só com o ícone: ligado sobe para --line-ctl com --ink-hi e shadow-ctl (aria-pressed); desligado fica transparente em --ink-lo, hover em --line. Ordem: mic+medidor, câmera, tela, separador, guias, gravar+tempo, separador, Convidar (copia o link da sala). A frase do ar saiu para a barra.",
+      "description": "A pílula FLUTUANTE da captura (group \"Captura e gravação\"): raise, raio 3xl, shadow-float, centrada no pé da coluna (sticky no celular). Controles circulares de 44px só com o ícone: ligado veste a seleção, --sel com ícone --sel-ink e shadow-ctl (aria-pressed); desligado fica transparente em --ink-lo, hover em --line. Ordem: mic+medidor, câmera, tela, separador, guias, gravar+tempo, separador, Convidar (copia o link da sala). A frase do ar saiu para a barra.",
       "html": "<footer class=\"ds-tr\" data-surface=\"console\"><button type=\"button\" class=\"ds-tr-b\" aria-pressed=\"true\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"/><line x1=\"12\" x2=\"12\" y1=\"19\" y2=\"22\"/></svg><span>Microfone</span></button><span class=\"ds-tr-m\" aria-hidden=\"true\"><span class=\"ds-tr-t\"><span class=\"ds-tr-n\"></span><span class=\"ds-tr-p\"></span><span class=\"ds-tr-s\"></span></span><span class=\"ds-tr-l\">−25 dB</span></span><button type=\"button\" class=\"ds-tr-b\" aria-pressed=\"false\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 3h18v18H3z\"/><path d=\"M3 9h18\"/><path d=\"M3 15h18\"/><path d=\"M9 3v18\"/><path d=\"M15 3v18\"/></svg><span>Guias</span></button><p class=\"ds-tr-f\">Transmitir para os canais ainda não está no&nbsp;ar.</p></footer>",
       "css": ".ds-tr { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--surface, #111315); border-top: 1px solid var(--line, #282D31); font-family: Poppins, system-ui, sans-serif; } .ds-tr-b { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 9px 18px; border-radius: 16px; border: 1px solid var(--line-ctl, #3C4349); background: var(--well, #000000); color: var(--ink-lo, #A2ACB7); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; } .ds-tr-b[aria-pressed=\"true\"] { background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); } .ds-tr-m { display: flex; align-items: center; gap: 8px; } .ds-tr-t { position: relative; display: block; width: 96px; height: 8px; overflow: hidden; background: var(--well, #000000); } .ds-tr-n { position: absolute; inset: 0 40% 0 0; background: var(--ink-lo, #A2ACB7); } .ds-tr-p { position: absolute; top: 0; bottom: 0; left: 70%; width: 2px; background: var(--ink-hi, #F0F5F9); } .ds-tr-s { position: absolute; inset: 0; background-image: repeating-linear-gradient(90deg, transparent 0 5px, var(--surface, #111315) 5px 6px); } .ds-tr-l { width: 48px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: var(--ink-lo, #A2ACB7); } .ds-tr-f { margin: 0 0 0 auto; font-size: 12px; color: var(--ink-lo, #A2ACB7); text-wrap: pretty; } @media (max-width: 639px) { .ds-tr-b { width: 44px; padding: 0; justify-content: center; } .ds-tr-b span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .ds-tr-t { width: 64px; } .ds-tr-l { display: none; } } @media (max-width: 1023px) { .ds-tr-f { display: none; } }"
     },
@@ -892,7 +913,7 @@
       "name": "Trilho de ferramentas do estúdio",
       "kind": "nav",
       "refersTo": "tool-tab-active",
-      "description": "Tablist vertical de 72px na borda da coluna da direita, com nove abas (Preparar, Chat, Sala, Gráficos, Roteiro, QR code, Mídia, Câmera, Áudio): 56px, ícone de 18px sobre a palavra em text-xs; a aberta em --raise --ink-hi. A linha entre painel e trilho é do painel.",
+      "description": "Tablist vertical de 72px na borda da coluna da direita, com nove abas (Preparar, Chat, Sala, Gráficos, Roteiro, QR code, Mídia, Câmera, Áudio): 56px, ícone de 18px sobre a palavra em text-xs; a aberta veste a seleção, --sel com --sel-ink. A linha entre painel e trilho é do painel.",
       "html": "<div class=\"ds-tt\" data-surface=\"console\" role=\"tablist\" aria-orientation=\"vertical\" aria-label=\"Ferramentas\"><button type=\"button\" role=\"tab\" class=\"ds-tt-b\" aria-selected=\"true\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z\"/><circle cx=\"12\" cy=\"13\" r=\"3\"/></svg><span>Câmera</span></button></div>",
       "css": ".ds-tt { display: flex; flex-direction: column; gap: 4px; width: 72px; padding: 6px; background: var(--surface, #111315); font-family: Poppins, system-ui, sans-serif; } .ds-tt-b { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 56px; padding: 0 4px; border: 0; border-radius: 16px; background: transparent; color: var(--ink-lo, #A2ACB7); font: inherit; font-size: 12px; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-tt-b:hover { background: var(--panel, #181B1F); color: var(--ink-hi, #F0F5F9); } .ds-tt-b[aria-selected=\"true\"] { background: var(--raise, #202429); color: var(--ink-hi, #F0F5F9); } .ds-tt-b:focus-visible { outline: 2px solid var(--color-brand-lift, #7FAAEC); outline-offset: 2px; }"
     },
@@ -908,7 +929,7 @@
       "name": "Trilho da sala",
       "kind": "nav",
       "refersTo": "studio-bar",
-      "description": "A borda esquerda do console (lg+, 144px em --surface, linha à direita): \"Convidar\" (copia o link da sala) no topo, o tile \"Você\" (miniatura da câmera, MicOff quando mudo) e um tile-botão por pessoa da sala (miniatura/inicial, nome, \"No palco\"/\"Na conversa\") que põe no palco ou tira ao clicar; no palco o tile sobe para --raise com shadow-ctl, e o limite do plano desativa com o motivo no title. No pé, \"Abrir a sala\". Abaixo de lg não existe: as pessoas moram na ferramenta Sala."
+      "description": "A borda esquerda do console (lg+, 144px em --surface, linha à direita): \"Convidar\" (copia o link da sala) no topo, o tile \"Você\" (miniatura da câmera, MicOff quando mudo) e um tile-botão por pessoa da sala (miniatura/inicial, nome, \"No palco\"/\"Na conversa\") que põe no palco ou tira ao clicar; no palco o tile veste a seleção (--sel, \"No palco\" em --sel-ink) com shadow-ctl, e o limite do plano desativa com o motivo no title. No pé, \"Abrir a sala\". Abaixo de lg não existe: as pessoas moram na ferramenta Sala."
     }
   ],
   "narrative": {
@@ -927,7 +948,7 @@
     "rules": [
       {
         "name": "Regra da Voz Única",
-        "body": "Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (--ink-hi, --raise), nunca pelo azul. Switch ligado e caixa marcada são tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em --ink-hi. No console, a Voz Única dá zero cor: não há ação da tela enquanto o ar não existe. A cena no preview, a tecla apertada, o controle ligado e a ferramenta aberta sobem na rampa.",
+        "body": "Numa tela da casca, só o botão da ação da tela tem cor. Ligado, selecionado, atual e pronto são ditos pela rampa (--ink-hi, --raise), nunca pelo azul. Switch ligado e caixa marcada são tinta cheia; segmento ativo e linha escolhida sobem um degrau; destino atual ganha um traço de 2px em --ink-hi. No console, a Voz Única tem duas vozes além do carmim do ar, da mais rara à mais comum: carmim = o ar; a marca = a ação da tela (\"Entrar ao vivo\" em brand-deep) e o que está ESCOLHIDO (fundo --sel, tinta --sel-ink: a cena no ar, a ferramenta aberta, o convidado no palco, o controle ligado); a rampa = tudo o mais. Exceção deliberada à casca: o console é uma superfície densa de operação, e \"qual é o atual\" precisa ser achado de relance.",
         "section": "colors"
       },
       {
