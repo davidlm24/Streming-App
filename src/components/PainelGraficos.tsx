@@ -19,6 +19,8 @@ import {
   SecaoDoPainel,
   ondeEsta,
   SeletorDeCanto,
+  DICA_DO_RASCUNHO,
+  useCampoNoAr,
   useSetasDoGrupo,
   type ItemDaBiblioteca,
 } from './PecasDoPainel';
@@ -240,6 +242,10 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
   const destino = useDestinoDoPalco();
   // Sempre a partir do estado atual: dois cliques no mesmo quadro não se desfazem
   const mudar = (parcial: Partial<EscolhaDosGraficos>) => onEscolha((atual) => ({ ...atual, ...parcial }));
+  // O título do cronômetro vai ao ar com ele: no modo direto, só no Enter ou ao sair do campo
+  const { texto: _tc, pendente: tituloDoCronometroPendente, ...propsDoTituloDoCronometro } = useCampoNoAr(escolha.cronometro.titulo, (titulo) =>
+    onEscolha((atual) => ({ ...atual, cronometro: { ...atual.cronometro, titulo } })),
+  );
   const confirmar = useConfirm();
   const midia = useMidiaDoEstudio();
   const [editandoBanner, setEditandoBanner] = useState<string | 'novo' | null>(null);
@@ -268,7 +274,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
     titulo: string,
     rotulo: string,
     excluir: () => void,
-    descricao = 'Sai da lista do estúdio. Se estiver no programa, continua lá até o próximo corte.',
+    descricao = direto ? 'Sai da lista do estúdio. Se estiver no programa, sai dele agora.' : 'Sai da lista do estúdio. Se estiver no programa, continua lá até o próximo corte.',
   ) => {
     const ok = await confirmar({ title: titulo, description: descricao, confirmLabel: rotulo, destructive: true });
     if (ok) excluir();
@@ -283,7 +289,7 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
       `Excluir ${item.nome}?`,
       rotulo,
       () => void midia.excluir(item.id),
-      'O arquivo sai da sua conta, em todos os aparelhos. Se estiver no programa, continua lá até o próximo corte.',
+      `O arquivo sai da sua conta, em todos os aparelhos. Se estiver no programa, ${direto ? 'sai dele agora' : 'continua lá até o próximo corte'}.`,
     );
 
   const restante = restanteDoRelogio(relogio);
@@ -544,8 +550,8 @@ export function PainelGraficos({ escolha, onEscolha, banners, tickers, programa,
                 rotulo="Título (opcional)"
                 placeholder="Começamos em"
                 maxLength={40}
-                value={escolha.cronometro.titulo}
-                onChange={(e) => mudar({ cronometro: { ...escolha.cronometro, titulo: e.target.value } })}
+                {...propsDoTituloDoCronometro}
+                dica={tituloDoCronometroPendente ? DICA_DO_RASCUNHO : undefined}
               />
               <EscolhaDoPainel rotulo="Duração, em minutos">
                 <Segmentado

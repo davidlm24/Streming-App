@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Camera, CameraOff, Check, ChevronDown, Circle, Grid3x3, Mic, MicOff, MonitorUp, MonitorX, Square, UserPlus } from 'lucide-react';
+import { Camera, CameraOff, ChevronDown, Circle, CircleAlert, Grid3x3, Mic, MicOff, MonitorUp, MonitorX, Square, UserPlus } from 'lucide-react';
 import { formatarTempo } from '../lib/graficos';
 import { MedidorDeAudio } from './MedidorDeAudio';
 import { Button } from './ui/Button';
@@ -28,7 +28,22 @@ interface BandejaDoEstudioProps {
   onAlternarGravacao: () => void;
   /** Copia o link da sala de convidados (a pílula é o lugar mais à mão de convidar). */
   onConvidar: () => void;
+  /** Não há trilha viva do aparelho (o navegador não liberou, não existe, outro programa o prendeu). */
+  microfoneIndisponivel: boolean;
+  cameraIndisponivel: boolean;
+  /** Leva ao que falta e ao conserto (o Preparar). */
+  onAparelhoIndisponivel: () => void;
+  /** O navegador ainda mostra o pedido de permissão. */
+  esperandoAparelhos: boolean;
 }
+
+/** O ícone do aparelho que não veio: o desligado com a marca de alerta, na tinta alta. */
+const Indisponivel = ({ children }: { children: ReactNode }) => (
+  <span className="relative inline-flex text-[var(--ink-hi)]">
+    {children}
+    <CircleAlert size={10} aria-hidden="true" className="absolute -right-1.5 -top-1.5 rounded-full bg-[var(--raise)]" />
+  </span>
+);
 
 /** O tempo gravado até agora, no pulso da bandeja (mono, como a leitura do medidor), e "sem som" quando for o caso. */
 function TempoDeGravacao({ inicioEm, semSom }: { inicioEm: number; semSom: boolean }) {
@@ -120,6 +135,10 @@ export function BandejaDoEstudio({
   gravandoSemSom,
   onAlternarGravacao,
   onConvidar,
+  microfoneIndisponivel,
+  cameraIndisponivel,
+  onAparelhoIndisponivel,
+  esperandoAparelhos,
 }: BandejaDoEstudioProps) {
   const dispositivos = useDispositivos(stream);
   const atual = (tipo: Tipo) =>
@@ -133,7 +152,8 @@ export function BandejaDoEstudio({
       const rotulo = d.label || `${tipo === 'audio' ? 'Microfone' : 'Câmera'} ${i + 1}`;
       return {
         rotulo,
-        icone: d.deviceId === emUso ? <Check size={14} /> : <span className="inline-block size-3.5" />,
+        tipo: 'radio' as const,
+        marcado: d.deviceId === emUso,
         onSelect: () => onEscolherDispositivo(tipo, d.deviceId, rotulo),
       };
     });
@@ -150,35 +170,60 @@ export function BandejaDoEstudio({
       aria-label="Captura e gravação"
       className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-3xl bg-[var(--raise)] px-3 py-2 shadow-[var(--shadow-float)]"
     >
-      <ComMenu rotulo="Escolher o microfone" itens={itensDoMicrofone}>
+      {microfoneIndisponivel ? (
+        // Sem trilha, não há o que ligar: o controle diz que falta e leva ao conserto
         <Button
           variant="ghost"
-          aria-pressed={!mudo}
-          title={mudo ? 'Microfone mudo' : 'Microfone'}
-          onClick={onAlternarMicrofone}
-          icon={mudo ? <MicOff size={16} aria-hidden="true" /> : <Mic size={16} aria-hidden="true" />}
-          className={`${CONTROLE} ${itensDoMicrofone.length > 1 ? 'rounded-r-none' : ''}`}
+          title={esperandoAparelhos ? 'Esperando o navegador liberar o microfone' : 'Microfone indisponível: veja o que falta no Preparar'}
+          onClick={onAparelhoIndisponivel}
+          icon={<Indisponivel><MicOff size={16} aria-hidden="true" /></Indisponivel>}
+          className={CONTROLE}
         >
-          <Palavra>{mudo ? 'Microfone mudo' : 'Microfone'}</Palavra>
+          <Palavra>{esperandoAparelhos ? 'Esperando o navegador liberar o microfone' : 'Microfone indisponível, ver o que falta'}</Palavra>
         </Button>
-      </ComMenu>
+      ) : (
+        <ComMenu rotulo="Escolher o microfone" itens={itensDoMicrofone}>
+          <Button
+            variant="ghost"
+            aria-pressed={!mudo}
+            title={mudo ? 'Microfone mudo' : 'Microfone'}
+            onClick={onAlternarMicrofone}
+            icon={mudo ? <MicOff size={16} aria-hidden="true" /> : <Mic size={16} aria-hidden="true" />}
+            className={`${CONTROLE} ${itensDoMicrofone.length > 1 ? 'rounded-r-none' : ''}`}
+          >
+            <Palavra>{mudo ? 'Microfone mudo' : 'Microfone'}</Palavra>
+          </Button>
+        </ComMenu>
+      )}
       {/* O medidor fica para telas com chão: no celular ele quebrava a pílula em duas linhas */}
       <span className="hidden sm:block">
         <MedidorDeAudio key={versaoDoAudio} stream={stream} mudo={mudo} />
       </span>
 
-      <ComMenu rotulo="Escolher a câmera" itens={itensDaCamera}>
+      {cameraIndisponivel ? (
         <Button
           variant="ghost"
-          aria-pressed={!cameraDesligada}
-          title={cameraDesligada ? 'Câmera desligada' : 'Câmera'}
-          onClick={onAlternarCamera}
-          icon={cameraDesligada ? <CameraOff size={16} aria-hidden="true" /> : <Camera size={16} aria-hidden="true" />}
-          className={`${CONTROLE} ${itensDaCamera.length > 1 ? 'rounded-r-none' : ''}`}
+          title={esperandoAparelhos ? 'Esperando o navegador liberar a câmera' : 'Câmera indisponível: veja o que falta no Preparar'}
+          onClick={onAparelhoIndisponivel}
+          icon={<Indisponivel><CameraOff size={16} aria-hidden="true" /></Indisponivel>}
+          className={CONTROLE}
         >
-          <Palavra>{cameraDesligada ? 'Câmera desligada' : 'Câmera'}</Palavra>
+          <Palavra>{esperandoAparelhos ? 'Esperando o navegador liberar a câmera' : 'Câmera indisponível, ver o que falta'}</Palavra>
         </Button>
-      </ComMenu>
+      ) : (
+        <ComMenu rotulo="Escolher a câmera" itens={itensDaCamera}>
+          <Button
+            variant="ghost"
+            aria-pressed={!cameraDesligada}
+            title={cameraDesligada ? 'Câmera desligada' : 'Câmera'}
+            onClick={onAlternarCamera}
+            icon={cameraDesligada ? <CameraOff size={16} aria-hidden="true" /> : <Camera size={16} aria-hidden="true" />}
+            className={`${CONTROLE} ${itensDaCamera.length > 1 ? 'rounded-r-none' : ''}`}
+          >
+            <Palavra>{cameraDesligada ? 'Câmera desligada' : 'Câmera'}</Palavra>
+          </Button>
+        </ComMenu>
+      )}
 
       {(compartilhando || podeCompartilharTela()) && (
         <Button

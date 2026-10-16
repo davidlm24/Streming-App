@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { CantoDoPalco } from '../types';
 import { normalizarLink } from '../lib/graficos';
 import { useDestinoDoPalco } from '../context/ModoDaMesa';
-import { CampoDoPainel, Deslizante, EstadoNoPalco, SecaoDoPainel, SeletorDeCanto } from './PecasDoPainel';
+import { CampoDoPainel, DICA_DO_RASCUNHO, Deslizante, EstadoNoPalco, SecaoDoPainel, SeletorDeCanto, useCampoNoAr } from './PecasDoPainel';
 import { Switch } from './ui/Switch';
 
 /** O QR code que o estúdio está montando. Vai ao preview quando ligado e com um link válido. */
@@ -38,7 +38,15 @@ export function PainelQrCode({
   const destino = useDestinoDoPalco();
   const mudar = (parcial: Partial<QrDoEstudio>) => onQr((atual) => ({ ...atual, ...parcial }));
   const link = normalizarLink(qr.link);
-  const linkInvalido = qr.link.trim() !== '' && !link;
+  // Os três textos vão ao ar com o QR: no modo direto, só no Enter ou ao sair do campo
+  const campoLink = useCampoNoAr(qr.link, (texto) => mudar({ link: texto }));
+  const campoTitulo = useCampoNoAr(qr.titulo, (texto) => mudar({ titulo: texto }));
+  const campoPreco = useCampoNoAr(qr.preco, (texto) => mudar({ preco: texto }));
+  // A validação olha o que está sendo digitado, não só o que já foi
+  const linkInvalido = campoLink.texto.trim() !== '' && !normalizarLink(campoLink.texto);
+  const { texto: _l, pendente: linkPendente, ...propsDoLink } = campoLink;
+  const { texto: _t, pendente: tituloPendente, ...propsDoTitulo } = campoTitulo;
+  const { texto: _p, pendente: precoPendente, ...propsDoPreco } = campoPreco;
 
   return (
     <div className="pb-6">
@@ -61,24 +69,23 @@ export function PainelQrCode({
           inputMode="url"
           autoComplete="off"
           placeholder="loja.com.br/produto"
-          value={qr.link}
-          onChange={(e) => mudar({ link: e.target.value })}
-          dica='Sem "https://" também vale.'
+          {...propsDoLink}
+          dica={linkPendente ? DICA_DO_RASCUNHO : 'Sem "https://" também vale.'}
           erro={linkInvalido ? 'Isso não parece um endereço da web. Confira o link.' : undefined}
         />
         <CampoDoPainel
           rotulo="Título (opcional)"
           placeholder="Curso de fotografia"
           maxLength={60}
-          value={qr.titulo}
-          onChange={(e) => mudar({ titulo: e.target.value })}
+          {...propsDoTitulo}
+          dica={tituloPendente ? DICA_DO_RASCUNHO : undefined}
         />
         <CampoDoPainel
           rotulo="Preço (opcional)"
           placeholder="R$ 97,00"
           maxLength={24}
-          value={qr.preco}
-          onChange={(e) => mudar({ preco: e.target.value })}
+          {...propsDoPreco}
+          dica={precoPendente ? DICA_DO_RASCUNHO : undefined}
         />
       </SecaoDoPainel>
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Check, Copy, MicOff, RefreshCw } from 'lucide-react';
 import type { PessoaDaSala } from '../lib/sala/malha';
+import { useModoDireto } from '../context/ModoDaMesa';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 import { useToast } from './ui/Toast';
@@ -30,6 +31,7 @@ interface PainelConvidadosProps {
 }
 
 export function PainelConvidados({ link, onNovoLink, conectada, pessoas, noPalco, limiteDePessoas, onPalco }: PainelConvidadosProps) {
+  const direto = useModoDireto();
   const toast = useToast();
   const [copiado, setCopiado] = useState(false);
   const lugares = Math.max(0, limiteDePessoas - 1 - noPalco.length);
@@ -111,14 +113,20 @@ export function PainelConvidados({ link, onNovoLink, conectada, pessoas, noPalco
                       {p.nome}
                       {p.mudo && <MicOff size={12} aria-label="mudo" className="shrink-0 text-[var(--ink-lo)]" />}
                     </p>
-                    <p className="truncate text-xs text-[var(--ink-lo)]">{estaNoPalco ? 'No palco: entra nas cenas com convidados' : 'Na conversa, fora do ar'}</p>
+                    <p className="truncate text-xs text-[var(--ink-lo)]">{estaNoPalco ? (direto ? 'No palco: aparece no programa, na Grade' : 'No palco: entra na Grade, no preview') : 'Na conversa, fora do ar'}</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onPalco(p.id, !estaNoPalco)}
                     disabled={!estaNoPalco && lugares === 0}
-                    title={!estaNoPalco && lugares === 0 ? `O plano põe até ${limiteDePessoas} pessoas na tela, contando você.` : undefined}
+                    title={
+                      !estaNoPalco && lugares === 0
+                        ? `O plano põe até ${limiteDePessoas} pessoas na tela, contando você.`
+                        : !estaNoPalco && direto
+                          ? 'Entra no programa na hora: a cena muda para a Grade'
+                          : undefined
+                    }
                     className="shrink-0"
                   >
                     {estaNoPalco ? 'Tirar do palco' : 'Pôr no palco'}

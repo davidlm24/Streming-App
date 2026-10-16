@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import { fraseDaFalhaDoPdf } from '../lib/apresentacao';
 import type { Apresentacao } from '../lib/useApresentacao';
-import { useDestinoDoPalco } from '../context/ModoDaMesa';
+import { useDestinoDoPalco, useModoDireto } from '../context/ModoDaMesa';
 import { EnviarArquivo, EstadoNoPalco, SecaoDoPainel } from './PecasDoPainel';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
@@ -34,6 +34,7 @@ export function SecaoDaApresentacao({
   onPreview: (entra: boolean) => void;
 }) {
   const destino = useDestinoDoPalco();
+  const direto = useModoDireto();
   const { aberta, pagina, mostrada, abrindo, falha } = apresentacao;
   const campo = useRef<HTMLInputElement>(null);
   const porNoPreview = useRef<HTMLButtonElement>(null);
@@ -59,7 +60,7 @@ export function SecaoDaApresentacao({
     <SecaoDoPainel
       titulo="Apresentação em PDF"
       estado={aberta ? <EstadoNoPalco noPrograma={noPrograma} noPreview={noPreview} /> : undefined}
-      dica="Abre só neste navegador: o PDF não vai para a sua conta e fecha com o estúdio. Ela entra no lugar da tela; a página vale na hora nos dois monitores."
+      dica={`Abre só neste navegador: o PDF não vai para a sua conta e fecha com o estúdio. Ela entra no lugar da tela; a página muda ${direto ? 'no programa' : 'nos dois monitores'} na hora.`}
     >
       {aberta ? (
         <>
@@ -109,7 +110,7 @@ export function SecaoDaApresentacao({
               {noPreview ? `Tirar do ${destino}` : `Pôr no ${destino}`}
             </Button>
             {noPrograma ? (
-              <p className="text-xs text-[var(--ink-lo)]">No programa: tire com um corte para fechar.</p>
+              <p className="text-xs text-[var(--ink-lo)]">{direto ? 'No programa: tire do programa para fechar.' : 'No programa: tire com um corte para fechar.'}</p>
             ) : (
               <AcaoDeTexto
                 tamanho="xs"

@@ -3,6 +3,7 @@ import { Mic, MicOff, Video, VideoOff } from 'lucide-react';
 import { getSupabaseBrowserClient } from '../lib/supabase';
 import { MalhaDaSala, TOKEN_DE_SALA, type PessoaDaSala } from '../lib/sala/malha';
 import { ASSINATURA_DA_SALA, obterIceDaSala } from '../lib/sala/ice';
+import { fraseDaFalha, pedirCaptura, type FalhaDoAparelho } from '../lib/captura';
 import { PwStreamLogo } from './PwStreamLogo';
 import { Button } from './ui/Button';
 
@@ -91,7 +92,8 @@ export function SalaDoConvidado({ token, assinatura }: { token: string; assinatu
   }, [valido, token, assinatura]);
   const [fase, setFase] = useState<Fase>('preparando');
   const [nome, setNome] = useState('');
-  const [erro, setErro] = useState<string | null>(null);
+  const [falhas, setFalhas] = useState<{ camera: FalhaDoAparelho | null; microfone: FalhaDoAparelho | null }>({ camera: null, microfone: null });
+  const [tentativa, setTentativa] = useState(0);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [mudo, setMudo] = useState(false);
   const [semVideo, setSemVideo] = useState(false);
@@ -104,29 +106,33 @@ export function SalaDoConvidado({ token, assinatura }: { token: string; assinatu
     if (!valido) return;
     let desta = true;
     let aberto: MediaStream | null = null;
-    navigator.mediaDevices
-      ?.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: { echoCancellation: true, noiseSuppression: true } })
-      .then((s) => {
-        if (!desta) {
-          s.getTracks().forEach((t) => t.stop());
-          return;
-        }
-        aberto = s;
-        setStream(s);
-        setFase('pronto');
-      })
-      .catch((e) => {
-        console.warn('Câmera e microfone não liberados:', e);
-        if (desta) setErro('A câmera e o microfone não foram liberados. Libere no cadeado da barra de endereço e recarregue a página.');
-      });
+    setFase('preparando');
+    void pedirCaptura({ width: { ideal: 1280 }, height: { ideal: 720 } }, { echoCancellation: true, noiseSuppression: true }).then((r) => {
+      if (!desta) {
+        r.stream?.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      if (r.falhaDaCamera || r.falhaDoMicrofone) console.warn('Aparelhos que não vieram:', { camera: r.falhaDaCamera, microfone: r.falhaDoMicrofone });
+      aberto = r.stream;
+      setStream(r.stream);
+      setFalhas({ camera: r.falhaDaCamera, microfone: r.falhaDoMicrofone });
+      // O que não veio já entra desligado: os outros veem o estado certo
+      setSemVideo(!r.stream?.getVideoTracks().length);
+      setMudo(!r.stream?.getAudioTracks().length);
+      // Mesmo sem nada, a pessoa entra para ver e ouvir; o aviso diz o que falta
+      setFase('pronto');
+    });
     return () => {
       desta = false;
       aberto?.getTracks().forEach((t) => t.stop());
     };
-  }, [valido]);
+  }, [valido, tentativa]);
+
+  const temCamera = !!stream?.getVideoTracks().length;
+  const temMicrofone = !!stream?.getAudioTracks().length;
 
   const entrar = () => {
-    if (!stream || malhaRef.current) return;
+    if (fase !== 'pronto' || malhaRef.current) return;
     const malha = new MalhaDaSala(getSupabaseBrowserClient(), token, crypto.randomUUID(), {
       nome: nome.trim() || 'Convidado',
       anfitriao: false,
@@ -140,6 +146,7 @@ export function SalaDoConvidado({ token, assinatura }: { token: string; assinatu
     if (iceRef.current) malha.usarIce(iceRef.current);
     malha.entrar();
     malha.setCamera(stream);
+    malha.setEstado({ mudo: mudo || !temMicrofone, semVideo: semVideo || !temCamera });
     setFase('na-sala');
   };
 
@@ -192,11 +199,27 @@ export function SalaDoConvidado({ token, assinatura }: { token: string; assinatu
             {stream && !semVideo ? <Video16x9 stream={stream} espelho /> : <Silhueta nome={nome || 'Você'} />}
           </div>
         </div>
-        {erro ? (
-          <p className="mt-4 max-w-sm text-pretty text-sm text-[var(--ink)]" role="alert">
-            {erro}
-          </p>
-        ) : (
+        {fase === 'pronto' && (falhas.camera || falhas.microfone) && (
+          <div className="mt-4 w-full max-w-sm text-left" role="status">
+            {falhas.microfone && falhas.camera && falhas.camera === falhas.microfone ? (
+              <p className="text-pretty text-sm text-[var(--ink-hi)]">{fraseDaFalha('os-dois', falhas.microfone)}</p>
+            ) : (
+              <>
+                {falhas.camera && <p className="text-pretty text-sm text-[var(--ink-hi)]">{fraseDaFalha('camera', falhas.camera)}</p>}
+                {falhas.microfone && <p className="mt-1 text-pretty text-sm text-[var(--ink-hi)]">{fraseDaFalha('microfone', falhas.microfone)}</p>}
+              </>
+            )}
+            <p className="mt-1 text-pretty text-xs text-[var(--ink-lo)]">
+              {temMicrofone ? 'Você pode entrar só com o microfone.' : temCamera ? 'Você pode entrar só com a câmera.' : 'Você pode entrar para ver e ouvir, sem aparecer.'}
+            </p>
+            {falhas.camera !== 'sem-suporte' && (
+              <Button variant="ghost" size="sm" onClick={() => setTentativa((n) => n + 1)} className="mt-2 min-h-11">
+                Tentar de novo
+              </Button>
+            )}
+          </div>
+        )}
+        {(
           <form
             className="mt-4 flex w-full max-w-sm flex-col gap-3"
             onSubmit={(e) => {
@@ -217,7 +240,7 @@ export function SalaDoConvidado({ token, assinatura }: { token: string; assinatu
               />
             </label>
             <Button type="submit" disabled={fase !== 'pronto'} loading={fase === 'preparando'} className="w-full">
-              Entrar na sala
+              {temCamera || temMicrofone || fase !== 'pronto' ? 'Entrar na sala' : 'Entrar para ver e ouvir'}
             </Button>
           </form>
         )}
@@ -263,17 +286,27 @@ export function SalaDoConvidado({ token, assinatura }: { token: string; assinatu
       </main>
 
       <footer className="flex shrink-0 items-center justify-center gap-2 border-t border-[var(--line)] bg-[var(--surface)] p-3">
-        <Button variant="ghost" aria-pressed={mudo} onClick={alternarMudo} icon={mudo ? <MicOff size={16} aria-hidden="true" /> : <Mic size={16} aria-hidden="true" />} className="min-h-11">
-          {mudo ? 'Mudo' : 'Microfone'}
+        <Button
+          variant="ghost"
+          aria-pressed={temMicrofone ? mudo : undefined}
+          aria-disabled={temMicrofone ? undefined : 'true'}
+          title={temMicrofone ? undefined : 'Sem microfone: o navegador não liberou ou não há um neste aparelho'}
+          onClick={temMicrofone ? alternarMudo : undefined}
+          icon={mudo ? <MicOff size={16} aria-hidden="true" /> : <Mic size={16} aria-hidden="true" />}
+          className="min-h-11"
+        >
+          {temMicrofone ? (mudo ? 'Microfone mudo' : 'Microfone') : 'Sem microfone'}
         </Button>
         <Button
           variant="ghost"
-          aria-pressed={semVideo}
-          onClick={alternarVideo}
+          aria-pressed={temCamera ? semVideo : undefined}
+          aria-disabled={temCamera ? undefined : 'true'}
+          title={temCamera ? undefined : 'Sem câmera: o navegador não liberou ou não há uma neste aparelho'}
+          onClick={temCamera ? alternarVideo : undefined}
           icon={semVideo ? <VideoOff size={16} aria-hidden="true" /> : <Video size={16} aria-hidden="true" />}
           className="min-h-11"
         >
-          {semVideo ? 'Câmera desligada' : 'Câmera'}
+          {temCamera ? (semVideo ? 'Câmera desligada' : 'Câmera') : 'Sem câmera'}
         </Button>
         <Button variant="danger" onClick={sairDaSala} className="min-h-11">
           Sair da sala

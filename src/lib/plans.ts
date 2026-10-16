@@ -63,7 +63,7 @@ export function formatPrice(value: number): string {
 export const PLANS: Plan[] = [
   {
     id: 'Free Trial',
-    name: 'Plano Gratuito',
+    name: 'Teste grátis',
     priceMonthly: 0,
     priceAnnual: 0,
     badge: 'Teste sem compromisso',
@@ -72,8 +72,8 @@ export const PLANS: Plan[] = [
     features: [
       'Acesso completo ao estúdio de transmissão',
       '30 dias de teste gratuito',
-      'Até 3 participantes simultâneos',
-      'Transmissão para até 2 destinos'
+      'Até 3 pessoas na tela',
+      'Transmissão para até 2 canais ao mesmo tempo'
     ],
     popular: false,
     destinosSimultaneos: 2,
@@ -91,14 +91,12 @@ export const PLANS: Plan[] = [
     description: 'Para criadores e streamers independentes que buscam consistência.',
     features: [
       'Transmissão simultânea para 3 canais',
-      'Destinos RTMP personalizados',
+      'Canais RTMP próprios',
       'Compartilhamento de tela',
       'Sem marca d\'água da plataforma',
       'Logos, fontes e gráficos personalizados',
-      '3 horas da transmissão ao vivo',
-      'Até 6 participantes na tela ao vivo',
-      'Qualidade máxima 720p',
-      'Transmissão em formato Paisagem + Retrato',
+      '3 horas de transmissão ao vivo por mês',
+      'Até 6 pessoas na tela',
       'Teleprompter'
     ],
     popular: false,
@@ -117,16 +115,14 @@ export const PLANS: Plan[] = [
     description: 'Melhor custo-benefício para profissionais e estúdios de gravação.',
     features: [
       'Transmissão simultânea para 5 canais',
-      'Destinos RTMP personalizados',
+      'Canais RTMP próprios',
       'Compartilhamento de tela',
       'Sem marca d\'água da plataforma',
       'Logos, fontes e gráficos personalizados',
-      '6 horas da transmissão ao vivo',
-      'Até 8 participantes na tela ao vivo',
+      '6 horas de transmissão ao vivo por mês',
+      'Até 8 pessoas na tela',
       'Qualidade máxima Full HD 1080p',
-      'Transmissão em formato Paisagem + Retrato',
-      'Teleprompter',
-      'Fluxo incorporado'
+      'Teleprompter'
     ],
     popular: true,
     destinosSimultaneos: 5,
@@ -144,18 +140,15 @@ export const PLANS: Plan[] = [
     description: 'Para agências, marcas de renome e grandes empresas.',
     features: [
       'Transmissão simultânea para 8 canais',
-      'Destinos RTMP personalizados',
+      'Canais RTMP próprios',
       'Compartilhamento de tela',
       'Sem marca d\'água da plataforma',
       'Logos, fontes e gráficos personalizados',
-      '10 horas da transmissão ao vivo',
-      'Até 12 participantes na tela ao vivo',
+      '10 horas de transmissão ao vivo por mês',
+      'Até 12 pessoas na tela',
       'Qualidade máxima Full HD 1080p',
-      'Transmissão em formato Paisagem + Retrato',
       'Teleprompter',
-      'Vendas ao vivo',
-      'Fluxo incorporado',
-      'Múltiplas câmeras'
+      'Vendas ao vivo'
     ],
     popular: false,
     destinosSimultaneos: 8,

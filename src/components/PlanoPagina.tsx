@@ -8,13 +8,13 @@ interface PlanoPaginaProps {
 }
 
 /** O que acontece sem plano: vale para o teste que acabou e para o que vai acabar. */
-const SEM_PLANO = 'o estúdio continua abrindo para montar cenas, mas só transmite e grava com um plano.';
+const SEM_PLANO = 'o estúdio continua abrindo para montar cenas e gravar neste computador, mas só entra ao vivo com um plano.';
 
 // Só o que a página não diz em outro lugar: cada fato aparece uma vez.
 const PERGUNTAS = [
   {
     pergunta: 'O que muda de um plano para outro?',
-    resposta: 'Principalmente quantos canais recebem a live ao mesmo tempo, quantas pessoas cabem na tela e o tempo de transmissão. O Business soma vendas ao vivo e múltiplas câmeras. Abra um plano na lista para ver tudo o que ele inclui.',
+    resposta: 'Principalmente quantos canais recebem a live ao mesmo tempo, quantas pessoas cabem na tela e o tempo de transmissão. Abra um plano na lista para ver tudo o que ele inclui.',
   },
   {
     pergunta: 'Onde ficam as faturas?',
