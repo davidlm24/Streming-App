@@ -184,7 +184,7 @@ export function IconesDeCena({ cenas, idDoPrograma, idDoPreview, temTela, aoVivo
                 title={estado ? `${cena.nome} · ${estado}` : cena.nome}
                 className={`relative flex h-11 w-14 items-center justify-center rounded-xl transition-colors duration-150 cursor-pointer ${
                   noPreview
-                    ? 'bg-[var(--raise)] text-[var(--ink-hi)] shadow-[var(--shadow-ctl)]'
+                    ? 'bg-[var(--sel)] text-[var(--sel-ink)] shadow-[var(--shadow-ctl)]'
                     : 'text-[var(--ink-lo)] hover:bg-[var(--panel)] hover:text-[var(--ink)]'
                 } ${semTela ? 'opacity-60' : ''}`}
               >

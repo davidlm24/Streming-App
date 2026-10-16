@@ -13,6 +13,8 @@ import { Button } from './ui/Button';
 interface TrilhoDaSalaProps {
   /** A câmera de quem opera, para o tile "Você". */
   localStream: MediaStream | null;
+  /** O nome de quem opera: a inicial fica no tile quando a câmera não mostra ninguém. */
+  nome: string;
   cameraDesligada: boolean;
   mudo: boolean;
   pessoas: PessoaDaSala[];
@@ -50,6 +52,7 @@ function Miniatura({ stream, semVideo, inicial }: { stream: MediaStream | null; 
 
 export function TrilhoDaSala({
   localStream,
+  nome,
   cameraDesligada,
   mudo,
   pessoas,
@@ -68,7 +71,7 @@ export function TrilhoDaSala({
 
       {/* Quem opera abre a fila: a câmera dele está sempre nas cenas */}
       <div>
-        <Miniatura stream={localStream} semVideo={cameraDesligada} inicial="V" />
+        <Miniatura stream={localStream} semVideo={cameraDesligada} inicial={nome.charAt(0).toUpperCase() || 'V'} />
         <p className="mt-1 flex items-center gap-1 text-xs text-[var(--ink)]">
           <span className="truncate">Você</span>
           {mudo && <MicOff size={12} aria-label="mudo" className="shrink-0 text-[var(--ink-lo)]" />}
@@ -97,7 +100,7 @@ export function TrilhoDaSala({
                         : `Pôr ${p.nome} no palco (entra nas cenas com convidados)`
                   }
                   className={`relative block w-full rounded-xl p-1 text-left transition-colors duration-150 ${
-                    estaNoPalco ? 'bg-[var(--raise)] shadow-[var(--shadow-ctl)]' : 'hover:bg-[var(--panel)]'
+                    estaNoPalco ? 'bg-[var(--sel)] shadow-[var(--shadow-ctl)]' : 'hover:bg-[var(--panel)]'
                   } ${semLugar ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
                 >
                   <Miniatura stream={p.camera} semVideo={!!p.semVideo} inicial={p.nome.charAt(0).toUpperCase()} />
@@ -105,7 +108,7 @@ export function TrilhoDaSala({
                     <span className="truncate">{p.nome}</span>
                     {p.mudo && <MicOff size={12} aria-label="mudo" className="shrink-0 text-[var(--ink-lo)]" />}
                   </span>
-                  <span className="block text-xs text-[var(--ink-lo)]">{estaNoPalco ? 'No palco' : 'Na conversa'}</span>
+                  <span className={`block text-xs ${estaNoPalco ? 'text-[var(--sel-ink)]' : 'text-[var(--ink-lo)]'}`}>{estaNoPalco ? 'No palco' : 'Na conversa'}</span>
                 </button>
               </li>
             );

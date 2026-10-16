@@ -1,7 +1,9 @@
 {
   "detector": {
     "ignoreRules": [],
-    "ignoreFiles": [],
+    "ignoreFiles": [
+      "mockups/**"
+    ],
     "ignoreValues": [
       {
         "rule": "gradient-text",

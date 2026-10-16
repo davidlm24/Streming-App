@@ -63,11 +63,11 @@ function useDispositivos(stream: MediaStream | null) {
 }
 
 // Os controles da pílula flutuante: círculos de 44px só com o ícone (a
-// palavra vai no title e no leitor de tela). Sobre o fundo elevado da
-// pílula, ligado sobe MAIS um degrau na rampa e ganha a sombra de controle —
-// a altura diz o estado junto do ícone; desligado fica na tinta apagada.
+// palavra vai no title e no leitor de tela). Ligado veste a marca da
+// seleção (fundo --sel, ícone --sel-ink) com a sombra de controle — a cor e
+// a altura dizem o estado junto do ícone; desligado fica na tinta apagada.
 const CONTROLE =
-  'min-h-11 w-11 justify-center rounded-full px-0 border-transparent bg-transparent text-[var(--ink-lo)] shadow-none hover:bg-[var(--line)] hover:text-[var(--ink-hi)] aria-pressed:bg-[var(--line-ctl)] aria-pressed:text-[var(--ink-hi)] aria-pressed:shadow-[var(--shadow-ctl)]';
+  'min-h-11 w-11 justify-center rounded-full px-0 border-transparent bg-transparent text-[var(--ink-lo)] shadow-none hover:bg-[var(--line)] hover:text-[var(--ink-hi)] aria-pressed:bg-[var(--sel)] aria-pressed:text-[var(--sel-ink)] aria-pressed:shadow-[var(--shadow-ctl)]';
 
 /** A palavra do controle: para o leitor de tela (o olho tem o ícone, o estado e o title). */
 const Palavra = ({ children }: { children: ReactNode }) => <span className="sr-only">{children}</span>;

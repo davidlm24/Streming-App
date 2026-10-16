@@ -1318,6 +1318,7 @@ export function Estudio({
         {/* O trilho da esquerda, como nas referências — só que de gente, não de cenas */}
         <TrilhoDaSala
           localStream={localStream}
+          nome={nome}
           cameraDesligada={cameraDesligada}
           mudo={mudo}
           pessoas={pessoasDaSala}
