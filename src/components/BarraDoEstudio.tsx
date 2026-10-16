@@ -1,5 +1,5 @@
 import { useEffect, useId, useState, type ReactNode, type Ref } from 'react';
-import { Check, ChevronDown, Radio } from 'lucide-react';
+import { ChevronDown, Radio } from 'lucide-react';
 import { formatarTempo } from '../lib/graficos';
 import { PwStreamLogo } from './PwStreamLogo';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
@@ -97,16 +97,10 @@ export function BarraDoEstudio({
   const toast = useToast();
   const idDoMotivo = useId();
   // O menu da saída: o que o programa composto entrega, e como se opera o corte
-  const marcado = <Check size={14} aria-hidden="true" className="text-[var(--sel-ink)]" />;
-  const vazio = <span aria-hidden="true" className="inline-block size-3.5" />;
   const itensDaSaida: ItemDeMenu[] = [
-    { rotulo: 'Saída em 720p (HD)', icone: resolucao === '720p' ? marcado : vazio, onSelect: () => onResolucao('720p') },
-    { rotulo: 'Saída em 1080p (Full HD)', icone: resolucao === '1080p' ? marcado : vazio, onSelect: () => onResolucao('1080p') },
-    {
-      rotulo: 'Mesa de corte (preview e Corte/Fusão)',
-      icone: mesaDeCorte ? marcado : vazio,
-      onSelect: () => onMesaDeCorte(!mesaDeCorte),
-    },
+    { rotulo: 'Saída em 720p (HD)', tipo: 'radio', marcado: resolucao === '720p', onSelect: () => onResolucao('720p') },
+    { rotulo: 'Saída em 1080p (Full HD)', tipo: 'radio', marcado: resolucao === '1080p', onSelect: () => onResolucao('1080p') },
+    { rotulo: 'Mesa de corte (preview e Corte/Fusão)', tipo: 'checkbox', marcado: mesaDeCorte, onSelect: () => onMesaDeCorte(!mesaDeCorte) },
   ];
   const canais =
     canaisLigados === 0
@@ -124,8 +118,24 @@ export function BarraDoEstudio({
         : 'Conectando aos canais…'
     : '';
 
+  // O que o leitor de tela ouve: só quando a fase muda (o tempo no ar não entra)
+  const faseFalada =
+    transmissao.fase === 'entrando'
+      ? 'Entrando ao vivo…'
+      : transmissao.fase === 'encerrando'
+        ? 'Encerrando a transmissão…'
+        : noAr
+          ? acesa
+            ? `Ao vivo: ${canaisNoAr}.`
+            : canaisNoAr
+          : '';
+
   return (
     <>
+      {/* Montada sempre (uma região que nasce com o texto dentro pode não ser anunciada), em qualquer largura */}
+      <p role="status" className="sr-only">
+        {faseFalada}
+      </p>
       <header className="flex h-12 shrink-0 items-center gap-4 border-b border-[var(--line)] bg-[var(--surface)] px-3 sm:px-4">
         <button
           type="button"
@@ -159,7 +169,7 @@ export function BarraDoEstudio({
 
         <div className="ml-auto flex shrink-0 items-center gap-4">
           <Menu
-            rotulo="Saída do programa"
+            rotulo={`Saída do programa: ${resolucao}${gravando ? ', gravando' : ''}${mesaDeCorte ? ', mesa de corte ligada' : ''}`}
             itens={itensDaSaida}
             alinhar="direita"
             classeDoGatilho="hidden min-h-11 items-center gap-1.5 rounded-xl px-2 transition-colors duration-150 hover:bg-[var(--panel)] cursor-pointer sm:inline-flex"
@@ -174,7 +184,7 @@ export function BarraDoEstudio({
             }
           />
           {noAr ? (
-            <span className="hidden items-center gap-3 text-xs text-[var(--ink-hi)] md:inline-flex" role="status">
+            <span className="hidden items-center gap-3 text-xs text-[var(--ink-hi)] md:inline-flex">
               {acesa && <SeloDoAr />}
               {acesa && <TempoNoAr inicioEm={noAr.inicioEm} />}
               <AcaoDeTexto tamanho="xs" onClick={onCanais} className="min-h-11">

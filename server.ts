@@ -456,7 +456,7 @@ Retorne estritamente um JSON estruturado com:
     // tempo são os do plano (a tela já limita; aqui é o que vale para um POST direto)
     const conta = await ensureServerManagedProfile(req.user!);
     if (conta.isExpired) {
-      return res.status(403).json({ error: 'O teste grátis ou a assinatura acabou. Escolha um plano para entrar ao vivo.' });
+      return res.status(403).json({ error: 'Sua conta está sem um plano ativo para entrar ao vivo. O estúdio continua ensaiando e gravando neste computador.' });
     }
     const limite = limiteDeCanaisLigados(conta.plan);
     if (destinos.length > limite) {

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Check, CircleAlert, Minus } from 'lucide-react';
-import { fraseDaCamera, type LeituraDaCaptura } from '../lib/captura';
+import { fraseDaCamera, fraseDaFalha, type FalhaDoAparelho, type LeituraDaCaptura } from '../lib/captura';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 
 /** Pronto, pede atenção ou opcional — por ícone e palavra, nunca só por cor. */
@@ -66,6 +66,11 @@ export function PainelPreparo({
   onCanais,
   onAbrir,
   mesaDeCorte,
+  falhaDaCamera,
+  falhaDoMicrofone,
+  onTentarDeNovo,
+  tentando,
+  esperando,
 }: {
   camera: LeituraDaCaptura['camera'];
   cameraDesligada: boolean;
@@ -87,8 +92,19 @@ export function PainelPreparo({
   onAbrir: (ferramenta: 'camera' | 'audio') => void;
   /** A mesa de corte (preview + Corte/Fusão) ligada — muda a explicação do fim. */
   mesaDeCorte: boolean;
+  /** Por que cada aparelho não veio, quando não veio. */
+  falhaDaCamera: FalhaDoAparelho | null;
+  falhaDoMicrofone: FalhaDoAparelho | null;
+  /** Pede câmera e microfone de novo, sem sair do estúdio. */
+  onTentarDeNovo: () => void;
+  tentando: boolean;
+  /** O navegador ainda mostra o pedido de permissão: nada falhou ainda. */
+  esperando: boolean;
 }) {
-  const semPermissao = 'O navegador não liberou. Permita no cadeado da barra de endereço e entre de novo no estúdio.';
+  // O aparelho que não veio diz por quê, e o conserto é aqui mesmo, sem sair do estúdio
+  const tentar = { rotulo: tentando ? 'Tentando…' : 'Tentar de novo', onClick: onTentarDeNovo };
+  const faltaACamera = fraseDaFalha('camera', falhaDaCamera ?? 'outro');
+  const faltaOMicrofone = fraseDaFalha('microfone', falhaDoMicrofone ?? 'outro');
   const faltamCanais = canaisLigados - canaisProntos;
 
   return (
@@ -100,8 +116,10 @@ export function PainelPreparo({
         <ul className="mt-1 divide-y divide-[var(--line)]">
           <Item
             titulo="Câmera"
-            {...(!camera
-              ? { situacao: 'atencao' as const, frase: semPermissao }
+            {...(!camera && esperando
+              ? { situacao: 'opcional' as const, frase: 'Esperando o navegador liberar a câmera.' }
+              : !camera
+              ? { situacao: 'atencao' as const, frase: faltaACamera, acao: tentar }
               : cameraDesligada
                 ? { situacao: 'atencao' as const, frase: 'Desligada: o programa mostra o seu nome no lugar da imagem.', acao: { rotulo: 'Ligar', onClick: onLigarCamera } }
                 : {
@@ -112,8 +130,10 @@ export function PainelPreparo({
           />
           <Item
             titulo="Microfone"
-            {...(!microfone
-              ? { situacao: 'atencao' as const, frase: semPermissao }
+            {...(!microfone && esperando
+              ? { situacao: 'opcional' as const, frase: 'Esperando o navegador liberar o microfone.' }
+              : !microfone
+              ? { situacao: 'atencao' as const, frase: faltaOMicrofone, acao: tentar }
               : mudo
                 ? { situacao: 'atencao' as const, frase: 'Mudo: nada do seu som entra no programa.', acao: { rotulo: 'Ligar', onClick: onLigarMicrofone } }
                 : { situacao: 'ok' as const, frase: microfone.nome || 'Microfone sem nome', acao: { rotulo: 'Ajustar', onClick: () => onAbrir('audio') } })}
@@ -150,7 +170,11 @@ export function PainelPreparo({
               ? { situacao: 'ok' as const, frase: 'No ar. "Encerrar transmissão", no alto, tira o programa dos canais.' }
               : impedimento
                 ? { situacao: 'atencao' as const, frase: `${impedimento} Até lá, o estúdio ensaia e grava neste computador.` }
-                : { situacao: 'ok' as const, frase: 'Pronta. "Entrar ao vivo", no alto, leva o programa aos canais prontos.' })}
+                : !microfone
+                  ? { situacao: 'atencao' as const, frase: 'Os canais estão prontos, mas sem microfone o público não vai ouvir você.' }
+                  : !camera
+                    ? { situacao: 'atencao' as const, frase: 'Os canais estão prontos, mas sem câmera o público vê só o seu nome.' }
+                    : { situacao: 'ok' as const, frase: 'Pronta. "Entrar ao vivo", no alto, leva o programa aos canais prontos.' })}
           />
         </ul>
       </section>

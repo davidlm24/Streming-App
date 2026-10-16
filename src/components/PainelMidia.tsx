@@ -3,7 +3,7 @@ import { Film } from 'lucide-react';
 import type { ClipeNoPalco } from '../types';
 import type { SituacaoDoClipe } from '../lib/playerDoClipe';
 import { fraseDaFalhaDoEnvio, useMidiaDoEstudio, type ItemDeMidia } from '../context/MidiaDoEstudio';
-import { useDestinoDoPalco } from '../context/ModoDaMesa';
+import { useDestinoDoPalco, useModoDireto } from '../context/ModoDaMesa';
 import { FORMATOS } from '../lib/midiaDaConta';
 import { EnviarArquivo, EstadoNoPalco, FalhaNoPainel, NotaDaMidia, SecaoDoPainel } from './PecasDoPainel';
 import { Button } from './ui/Button';
@@ -64,6 +64,7 @@ export function PainelMidia({
   onClipe: (clipe: ClipeNoPalco | null) => void;
 }) {
   const destino = useDestinoDoPalco();
+  const direto = useModoDireto();
   const midia = useMidiaDoEstudio();
   const clipes = midia.itens.clipe;
   const falha = midia.falhaDoEnvio?.tipo === 'clipe' ? midia.falhaDoEnvio : null;
@@ -92,7 +93,7 @@ export function PainelMidia({
   const excluir = async (clipe: { id: string; nome: string }) => {
     const ok = await confirmar({
       title: `Excluir ${clipe.nome}?`,
-      description: 'O arquivo sai da sua conta, em todos os aparelhos. Se estiver no programa, continua lá até o próximo corte.',
+      description: `O arquivo sai da sua conta, em todos os aparelhos. Se estiver no programa, ${direto ? 'sai dele agora' : 'continua lá até o próximo corte'}.`,
       confirmLabel: 'Excluir o clipe',
       destructive: true,
     });
@@ -104,7 +105,7 @@ export function PainelMidia({
     <div className="pb-6">
       <SecaoDoPainel
         titulo="Clipes de vídeo"
-        dica="O clipe entra no lugar da tela e toca no programa a partir do corte, com o som. Trocar de cena não o recomeça: numa cena sem tela, ele pausa e continua quando a tela volta."
+        dica={`O clipe entra no lugar da tela e toca no programa ${direto ? 'na hora' : 'a partir do corte'}, com o som. Trocar de cena não o recomeça: numa cena sem tela, ele pausa e continua quando a tela volta.`}
       >
         {/* Enquanto a conta não responde, nada: dizer "nenhum" antes de saber seria mentira */}
         {midia.leitura !== 'pronta' ? null : clipes.length === 0 ? (

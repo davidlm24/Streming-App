@@ -1,5 +1,6 @@
 import { MicOff, UserPlus } from 'lucide-react';
 import type { PessoaDaSala } from '../lib/sala/malha';
+import { useModoDireto } from '../context/ModoDaMesa';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 
@@ -62,6 +63,7 @@ export function TrilhoDaSala({
   onConvidar,
   onAbrirSala,
 }: TrilhoDaSalaProps) {
+  const direto = useModoDireto();
   const lugares = Math.max(0, limiteDePessoas - 1 - noPalco.length);
   return (
     <aside aria-label="Pessoas na chamada" className="hidden w-36 min-h-0 shrink-0 flex-col gap-3 overflow-y-auto border-r border-[var(--line)] bg-[var(--surface)] p-2.5 lg:flex">
@@ -96,8 +98,10 @@ export function TrilhoDaSala({
                     semLugar
                       ? `O palco está cheio: o plano põe até ${limiteDePessoas} pessoas na tela, contando você.`
                       : estaNoPalco
-                        ? `${p.nome} está no palco — clique para tirar`
-                        : `Pôr ${p.nome} no palco (entra nas cenas com convidados)`
+                        ? `${p.nome} está no palco, clique para tirar${direto ? ' (sai do programa na hora)' : ''}`
+                        : direto
+                          ? `Pôr ${p.nome} no programa agora (a cena muda para a Grade)`
+                          : `Pôr ${p.nome} no palco (entra na Grade, no preview)`
                   }
                   className={`relative block w-full rounded-xl p-1 text-left transition-colors duration-150 ${
                     estaNoPalco ? 'bg-[var(--sel)] shadow-[var(--shadow-ctl)]' : 'hover:bg-[var(--panel)]'

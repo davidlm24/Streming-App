@@ -1,5 +1,6 @@
 import { CircleAlert } from 'lucide-react';
 import { CENA_GRADE, precisaDaTela, type Cena } from '../lib/cenas';
+import { useModoDireto } from '../context/ModoDaMesa';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Button } from './ui/Button';
 
@@ -164,6 +165,7 @@ interface IconesDeCenaProps {
  * do console.
  */
 export function IconesDeCena({ cenas, idDoPrograma, idDoPreview, temTela, aoVivo, onEscolher }: IconesDeCenaProps) {
+  const direto = useModoDireto();
   return (
     <section aria-label="Cenas">
       <ul className="flex flex-wrap items-center gap-1.5">
@@ -171,7 +173,7 @@ export function IconesDeCena({ cenas, idDoPrograma, idDoPreview, temTela, aoVivo
           const noPreview = cena.id === idDoPreview;
           const noPrograma = cena.id === idDoPrograma;
           const semTela = precisaDaTela(cena) && !temTela;
-          const estado = [noPrograma && 'no programa', noPreview && 'no preview', semTela && 'sem tela compartilhada']
+          const estado = [noPrograma && 'no programa', noPreview && !direto && 'no preview', semTela && 'sem tela compartilhada']
             .filter(Boolean)
             .join(', ');
           return (
