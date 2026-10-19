@@ -1,5 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { MoreHorizontal } from 'lucide-react';
+import { Check, MoreHorizontal } from 'lucide-react';
 
 export interface ItemDeMenu {
   rotulo: string;
@@ -7,6 +7,14 @@ export interface ItemDeMenu {
   icone?: ReactNode;
   /** Ação destrutiva (remover, excluir): texto no tom de alarme. */
   perigo?: boolean;
+  /**
+   * Uma escolha, e não uma ação: `radio` (uma de várias, como a resolução) ou
+   * `checkbox` (liga/desliga, como a mesa de corte). O item anuncia o papel e
+   * `aria-checked`, e o ✓ é desenhado aqui — antes ele morava num ícone
+   * escondido do leitor de tela, que não sabia o que estava marcado.
+   */
+  tipo?: 'radio' | 'checkbox';
+  marcado?: boolean;
 }
 
 interface MenuProps {
@@ -107,14 +115,21 @@ export function Menu({ rotulo, itens, gatilho, classeDoGatilho, cabecalho, lado 
               key={item.rotulo}
               ref={(el) => { itensRef.current[i] = el; }}
               type="button"
-              role="menuitem"
+              role={item.tipo === 'radio' ? 'menuitemradio' : item.tipo === 'checkbox' ? 'menuitemcheckbox' : 'menuitem'}
+              aria-checked={item.tipo ? !!item.marcado : undefined}
               tabIndex={-1}
               onClick={() => { fechar(); item.onSelect(); }}
               className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition-colors duration-150 cursor-pointer hover:bg-[var(--panel)] focus-visible:bg-[var(--panel)] ${
                 item.perigo ? 'text-[var(--sig-texto)]' : 'text-[var(--ink)] hover:text-[var(--ink-hi)]'
               }`}
             >
-              {item.icone && <span aria-hidden="true" className="shrink-0 text-[var(--ink-lo)]">{item.icone}</span>}
+              {item.tipo ? (
+                <span aria-hidden="true" className="inline-flex size-3.5 shrink-0 text-[var(--sel-ink)]">
+                  {item.marcado && <Check size={14} />}
+                </span>
+              ) : (
+                item.icone && <span aria-hidden="true" className="shrink-0 text-[var(--ink-lo)]">{item.icone}</span>
+              )}
               {item.rotulo}
             </button>
           ))}

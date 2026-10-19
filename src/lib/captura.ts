@@ -88,3 +88,81 @@ export function fraseDaCamera(camera: LeituraDaCaptura['camera']): string | null
   const quadros = camera.quadros ? ` a ${Math.round(camera.quadros)} quadros por segundo` : '';
   return `${camera.largura} × ${camera.altura}${quadros}`;
 }
+
+// ── Pedir os aparelhos sem perder um pelo outro ─────────────────────────────
+// Um pedido de vídeo e áudio juntos falha inteiro se UM dos dois falha: quem
+// não tem webcam (ou a deixou presa em outro programa) ficava também sem
+// microfone. Aqui, se o par falha, cada aparelho é pedido sozinho, e cada
+// falha guarda o motivo, para a frase dizer o conserto certo.
+
+/** Por que um aparelho não veio. */
+export type FalhaDoAparelho = 'negado' | 'ausente' | 'ocupado' | 'sem-suporte' | 'outro';
+
+export function motivoDaFalha(erro: unknown): FalhaDoAparelho {
+  const nome = erro instanceof Error || (typeof erro === 'object' && erro !== null && 'name' in erro) ? String((erro as { name: unknown }).name) : '';
+  if (nome === 'NotAllowedError' || nome === 'SecurityError' || nome === 'PermissionDeniedError') return 'negado';
+  if (nome === 'NotFoundError' || nome === 'OverconstrainedError' || nome === 'DevicesNotFoundError') return 'ausente';
+  if (nome === 'NotReadableError' || nome === 'AbortError' || nome === 'TrackStartError') return 'ocupado';
+  return 'outro';
+}
+
+/** A frase de cada falha, com o conserto. */
+export function fraseDaFalha(aparelho: 'camera' | 'microfone' | 'os-dois', falha: FalhaDoAparelho): string {
+  const o = { camera: 'a câmera', microfone: 'o microfone', 'os-dois': 'a câmera e o microfone' }[aparelho];
+  const O = o.charAt(0).toUpperCase() + o.slice(1);
+  const plural = aparelho === 'os-dois';
+  switch (falha) {
+    case 'negado':
+      return `O navegador não liberou ${o}. Permita no cadeado da barra de endereço e tente de novo.`;
+    case 'ausente':
+      return { camera: 'Nenhuma câmera encontrada neste aparelho.', microfone: 'Nenhum microfone encontrado neste aparelho.', 'os-dois': 'Nenhuma câmera nem microfone encontrados neste aparelho.' }[aparelho];
+    case 'ocupado':
+      return `${O} ${plural ? 'estão' : 'está'} em uso por outro programa. Feche o programa e tente de novo.`;
+    case 'sem-suporte':
+      return 'Este navegador não dá acesso a câmera e microfone. Abra o link no Chrome ou no Safari.';
+    default:
+      return `${O} não ${plural ? 'responderam' : 'respondeu'}. Tente de novo.`;
+  }
+}
+
+export interface CapturaPedida {
+  /** O que veio: as duas trilhas, uma só, ou null. */
+  stream: MediaStream | null;
+  falhaDaCamera: FalhaDoAparelho | null;
+  falhaDoMicrofone: FalhaDoAparelho | null;
+}
+
+/**
+ * Pede câmera e microfone; se o par falhar, pede cada um sozinho e junta o
+ * que vier. Sem `mediaDevices` (navegador de dentro de app, página sem
+ * HTTPS), devolve as duas falhas como 'sem-suporte' em vez de nunca voltar.
+ */
+export async function pedirCaptura(
+  video: MediaTrackConstraints | boolean,
+  audio: MediaTrackConstraints | boolean,
+  aparelhos: Pick<MediaDevices, 'getUserMedia'> | undefined = typeof navigator !== 'undefined' ? navigator.mediaDevices : undefined,
+): Promise<CapturaPedida> {
+  if (!aparelhos?.getUserMedia) return { stream: null, falhaDaCamera: 'sem-suporte', falhaDoMicrofone: 'sem-suporte' };
+  try {
+    const stream = await aparelhos.getUserMedia({ video, audio });
+    return { stream, falhaDaCamera: null, falhaDoMicrofone: null };
+  } catch {
+    // Cada um sozinho: um aparelho que falha não leva o outro junto
+  }
+  const um = async (pedido: MediaStreamConstraints) => {
+    try {
+      return { trilhas: (await aparelhos.getUserMedia(pedido)).getTracks(), falha: null };
+    } catch (erro) {
+      return { trilhas: [] as MediaStreamTrack[], falha: motivoDaFalha(erro) };
+    }
+  };
+  const nada = { trilhas: [] as MediaStreamTrack[], falha: null };
+  const so = audio ? await um({ audio }) : nada;
+  const sv = video ? await um({ video }) : nada;
+  const trilhas = [...sv.trilhas, ...so.trilhas];
+  return {
+    stream: trilhas.length ? new MediaStream(trilhas) : null,
+    falhaDaCamera: sv.falha,
+    falhaDoMicrofone: so.falha,
+  };
+}

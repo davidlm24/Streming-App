@@ -3,6 +3,7 @@ import type { GeometriaDoCard } from '../types';
 import { CARD_PADRAO, cantoDoCard, dentroDoPalco, lugarDoCanto } from '../lib/cenas';
 import { AJUSTES_PADRAO, ZOOM_MAXIMO, ZOOM_MINIMO, deslocamentoMaximo, dentroDoQuadro, type AjustesDaCamera } from '../lib/camera';
 import { fraseDaCamera, type AjustesDaCaptura, type LeituraDaCaptura, type QuadrosPorSegundo, type Resolucao } from '../lib/captura';
+import { useModoDireto } from '../context/ModoDaMesa';
 import { Deslizante, EscolhaDoPainel, SecaoAvancada, SecaoDoPainel, SeletorDeCanto } from './PecasDoPainel';
 import { AcaoDeTexto } from './ui/AcaoDeTexto';
 import { Segmentado } from './ui/Segmentado';
@@ -64,6 +65,7 @@ export function PainelCamera({
   camera: LeituraDaCaptura['camera'];
   aplicando: boolean;
 }) {
+  const direto = useModoDireto();
   const limite = deslocamentoMaximo(ajustes.zoom);
   // Sempre a partir do estado atual: dois ajustes no mesmo quadro não se desfazem
   const mudar = (parcial: Partial<AjustesDaCamera>) => onAjustes((atual) => dentroDoQuadro({ ...atual, ...parcial }));
@@ -79,7 +81,9 @@ export function PainelCamera({
         titulo="Card da câmera"
         dica={
           cenaTemCard
-            ? 'Arraste o card no preview ou ajuste aqui. O corte leva ao programa.'
+            ? direto
+              ? 'Ajuste o card aqui: ele muda no programa na hora.'
+              : 'Arraste o card no preview ou ajuste aqui. O corte leva ao programa.'
             : 'O card aparece na cena Tela com câmera.'
         }
         acao={
@@ -118,7 +122,7 @@ export function PainelCamera({
 
       <SecaoDoPainel
         titulo="Enquadramento"
-        dica="Vale no preview e no programa na hora, sem esperar o corte, como a própria câmera."
+        dica={direto ? 'Vale no programa na hora, como a própria câmera.' : 'Vale no preview e no programa na hora, sem esperar o corte, como a própria câmera.'}
         acao={
           (ajustes.zoom !== 1 || ajustes.x !== 0 || ajustes.y !== 0) && (
             <AcaoDeTexto tamanho="xs" onClick={() => mudar({ zoom: 1, x: 0, y: 0 })}>
@@ -159,7 +163,7 @@ export function PainelCamera({
 
       <SecaoDoPainel
         titulo="Espelhar a câmera"
-        dica="Vira a imagem no preview e no programa na hora: o público também vê espelhado, e os textos atrás de você ficam ao contrário."
+        dica={`Vira a imagem ${direto ? 'no programa' : 'no preview e no programa'} na hora: o público também vê espelhado, e os textos atrás de você ficam ao contrário.`}
         acao={<Switch rotulo="Espelhar a câmera" checked={ajustes.espelhar} onChange={(espelhar) => mudar({ espelhar })} />}
       />
 
@@ -204,7 +208,7 @@ export function PainelCamera({
 
         <SecaoDoPainel
           titulo="Croma"
-          dica="Tira o fundo verde ou azul atrás de você e mostra no lugar o fundo escolhido em Gráficos, ou o palco escuro. Vale no preview e no programa na hora, como o enquadramento."
+          dica={`Tira o fundo verde ou azul atrás de você e mostra no lugar o fundo escolhido em Gráficos, ou o palco escuro. Vale ${direto ? 'no programa' : 'no preview e no programa'} na hora, como o enquadramento.`}
           acao={<Switch rotulo="Ligar o croma" checked={ajustes.croma.ligado} onChange={(ligado) => mudarCroma({ ligado })} />}
         >
           {ajustes.croma.ligado && (

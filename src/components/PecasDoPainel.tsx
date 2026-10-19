@@ -116,6 +116,11 @@ export function FalhaNoPainel({ frase, onTentarDeNovo }: { frase: string; onTent
  */
 export function useSetasDoGrupo(total: number, marcada: number, escolher: (indice: number) => void, colunas = total) {
   const opcoes = useRef<(HTMLButtonElement | null)[]>([]);
+  // No modo direto, escolher é pôr no ar: a seta só move o foco, e Enter ou
+  // Espaço escolhem (seleção manual). Percorrer os logos pelo teclado no meio
+  // da live punha cada um no programa. Na mesa de corte, a escolha vai ao
+  // preview e segue a seta, como antes.
+  const direto = useModoDireto();
   const naVez = marcada >= 0 && marcada < total ? marcada : 0;
   const aoTeclar = (indice: number) => (e: KeyboardEvent<HTMLButtonElement>) => {
     let alvo: number | null = null;
@@ -129,7 +134,7 @@ export function useSetasDoGrupo(total: number, marcada: number, escolher: (indic
     e.preventDefault();
     if (alvo === null) return;
     opcoes.current[alvo]?.focus();
-    escolher(alvo);
+    if (!direto) escolher(alvo);
   };
   return (indice: number) => ({
     ref: (el: HTMLButtonElement | null) => {
@@ -139,6 +144,48 @@ export function useSetasDoGrupo(total: number, marcada: number, escolher: (indic
     onKeyDown: aoTeclar(indice),
   });
 }
+
+/**
+ * Um campo de texto que vai ao ar. Na mesa de corte o texto vai ao preview a
+ * cada tecla, como sempre; no modo direto ele iria ao PROGRAMA a cada tecla —
+ * um link pela metade virava um QR code público errado. Ali o campo guarda o
+ * rascunho e aplica no Enter ou ao sair dele; Esc desfaz. `pendente` diz que
+ * há texto que ainda não foi.
+ */
+export function useCampoNoAr(valor: string, aplicar: (texto: string) => void) {
+  const direto = useModoDireto();
+  const [rascunho, setRascunho] = useState<string | null>(null);
+  const confirmar = () => {
+    if (rascunho !== null && rascunho !== valor) aplicar(rascunho);
+    setRascunho(null);
+  };
+  if (!direto) return { value: valor, onChange: (e: { target: { value: string } }) => aplicar(e.target.value), pendente: false, texto: valor };
+  const texto = rascunho ?? valor;
+  return {
+    value: texto,
+    onChange: (e: { target: { value: string } }) => setRascunho(e.target.value),
+    // Trocar de aba ou de janela também tira o foco do campo: isso não é sair
+    // dele, e o rascunho pela metade não vai ao ar. Ele fica até a volta.
+    onBlur: () => {
+      if (typeof document !== 'undefined' && !document.hasFocus()) return;
+      confirmar();
+    },
+    onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        confirmar();
+      } else if (e.key === 'Escape' && rascunho !== null) {
+        e.stopPropagation();
+        setRascunho(null);
+      }
+    },
+    pendente: rascunho !== null && rascunho !== valor,
+    texto,
+  };
+}
+
+/** A dica de um campo no ar com rascunho pendente. */
+export const DICA_DO_RASCUNHO = 'Enter, ou sair do campo, leva ao programa. Esc desfaz.';
 
 /** Uma escolha com o nome em cima: numa coluna estreita, nome e controle lado a lado não cabem. */
 export function EscolhaDoPainel({ rotulo, children }: { rotulo: string; children: ReactNode }) {

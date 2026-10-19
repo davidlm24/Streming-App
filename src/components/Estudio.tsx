@@ -27,7 +27,7 @@ import { baixarGravacao, comecarGravacao, type GravacaoEmCurso } from '../lib/pa
 import { PainelAudio } from './PainelAudio';
 import { SecaoDaApresentacao } from './SecaoDaApresentacao';
 import { useApresentacao } from '../lib/useApresentacao';
-import { CAPTURA_PADRAO, capturaValida, lerCaptura, restricoesDeAudio, restricoesDeVideo, type AjustesDaCaptura } from '../lib/captura';
+import { CAPTURA_PADRAO, capturaValida, lerCaptura, pedirCaptura, restricoesDeAudio, restricoesDeVideo, type AjustesDaCaptura, type FalhaDoAparelho } from '../lib/captura';
 import { DivisorDeColuna } from './DivisorDeColuna';
 import { BotoesDeTransicao, DURACAO_DA_FUSAO, IconesDeCena, type BloqueioDoCorte, type Transicao } from './CenasETransicao';
 import { MesaDeMonitores, ProximoCorte } from './MonitoresDoEstudio';
@@ -254,6 +254,18 @@ export function Estudio({
   // cancela e segue com o mesmo pedido, e só a saída de verdade fecha tudo.
   const pedidoDaCaptura = useRef<Promise<MediaStream | null> | null>(null);
   const encerramento = useRef<number | null>(null);
+  // Por que cada aparelho não veio: a frase do Preparar diz o conserto certo,
+  // e a bandeja e o "Entrar ao vivo" não fingem que está tudo ligado
+  const [falhas, setFalhas] = useState<{ camera: FalhaDoAparelho | null; microfone: FalhaDoAparelho | null }>({ camera: null, microfone: null });
+  // Enquanto o navegador mostra o pedido de permissão, não há trilha nem falha:
+  // o Preparar e a bandeja dizem que estão esperando, sem oferecer "Tentar de novo"
+  const [esperandoAparelhos, setEsperandoAparelhos] = useState(true);
+  const pedirAparelhos = () =>
+    pedirCaptura(restricoesDeVideo(captura), restricoesDeAudio(captura)).then((r) => {
+      if (noEstudioRef.current) setFalhas({ camera: r.falhaDaCamera, microfone: r.falhaDoMicrofone });
+      if (r.falhaDaCamera || r.falhaDoMicrofone) console.warn('Aparelhos que não vieram:', { camera: r.falhaDaCamera, microfone: r.falhaDoMicrofone });
+      return r.stream;
+    });
   useEffect(() => {
     noEstudioRef.current = true;
     if (encerramento.current !== null) {
@@ -261,13 +273,11 @@ export function Estudio({
       encerramento.current = null;
     }
     let desta = true;
-    pedidoDaCaptura.current ??=
-      navigator.mediaDevices?.getUserMedia({ video: restricoesDeVideo(captura), audio: restricoesDeAudio(captura) }).catch((err) => {
-        console.warn('Câmera e microfone não liberados:', err);
-        return null;
-      }) ?? Promise.resolve(null);
+    pedidoDaCaptura.current ??= pedirAparelhos();
     void pedidoDaCaptura.current.then((stream) => {
-      if (desta && stream) setLocalStream(stream);
+      if (!desta) return;
+      setEsperandoAparelhos(false);
+      if (stream) setLocalStream(stream);
     });
     return () => {
       desta = false;
@@ -283,6 +293,39 @@ export function Estudio({
       }, 0);
     };
   }, []);
+
+  // Tentar de novo depois de liberar no cadeado (ou de fechar o programa que
+  // prendia a câmera): fecha o que veio e pede os dois de novo, no mesmo estúdio
+  const [tentandoAparelhos, setTentandoAparelhos] = useState(false);
+  const tentarAparelhosDeNovo = async () => {
+    if (tentandoAparelhos) return;
+    setTentandoAparelhos(true);
+    try {
+      // O pedido de quando entrou primeiro: correr junto dele deixava trilhas órfãs, acesas
+      await pedidoDaCaptura.current;
+      if (!comecarPedido()) return;
+      try {
+        const atual = streamRef.current;
+        const viva = (t: MediaStreamTrack) => t.readyState === 'live';
+        const faltaVideo = !atual?.getVideoTracks().some(viva);
+        const faltaAudio = !atual?.getAudioTracks().some(viva);
+        if (!faltaVideo && !faltaAudio) return;
+        // Só o que falta: as trilhas vivas seguem, e a voz não some no ar
+        const r = await pedirCaptura(faltaVideo ? restricoesDeVideo(captura) : false, faltaAudio ? restricoesDeAudio(captura) : false);
+        if (pedidoVencido(atual, r.stream)) return;
+        setFalhas({ camera: faltaVideo ? r.falhaDaCamera : null, microfone: faltaAudio ? r.falhaDoMicrofone : null });
+        if (!r.stream) return;
+        // Um stream novo com as vivas e as que chegaram: os monitores e a malha releem
+        const novo = new MediaStream([...(atual?.getTracks().filter(viva) ?? []), ...r.stream.getTracks()]);
+        pedidoDaCaptura.current = Promise.resolve(novo);
+        setLocalStream(novo);
+      } finally {
+        acabarPedido();
+      }
+    } finally {
+      setTentandoAparelhos(false);
+    }
+  };
 
   // Mudo e câmera desligada valem em qualquer trilha, inclusive a que chega
   // depois de um pedido em andamento: com o valor do clique, uma trilha nova
@@ -333,9 +376,13 @@ export function Estudio({
     if (!comecarPedido()) return;
     let novo: MediaStream | null = null;
     try {
+      // Só os tipos que o estúdio tem, mais o escolhido: sem webcam, pedir vídeo
+      // junto da troca de microfone falhava inteiro, e não dava para trocar
+      const comVideo = tipo === 'video' || !!stream?.getVideoTracks().length;
+      const comAudio = tipo === 'audio' || !!stream?.getAudioTracks().length;
       novo = await navigator.mediaDevices.getUserMedia({
-        video: restricoesDeVideo(captura, tipo === 'video' ? deviceId : aparelhoDe(stream?.getVideoTracks()[0])),
-        audio: restricoesDeAudio(captura, tipo === 'audio' ? deviceId : aparelhoDe(stream?.getAudioTracks()[0])),
+        video: comVideo ? restricoesDeVideo(captura, tipo === 'video' ? deviceId : aparelhoDe(stream?.getVideoTracks()[0])) : false,
+        audio: comAudio ? restricoesDeAudio(captura, tipo === 'audio' ? deviceId : aparelhoDe(stream?.getAudioTracks()[0])) : false,
       });
       if (pedidoVencido(stream, novo)) return;
       stream?.getTracks().forEach((t) => t.stop());
@@ -358,6 +405,21 @@ export function Estudio({
     if (!stream) {
       setCaptura(proxima);
       return;
+    }
+    // Trocar o processamento fecha e reabre o microfone (o Chrome exige): no ar
+    // ou gravando, a voz some por um instante — e isso se pergunta antes
+    const mudaOSom =
+      proxima.reducaoDeRuido !== anterior.reducaoDeRuido ||
+      proxima.cancelamentoDeEco !== anterior.cancelamentoDeEco ||
+      proxima.ganhoAutomatico !== anterior.ganhoAutomatico;
+    if (mudaOSom && stream.getAudioTracks()[0] && (faseDoAr !== 'parada' || gravacaoRef.current)) {
+      const ok = await confirm({
+        title: 'Mudar o som agora?',
+        description: `Para trocar o processamento, o microfone fecha e abre de novo: a sua voz some por um instante ${faseDoAr !== 'parada' ? 'na live' : 'na gravação'}.`,
+        confirmLabel: 'Mudar agora',
+        cancelLabel: 'Deixar para depois',
+      });
+      if (!ok) return;
     }
     if (!comecarPedido()) return;
     setCaptura(proxima);
@@ -866,10 +928,19 @@ export function Estudio({
   const entrarAoVivo = async () => {
     if (faseDoAr !== 'parada' || impedimento || !compositor.stream) return;
     const nomes = canaisProntos.map((c) => c.name || nomeDaPlataforma(c.platform));
+    // O que o público vai receber de errado, dito antes e não depois: entrar mudo
+    // ou sem câmera é o erro mais comum de uma primeira live
+    const faltas = [
+      !leitura.microfone ? 'Sem microfone: o público não vai ouvir você.' : mudo ? 'O microfone está mudo.' : null,
+      !leitura.camera ? 'Sem câmera: o programa mostra só o seu nome.' : null,
+    ].filter(Boolean);
     const ok = await confirm({
       title: canaisProntos.length === 1 ? `Entrar ao vivo em ${nomes[0]}?` : `Entrar ao vivo em ${canaisProntos.length} canais?`,
-      description: `O programa começa a ir para ${juntar(nomes)} assim que o servidor conectar.${direto ? '' : ' O que está no preview continua fora do ar até o corte.'}`,
-      confirmLabel: 'Entrar ao vivo',
+      description: [
+        ...faltas,
+        `O programa começa a ir para ${juntar(nomes)} assim que a conexão abrir.${direto ? '' : ' O que está no preview continua fora do ar até o corte.'}`,
+      ].join(' '),
+      confirmLabel: faltas.length ? 'Entrar mesmo assim' : 'Entrar ao vivo',
     });
     if (!ok || faseDoAr !== 'parada') return;
     setFaseDoAr('entrando');
@@ -1059,6 +1130,28 @@ export function Estudio({
     setPosicaoDosAjustes(null);
     setColunas((c) => (c.painelRecolhido ? { ...c, painelRecolhido: false } : c));
   };
+  // Trocar o link derruba a malha: com gente na sala, pergunta antes
+  const pedirLinkNovo = async () => {
+    if (pessoasDaSala.length > 0) {
+      const naSala = pessoasDaSala.length;
+      const noPalco = convidadosNoPalco.length;
+      const ok = await confirm({
+        title: 'Gerar um link novo?',
+        description: [
+          naSala === 1 ? 'A pessoa na sala sai da chamada agora.' : `As ${naSala} pessoas na sala saem da chamada agora.`,
+          noPalco > 0 ? (noPalco === 1 ? 'Quem está no palco sai do programa.' : `Os ${noPalco} no palco saem do programa.`) : '',
+          'O link antigo deixa de valer, e só quem receber o novo volta a entrar.',
+        ]
+          .filter(Boolean)
+          .join(' '),
+        confirmLabel: 'Gerar link novo',
+        destructive: true,
+      });
+      if (!ok) return;
+    }
+    novoLinkDaSala();
+  };
+
   // Convidar está à mão na bandeja e no trilho: copia o link da sala
   const convidar = async () => {
     try {
@@ -1126,6 +1219,11 @@ export function Estudio({
             onCanais={onCanais}
             onAbrir={setFerramenta}
             mesaDeCorte={monitores.sempreDois}
+            falhaDaCamera={falhas.camera}
+            falhaDoMicrofone={falhas.microfone}
+            onTentarDeNovo={() => void tentarAparelhosDeNovo()}
+            tentando={tentandoAparelhos}
+            esperando={esperandoAparelhos}
           />
         );
       case 'chat':
@@ -1205,7 +1303,7 @@ export function Estudio({
         return (
           <PainelConvidados
             link={linkDaSala}
-            onNovoLink={novoLinkDaSala}
+            onNovoLink={() => void pedirLinkNovo()}
             conectada={salaConectada}
             pessoas={pessoasDaSala}
             noPalco={convidadosNoPalco}
@@ -1367,6 +1465,10 @@ export function Estudio({
                 gravandoSemSom={gravacao !== null && !gravacao.comSom}
                 onAlternarGravacao={() => void alternarGravacao()}
                 onConvidar={() => void convidar()}
+                microfoneIndisponivel={!leitura.microfone}
+                cameraIndisponivel={!leitura.camera}
+                onAparelhoIndisponivel={() => abrirFerramenta('preparar')}
+                esperandoAparelhos={esperandoAparelhos}
               />
             }
             cenas={
