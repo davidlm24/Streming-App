@@ -128,6 +128,33 @@ for (const [scopeName, scopeDecls] of Object.entries(SCOPES)) {
   }
 }
 
+// ── a seleção: a marca como fundo (--sel) e como tinta (--sel-ink) ────────
+// --sel-ink é texto e ícone sobre --sel (a aba aberta, o azulejo da cena) e
+// sobre as superfícies do console (o "No palco" do trilho); --ink-hi também
+// pousa sobre --sel. Texto normal, 4,5:1, nos três escopos.
+const PARES_DA_SELECAO = [
+  ['--sel-ink', '--sel'],
+  ['--ink-hi', '--sel'],
+  ['--sel-ink', '--bg'],
+  ['--sel-ink', '--surface'],
+  ['--sel-ink', '--panel'],
+  ['--sel-ink', '--raise'],
+];
+for (const [scopeName, scopeDecls] of Object.entries(SCOPES)) {
+  if (!Object.keys(scopeDecls).length) continue;
+  const merged = { ...SCOPES['escuro (:root)'], ...scopeDecls };
+  for (const [ink, surf] of PARES_DA_SELECAO) {
+    const fg = resolve(merged[ink], merged);
+    const bg = resolve(merged[surf], merged);
+    if (!fg || !bg) continue;
+    checked++;
+    const r = ratio(fg, bg);
+    const ok = r >= MIN_TEXT;
+    if (!ok) failures++;
+    rows.push({ scopeName, ink, surf, fg, bg, r, ok, min: MIN_TEXT });
+  }
+}
+
 // ── guarda extra: comentário afirmando luminâncias casadas ────────────────
 // O defeito do tally foi despachado com o comentário "casado com o tally".
 // Igualar de propósito a luminância de dois ESTADOS do mesmo controle nunca é

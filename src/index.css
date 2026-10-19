@@ -79,6 +79,11 @@
   --color-brand:      #4683E0;
   --color-brand-deep: #2C5FB0;
   --color-brand-lift: #7FAAEC;
+  /* A marca como SUPERFÍCIE: o fundo do que está escolhido (--sel). No escuro
+     e no console, um marinho da marca (Y 4,3 %: --ink-hi 10,3:1 e brand-lift
+     4,75:1 sobre ele); no claro, um tinte (Y 78 %: brand-deep 4,9:1). */
+  --color-brand-tint:       #223A66;
+  --color-brand-tint-claro: #DCE6F7;
 
   /* ── o gradiente da marca.
         A marca e o logotipo tinham dois violetas diferentes no meio do mesmo
@@ -136,6 +141,12 @@
   --ink:     var(--color-n-89);
   --ink-hi:  var(--color-n-96);
 
+  /* O que está ESCOLHIDO (a cena no ar, a ferramenta aberta, o controle
+     ligado): o fundo tingido da marca e a tinta sobre ele. Hoje só o console
+     veste; a casca segue tonal (Regra da Voz Única). */
+  --sel:     var(--color-brand-tint);
+  --sel-ink: var(--color-brand-lift);
+
   --stage: var(--color-n-0);
 
   /* ── profundidade. O piso plano ("nada em repouso projeta sombra")
@@ -181,6 +192,9 @@
   --ink-lo:  var(--color-n-28);
   --ink:     var(--color-n-18);
   --ink-hi:  var(--color-n-6);
+
+  --sel:     var(--color-brand-tint-claro);
+  --sel-ink: var(--color-brand-deep);
 
   --stage: var(--color-n-0);   /* o palco de vídeo nunca clareia */
 
@@ -254,6 +268,11 @@
   --ink-lo:  var(--color-n-80);
   --ink:     var(--color-n-89);
   --ink-hi:  var(--color-n-96);
+
+  /* A segunda voz do console, depois do carmim do ar: a marca marca o que
+     está escolhido. brand-lift dá 5,67:1 sobre raise e 4,75:1 sobre --sel. */
+  --sel:     var(--color-brand-tint);
+  --sel-ink: var(--color-brand-lift);
 
   /* Guias sobre a imagem (terços e área segura). Brancas em mistura por
      diferença: aparecem sobre imagem clara ou escura, sem cor própria. */
