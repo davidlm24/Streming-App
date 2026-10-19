@@ -870,7 +870,13 @@ Retorne estritamente um JSON estruturado com:
       // para a função encontrar em produção
       const { createServer: createViteServer } = await import("vite");
       const vite = await createViteServer({
-        server: { middlewareMode: true },
+        server: {
+          middlewareMode: true,
+          // O Vite recusa hosts desconhecidos (proteção contra DNS rebinding).
+          // TUNEL_DE_TESTE=1 libera só os túneis rápidos do cloudflared, para
+          // testar a sala de convidados de um celular fora da rede.
+          ...(process.env.TUNEL_DE_TESTE === '1' ? { allowedHosts: ['.trycloudflare.com'] } : {}),
+        },
         appType: "spa",
       });
       app.use(vite.middlewares);
